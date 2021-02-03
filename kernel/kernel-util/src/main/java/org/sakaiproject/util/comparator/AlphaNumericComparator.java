@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 public class AlphaNumericComparator implements Comparator<String> {
 		Comparator stringComparator = Comparator
-				.comparing(s -> s.toString().replaceAll("\\d", ""))
+				.comparing(s -> s.toString().replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
 				.thenComparingInt(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
 						Integer.parseInt(s.toString().replaceAll("\\D", "")) : 0);
 
