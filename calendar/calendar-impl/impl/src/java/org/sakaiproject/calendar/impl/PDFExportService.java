@@ -41,22 +41,15 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.configuration.ConfigurationException;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
 import org.apache.xmlgraphics.io.Resource;
 import org.apache.xmlgraphics.io.ResourceResolver;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -67,6 +60,10 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class deals with the generation of a PDF for a calendar.
@@ -169,7 +166,6 @@ public class PDFExportService {
 
         transformerFactory = TransformerFactory.newInstance();
         transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
-
         try {
 
             URI baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toURI();
@@ -177,7 +173,7 @@ public class PDFExportService {
             InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
             fopFactory = builder.setConfiguration(new DefaultConfigurationBuilder().build(userConfig)).build();
 
-        } catch (IOException | URISyntaxException | SAXException | ConfigurationException e) {
+        } catch (URISyntaxException | ConfigurationException e) {
             // We won't be able to do anything if we can't create a FopFactory so may as well get caller to handle.
             throw new RuntimeException("Failed to setup Apache FOP for calendar PDF exports.", e);
         }
