@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -172,7 +173,7 @@ public class GroupController {
                 joinableSetList.add(joinableSet);
             }
         });
-        Collections.sort(joinableSetList);
+        Collections.sort(joinableSetList, new AlphaNumericComparator());
 
         // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
         for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {

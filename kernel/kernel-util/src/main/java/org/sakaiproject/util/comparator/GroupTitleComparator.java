@@ -21,7 +21,9 @@ import java.util.Comparator;
 import org.sakaiproject.site.api.Group;
 
 public class GroupTitleComparator implements Comparator<Group> {
+    private AlphaNumericComparator alphaNumeric = new AlphaNumericComparator();
+
     public int compare(Group lhs, Group rhs) {
-        return lhs.getTitle().compareToIgnoreCase(rhs.getTitle());
+        return alphaNumeric.compare(lhs.getTitle(), rhs.getTitle());
     }
 }
