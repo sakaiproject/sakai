@@ -177,6 +177,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
 
@@ -2351,9 +2352,9 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 					if(joinableGroups.size() > 0){
-						Collections.sort(joinableGroups, new Comparator<JoinableGroup>(){
+						Collections.sort(joinableGroups, new Comparator<JoinableGroup>() {
 							public int compare(JoinableGroup g1, JoinableGroup g2){
-								return g1.getTitle().compareToIgnoreCase(g2.getTitle());
+								return new AlphaNumericComparator().compare(g1.getTitle(), g2.getTitle());
 							}
 						});
 					}
