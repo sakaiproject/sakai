@@ -94,12 +94,12 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
      */
     public static final String POSTMASTER = "postmaster";
     public static final String FROM_REPLY = "msgcntr.messages.header.from.reply";
-    public static final String MESSAGE_ERROR_682 = "682";
-    public static final String MESSAGE_ERROR_359 = "359";
-    public static final String MESSAGE_ERROR_683 = "683";
-    public static final String MESSAGE_ERROR_521 = "521";
-    public static final String MESSAGE_ERROR_421 = "421";
     public static final String MESSAGE_ERROR_358 = "358";
+    public static final String MESSAGE_ERROR_359 = "359";
+    public static final String MESSAGE_ERROR_421 = "421";
+    public static final String MESSAGE_ERROR_521 = "521";
+    public static final String MESSAGE_ERROR_682 = "682";
+    public static final String MESSAGE_ERROR_683 = "683";
 
     private SMTPServer server;
 
@@ -372,35 +372,15 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                 } catch (MessagingException me) {
                     // INDICATES that the channel is NOT currently enabled so no messages can be received
                 	String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                	String errMsg;
-                	if (me.getMessage().startsWith(MESSAGE_ERROR_682)) {
+                    String messageNumber = me.getMessage().replaceAll("(\\d+).+", "$1");
+                    String errMsg = rb.getString("mail.support." + messageNumber);
+                    if (StringUtils.isNotBlank(errMsg)) {
                         // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        errMsg = rb.getString("mail.support.682") + "\n\n";
+                        errMsg = errMsg + "\n\n";
                         if (StringUtils.isNotBlank(mailSupport)) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
-                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_682), errMsg);
-                    } else if (me.getMessage().startsWith(MESSAGE_ERROR_359)) {
-                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        errMsg = rb.getString("mail.support.359") + "\n\n";
-                        if (StringUtils.isNotBlank(mailSupport)) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_359), errMsg);
-                    } else if (me.getMessage().startsWith(MESSAGE_ERROR_683)) {
-                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        errMsg = rb.getString("mail.support.683") + "\n\n";
-                        if (StringUtils.isNotBlank(mailSupport)) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_683), errMsg);
-                    } else if (me.getMessage().startsWith(MESSAGE_ERROR_358)) {
-                        // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        errMsg = rb.getFormattedMessage("mail.support.358", serverConfigurationService.getString("ui.service", "Sakai")) + "\n\n";
-                        if (StringUtils.isNotBlank(mailSupport)) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(Integer.parseInt(MESSAGE_ERROR_358), errMsg);
+                        throw new RejectException(Integer.parseInt(messageNumber), errMsg);
                     } else {
                         throw new RejectException();
                     }
