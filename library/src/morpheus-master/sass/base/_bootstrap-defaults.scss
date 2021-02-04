@@ -242,7 +242,7 @@ $input-border:                   var(--sakai-border-color);
 //** `.form-group` margin
 // $form-group-margin-bottom:       15px
 
-// $legend-color:                   $gray-dark
+$legend-color:                   var(--sakai-text-color-2);
 // $legend-border-color:            #e5e5e5
 
 //** Background color for textual input addons
