@@ -1039,34 +1039,25 @@ public class DiscussionTopicBean
     this.gradeAssign = gradeAssign;
   }
 
-	public boolean getNonePermission()
-	{
-		if (nonePermission == null){
-	/*		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
-					|| uiPermissionsManager.isDeleteAny(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isMovePostings(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isNewResponseToResponse(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isPostToGradebook(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isReviseAny(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isReviseOwn(topic, (DiscussionForum)topic.getBaseForum()))*/
-				if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum())
-						|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
-						|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum()))
-				{
-					nonePermission = false;
-				}
-				else
-				{
-					nonePermission = true;
-				}
-					
-		}
-		return nonePermission.booleanValue();
-	}
+  public boolean getNonePermission() {
+    if (nonePermission == null) {
+      try {
+        if (uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic.getBaseForum())
+                || uiPermissionsManager.isNewResponse(topic, (DiscussionForum) topic.getBaseForum())
+                || uiPermissionsManager.isRead(topic, (DiscussionForum) topic.getBaseForum())) {
+          nonePermission = false;
+        } else {
+          nonePermission = true;
+        }
+      } catch (Exception e) {
+        nonePermission = true;
+        Long topicId = null;
+        if (topic != null) topicId = topic.getId();
+        log.warn("Could not determine if the user has the none permission which is calculated by looking at read, new response, and change settings for topic {}: {}", topicId, e.toString());
+      }
+    }
+    return nonePermission.booleanValue();
+  }
 
 	public void setNonePermission(boolean nonePermission)
 	{
