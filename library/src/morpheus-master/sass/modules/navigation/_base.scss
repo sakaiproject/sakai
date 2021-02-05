@@ -273,7 +273,7 @@ body.is-logged-out{
 
 				&:hover {
 					text-decoration: none;
-					color: #FFF;
+					color: var(--sakai-text-color-inverted);
 						background: rgba(0,0,0,.2);
 						border-radius:50%;
 				}
@@ -311,8 +311,8 @@ body.is-logged-out{
 						left: auto;
 						height: auto;
 						width: auto;
-						background: #FAFAFA;
-						box-shadow: 2px 2px 4px rgba(33,33,33,0.35);
+						background: var(--sakai-background-color-2);
+						box-shadow: var(--elevation-4dp);
 						padding: 1em;
 						z-index: 50;
 						overflow: visible;
@@ -326,8 +326,8 @@ body.is-logged-out{
 							width: 0;
 							position: absolute;
 							pointer-events: none;
-							border-color: rgba(255,255,255,0);
-							border-bottom-color: #FAFAFA;
+							border-color: transparent;
+							border-bottom-color: var(--sakai-background-color-2);
 							border-width: 7px;
 							margin-left: -7px;
 							outline: 0;
@@ -532,7 +532,7 @@ body.is-logged-out{
 			background-position: 50%;
 			border-radius:50%;
 			margin: 0 4px 0 0;
-			border: $top-header-profile-border-thickness solid var(--top-header-profile-border-color-top);			
+			border: $top-header-profile-border-thickness solid var(--top-header-profile-border-color-top);
 			border-right-color: var(--top-header-profile-border-color-right);
 			border-bottom-color: var(--top-header-profile-border-color-bottom);
 			border-left-color: var(--top-header-profile-border-color-left);
@@ -558,15 +558,15 @@ body.is-logged-out{
 			{
 				&:after {
 					content: 'Change';
-					background: #888;
-					color: #FFFFFF;
+					background: var(--sakai-background-color-3);
+					color: var(--sakai-text-color-inverted);
 					position: absolute;
 					bottom: 0px;
 					font-size: 10px;
 					width: 100%;
 					text-align: center;
 					padding: 0 0 4px;
-					box-shadow: -1px 0 3px #666;
+					box-shadow: -1px 0 3px var(--sakai-background-color-3);
 				}
 			}
 		}
@@ -1081,18 +1081,18 @@ body.is-logged-out{
 						&.#{$namespace}sitesNav__submenuitem__gotosite {
 							border-top: 1px solid var(--sites-nav-submenu-item-selected-divider-color);
 							> a:after {
-								font-family: FontAwesome;	
-								content: '\f178';	
-								margin-left: 10px;	
-								color: var(--sites-nav-submenu-item-icon-color);	
+								font-family: FontAwesome;
+								content: '\f178';
+								margin-left: 10px;
+								color: var(--sites-nav-submenu-item-icon-color);
 							}	
 	
 							&:hover {	
-								border-top: 1px solid var(--sites-nav-submenu-item-selected-divider-color);	
-	
-								> a:after {	
-									color: var(--sites-nav-submenu-item-hover-icon-color);	
-								}	
+								border-top: 1px solid var(--sites-nav-submenu-item-selected-divider-color);
+
+								> a:after {
+									color: var(--sites-nav-submenu-item-hover-icon-color);
+								}
 							}
 						}
 					}

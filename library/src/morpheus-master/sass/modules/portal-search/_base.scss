@@ -27,21 +27,21 @@
 .sakai-search-results {
   position: absolute;
   right: 0;
-  background-color: white;
-  color: black;
-  border: 1px solid black;
+  background-color: var(--sakai-background-color-1);
+  color: var(--sakai-text-color-1);
+  border: 1px solid var(--sakai-border-color);
   padding: 5px;
   z-index: 99;
 
   a {
-    color: black;
+    color: var(--sakai-text-color-1);
     text-decoration: none;
   }
 
   .search-result-container {
 
     padding-bottom: 9px;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--sakai-border-color);
 
     text-align: left;
 
