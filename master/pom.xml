@@ -40,8 +40,8 @@
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.13</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
-    <sakai.ignite.version>2.8.1</sakai.ignite.version>
-    <sakai.gridgain.version>8.7.18</sakai.gridgain.version>
+    <sakai.ignite.version>2.9.1</sakai.ignite.version>
+    <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
     <sakai.jackson.version>2.11.2</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
