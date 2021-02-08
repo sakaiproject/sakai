@@ -60,6 +60,7 @@
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
+		<property name="showPageProducer" ref="showPageProducer"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
