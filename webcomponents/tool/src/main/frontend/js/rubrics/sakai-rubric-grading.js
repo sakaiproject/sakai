@@ -172,8 +172,12 @@ export class SakaiRubricGrading extends RubricsElement {
     }, 0);
   }
 
-  save() {
+  release() {
     this._dispatchRatingChanged(this.criteria, 2);
+  }
+
+  save() {
+    this._dispatchRatingChanged(this.criteria, 1);
   }
 
   decorateCriteria() {
