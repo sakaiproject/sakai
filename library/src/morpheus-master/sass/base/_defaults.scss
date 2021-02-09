@@ -184,6 +184,10 @@ select{
 	@extend .select;
 }
 
+select.form-control {
+	background-image: url("images/icon-arrow-down.png");
+}
+
 .is-hidden{
 	display: none;
 }
