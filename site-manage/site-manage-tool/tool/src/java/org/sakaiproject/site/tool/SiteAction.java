@@ -72,7 +72,6 @@ import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -8721,12 +8720,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 										securityService.pushAdvisor(yesMan);
 										SiteService.saveGroupMembership(currentSite);
-									} catch (AuthzRealmLockException e) {
-										log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
 									} catch (IdUnusedException e) {
 										log.error("IdUnusedException while joining site, userId={}, siteId={}, groupId={}", userId, currentSite.getId(), siteGroup.getId());
 									} catch (PermissionException e) {
 										log.error("doJoinableSet could not save new membership because of permissions", e);
+									} catch (Exception e) {
+										log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
 									} finally {
 										securityService.popAdvisor(yesMan);
 									}
@@ -8789,10 +8788,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 									securityService.pushAdvisor(yesMan);
 									SiteService.saveGroupMembership(currentSite);
-								} catch (AuthzRealmLockException e) {
-									log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
 								} catch (PermissionException e) {
 									log.error("doUnjoinableSet: permission exception as userId={}", userId, e);
+								} catch (Exception e) {
+									log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
 								} finally {
 									securityService.popAdvisor(yesMan);
 								}
