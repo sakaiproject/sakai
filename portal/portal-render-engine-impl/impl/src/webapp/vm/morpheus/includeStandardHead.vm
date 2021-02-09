@@ -59,6 +59,9 @@
                 },
                 "portalCDNQuery" : "$!{portalCDNQuery}",
                 "userTheme" : "$!{userTheme}"
+                #if ($themesAutoDetectDark)
+                ,"userThemeAutoDetectDark" : true
+                #end
             };
         </script>
 
