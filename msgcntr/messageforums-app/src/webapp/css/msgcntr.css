@@ -115,13 +115,13 @@
 	padding:2px;
 }
 .jumpToNew a {
-	border:1px solid #ccc;
+	border:1px solid var(--sakai-border-color);
 	padding:3px;
 	padding-left:18px;
 	background: #eee url(../images/silk/arrow_down.png) center left no-repeat;
 }
 .markAllAsRead {
-	border:1px solid #ccc;
+	border:1px solid var(--sakai-border-color);
 	padding:3px;
 	padding-left:30px;
 	background: #eee url(../images/markAsRead.gif)  5px center no-repeat;
@@ -226,14 +226,14 @@
 }
 .pendingApproval{
 	/*listing of a message pending aproval*/
-	border-left: 2px solid #ccc;
+	border-left: 2px solid var(--sakai-border-color);
 	margin: 0;
 }
 /*PART 3 - SINGLE MESSAGE DISPLAY*/
 .singleMessage{
 	/*title + metadata block of a single message display*/
 	border-left: 2px solid #69d;
-	background:#f9f9f9;
+	background: var(--sakai-background-color-2);
 	margin-top: 1em;
 	padding:.3em  .5em;
 }
@@ -243,8 +243,8 @@
 }
 .singleMessageReply{
 	/*title + metadata block of a single message display*/
-	border:1px solid #ccc;
-	background:#ffe;
+	border:1px solid var(--sakai-border-color);
+	background:--var(sakai-color-gold--lighter-7);
 	margin-top: 1em;
 	padding:.3em  .5em;
 }
@@ -261,7 +261,7 @@ table.messageActions td{
 .messageActions a{
 	/*single message action links*/
 	text-decoration: none !important;
-	border: 1px solid #ccc !important;
+	border: 1px solid var(--sakai-border-color) !important;
 	background: var(--sakai-background-color-1);
 	padding: 2px 5px;
 	vertical-align: middle;
@@ -276,9 +276,9 @@ table.messageActions td{
 	text-decoration: none !important;
 }
 #permalinkHolder{
-	border:1px solid #ccc;
+	border:1px solid var(--sakai-border-color);
 	display:none;
-	background:#ffe;
+	background:--var(sakai-color-gold--lighter-7);
 	position:absolute;
 	padding:5px;
 	z-index: 1;
@@ -348,12 +348,12 @@ td div.title{
 }
 .selChanged{
 	/*flag an item as changed in organize view*/
-	border: 1px solid #aaa;
+	border: 1px solid var(--sakai-border-color);
 	background-color: #fc6;
 }
 .attachPanel{
 /*panel listing attachmetns when in edit mode for forum/topic/message*/
-	border: 1px solid #eee;
+	border: 1px solid var(--sakai-border-color);
 	background: var(--sakai-background-color-1);
 	font-size: 1em;
 }
@@ -361,8 +361,8 @@ td div.title{
 	background: none !important;
 }
 .attachPanel th{
-	background: #ffe;
-	border-bottom: 1px solid #eee;
+	background: --var(sakai-color-gold--lighter-7);
+	border-bottom: 1px solid var(--sakai-border-color);
 	text-align: left;
 	font-weight: normal;
 	padding: .2em .5em;
@@ -397,7 +397,7 @@ td div.title{
 }
 
 .permissionRadioGroup {
-	border: 1px solid #aaa;
+	border: 1px solid var(--sakai-border-color);
 	display:block;
 	padding:.3em;
 }
@@ -406,7 +406,7 @@ td div.title{
 .permissionRow .ui-icon { width: 16px; height: 16px; background-image: url(ui-lightness/images/ui-icons_222222_256x240.png); }
 .permissionRow .ui-icon-triangle-1-s { background-position: -64px -16px; }
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
-.permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
+.permissionRow .ui-accordion-content { background: #eee; border: 1px solid var(--sakai-border-color); }
 .permissionRow span.ui-accordion-header {
 	margin: 0 0 0.5em 4em;
 	display:inline-block;
@@ -431,7 +431,7 @@ table.discTria img {
 }
 table.discTria:hover{
 	cursor: pointer;
-	border:1px solid #aaa
+	border:1px solid var(--sakai-border-color)
 }
 .discTria{
 	background: transparent;
@@ -456,10 +456,10 @@ table.discTria:hover{
 	font-weight: bold;
 }
 .printBlock .bordered{
-	border-color: #ccc;
+	border-color: var(--sakai-border-color);
 }
 .printBlock .messagePending{
-	background: #ccc;
+	background: var(--sakai-border-color);
 	color: #000;
 	padding: 2px;
 	margin-right: 5px;
@@ -545,7 +545,7 @@ img.authorImage {
     list-style:none;
     margin:0;
     padding:0px;
-    border:1px solid #ccc;
+    border:1px solid var(--sakai-border-color);
 }
 .moreMenu li a{
     display:block;
