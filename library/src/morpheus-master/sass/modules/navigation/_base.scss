@@ -129,7 +129,7 @@ body.is-logged-out{
 	right: 0em;
 	width: 20em;
 	z-index: 99;
-	box-shadow: 0 0 4px var(--sakai-text-color-1);
+	box-shadow: var(--elevation-8dp);
 	list-style: none;
 	padding: 0 0 0 0;
 	li{
