@@ -57,6 +57,43 @@ class SakaiRubricStudentButton extends RubricsElement {
     this.showRubricLightbox(undefined, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor, "force-preview": this.forcePreview }, e.target);
   }
 
+  releaseEvaluation() {
+
+    const token = `Bearer ${this.token}`;
+
+    let url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
+    return fetch(url, {
+      credentials: "same-origin",
+      headers: {
+        "Authorization": token,
+      },
+    })
+    .then(r => r.json())
+    .then(async data => {
+
+      const evaluation = data._embedded.evaluations[0];
+      if (evaluation) {
+        evaluation.status = 2;
+        let url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
+        await fetch(url, {
+          body: JSON.stringify(evaluation),
+          credentials: "same-origin",
+          headers: {
+            "Authorization": token,
+            "Content-Type": "application/json",
+          },
+          method: "PATCH",
+        })
+        .then(r => {
+
+          if (!r.ok) {
+            throw new Error("Failed to release evaluation");
+          }
+        });
+      }
+    }).catch(error => console.error(error));
+  }
+
   setupHidden() {
 
     if (this.dontCheckAssociation) {
