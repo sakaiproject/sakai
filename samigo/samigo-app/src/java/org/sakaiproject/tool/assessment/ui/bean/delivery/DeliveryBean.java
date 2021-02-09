@@ -1829,14 +1829,10 @@ public class DeliveryBean implements Serializable {
 	         }
 	         return;
 	      }
-	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-	      if (timedAG != null){
 	        int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
 	        log.debug("***setTimeElapsed={}", timeElapsed);
 	        adata.setTimeElapsed(timeElapsed);
 	        setTimeElapse(adata.getTimeElapsed().toString());
-	      }
 	    }
 	  }
 	  
@@ -1848,15 +1844,11 @@ public class DeliveryBean implements Serializable {
 		          }
 		          return;
 		      }
-		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-		      if (timedAG != null){
 		    	int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
 		        adata.setTimeElapsed(timeElapsed);
 		        GradingService gradingService = new GradingService();
 		        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
 		        setTimeElapse(adata.getTimeElapsed().toString());
-		      }
 		    }
 	  }
 
