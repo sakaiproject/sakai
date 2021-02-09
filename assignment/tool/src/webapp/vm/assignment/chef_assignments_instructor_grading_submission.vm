@@ -384,7 +384,7 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             #if($assignment.getAllowPeerAssessment())
-                                <a id="infoImg" href="#"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
+                                <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
                             #end
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
                             <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
