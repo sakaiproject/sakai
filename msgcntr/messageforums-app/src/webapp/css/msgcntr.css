@@ -62,6 +62,7 @@
 
 .singleMessage .title, .singleMessageReply .title, .topicBloc .title,.pendingApproval .title{
 	/*	title for all the above cases*/
+	margin-right: 4px;
 	font-weight: bold;
 	font-size: 1.2em;
 }
