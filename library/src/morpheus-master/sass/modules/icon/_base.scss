@@ -5,7 +5,7 @@ html {
   --sakai-medium-icon-height: 24px;
   --sakai-large-icon-width: 32px;
   --sakai-large-icon-height: 32px;
-  --sakai-icon-alert-color: red;
+  --sakai-icon-alert-color: var(--errorBanner-color);
   --sakai-icon-alert-width: 6px;
   --sakai-icon-alert-margin-top: -18px;
   --sakai-icon-alert-margin-left: 15px;

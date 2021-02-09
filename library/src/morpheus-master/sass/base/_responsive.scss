@@ -34,7 +34,7 @@ body{
 				display: block;			// restore the tool menu that was removed when hidden to reduce the height of the page when it isn't visible
 				width: 100%;
 				min-height: auto; 		// to allow the bottom of the tool menu to appear when doesn't have too many tools
-				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
+				box-shadow: var(--elevation-4dp);
 				left: 0;
 				z-index: 1001;
 
@@ -54,7 +54,7 @@ body{
 					width: 0;
 					position: absolute;
 					pointer-events: none;
-					border-color: rgba(255, 255, 255, 0);
+					border-color: transparent;
 					border-bottom-color: var(--tool-menu-background-color);
 					border-width: $standard-spacing;
 					outline: 0;
@@ -137,7 +137,7 @@ body{
 						padding-top: 3em;
 						position: fixed;
 						width: 85%;
-						box-shadow: 0 0 20em rgba( 0,0,0,0.8 );
+						box-shadow: var(--elevation-8dp);
 					}
 				}
 			}

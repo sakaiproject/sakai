@@ -1,5 +1,5 @@
 .profile-popup {
-    background-color: #FFFFFF;
+    background-color: var(--sakai-background-color-1);
 
     a, a:hover {
         text-decoration: none;
@@ -41,8 +41,8 @@
 
 
 .qtip.profile-popup-qtip {
-    border: 0px #E0E0E0 solid !important;
-    background-color: #FFFFFF !important;
+    border: 0px var(--sakai-border-color) solid !important;
+    background-color: var(--sakai-background-color-1) !important;
     max-width: 310px;
     padding: 0px !important;
     .qtip-content {
