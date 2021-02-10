@@ -72,11 +72,10 @@ public class SimplePageBeanTest {
 
     @Test
     public void infiniteSubPagePathTest() {
-        SimplePageItem i0 = new SimplePageItemImpl(1, 0, 0, 2, "0", "Infinite");
-        SimplePageItem i5 = new SimplePageItemImpl(6, 2, 2, 2, "5", "SubPage 1 - 2");
-        List<SimplePageItem> l0 = Collections.singletonList(i0);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("0")).thenReturn(l0);
-        when(simplePageBean.getMessageLocator().getMessage("simplepage.printall.continuation")).thenReturn("continuation");
+        SimplePageItem i7 = new SimplePageItemImpl(7, 0, 0, 2, "0", "Infinite");
+        SimplePageItem i5 = new SimplePageItemImpl(5, 2, 2, 2, "5", "SubPage 1 - 2");
+        List<SimplePageItem> l7 = Collections.singletonList(i7);
+        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("0")).thenReturn(l7);
 
         String path = simplePageBean.getSubPagePath(i5, false);
         Assert.assertEquals("Lessons > SubPage 1", path);
