@@ -38,10 +38,6 @@ public class GradingEvent implements Comparable<Object>, Serializable {
     private String grade;
     private Date dateGraded;
 
-    public GradingEvent() {
-        this.dateGraded = new Date();
-    }
-
     public GradingEvent(GradableObject gradableObject, String graderId, String studentId, Object grade) {
         this.gradableObject = gradableObject;
         this.graderId = graderId;
