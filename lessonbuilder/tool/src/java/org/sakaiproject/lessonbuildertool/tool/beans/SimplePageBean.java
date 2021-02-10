@@ -3574,7 +3574,7 @@ public class SimplePageBean {
 	}
 
     private String getParentTitle(SimplePageItem item, boolean continuation, Set<Long> seen) {
-        if (item != null && item.getPageId() > 0) {
+        if (item != null) {
             // get parent item
             List<SimplePageItem> parentItems = simplePageToolDao.findItemsBySakaiId(Long.toString(item.getPageId()));
             if (!parentItems.isEmpty()) {

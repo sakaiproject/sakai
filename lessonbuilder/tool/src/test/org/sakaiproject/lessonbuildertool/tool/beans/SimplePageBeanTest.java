@@ -78,7 +78,7 @@ public class SimplePageBeanTest {
         when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("0")).thenReturn(l7);
 
         String path = simplePageBean.getSubPagePath(i5, false);
-        Assert.assertEquals("Lessons > SubPage 1", path);
-        verify(simplePageBean.getSimplePageToolDao(), never()).findItemsBySakaiId("0");
+        Assert.assertEquals("Infinite > Lessons > SubPage 1", path);
+        verify(simplePageBean.getSimplePageToolDao(), times(2)).findItemsBySakaiId("0");
     }
 }
