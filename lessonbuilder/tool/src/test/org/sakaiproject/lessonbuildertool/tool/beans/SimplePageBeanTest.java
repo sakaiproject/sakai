@@ -38,10 +38,7 @@ public class SimplePageBeanTest {
         simplePageBean.setMessageLocator(messageLocator);
         simplePageBean.setSimplePageToolDao(dao);
 
-    }
-
-    @Test
-    public void subPagePathTest() {
+        // common data for tests
         SimplePageItem i1 = new SimplePageItemImpl(1, 0, 0, 2, "1", "Lessons");
         SimplePageItem i2 = new SimplePageItemImpl(2, 1, 1, 2, "2", "SubPage 1");
         SimplePageItem i3 = new SimplePageItemImpl(3, 1, 2, 2, "3", "SubPage 2");
@@ -54,14 +51,18 @@ public class SimplePageBeanTest {
         List<SimplePageItem> l4 = Collections.singletonList(i4);
         List<SimplePageItem> l5 = Collections.singletonList(i5);
         List<SimplePageItem> l6 = Collections.singletonList(i6);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("1")).thenReturn(l1);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("2")).thenReturn(l2);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("3")).thenReturn(l3);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("4")).thenReturn(l4);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("5")).thenReturn(l5);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("6")).thenReturn(l6);
+        when(dao.findItemsBySakaiId("1")).thenReturn(l1);
+        when(dao.findItemsBySakaiId("2")).thenReturn(l2);
+        when(dao.findItemsBySakaiId("3")).thenReturn(l3);
+        when(dao.findItemsBySakaiId("4")).thenReturn(l4);
+        when(dao.findItemsBySakaiId("5")).thenReturn(l5);
+        when(dao.findItemsBySakaiId("6")).thenReturn(l6);
         when(simplePageBean.getMessageLocator().getMessage("simplepage.printall.continuation")).thenReturn("continuation");
+    }
 
+    @Test
+    public void subPagePathTest() {
+        SimplePageItem i6 = new SimplePageItemImpl(6, 3, 1, 2, "6", "SubPage 2 - 1");
         String path = simplePageBean.getSubPagePath(i6, false);
         Assert.assertEquals("Lessons > SubPage 2", path);
 
@@ -72,26 +73,9 @@ public class SimplePageBeanTest {
     @Test
     public void infiniteSubPagePathTest() {
         SimplePageItem i0 = new SimplePageItemImpl(1, 0, 0, 2, "0", "Infinite");
-        SimplePageItem i1 = new SimplePageItemImpl(2, 0, 0, 2, "1", "Lessons");
-        SimplePageItem i2 = new SimplePageItemImpl(3, 1, 1, 2, "2", "SubPage 1");
-        SimplePageItem i3 = new SimplePageItemImpl(4, 1, 2, 2, "3", "SubPage 2");
-        SimplePageItem i4 = new SimplePageItemImpl(5, 2, 1, 2, "4", "SubPage 1 - 1");
         SimplePageItem i5 = new SimplePageItemImpl(6, 2, 2, 2, "5", "SubPage 1 - 2");
-        SimplePageItem i6 = new SimplePageItemImpl(7, 3, 1, 2, "6", "SubPage 2 - 1");
         List<SimplePageItem> l0 = Collections.singletonList(i0);
-        List<SimplePageItem> l1 = Collections.singletonList(i1);
-        List<SimplePageItem> l2 = Collections.singletonList(i2);
-        List<SimplePageItem> l3 = Collections.singletonList(i3);
-        List<SimplePageItem> l4 = Collections.singletonList(i4);
-        List<SimplePageItem> l5 = Collections.singletonList(i5);
-        List<SimplePageItem> l6 = Collections.singletonList(i6);
         when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("0")).thenReturn(l0);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("1")).thenReturn(l1);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("2")).thenReturn(l2);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("3")).thenReturn(l3);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("4")).thenReturn(l4);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("5")).thenReturn(l5);
-        when(simplePageBean.getSimplePageToolDao().findItemsBySakaiId("6")).thenReturn(l6);
         when(simplePageBean.getMessageLocator().getMessage("simplepage.printall.continuation")).thenReturn("continuation");
 
         String path = simplePageBean.getSubPagePath(i5, false);
