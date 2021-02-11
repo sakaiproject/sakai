@@ -411,7 +411,7 @@ public class SimplePageBean {
     @Setter private SecurityService securityService;
     @Setter private SiteService siteService;
     @Setter private AuthzGroupService authzGroupService;
-    @Setter private SimplePageToolDao simplePageToolDao;
+    @Getter @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private LessonsAccess lessonsAccess;
     @Setter private LessonBuilderAccessService lessonBuilderAccessService;
     @Getter @Setter private MessageLocator messageLocator;
@@ -3566,31 +3566,31 @@ public class SimplePageBean {
 
 		return ret;
 	}
-	
-	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
-		String subPageTitle = "";
-		List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(String.valueOf(item.getPageId()));
-		while(items != null && items.size()>0)
-		{
-			if(StringUtils.isBlank(subPageTitle) && subPageTitleContinue)
-			{
-				subPageTitle = items.get(0).getName() + " (" + messageLocator.getMessage("simplepage.printall.continuation") + ")";
-			}
-			else if(StringUtils.isBlank(subPageTitle))
-			{
-				subPageTitle = items.get(0).getName();
-			}
-			else
-			{
-				subPageTitle = items.get(0).getName() +" > "+ subPageTitle;
-			}
-			items = simplePageToolDao.findItemsBySakaiId(String.valueOf(items.get(0).getPageId()));
-		}
-				
-		if(StringUtils.isBlank(subPageTitle)) subPageTitle = null;
-			
-		return subPageTitle;
-	}
+
+    private String getParentTitle(SimplePageItem item, boolean continuation, Set<Long> seen) {
+        if (item != null) {
+            // get parent item
+            List<SimplePageItem> parentItems = simplePageToolDao.findItemsBySakaiId(Long.toString(item.getPageId()));
+            if (!parentItems.isEmpty()) {
+                SimplePageItem parent = parentItems.get(0);
+                // skip if this parent was already seen, guard against infinite loop
+                if (!seen.contains(parent.getId())) {
+                    seen.add(parent.getId());
+                    String title = parent.getName();
+                    if (seen.size() > 1) {
+                        title += continuation ? " (" + messageLocator.getMessage("simplepage.printall.continuation") + ") " : " > ";
+                    }
+                    return getParentTitle(parent, continuation, seen) + title;
+                }
+            }
+        }
+        return "";
+    }
+
+    public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
+        String subPageTitle = getParentTitle(item, subPageTitleContinue, new HashSet<>());
+        return StringUtils.trimToNull(subPageTitle);
+    }
 
     // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
