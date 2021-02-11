@@ -1080,8 +1080,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum = (DiscussionForum) getForumById(true, id);
         List<Topic> topics = getTopicsByIdWithMessages(id);
         for (Topic topic : topics) {
-            // remove rubric association if there is one
-            rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topic.getId());
             forum.removeTopic(topic);
             getSessionFactory().getCurrentSession().merge(topic);
         }

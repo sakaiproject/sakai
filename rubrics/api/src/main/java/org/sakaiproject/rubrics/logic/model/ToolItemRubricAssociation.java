@@ -66,8 +66,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"id", "toolId", "itemId", "rubricId", "parameters", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_tool_item_rbc_assoc",
-        indexes = {@Index(name = "rbc_tool_item_owner", columnList = "toolId, itemId, ownerId")},
-        uniqueConstraints = @UniqueConstraint(columnNames = {"rubric_id", "toolId", "itemId"})
+    indexes = {@Index(name = "rbc_tool_item_owner", columnList = "toolId, itemId, ownerId")}
 )
 @ToString(exclude = {"rubric", "parameters"})
 public class ToolItemRubricAssociation implements Modifiable, Serializable, Cloneable  {
@@ -90,6 +89,9 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
 
     @Embedded
     private Metadata metadata;
+
+    @Column(name = "active", nullable = false)
+    private boolean active;
 
     @ElementCollection
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))

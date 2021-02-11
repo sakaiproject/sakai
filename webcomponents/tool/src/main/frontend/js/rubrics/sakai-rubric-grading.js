@@ -44,21 +44,38 @@ export class SakaiRubricGrading extends RubricsElement {
 
     if (!newValue.startsWith("Bearer")) {
       this._token = "Bearer " + newValue;
-    } else this._token = newValue;
+    } else {
+      this._token = newValue;
+    }
+
+    if (this.entityId && this.toolId && this.token) {
+      this.getAssociation();
+    }
   }
 
   get token() {
     return this._token;
   }
 
-  attributeChangedCallback(name, oldVal, newVal) {
+  set entityId(value) {
 
-    super.attributeChangedCallback(name, oldVal, newVal);
-
+    this._entityId = value;
     if (this.entityId && this.toolId && this.token) {
       this.getAssociation();
     }
   }
+
+  get entityId() { return this._entityId; }
+
+  set toolId(value) {
+
+    this._toolId = value;
+    if (this.entityId && this.toolId && this.token) {
+      this.getAssociation();
+    }
+  }
+
+  get toolId() { return this._toolId; }
 
   render() {
 
@@ -141,8 +158,6 @@ export class SakaiRubricGrading extends RubricsElement {
           <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints.toLocaleString(this.locale, {maximumFractionDigits: 2})}</strong>
         </div>
       </div>
-
-      <input aria-labelledby="${tr("rubric")}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-state-details" id="rbcs-${this.evaluatedItemId}-${this.entityId}-state-details" type="hidden" .value="${this.stateDetailsJson}">
     `;
   }
 

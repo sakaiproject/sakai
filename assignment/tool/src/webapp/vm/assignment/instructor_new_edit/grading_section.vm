@@ -53,11 +53,19 @@ This section contains the options for grading this assignment, including rubrics
 
 			## Rubrics
 			<div class="form-group">
-				<sakai-rubric-association token="$!rbcs-token" dont-associate-label="$tlang.getString("dont.associate.label")"
-					dont-associate-value="0" associate-label="$tlang.getString("associate.label")" associate-value="1" tool-id="sakai.assignment"
-					#if("$!assignment.Id" != "") entity-id="$assignment.Id"	#end
-					#if($rbcs-state-details && "$!rbcs-state-details" != "") state-details="$rbcs-state-details" #end
-					fine-tune-points="$tlang.getString("option.pointsoverride")" hide-student-preview="$tlang.getString("option.studentpreview")">
+				<sakai-rubric-association
+					token="$!rbcs-token"
+					dont-associate-label="$tlang.getString("dont.associate.label")"
+					dont-associate-value="0"
+					associate-label="$tlang.getString("associate.label")"
+					associate-value="1"
+					tool-id="sakai.assignment"
+					#if("$!assignment.Id" != "")
+					entity-id="$assignment.Id"
+					#end
+					fine-tune-points="$tlang.getString("option.pointsoverride")"
+					hide-student-preview="$tlang.getString("option.studentpreview")"
+				>
 				</sakai-rubric-association>
 			</div>
 

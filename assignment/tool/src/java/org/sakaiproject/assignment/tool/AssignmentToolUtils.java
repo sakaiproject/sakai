@@ -48,8 +48,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -87,7 +85,6 @@ public class AssignmentToolUtils {
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private GradebookFrameworkService gradebookFrameworkService;
     private GradebookService gradebookService;
-    private RubricsService rubricsService;
     private TimeService timeService;
     private ToolManager toolManager;
     private LTIService ltiService;
