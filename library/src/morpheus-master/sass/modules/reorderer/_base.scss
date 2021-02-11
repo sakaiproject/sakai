@@ -1,8 +1,8 @@
 /*styles for reorderer (content, assignments, announcements)*/
 #reorder-list-sortingToolBar {
   font-size: .9em;
-  border: 1px solid #ccc;
-  background: #ffe;
+  border: 1px solid var(--sakai-border-color);
+  background: var(--sakai-background-color-3);
   margin: 1em 0;
   padding: 5px;
   a {
@@ -17,11 +17,11 @@ ul.styled-reorder-list {
     list-style: none;
     padding: 5px;
     margin: 5px 0;
-    background: #eee;
-    border: 1px solid #ddd;
+    background: var(--sakai-background-color-2);
+    border: 1px solid var(--sakai-border-color);
     width: 100%;
     &:focus {
-      border: 1px solid #555;
+      border: 1px solid var(--sakai-background-color-3);
     }
     span {
       padding-right: 2em;
@@ -48,22 +48,22 @@ ul.styled-reorder-list {
 }
 .fl-reorderer-dropMarker {
   height: 30px;
-  background: #fff !important;
-  border: 1px dashed #ccc !important;
+  background: var(--sakai-background-color-1) !important;
+  border: 1px dashed var(--sakai-border-color) !important;
 }
 .fl-reorderer-movable-hover {
   cursor: move;
 }
 .fl-reorderer-movable-dragging {
-  background: #fff;
-  color: #555 !important;
-  border: 1px dashed #ccc !important;
+  background: var(--sakai-background-color-1);
+  color: var(--sakai-text-color-disabled) !important;
+  border: 1px dashed var(--sakai-border-color) !important;
   outline: none;
 }
 .fl-reorderer-avatar {
   opacity: 0.55;
   list-style: none;
-  background: #bea !important;
+  background: var(--successBanner-bgcolor) !important;
   width: 50% !important;
   * {
     display: none;
@@ -90,6 +90,7 @@ ul.styled-reorder-list {
   overflow: hidden;
 }
 .recentMove {
-  background: #def !important;
-  border: 1px solid #7bf !important;
+  background: var(--infoBanner-bgcolor) !important;
+  border: 1px solid var(--infoBanner-bordercolor) !important;
+  color: var(--infoBanner-color);
 }

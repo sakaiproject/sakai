@@ -4,7 +4,7 @@
         margin-bottom: 10px !important;
     }
         .commons-photo-text-wrapper {
-            border: solid #E0E0E0 1px;
+            border: 1px solid var(--sakai-border-color);
             padding: 8px;
         }
         #commons-editor-toolbar {
@@ -22,25 +22,25 @@
         display: none;
     }
     .commons-dialog-container {
-    }
-            #commons-link-dialog-table {
-                display: table;
-            }
-                .commons-link-dialog-row {
-                    display: table-row;
-                    padding-bottom: 5px;
-                    div {
-                        display: table-cell;
-                        white-space: nowrap;
-                        padding-right: 10px;
-                    }
+    
+        #commons-link-dialog-table {
+            display: table;
+        }
+            .commons-link-dialog-row {
+                display: table-row;
+                padding-bottom: 5px;
+                div {
+                    display: table-cell;
+                    white-space: nowrap;
+                    padding-right: 10px;
                 }
-            .commons-dialog-container button {
-                border-radius: 0px;
-                font-weight: bold;
-                margin-right: 5px;
             }
-
+        .commons-dialog-container button {
+            border-radius: 0px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    }
     .commons-photo {
         min-width: 32px;
         max-width: 32px;
@@ -82,7 +82,7 @@
     }
 
     .commons-post-outer-container {
-        border-bottom: solid #E0E0E0 1px;
+        border-bottom: 1px solid var(--sakai-border-color);
         margin-bottom: 20px;
     }
         .commons-post-inner-container{
@@ -168,12 +168,12 @@
                 }
 
     .commons-comment-editor {
-        border-top: solid #E0E0E0 1px;
+        border-top: 1px solid var(--sakai-border-color);
         padding: 3px;
     }
         .commons-comment-editor-text {
-            border: 1px #E0E0E0 solid;
-            background-color: #FFFFFF;
+            border: 1px solid var(--sakai-border-color);
+            background-color: var(--sakai-background-color-1);
             border-radius: 3px;
         }
             .commons-comment-textarea {
@@ -185,9 +185,9 @@
             }
 
     #commons-permissions-not-set-message {
-        background-color: #EFEFEF;
-        color: #000000;
-        border: solid #000000 1px;
+        background-color: var(--sakai-background-color-2);
+        color: var(--sakai-text-color-1);
+        border: 1px solid var(--sakai-border-color);
         border-radius: 3px;
         padding: 5px;
         width: 80%;
@@ -198,7 +198,7 @@
     }
 
     .commons-og-fragment {
-        border: solid #E0E0E0 1px;
+        border: 1px solid var(--sakai-border-color);
         padding: 5px;
         width: 400px;
     }
@@ -216,12 +216,6 @@
             font-size: smaller;
         }
 
-    .qtip.commons-qtip {
-        border: 1px #E0E0E0 solid !important;
-        background-color: #F8F8F8 !important;
-        max-width: 310px;
-    }
-
     #commons-single-post-title {
         font-size: larger;
         padding-top: 10px;
@@ -237,10 +231,19 @@
 #commons-imagefile-instruction {
     font-weight: bold;
     font-size: larger;
-    margin-bottom: 5px;
+    margin-bottom: $standard-space-2x;
+    color: var(--sakai-text-color-1)
 }
 #commons-image-dialog-message {
     font-weight: bold;
     font-size: larger;
-    color: red;
+    color: var(--errorBanner-color);
+}
+#commons-image-dialog-file {
+    margin-bottom: $standard-space-2x;
+}
+.qtip.commons-qtip {
+    border: 1px solid var(--sakai-border-color) !important;
+    background-color: var(--sakai-background-color-2) !important;
+    max-width: 310px;
 }

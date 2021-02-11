@@ -346,22 +346,22 @@ public class MyProfile extends BasePage {
 			//setup link/label and windows
 			if(friend) {
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-confirmed")));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-confirmed")));
 				addFriendLink.setEnabled(false);
 			} else if (friendRequestToThisPerson) {
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
 				addFriendLink.setEnabled(false);
 			} else if (friendRequestFromThisPerson) {
 				//TODO (confirm pending friend request link)
 				//could be done by setting the content off the addFriendWindow.
 				//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
 				addFriendLink.setEnabled(false);
 			}  else {
 				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("icon connection-add")));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("connection-add")));
 				addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserUuid, userUuid)); 
 			}
 			
@@ -407,9 +407,9 @@ public class MyProfile extends BasePage {
 	    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
 	    				add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
 	    				if(isLocked()){
-	    					add(new AttributeModifier("class", true, new Model<String>("icon locked")));
+	    					add(new AttributeModifier("class", true, new Model<String>("locked")));
 	    				} else {
-	    					add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
+	    					add(new AttributeModifier("class", true, new Model<String>("unlocked")));
 	    				}
 	    				target.add(this);
 	    			}
@@ -418,9 +418,9 @@ public class MyProfile extends BasePage {
 			
 			//set init icon for locked
 			if(isLocked()){
-				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon locked")));
+				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("locked")));
 			} else {
-				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
+				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("unlocked")));
 			}
 			
 			lockProfileLink.add(lockProfileLabel);

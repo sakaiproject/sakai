@@ -47,10 +47,10 @@ table{
 }
 
 .sakai-table-noResultsMessage {
-	border: 1px solid #ddd;
+	border: 1px solid var(--sakai-border-color);
 	border-top: 0 none;
 	padding: $standard-spacing;
-	color: #414141;
+	color: var(--sakai-text-color-2);
 	line-height: 3;
 }
 
@@ -117,7 +117,7 @@ table{
 	{
 		padding: 0 5px 3px 5px;
 		font-size: 12px;
-		color: #505050;
+		color: var(--sakai-text-color-2);
 		text-align: center;
 	}
 	.sakai-table-pagerControls
@@ -144,7 +144,7 @@ table{
 
 		input, select, button
 		{
-			margin: 0 0 0 $standard-space;;
+			margin: 0 0 0 $standard-space;
 		}
 
 	}

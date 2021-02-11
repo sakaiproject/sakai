@@ -10,8 +10,8 @@
         left: calc(50% - 17em);
         width: 34em;
         min-height: 14em;
-        background: #fff;
-        box-shadow: 0 0 5px rgba(33,33,33,0.25);
+        background: var(--sakai-background-color-1);
+        box-shadow: var(--elevation-2dp);
     }
 
     h1 {

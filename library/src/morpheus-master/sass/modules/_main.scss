@@ -103,10 +103,12 @@ body.#{$namespace}container {
 	width: 80%;
 	padding: 1em;
 	z-index: 200;
+	border: 1px solid var(--errorBanner-bordercolor);
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
-	background-color: #c00;
+	border-bottom: none;
+	background-color: var(--errorBanner-bgcolor);
 	font-size: 1.143em;
 	text-align: center;
-	color: #fff;
+	color: var(--errorBanner-color);
 }

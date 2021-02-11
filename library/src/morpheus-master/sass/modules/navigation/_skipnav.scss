@@ -129,10 +129,8 @@
 				&:hover, &:active
 				{
 					text-decoration: none;
-
-					i {
-						text-shadow: 0 0 5px rgba(165, 165, 165, 0.95);
-					}
+					color:var(--sites-nav-menu-item-hover-color);
+					background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
 		}

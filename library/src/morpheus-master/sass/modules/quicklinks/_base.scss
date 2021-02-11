@@ -34,7 +34,7 @@
     font-size: $default-font-size;
     color: var(--sakai-text-color-1);
     background-color: var(--tool-menu-background-color);
-    box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
+    box-shadow: var(--elevation-8dp);
     position: absolute;
     top: 40px;
     right: 0;
@@ -51,7 +51,7 @@
       width: 0;
       position: absolute;
       pointer-events: none;
-      border-color: rgba(255, 255, 255, 0);
+      border-color: transparent;
       border-bottom-color: var(--tool-menu-background-color);
       border-width: 7px;
       margin-left: -7px;

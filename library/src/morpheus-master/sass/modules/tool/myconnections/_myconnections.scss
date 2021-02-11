@@ -21,14 +21,14 @@
     }
 
     nav.#{$namespace}toolTitleNav, div.#{$namespace}toolBody>nav.#{$namespace}toolTitleNav {
-        border: 1px solid #e0e0e0;
-        background-color: #f0f0f0;
+        border: 1px solid  var(--sakai-border-color);
+        background-color: var(--sakai-background-color-1);
         text-align: center;
         box-sizing: border-box;
     }
 
     nav.#{$namespace}toolTitleNav>h2.#{$namespace}toolTitleNav__title, div.#{$namespace}toolBody>nav.#{$namespace}toolTitleNav>h2.#{$namespace}toolTitleNav__title {
-        color: #333;
+        color: var(--sakai-text-color-1);
         font-weight: bold;
         font-size: 1em;
     }
@@ -52,9 +52,9 @@
     }
 
     div.online-status.online {
-        background-color: yellowgreen;
+        background-color: var(--successBanner-bgcolor);
     }
     div.online-status.away {
-        background-color: gold
+        background-color: var(--warnBanner-bgcolor);
     }
 }

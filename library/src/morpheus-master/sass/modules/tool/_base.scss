@@ -82,13 +82,15 @@
 		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
 			display: none;
 			.dropDown_close{
-				color: #952525;
+				@include sakai_secondary_button();
 				cursor: pointer;
 				float: right;
 				font-size: 1.5em;
-				
 				@media #{$phone}{
 					font-size: 1.4em;
+				}
+				&:before {
+					@extend .fa;
 				}
 			}
 			&.active{
@@ -99,7 +101,7 @@
 				width: 250px;
 				margin: 10px 0 0 -250px;
 				z-index: 2;
-				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+				box-shadow: var(--elevation-3dp);
 				
 				label{
 					font-size: $default-font-size;
