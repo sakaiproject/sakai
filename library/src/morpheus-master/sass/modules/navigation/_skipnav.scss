@@ -129,10 +129,8 @@
 				&:hover, &:active
 				{
 					text-decoration: none;
-
-					i {
-						color:var(--button-active-background);
-					}
+					color:var(--sites-nav-menu-item-hover-color);
+					background: var(--sites-nav-menu-item-hover-background);
 				}
 			}
 		}

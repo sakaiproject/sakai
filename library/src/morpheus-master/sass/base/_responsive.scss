@@ -45,21 +45,7 @@ body{
 					overflow-y:auto;
 					height:100%;
 				}
-				&:after {
-					bottom: 100%;
-					left: 30px;
-					border: solid transparent;
-					content: " ";
-					height: 0;
-					width: 0;
-					position: absolute;
-					pointer-events: none;
-					border-color: transparent;
-					border-bottom-color: var(--tool-menu-background-color);
-					border-width: $standard-spacing;
-					outline: 0;
-					margin-bottom: -1px; // to overlap the top ul border for the illusion
-				}
+
 				.Mrphs-toolsNav__menuitem--title{
 					display: inline-block;
 					letter-spacing: 0px;
@@ -85,7 +71,7 @@ body{
 			}
 			#toolMenu, #subSites{
 				@if $tool-menu-icon-on-left {
-					background-color: var(--tool-background-color);
+					background-color: var(--sites-nav-menu-item-background);
 				}
 				ul{
 					list-style: none;
@@ -97,6 +83,24 @@ body{
 							width: 100%;
 							white-space: nowrap;
 							overflow: hidden;
+
+							&.is-current {
+	
+								.#{$namespace}toolsNav__menuitem--link {
+									background: var(--sites-nav-menu-item-active-background);
+								}
+							}
+
+							.#{$namespace}toolsNav__menuitem--link {
+								background-color: var(--sites-nav-menu-item-background);
+
+								&:hover,
+								&:focus,
+								&:active {
+									background-color: var(--sites-nav-menu-item-active-background);
+								}
+							}
+
 						}
 						@else {
 							border-left: 2px var(--sakai-background-color-2);
@@ -104,6 +108,7 @@ body{
 							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 							width: calc( 25% - 1px );
 						}
+						
 						&.#{$namespace}collapseTools{
 							display: none;
 						}
