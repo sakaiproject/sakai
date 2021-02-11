@@ -33,7 +33,7 @@
                 @include justify-content(center);
 
                 fieldset.roundedBorder {
-                    border: 2px solid #c8c8c8;
+                    border: 2px solid var(--sakai-border-color);
                     @include border-radius(5px);
                     padding: 5px;
                     white-space: nowrap;
@@ -42,7 +42,7 @@
                         padding: 0 5px 0 5px;
                         font-size: $default-font-size;
                         font-weight: normal;
-                        color: #505050;
+                        color: var(--sakai-text-color-2);
                     }
                 }
 
@@ -81,7 +81,7 @@
     }
 
     #roster-members-total, #roster-role-totals {
-        color: #505050;
+        color: var(--sakai-text-color-2);
         font-size: 12px;
     }
 
@@ -119,20 +119,22 @@
                         width: 32px;
                         height: 32px;
                         border-radius: 16px;
-                        background-color: #ddd;
-                        border: 1px solid #bbb;
+                        background-color: var(--sakai-background-color-3);
+                        border: 2px solid var(--sakai-border-color);
+                        box-shadow: var(--elevation-2dp);
                         cursor: pointer;
 
                         &:hover, &:active, &:focus {
-                            background-color: darken(#ddd, 10%);
+                            background-color: var(--sakai-background-color-4);
+                            box-shadow: var(--elevation-4dp);
                         }
 
                         &.playing {
-                            background-color: #3a77a4;
-                            border-color: #2b506a;
+                            background-color: var(--successBanner-bgcolor);
+                            border-color: var(--successBanner-bordercolor);
 
                             .fa {
-                                color: #fff;
+                                color: var(--successBanner-color);
                             }
                         }
                     }
@@ -170,7 +172,7 @@
 
         .roster-table-row {
             background: var(--sakai-background-color-1);
-            border: 1px solid #ccc;
+            border: 1px solid var(--sakai-border-color);
             @include border-radius(5px);
             padding: 5px;
             margin-right: 5px;
@@ -179,7 +181,7 @@
                 width: 74px;
                 height: 94px;
                 object-fit: cover;
-                border: 1px solid #BBB;
+                border: 1px solid var(--sakai-border-color);
             }
 
             .roster-name-cell, .roster-userId-cell, .roster-role-cell, .roster-email-cell {

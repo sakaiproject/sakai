@@ -82,7 +82,6 @@ body.active-more-sites{
 				width: 0;
 				position: absolute;
 				pointer-events: none;
-				border-color: rgba(255, 255, 255, 0);
 				border-bottom-color: var(--tool-menu-background-color);
 				border-width: 7px;
 				margin-left: -7px;
@@ -107,7 +106,6 @@ body.active-more-sites{
 		width: 0;
 		position: absolute;
 		pointer-events: none;
-		border-color: rgba(255, 255, 255, 0);
 		border-bottom-color: var(--tool-menu-background-color);
 		border-width: 7px;
 		margin-left: -7px;
@@ -429,7 +427,7 @@ ul.favoriteSiteList{
 
 		padding: 0 5px 0 5px;
 		border-radius: 50px !important;
-		border: 1px solid #e5e5e5;
+		border: 1px solid var(--sakai-border-color);
 	}
 
 	#txtSearch:focus {
@@ -448,7 +446,7 @@ ul.favoriteSiteList{
 		right: 14px;
 		content: '\f057';
 		font-family: 'FontAwesome';
-		color: #ccc;
+		color: var(--sakai-text-color-2);
 		font-size: 1.2em;
 		line-height: 1.5em;
 		text-align: right;
@@ -646,7 +644,7 @@ ul.favoriteSiteList{
 
 li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	font-weight: bold;
-	color: #de8e07;
+	color: var(--all-sites-button-star-full-color);
 }
 
 /* If we've hit max favorites, show a warning icon */
@@ -669,15 +667,15 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	width: 95%;
 	border: 0;
 	background: transparent !important;
-	border-top: rgb(229, 229, 229) 2px dashed;
+	border-top: var(--sakai-border-color) 2px dashed;
 	padding-left: 12px !important;
 	&:hover {
-		border-top: rgb(229, 229, 229) 2px dashed;
+		border-top: var(--sakai-border-color) 2px dashed;
 		background: transparent !important;
 	}
 
 	.warning-icon {
-		color: #de8e07;
+		color: var(--warnBanner-color);
 		padding-right: 8px;
 	}
 
@@ -699,19 +697,19 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 .site-favorite-icon.site-favorite:before{
 	@extend .fa;
 	@extend .fa-star;
-	color: #F49D08;
+	color: var(--all-sites-button-star-full-color);
 }
 
 .site-favorite-icon.site-nonfavorite:before{
 	@extend .fa;
 	@extend .fa-star-o;
-	color: #CDCDCD;
+	color: var(--all-sites-button-star-empty-color);
 }
 
 .site-favorite-icon.site-workspace:before{
 	@extend .fa;
 	@extend .fa-home;
-	color: #000;
+	color: var(--sakai-text-color-1);
 }
 
 
@@ -750,11 +748,11 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 }
 
 .site-favorite-icon.site-favorite:hover{
-	text-shadow: -1px 0 #F49D08, 0 1px #F49D08, 1px 0 #F49D08, 0 -1px #F49D08;
+	text-shadow: -1px 0 var(--all-sites-button-star-full-color), 0 1px var(--all-sites-button-star-full-color), 1px 0 var(--all-sites-button-star-full-color), 0 -1px var(--all-sites-button-star-full-color);
 }
 
 .site-favorite-icon.site-nonfavorite:hover:before{
-	color: #999;
+	color: var(--all-sites-button-star-empty-color);
 }
 
 
@@ -763,10 +761,10 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	left: 50%;
 	transform: translateX(-50%);
 	top: 13px;
-	border: 1px solid #EAC276;
+	border: 1px solid var(--warnBanner-bordercolor);
 	z-index: 1000;
 	display: inline-block;
-	box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: var(--elevation-4dp);
 
 	-webkit-transition: background-color 0.2s, color 0.2s;
 	-moz-transition: background-color 0.2s, color 0.2s;
@@ -774,8 +772,8 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	-o-transition: background-color 0.2s, color 0.2s;
 	transition: background-color 0.2s, color 0.2s;
 
-	background-color: #F9EDBE;
-	color: #000 !important;
+	background-color: var(--warnBanner-bgcolor);
+	color: var(--warnBanner-color) !important;
 	text-align: center;
 	padding: 0 8px;
 	text-decoration: none;
@@ -783,7 +781,7 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	a
 	{
 		display: inline-block; // to override flex on login links
-		color: #191919;
+		color: var(--sakai-text-color-2);
 		text-decoration: underline !important;
 	}
 
@@ -802,7 +800,7 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 
 		.fa-bars {
 			margin: 0 4px;
-			color: #777777;
+			color: var(--all-sites-button-drag-icon-color);
 		}
 	}
 }

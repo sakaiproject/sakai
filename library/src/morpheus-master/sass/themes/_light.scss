@@ -132,6 +132,7 @@
 
     //Built to be used for box-shadow
     //https://material-components.github.io/material-components-web-catalog/#/component/elevation
+    --elevation-0dp: none;
     --elevation-1dp: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
     --elevation-2dp: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
     --elevation-3dp: 0 3px 3px -2px rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
@@ -314,7 +315,7 @@
     --all-sites-button-text-color: var(--sakai-text-color-1);
     --all-sites-button-background-color: var(--sakai-background-color-2);
     --all-sites-button-border-color: var(--sakai-border-color);
-    --all-sites-button-star-full-color: var(--sakai-color-gold--lighter-5);
+    --all-sites-button-star-full-color: var(--sakai-color-gold);
     --all-sites-button-star-empty-color: var(--sakai-text-color-1);
 
     --all-sites-button-selected-text-color: var(--sakai-text-color-3);

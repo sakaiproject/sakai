@@ -583,7 +583,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
-			sb.append("<div class=\"icon profile-image\">");
+			sb.append("<div class=\"profile-image\">");
 			
 			sb.append("<div class=\"profile2-profile-view-full\">");
 			sb.append("<a href=\"javascript:;\" onclick=\"window.open('" +
@@ -599,16 +599,16 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			int connectionStatus = connectionsLogic.getConnectionStatus(sakaiProxy.getCurrentUserId(), userProfile.getUserUuid());
 		
 			if(connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) {
-				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-confirmed\"><a href=\"javascript:;\" onClick=\"return removeFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.remove") + "</a></div>");
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"connection-confirmed\"><a href=\"javascript:;\" onClick=\"return removeFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.remove") + "</a></div>");
 			}
 			else if(connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
-				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-request\">" + Messages.getString("Label.friend.requested") + "</div>");
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"connection-request\">" + Messages.getString("Label.friend.requested") + "</div>");
 			}
 			else if(connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
-				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-request\">" + Messages.getString("Label.friend.requested") + "<a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.confirm") + "\" onClick=\"return confirmFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/accept.png\"></a><a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.ignore") + "\" onClick=\"return ignoreFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/cancel.png\"></a></div>");
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"connection-request\">" + Messages.getString("Label.friend.requested") + "<a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.confirm") + "\" onClick=\"return confirmFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/accept.png\"></a><a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.ignore") + "\" onClick=\"return ignoreFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/cancel.png\"></a></div>");
 			}
 			else {
-				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-add\"><a href=\"javascript:;\" onClick=\"return requestFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.add") + "</a></div>");
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"connection-add\"><a href=\"javascript:;\" onClick=\"return requestFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.add") + "</a></div>");
 			}
 			
 			sb.append("<br />");

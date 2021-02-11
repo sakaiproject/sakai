@@ -41,7 +41,7 @@
   }
 
   a.draft {
-    color: grey !important;
+    color: var(--sakai-text-color-disabled) !important;
   }
 
   .accordion-items-container {
@@ -49,13 +49,8 @@
     margin: 20px 0;
   }
 
-  .ui-accordion .ui-accordion-header {
-    overflow: auto !important;
-    background-color: #D9EEF7;
-  }
-
   .ui-state-active a {
-    color: #454545 !important;
+    color: var(--sakai-text-color-2) !important;
     font-weight: bold;
   }
 
@@ -82,7 +77,7 @@
   }
 
   .popupMessage {
-    background-color: #ffe;
+    background-color: var(--warnBanner-bgcolor);
     position: absolute;
     top: 20px;
     z-index: 1000;
@@ -104,8 +99,8 @@
         .ui-accordion-header {
           min-height: 42px;
           padding: 12px 10px;
-          border-color: #E5E5E5;
-          background: #FAFAFA;
+          border-color: var(--sakai-border-color);
+          background: var(--sakai-background-color-2);
 
           .edit-actions {
             float: right;
@@ -138,7 +133,7 @@
         }
 
         .ui-accordion-content {
-          border-color: #E5E5E5;
+          border-color: var(--sakai-border-color);
         }
       }
     }

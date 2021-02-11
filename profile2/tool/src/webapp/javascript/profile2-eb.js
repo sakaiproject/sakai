@@ -47,7 +47,7 @@ function requestFriend(requestorId,friendId) {
         success : function(text,status) {
             var div = $('#profile_friend_' + friendId);
             div.html(text);
-            div.attr('class','icon connection-request');
+            div.attr('class','connection-request');
         }
     });
 
@@ -64,7 +64,7 @@ function confirmFriendRequest(requestorId,friendId) {
             var link = "<a href=\"javascript:;\" onClick=\"return removeFriend('" + requestorId + "','" + friendId + "');\">" + text + "</a>";
             var div = $('#profile_friend_' + friendId);
             div.html(link);
-            div.attr('class','icon connection-confirmed');
+            div.attr('class','connection-confirmed');
         }
     });
 
@@ -81,7 +81,7 @@ function removeFriend(removerId,friendId) {
             var link = "<a href=\"javascript:;\" onClick=\"return requestFriend('" + removerId + "','" + friendId + "');\">" + text + "</a>";
             var div = $('#profile_friend_' + friendId);
             div.html(link);
-            div.attr('class','icon connection-add');
+            div.attr('class','connection-add');
         }
     });
 
@@ -98,7 +98,7 @@ function ignoreFriendRequest(removerId,friendId) {
             var link = "<a href=\"javascript:;\" onClick=\"return requestFriend('" + removerId + "','" + friendId + "');\">" + text + "</a>";
             var div = $('#profile_friend_' + friendId);
             div.html(link);
-            div.attr('class','icon connection-add');
+            div.attr('class','connection-add');
         }
     });
 
