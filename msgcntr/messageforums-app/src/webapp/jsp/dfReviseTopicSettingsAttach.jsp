@@ -94,7 +94,6 @@
 		Application appl = fcontext.getApplication();
 		ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 		DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
-		String stateDetails = forumTool.getRbcsStateDetails();
 		String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 	%>
 	<!-- END RUBRICS VARIABLES -->
@@ -391,9 +390,6 @@
 			<% if(entityId != null && !"".equals(entityId)){ %>
 				entity-id=<%= entityId %>
 			<%}%>
-			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				state-details=<%= stateDetails %>
-			<%}%>
 
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
@@ -456,17 +452,17 @@
 			});
 		</script>
 		<div class="act">
-			<h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
+			<h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
 									 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick active">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 			</h:commandButton>
-			<h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" actionListener="#{ForumTool.keepStateDetails}"  value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
+			<h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
 									 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 			</h:commandButton>
-			<h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" actionListener="#{ForumTool.keepStateDetails}"  value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+			<h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
 									 rendered="#{!ForumTool.selectedTopic.markForDeletion}"  styleClass="blockMeOnClick">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>

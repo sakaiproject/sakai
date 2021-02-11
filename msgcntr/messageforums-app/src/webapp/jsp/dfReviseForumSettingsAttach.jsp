@@ -73,15 +73,6 @@
 		});
 	}
 	</script>
-<!-- RUBRICS VARIABLES -->
-<%
-	FacesContext fcontext = FacesContext.getCurrentInstance();
-	Application appl = fcontext.getApplication();
-	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
-	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
-	String stateDetails = forumTool.getRbcsStateDetails();
-%>
-<!-- END RUBRICS VARIABLES -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
@@ -401,15 +392,15 @@
 				
         
       <h:panelGroup layout="block" styleClass="act">
-          <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}"
+          <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
           								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick active">
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-				<h:commandButton id="saveandadd" action="#{ForumTool.processActionSaveForumAndAddTopic}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+				<h:commandButton id="saveandadd" action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
           								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>  
-				<h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
+				<h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
           								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
