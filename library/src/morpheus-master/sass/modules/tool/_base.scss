@@ -89,14 +89,8 @@
 				@media #{$phone}{
 					font-size: 1.4em;
 				}
-				&:active, &:focus, &:hover {
-					&:before {
-						color:var(--sakai-color-red--darker-2);
-					}
-				}
 				&:before {
 					@extend .fa;
-					color:var(--sakai-color-red--darker-2);
 				}
 			}
 			&.active{

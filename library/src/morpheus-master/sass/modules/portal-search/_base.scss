@@ -39,13 +39,13 @@
   }
 
   .search-result-container {
-
     padding-bottom: 9px;
     border-bottom: 1px solid var(--sakai-border-color);
-
     text-align: left;
 
-    a { display: inline-block; }
+    a {
+      display: inline-block;
+    }
 
     .search-result-title-label {
       font-weight: bold;

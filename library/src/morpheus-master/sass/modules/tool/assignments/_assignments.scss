@@ -442,12 +442,12 @@
 
 	.contentReviewIconThreshold-2 {
 		@extend .contentReviewIcon;
-		color: var(--warnBanner-color);
+		color: var(--sakai-color-orange--darker-4);
 	}
 
 	.contentReviewIconThreshold-2-draft {
 		@extend .contentReviewIconDraft;
-		color: var(--warnBanner-color);
+		color: var(--sakai-color-orange--darker-4);
 	}
 
 	.contentReviewIconThreshold-3 {
@@ -502,7 +502,6 @@
 	}
 
 	.contentReviewMessage {
-		background-color: var(--sakai-background-color-1);
 		position: relative;
 		border: 1px solid;
 		border-radius: 5px;
@@ -515,12 +514,12 @@
 		&::before {
 			content: "";
 			position: absolute;
-			top: -14px; // -2 x the border
+			top: -#{$standard-space-4x}; // -2 x the border
 			left: 5px;
 			width: $standard-spacing;
 			height: $standard-spacing;
 			border: 7px solid transparent;
-			border-bottom-color: var(--sakai-primary-color-1);
+			border-bottom-color: $assignments-disclosure-bg;
 		}
 	}
 
