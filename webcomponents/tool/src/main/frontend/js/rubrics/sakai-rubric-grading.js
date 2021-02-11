@@ -374,13 +374,14 @@ export class SakaiRubricGrading extends RubricsElement {
 
         this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
         this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
-        if (this.criteria) this.decorateCriteria();
         this.existingEvaluation = true;
 
         this.rubric = rubric;
 
         this.criteria = this.rubric.criterions;
         this.criteria.forEach(c => {
+
+          c.pointoverride = "";
 
           if (!c.selectedvalue) {
             c.selectedvalue = 0;
