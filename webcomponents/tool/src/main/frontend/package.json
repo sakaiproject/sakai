@@ -9,7 +9,8 @@
     "empathise": "empathise install",
     "storybook": "npm install && empathise install --assets-directory=js/assets && start-storybook -s ./storybook-resources -p 6006",
     "build-storybook": "build-storybook",
-    "test": "mocha -r esm"
+    "test": "mocha -r esm",
+    "eslint": "eslint js"
   },
   "keywords": [],
   "author": "",
@@ -65,6 +66,7 @@
     "chai": "4.2.0",
     "css-loader": "3.6.0",
     "dependencies": "0.0.1",
+    "eslint": "^7.19.0",
     "esm": "3.2.25",
     "fetch-mock": "9.10.7",
     "is-windows": "1.0.2",
