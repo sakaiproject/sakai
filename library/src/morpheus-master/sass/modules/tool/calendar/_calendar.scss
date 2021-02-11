@@ -280,6 +280,10 @@
 			border-right: 1px double $calendar-day-today-border-color;
 			border-top: 1px double $calendar-day-today-border-color;
 			background-color: $calendar-day-today-background-color;
+
+			a {
+				color: $calendar-day-today-text-color;
+			}
 		}
 
 		.borderTodayWithActivity {
@@ -548,14 +552,16 @@
 		right: 0;
 		overflow-x: hidden;
 		overflow-y: auto;
-		border: 1px solid $calendar-event-border-color;
+		color: $calendar-event-color;
+		border: 1px solid $calendar-event-background-color;
 		background-color: $calendar-event-background-color;
 		font-size: $default-font-size-small;
 		line-height: 1.4;
 		text-align: left;
 		
 		&:hover {
-			border: 1px solid var(--link-color);
+			background-color: $calendar-event-hover-background-color;
+			border-color: $calendar-event-border-color;
 		}
 
 		a {
@@ -566,7 +572,8 @@
 			left: 0;
 			padding: 2px;
 			text-decoration: none;
-			
+			color: $calendar-event-color;
+
 			&:focus {
 				outline-offset: -#{$focus-outline-width};	// to provide enough space for the outline to appear with overflow:hidden
 			}

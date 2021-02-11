@@ -49,11 +49,6 @@
     margin: 20px 0;
   }
 
-  .ui-accordion .ui-accordion-header {
-    overflow: auto !important;
-    background-color: var(--infoBanner-bgcolor);
-  }
-
   .ui-state-active a {
     color: var(--sakai-text-color-2) !important;
     font-weight: bold;

@@ -53,7 +53,7 @@
 			}
 			&.inactive {
 				* {
-					color: var(--sakai-text-color-2) !important;
+					color: var(--sakai-text-color-disabled) !important;
 				}
 				.resource-name, .resource-access, .resource-creator, .resource-modified, .resource-size {
 					font-style: italic;

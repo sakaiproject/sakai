@@ -289,7 +289,7 @@
 
   /** TABS: All tabs */
   ul.tabnav li a {
-    padding: 3px 7px; /* first number with respect to padding-top (X) above {ul.tabnav li.tabsel a} */
+    padding: 5px 7px 3px 7px;
     color: var(--sakai-text-color-1);
     margin-right: 0px;
     text-decoration: none;
@@ -297,7 +297,6 @@
     background: var(--sakai-background-color-1);
     border-top-left-radius:4px;
     border-top-right-radius:4px;
-    padding-top: 5px; /* with respect to padding (X) above {ul.tabnav} and below {ul.tabnav li a} */
   }
 
   ul.tabnav li.tabsel a {
@@ -465,6 +464,12 @@
     margin: 0pt;
   }
 
+  /** Ajax loading */
+  .ajaxLoading {
+    background: #ffffff url(/sitestats-tool/images/ajaxload.gif) no-repeat;
+    color: window;
+  }
+
   .notes {
     color: var(--sakai-text-color-1);
     font-size: 90%;
@@ -499,6 +504,20 @@
 
   .eventTree li {
     list-style: none;
+  }
+
+  /** Wicket table sorting indicator */
+  .wicket_orderUp a span {
+    background-image: url('/library/image/sakai/sortascending.gif');
+    background-repeat: no-repeat;
+    background-position:right center;
+    padding-right: 16px;
+  }
+  .wicket_orderDown a span {
+    background-image: url('/library/image/sakai/sortdescending.gif');
+    background-repeat: no-repeat;
+    background-position: right center;
+    padding-right: 16px;
   }
 
   .navIcon {
