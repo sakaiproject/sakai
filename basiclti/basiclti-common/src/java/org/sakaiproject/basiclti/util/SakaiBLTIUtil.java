@@ -2357,7 +2357,9 @@ public class SakaiBLTIUtil {
 				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
-				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, getRoundedGrade(theGrade, assignmentObject.getPoints()), "External Outcome");
+				String gradeI18n = getRoundedGrade(theGrade, assignmentObject.getPoints());
+				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, gradeI18n, "External Outcome");
 				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 				log.info("Stored Score={} assignment={} user_id={} score={}", siteId, assignment, user_id, theGrade);
