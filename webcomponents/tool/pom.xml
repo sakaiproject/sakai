@@ -81,6 +81,7 @@
                                 <exclude>package-lock.json</exclude>
                                 <exclude>.gitignore</exclude>
                                 <exclude>.jshintrc</exclude>
+                                <exclude>.eslintrc.js</exclude>
                             </excludes>
                         </fileset>
                         <fileset>
@@ -92,25 +93,6 @@
                     </filesets>
                 </configuration>
             </plugin>
-            <!--plugin>
-                <groupId>org.sakaiproject.maven.plugins</groupId>
-                <artifactId>sakai</artifactId>
-                <version>1.4.6-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                        <id>copyjs</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copyjs</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDir>src/main/frontend/js</sourceDir>
-                            <targetDir>src/main/frontend</targetDir>
-                            <query>version=${buildNumber}</query>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -174,6 +156,15 @@
                                 webpack@4
                                 webpack-cli@3
                             </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>eslint</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run eslint</arguments>
                         </configuration>
                     </execution>
                     <execution>
