@@ -60,7 +60,7 @@
 
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
-                <a href="javascript:void(0);" title="${rloader.sit_allsites}" aria-haspopup="true" aria-expanded="false">
+                <a href="javascript:void(0);" id="viewAllSites" title="${rloader.sit_allsites}" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
@@ -83,7 +83,6 @@
                                         ## https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/mouse-and-keyboard-events/links/link-behavior/
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
                                             <a href="javascript:void(0);"
-						onclick="this.setAttribute('aria-expanded', (this.getAttribute('aria-expanded') == 'false' ? 'true' : 'false') ); return false;"
 						title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
 						aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
 						aria-haspopup="true" aria-expanded="false" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
@@ -95,7 +94,6 @@
                                     #else
 
                                         <a id="loginUser" href="javascript:void(0);"
-					onclick="this.setAttribute('aria-expanded', (this.getAttribute('aria-expanded') == 'false' ? 'true' : 'false') ); return false;"
 					title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
 					aria-title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
 					aria-haspopup="true" aria-expanded="false"

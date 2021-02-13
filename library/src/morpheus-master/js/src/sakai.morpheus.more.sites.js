@@ -56,6 +56,7 @@ var dhtml_view_sites = function(){
     
     if (modal.hasClass('outscreen') ) {
       $PBJQ('body').toggleClass('active-more-sites');
+      $PBJQ('#viewAllSites').attr('aria-expanded', 'true');
 
       // Align with the bottom of the main header in desktop mode
       var allSitesButton = $PBJQ('.view-all-sites-btn:visible');
@@ -102,6 +103,7 @@ var dhtml_view_sites = function(){
     else {
       // hide the dropdown
       $PBJQ('body').toggleClass('active-more-sites');
+      $PBJQ('#viewAllSites').attr('aria-expanded', 'false');
       $PBJQ('#selectSiteModal').toggleClass('outscreen'); //hide the box
 
       // Restore the button's zIndex so it doesn't hover over other overlays

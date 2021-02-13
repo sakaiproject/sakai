@@ -29,10 +29,11 @@ function toggleUserNav(event) {
 
     // ESC key also closes it
     $PBJQ(document).on('keyup.usernav',userNavEscHandler);
-
+    $PBJQ('#loginUser').attr('aria-expanded', 'true');
   } else {
     $PBJQ('.user-dropdown-overlay').remove();
     $PBJQ(document).off('keyup',userNavEscHandler);    
+    $PBJQ('#loginUser').attr('aria-expanded', 'false');
   }
 }
 
