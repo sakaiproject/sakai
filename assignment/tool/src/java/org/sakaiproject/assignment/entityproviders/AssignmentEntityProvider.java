@@ -493,7 +493,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         // A list of mappings of submission id to student id list
         List<SimpleSubmission> submissions
-            = assignment.getSubmissions().stream().map(as -> new SimpleSubmission(as, simpleAssignment)).collect(Collectors.toList());
+            = assignment.getSubmissions().stream().map(as -> {
+                try {
+                    return new SimpleSubmission(as, simpleAssignment);
+                } catch (Exception e) {
+                    // This can happen is there are no submitters.
+                    return null;
+                }
+
+                }).filter(Objects::nonNull).collect(Collectors.toList());
 
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
@@ -664,7 +672,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (submission != null) {
             boolean anonymousGrading = assignmentService.assignmentUsesAnonymousGrading(assignment);
-            return new ActionReturn(new SimpleSubmission(submission, new SimpleAssignment(assignment)));
+            try {
+                return new ActionReturn(new SimpleSubmission(submission, new SimpleAssignment(assignment)));
+            } catch (Exception e) {
+                throw new EntityException("Failed to set grade on " + submissionId, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         } else {
             throw new EntityException("Failed to set grade on " + submissionId, "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -1231,22 +1243,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String displayName;
         private String sortName;
 
-        public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) {
+        public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
 
             super();
 
             this.id = ass.getSubmitter();
-            try {
-                if (!anonymousGrading) {
-                    User user = userDirectoryService.getUser(this.id);
-                    this.displayName = user.getDisplayName();
-                    this.sortName = user.getSortName();
-                } else {
-                    this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
-                    this.sortName = this.displayName;
-                }
-            } catch (UserNotDefinedException e) {
-                this.displayName = this.id;
+            if (!anonymousGrading) {
+                User user = userDirectoryService.getUser(this.id);
+                this.displayName = user.getDisplayName();
+                this.sortName = user.getSortName();
+            } else {
+                this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
+                this.sortName = this.displayName;
             }
         }
     }
@@ -1273,7 +1281,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Map<String, String> properties = new HashMap<>();
         private Instant assignmentCloseTime;
 
-        public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa) {
+        public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa) throws Exception {
 
             super();
 
@@ -1290,7 +1298,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 this.submittedAttachments = as.getAttachments();
             }
             this.submitters
-                = as.getSubmitters().stream().map(ass -> new SimpleSubmitter(ass, sa.isAnonymousGrading())).collect(Collectors.toList());
+                = as.getSubmitters().stream().map(ass -> {
+                    try {
+                        return new SimpleSubmitter(ass, sa.isAnonymousGrading());
+                    } catch (UserNotDefinedException unde) {
+                        log.warn("One of the submitters on submission {} is not a valid user. Maybe"
+                            + " they have been removed from your SAKAI_USER table?", ass.getId());
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            if (this.submitters.isEmpty()) {
+                throw new Exception("No submitters for this submission");
+            }
             this.groupId = as.getGroupId();
             this.userSubmission = as.getUserSubmission();
             this.returned = as.getReturned();
