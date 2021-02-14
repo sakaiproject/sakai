@@ -263,7 +263,7 @@ export class SakaiWidgetPanel extends LitElement {
         </div>
       ` : ""}
 
-      <div id="grid" class="col${this.columns}grid">
+      <div id="grid">
         ${repeat(this.layout, w => w, w => html`
           ${this.getWidget(w)}
         `)}
@@ -301,19 +301,8 @@ export class SakaiWidgetPanel extends LitElement {
 
       #grid {
         display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--sakai-widget-panel-min-widget-width, 350px), 1fr));
         grid-gap: var(--sakai-widget-panel-gutter-width, 1rem);
-      }
-
-      .col1grid {
-        grid-template-columns: repeat(1, minmax(300px, 1fr));
-      }
-
-      .col2grid {
-        grid-template-columns: repeat(2, minmax(300px, 1fr));
-      }
-
-      .col3grid {
-        grid-template-columns: repeat(3, minmax(300px, 1fr));
       }
     `;
   }
