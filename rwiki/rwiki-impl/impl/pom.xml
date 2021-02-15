@@ -167,7 +167,6 @@
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xmlParserAPIs</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>xerces</groupId>
