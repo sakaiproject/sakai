@@ -2136,6 +2136,7 @@
               <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
               <link>https://commons.apache.org/proper/commons-text/javadocs/api-release/</link>
               <link>https://commons.apache.org/proper/commons-validator/apidocs</link>
+              <link>https://javaee.github.io/javaee-spec/javadocs/</link>
             </links>
             <breakiterator>true</breakiterator>
             <minmemory>256m</minmemory>

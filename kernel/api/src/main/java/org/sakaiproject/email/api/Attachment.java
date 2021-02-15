@@ -77,7 +77,7 @@ public class Attachment
 	 *             from.
 	 * @param filename The filename to call the attachment when sent out, doesn't have to match
 	 *                 the file from which the content is loaded.
-	 * @deprecated {@link org.sakaiproject.email.api.Attachment#Attachment(javax.activation.DataSource)}
+	 * @deprecated {@link #Attachment(DataSource)}
 	 */
 	public Attachment(File file, String filename)
 	{
