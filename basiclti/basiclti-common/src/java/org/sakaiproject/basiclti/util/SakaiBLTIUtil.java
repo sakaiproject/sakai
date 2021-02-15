@@ -1063,20 +1063,6 @@ public class SakaiBLTIUtil {
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 			}
 
-			// Bring in the substitution variables from Assignments via JSON
-			String[] jsonSubst  = {
-				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
-				DeepLinkResponse.RESOURCELINK_AVAILABLE_ENDDATETIME,
-				DeepLinkResponse.RESOURCELINK_SUBMISSION_STARTDATETIME,
-				DeepLinkResponse.RESOURCELINK_SUBMISSION_ENDDATETIME
-			};
-
-			for (String subKey : jsonSubst) {
-				String value = StringUtils.trimToNull((String) content_json.get(subKey));
-				if ( value == null ) continue;
-				setProperty(lti13subst, subKey, value);
-			}
-
 			User user = UserDirectoryService.getCurrentUser();
 
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
