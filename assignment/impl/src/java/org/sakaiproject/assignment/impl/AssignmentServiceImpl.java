@@ -176,6 +176,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -3709,6 +3710,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+
+                    // If there is a LTI launch associated with this copy it over
+                    Long contentKey = oAssignment.getContentId().longValue();
+                    if ( contentKey != null ) {
+                        Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
+                       if ( retval instanceof Long ) {
+                           // nAssignment.setContentId((Integer) ((Long) retval).intValue());
+                           nAssignment.setContentId(((Long) retval).intValue());
+                       } else if ( retval == null || retval instanceof String ) {
+                           log.error("Could not insert content oldSite="+fromContext+" contentKey="+contentKey+" retval="+retval);
+                       }
+                    }
 
                     if (!createGroupsOnImport) {
                         nAssignment.setTypeOfAccess(SITE);
