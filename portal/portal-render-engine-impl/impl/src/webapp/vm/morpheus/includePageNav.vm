@@ -1,13 +1,17 @@
 <!-- START VM includePageNav.vm -->
 
-#macro( toolLink $url $current $popupUrl $subsite)
+#macro(toolLink $url $current $tab $popup $subsite)
 	<li #if ($current)class="is-current"#{end}>
 		<a class="Mrphs-toolsNav__menuitem--link #if (${page.hidden} || ${page.locked})is-invisible#{end}"
-			#if ($popupUrl)
-			href="javascript:;"
-			onclick="window.open( '${popupUrl}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )"
+			#if ($tab || $popup)
+				href="javascript:;"
+				#if ($tab)
+				onclick="window.open('${url}')"
+				#else
+				onclick="window.open('${url}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')"
+				#{end}
 			#else
-			href="$url"
+			    href="$url"
 			#{end}
             #if ($subsite)
             title="${rloader.subsite} ${site.fullTitle}"
@@ -75,15 +79,15 @@
 			#else
 					#if (${page.current})
 						#set( $breadToolName  = $page.pageTitle )
-						#toolLink(${page.pageResetUrl}, true, false)
+						#toolLink(${page.pageResetUrl}, true)
 					#else
 						#if (${page.toolpopup})
-							#toolLink("", false, "${page.toolpopupurl}")
+							#toolLink("${page.toolpopupurl}", false, true)
 						#else
 							#if (${page.ispopup})
-								#toolLink("", false, "${page.pagePopupUrl}${page.pageId}")
+								#toolLink("${page.pagePopupUrl}${page.pageId}", false, false, true)
 							#else
-								#toolLink(${page.pageRefUrl}, false, false)
+								#toolLink(${page.pageRefUrl}, false)
 							#end ## END of IF (${page.ispopup})
 						#end ## END of IF (${page.toolpopup})
 					#end ## END of IF (${page.current})
@@ -98,15 +102,15 @@
 			#foreach( $page in $sitePages.pageNavTools )
 				#if (${page.pageProps.get("sitePage.pageCategory")}==$key)
 					#if (${page.current})
-						#toolLink(${page.pageResetUrl}, true, false)
+						#toolLink(${page.pageResetUrl}, true)
 					#else
 						#if (${page.toolpopup})
-							#toolLink("", false, "${page.toolpopupurl}")
+							#toolLink("${page.toolpopupurl}", false, true)
 						#else
 							#if (${page.ispopup})
-								#toolLink("", false, "${page.pagePopupUrl}${page.pageId}")
+								#toolLink("${page.pagePopupUrl}${page.pageId}", false, false, true)
 							#else
-								#toolLink(${page.pageRefUrl}, false, false)
+								#toolLink(${page.pageRefUrl}, false)
 							#end ## END of IF (${page.ispopup})
 						#end ## END of IF (${page.toolpopup})
 					#end ## END of IF (${page.current})
@@ -171,7 +175,7 @@
 					<ul>
 	
 						#foreach ( $site in $subSites )
-							#toolLink("${site.siteUrl}", false, false, true)
+							#toolLink("${site.siteUrl}", false, false, false, true)
 						#end ## END of FOREACH ( $site in $subSites )
 	
 					</ul>
