@@ -505,6 +505,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return forumItems;
     }
 
+    private Area getTopicForumArea(DiscussionTopic topic) {
+        return topic.getBaseForum() != null ? topic.getBaseForum().getArea() : topic.getOpenForum().getArea();
+    }
+    
     private List<DBMembershipItem> getTopicItemsByCurrentUser(DiscussionTopic topic) {
         return getTopicItemsByUser(topic, getCurrentUserId());
     }
@@ -516,8 +520,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     private List<DBMembershipItem> getTopicItemsByUser(DiscussionTopic topic, String userId, String siteId) {
         List<DBMembershipItem> topicItems = new ArrayList<>();
 
-        Area area = topic.getBaseForum() != null ? topic.getBaseForum().getArea() : topic.getOpenForum().getArea();
-        Set<DBMembershipItem> topicItemsInThread = getTopicMemberships(area);
+        Set<DBMembershipItem> topicItemsInThread = getTopicMemberships(getTopicForumArea(topic));
         Set<DBMembershipItem> thisTopicItemSet = new HashSet<>();
 
         Predicate<DBMembershipItem> ifTopicIsNonNullAndEqualsTopicId = item -> ((DBMembershipItemImpl) item).getTopic() != null
@@ -543,10 +546,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return topicItems;
     }
 
+
+
     @Override
     public Set<DBMembershipItem> getTopicItemsSet(DiscussionTopic topic) {
         Set<DBMembershipItem> topicItems = new HashSet<>();
-        Set<DBMembershipItem> allTopicSet = getTopicMemberships(topic.getBaseForum().getArea());
+        Set<DBMembershipItem> allTopicSet = getTopicMemberships(getTopicForumArea(topic));
         Predicate<DBMembershipItem> ifSameTopic = item -> ((DBMembershipItemImpl) item).getTopic() != null
                 && topic.getId() != null
                 && topic.getId().equals(((DBMembershipItemImpl) item).getTopic().getId());
