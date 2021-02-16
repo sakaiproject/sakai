@@ -3716,7 +3716,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     if ( contentKey != null ) {
                         Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
                        if ( retval instanceof Long ) {
-                           // nAssignment.setContentId((Integer) ((Long) retval).intValue());
                            nAssignment.setContentId(((Long) retval).intValue());
                        } else if ( retval == null || retval instanceof String ) {
                            log.error("Could not insert content oldSite="+fromContext+" contentKey="+contentKey+" retval="+retval);
