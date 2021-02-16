@@ -4,7 +4,7 @@ module.exports = {
   "parserOptions": { "ecmaVersion": 12, "sourceType": "module" },
   "rules": {
     "indent": ["warn", 2, { "SwitchCase": 1, "MemberExpression": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
-    "linebreak-style": ["error","unix"],
+    "linebreak-style": ["warn","unix"],
     "semi": ["warn", "always"],
     "no-unused-vars": "warn",
     "no-undef": "warn",
