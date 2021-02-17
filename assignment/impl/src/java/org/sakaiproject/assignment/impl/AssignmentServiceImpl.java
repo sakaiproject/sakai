@@ -176,6 +176,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -3709,6 +3710,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+
+                    // If there is a LTI launch associated with this copy it over
+                    if ( oAssignment.getContentId() != null ) {
+                        Long contentKey = oAssignment.getContentId().longValue();
+                        Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
+                        if ( retval instanceof Long ) {
+                            nAssignment.setContentId(((Long) retval).intValue());
+                        // If something went wrong, we can't be an LTI submission in the new site
+                        } else if ( retval == null || retval instanceof String ) {
+                            nAssignment.setTypeOfSubmission(Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE);
+                            log.error("Could not copy LTI Content Item oldSite={} contentKey={} retval={}",fromContext, contentKey, retval);
+                        }
+                    }
 
                     if (!createGroupsOnImport) {
                         nAssignment.setTypeOfAccess(SITE);
