@@ -3715,11 +3715,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Long contentKey = oAssignment.getContentId().longValue();
                     if ( contentKey != null ) {
                         Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
-                       if ( retval instanceof Long ) {
-                           nAssignment.setContentId(((Long) retval).intValue());
-                       } else if ( retval == null || retval instanceof String ) {
-                           log.error("Could not insert content oldSite="+fromContext+" contentKey="+contentKey+" retval="+retval);
-                       }
+                        if ( retval instanceof Long ) {
+                            nAssignment.setContentId(((Long) retval).intValue());
+					    // If something went wrong, we can't be an LTI submission in the new site
+                        } else if ( retval == null || retval instanceof String ) {
+                            nAssignment.setTypeOfSubmission(Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE);
+                            log.error("Could not copy LTI Content Item oldSite="+fromContext+" contentKey="+contentKey+" retval="+retval);
+                        }
                     }
 
                     if (!createGroupsOnImport) {
