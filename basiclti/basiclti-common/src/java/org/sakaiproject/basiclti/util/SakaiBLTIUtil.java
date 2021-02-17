@@ -2965,7 +2965,7 @@ public class SakaiBLTIUtil {
 							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
 							break;
 						} else {
-							log.error("Could not insert tool - "+newToolInserted);
+							log.warn("Could not insert tool - {}", newToolInserted);
 							return null;
 						}
 					}
