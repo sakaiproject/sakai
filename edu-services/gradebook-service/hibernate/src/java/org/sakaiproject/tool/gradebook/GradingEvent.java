@@ -17,9 +17,15 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 
 import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 /**
  * A log of grading activity.  A GradingEvent should be saved any time a grade
  * record is added or modified.  GradingEvents should be added when the entered
@@ -28,17 +34,26 @@ import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class GradingEvent implements Comparable<Object>, Serializable {
-    
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class GradingEvent implements Serializable {
+
 	private static final long serialVersionUID = 1L;
-	
-	private Long id;
+
+    @EqualsAndHashCode.Include
+    private Long id;
+    @EqualsAndHashCode.Include
     private String graderId;
+    @EqualsAndHashCode.Include
     private String studentId;
     private GradableObject gradableObject;
     private String grade;
-    private Date dateGraded;
+    @EqualsAndHashCode.Include
+    private Date dateGraded = new Date();
     private GradingEventStatus status;
+
+    public static final Comparator<GradingEvent> compareByDateGraded = Comparator.comparing(GradingEvent::getDateGraded);
 
     public GradingEvent(GradableObject gradableObject, String graderId, String studentId, Object grade) {
         this.gradableObject = gradableObject;
@@ -47,74 +62,7 @@ public class GradingEvent implements Comparable<Object>, Serializable {
         if (grade != null) {
         	this.grade = grade.toString();
         }
-        this.dateGraded = new Date();
         this.status = GradingEventStatus.GRADE_NONE;
     }
-
-	public Date getDateGraded() {
-		return dateGraded;
-	}
-	
-	public void setDateGraded(Date dateGraded) {
-		this.dateGraded = dateGraded;
-	}
-	
-	public GradableObject getGradableObject() {
-		return gradableObject;
-	}
-	
-	public void setGradableObject(GradableObject gradableObject) {
-		this.gradableObject = gradableObject;
-	}
-	
-	public String getGrade() {
-		return grade;
-	}
-	
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
-	
-	public String getGraderId() {
-		return graderId;
-	}
-	
-	public void setGraderId(String graderId) {
-		this.graderId = graderId;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public String getStudentId() {
-		return studentId;
-	}
-	
-	public void setStudentId(String studentId) {
-		this.studentId = studentId;
-	}
-
-	public GradingEventStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(GradingEventStatus status) {
-		this.status = status;
-	}
-
-    /**
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    @Override
-	public int compareTo(Object o) {
-        return dateGraded.compareTo(((GradingEvent)o).dateGraded);
-    }
 }
-
-
 
