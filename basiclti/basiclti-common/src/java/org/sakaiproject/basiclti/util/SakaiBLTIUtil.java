@@ -2903,8 +2903,22 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	// Copy an LTI content Item from an old site into a new site
-	// assumes legit access to both the old and new site
+	/**
+	 * Copy an LTI Content Item from an old site into a new site
+	 *
+	 * This copies an LTI Content Item from one site to another site.
+	 * The content item is linked to an appropriate tool entry - either in
+	 * the new site or globally avalable.  If no suitable tool can be found,
+	 * it is created.
+	 *
+	 * This routine uses Dao access and assumes the calling code has insured
+	 * that the logged in user has appropriate permissions in both sites
+	 * before calling this routine.
+	 *
+	 * @param  contentKey  The old content item key from the old site
+	 * @param  siteId  The site id that the item is being copied from
+	 * @param  oldSiteId  The site id that the item is being copied from
+	 */
 	public static Object copyLTIContent(Long contentKey, String siteId, String oldSiteId)
 	{
 		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
@@ -2912,8 +2926,22 @@ public class SakaiBLTIUtil {
 		return copyLTIContent(ltiContent, siteId, oldSiteId);
 	}
 
-	// Copy an LTI content Item from an old site into a new site
-	// assumes legit access to both the old and new site
+	/**
+	 * Copy an LTI Content Item from an old site into a new site
+	 *
+	 * This copies an LTI Content Item from one site to another site.
+	 * The content item is linked to an appropriate tool entry - either in
+	 * the new site or globally avalable.  If no suitable tool can be found,
+	 * it is created.
+	 *
+	 * This routine uses Dao access and assumes the calling code has insured
+	 * that the logged in user has appropriate permissions in both sites
+	 * before calling this routine.
+	 *
+	 * @param  ltiContent  The old content item from the old site
+	 * @param  siteId  The site id that the item is being copied from
+	 * @param  oldSiteId  The site id that the item is being copied from
+	 */
 	public static Object copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
 		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
@@ -2965,7 +2993,7 @@ public class SakaiBLTIUtil {
 							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
 							break;
 						} else {
-							log.warn("Could not insert tool - {}", newToolInserted);
+							log.warn("Could not insert tool - {}",newToolInserted);
 							return null;
 						}
 					}
@@ -2973,7 +3001,7 @@ public class SakaiBLTIUtil {
 			}
 
 			if ( newToolId == null ) {
-				log.warn("Could not copy tool, launch={}", toolLaunch);
+				log.warn("Could not copy tool, launch={}",toolLaunch);
 				return null;
 			}
 		}

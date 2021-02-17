@@ -3712,15 +3712,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
 
                     // If there is a LTI launch associated with this copy it over
-                    Long contentKey = oAssignment.getContentId().longValue();
-                    if ( contentKey != null ) {
+                    if ( oAssignment.getContentId() != null ) {
+                        Long contentKey = oAssignment.getContentId().longValue();
                         Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
                         if ( retval instanceof Long ) {
                             nAssignment.setContentId(((Long) retval).intValue());
-					    // If something went wrong, we can't be an LTI submission in the new site
+                        // If something went wrong, we can't be an LTI submission in the new site
                         } else if ( retval == null || retval instanceof String ) {
                             nAssignment.setTypeOfSubmission(Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE);
-                            log.error("Could not copy LTI Content Item oldSite="+fromContext+" contentKey="+contentKey+" retval="+retval);
+                            log.error("Could not copy LTI Content Item oldSite={} contentKey={} retval={}",fromContext, contentKey, retval);
                         }
                     }
 
