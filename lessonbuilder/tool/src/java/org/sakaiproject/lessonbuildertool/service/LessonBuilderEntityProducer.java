@@ -2306,102 +2306,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-
-		// The ultimate tool id for the about to be created content item
-		Long newToolId = null;
-
-		// Check the tool_id - if the tool_id is global we are cool
-		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
-
-		// Get the tool bypassing security
-		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
-		if ( ltiTool == null ) {
-			return null;
-		}
-
-		// Lets either verifiy we have a good tool or make a copy if needed
-		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
-		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
-		// Global tools have no site id - the simplest case
-		if ( toolSiteId == null ) {
-			newToolId = ltiToolId;
-		} else {
-			// Check if we have a suitable tool already in the site
-			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
-			for ( Map<String,Object> tool : tools ) {
-				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-				if ( oldLaunch == null ) continue;
-				if ( oldLaunch.equals(toolLaunch) ) {
-					newToolId = getLong(tool.get(LTIService.LTI_ID));
-					break;
-				}
-			}
-
-			// If we don't have the tool in the new site, check the tools from the old site
-			if ( newToolId == null ) {
-				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
-				for ( Map<String,Object> tool : tools ) {
-					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-					if ( oldLaunch == null ) continue;
-					if ( oldLaunch.equals(toolLaunch) ) {
-						// Remove stuff that will be regenerated
-						tool.remove(LTIService.LTI_SITE_ID);
-						tool.remove(LTIService.LTI_CREATED_AT);
-						tool.remove(LTIService.LTI_UPDATED_AT);
-						Object newToolInserted = ltiService.insertTool(tool, siteId);
-						if ( newToolInserted instanceof Long ) {
-							newToolId = (Long) newToolInserted;
-							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
-							break;
-						} else {
-							log.error("Could not insert tool - "+newToolInserted);
-							return null;
-						}
-					}
-				}
-			}
-
-			if ( newToolId == null ) {
-				log.error("Could not copy tool, launch="+toolLaunch);
-				return null;
-			}
-		}
-
-		// Finally insert the content item...
-		Properties contentProps = new Properties();
-
-		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if ( value == null ) continue;
-			contentProps.put(key, value.toString());
-		}
-
-		// Point at the correct (possibly the same) tool id
-		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
-
-		// Track the resource_link_history
-		Map<String, Object> updates = new HashMap<String, Object> ();
-		String id_history = SakaiBLTIUtil.trackResourceLinkID(ltiContent);
-		if ( StringUtils.isNotBlank(id_history) ) {
-			String new_settings = (String) contentProps.get(LTIService.LTI_SETTINGS);
-			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
-			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
-			contentProps.put(LTIService.LTI_SETTINGS, new_json.toString());
-		}
-
-		// Remove stuff that will be regenerated
-		contentProps.remove(LTIService.LTI_SITE_ID);
-		contentProps.remove(LTIService.LTI_CREATED_AT);
-		contentProps.remove(LTIService.LTI_UPDATED_AT);
-
-		// Most secrets are in the tool, it is rare to override in the content
-		contentProps.remove(LTIService.LTI_SECRET);
-		contentProps.remove("launch_url"); // Derived on retrieval
-
-		Object result = ltiService.insertContent(contentProps, siteId);
+		Object result = SakaiBLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
-		if ( result instanceof Long ) {
+		if ( result == null ) {
+			return null;
+		} else if ( result instanceof Long ) {
 			sakaiId = "/blti/" + result.toString();
 		} else if ( result instanceof String ) {
 			log.error("Could not insert content - "+result);
