@@ -2973,7 +2973,7 @@ public class SakaiBLTIUtil {
 			}
 
 			if ( newToolId == null ) {
-				log.error("Could not copy tool, launch="+toolLaunch);
+				log.warn("Could not copy tool, launch={}", toolLaunch);
 				return null;
 			}
 		}
