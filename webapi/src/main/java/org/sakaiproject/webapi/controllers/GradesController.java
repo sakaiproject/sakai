@@ -13,15 +13,22 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
-import org.sakaiproject.webapi.beans.GradeRestBean;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.webapi.beans.GradeRestBean;
 
 import org.springframework.http.MediaType;
 
@@ -35,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,11 +56,19 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class GradesController extends AbstractSakaiApiController {
 
-	@Resource(name = "org_sakaiproject_service_gradebook_GradebookService")
-	private GradebookService gradebookService;
+    @Resource
+    private AssignmentService assignmentService;
 
-	@Resource
-	private SiteService siteService;
+    @Resource
+    private EntityManager entityManager;
+
+    @Resource(name = "org_sakaiproject_service_gradebook_GradebookService")
+    private GradebookService gradebookService;
+
+    @Resource
+    private SiteService siteService;
+
+    private GradingService samigoGradingService;
 
     private Function<Site, List<GradeRestBean>> convert = (s) -> {
 
@@ -66,43 +82,81 @@ public class GradesController extends AbstractSakaiApiController {
             return gradebookService.getAssignments(s.getId()).stream()
                 .map(a -> {
 
-                    GradeRestBean gtb = new GradeRestBean(a);
-                    List<String> students = new ArrayList<>(s.getUsers());
-                    List<GradeDefinition> grades
-                        = gradebookService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
+                    try {
+                        GradeRestBean gtb = new GradeRestBean(a);
 
-                    double total = 0;
-                    for (GradeDefinition gd : grades) {
-                        if (gd.getGradeEntryType() == GradebookService.GRADE_TYPE_POINTS) {
-                            total += Double.parseDouble(gd.getGrade());
+                        gtb.setSiteTitle(s.getTitle());
+                        gtb.setUrl(url);
+
+                        List<String> students = new ArrayList<>(s.getUsers());
+                        List<GradeDefinition> grades
+                            = gradebookService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
+
+                        double total = 0;
+                        for (GradeDefinition gd : grades) {
+                            if (gd.getGradeEntryType() == GradebookService.GRADE_TYPE_POINTS) {
+                                total += Double.parseDouble(gd.getGrade());
+                            }
                         }
-                    }
 
-                    int count = grades.size();
-                    gtb.setAverageScore(total > 0 && count > 0 ? total / count : 0);
-                    gtb.setUngraded(students.size() - count);
-                    gtb.setSiteTitle(s.getTitle());
-                    gtb.setUrl(url);
-                    return gtb;
-                }).collect(Collectors.toList());
+                        int count = grades.size();
+                        gtb.setAverageScore(total > 0 && count > 0 ? total / count : 0);
+                        gtb.setUngraded(students.size() - count);
+
+                        if (a.isExternallyMaintained()) {
+                            int submitted = 0, graded = 0;
+                            switch (a.getExternalAppName()) {
+                                case "Assignments":
+                                    try {
+                                        Assignment assignment = assignmentService.getAssignment(entityManager.newReference(a.getExternalId()));
+                                        for (AssignmentSubmission as : assignment.getSubmissions()) {
+                                            if (as.getUserSubmission()) submitted += 1;
+                                            if (as.getGraded()) graded += 1;
+                                        }
+                                        gtb.setUrl(entityManager.getUrl(a.getExternalId(), Entity.UrlType.PORTAL).orElse(""));
+                                    } catch (IdUnusedException idue) {
+                                        log.error("Gradebook external assignment id of {} not a valid assignment", a.getExternalId());
+                                    } catch (PermissionException pe) {
+                                        log.error("Not allowed to access assignment {}", a.getExternalId());
+                                    }
+                                    break;
+                                case "Tests & Quizzes":
+                                    GradingService samigoGradingService = new GradingService();
+                                    List<AssessmentGradingData> gradings = samigoGradingService.getAllSubmissions(a.getExternalId());
+                                    for (AssessmentGradingData grading : gradings) {
+                                        if (grading.getStatus() == 1) submitted += 1;
+                                        // TODO: this is bum way of working out if an instructor has scored a quiz.
+                                        if (grading.getFinalScore() != 0.0) graded +=1;
+                                    }
+                                    break;
+                                default:
+                            }
+                            gtb.setUngraded(submitted - graded);
+                        }
+                        return gtb;
+                    } catch (Exception e) {
+                        log.error("Failed to build bean for assignment {}", a.getId(), e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
         } catch (Exception gnfe) {
             return Collections.<GradeRestBean>emptyList();
         }
     };
 
     @ApiOperation(value = "Get a particular user's grades data")
-	@GetMapping(value = "/users/{userId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradeRestBean> getUserGrades(@PathVariable String userId) throws UserNotDefinedException {
 
-		checkSakaiSession();
+        checkSakaiSession();
         return siteService.getUserSites().stream().map(convert).flatMap(Collection::stream).collect(Collectors.toList());
-	}
+    }
 
     @ApiOperation(value = "Get a particular site's grades data")
-	@GetMapping(value = "/sites/{siteId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/sites/{siteId}/grades", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<GradeRestBean> getSiteGrades(@PathVariable String siteId) throws UserNotDefinedException {
 
-		checkSakaiSession();
+        checkSakaiSession();
 
         try {
             return convert.apply(siteService.getSite(siteId));
@@ -110,5 +164,5 @@ public class GradesController extends AbstractSakaiApiController {
             log.error("Failed to get grades for site {}. Returning empty list ...", siteId);
             return Collections.<GradeRestBean>emptyList();
         }
-	}
+    }
 }
