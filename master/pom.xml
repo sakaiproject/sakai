@@ -66,6 +66,7 @@
     <sakai.spring.security.version>5.2.6.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
+    <sakai.thymeleaf.version>3.0.12.RELEASE</sakai.thymeleaf.version>
     <sakai.tika.version>1.25</sakai.tika.version>
     <sakai.tomcat.version>9.0.43</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
@@ -528,6 +529,24 @@
         <artifactId>spring-data-rest-core</artifactId>
         <version>${sakai.spring.data.rest.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.thymeleaf</groupId>
+        <artifactId>thymeleaf</artifactId>
+        <version>${sakai.thymeleaf.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.thymeleaf</groupId>
+        <artifactId>thymeleaf-spring5</artifactId>
+        <version>${sakai.thymeleaf.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.thymeleaf.extras</groupId>
+        <artifactId>thymeleaf-extras-java8time</artifactId>
+        <version>3.0.4.RELEASE</version>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.atteo</groupId>
@@ -1415,6 +1434,12 @@
       <dependency>
         <groupId>org.sakaiproject.commons</groupId>
         <artifactId>commons-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.conversations</groupId>
+        <artifactId>sakai-conversations-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
