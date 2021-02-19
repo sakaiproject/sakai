@@ -159,7 +159,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <execution>
+                    <!--execution>
                         <id>eslint</id>
                         <goals>
                             <goal>npm</goal>
@@ -167,7 +167,7 @@
                         <configuration>
                             <arguments>run eslint</arguments>
                         </configuration>
-                    </execution>
+                    </execution-->
                     <execution>
                         <id>npm empathise</id>
                         <goals>

@@ -31,6 +31,7 @@ import org.sakaiproject.springframework.data.Repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
@@ -82,10 +83,17 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     }
 
     @Override
-    public T findById(ID id) {
+    public Optional<T> findById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return (T) sessionFactory.getCurrentSession().get(domainClass, id);
+        return Optional.ofNullable((T) sessionFactory.getCurrentSession().get(domainClass, id));
+    }
+
+    @Override
+    public T getById(ID id) {
+
+        Assert.notNull(id, "The id cannot be null");
+        return (T) sessionFactory.getCurrentSession().load(domainClass, id);
     }
 
     @Override
@@ -105,7 +113,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
 
         List<T> list = new ArrayList<>();
         if (ids != null) {
-            ids.forEach(id -> list.add(findById(id)));
+            ids.forEach(id -> findById(id).ifPresent(found -> list.add(found)));
         }
         return list;
     }
@@ -141,7 +149,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     @Override
     @Transactional
     public void deleteById(ID id) {
-        delete(findById(id));
+        findById(id).ifPresent(found -> delete(found));
     }
 
     /**

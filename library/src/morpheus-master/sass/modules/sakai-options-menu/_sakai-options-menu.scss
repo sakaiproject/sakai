@@ -1,0 +1,14 @@
+.sakai-options-menu-content {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: min-content min-content;
+  gap: 5px;
+}
+
+.sakai-options-menu-content a {
+  text-decoration: none;
+  color: #176EA3;
+  font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase;
+}

@@ -1,14 +1,13 @@
 import { html } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import fetchMock from "fetch-mock";
-import { styles } from "./styles/sakai-styles.js";
+import { sakaiStyles } from "./styles/sakai-styles.js";
 import { calendarI18n } from "./i18n/calendar-i18n.js";
 import { datepickerI18n } from "./i18n/datepicker-i18n.js";
 import { dialogcontentI18n } from "./i18n/dialog-content-i18n.js";
 import { calendarData } from "./data/calendar-data.js";
 
 import '../js/calendar/sakai-calendar.js';
-import '@lion/calendar';
 
 export default {
   title: 'Sakai Calendar',
@@ -31,7 +30,7 @@ export default {
 export const BasicDisplay = () => {
 
   return html`
-    ${unsafeHTML(styles)}
+    ${unsafeHTML(sakaiStyles)}
     <div style="width: 400px;">
       <sakai-calendar site-id="some-site"></sakai-calendar>
     </div>
