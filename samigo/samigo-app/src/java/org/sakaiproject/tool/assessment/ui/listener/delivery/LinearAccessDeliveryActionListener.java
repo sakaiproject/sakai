@@ -90,7 +90,12 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
-      
+
+      // If the assessment is not yet available return before a grading record is created
+      if (!delivery.isAvailable()) {
+        return;
+      }
+
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  // #1. check password
     	  if (!delivery.getSettings().getPassword().equals(""))

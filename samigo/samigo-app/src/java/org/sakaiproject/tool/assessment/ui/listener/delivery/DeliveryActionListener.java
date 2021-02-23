@@ -149,6 +149,11 @@ public class DeliveryActionListener
       	return;
       }
 
+      if (!delivery.isAvailable() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
+          log.debug("processAction returning because the assessment is not yet available");
+          return;
+      }
+
       if (delivery.pastDueDate() && (DeliveryBean.TAKE_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT_VIA_URL == action)) {
         if (delivery.isAcceptLateSubmission()) {
           if(delivery.getTotalSubmissions() > 0 && delivery.getActualNumberRetake() > delivery.getNumberRetake()) {// Not during a Retake
