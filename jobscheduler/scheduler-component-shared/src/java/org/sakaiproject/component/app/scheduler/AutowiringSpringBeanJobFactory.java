@@ -39,7 +39,8 @@ public final class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory i
     	
         final Object job = super.createJobInstance(bundle);
         beanFactory.autowireBean(job);
-        beanFactory.autowireBeanProperties(job, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+        // This is set to disable dependency checking, otherwise some bean properties throw an error here
+        beanFactory.autowireBeanProperties(job, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
         return job;
     }
 }
