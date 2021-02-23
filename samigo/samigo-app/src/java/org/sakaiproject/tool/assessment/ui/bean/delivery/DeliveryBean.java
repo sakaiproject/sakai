@@ -1560,7 +1560,11 @@ public class DeliveryBean
 	  
 	  SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
+	  // Sync time and write it to the DB
 	  syncTimeElapsedWithServer();
+	  GradingService gradingService = new GradingService();
+	  gradingService.saveOrUpdateAssessmentGradingOnly(adata);
+	  log.debug("submitForGrade: aid={}, timeElapsed={}, forGrade={}", adata.getAssessmentGradingId(), adata.getTimeElapsed(), adata.getForGrade());
 	  
 	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
 	  // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
@@ -1578,7 +1582,6 @@ public class DeliveryBean
 	  // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
 	  // because each ItemGradingData is created when it is viewed/answered 
 	  if (!"1".equals(navigation)) {
-		  GradingService gradingService = new GradingService();
 		  gradingService.completeItemGradingData(adata);
 	  }
 
@@ -1639,12 +1642,16 @@ public class DeliveryBean
  	  List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
 	  if(eventLogDataList != null && eventLogDataList.size() > 0) {
 	 	  EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-	 	  eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
+	 	  if (submitFromTimeoutPopup) {
+	 	    eventLogData.setErrorMsg(eventLogMessages.getString("timer_submit"));
+	 	  } else {
+	 	    eventLogData.setErrorMsg(eventLogMessages.getString("no_error"));
+	 	  }
 	 	  Date endDate = new Date();
 	 	  eventLogData.setEndDate(endDate);
 	 	  if(eventLogData.getStartDate() != null) {
 	 	      double minute= 1000*60;
-	 	      int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+	 	      int eclipseTime = (int)Math.round(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
 	 	      eventLogData.setEclipseTime(eclipseTime);
 	 	  } else {
 	 	      eventLogData.setEclipseTime(null);
@@ -3071,14 +3078,11 @@ public class DeliveryBean
 	         }
 	         return;
 	      }
-	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-	      if (timedAG != null){
 	        int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
-	        log.debug("***setTimeElapsed={}", timeElapsed);
-		adata.setTimeElapsed(timeElapsed);
-	        setTimeElapse(adata.getTimeElapsed().toString());
-	      }
+	        log.debug("***setTimeElapsed={}, aid={}", timeElapsed, adata.getAssessmentGradingId());
+	        // If timer submit exceeds timeLimit by one second, set the elapsed time to the time limit
+	        setTimeElapse(String.valueOf(timeElapsed));
+	        adata.setTimeElapsed(Integer.valueOf(getTimeElapse()));
 	    }
 	    else{ 
 	      // if we are in other mode, timer need not be accurate
@@ -3094,15 +3098,11 @@ public class DeliveryBean
 		          }
 		          return;
 		      }
-		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-		      if (timedAG != null){
 		    	int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
 		        adata.setTimeElapsed(timeElapsed);
 		        GradingService gradingService = new GradingService();
 		        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
 		        setTimeElapse(adata.getTimeElapsed().toString());
-		      }
 		    }
 		    else{ 
 		      // if we are in other mode, timer need not be accurate
