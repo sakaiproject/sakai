@@ -750,9 +750,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 					DBMembershipItem managedItem = getHibernateTemplate().get(DBMembershipItemImpl.class, item.getId());
 					if (managedItem != null) {
 						membershipItemsToDelete.add(managedItem);
-						PermissionLevel managedLevel = getHibernateTemplate().get(PermissionLevelImpl.class, managedItem.getPermissionLevel().getId());
-						if (managedLevel != null) {
-							permissionLevelsToDelete.add(managedLevel);
+						if (managedItem.getPermissionLevel() != null) {
+							PermissionLevel managedLevel = getHibernateTemplate().get(PermissionLevelImpl.class, managedItem.getPermissionLevel().getId());
+							if (managedLevel != null) {
+								permissionLevelsToDelete.add(managedLevel);
+							}
 						}
 					}
 				}
