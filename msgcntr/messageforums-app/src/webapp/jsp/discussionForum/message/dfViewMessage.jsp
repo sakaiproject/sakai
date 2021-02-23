@@ -124,13 +124,13 @@
 				<h:panelGroup layout="block">
 					<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
 						<a href="#" id="showMessage" class="toggle show">
-							<h:graphicImage url="/images/expand.gif" alt=""/>
+							<h:graphicImage url="/images/collapse.gif" alt=""/>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 						</a>
 					</p>
 					<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
 						<a href="#" id="hideMessage" class="toggle show">
-							<h:graphicImage url="/images/collapse.gif" alt="" />
+							<h:graphicImage url="/images/expand.gif" alt="" />
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 						</a>
 					</p>

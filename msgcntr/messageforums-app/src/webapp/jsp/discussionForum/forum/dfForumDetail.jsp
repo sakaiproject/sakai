@@ -81,7 +81,7 @@
 				<h:panelGroup>
 					<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
 						<a href="#" id="showMessage" class="toggle show">
-							<h:graphicImage url="/images/expand.gif" alt=""/>
+							<h:graphicImage url="/images/collapse.gif" alt=""/>
 							<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
 							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -89,7 +89,7 @@
 					</h:panelGroup>
 					<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
 						<a href="#" id="hideMessage" class="toggle show">
-							<h:graphicImage url="/images/collapse.gif" alt="" />
+							<h:graphicImage url="/images/expand.gif" alt="" />
 							<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}" />
 							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -203,7 +203,7 @@
 							<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
 								<a href="#" id="showMessage" class="toggle show">
 									<h:graphicImage url="/images/expand.gif" alt=""/>
-									<h:outputText value=" #{msgs.cdfm_read_full_description}" />
+									<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
 								</a>
@@ -211,7 +211,7 @@
 							<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
 								<a href="#" id="hideMessage" class="toggle show">
 									<h:graphicImage url="/images/collapse.gif" alt="" />
-									<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
+									<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
 								</a>
