@@ -157,7 +157,7 @@ public class TimedAssessmentRunnable implements Runnable {
             eventLogData.setEndDate(submitDate);
             if(eventLogData.getStartDate() != null) {
               double minute= 1000*60;
-              int eclipseTime = (int)Math.ceil(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+              int eclipseTime = (int)Math.round(((submitDate.getTime() - eventLogData.getStartDate().getTime())/minute));
               eventLogData.setEclipseTime(eclipseTime); 
             } else {
               eventLogData.setEclipseTime(null); 
