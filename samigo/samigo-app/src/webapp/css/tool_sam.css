@@ -111,14 +111,10 @@ h4.samigo-category-subhead-2 {
   padding:.3em
 }
 
-/*
-.navModeQuestion
-{background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
-*/
 .navViewAction {
-background-color:#CCC;
+background-color: var(--sakai-background-color-4);
 text-align:left;
-padding:.3em;
+padding: 16px;
 vertical-align: bottom;
 font-size:1.2em
 }
@@ -129,8 +125,8 @@ font-size:1.2em
 .number {
   width:23px;
   height:23px;
-        FONT-WEIGHT: bold;
-        COLOR:#FFFFFF;
+        font-weight: bold;
+        color: var(--sakai-text-color-inverted);
         background-image: url(../images/circle.gif);
         vertical-align: middle;
         background-repeat: no-repeat;
@@ -194,7 +190,7 @@ font-size:1.2em
 
 .samLeftTopNav  {
 	vertical-align:top;
-    text-align:top;
+    text-align:left;
 }
 
 .samRightNav  {
@@ -414,17 +410,10 @@ ul.ui-tabs-nav li a {
 	color: #0A72AE;
 }
 ul.ui-tabs-nav li.ui-tabs-selected a {
-	color: #000000;
-}
-#authorIndexForm\:import {
-	display: block;
-	margin-top: 12px;
-}
-#authorIndexForm\:createnew {
-	margin-top: 12px;
+	color: var(--sakai-text-color-1);
 }
 tr.list-row-even td, tr.list-row-odd td {
-	border-bottom: 1px solid #C6C6C6;
+	border-bottom: 1px solid var(--sakai-border-color);
 	padding-top: 8px;
 }
 #assessment-status-limiter {
@@ -507,8 +496,8 @@ a.hideDivision {
 }
 
 .answerkeyFeedbackCommentLabel {
-	FONT-WEIGHT: bold;
-    COLOR:#860000;
+    font-weight: bold;
+    color: #860000;
 } 
 
 .saCharCount {

@@ -235,9 +235,9 @@
         <!-- HEADINGS -->
         <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
-        <p>
-            <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-        </p>
+        <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}">
+            <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+        </h:panelGroup>
 
         <div class="samigo-container">
             <div class="page-header">
