@@ -16,6 +16,7 @@
 package org.sakaiproject.component.app.scheduler.jobs;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import org.quartz.JobExecutionException;
 
@@ -39,7 +40,7 @@ public class TestConfigurableJob extends AbstractConfigurableJob
         throws JobExecutionException
     {
 
-        log.debug ("running TestConfigurableJob");
+        log.info ("running TestConfigurableJob");
 
         readIntegerProperty();
         readStringProperty();
@@ -54,17 +55,17 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            log.debug ("integer property is null");
+            log.info ("integer property is null");
         }
         else
         {
             try
             {
-                log.debug ("integer property is set to integer value: '" + Integer.parseInt(temp) + "'");
+                log.info ("integer property is set to integer value: '{}'", temp);
             }
             catch (NumberFormatException nfe)
             {
-                log.error ("integer property is set to a non-integer value: '" + temp + "'");
+                log.error ("integer property is set to a non-integer value: '{}'", temp);
             }
         }
     }
@@ -74,17 +75,13 @@ public class TestConfigurableJob extends AbstractConfigurableJob
     {
         String temp = getConfiguredProperty(STRING_PROPERTY);
 
-        if (temp == null)
+        if (StringUtils.isBlank(temp))
         {
-            log.debug ("string property is null");
-        }
-        else if (temp.trim().length() == 0)
-        {
-            log.debug ("string property is empty");
+            log.info ("string property is blank");
         }
         else
         {
-            log.debug ("string property is set to: '" + temp + "'");
+            log.info ("string property is set to: '{}'", temp);
         }
     }
 
@@ -95,11 +92,11 @@ public class TestConfigurableJob extends AbstractConfigurableJob
 
         if (temp == null)
         {
-            log.debug ("boolean property is null");
+            log.info ("boolean property is null");
         }
         else
         {
-            log.debug ("boolean property is set to boolean value: '" + Boolean.parseBoolean(temp) + "'");
+            log.info ("boolean property is set to boolean value: '{}'", temp);
         }
     }
 }
