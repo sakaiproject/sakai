@@ -120,6 +120,10 @@
     // Used as text color of active site in favorites, active tool in toolmenu
     --sakai-text-color-3: var(--sakai-brand--darker-3);
 
+    // Default: A slightly lighter shade of --sakai-text-color-1
+    // Used to reduce attention of text
+    --sakai-text-color-dimmed: var(--sakai-color-gray--darker-4);
+
     // Default: A lighter shade of --sakai-text-color-1
     // Used to make elements appear disabled or "grayed out"
     --sakai-text-color-disabled: var(--sakai-color-gray--darker-2);
@@ -258,8 +262,13 @@
     --sites-nav-menu-item-hover-background: var(--sakai-background-color-3);
     --sites-nav-menu-item-hover-color: var(--sakai-text-color-2);
     --sites-nav-menu-item-hover-border-color: var(--sites-nav-menu-item-hover-background);
+    --sites-nav-menu-item-hover-icon-background: var(--sakai-background-color-4);
+    --sites-nav-menu-item-hover-icon-border-color: var(--sakai-background-color-4);
     // Active
     --sites-nav-menu-item-active-background: var(--sakai-background-color-4);
+    --sites-nav-menu-item-active-border-color: var(--sakai-background-color-4);
+    --sites-nav-menu-item-active-icon-background: var(--sakai-background-color-4);
+    --sites-nav-menu-item-active-icon-border-color: var(--sakai-background-color-4);
     // Tool menu dropdown
     --sites-nav-submenu-border-color: transparent;
     --sites-nav-submenu-background: var(--sites-nav-menu-item-background);
@@ -280,8 +289,13 @@
     --sites-nav-menu-item-selected-hover-background: var(--sakai-active-color-2);
     --sites-nav-menu-item-selected-hover-color: var(--sakai-text-color-3);
     --sites-nav-menu-item-selected-hover-border-color: var(--sites-nav-menu-item-selected-hover-background);
+    --sites-nav-menu-item-selected-hover-icon-background: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-hover-icon-border-color: var(--sakai-active-color-3);
     // Active
     --sites-nav-menu-item-selected-active-background: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-active-border-color: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-active-icon-background: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-active-icon-border-color: var(--sakai-active-color-3);
     // Tool menu dropdown
     --sites-nav-submenu-selected-border-color: transparent;
     --sites-nav-submenu-selected-background: var(--sites-nav-menu-item-selected-background);
@@ -484,6 +498,8 @@
     --sakai-calendar-has-events-fg: white;
     --sakai-calendar-has-events-bg: green;
     --sakai-calendar-has-events-fg: white;
+
+    --sakai-user-status-online: var(--sakai-color-green--lighter-2);
 }
 
 // Tables

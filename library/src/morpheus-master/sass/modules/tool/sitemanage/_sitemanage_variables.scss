@@ -1,8 +1,8 @@
 // Site Manage and Site Info-specific styles
 
-$manageTools-heading-background: #eee;
-$manageTools-heading-hover-background: #ddd;
+$manageTools-heading-background: var(--sakai-background-color-2);
+$manageTools-heading-hover-background: var(--sakai-background-color-3);
 
-$manageTools-panel-border: 1px solid #ddd;
+$manageTools-panel-border: 1px solid var(--sakai-border-color);
 
 $manageTools-border-radius-size: 5px;

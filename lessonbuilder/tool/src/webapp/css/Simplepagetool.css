@@ -403,12 +403,9 @@ span.remove-upload {
     margin: 4px 8px 4px 8px;
     padding: 25px 7px 15px 7px;
     list-style:none;
-    background-color: var(--sakai-background-color-1);
-    border: 1px solid var(--sakai-border-color);
     display:inline-block;
     vertical-align: top;
     border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 
@@ -557,6 +554,7 @@ div.layout-option > div {
     margin-bottom: 10px;
 } 
 .mainList div.question .multipleChoiceAnswer {
+    padding: .5em 0;
 }
 .mainList div.question .multipleChoiceForm input.bold {
 }
@@ -1225,22 +1223,19 @@ float:left;
 .question-multiplechoice-answer, .question-shortanswer-answer {
 	width: 250px;
 }
-input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
+/* input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
    margin: inherit;
    margin-top:15px;
-   border:1px solid #999;
-   color: black !important;
    font-family: inherit;
    cursor: pointer;
    padding:6px 20px !important;
-   background:#f0f0f0;
    font-weight: normal;
    font-size: inherit;
    letter-spacing: inherit;   
    line-height: inherit;
    border-radius: 3px;
    position: static;
-}
+} */
 .linkCell .addStudentContent {
  -webkit-border-radius: 3px;
  -moz-border-radius: 3px;
@@ -1575,8 +1570,7 @@ background: none !important;
 }
 .sectionHeader {
     padding: 8px;
-    border-radius: 2px;
-    margin-bottom: 4px;
+    margin: 16px 0 0;
 }
 
 .sectionHeader .collapseIcon {
@@ -1587,6 +1581,9 @@ background: none !important;
 .sectionCollapsedIcon {
     font-family: FontAwesome;
     margin-left: 1em;
+}
+.section {
+    margin-bottom: 1em;
 }
 #expandCollapseButtons {
     width: 100%;

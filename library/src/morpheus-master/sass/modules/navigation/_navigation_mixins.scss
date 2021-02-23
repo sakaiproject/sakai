@@ -24,10 +24,13 @@
 
 	&:focus {
 		outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
+		// This is a rounded element, use a box-shadow to emulate outline styles on :focus
+		// and the shadow will inherit the shape of the element
+		outline:none;
+		box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
 	}
 
 	&:active {
 		outline: 0 none;	// hiding on click
-		background: var(--sites-nav-menu-item-active-background)
 	}
 }

@@ -121,6 +121,10 @@
     // Used as text color of active site in favorites, active tool in toolmenu
     --sakai-text-color-3: var(--sakai-brand--lighter-6);
 
+    // Default: A slightly lighter shade of --sakai-text-color-1
+    // Used to reduce attention of text
+    --sakai-text-color-dimmed: var(--sakai-color-gray--lighter-4);
+
     // Default: A lighter shade of --sakai-text-color-1
     // Used to make elements appear disabled or "grayed out"
     --sakai-text-color-disabled: var(--sakai-color-gray--lighter-2);

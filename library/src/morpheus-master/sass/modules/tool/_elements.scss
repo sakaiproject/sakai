@@ -3,15 +3,28 @@
 		border-color: var(--sakai-border-color);
 	}
 	.panel-heading {
-		background-color:var(--sakai-background-color-2);
+		background-color: var(--sakai-background-color-2);
+		&:hover,
+		&:focus {
+			background-color: var(--sakai-active-color-1);
+		}
+		&:active {
+			background-color: var(--sakai-active-color-2);
+		}
 	}
 	.panel-heading > .panel-title {
 		padding: 0;
 		a {
 			padding: $standard-spacing;
+			color: var(--sakai-text-color-1);
 		}
 		a, a:hover {
 			text-decoration: none;
+		}
+		a:hover,
+		a:focus,
+		a:active {
+			color: var(--sakai-text-color-1);
 		}
 		a:focus {
 			outline-offset: -#{$focus-outline-width};	// keep outline contained within the element
