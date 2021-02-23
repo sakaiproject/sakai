@@ -16,13 +16,29 @@
 	}
 
 	#samigo-create-new-box, #samigo-create-import-box {
-		@extend .bs-callout-primary;
-		border-left-width: 1px;
-		margin-top: 20px;
+		margin-bottom: $standard-spacing;
+		padding: $standard-spacing;
+		border: 1px solid var(--sakai-border-color);
+		background: var(--sakai-background-color-2);
+
+		h2 {
+			margin: 0 0 15px 0; 	// to match the .form-group's spacing
+		}
+
+		label, input[type="radio"] {
+			margin-right: $standard-space;
+		}
+
+		& > .form-group:last-of-type {
+			margin-bottom: 0;
+		}
 	}
 
 	#samigo-create-or-box {
-		margin-top: 20px;
+		margin: $standard-spacing 0;	// give it space on the bottom for column layout
+		font-size: 20px;		// to match h2 default size
+		line-height: 1.05;
+		text-align: center;
 	}
 
 	.samigo-question-callout {
