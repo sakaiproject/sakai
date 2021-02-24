@@ -180,6 +180,7 @@
 		&:focus,
 		&:active {
 			font-weight: 600;
+			background-color: var(--sakai-background-color-4);
 		}
 	}
 
@@ -201,57 +202,57 @@
 	// Example usage 
 	//      @include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
 
-		$shade1: 4;
-		$shade2: 5;
-		$shade3: 3;
-		$shade4: 7;
+		$shade1: #{$color}--#{$lighterOrDarker}-4;
+		$shade2: #{$color}--#{$lighterOrDarker}-5;
+		$shade3: #{$color}--#{$lighterOrDarker}-3;
+		$shade4: #{$color}--#{$lighterOrDarker}-7;
 		@if $lighterOrDarker == 'darker' {
-			$shade1: 3;
-			$shade2: 4;
-			$shade3: 2;
-			$shade4: 6;
+			$shade1: #{$color}--#{$lighterOrDarker}-3;
+			$shade2: #{$color}--#{$lighterOrDarker}-4;
+			$shade3: #{$color}--#{$lighterOrDarker}-2;
+			$shade4: #{$color}--#{$lighterOrDarker}-6;
 		}
 		
 		.coln#{$name}, .coln#{$name}-trans {
 			background: var(--sakai-background-color-1);
-			border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade1});
+			border: 1px solid var($shade1);
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
-			@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade2};
-			border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade2});
+			@extend .sakai-colorize#{$shade2};
+			border: 1px solid var(#{$shade2});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:hover, .collapsibleSectionHeader.coln#{$name}-trans-header:hover {
-			@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade1};
-			border-color: var(#{$color}--#{$lighterOrDarker}-#{$shade1});
+			@extend .sakai-colorize#{$shade1};
+			border-color: var(#{$shade1});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:active, .collapsibleSectionHeader.coln#{$name}-trans-header:active {
-			@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade3};
-			border-color: var(#{$color}--#{$lighterOrDarker}-#{$shade3});
+			@extend .sakai-colorize#{$shade3};
+			border-color: var(#{$shade3});
 		}
 		.coln#{$name}-header + .section {
-			border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade2});
+			border: 1px solid var(#{$shade2});
 			border-top: none;
 		}
 		
 		.coln#{$name} {
 			.questionDiv .contentCol, .checklistDiv {
-				@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade4};
+				@extend .sakai-colorize#{$shade4};
 			}
 			.usebutton.n#{$name},
 			.usebutton.n#{$name}-trans,
 			input[type="submit"].question-submit,
 			.linkCell .addStudentContent,
 			input[type="submit"].setStudentZero {
-				@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade2};
-				border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade2});
+				@extend .sakai-colorize#{$shade2};
+				border: 1px solid var(#{$shade2});
 				&:hover,
 				&:focus {
-					@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade1};
-					border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade1});
+					@extend .sakai-colorize#{$shade1};
+					border: 1px solid var(#{$shade1});
 				}
 				&:active {
-					@extend .sakai-colorize#{$color}--#{$lighterOrDarker}-#{$shade3};
-					border: 1px solid var(#{$color}--#{$lighterOrDarker}-#{$shade3});
+					@extend .sakai-colorize#{$shade3};
+					border: 1px solid var(#{$shade3});
 				}
 			}
 			input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
