@@ -155,7 +155,7 @@ $(function () {
   });
 
   const save = e => {
-    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.save());
+    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.release());
   };
 
   let saveButton = document.getElementById("editStudentResults:save");
