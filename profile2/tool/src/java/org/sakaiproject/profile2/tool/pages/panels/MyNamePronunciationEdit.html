@@ -170,6 +170,7 @@
             audio.muted = true;
             audio.srcObject = microphone;
             var options = {
+                sampleRate: 44100,
                 type: 'audio',
                 mimeType: 'audio/wav',
                 numberOfAudioChannels: isEdge ? 1 : 2,
