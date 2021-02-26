@@ -218,6 +218,12 @@
 			<div class="col-sm-6">
 				<textarea  name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
 			</div>
+			<div class="col-sm-6">
+				<span id="exceededTextAlert" class="sak-banner-error">
+					$tlang.getString("sitediinf.textmaxchar")
+				</span>	
+				<script type="text/javascript">document.getElementById('exceededTextAlert').style.display='none'</script>
+			</div>
 		</div>	
 		## Skin & Site Icon ##
 		#if($allowSkinChoice && !$!skins.isEmpty())

@@ -1228,6 +1228,9 @@ function LimitText(fieldObj,maxChars) {
   if (fieldObj.value.length >= maxChars) {
     fieldObj.value = fieldObj.value.substring(0,maxChars);
     result = false;
+    document.getElementById("exceededTextAlert").style.display = 'block'; 
+  } else {
+    document.getElementById("exceededTextAlert").style.display = 'none';
   }
 
   if (window.event) {
