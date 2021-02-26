@@ -106,7 +106,7 @@ public class ItemService
     try {
       // delete rubric association
       String associationId = getAssessmentId(itemId) + "." + itemId;
-      rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);
+      rubricsService.deleteRubricAssociationsByItemIdPrefix(associationId, RubricsConstants.RBCS_TOOL_SAMIGO);
 	  
       // do not check for owner, anyone who has maintain role can modify items see SAK-2214
       PersistenceService.getInstance().getItemFacadeQueries().deleteItem(itemId, agentId);

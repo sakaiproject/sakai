@@ -14,10 +14,14 @@
 
     &.visible {
         cursor: pointer;
-        &:hover {
-            box-shadow: 1px 1px 3px #555;
+        box-shadow: var(--elevation-2dp);
+        &:hover, &:focus {
+            box-shadow: var(--elevation-4dp);
             border-radius: 50%;
             opacity: 1 !important;
+        }
+        &:active {
+            box-shadow: var(--elevation-3dp);
         }
     }
 

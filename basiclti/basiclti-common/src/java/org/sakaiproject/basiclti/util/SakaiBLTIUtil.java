@@ -22,11 +22,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -78,9 +81,12 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
+import org.sakaiproject.lti13.util.SakaiLaunchJWT;
+import org.sakaiproject.lti13.util.SakaiExtension;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTICustomVars;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -445,6 +451,9 @@ public class SakaiBLTIUtil {
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_SOURCEDID, site.getId());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_ID, site.getId());
 
+			String context_id_history = site.getProperties().getProperty(LTICustomVars.CONTEXT_ID_HISTORY);
+			setProperty(lti13subst, LTICustomVars.CONTEXT_ID_HISTORY, context_id_history);
+
 			setProperty(props, BasicLTIConstants.CONTEXT_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.COURSESECTION_LABEL, site.getTitle());
 			setProperty(lti13subst, LTICustomVars.CONTEXT_LABEL, site.getTitle());
@@ -528,10 +537,38 @@ public class SakaiBLTIUtil {
 		}
 	}
 
+	public static String upgradeRoleString(String roleString)
+	{
+		if ( StringUtils.isEmpty(roleString) ) return roleString;
+
+		String[] pieces = roleString.split(",");
+		StringBuffer sb = new StringBuffer();
+		for (String s : pieces) {
+			s = s.trim();
+			if ( s.length() == 0 ) continue;
+			if ( sb.length() > 0 ) sb.append(",");
+			if ( s.startsWith("http://") || s.startsWith("https://") ) {
+				sb.append(s);
+				continue;
+			}
+			// http://www.imsglobal.org/spec/lti/v1p3/
+			if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER) ) sb.append(LTI13ConstantsUtil.ROLE_LEARNER);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR) ) sb.append(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN);
+			else if ( s.equalsIgnoreCase(BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN) ) sb.append(LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN);
+			else sb.append(s);
+		}
+		return sb.toString();
+	}
+
 	public static String getRoleString(String context) {
         String theRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
 		if (SecurityService.isSuperUser()) {
-			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR + ",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
+			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN + 
+				"," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
 		} else if (SiteService.allowUpdateSite(context)) {
 			theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR;
 		}
@@ -561,10 +598,11 @@ public class SakaiBLTIUtil {
 				}
 				if (roleId != null && roleId.length() > 0) {
 					setProperty(props, "ext_sakai_role", roleId);
+					setProperty(lti13subst, "Sakai.ext.role", roleId);
 				}
 				if (roleMap.containsKey(roleId)) {
 					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, roleMap.get(roleId));
+					setProperty(lti13subst, LTICustomVars.MEMBERSHIP_ROLE, upgradeRoleString(roleMap.get(roleId)));
 				}
 			}
 		} catch (GroupNotDefinedException e) {
@@ -610,7 +648,7 @@ public class SakaiBLTIUtil {
 		addGlobalData(site, props, null, rb);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
-		String roleMapProp = toNull(getCorrectProperty(config, "rolemap", placement));
+		String roleMapProp = toNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
 		addRoleInfo(props, null, context, roleMapProp);
 		addSiteInfo(props, null, site);
 
@@ -700,7 +738,7 @@ public class SakaiBLTIUtil {
 			}
 
 			String allowRoster = (String) normalProps.get(LTIService.LTI_ALLOWROSTER);
-			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS);
+			String allowSettings = (String) normalProps.get(LTIService.LTI_ALLOWSETTINGS_EXT);
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 
@@ -973,7 +1011,7 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get("rolemap"));
+			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 			addUserInfo(ltiProps, lti13subst, tool);
 
 			String resource_link_id = getResourceLinkId(content);
@@ -1043,6 +1081,12 @@ public class SakaiBLTIUtil {
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_DESCRIPTION, description);
 			}
 
+			// Pull in the ResouceLink.id.history value from JSON
+			String content_id_history = (String) content_json.get(LTIService.LTI_ID_HISTORY);
+			if ( StringUtils.isNotBlank(content_id_history) ) {
+				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
+			}
+
 			// Bring in the substitution variables from Assignments via JSON
 			String[] jsonSubst  = {
 				DeepLinkResponse.RESOURCELINK_AVAILABLE_STARTDATETIME,
@@ -1061,7 +1105,7 @@ public class SakaiBLTIUtil {
 
 			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 			String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
@@ -1375,7 +1419,7 @@ public class SakaiBLTIUtil {
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get("rolemap"));
+			addRoleInfo(ltiProps, lti13subst, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 
 			int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 			int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
@@ -1681,7 +1725,7 @@ public class SakaiBLTIUtil {
 
 			// Lets make a JWT from the LTI 1.x data
 			boolean deepLink = false;
-			LaunchJWT lj = new LaunchJWT();
+			SakaiLaunchJWT lj = new SakaiLaunchJWT();
 			if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 				deepLink = true;
@@ -1700,10 +1744,11 @@ public class SakaiBLTIUtil {
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
 
-			// TODO: Check through the rolemap logic
-			String lti1_roles = ltiProps.getProperty("roles");
-			if (lti1_roles != null && lti1_roles.contains("Instructor")) {
-				lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+			String lti1_roles = upgradeRoleString(ltiProps.getProperty("roles"));
+			if (lti1_roles != null ) {
+				Set<String> roleSet = new HashSet<String>();
+				roleSet.addAll(Arrays.asList(lti1_roles.split(",")));
+				lj.roles.addAll(roleSet);
 			} else {
 				lj.roles.add(LaunchJWT.ROLE_LEARNER);
 			}
@@ -1769,7 +1814,7 @@ public class SakaiBLTIUtil {
 
 			int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 			int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+			int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS_EXT));
 			int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
@@ -1810,6 +1855,11 @@ public class SakaiBLTIUtil {
 				nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
 				lj.names_and_roles = nar;
 			}
+
+			// Add Sakai Extensions from ltiProps
+			SakaiExtension se = new SakaiExtension();
+			se.copyFromPost(ltiProps);
+			lj.sakai_extension = se;
 
 			/*
 				Extra fields for DeepLink
@@ -2001,6 +2051,40 @@ public class SakaiBLTIUtil {
 				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 			}
 			return signed_placement;
+		}
+
+		public static String trackResourceLinkID(Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			return id_history;
+		}
+
+		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
+			boolean retval = false;
+
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			JSONObject old_json = BasicLTIUtil.parseJSONObject(old_settings);
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+
+			String new_settings = (String) newContent.get(LTIService.LTI_SETTINGS);
+			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			String new_id_history = (String) new_json.get(LTIService.LTI_ID_HISTORY);
+
+			String old_resource_link_id = getResourceLinkId(oldContent);
+
+			String id_history = BasicLTIUtil.mergeCSV(old_id_history, new_id_history, old_resource_link_id);
+			if ( id_history.equals(new_id_history) ) return false;
+
+			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
+			newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
+			return true;
 		}
 
 		public static String[] postError(String str) {
@@ -2492,9 +2576,8 @@ public class SakaiBLTIUtil {
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
 				String value = toNull(getCorrectProperty(config, field, placement));
-				// YYY
 				if (field.equals(BASICLTI_PORTLET_ALLOWSETTINGS)) {
-					field = LTIService.LTI_ALLOWSETTINGS;
+					field = LTIService.LTI_ALLOWSETTINGS_EXT;
 				}
 				if (field.equals(BASICLTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;
@@ -2805,6 +2888,7 @@ public class SakaiBLTIUtil {
 		return null;
 
 	}
+
 	public static Map<String, Object> findBestToolMatch(String launchUrl, List<Map<String,Object>> tools)
 	{
 		// Example launch URL:
@@ -2817,6 +2901,145 @@ public class SakaiBLTIUtil {
 
 		retval = findBestToolMatch(global, launchUrl, tools);
 		return retval;
+	}
+
+	/**
+	 * Copy an LTI Content Item from an old site into a new site
+	 *
+	 * This copies an LTI Content Item from one site to another site.
+	 * The content item is linked to an appropriate tool entry - either in
+	 * the new site or globally avalable.  If no suitable tool can be found,
+	 * it is created.
+	 *
+	 * This routine uses Dao access and assumes the calling code has insured
+	 * that the logged in user has appropriate permissions in both sites
+	 * before calling this routine.
+	 *
+	 * @param  contentKey  The old content item key from the old site
+	 * @param  siteId  The site id that the item is being copied from
+	 * @param  oldSiteId  The site id that the item is being copied from
+	 */
+	public static Object copyLTIContent(Long contentKey, String siteId, String oldSiteId)
+	{
+		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		Map<String, Object> ltiContent = ltiService.getContentDao(contentKey, oldSiteId, true);
+		return copyLTIContent(ltiContent, siteId, oldSiteId);
+	}
+
+	/**
+	 * Copy an LTI Content Item from an old site into a new site
+	 *
+	 * This copies an LTI Content Item from one site to another site.
+	 * The content item is linked to an appropriate tool entry - either in
+	 * the new site or globally avalable.  If no suitable tool can be found,
+	 * it is created.
+	 *
+	 * This routine uses Dao access and assumes the calling code has insured
+	 * that the logged in user has appropriate permissions in both sites
+	 * before calling this routine.
+	 *
+	 * @param  ltiContent  The old content item from the old site
+	 * @param  siteId  The site id that the item is being copied from
+	 * @param  oldSiteId  The site id that the item is being copied from
+	 */
+	public static Object copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
+	{
+		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+
+		// The ultimate tool id for the about to be created content item
+		Long newToolId = null;
+
+		// Check the tool_id - if the tool_id is global we are cool
+		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
+
+		// Get the tool bypassing security
+		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
+		if ( ltiTool == null ) {
+			return null;
+		}
+
+		// Lets either verifiy we have a good tool or make a copy if needed
+		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
+		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
+		// Global tools have no site id - the simplest case
+		if ( toolSiteId == null ) {
+			newToolId = ltiToolId;
+		} else {
+			// Check if we have a suitable tool already in the site
+			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
+			for ( Map<String,Object> tool : tools ) {
+				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+				if ( oldLaunch == null ) continue;
+				if ( oldLaunch.equals(toolLaunch) ) {
+					newToolId = getLong(tool.get(LTIService.LTI_ID));
+					break;
+				}
+			}
+
+			// If we don't have the tool in the new site, check the tools from the old site
+			if ( newToolId == null ) {
+				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
+				for ( Map<String,Object> tool : tools ) {
+					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+					if ( oldLaunch == null ) continue;
+					if ( oldLaunch.equals(toolLaunch) ) {
+						// Remove stuff that will be regenerated
+						tool.remove(LTIService.LTI_SITE_ID);
+						tool.remove(LTIService.LTI_CREATED_AT);
+						tool.remove(LTIService.LTI_UPDATED_AT);
+						Object newToolInserted = ltiService.insertTool(tool, siteId);
+						if ( newToolInserted instanceof Long ) {
+							newToolId = (Long) newToolInserted;
+							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
+							break;
+						} else {
+							log.warn("Could not insert tool - {}",newToolInserted);
+							return null;
+						}
+					}
+				}
+			}
+
+			if ( newToolId == null ) {
+				log.warn("Could not copy tool, launch={}",toolLaunch);
+				return null;
+			}
+		}
+
+		// Finally insert the content item...
+		Properties contentProps = new Properties();
+
+		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			if ( value == null ) continue;
+			contentProps.put(key, value.toString());
+		}
+
+		// Point at the correct (possibly the same) tool id
+		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
+
+		// Track the resource_link_history
+		Map<String, Object> updates = new HashMap<String, Object> ();
+		String id_history = SakaiBLTIUtil.trackResourceLinkID(ltiContent);
+		if ( StringUtils.isNotBlank(id_history) ) {
+			String new_settings = (String) contentProps.get(LTIService.LTI_SETTINGS);
+			JSONObject new_json = BasicLTIUtil.parseJSONObject(new_settings);
+			new_json.put(LTIService.LTI_ID_HISTORY, id_history);
+			contentProps.put(LTIService.LTI_SETTINGS, new_json.toString());
+		}
+
+		// Remove stuff that will be regenerated
+		contentProps.remove(LTIService.LTI_SITE_ID);
+		contentProps.remove(LTIService.LTI_CREATED_AT);
+		contentProps.remove(LTIService.LTI_UPDATED_AT);
+
+		// Most secrets are in the tool, it is rare to override in the content
+		contentProps.remove(LTIService.LTI_SECRET);
+		contentProps.remove("launch_url"); // Derived on retrieval
+
+		Object result = ltiService.insertContent(contentProps, siteId);
+		return result;
 	}
 
 	public static Long getLong(Object key) {
@@ -2872,10 +3095,9 @@ public class SakaiBLTIUtil {
 		if( roleMapProp.contains(";") ) delim = ";";
 		String[] roleMapPairs = roleMapProp.split(delim);
 		for (String s : roleMapPairs) {
-			String[] roleMapPair = s.split(":");
-			if (roleMapPair.length != 2) {
-				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma or semicolon-separated list of values of the form maintain:Learner");
-			}
+			if ( s.trim().length() < 1 ) continue;
+			String[] roleMapPair = s.split(":", 2);
+			if (roleMapPair.length != 2) continue;
 			roleMap.put(roleMapPair[0].trim(), roleMapPair[1].trim());
 		}
 		return roleMap;

@@ -679,8 +679,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	{
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
-		if (!ltiService.isMaintain(getSiteId(state))) {
-			addAlert(state, rb.getString("error.maintain.view"));
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.view"));
 			return "lti_error";
 		}
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
@@ -724,10 +724,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
+		if (!ltiService.isAdmin(getSiteId(state))) {
+			addAlert(state, rb.getString("error.admin.view"));
+			switchPanel(state, "Error");
+			return;
+		}
+
 		String title = data.getParameters().getString("title");
 		if (title == null || title.length() < 1) {
 			addAlert(state, rb.getString("tool.lti13.auto.start.title.required"));
-			switchPanel(state, "AutoStart");
+			switchPanel(state, "AutoInsert");
 			return;
 		}
 
@@ -757,9 +763,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	public String buildAutoStartPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
+
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
-		if (!ltiService.isMaintain(getSiteId(state))) {
+		if (!ltiService.isAdmin(getSiteId(state))) {
 			addAlert(state, rb.getString("error.maintain.view"));
 			return "lti_error";
 		}

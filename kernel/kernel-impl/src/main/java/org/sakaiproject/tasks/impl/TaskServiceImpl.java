@@ -31,17 +31,14 @@ import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.tasks.api.repository.TaskRepository;
+import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tool.api.SessionManager;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.transaction.annotation.Transactional;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
-
 
 import javax.annotation.Resource;
 
@@ -55,34 +52,32 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired private SessionManager sessionManager;
 
-    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
-    private SessionFactory sessionFactory;
+    @Resource
+    private TaskRepository taskRepository;
+
+    @Resource
+    private UserTaskRepository userTaskRepository;
 
     @Transactional
     public UserTask createSingleUserTask(UserTaskAdapterBean transfer) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
-        Session session = sessionFactory.getCurrentSession();
-
         Task task = new Task();
         BeanUtils.copyProperties(transfer, task);
         task.setReference("/user/" + userId);
         task.setSystem(false);
-        session.save(task);
+        task = taskRepository.save(task);
 
         UserTask userTask = new UserTask();
         BeanUtils.copyProperties(transfer, userTask);
         userTask.setUserId(userId);
         userTask.setTask(task);
-        session.save(userTask);
-        return userTask;
+        return userTaskRepository.save(userTask);
     }
 
     @Transactional
     public Task createTask(Task task, Set<String> users, Integer priority) {
-
-        Session session = sessionFactory.getCurrentSession();
 
         Optional<Task> optionalCurrentTask = getTask(task.getReference());
 
@@ -90,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
             task.setId(optionalCurrentTask.get().getId());
         }
 
-        final Task mergedTask = (Task) session.merge(task);
+        final Task mergedTask = taskRepository.save(task);
 
         if (!optionalCurrentTask.isPresent()) {
             users.forEach(userId -> {
@@ -99,7 +94,7 @@ public class TaskServiceImpl implements TaskService {
                 userTask.setUserId(userId);
                 userTask.setTask(mergedTask);
                 userTask.setPriority(priority);
-                session.merge(userTask);
+                userTaskRepository.save(userTask);
             });
         }
 
@@ -108,61 +103,51 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     public Task saveTask(Task task) {
-
-        Session session = sessionFactory.getCurrentSession();
-        return (Task) session.merge(task);
+        return taskRepository.save(task);
     }
 
     public Optional<Task> getTask(String reference) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        List<Task> tasks = (List<Task>) session.createCriteria(Task.class)
-            .add(Restrictions.eq("reference", reference)).list();
-
-        if (tasks.size() >= 1) {
-            return Optional.of(tasks.get(0));
-        } else {
-            return Optional.empty();
-        }
+        return taskRepository.findByReference(reference);
     }
 
     @Transactional
     public UserTask saveUserTask(UserTaskAdapterBean transfer) {
 
-        Session session = sessionFactory.getCurrentSession();
-
-        UserTask userTask = (UserTask) session.load(UserTask.class, transfer.getUserTaskId());
+        UserTask userTask = userTaskRepository.findById(transfer.getUserTaskId());
 
         // Trigger the load of the Task entity
         Task task = userTask.getTask();
-        BeanUtils.copyProperties(transfer, task);
+        if (!task.getSystem()) {
+            BeanUtils.copyProperties(transfer, task);
+            taskRepository.save(task);
+        }
 
         // Update the user task and merge it back in
         BeanUtils.copyProperties(transfer, userTask);
-        session.merge(userTask);
+        userTaskRepository.save(userTask);
 
         return userTask;
     }
 
     @Transactional
     public void removeUserTask(Long userTaskId) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        UserTask userTask = (UserTask) session.load(UserTask.class, userTaskId);
-        session.delete(userTask);
+        userTaskRepository.deleteById(userTaskId);
     }
 
+    @Transactional
+    private void completeTaskForUsers(Long taskId, List<String> userIds) {
+
+        userTaskRepository.findByTaskIdAndUserIdIn(taskId, userIds).forEach(ut -> {
+            ut.setComplete(true);
+            userTaskRepository.save(ut);
+        });
+    }
 
     public List<UserTaskAdapterBean> getAllTasksForCurrentUser() {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
-        Session session = sessionFactory.getCurrentSession();
-
-        return ((List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("userId", userId)).list())
+        return userTaskRepository.findByUserId(userId)
                 .stream()
                 .map(ut -> {
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();
@@ -175,11 +160,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public List<UserTask> getCurrentUserTasks(String userId) {
-
-        Session session = sessionFactory.getCurrentSession();
-        return (List<UserTask>) session.createCriteria(UserTask.class)
-            .add(Restrictions.eq("userId", userId))
-            .add(Restrictions.le("task.starts", Instant.now())).list();
+        return userTaskRepository.findByUserIdAndTask_StartsLessThanEqual(userId, Instant.now());
     }
 
     @Transactional
@@ -194,11 +175,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Transactional
+    public void completeUserTaskByReference(String reference, List<String> userIds) {
+        getTask(reference).ifPresent(t -> completeTaskForUsers(t.getId(), userIds));
+    }
+
+
+    @Transactional
     public void removeTask(Task task) {
 
-        Session session = sessionFactory.getCurrentSession();
-        session.createQuery("delete from UserTask where task = :task")
-            .setParameter("task", task).executeUpdate();
-        session.delete(task);
+        userTaskRepository.deleteByTask(task);
+        taskRepository.delete(task);
     }
 }

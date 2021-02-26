@@ -23,9 +23,6 @@ $(function () {
             // add clear action if present
             $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
               $datepicker.val("");
-              let $hidden = $("[name='" + $datepicker.attr('id') + "_selected_datetime']");
-              $hidden.val("");
-              $hidden = "";
             });
         });
     };

@@ -9,6 +9,7 @@
             <title><h:outputText value="#{authorMessages.restore_assessments}" /></title>
         </head>
         <body onload="<%= request.getAttribute("html.body.onload") %>">
+          <div class="portletBody container-fluid">
             <script>includeWebjarLibrary('datatables');</script>
             <script>
                 $(document).ready(function() {
@@ -119,6 +120,7 @@
                     </p>
                 </h:form>
             </div>
+          </div>
         </body>
     </html>
 </f:view>

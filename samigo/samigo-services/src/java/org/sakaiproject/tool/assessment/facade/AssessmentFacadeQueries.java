@@ -993,7 +993,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				ItemDataIfc item = (ItemDataIfc) iter1.next();
 				// delete rubric association
 				String associationId = assessment.getAssessmentId() + "." + item.getItemId();
-				rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);	
+				rubricsService.deleteRubricAssociationsByItemIdPrefix(associationId, RubricsConstants.RBCS_TOOL_SAMIGO);
 			}
 
 			// lazy loading on sectionSet, so need to initialize it

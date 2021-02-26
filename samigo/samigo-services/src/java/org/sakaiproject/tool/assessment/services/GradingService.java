@@ -47,6 +47,7 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.Instant;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -132,7 +133,7 @@ public class GradingService
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*?(\\[([^\\[\\]])*?\\])*?)*?)\\]\\]"); // non-greedy
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
   public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
   public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
@@ -1215,25 +1216,28 @@ public class GradingService
     	  }
       }
       
-      //if there is a minimum score value, then make sure the auto score is at least the minimum
-      //entry.getValue()[0] = total score for the question
-      //entry.getValue()[1] = min score
-      //entry.getValue()[2] = how many question answers to divide minScore across
-      for(Entry<Long, Double[]> entry : minScoreCheck.entrySet()){
-    	  if(entry.getValue()[0] <= entry.getValue()[1]){
-    		  //reset all scores to 0 since the user didn't get all correct answers
-    		  iter = itemGradingSet.iterator();
-    		  while(iter.hasNext()){
-    			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
-    			  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
-    			  if (answer != null && itemGrading.getPublishedItemId().equals(entry.getKey())) {
-    				  itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
-    			  }
-    		  }
-    	  }
-      }
+        // If there is a minimum score value, then make sure the auto score is at least the minimum
+        // entry.getValue()[0] = total score for the question
+        // entry.getValue()[1] = min score
+        // entry.getValue()[2] = how many question answers to divide minScore across
+        for (Entry<Long, Double[]> entry : minScoreCheck.entrySet()) {
+            if (entry.getValue()[0] <= entry.getValue()[1]) {
+                //reset all scores to 0 since the user didn't get all correct answers
+                for (ItemGradingData itemGrading : itemGradingSet) {
+                    ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemGrading.getPublishedItemId());
+                    if (!Boolean.valueOf(item.getPartialCreditFlag())) {
+                        // We should only set the autoScore to the min score
+                        // if partial credit is not in effect
+                        AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
+                        if (answer != null && itemGrading.getPublishedItemId().equals(entry.getKey())) {
+                            itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
+                        }
+                    }
+                }
+            }
+        }
       
-      log.debug("****x4. "+(new Date()).getTime());
+      log.debug("****x4. {}", Instant.now().toEpochMilli());
 
       // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
       // updated old answers and FIB answers ('cos we need the old answer to calculate the score for new

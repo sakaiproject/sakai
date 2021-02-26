@@ -63,8 +63,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
   }
 
   shouldUpdate(changed) {
-    //return super.shouldUpdate(changed) && this.data;
-    return this.data;
+    return super.shouldUpdate(changed) && this.data;
   }
 
   content() {
@@ -94,7 +93,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
           <div class="new-count">${a.ungraded} ${this.i18n["new_submissions"]}</div>
           <div class="title">${a.siteTitle} / ${a.name}</div>
         </div>
-        <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.averageScore}</div>
+        <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.averageScore.toFixed(2)}</div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${a.url}"><sakai-icon type="right" size="small"></a></div>
         `)}
       </div>

@@ -65,6 +65,7 @@ export class SakaiCourseDashboard extends LitElement {
   }
 
   overviewChanged(e) {
+
     this.data.overview = e.detail.overview;
     this.requestUpdate();
   }
@@ -222,7 +223,7 @@ export class SakaiCourseDashboard extends LitElement {
         layout=${JSON.stringify(this.data.layout)}
         site-id="${this.siteId}"
         columns=${columns}
-        ?movable=${this.editing}
+        ?editing=${this.editing}
       >
     `;
   }

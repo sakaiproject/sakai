@@ -43,13 +43,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.xml.serializer.utils.XMLChar;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jumpmind.symmetric.csv.CsvWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -69,8 +69,6 @@ import org.sakaiproject.util.Xml;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 @Slf4j
 public class SakaiReport extends AbstractWebService {
-
-    private SqlService sqlService;
 
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static final int MAX_ROWS = 200;
@@ -162,7 +160,7 @@ public class SakaiReport extends AbstractWebService {
         Session session = establishSession(sessionid);
 
         boolean isEnabled = serverConfigurationService.getBoolean("webservice.report.enabled", false);
-        if (isEnabled == false) {
+        if (!isEnabled) {
             log.warn("Report service not enabled, use webservice.report.enabled=true to enable");
             throw new RuntimeException("Report service not enabled.");
         }
@@ -214,9 +212,7 @@ public class SakaiReport extends AbstractWebService {
 
     protected String toCsvString(ResultSet rs, boolean includeHeaderRow) throws IOException, SQLException {
         StringWriter stringWriter = new StringWriter();
-        CsvWriter writer = new CsvWriter(stringWriter, ',');
-        writer.setRecordDelimiter('\n');
-        writer.setForceQualifier(true);
+        CSVWriter writer = new CSVWriter(stringWriter);
         ResultSetMetaData rsmd = rs.getMetaData();
         int numColumns = rsmd.getColumnCount();
 
@@ -225,7 +221,7 @@ public class SakaiReport extends AbstractWebService {
             for (int i = 1; i < numColumns + 1; i++) {
                 row[i - 1] = rsmd.getColumnLabel(i);
             }
-            writer.writeRecord(row);
+            writer.writeNext(row);
         }
 
         while (rs.next()) {
@@ -283,8 +279,7 @@ public class SakaiReport extends AbstractWebService {
                 }
                 log.debug("value: " + row[i - 1]);
             }
-            writer.writeRecord(row);
-            //writer.endRecord();
+            writer.writeNext(row);
 
         }
 

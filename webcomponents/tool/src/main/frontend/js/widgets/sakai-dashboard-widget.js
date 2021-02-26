@@ -15,7 +15,7 @@ export class SakaiDashboardWidget extends LitElement {
       baseI18n: Object,
       i18n: Object,
       data: { type: Array },
-      movable: { type: Boolean },
+      editing: { type: Boolean },
     };
   }
 
@@ -25,8 +25,7 @@ export class SakaiDashboardWidget extends LitElement {
     this.data = [];
     this.title = "Widget";
     this.state = "view";
-    this.movable = false;
-    this.removable = true;
+    this.editing = false;
     this.hasOptions = true;
     loadProperties("dashboard-widget").then(r => this.baseI18n = r);
   }
@@ -66,7 +65,7 @@ export class SakaiDashboardWidget extends LitElement {
   }
 
   shouldUpdate(changed) {
-    return this.i18n && this.title;
+    return this.i18n && this.baseI18n && this.title;
   }
 
   move(direction) {
@@ -95,23 +94,50 @@ export class SakaiDashboardWidget extends LitElement {
       <div id="container">
         <div id="title-bar">
           <div id="title">${this.title}</div>
-          ${this.state === "remove" && this.removable ? html`
-            <a href="javascript:;"
-                @click=${this.remove}
-                title="${this.baseI18n["remove"]} ${this.title}"
-                aria-label="${this.baseI18n["remove"]} ${this.title}">
-              <sakai-icon type="close">
-            </a>
-          ` : html`
-              ${this.movable ? html`
-                <div id="widget-mover">
-                  <div><a href="javascript:;" @click=${this.moveUp} title="${this.baseI18n["up"]}" arial-label="${this.baseI18n["up"]}"><sakai-icon type="up" size="small"></sakai-icon></a></div>
-                  <div><a href="javascript:;" @click=${this.moveDown} title="${this.baseI18n["down"]}" arial-label="${this.baseI18n["down"]}"><sakai-icon type="down" size="small"></sakai-icon></a></div>
-                  <div><a href="javascript:;" @click=${this.moveLeft} title="${this.baseI18n["left"]}" arial-label="${this.baseI18n["left"]}"><sakai-icon type="left" size="small"></sakai-icon></a></div>
-                  <div><a href="javascript:;" @click=${this.moveRight} title="${this.baseI18n["right"]}" arial-label="${this.baseI18n["right"]}"><sakai-icon type="right" size="small"></sakai-icon></a></div>
-                </div>
-            ` : ""}
-            `}
+          ${this.editing ? html`
+            <div id="widget-mover">
+              <div>
+                <a href="javascript:;"
+                    @click=${this.moveUp}
+                    title="${this.baseI18n["up"]}"
+                    arial-label="${this.baseI18n["up"]}">
+                  <sakai-icon type="up" size="small">
+                </a>
+              </div>
+              <div>
+                <a href="javascript:;"
+                    @click=${this.moveDown}
+                    title="${this.baseI18n["down"]}"
+                    arial-label="${this.baseI18n["down"]}">
+                  <sakai-icon type="down" size="small">
+                </a>
+              </div>
+              <div>
+                <a href="javascript:;"
+                    @click=${this.moveLeft}
+                    title="${this.baseI18n["left"]}"
+                    arial-label="${this.baseI18n["left"]}">
+                  <sakai-icon type="left" size="small">
+                </a>
+              </div>
+              <div>
+                <a href="javascript:;"
+                    @click=${this.moveRight}
+                    title="${this.baseI18n["right"]}"
+                    arial-label="${this.baseI18n["right"]}">
+                  <sakai-icon type="right" size="small">
+                </a>
+              </div>
+              <div>
+                <a href="javascript:;"
+                    @click=${this.remove}
+                    title="${this.baseI18n["remove"]} ${this.title}"
+                    aria-label="${this.baseI18n["remove"]} ${this.title}">
+                  <sakai-icon type="close" size="small">
+                </a>
+              </div>
+            </div>
+          ` : ""}
         </div>
         <div id="content">${this.content()}</div>
       </div>

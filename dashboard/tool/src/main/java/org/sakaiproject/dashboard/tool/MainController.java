@@ -26,6 +26,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +46,7 @@ public class MainController {
 	private SiteService siteService;
 
 	@GetMapping(value = {"/", "/index"})
-	public String pageIndex(Model model) {
+	public String pageIndex(Model model, HttpServletRequest request) {
 
 		Session session = checkSakaiSession();
 
@@ -56,6 +58,7 @@ public class MainController {
 	        return "home_dashboard";
         } else {
             model.addAttribute("siteId", siteId);
+            model.addAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
 	        return "course_dashboard";
         }
 	}

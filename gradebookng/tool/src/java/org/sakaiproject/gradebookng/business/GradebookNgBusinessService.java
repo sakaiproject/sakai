@@ -368,7 +368,7 @@ public class GradebookNgBusinessService {
 
 		for (final User u : users) {
 			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
-							.setSections(userSections.getOrDefault(u.getEid(), Collections.emptyList())));
+							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -2529,7 +2529,8 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
-		rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
+
+		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradebookService.removeAssignment(assignmentId);
 
 		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());

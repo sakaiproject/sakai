@@ -512,7 +512,7 @@
 			  <div class="editsection">
 			  <span rsf:id="section-td" class="sectionedit">
                   <h3 class="offscreen" rsf:id="break-msg"></h3>
-                  <a role="button" rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></a>
+                  <button type="button" rsf:id="section-del-link"><span aria-hidden="true" class="fa-compress fa-edit-icon"></span></button>
               </span>
 			  <span rsf:id="section2" class="sectionedit sectionedit2">
                   <a role="button" aria-haspopup="dialog" aria-controls="column-dialog" rsf:id="section3" href="#" class="columnopen" style="text-decoration: none;"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a>
@@ -1237,15 +1237,14 @@
                       </p>
 
                       <p class="shorttext required row">
-                          <label rsf:id="name-label" class="col-sm-1" for="name"></label>
-                          <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="255" class="edit-form-input col-sm-2" /><br />
+                          <label rsf:id="name-label" class="col-sm-2" for="name"></label>
+                          <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="255" class="edit-form-input col-sm-6" /><br />
                       </p>
 
-                      <p class="shorttext required">
-                      <div rsf:id="description-label" for="description" class="col-sm-1 itemDesc"></div>
-                      <textarea name="description" id="description" rsf:id="description" class="edit-form-input col-sm-2 description" rows="5" cols ="25">
-                            </textarea>
-                      </p>
+                      <div class="shorttext required row">
+                        <div rsf:id="description-label" for="description" class="col-sm-2 itemDesc"></div>
+                        <textarea name="description" id="description" rsf:id="description" class="edit-form-input" rows="6"></textarea>
+                      </div>
 
                       <div rsf:id="changeDiv">
                           <p class="shorttext required" id="change-assignment-p">

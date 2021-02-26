@@ -176,6 +176,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -1168,6 +1169,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
+            List<String> submitterIds = new ArrayList<>();
             Optional<String> groupId = Optional.empty();
             if (site != null) {
                 if (a.getIsGroup()) {
@@ -1181,6 +1183,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
                                     ass.setSubmitter(member.getUserId());
                                     submissionSubmitters.add(ass);
+                                    submitterIds.add(member.getUserId());
                                 });
                         groupId = Optional.of(submitter);
                     } else {
@@ -1191,6 +1194,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
                         submissionSubmitter.setSubmitter(submitter);
                         submissionSubmitters.add(submissionSubmitter);
+                        submitterIds.add(submitter);
                     } else {
                         log.warn("Cannot add a submission for submitter {} to assignment {} as they are not a member of the site", submitter, assignmentId);
                     }
@@ -1205,6 +1209,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // identify who the submittee is using the session
             String currentUser = sessionManager.getCurrentSessionUserId();
             submissionSubmitters.stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
+
+            taskService.completeUserTaskByReference(assignmentReference, submitterIds);
 
             AssignmentSubmission submission = assignmentRepository.newSubmission(a.getId(), groupId, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
@@ -1266,7 +1272,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         task.setReference(reference);
         task.setSystem(true);
         task.setDescription(assignment.getTitle());
-        task.setDue(assignment.getDueDate());
+
+        if (!assignment.getHideDueDate()) {
+            task.setDue(assignment.getDueDate());
+        }
         taskService.createTask(task, allowAddSubmissionUsers(reference)
                 .stream().map(User::getId).collect(Collectors.toSet()),
                 Priorities.HIGH);
@@ -2438,7 +2447,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public boolean assignmentUsesAnonymousGrading(Assignment assignment) {
         if (assignment != null) {
-            return Boolean.valueOf(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+            return Boolean.parseBoolean(assignment.getProperties().get(AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
         }
         return false;
     }
@@ -3701,6 +3710,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
+
+                    // If there is a LTI launch associated with this copy it over
+                    if ( oAssignment.getContentId() != null ) {
+                        Long contentKey = oAssignment.getContentId().longValue();
+                        Object retval = SakaiBLTIUtil.copyLTIContent(contentKey, toContext, fromContext);
+                        if ( retval instanceof Long ) {
+                            nAssignment.setContentId(((Long) retval).intValue());
+                        // If something went wrong, we can't be an LTI submission in the new site
+                        } else if ( retval == null || retval instanceof String ) {
+                            nAssignment.setTypeOfSubmission(Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE);
+                            log.error("Could not copy LTI Content Item oldSite={} contentKey={} retval={}",fromContext, contentKey, retval);
+                        }
+                    }
 
                     if (!createGroupsOnImport) {
                         nAssignment.setTypeOfAccess(SITE);

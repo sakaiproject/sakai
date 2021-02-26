@@ -149,7 +149,7 @@ body.is-logged-out{
 							.#{$namespace}toolsNav__menuitem--title {
 								display: block;
 							}
-							color: #AAAAAA;
+							color: var(--sakai-text-color-disabled);
 							font-style: italic;
 							position: relative;
 							&:hover {
@@ -353,7 +353,7 @@ nav#subSites{
 			
 				&:active 
 				{
-					box-shadow: var(--tool-menu-collapse-active-shadow);;	// to override default button styles
+					box-shadow: var(--tool-menu-collapse-active-shadow);	// to override default button styles
 					color: var(--tool-menu-collapse-active-text-color);
 					background-color: var(--tool-menu-collapse-active-background-color);
 				}
@@ -377,7 +377,7 @@ nav#subSites{
 			
 					&:active 
 					{
-						box-shadow: var(--tool-menu-collapse-min-active-shadow);;	// to override default button styles
+						box-shadow: var(--tool-menu-collapse-min-active-shadow);	// to override default button styles
 						color: var(--tool-menu-collapse-min-active-text-color);
 						background-color: var(--tool-menu-collapse-min-active-background-color);
 					}

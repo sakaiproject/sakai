@@ -212,13 +212,11 @@
           </h:panelGroup>
           <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.cachedGroupsForStatisticsByTopic}">
 	      	<h:outputText value="#{msgs.filter_by_group}: "/>
-	  		<h:selectOneMenu id="grade" value="#{mfStatisticsBean.selectedGroup}" valueChangeListener="#{mfStatisticsBean.processGroupChange}"
-	          onchange="document.forms[0].submit();">
+			<h:selectOneMenu id="grade" value="#{mfStatisticsBean.selectedGroup}" valueChangeListener="#{mfStatisticsBean.processGroupChange}" onchange="document.forms[0].submit();">
 	           <f:selectItems value="#{mfStatisticsBean.cachedGroupsForStatisticsByTopic}" />
 	        </h:selectOneMenu>          
           </h:panelGroup>  
         </h:panelGrid>
-        
         
 	  	
 	  	<f:subview id="defaultValueView" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">

@@ -33,7 +33,6 @@ class SakaiRubricAssociation extends RubricsElement {
       isAssociated: Boolean,
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
-      stateDetails: { attribute: "state-details", type: String },
       dontAssociateLabel: { attribute: "dont-associate-label", type: String },
       associateLabel: { attribute: "associate-label", type: String },
       dontAssociateValue: { attribute: "dont-associate-value", type: Number },
@@ -94,19 +93,18 @@ class SakaiRubricAssociation extends RubricsElement {
             <div class="rubric-options">
               <div class="checkbox">
                 <label>
-                  <input @change="${this.updateStateDetails}" name="rbcs-config-fineTunePoints" type="checkbox" ?checked=${this.selectedConfigOptions["fineTunePoints"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
+                  <input name="rbcs-config-fineTunePoints" type="checkbox" ?checked=${this.selectedConfigOptions["fineTunePoints"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
                 </label>
               </div>
             </div>
         `}
         </div>
       </div>
-      <input name="rbcs-state-details" type="hidden" value="${this.stateDetails}" />
     `;
   }
 
@@ -164,18 +162,7 @@ class SakaiRubricAssociation extends RubricsElement {
   }
 
   rubricSelected(e) {
-
     this.selectedRubric = e.target.value;
-    this.updateStateDetails();
-  }
-
-  updateStateDetails() {
-
-    if (this.isAssociated == 1) {
-      this.stateDetails = escape(JSON.stringify({ rubric: this.selectedRubric }));
-    } else {
-      this.stateDetails = "";
-    }
   }
 
   showRubric(e) {

@@ -20,11 +20,12 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.http.MediaType;
+
+import org.sakaiproject.exception.IdUnusedException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -45,57 +45,54 @@ import java.util.stream.Collectors;
 @RestController
 public class TasksController extends AbstractSakaiApiController {
 
-	@Resource
-	private EntityManager entityManager;
+    @Resource
+    private EntityManager entityManager;
 
-	@Resource
-	private TaskService taskService;
+    @Resource
+    private TaskService taskService;
 
-	@Resource
-	private SiteService siteService;
+    @Resource
+    private SiteService siteService;
 
-	@Resource
-	private UserDirectoryService userDirectoryService;
+    @Resource
+    private UserDirectoryService userDirectoryService;
 
-	@GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        checkSakaiSession();
 
         // Flatten the UserTask objects into a more compact form and return.
         return taskService.getAllTasksForCurrentUser()
             .stream().map(bean -> {
                 try {
                     bean.setSiteTitle(siteService.getSite(bean.getSiteId()).getTitle());
-                    Optional<String> url = entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL);
-                    if (url.isPresent()) {
-                        bean.setUrl(url.get());
-                    }
-                } catch (Exception e) {
+                    entityManager.getUrl(bean.getReference(), Entity.UrlType.PORTAL).ifPresent(u -> bean.setUrl(u));
+                } catch (IdUnusedException e) {
+                    log.warn("No site for id {}", bean.getSiteId());
                 }
                 return bean;
             }).collect(Collectors.toList());
-	}
+    }
 
-    @PutMapping(value = "/tasks", produces = "application/json")
-    //public ResponseEntity<UserTaskTransferBean> createTask(@RequestBody UserTaskTransferBean taskTransfer) {
+    @PutMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdapterBean createTask(@RequestBody UserTaskAdapterBean taskTransfer) {
 
-		Session session = checkSakaiSession();
+        checkSakaiSession();
         return UserTaskAdapterBean.from(taskService.createSingleUserTask(taskTransfer));
     }
 
-    @PutMapping(value = "/tasks/{userTaskId}", produces = "application/json")
-    public UserTaskAdapterBean updateTask(@PathVariable Long userTaskId, @RequestBody UserTaskAdapterBean taskTransfer) {
+    @PutMapping(value = "/tasks/{userTaskId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserTaskAdapterBean updateTask(@RequestBody UserTaskAdapterBean taskTransfer ) {
 
-		checkSakaiSession();
+        checkSakaiSession();
         return UserTaskAdapterBean.from(taskService.saveUserTask(taskTransfer));
     }
 
     @DeleteMapping("/tasks/{userTaskId}")
     public void deleteTask(@PathVariable Long userTaskId) {
 
-		checkSakaiSession();
+        checkSakaiSession();
         taskService.removeUserTask(userTaskId);
     }
 }

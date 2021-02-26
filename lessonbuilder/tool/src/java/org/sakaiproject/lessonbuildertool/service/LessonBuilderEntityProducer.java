@@ -119,6 +119,8 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -622,7 +624,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		 Properties props = config.getPlacementConfig();
 		 String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
-		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty("sakai-portal:visible"));
+		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
 
 		 addAttr(doc, element, "functions.require", roleList);
 		 addAttr(doc, element, "pageVisibility" , pageVisibility);
@@ -1273,7 +1275,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				     tool.getPlacementConfig().setProperty("functions.require", rolelist);
 			     }
 			     if (StringUtils.isNotBlank(pageVisibility)) {
-				     tool.getPlacementConfig().setProperty("sakai-portal:visible", pageVisibility);
+				     tool.getPlacementConfig().setProperty(ToolManager.PORTAL_VISIBLE, pageVisibility);
 			     }
 			     tool.setTitle(toolTitle);
 			     page.setTitle(toolTitle);
@@ -2304,98 +2306,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	private String copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId)
 	{
-
-		// The ultimate tool id for the about to be created content item
-		Long newToolId = null;
-
-		// Check the tool_id - if the tool_id is global we are cool
-		Long ltiToolId = getLong(ltiContent.get(LTIService.LTI_TOOL_ID));
-
-		// Get the tool bypassing security
-		Map<String, Object> ltiTool = ltiService.getToolDao(ltiToolId, siteId, true);
-		if ( ltiTool == null ) {
-			return null;
-		}
-
-		// Lets either verifiy we have a good tool or make a copy if needed
-		String toolSiteId = (String) ltiTool.get(LTIService.LTI_SITE_ID);
-		String toolLaunch = (String) ltiTool.get(LTIService.LTI_LAUNCH);
-		// Global tools have no site id - the simplest case
-		if ( toolSiteId == null ) {
-			newToolId = ltiToolId;
-		} else {
-			// Check if we have a suitable tool already in the site
-			List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0,siteId);
-			for ( Map<String,Object> tool : tools ) {
-				String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-				if ( oldLaunch == null ) continue;
-				if ( oldLaunch.equals(toolLaunch) ) {
-					newToolId = getLong(tool.get(LTIService.LTI_ID));
-					break;
-				}
-			}
-
-			// If we don't have the tool in the new site, check the tools from the old site
-			if ( newToolId == null ) {
-				tools = ltiService.getToolsDao(null,null,0,0,oldSiteId, true);
-				for ( Map<String,Object> tool : tools ) {
-					String oldLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-					if ( oldLaunch == null ) continue;
-					if ( oldLaunch.equals(toolLaunch) ) {
-						// Remove stuff that will be regenerated
-						tool.remove(LTIService.LTI_SITE_ID);
-						tool.remove(LTIService.LTI_CREATED_AT);
-						tool.remove(LTIService.LTI_UPDATED_AT);
-						Object newToolInserted = ltiService.insertTool(tool, siteId);
-						if ( newToolInserted instanceof Long ) {
-							newToolId = (Long) newToolInserted;
-							log.debug("Copied tool={} from site={} tosite={} tool={}",ltiToolId,oldSiteId,siteId,newToolInserted);
-							break;
-						} else {
-							log.error("Could not insert tool - "+newToolInserted);
-							return null;
-						}
-					}
-				}
-			}
-
-			if ( newToolId == null ) {
-				log.error("Could not copy tool, launch="+toolLaunch);
-				return null;
-			}
-		}
-
-		// Finally insert the content item...
-		Properties contentProps = new Properties();
-
-		for (Map.Entry<String, Object> entry : ltiContent.entrySet()) {
-			String key = entry.getKey();
-			Object value = entry.getValue();
-			if ( value == null ) continue;
-			contentProps.put(key, value.toString());
-		}
-
-		// Point at the correct (possibly the same) tool id
-		contentProps.put(LTIService.LTI_TOOL_ID, newToolId.toString());
-
-		// Remove stuff that will be regenerated
-		contentProps.remove(LTIService.LTI_SITE_ID);
-		contentProps.remove(LTIService.LTI_CREATED_AT);
-		contentProps.remove(LTIService.LTI_UPDATED_AT);
-
-		// Most secrets are in the tool, it is rare to override in the content
-		contentProps.remove(LTIService.LTI_SECRET);
-		contentProps.remove("launch_url"); // Derived on retrieval
-
-		Object result = ltiService.insertContent(contentProps, siteId);
+		Object result = SakaiBLTIUtil.copyLTIContent(ltiContent, siteId, oldSiteId);
 		String sakaiId = null;
-		if ( result instanceof Long ) {
+		if ( result == null ) {
+			return null;
+		} else if ( result instanceof Long ) {
 			sakaiId = "/blti/" + result.toString();
 		} else if ( result instanceof String ) {
 			log.error("Could not insert content - "+result);
 		} else {
 			log.debug("Adding LTI tool "+result);
 		}
+
 		return sakaiId;
 	}
 

@@ -3479,11 +3479,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		courseGradeRecord.setDateRecorded(new Date());
 
 		// create a grading event
-		final GradingEvent gradingEvent = new GradingEvent();
-		gradingEvent.setGradableObject(courseGradeRecord.getCourseGrade());
-		gradingEvent.setGraderId(getUserUid());
-		gradingEvent.setStudentId(studentUuid);
-		gradingEvent.setGrade(courseGradeRecord.getEnteredGrade());
+		final GradingEvent gradingEvent = new GradingEvent(courseGradeRecord.getCourseGrade(), getUserUid(), studentUuid, courseGradeRecord.getEnteredGrade());
 
 		// save
 		getHibernateTemplate().saveOrUpdate(courseGradeRecord);

@@ -153,8 +153,8 @@ public class PageListProducer
                     }
                 }
 
-		// TODO: Deal with interaction between visible and enabled
-                if (handler.allowsHide(page)) {
+                // No point showing visibility links if the page is locked.
+                if (handler.allowsHide(page) && handler.isEnabled(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
                     if (handler.isVisible(page)) {
                         param.visible = "false";
@@ -164,8 +164,7 @@ public class PageListProducer
                         param.visible = "true";
                         fullyDecorate(UIInternalLink.make(pagerow, "show-link-off", param),
                             UIMessage.make("page_show", pageTitle));
-                    }
-                    else {
+                    } else {
                         param.visible = "true";
                         fullyDecorate(UIInternalLink.make(pagerow, "show-link", param),
                             UIMessage.make("page_show", pageTitle));

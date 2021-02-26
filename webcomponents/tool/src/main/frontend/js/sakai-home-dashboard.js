@@ -153,7 +153,7 @@ export class SakaiHomeDashboard extends LitElement {
               site-id="${ifDefined(this.siteId ? this.siteId : undefined)}"
               user-id="${ifDefined(this.userId ? this.userId : undefined)}"
               columns="2"
-              ?movable=${this.editing}>
+              ?editing=${this.editing}>
           </div>
         </div>
       </div>

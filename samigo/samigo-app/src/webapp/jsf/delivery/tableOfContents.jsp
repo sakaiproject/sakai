@@ -160,7 +160,6 @@ function saveTime()
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-    <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
       <h:panelGroup>

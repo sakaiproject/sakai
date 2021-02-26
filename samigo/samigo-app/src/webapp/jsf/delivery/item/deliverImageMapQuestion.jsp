@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
 <!-- Donï¿½t needed KEY in this question type or key should be the image with some sqares on it -->
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
-	<h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
+	<h:outputLabel styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
 	
 	<h:dataTable value="#{question.matchingArray}" var="matching">
 		<h:column>

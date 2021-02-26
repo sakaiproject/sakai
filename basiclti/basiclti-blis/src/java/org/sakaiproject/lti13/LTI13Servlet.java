@@ -693,6 +693,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		response.setContentType(APPLICATION_JSON);
 		try {
 			out = response.getWriter();
 		} catch (Exception e) {
@@ -701,7 +702,6 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		response.setContentType(APPLICATION_JSON);
 		try {
 			out.println(keySetJSON);
 		} catch (Exception e) {
@@ -794,7 +794,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
 		int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
@@ -855,9 +854,9 @@ public class LTI13Servlet extends HttpServlet {
 		AccessToken at = new AccessToken();
 		at.access_token = jws;
 
-		response.setContentType(APPLICATION_JSON);
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
+		response.setContentType(APPLICATION_JSON);
 		try {
 			PrintWriter out = response.getWriter();
 			out.println(atsp);
@@ -1227,6 +1226,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String maintainRole = site.getMaintainRole();
 
+ 		response.setContentType(APPLICATION_JSON);
 		PrintWriter out = response.getWriter();
 		out.println("{");
 		out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
@@ -1253,11 +1253,9 @@ public class LTI13Servlet extends HttpServlet {
 			List<User> users = UserDirectoryService.getUsers(userIds);
 			boolean first = true;
 
-			// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
-			String roleMapProp = (String) tool.get("rolemap");
-			roleMapProp = "maintain:Dude";
-
+			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
 			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+
 			for (User user : users) {
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
@@ -1284,8 +1282,9 @@ public class LTI13Servlet extends HttpServlet {
 				JSONArray roles = new JSONArray();
 
 				// If there is a role mapping, it has precedence over site.update
-				if ( roleMap.containsKey(role.getId()) ) {
-					roles.add(roleMap.get(role.getId()));
+				String sakai_role = role.getId();
+				if ( roleMap.containsKey(sakai_role) ) {
+					roles.add(SakaiBLTIUtil.upgradeRoleString(roleMap.get(sakai_role)));
 				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 					roles.add(LTI13ConstantsUtil.ROLE_INSTRUCTOR);
 				} else {
@@ -1300,6 +1299,7 @@ public class LTI13Servlet extends HttpServlet {
 					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 				}
+				sakai_ext.put("sakai_role", sakai_role);
 
 				Collection groups = site.getGroupsWithMember(ims_user_id);
 
@@ -1659,7 +1659,7 @@ public class LTI13Servlet extends HttpServlet {
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(SakaiLineItem.MIME_TYPE);
+		response.setContentType(SakaiLineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		String json_out = JacksonUtil.prettyPrint(item);
@@ -1739,7 +1739,7 @@ public class LTI13Servlet extends HttpServlet {
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
 
 		log.debug("Lineitem item={}",item);
-		response.setContentType(LineItem.MIME_TYPE);
+		response.setContentType(LineItem.CONTENT_TYPE);
 
 		PrintWriter out = response.getWriter();
 		out.print(JacksonUtil.prettyPrint(item));
@@ -1793,7 +1793,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// If we are only returning a single line item
 		if ( ! all ) {
-			response.setContentType(SakaiLineItem.MIME_TYPE);
+			response.setContentType(SakaiLineItem.CONTENT_TYPE);
 			SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(item));
@@ -1803,8 +1803,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Find the line items created for this tool
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
 
-		response.setContentType(SakaiLineItem.MIME_TYPE_CONTAINER);
-
+		response.setContentType(SakaiLineItem.CONTENT_TYPE_CONTAINER);
 		PrintWriter out = response.getWriter();
 		out.print("[");
 		boolean first = true;
@@ -1895,9 +1894,10 @@ public class LTI13Servlet extends HttpServlet {
 		if ( ! results ) {
 			SakaiLineItem item = LineItemUtil.getLineItem(signed_placement, a);
 
-			response.setContentType(SakaiLineItem.MIME_TYPE);
 			String json_out = JacksonUtil.prettyPrint(item);
 			log.debug("Returning {}", json_out);
+
+			response.setContentType(SakaiLineItem.CONTENT_TYPE);
 			PrintWriter out = response.getWriter();
 			out.print(json_out);
 			return;
@@ -1922,7 +1922,7 @@ public class LTI13Servlet extends HttpServlet {
 			  "comment": "This is exceptional work."
 			}]
 		*/
-		response.setContentType(Result.MIME_TYPE_CONTAINER);
+		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
@@ -1959,6 +1959,8 @@ public class LTI13Servlet extends HttpServlet {
 
 			List<User> users = UserDirectoryService.getUsers(userIds);
 			boolean first = true;
+
+			response.setContentType(APPLICATION_JSON);
 			PrintWriter out = response.getWriter();
 
 			if ( user_id == null ) out.println("[");

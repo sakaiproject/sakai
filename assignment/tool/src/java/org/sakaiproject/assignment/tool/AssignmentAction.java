@@ -87,6 +87,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.TreeMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1747,6 +1748,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // the attachments from the previous submission
                 Set<String> submittedAttachments = s.getAttachments();
                 newAttachments = areAttachmentsModified(submittedAttachments, currentAttachments);
+                putSubmissionLogMessagesInContext(context, s);
             } else {
                 // There is no previous submission, attachments are modified if anything has been uploaded
                 newAttachments = CollectionUtils.isNotEmpty(currentAttachments);
@@ -2128,6 +2130,7 @@ public class AssignmentAction extends PagedResourceActionII {
 									.collect(Collectors.toMap(User::getId, Function.identity()));
 					context.put("submitterNames", getSubmitterFormattedNames(s, "build_student_view_submission_confirmation_context"));
                 }
+                putSubmissionLogMessagesInContext(context, s);
             }
         }
 
@@ -2543,6 +2546,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
             context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
+            putSubmissionLogMessagesInContext(context, submission);
         }
 
         if (taggingManager.isTaggable() && submission != null) {
@@ -2710,7 +2714,7 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_list_assignments_context
 
     private List<String> getSortedAsnGroupTitles(Assignment asn, Site site, AssignmentComparator groupComparator) {
-        List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).collect(Collectors.toList());
+        List<Group> asnGroups = asn.getGroups().stream().map(id -> site.getGroup(id)).filter(Objects::nonNull).collect(Collectors.toList());
         asnGroups.sort(groupComparator);
         return asnGroups.stream().map(Group::getTitle).collect(Collectors.toList());
     }
@@ -3654,6 +3658,7 @@ public class AssignmentAction extends PagedResourceActionII {
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
 
+            putSubmissionLogMessagesInContext(context, s);
             rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, s.getGroupId(), state);
         }
 
@@ -3825,14 +3830,12 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(GRADE_SUBMISSION_DONE) != null) {
             context.put("gradingDone", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_DONE);
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // put the grade confirmation message if applicable
         if (state.getAttribute(GRADE_SUBMISSION_SUBMIT) != null) {
             context.put("gradingSubmit", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // letter grading
@@ -3840,10 +3843,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Check if the assignment has a rubric associated or not
         context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
-
-        if (state.getAttribute(RUBRIC_STATE_DETAILS) != null) {
-            context.put(RUBRIC_STATE_DETAILS, state.getAttribute(RUBRIC_STATE_DETAILS));
-        }
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
@@ -4113,7 +4112,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
             if ("back".equals(option)) {
                 // SAK-29314 - calculate our position relative to the list so we can return to the correct page
                 state.setAttribute(STATE_GOTO_PAGE, calcPageFromSubmission(state));
@@ -4266,6 +4264,31 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_" + timeName + "Year", (Integer) state.getAttribute(year));
         context.put("value_" + timeName + "Hour", (Integer) state.getAttribute(hour));
         context.put("value_" + timeName + "Min", (Integer) state.getAttribute(min));
+    }
+
+    private void putSubmissionLogMessagesInContext(Context context, AssignmentSubmission submission) {
+        List<String> messages = new LinkedList<>();
+        Map<String, String> properties = submission.getProperties();
+        Map<Integer, String> orderedLogKeys = properties.keySet().stream()
+                .filter(k -> k.startsWith("log"))
+                .map(k -> new String[] {k, StringUtils.split(k, "log")[0]})
+                .collect(Collectors.toMap(a -> new Integer(a[1]), a -> a[0], (e1, e2) -> e1, TreeMap::new));
+
+        orderedLogKeys.values().stream().map(properties::get).map(formattedText::escapeHtml).forEach(messages::add);
+
+        context.put("submissionLog", messages);
+    }
+
+    private String getNextSubmissionLogKey(AssignmentSubmission submission) {
+        String keyPrefix = "log";
+        Map<String, String> properties = submission.getProperties();
+        List<Integer> keys = properties.keySet().stream()
+                .filter(k -> k.startsWith("log"))
+                .map(k -> new Integer(StringUtils.split(k, "log")[0]))
+                .sorted()
+                .collect(Collectors.toList());
+        int next = keys.isEmpty() ? 0 : keys.get(keys.size() - 1) + 1;
+        return keyPrefix + next;
     }
 
     private List getPrevFeedbackAttachments(Map<String, String> p) {
@@ -5790,7 +5813,6 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
         }
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
     } // doCancel_grade_submission
 
     /**
@@ -5820,8 +5842,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-29314
         state.removeAttribute(STATE_VIEW_SUBS_ONLY);
-
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         resetAllowResubmitParams(state);
     }
@@ -5866,7 +5886,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
         state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
     } // doList_assignments
 
@@ -6074,7 +6093,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Remove any rubrics related state
         state.getAttributeNames().stream().filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(state::removeAttribute);
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         // SAK-29314 - update the list being iterated over
         sizeResources(state);
@@ -6437,6 +6455,28 @@ public class AssignmentAction extends PagedResourceActionII {
                     properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
                 }
 
+                // submission log
+                StringBuilder logEntry = new StringBuilder();
+                DateTimeFormatter dtf = DateTimeFormatter.RFC_1123_DATE_TIME
+                        .withZone(userTimeService.getLocalTimeZone(u.getId()).toZoneId())
+                        .withLocale(preferencesService.getLocale(u.getId()));
+                logEntry.append(dtf.format(Instant.now()));
+                boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+                String subOrDraft = post ? rb.getString("listsub.submitted") : rb.getString("listsub.submitted.draft");
+                if (!anonymousGrading) {
+                    if (submitter != null && !submitter.getEid().equals(u.getEid())) {
+                        logEntry.append(" ").append(submitter.getDisplayName())
+                                .append(" (").append(submitter.getEid()).append(") ").append(subOrDraft)
+                                .append(" ").append(rb.getString("listsub.submitted.on.behalf"))
+                                .append(" ").append(u.getDisplayName()).append(" (").append(u.getEid()).append(")");
+                    } else {
+                        logEntry.append(" ").append(u.getDisplayName())
+                                .append(" (").append(u.getEid()).append(") ")
+                                .append(subOrDraft);
+                    }
+                }
+                submission.getProperties().put(getNextSubmissionLogKey(submission), logEntry.toString());
+
                 try {
                     assignmentService.updateSubmission(submission);
                 } catch (PermissionException e) {
@@ -6785,10 +6825,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String order = params.getString(NEW_ASSIGNMENT_ORDER);
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
-
-        //Returns the rubrics state in the case of validation problems in the form
-        String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
-        state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
 
         String contextString = toolManager.getCurrentPlacement().getContext();
 
@@ -7263,8 +7299,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                     if (droppedCategoryPoints != -1) {
-                        int factor = assignmentService.getScaleFactor();
-                        Double enteredPoints = new Double(displayGrade(state, gradePoints, factor));
+                        Double enteredPoints = new Double(displayGrade(state, gradePoints, scaleFactor));
                         if (!enteredPoints.equals(droppedCategoryPoints)) {
                           addAlert(state, rb.getFormattedMessage("pleasee6", new Object[] {droppedCategoryPoints.toString()}));
                         }
@@ -8093,7 +8128,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param state
      * @param params
      * @param siteId
-     * @param a
+     * @param assignment
      */
     private void saveAssignmentSupplementItem(SessionState state,
                                               ParameterParser params, String siteId, Assignment assignment) {
@@ -8311,7 +8346,9 @@ public class AssignmentAction extends PagedResourceActionII {
      * Add submission objects if necessary for non-electronic type of assignment
      *
      * @param state
-     * @param a
+     * @param submissions
+     * @param addSubmissionForUsers
+     * @param assignment
      */
     private void addRemoveSubmissionsForNonElectronicAssignment(SessionState state, List submissions, HashSet<String> addSubmissionForUsers, HashSet<String> removeSubmissionForUsers, Assignment assignment) {
         // create submission object for those user who doesn't have one yet
@@ -8630,7 +8667,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Add event to calendar and then persist the event id to the assignment properties
      *
      * @param state
-     * @param a               AssignmentEdit
+     * @param assignment      Assignment
      * @param title           Event title
      * @param dueTime         Assignment due date/time
      * @param c               Calendar
@@ -9853,7 +9890,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
 
                         // remove rubric association if there is one
-                        rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                        // TODO: this should be in the service and in a transaction!!
+                        rubricsService.deleteRubricAssociationsByItemIdPrefix(id, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
 
                         assignmentService.deleteAssignment(a);
                     }
@@ -10938,15 +10976,6 @@ public class AssignmentAction extends PagedResourceActionII {
             if (feedbackComment != null) {
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
             }
-
-            // Pour any rubrics parameters into the state
-            Iterable<String> iterable = () -> params.getNames();
-            StreamSupport.stream(iterable.spliterator(), false).filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(n -> {
-                if (n.endsWith("state-details")) {
-                    state.setAttribute(RUBRIC_STATE_DETAILS, params.get(n));
-                }
-                state.setAttribute(n, params.get(n));
-            });
 
             String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
             // feedbackText value changed?

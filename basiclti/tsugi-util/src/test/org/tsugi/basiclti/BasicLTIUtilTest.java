@@ -513,4 +513,18 @@ public class BasicLTIUtilTest {
 				"name", "email", extra);
 		assertNotNull(signedParams);
 	}
+
+	@Test
+	public void testMergeCSV() {
+		String retval = BasicLTIUtil.mergeCSV("1,2,3", null, "4");
+		assertEquals(retval, "1,2,3,4");
+		retval = BasicLTIUtil.mergeCSV("1,2", "3", "4");
+		assertEquals(retval, "1,2,3,4");
+		retval = BasicLTIUtil.mergeCSV("1,2", "1,2,3,4", "4");
+		assertEquals(retval, "1,2,3,4");
+		retval = BasicLTIUtil.mergeCSV("1,2", "1,2,3,4", null);
+		assertEquals(retval, "1,2,3,4");
+		retval = BasicLTIUtil.mergeCSV("1,2", "2,1,3,4", null);
+		assertEquals(retval, "1,2,3,4");
+	}
 }

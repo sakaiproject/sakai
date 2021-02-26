@@ -22,7 +22,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
 
   loadData() {
 
-    this.messagesClass = this._siteId === "home" ? "three-col" : "two-col";
+    this.messagesClass = "three-col";
 
     let url = this.siteId ? `/api/sites/${this.siteId}/forums` : `/api/users/${this.userId}/forums`;
     fetch(url)
@@ -87,9 +87,9 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
     let old = this._showOptions;
     this._showOptions = value;
     if (this._showOptions) {
-      this.messagesClass = this.siteId === "home" ? "four-col" : "three-col";
+      this.messagesClass = "four-col";
     } else {
-      this.messagesClass = this.siteId === "home" ? "three-col" : "two-col";
+      this.messagesClass = "three-col";
     }
     this.requestUpdate("showOptions", old);
   }
@@ -103,28 +103,51 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
   content() {
 
     return html`
-      <div id="options"><input type="checkbox" @click=${(e) => this.showOptions = e.target.checked}><span>Show Options</span></div>
+      <div id="options">
+        <input type="checkbox" @click=${(e) => this.showOptions = e.target.checked}>
+        <span>${this.i18n["syn_options"]}</span>
+      </div>
       <div class="messages ${this.messagesClass}">
         ${this.showOptions ? html`<div class="header">Hide</div>` : ""}
-        <div class="header"><a href="javascript:;" @click=${this.sortByMessages} title="${this.i18n["sort_by_messages_tooltip"]}">New Messages</a></div>
-        <div class="header"><a href="javascript:;" @click=${this.sortByForums} title="${this.i18n["sort_by_forums_tooltip"]}">New in Forums</a></div>
-        ${this.siteId === "home" ? html`
         <div class="header">
-          <a href="javascript:;" @click=${this.sortBySite} title="${this.i18n["sort_by_site_tooltip"]}">Site</a>
+          <a href="javascript:;"
+              @click=${this.sortByMessages}
+              title="${this.i18n["sort_by_messages_tooltip"]}"
+              aria-label="${this.i18n["sort_by_messages_tooltip"]}">
+            ${this.i18n["syn_private_heading"]}
+          </a>
         </div>
-        ` : ""}
+        <div class="header">
+          <a href="javascript:;"
+              @click=${this.sortByForums}
+              title="${this.i18n["sort_by_forums_tooltip"]}"
+              aria-label="${this.i18n["sort_by_forums_tooltip"]}">
+            ${this.i18n["syn_discussion_heading"]}
+          </a>
+        </div>
+        <div class="header">
+          <a href="javascript:;"
+              @click=${this.sortBySite}
+              title="${this.i18n["sort_by_site_tooltip"]}"
+              aria-label="${this.i18n["sort_by_site_tooltip"]}">
+            ${this.i18n["syn_site_heading"]}
+          </a>
+        </div>
       ${this.forums.map((m, i) => html`
         ${!m.hidden || this.showOptions ? html`
         ${this.showOptions ? html`
           <div class="cell options ${i % 2 === 0 ? "even" : "odd"}">
-            <input type="checkbox" data-site-id="${m.siteId}" ?checked=${m.hidden} @click=${this.toggleSite} arial-label="Hide this site from this forums/messages view">
+            <input type="checkbox"
+                @click=${this.toggleSite}
+                data-site-id="${m.siteId}"
+                ?checked=${m.hidden}
+                title="${this.i18n["syn_hide_tooltip"]}"
+                arial-label="${this.i18n["syn_hide_tooltip"]}">
           </div>`
         : ""}
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
-          ${this.siteId === "home" ? html`
           <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
-          ` : ""}
         ` : ""}
       `)}
       </div>

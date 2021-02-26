@@ -30,8 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
+
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 @Slf4j
 public class SakaiBLTIUtilTest {
@@ -123,7 +128,6 @@ public class SakaiBLTIUtilTest {
 		String encrypt1 = SakaiBLTIUtil.encryptSecret(plain, key);
 		assertFalse(plain.equals(encrypt1));
 		assertTrue(goodEncrypt(encrypt1));
-System.err.println("encrypt1="+encrypt1);
 		// No double encrypt
 		String encrypt2 = SakaiBLTIUtil.encryptSecret(encrypt1, key);
 		assertTrue(goodEncrypt(encrypt2));
@@ -346,5 +350,185 @@ System.err.println("encrypt1="+encrypt1);
 		}
 	}
 
+	@Test
+	public void testTrackResourceLinkID() {
+		Map<String, Object> oldContent = new TreeMap<String, Object> ();
+		JSONObject old_json = BasicLTIUtil.parseJSONObject("");
+		old_json.put(LTIService.LTI_ID_HISTORY,"content:1,content:2");
+		oldContent.put(LTIService.LTI_SETTINGS, old_json.toString());
+		oldContent.put(LTIService.LTI_ID, "4");
+
+		String post = SakaiBLTIUtil.trackResourceLinkID(oldContent);
+		assertEquals(post, "content:1,content:2,content:4");
+
+		Map<String, Object> newContent = new TreeMap<String, Object> ();
+		JSONObject new_json = BasicLTIUtil.parseJSONObject("");
+		new_json.put(LTIService.LTI_ID_HISTORY,"content:2,content:3");
+		newContent.put(LTIService.LTI_SETTINGS, new_json.toString());
+
+		boolean retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		assertTrue(retval);
+
+		post = (String) newContent.get(LTIService.LTI_SETTINGS);
+		JSONObject post_json = BasicLTIUtil.parseJSONObject(post);
+		String post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
+		assertEquals(post_history, "content:1,content:2,content:3,content:4");
+
+		// Verify no double add
+		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+		assertFalse(retval);
+
+		// Have an empty settings in the newContent item (typical use case);
+		newContent.remove(LTIService.LTI_SETTINGS);
+		retval = SakaiBLTIUtil.trackResourceLinkID(newContent, oldContent);
+
+		post = (String) newContent.get(LTIService.LTI_SETTINGS);
+		post_json = BasicLTIUtil.parseJSONObject(post);
+		post_history = (String) post_json.get(LTIService.LTI_ID_HISTORY);
+		assertEquals(post_history, "content:1,content:2,content:4");
+	}
+
+	@Test
+	public void testUpGradeRoleString() {
+		// Test the basics
+		String theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR;
+		String expected = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
+		String output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		theRole = BasicLTIConstants.MEMBERSHIP_ROLE_LEARNER;
+		expected = LTI13ConstantsUtil.ROLE_LEARNER;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		// Test ignore case
+		theRole = "Learner";
+		expected = LTI13ConstantsUtil.ROLE_LEARNER;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		theRole = "learner";
+		expected = LTI13ConstantsUtil.ROLE_LEARNER;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		theRole = "LEARNER";
+		expected = LTI13ConstantsUtil.ROLE_LEARNER;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		// More complex use cases
+		theRole = BasicLTIConstants.MEMBERSHIP_ROLE_INSTRUCTOR +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
+		expected = LTI13ConstantsUtil.ROLE_INSTRUCTOR +
+                "," + LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		// Include one modern one
+		theRole = LTI13ConstantsUtil.ROLE_INSTRUCTOR +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
+		expected = LTI13ConstantsUtil.ROLE_INSTRUCTOR +
+                "," + LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		// Include something random fully qualified
+		theRole = "https://www.sakailms.com/role/sakaiger" +
+				"," + "http://example.com/open-source" +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
+		expected = "https://www.sakailms.com/role/sakaiger" +
+				"," + "http://example.com/open-source" +
+                "," + LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+		// Include something random not fully qualified
+		theRole = "urn:role/sakaiger" +
+				"," + "urn:open-source" +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN;
+		expected = "urn:role/sakaiger" +
+				"," + "urn:open-source" +
+                "," + LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN +
+                "," + LTI13ConstantsUtil.ROLE_INSTITUTION_ADMIN;
+		output = SakaiBLTIUtil.upgradeRoleString(theRole);
+		assertEquals(output, expected);
+
+	}
+
+	// TODO: For now make sure this does not blow up - later check the actual output :)
+	@Test
+	public void testConvertRoleMapPropToMap() {
+		String roleMap = "sakairole1:ltirole1,sakairole2:ltirole2";
+		Map retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+        // * Using semicolon as the delimiter allows you to indicate more than one IMS role.
+		roleMap = "sakairole4:ltirole4,ltirole5;sakairole6:ltirole6";
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+		// Semicolon at end
+		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6;";
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+		// Semicolon at beginning
+		roleMap = ";maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";sakairole6:ltirole6";
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+	
+		// Many semicolon in the middle
+		roleMap = "maintain:"+BasicLTIConstants.MEMBERSHIP_ROLE_CONTEXT_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_SYSTEM_ADMIN +
+                "," + BasicLTIConstants.MEMBERSHIP_ROLE_INSTITUTION_ADMIN+ ";;;;sakairole6:ltirole6";
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(roleMap);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 2);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(null);
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap("");
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
+
+		retval = SakaiBLTIUtil.convertRoleMapPropToMap(" ");
+		assertTrue(retval instanceof Map);
+		assertTrue(retval.size() == 0);
+	}
+
 }
+
 

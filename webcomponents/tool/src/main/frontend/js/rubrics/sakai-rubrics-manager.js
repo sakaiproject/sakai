@@ -30,6 +30,8 @@ class SakaiRubricsManager extends RubricsElement {
     return html`
       <h1>${tr("manage_rubrics")}</h1>
 
+      <div class="sak-banner-info"><sr-lang key="locked_message">locked_message</sr></div>
+
       <div class="row">
         <div class="col-md-4 form-group">
           <label for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>

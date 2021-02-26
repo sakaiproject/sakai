@@ -50,18 +50,15 @@
         </div>
 
         <div class="samigo-container">
-            <p>
-                <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-            </p>
+            <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}">
+                <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+            </h:panelGroup>
 
             <div id="samigo-create-new-box" class="col-md-6">
-                <div class="lead">
-                    <h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" />
-                </div>
+                <h2><h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" /></h2>
 
                 <div class="form-group form-inline">
-                    <h:outputLabel value="#{authorFrontDoorMessages.assessment_create}"/>
-                    <h:outputText value="&#160;" escape="false" />
+                    <h:outputLabel for="title" value="#{authorFrontDoorMessages.assessment_create}"/>
                     <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" styleClass="form-control" />
                 </div>
 
@@ -81,13 +78,13 @@
                     </ul>
                 </div>
 
-                <div class="form-group">
+                <h:panelGroup layout="block" styleClass="form-group" rendered="#{author.showTemplateList}">
                     <h:outputLabel value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}" />
                     <h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}">
                         <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
                         <f:selectItems value="#{author.assessmentTemplateList}" />
                     </h:selectOneMenu>
-                </div>
+                </h:panelGroup>
 
                 <div class="form-group act">
                     <h:commandButton id="createnew" styleClass="active" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
@@ -96,17 +93,13 @@
                 </div>
             </div>
 
-            <div id="samigo-create-or-box" class="col-md-1" style="text-align:center">
+            <div id="samigo-create-or-box" class="col-md-1">
                 <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
             </div>
 
             <div id="samigo-create-import-box" class="col-md-5">
-                <div class="">
-                    <h4>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
-                    </h4>
-                    <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" />
-                </div>
+                <h2><h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/></h2>
+                <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" rendered="#{authorization.createAssessment}" action="importAssessment" />
             </div>
         </div>
     </h:form>

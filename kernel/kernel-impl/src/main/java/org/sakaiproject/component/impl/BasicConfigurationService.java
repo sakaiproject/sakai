@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -877,6 +879,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         }
     }
 
+    public Set<String> getCommaSeparatedListAsSet(String key) {
+        return Stream.of(getString(key, "").split(",")).map(t -> t.trim()).collect(Collectors.toSet());
+    }
 
     public void setSakaiProperties(SakaiProperties sakaiProperties) {
         this.sakaiProperties = sakaiProperties;

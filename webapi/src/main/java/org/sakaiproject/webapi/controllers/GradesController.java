@@ -79,7 +79,7 @@ public class GradesController extends AbstractSakaiApiController {
                     }
 
                     int count = grades.size();
-                    gtb.setAverageScore(total / count);
+                    gtb.setAverageScore(total > 0 && count > 0 ? total / count : 0);
                     gtb.setUngraded(students.size() - count);
                     gtb.setSiteTitle(s.getTitle());
                     gtb.setUrl(url);

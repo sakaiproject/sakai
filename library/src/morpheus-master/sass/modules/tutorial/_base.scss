@@ -32,7 +32,7 @@
 
 	.tut-icon-home, .tut-icon-sites, .tut-icon-toggle, .tut-icon-help, .tut-icon-star
 	{
-		font-size: $default-font-size + 2px;;
+		font-size: $default-font-size + 2px;
 	}
 
 	.qtip-title:focus
@@ -53,7 +53,7 @@
 		justify-content: space-between;
 		margin-top:1em;
 		padding-top:1em;
-		border-top:1px solid #ccc;
+		border-top:1px solid var(--sakai-border-color);
 		
 		.qtipLinkButton
 		{

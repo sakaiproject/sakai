@@ -29,10 +29,11 @@ function toggleUserNav(event) {
 
     // ESC key also closes it
     $PBJQ(document).on('keyup.usernav',userNavEscHandler);
-
+    $PBJQ('.Mrphs-userNav__drop-btn').attr('aria-expanded', 'true');
   } else {
     $PBJQ('.user-dropdown-overlay').remove();
     $PBJQ(document).off('keyup',userNavEscHandler);    
+    $PBJQ('.Mrphs-userNav__drop-btn').attr('aria-expanded', 'false');
   }
 }
 

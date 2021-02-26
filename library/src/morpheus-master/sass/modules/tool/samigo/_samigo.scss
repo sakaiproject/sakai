@@ -16,13 +16,29 @@
 	}
 
 	#samigo-create-new-box, #samigo-create-import-box {
-		@extend .bs-callout-primary;
-		border-left-width: 1px;
-		margin-top: 20px;
+		margin-bottom: $standard-spacing;
+		padding: $standard-spacing;
+		border: 1px solid var(--sakai-border-color);
+		background: var(--sakai-background-color-2);
+
+		h2 {
+			margin: 0 0 15px 0; 	// to match the .form-group's spacing
+		}
+
+		label, input[type="radio"] {
+			margin-right: $standard-space;
+		}
+
+		& > .form-group:last-of-type {
+			margin-bottom: 0;
+		}
 	}
 
 	#samigo-create-or-box {
-		margin-top: 20px;
+		margin: $standard-spacing 0;	// give it space on the bottom for column layout
+		font-size: 20px;		// to match h2 default size
+		line-height: 1.05;
+		text-align: center;
 	}
 
 	.samigo-question-callout {
@@ -234,11 +250,11 @@
 		}
 
 		thead tr th {
-			border-bottom: 1px solid black;
+			border-bottom: 1px solid var(--sakai-border-color);
 		}
 
 		tr {
-			border-bottom: 1px solid lightgrey;
+			border-bottom: 1px solid var(--sakai-border-color);
 		}
 
 		.extendedTime-user, .extendedTime-group {
@@ -315,12 +331,12 @@
 
 			span {
 				.paginate_button {
-					color: #333 !important;
+					color: var(--sakai-text-color-1) !important;
 
 					@extend button;
 
 					&:hover {
-						color: #333 !important;
+						color: var(--sakai-text-color-1) !important;
 					}
 
 					&.current {
@@ -376,14 +392,14 @@
 
 		&.disabled {
 			@extend input, [type="submit"], [disabled="disabled"];
-			background: #f3f3f3;
-			border-color: #e7e7e7;
-			color: #717171 !important;
+			background: var(--button-disabled-background);
+			border-color: var(--button-disabled-border-color);
+			color: var(--button-disabled-text-color) !important;
 
 			&:hover {
-				background: #f3f3f3;
-				border-color: #e7e7e7;
-				color: #717171 !important;
+				background: var(--button-disabled-background);
+				border-color: var(--button-disabled-border-color);
+				color: var(--button-disabled-text-color) !important;
 			}
 		}
 	}
@@ -405,7 +421,7 @@
 	.matrixTable {
 		border-style: dotted;
 		border-width: 1px;
-		border-color: lightgrey;
+		border-color: var(--sakai-border-color);
 	}
 
 	#delivAssessmentWrapper {

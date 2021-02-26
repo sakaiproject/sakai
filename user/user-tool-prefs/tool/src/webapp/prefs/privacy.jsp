@@ -16,12 +16,6 @@
       <!--SAK-18566 -->
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				setupPrefsGen();
-			})
-	 </script>   
-
 
 	<!-- *********** Tool rendering top of page if on MyWorkspace home page *********** --> 
    	<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
@@ -40,7 +34,7 @@
 		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
-	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
+	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="sak-banner-success" rendered="#{privacyBean.allChanged}" />
 		<f:verbatim></div></f:verbatim>
 			  
 	<f:verbatim><br /><h4></f:verbatim>

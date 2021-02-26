@@ -7,4 +7,5 @@
 !stories/data/*.js
 !stories/styles/*.js
 !.storybook/*.js
+!.eslintrc.js
 !test/*

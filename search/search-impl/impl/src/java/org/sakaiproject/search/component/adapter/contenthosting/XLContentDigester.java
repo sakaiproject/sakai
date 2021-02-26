@@ -84,7 +84,7 @@ public class XLContentDigester extends BaseContentDigester
                     Iterator<Cell> cells = row.cellIterator();
                     while (cells.hasNext()) {
                         HSSFCell cell = (HSSFCell) cells.next();
-                        switch (cell.getCellTypeEnum()) {
+                        switch (cell.getCellType()) {
                         case NUMERIC :
                             String num = Double.toString(cell.getNumericCellValue()).trim();
                             if (num.length() > 0) {

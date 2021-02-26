@@ -197,7 +197,6 @@ public class SimplePageBean {
 	public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
 
 	private static String PAGE = "simplepage.page";
-	private static String SITE_UPD = "site.upd";
 	private String contents = null;
 	private String pageTitle = null;
 	private String newPageTitle = null;
@@ -403,7 +402,7 @@ public class SimplePageBean {
     @Setter private SecurityService securityService;
     @Setter private SiteService siteService;
     @Setter private AuthzGroupService authzGroupService;
-    @Setter private SimplePageToolDao simplePageToolDao;
+    @Getter @Setter private SimplePageToolDao simplePageToolDao;
     @Setter private LessonsAccess lessonsAccess;
     @Setter private LessonBuilderAccessService lessonBuilderAccessService;
     @Getter @Setter private MessageLocator messageLocator;
@@ -2462,7 +2461,7 @@ public class SimplePageBean {
 		// we're only checking when you first go into a tool
 		Properties roleConfig = placement.getPlacementConfig();
 		String roleList = roleConfig.getProperty("functions.require");
-		boolean siteHidden = (roleList != null && roleList.contains(SITE_UPD));
+		boolean siteHidden = (roleList != null && roleList.contains(SiteService.SECURE_UPDATE_SITE));
 
 		// Let's go back to where we were last time.
 		Long l = (Long) sessionManager.getCurrentToolSession().getAttribute("current-pagetool-page");
@@ -3573,31 +3572,31 @@ public class SimplePageBean {
 
 	    return ret;
 	}
-	
-	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
-		String subPageTitle = "";
-		List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(String.valueOf(item.getPageId()));
-		while(items != null && items.size()>0)
-		{
-			if(StringUtils.isBlank(subPageTitle) && subPageTitleContinue)
-			{
-				subPageTitle = items.get(0).getName() + " (" + messageLocator.getMessage("simplepage.printall.continuation") + ")";
-			}
-			else if(StringUtils.isBlank(subPageTitle))
-			{
-				subPageTitle = items.get(0).getName();
-			}
-			else
-			{
-				subPageTitle = items.get(0).getName() +" > "+ subPageTitle;
-			}
-			items = simplePageToolDao.findItemsBySakaiId(String.valueOf(items.get(0).getPageId()));
-		}
-				
-		if(StringUtils.isBlank(subPageTitle)) subPageTitle = null;
-			
-		return subPageTitle;
-	}
+
+    private String getParentTitle(SimplePageItem item, boolean continuation, Set<Long> seen) {
+        if (item != null) {
+            // get parent item
+            List<SimplePageItem> parentItems = simplePageToolDao.findItemsBySakaiId(Long.toString(item.getPageId()));
+            if (!parentItems.isEmpty()) {
+                SimplePageItem parent = parentItems.get(0);
+                // skip if this parent was already seen, guard against infinite loop
+                if (!seen.contains(parent.getId())) {
+                    seen.add(parent.getId());
+                    String title = parent.getName();
+                    if (seen.size() > 1) {
+                        title += continuation ? " (" + messageLocator.getMessage("simplepage.printall.continuation") + ") " : " > ";
+                    }
+                    return getParentTitle(parent, continuation, seen) + title;
+                }
+            }
+        }
+        return "";
+    }
+
+    public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
+        String subPageTitle = getParentTitle(item, subPageTitleContinue, new HashSet<>());
+        return StringUtils.trimToNull(subPageTitle);
+    }
 
     // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
@@ -4417,7 +4416,7 @@ public class SimplePageBean {
 				// simplepage.upd privileges, but site.save requires site.upd.
 				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
+						if (function.equals(SiteService.SECURE_UPDATE_SITE) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
 						} else {
 							return SecurityAdvice.PASS;
@@ -6824,20 +6823,20 @@ public class SimplePageBean {
 		    CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cc, root.getCanonicalPath());
 		    Parser parser = Parser.createCartridgeParser(cartridgeLoader);
 
-		    LessonEntity quizobject = null;
+		    LessonEntity quizobject = quizEntity;
 		    for (LessonEntity q = quizEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(quiztool))
 			    quizobject = q;
 		    }
 		    
-		    LessonEntity assignobject = null;
+		    LessonEntity assignobject = assignmentEntity;
 		    for (LessonEntity q = assignmentEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(assigntool))
 			    assignobject = q;
 		    }
 		    
 
-		    LessonEntity topicobject = null;
+		    LessonEntity topicobject = forumEntity;
 		    for (LessonEntity q = forumEntity; q != null; q = q.getNextEntity()) {
 			if (q.getToolId().equals(topictool))
 			    topicobject = q;
@@ -6935,24 +6934,25 @@ public class SimplePageBean {
 			if (roleList == null) {
 				roleList = "";
 			}
-			if (!roleList.contains( SITE_UPD ) && !visible) {
+			if (!roleList.contains(SiteService.SECURE_UPDATE_SITE) && !visible) {
 				if (roleList.length() > 0) {
 					roleList += ",";
 				}
-				roleList += SITE_UPD;
+				roleList += SiteService.SECURE_UPDATE_SITE;
 				saveChanges = true;
-			} else if ((roleList.contains( SITE_UPD )) && visible) {
-				roleList = roleList.replaceAll("," + SITE_UPD, "");
-				roleList = roleList.replaceAll(SITE_UPD, "");
+			} else if ((roleList.contains( SiteService.SECURE_UPDATE_SITE )) && visible) {
+				roleList = roleList.replaceAll("," + SiteService.SECURE_UPDATE_SITE, "");
+				roleList = roleList.replaceAll(SiteService.SECURE_UPDATE_SITE, "");
 				saveChanges = true;
 			}
 
 			if (saveChanges) {
 				roleConfig.setProperty("functions.require", roleList);
-				if (visible)
-				    roleConfig.remove("sakai-portal:visible");
-				else
- 				    roleConfig.setProperty("sakai-portal:visible", "false");
+				if (visible) {
+				    roleConfig.remove(ToolManager.PORTAL_VISIBLE);
+				} else {
+					roleConfig.setProperty(ToolManager.PORTAL_VISIBLE, "false");
+				}
 
 				placement.save();
 

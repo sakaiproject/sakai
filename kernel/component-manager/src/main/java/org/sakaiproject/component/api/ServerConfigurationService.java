@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.sakaiproject.component.locales.SakaiLocales;
@@ -381,6 +382,14 @@ public interface ServerConfigurationService
     */
    public Locale getLocaleFromString(String localeString);
 
+   /**
+    * Retrieves the string property by key, then splits it by comma. The trimmed tokens
+    * are then returned in a set. If the key isn't present, an empty set will be returned.
+    *
+    * @param key The property key
+    * @return A set of trimmed tokens from a comma separated list
+    */
+   public Set<String> getCommaSeparatedListAsSet(String key);
 
    // improved methods
 

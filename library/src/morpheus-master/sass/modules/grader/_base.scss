@@ -5,7 +5,7 @@ sakai-grader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--sakai-border-color);
     padding: 5px;
 
     .left-block {
@@ -22,9 +22,9 @@ sakai-grader {
       white-space: nowrap;
       display: none;
       position: absolute;
-      border: 1px solid black;
+      border: 1px solid var(--sakai-border-color);
       padding: 7px;
-      background-color: white;
+      background-color: var(--sakai-background-color-1);
       z-index: 100000;
       input {
         margin-right: 8px;
@@ -75,7 +75,7 @@ sakai-grader {
 
     #grader-feedback-text {
       padding-bottom: 8px;
-      border-bottom: 1px black solid;
+      border-bottom: 1px var(--sakai-border-color) solid;
     }
 
     .inline-feedback-button {
@@ -89,20 +89,19 @@ sakai-grader {
         .document-link { margin-bottom: 8px; font-weight: bold; }
 
         .preview-outer {
-          background: gray;
+          background: var(--sakai-background-color-3);
           text-align: center;
           padding: 30px;
           .preview-middle {
-            background: black;
-            background: white;
+            background: var(--sakai-background-color-1);
           }
           .preview-inner {
             width: 75%;
-            background: white;
+            background: var(--sakai-background-color-1);
             margin-top: 20px;
             margin-bottom: 20px;
             display: inline-block;
-            padding: 20 10 20 10;
+            padding: $standard-space-2x $standard-space-4x;
             text-align: left;
           }
           .nomargins {
@@ -120,19 +119,19 @@ sakai-grader {
   }
 
   span.saved {
-    color: green;
+    color: var(--successBanner-color);
     font-size: 1.8em;
     margin-right: 5px;
     vertical-align: middle;
   }
 
   span.failed {
-    color: red;
+    color: var(--errorBanner-color);
   }
 
 
   a#peer-info {
-    color: lightblue;
+    color: var(--infoBanner-color);
     font-size: 1.5em;
     margin-right: 5px;
     vertical-align: middle;
@@ -146,7 +145,7 @@ sakai-grader {
     background-color: var(--sakai-title-bar-bg-color);
 
     .rubric-active {
-      color: green;
+      color: var(--successBanner-color);
     }
 
     .points-input {
@@ -160,7 +159,7 @@ sakai-grader {
 
     .active-indicator {
       display: inline-block;
-      background: green;
+      background: var(--successBanner-color);
       width: 18px;;
       height: 18px;
       border-radius: 50%;
@@ -171,9 +170,7 @@ sakai-grader {
       margin-top: 12px;
     }
     .resubmission-block {
-
       padding: 5px;
-
       margin-bottom: 10px;
 
       select {
@@ -190,7 +187,7 @@ sakai-grader {
     }
 
     #grader-submission-history-wrapper {
-      border: black solid 1px;
+      border: 1px solid var(--sakai-border-color);
       border-radius: 5px;
       padding: 5px;
       margin-top: 20px;
@@ -220,7 +217,7 @@ sakai-grader {
           }
         }
         #grader-history-grades-wrapper {
-          border-top: 1px black solid;
+          border-top: 1px solid var(--sakai-border-color);
         }
       }
     }
@@ -238,11 +235,11 @@ sakai-grader {
 
     .current-feedback-attachments {
       margin-bottom: 7px;
-      background-color: #f4f5f7;
+      background-color: var(--sakai-background-color-2);
 
       .feedback-attachments-row {
         display: flex;
-        border: black solid 1px;
+        border: 1px solid var(--sakai-border-color);
         border-radius: 3px;
         padding: 3px;
         margin-bottom: 3px;
@@ -354,10 +351,9 @@ sakai-grader {
         margin: 0 5px;
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
-        background-color: #12aa21;
+        background-color: var(--successBanner-bgcolor);
         font-size: 14px;
-        color: #ffffff;
-        font-family: arial, verdana, sans-serif;
+        color: var(--successBanner-color);
       }
     }
   }
@@ -365,13 +361,13 @@ sakai-grader {
   .grader-late {
     margin-left: 5px;
     font-weight: bold;
-    color: red;
+    color: var(--errorBanner-color);
   }
 
   .grader-returned {
     font-size: 24px;
     font-weight: bold;
-    color: green;
+    color: var(--successBanner-color);
   }
 
   .action-button-block {

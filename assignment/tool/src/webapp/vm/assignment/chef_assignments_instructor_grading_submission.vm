@@ -207,17 +207,16 @@
             #end
 
             ## Submission Log
-## TODO Submission Log
-##            #if ($!submission && $!submission.getSubmissionLog().size() > 0)
-##                <tr>
-##                    <th>$tlang.getString('gen.history')</th>
-##                    <td>
-##                        #foreach ($entry in $submission.getSubmissionLog())
-##                            $formattedText.escapeHtml($entry)<br/>
-##                        #end
-##                    </td>
-##                </tr>
-##            #end
+            #if ($!submissionLog && !$!submissionLog.isEmpty())
+                <tr>
+                    <th>$tlang.getString('gen.history')</th>
+                    <td>
+                        #foreach ($message in $submissionLog)
+                            $message<br/>
+                        #end
+                    </td>
+                </tr>
+            #end
         </table>
 
         ## show or hide assignment instruction and attachment
@@ -344,10 +343,6 @@
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
                 evaluated-item-owner-id="$submitterId"
-
-                #if($!rbcs-state-details && "$!rbcs-state-details" != "")
-                state-details='$rbcs-state-details'
-                #end
             ></sakai-rubric-grading>
         </div>
         </div>
@@ -384,7 +379,7 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             #if($assignment.getAllowPeerAssessment())
-                                <a id="infoImg" href="#"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
+                                <a id="infoImg" href="javascript:;"  class="fa fa-info-circle" data-toggle="popover" data-placement="auto" data-content="$tlang.getString('peerassessment.peerGradeInfo')"></a>
                             #end
                             <input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);"/>
                             <span class="text-info">($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>

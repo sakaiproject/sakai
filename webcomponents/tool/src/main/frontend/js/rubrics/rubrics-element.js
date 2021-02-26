@@ -6,7 +6,7 @@ class RubricsElement extends SakaiElement {
 
     super();
 
-    this.locale = window.portal ? window.portal.locale : window.top.portal.locale;
+    this.locale = (window.top?.portal?.locale || window.top?.sakai?.locale?.userLocale || "en-US").replace("_", "-");
   }
 
   isUtilsAvailable() {

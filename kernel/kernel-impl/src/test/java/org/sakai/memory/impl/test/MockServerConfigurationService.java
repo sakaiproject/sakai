@@ -3,6 +3,7 @@ package org.sakai.memory.impl.test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -230,4 +231,8 @@ public class MockServerConfigurationService implements
         return Locale.getDefault();
     }
 
+
+    public Set<String> getCommaSeparatedListAsSet(String key) {
+        return null;
+    }
 }

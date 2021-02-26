@@ -40,6 +40,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteTitleAdvisor;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -63,7 +64,6 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
 
     // Constants
     private static final String DEFAULT_PREFERRED_CAT = "LEC";
-    private static final String SITE_UPDATE_PERMISSION = "site.upd";
     private static final String CM_STUDENT_ROLE_KEY = "S";
 
     // sakai.properties
@@ -110,7 +110,7 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
             }
 
             // Short circuit - only continue if user is not null and user does not have the site.upd permission in the given site
-            if( currentUser != null && !ss.unlock( currentUser, SITE_UPDATE_PERMISSION, site.getReference() ) )
+            if( currentUser != null && !ss.unlock( currentUser, SiteService.SECURE_UPDATE_SITE, site.getReference() ) )
             {
                 Collection<String> providerIDs = siteProviders;
                 if( providerIDs == null )
