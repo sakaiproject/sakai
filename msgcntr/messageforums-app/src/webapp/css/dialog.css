@@ -5,8 +5,8 @@
 
 
 .ui-dialog {
-	border: solid 1px #525252;
-	background-color: white;
+	border: solid 1px var(--sakai-border-color);
+	background-color: var(--sakai-background-color-1);
 	padding: 10px;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
@@ -20,15 +20,6 @@
 #dialogDiv{
   height: 100% !important;
 }
- 
-.ui-dialog-container {
-
-}
-
-.ui-dialog-content {  
-
-}
-
 
 .ui-dialog-titlebar-close {
     display: none;
@@ -65,13 +56,6 @@
   max-height: 100%;
   max-width: 100%;
   overflow: hidden;
-/*  width: 1390px;
-  height: 899px; */
-  opacity: 0.50;
-  filter:alpha(opacity=50);
-  -moz-opacity: 0.50;
-  background-color: rgb(238, 238, 238);
-  /* z-index: 1001;*/
 }
 
 .closeDialogFrame {

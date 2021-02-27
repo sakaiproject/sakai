@@ -19,7 +19,7 @@
 
 .#{$namespace}sakai-forums{
 	.topicBlocLone{
-		@extend .bs-callout-warn;
+		@extend .bs-callout-info;
 	}
 
 	.permissionRow{
