@@ -234,7 +234,7 @@ span.abc{
 
 span.abc a:hover{
 	font-weight: bold;
-	color: maroon;
+	color: var(--errorBanner-color);
 	text-decoration: none;
 }
 
