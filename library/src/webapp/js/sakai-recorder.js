@@ -19,7 +19,8 @@
                 audio_context: null,
                 recorder: null,
                 input: null,
-                analyserContext: null,
+                micWaveForm: null,
+                playbackWaveForm: null,
                 analyserNode: null,
                 ckEditor: extraOptions.ckEditor,
                 localeLanguage: extraOptions.localeLanguage,
@@ -217,19 +218,25 @@
         },
 
         setupWaveform: function() {
-              this.vars.analyserContext = WaveSurfer.create({
+
+              this.vars.micWaveForm = WaveSurfer.create({
                 container     : '#audio-analyzer',
-                cursorWidth   : 0,
-                plugins: [
-                  WaveSurfer.microphone.create()
-                ]
+                plugins       : [ WaveSurfer.microphone.create() ]
+              });
+
+              this.vars.playbackWaveForm = WaveSurfer.create({
+                container     : '#playback-analyzer',
+                backend       : 'MediaElement',
+                mediaType     : 'audio',
+                mediaControls : false,
+                waveColor     : 'green'
               });
         },
         
         enableRecording: function(stream) {
             var _self = this;
 
-            if (_self.vars.analyserContext == null) {
+            if (_self.vars.micWaveForm == null) {
               _self.setupWaveform();
             }
 
@@ -239,11 +246,9 @@
 
             this.$audioRecordingPopup.find('#audio-record').click(function() {
                 _self.startRecording(this);
-                _self.vars.analyserContext.microphone.start();
             });
             this.$audioRecordingPopup.find('#audio-stop').click(function() {
                 _self.stopRecording(this);
-                _self.vars.analyserContext.microphone.stop();
             });
             this.$audioRecordingPopup.find('#audio-play').click(function() {
                 _self.playRecording(this);
@@ -353,6 +358,11 @@
             this.$audioRecordingPopup.find('#audio-upload').prop('disabled','disabled').fadeTo('slow', 0.5);
             this.$audioRecordingPopup.find('#audio-play').prop('disabled', 'disabled').fadeTo('slow', 0.5);
             console.log('Recording...');
+
+            // Start the waveform rendering of microphone input
+            this.$audioRecordingPopup.find('#playback-analyzer').hide();
+            this.$audioRecordingPopup.find('#audio-analyzer').show();
+            this.vars.micWaveForm.microphone.start();
         },
 
         stopRecording: function(button) {
@@ -378,8 +388,10 @@
             this.$audioRecordingPopup.find('#audio-stop').prop('disabled','disabled').fadeTo('slow', 0.5);
             this.$audioRecordingPopup.find('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
             this.$audioRecordingPopup.find('#audio-upload').prop('disabled','').fadeTo('slow', 1.0);
-            //button.previousElementSibling.disabled = false;
             console.log('Stopped recording.');
+
+            // Stop the waveform of mic
+            this.vars.micWaveForm.microphone.stop();
 
             // see if a user has attempts remaining
             this.vars.attemptsRemaining--;
@@ -551,55 +563,26 @@
 
             this.vars.recorder && this.vars.recorder.exportWAV(function(blob) {
                 var url = URL.createObjectURL(blob);
-                //var li = document.createElement('li');
-                // var au = document.createElement('audio');
                 var au = _self.$audioRecordingPopup.find('#audio-html5')[0];
-
                 au.src = url;
-                // li.appendChild(au);
-                //this.$audioRecordingPopup.find('#audio-debug-log').append(li);
             });
         },
 
         playRecording: function(button) {
-            //Try to stop/reload previous recording
-            if (this.vars.userMediaSupport) {
-                this.$audioRecordingPopup.find('#audio-html5')[0].load();
-                this.$audioRecordingPopup.find('#audio-html5')[0].play();
+            if (this.vars.playbackWaveForm == null) {
+              this.setupWaveform();
             }
+
+            this.$audioRecordingPopup.find('#audio-analyzer').hide();
+            this.$audioRecordingPopup.find('#playback-analyzer').show();
+            this.vars.playbackWaveForm.load( this.$audioRecordingPopup.find('#audio-html5')[0] );
+            //Try to stop/reload previous recording
+            //this.$audioRecordingPopup.find('#audio-html5')[0].load();
+            this.$audioRecordingPopup.find('#audio-html5')[0].play();
 
             // Start the playback timer
             this.playbackTimer(timeTaken);
-
-            if (this.vars.analyserContext != null) {
-              this.vars.analyserContext.destroy();
-            }
-
-var wavesurfer = WaveSurfer.create({
-  container     : '#audio-analyzer',
-  waveColor: '#A8DBA8',
-  progressColor: '#3B8686',
-  backend: 'MediaElement'
-});
-            wavesurfer.load( this.$audioRecordingPopup.find('#audio-html5')[0] );
         },
 
-        drawBuffer: function(width, height, context, data) {
-            var step = Math.ceil( data.length / width );
-            var amp = height / 2;
-            context.fillStyle = "silver";
-            for(var i=0; i < width; i++){
-                var min = 1.0;
-                var max = -1.0;
-                for (j=0; j<step; j++) {
-                    var datum = data[(i*step)+j];
-                    if (datum < min)
-                        min = datum;
-                    if (datum > max)
-                        max = datum;
-                }
-                context.fillRect(i,(1+min)*amp,1,Math.max(1,(max-min)*amp));
-            }
-        }
     }
 })();
