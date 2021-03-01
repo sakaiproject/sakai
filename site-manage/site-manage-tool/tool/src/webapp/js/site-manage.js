@@ -1222,21 +1222,6 @@ function submitform(id) {
   }
 }
 
-function LimitText(fieldObj,maxChars) {
-
-  var result = true;
-  if (fieldObj.value.length >= maxChars) {
-    fieldObj.value = fieldObj.value.substring(0,maxChars);
-    result = false;
-  }
-
-  if (window.event) {
-    window.event.returnValue = result;
-  }
-
-  return result;
-}
-
 function submitRemoveSection(index, formID) {
 
   id = "removeSection" + index;
