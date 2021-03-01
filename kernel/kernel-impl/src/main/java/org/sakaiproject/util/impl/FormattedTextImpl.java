@@ -469,6 +469,11 @@ public class FormattedTextImpl implements FormattedText
                     }
                     val = cr.getCleanHTML();
 
+                    // deal with &quot; problem when there is a quote in the string
+                    if (val.contains("&quot;")) {
+                        val = val.replaceAll("&quot;", "\"");
+                    }
+
                     // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
                         Matcher m = M_patternAnchorTagWithOutTargetAndWithHrefAndHrefNotStartingWithHash.matcher(val);
