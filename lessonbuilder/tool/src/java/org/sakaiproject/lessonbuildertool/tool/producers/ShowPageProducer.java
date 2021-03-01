@@ -1042,9 +1042,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		simplePageBean.addPrevLink(tofill, pageItem);
 		simplePageBean.addNextLink(tofill, pageItem);
 
-		// swfObject is not currently used
-		boolean shownSwfObject = false;
-
 		long newItemId = -1L;
 		String newItemStr = (String)toolSession.getAttribute("lessonbuilder.newitem");
 		if (newItemStr != null) {
