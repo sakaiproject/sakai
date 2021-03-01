@@ -21,29 +21,17 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Comparator;
 
 public class AlphaNumericComparator implements Comparator<String> {
-		Comparator stringComparator = Comparator
-				.comparing(s -> s.toString().replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
+	private static Comparator stringComparator = Comparator
+				.comparing(s -> String.valueOf(s).replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
 				.thenComparingLong(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
-						getValidLong(s.toString()) : 0);
+						Long.parseLong(s.toString().replaceAll("\\D", "")) : 0);
 
 	@Override
 	public int compare(String o1, String o2) {
-		return Comparator.nullsFirst( stringComparator ).compare(o1, o2);
-	}
-
-	private Long getValidLong(final String s) {
-		Long l = 0L;
-		String justDigitString = s.replaceAll("\\D", "");
-
 		try {
-			l = Long.parseLong(justDigitString);
+			return stringComparator.compare(o1, o2);
+		} catch (NumberFormatException nfe) {
+			return Comparator.comparing(String::valueOf).compare(o1, o2);
 		}
-		catch (NumberFormatException nfe) {
-			// Max Long = 9,223,372,036,854,775,807
-			String choppedString = StringUtils.left(justDigitString, StringUtils.length(String.valueOf(Long.MAX_VALUE)) - 1);
-			l = Long.parseLong(choppedString);
-		}
-
-		return l;
 	}
 }
