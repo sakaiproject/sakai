@@ -23,11 +23,27 @@ import java.util.Comparator;
 public class AlphaNumericComparator implements Comparator<String> {
 		Comparator stringComparator = Comparator
 				.comparing(s -> s.toString().replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
-				.thenComparingInt(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
-						Integer.parseInt(s.toString().replaceAll("\\D", "")) : 0);
+				.thenComparingLong(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
+						getValidLong(s.toString()) : 0);
 
 	@Override
 	public int compare(String o1, String o2) {
 		return Comparator.nullsFirst( stringComparator ).compare(o1, o2);
+	}
+
+	private Long getValidLong(final String s) {
+		Long l = 0L;
+		String justDigitString = s.replaceAll("\\D", "");
+
+		try {
+			l = Long.parseLong(justDigitString);
+		}
+		catch (NumberFormatException nfe) {
+			// Max Long = 9,223,372,036,854,775,807
+			String choppedString = StringUtils.left(justDigitString, StringUtils.length(String.valueOf(Long.MAX_VALUE)) - 1);
+			l = Long.parseLong(choppedString);
+		}
+
+		return l;
 	}
 }

@@ -12,8 +12,8 @@ public class AlphaNumericComparatorTest {
 
     @Test
     public void alphanumericCompare() {
-        List<String> rawData = Arrays.asList("X19", "X10", "X25", "X111", "X2", "X1", "X", "0", null, "A11", "B12", "a", "b");
-        List<String> expectedSort = Arrays.asList(null, "0", "a", "A11", "b", "B12", "X", "X1", "X2", "X10", "X19", "X25", "X111");
+        List<String> rawData = Arrays.asList("X19", "X10", "X25", "X111", "X2", "X1", "X", "0", "X242+141.55", null, "A11", "B12", "a", "11720217301000", "b", "9999372036854775807");
+        List<String> expectedSort = Arrays.asList(null, "0", "11720217301000", "9999372036854775807", "a", "A11", "b", "B12", "X", "X1", "X2", "X10", "X19", "X25", "X111", "X242+141.55");
 
         //rawData.stream().sorted(alphaNumeric).forEach(System.out::println);
         rawData.sort(alphaNumeric);
