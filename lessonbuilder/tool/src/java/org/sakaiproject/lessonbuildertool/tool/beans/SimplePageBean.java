@@ -372,7 +372,11 @@ public class SimplePageBean {
 			"nrudy",
 			"nnavy",
 			"nnavy2",
-			"ngreen"
+			"ngreen",
+			"norange",
+			"ngold",
+			"nteal",
+			"npurple"
 	};
 	public static final String NewColorLabels[] = {
 			"Default",
@@ -384,7 +388,11 @@ public class SimplePageBean {
 			"Rudy",
 			"Navy",
 			"Navy Dark",
-			"Green"
+			"Green",
+			"Orange",
+			"Gold",
+			"Teal",
+			"Purple"
 	};
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously

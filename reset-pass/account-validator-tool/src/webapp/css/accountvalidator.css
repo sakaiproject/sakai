@@ -1,5 +1,5 @@
 body {
-background:#cccccc;
+background: var(--sakai-background-color-2);
 }
 p, h1, form, button {
     border: 0;
@@ -20,9 +20,9 @@ p, h1, form, button {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-border:2px solid #336699;
+border:2px solid var(--sakai-active-color-1);
 padding:10px 20px 20px 20px;
-background:#fff;
+background:var(--sakai-background-color-1);
 margin: 2em auto;
 width:43em;
 }
@@ -30,16 +30,12 @@ width:43em;
 .header {
 background:url("/library/skin/default/images/logo_inst.gif") no-repeat scroll left top;
 padding: 5px 0 20px 120px;
-border-bottom: 1px solid #E4E4E4;
+border-bottom: 1px solid var(--sakai-border-color);
 margin-bottom: 10px;
 }
 
 
 /* ----------- stylized ----------- */
-.stylized {
-    /*border:solid 2px #b7ddf2;
-    background:#ebf4fb;*/
-}
 
 .stylized h1 {
     font-size: 14px;
@@ -49,8 +45,8 @@ margin-bottom: 10px;
 
 .stylized p {
     font-size: 11px;
-    color: #666666;
-    border-bottom: solid 1px #E4E4E4;
+    color: var(--sakai-text-color-dimmed);
+    border-bottom: solid 1px var(--sakai-border-color);
     padding-bottom: 10px;
 	margin-bottom:20px;
 }
@@ -74,17 +70,17 @@ margin-bottom: 10px;
 }
 
 .stylized .info {
-	background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
-	color:#666666;
-	font-size:11px;
-	padding-left:20px;
-	padding-bottom:20px;
+	background: transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+	color: var(--sakai-text-color-dimmed);
+	font-size: 11px;
+	padding-left: 20px;
+	padding-bottom: 20px;
 }
 
 
 
 .stylized .small {
-    color: #666666;
+    color: var(--sakai-text-color-dimmed);
     display: block;
     font-size: 11px;
     font-weight: normal;
@@ -96,7 +92,7 @@ margin-bottom: 10px;
     float: left;
     font-size: 12px;
     padding: 4px 2px;
-    border: solid 1px #aacfe4;
+    border: solid 1px var(--sakai-active-color-1);
     width: 150px;
     margin: 0 0 15px 10px;
 }
@@ -119,19 +115,19 @@ margin-bottom: 10px;
 }
 
 .spacerVertical {
-border-left:4px solid #B7DDF2;
+border-left:4px solid var(--sakai-active-color-1);
 height:110px;
 width:1px;
 }
 
 .or {
-	color:#FF9900;
+	color: var(--warnBanner-color);
 	font-size:140%;
 	font-weight:bold;
 }
 
 .username {
-	color:#336699;
+	color: var(--infoBanner-color);
 	font-weight:bold;
 	padding-left:20px;
 }
@@ -140,5 +136,3 @@ width:1px;
 	margin-bottom: 15px;
 	padding-left:18px;
 }
-
-

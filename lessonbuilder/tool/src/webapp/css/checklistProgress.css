@@ -1,5 +1,5 @@
 .checklistProgressPageHeader {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--sakai-border-color);
     padding-bottom: 4px;
 }
 
@@ -17,13 +17,14 @@
 table.checklistProgressTable {
     border-collapse: collapse;
     width: auto;
-    background-color: #f0f0f0;
+    background-color: var(--sakai-background-color-2);
     margin: 1em 0 1em 2em;
 }
 
-table.checklistProgressTable thead tr th, table.checklistProgressTable tfoot tr th {
+table.checklistProgressTable thead tr th,
+table.checklistProgressTable tfoot tr th {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--sakai-border-color);
 }
 
 table.checklistProgressTable thead tr .header {
@@ -34,13 +35,13 @@ table.checklistProgressTable thead tr .header {
 }
 
 table.checklistProgressTable tbody td {
-    color: #3D3D3D;
+    color: var(--sakai-text-color-2);
     vertical-align: middle;
     width: 50px;
     text-align: center;
     padding: 10px;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
+    border: 1px solid var(--sakai-border-color);
+    background-color: var(--sakai-background-color-2);
 }
 
 table.checklistProgressTable thead tr .headerSortUp {
@@ -52,13 +53,13 @@ table.checklistProgressTable thead tr .headerSortDown {
 }
 
 td.checkedOff {
-    background-color: #BDFCC9 !important;
+    background-color: var(--succcessBanner-bgcolor) !important;
 }
 
 th.row-header {
     padding: 10px;
-    border: 1px solid #ccc;
-    background: #fff;
+    border: 1px solid var(--sakai-border-color);
+    background: var(--sakai-background-color-1);
 }
 .progress-navigation {
     display: inline-block;
@@ -82,12 +83,13 @@ th.row-header {
     padding-right: 4px;
 }
 
-.progress-navigation li a, .progress-navigation li span {
+.progress-navigation li a,
+.progress-navigation li span {
     text-decoration: none;
 }
 
 .progress-navigation li:hover {
-@include transition(background, 0.2s);
+    transition: background 0.2s;
     cursor: pointer;
 }
 
@@ -98,7 +100,7 @@ th.row-header {
     transition: visibility 0.65s ease-in;
     left: 0;
     z-index: 999;
-    border: 1px solid #ccc;
+    border: 1px solid var(--sakai-border-color);
 }
 
 .progress-navigation ul li:hover > ul,
@@ -110,7 +112,7 @@ th.row-header {
     clear: both;
     padding: 5px 10px;
     width: 100%;
-    background: #f0f0f0;
+    background: var(--sakai-background-color-2);
     white-space: nowrap;
     margin: 0;
 }

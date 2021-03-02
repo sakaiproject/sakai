@@ -17,7 +17,7 @@ div#sitelistform\:headerContainer1, div#sitelistform\:headerContainer2 {
 
 div.headerWrapper {
 	display: inline-block;
-	background-color: #EEE !important;
+	background-color: var(--sakai-background-color-2) !important;
 	padding: 1em 1em 1em 0.5em;
 }
 
@@ -37,7 +37,7 @@ div#sitelistform\:headerContainer1 span.expanded, div#sitelistform\:headerContai
 
 div#sitelistform\:actionContainer1, div#sitelistform\:actionContainer2 {
 	display: none;
-	background-color: #EEE;
+	background-color: var(--sakai-background-color-2);
 	padding: 1em;
 }
 
@@ -48,30 +48,39 @@ div#sitelistform\:actionContainer1 div, div#sitelistform\:actionContainer2 div {
 div#sitelistform\:actionContainer1 input, div#sitelistform\:actionContainer2 input {
 	display: block;
 	margin: 0.25em 0;
-	border: 0 !important;
-	background: 0 !important;
-	background-color: #EEE !important;
 	width: 100%;
 	text-align: left;
 	text-shadow: none !important;
-	color: #4398BB !important;
-	text-decoration: underline !important;
+	background-color: var(--button-background) !important;
+	color: var(--button-text-color) !important;
+	box-shadow: var(--button-shadow) !important;
+	border: 1px solid var(--button-border-color);
+}
+
+div#sitelistform\:actionContainer1 input:disabled, div#sitelistform\:actionContainer2 input:disabled {
+	background-color: var(--button-disabled-background) !important;
+	color: var(--button-disabled-text-color) !important;
+	box-shadow: var(--button-disabled-shadow) !important;
+	border: 1px solid var(--button-disabled-border-color);
 }
 
 div#sitelistform\:actionContainer1 input:hover:enabled, div#sitelistform\:actionContainer2 input:hover:enabled {
-	background-color: #CCC !important;
+	background-color: var(--button-hover-background) !important;
+	color: var(--button-hover-text-color) !important;
+	box-shadow: var(--button-hover-shadow) !important;
+	border: 1px solid var(--button-hover-border-color);
 }
 
 div#sitelistform\:actionContainer1 input:active:enabled, div#sitelistform\:actionContainer2 input:active:enabled {
-	background-color: #75B9C2 !important;
-	color: #FFF !important;
-	box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.15) inset !important;
-	text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.3) !important;
+	background-color: var(--button-active-background) !important;
+	color: var(--button-active-text-color) !important;
+	box-shadow: var(--button-active-shadow) !important;
+	border: 1px solid var(--button-active-border-color);
 }
 
 div#sitelistform\:actionContainer1 div.column2, div#sitelistform\:actionContainer1 div.column3,
 div#sitelistform\:actionContainer2 div.column2, div#sitelistform\:actionContainer2 div.column3 {
-	border-left: 2px solid #C8C8C8;
+	border-left: 2px solid var(--sakai-border-color);
 	padding-left: 1em;
 	margin-left: 1em;
 	vertical-align: top;

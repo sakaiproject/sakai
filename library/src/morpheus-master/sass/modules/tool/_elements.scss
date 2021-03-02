@@ -1,32 +1,58 @@
 .sakai-accordion {
+
 	.panel-default {
 		border-color: var(--sakai-border-color);
 	}
+
 	.panel-heading {
-		background-color:var(--sakai-background-color-2);
+		background-color: var(--sakai-background-color-2);
+
+		&:hover,
+		&:focus {
+			background-color: var(--sakai-active-color-1);
+		}
+
+		&:active {
+			background-color: var(--sakai-active-color-2);
+		}
 	}
+
 	.panel-heading > .panel-title {
 		padding: 0;
+
 		a {
 			padding: $standard-spacing;
+			color: var(--sakai-text-color-1);
 		}
-		a, a:hover {
+
+		a,
+		a:hover {
 			text-decoration: none;
 		}
-		a:focus {
-			outline-offset: -#{$focus-outline-width};	// keep outline contained within the element
+
+		a:hover,
+		a:focus,
+		a:active {
+			color: var(--sakai-text-color-1);
 		}
+
+		a:focus {
+			outline-offset: -#{$focus-outline-width}; // keep outline contained within the element
+		}
+
 		a::before {
-			content: "\f0da";				// fa-caret-right
+			content: "\f0da"; // fa-caret-right
 			display: inline-block;
-			width: 0.75em;					// fixed width for both icons, similar to .fa-fw
+			width: 0.75em; // fixed width for both icons, similar to .fa-fw
 			font-family: FontAwesome;
 			text-align: center;
 		}
+
 		a[aria-expanded="true"]::before {
-			content: "\f0d7";				// fa-caret-down
+			content: "\f0d7"; // fa-caret-down
 		}
 	}
+
 	.panel-body {
 		background: var(--sakai-background-color-1);
 		color: var(--sakai-text-color-1);
