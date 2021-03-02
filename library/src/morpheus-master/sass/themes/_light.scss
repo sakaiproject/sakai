@@ -187,14 +187,14 @@
     --link-hover-background-color: transparent;
 
     // Default (non-primary) button design:
-    --button-text-color: var(--sakai-primary-color-1);
-    --button-background: var(--sakai-background-color-1);
-    --button-border-color: var(--button-text-color);
+    --button-text-color: var(--sakai-text-color-2);
+    --button-background: transparent;
+    --button-border-color: var(--sakai-border-color);
     --button-shadow: none;
     // hover and focus states:
-    --button-hover-text-color: var(--button-text-color);
+    --button-hover-text-color: var(--sakai-text-color-3);
     --button-hover-background: var(--sakai-background-color-3);
-    --button-hover-border-color: var(--button-hover-text-color);
+    --button-hover-border-color: var(--sakai-active-color-3);
     --button-hover-shadow: none;
     // active state:
     --button-active-text-color:var(--button-text-color);

@@ -29,12 +29,12 @@
 /* selector div */
 .pointerClass{
 	/*width:32px;*/
-	height:16px;
+	height: 16px;
 	background: url('/samigo-app/images/crosshair.png') no-repeat;
-	background-position:left bottom;
-	padding-left:18px;
-	position:absolute;
-	display:none;
+	background-position: left bottom;
+	padding-left: 18px;
+	position: absolute;
+	display: none;
 	color: var(--sakai-color-red);
 	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
 	font-size: 16px;
@@ -42,12 +42,12 @@
 
 .pointerClass_selected{
 	/*width:32px;*/
-	height:16px;
+	height: 16px;
 	background: url('/samigo-app/images/crosshair.png') no-repeat;
-	background-position:left top;
-	padding-left:18px;
-	position:absolute;
-	display:none;
+	background-position: left top;
+	padding-left: 18px;
+	position: absolute;
+	display: none;
 	color: var(--sakai-color-red);
 	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
 	font-size: 16px;

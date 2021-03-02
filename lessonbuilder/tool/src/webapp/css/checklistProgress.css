@@ -21,7 +21,8 @@ table.checklistProgressTable {
     margin: 1em 0 1em 2em;
 }
 
-table.checklistProgressTable thead tr th, table.checklistProgressTable tfoot tr th {
+table.checklistProgressTable thead tr th,
+table.checklistProgressTable tfoot tr th {
     padding: 10px;
     border: 1px solid var(--sakai-border-color);
 }
@@ -82,12 +83,13 @@ th.row-header {
     padding-right: 4px;
 }
 
-.progress-navigation li a, .progress-navigation li span {
+.progress-navigation li a,
+.progress-navigation li span {
     text-decoration: none;
 }
 
 .progress-navigation li:hover {
-    transition: background, 0.2s;
+    transition: background 0.2s;
     cursor: pointer;
 }
 

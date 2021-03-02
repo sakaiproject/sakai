@@ -12,16 +12,16 @@
  */
 
 .#{$namespace}html {
-
-/* Component containers
-----------------------------------*/
+    // Component containers
     .ui-widget {
         font-family: $font-family;
         font-size: 1em;
     }
+
     .ui-widget .ui-widget {
         font-size: 1em;
     }
+
     .ui-widget input,
     .ui-widget select,
     .ui-widget textarea,
@@ -29,31 +29,35 @@
         font-family: $font-family;
         font-size: 1em;
     }
+
     .ui-widget.ui-widget-content {
         border: 1px solid var(--sakai-border-color);
     }
+
     .ui-widget-content {
         border: 1px solid var(--sakai-border-color);
         background: var(--sakai-background-color-1);
         color: var(--sakai-text-color-1);
     }
+
     .ui-widget-content a {
         color: var(--link-color);
         background: var(--link-background-color);
     }
+
     .ui-widget-header {
         border: 1px solid var(--sakai-border-color);
         background: var(--sakai-background-color-2);
         color: var(--sakai-text-color-1);
         font-weight: bold;
     }
+
     .ui-widget-header a {
         color: var(--link-color);
         background: var(--link-background-color);
     }
 
-    /* Interaction states
-    ----------------------------------*/
+    // Interaction states
     .ui-state-default,
     .ui-widget-content .ui-state-default,
     .ui-widget-header .ui-state-default,
@@ -68,6 +72,7 @@
         font-weight: normal;
         color: var(--button-text-color);
     }
+
     .ui-state-default a,
     .ui-state-default a:link,
     .ui-state-default a:visited,
@@ -78,6 +83,7 @@
         color: var(--button-text-color);
         text-decoration: none;
     }
+
     .ui-state-hover,
     .ui-widget-content .ui-state-hover,
     .ui-widget-header .ui-state-hover,
@@ -91,6 +97,7 @@
         font-weight: normal;
         color: var(--button-hover-text-color);
     }
+
     .ui-state-hover a,
     .ui-state-hover a:hover,
     .ui-state-hover a:link,
@@ -108,6 +115,7 @@
     .ui-visual-focus {
         box-shadow: 0 0 3px 1px var(--focus-outline-color);
     }
+
     .ui-state-active,
     .ui-widget-content .ui-state-active,
     .ui-widget-header .ui-state-active,
@@ -119,11 +127,13 @@
         font-weight: normal;
         color: var(--button-active-text-color);
     }
+
     .ui-icon-background,
     .ui-state-active .ui-icon-background {
         border: var(--button-border-color);
         background-color: var(--button-background);
     }
+
     .ui-state-active a,
     .ui-state-active a:link,
     .ui-state-active a:visited {
@@ -131,8 +141,7 @@
         text-decoration: none;
     }
 
-    /* Interaction Cues
-    ----------------------------------*/
+    // Interaction Cues
     .ui-state-highlight,
     .ui-widget-content .ui-state-highlight,
     .ui-widget-header .ui-state-highlight {
@@ -140,15 +149,18 @@
         background: var(--warnBanner-bgcolor);
         color: var(--warnBanner-color);
     }
+
     .ui-state-checked {
         border: 1px solid var(--warnBanner-bordercolor);
       background: var(--warnBanner-bgcolor);
     }
+
     .ui-state-highlight a,
     .ui-widget-content .ui-state-highlight a,
     .ui-widget-header .ui-state-highlight a {
         color: var(--warnBanner-color);
     }
+
     .ui-state-error,
     .ui-widget-content .ui-state-error,
     .ui-widget-header .ui-state-error {
@@ -156,21 +168,25 @@
         background: var(--errorBanner-background);
         color: var(--errorBanner-color);
     }
+
     .ui-state-error a,
     .ui-widget-content .ui-state-error a,
     .ui-widget-header .ui-state-error a {
         color: var(--errorBanner-color);
     }
+
     .ui-state-error-text,
     .ui-widget-content .ui-state-error-text,
     .ui-widget-header .ui-state-error-text {
         color: var(--errorBanner-color);
     }
+
     .ui-priority-primary,
     .ui-widget-content .ui-priority-primary,
     .ui-widget-header .ui-priority-primary {
         font-weight: bold;
     }
+
     .ui-priority-secondary,
     .ui-widget-content .ui-priority-secondary,
     .ui-widget-header .ui-priority-secondary {
@@ -178,6 +194,7 @@
         filter:Alpha(Opacity=70); /* support: IE8 */
         font-weight: normal;
     }
+
     .ui-state-disabled,
     .ui-widget-content .ui-state-disabled,
     .ui-widget-header .ui-state-disabled {
@@ -185,32 +202,34 @@
         filter:Alpha(Opacity=35); /* support: IE8 */
         background-image: none;
     }
+
     .ui-state-disabled .ui-icon {
         filter:Alpha(Opacity=35); /* support: IE8 - See #6059 */
     }
 
-    /* Misc visuals
-    ----------------------------------*/
+    // Misc visuals
 
-    /* Corner radius */
     .ui-corner-all,
     .ui-corner-top,
     .ui-corner-left,
     .ui-corner-tl {
         border-top-left-radius: $button-radius;
     }
+
     .ui-corner-all,
     .ui-corner-top,
     .ui-corner-right,
     .ui-corner-tr {
         border-top-right-radius: $button-radius;
     }
+
     .ui-corner-all,
     .ui-corner-bottom,
     .ui-corner-left,
     .ui-corner-bl {
         border-bottom-left-radius: $button-radius;
     }
+
     .ui-corner-all,
     .ui-corner-bottom,
     .ui-corner-right,
@@ -218,12 +237,12 @@
         border-bottom-right-radius: $button-radius;
     }
 
-    /* Overlays */
     .ui-widget-overlay {
         background: var(--sakai-color-black);
         opacity: .3;
         filter: Alpha(Opacity=30); /* support: IE8 */
     }
+
     .ui-widget-shadow {
         -webkit-box-shadow:var(--elevation-4dp);
         box-shadow:var(--elevation-4dp);

@@ -1,15 +1,12 @@
-
 /*
  * Styles for our confirmation dialogs using JQuery UI Dialog
  */
-
-
 .ui-dialog {
-	border: solid 1px var(--sakai-border-color);
-	background-color: var(--sakai-background-color-1);
-	padding: 10px;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
+  border: solid 1px var(--sakai-border-color);
+  background-color: var(--sakai-background-color-1);
+  padding: 10px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   position: fixed !important;
   top: 10% !important;
   left: 10% !important;
@@ -22,23 +19,23 @@
 }
 
 .ui-dialog-titlebar-close {
-    display: none;
+  display: none;
 }
 
 .ui-dialog-titlebar {
-    display: none;
+  display: none;
 }
 
 .ui-dialog-buttonpane {
-    display: none;
+  display: none;
 }
 
 .ui-dialog-msg-list {
-	margin:0;
-	padding:0;
-	list-style-type:none;
-	list-style-position: outside; 
-	list-style: none;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  list-style-position: outside; 
+  list-style: none;
 }
 
 /* The default settings on jQuery UI Dialog 1.7 cause the overlay to appear
@@ -60,6 +57,6 @@
 
 .closeDialogFrame {
   float: right;
-  margin-bottom : 3px !important;
+  margin-bottom: 3px !important;
 }
 

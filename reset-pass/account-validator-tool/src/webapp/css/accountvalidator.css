@@ -70,11 +70,11 @@ margin-bottom: 10px;
 }
 
 .stylized .info {
-	background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
-	color:var(--sakai-text-color-dimmed);
-	font-size:11px;
-	padding-left:20px;
-	padding-bottom:20px;
+	background: transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+	color: var(--sakai-text-color-dimmed);
+	font-size: 11px;
+	padding-left: 20px;
+	padding-bottom: 20px;
 }
 
 

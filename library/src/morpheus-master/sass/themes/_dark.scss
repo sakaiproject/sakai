@@ -153,4 +153,20 @@
     --button-active-background: var(--sakai-background-color-4);
     --button-active-border-color: var(--button-active-background);
 
+    // Information (info) banner
+    --infoBanner-bordercolor: var(--sakai-color-blue--darker-4);
+    --infoBanner-bgcolor: var(--sakai-color-blue--darker-6);
+    --infoBanner-color: var(--sakai-color-blue--lighter-4);
+    // Success banner
+    --successBanner-bordercolor: var(--sakai-color-green--darker-4);
+    --successBanner-bgcolor: var(--sakai-color-green--darker-6);
+    --successBanner-color: var(--sakai-color-green--lighter-4);
+    // Warning (warn) banner
+    --warnBanner-bordercolor: var(--sakai-color-gold--darker-4);
+    --warnBanner-bgcolor: var(--sakai-color-gold--darker-6);
+    --warnBanner-color: var(--sakai-color-gold--lighter-4);
+    // Error banner
+    --errorBanner-bordercolor: var(--sakai-color-red--darker-4);
+    --errorBanner-bgcolor: var(--sakai-color-red--darker-6);
+    --errorBanner-color: var(--sakai-color-red--lighter-4);
 }

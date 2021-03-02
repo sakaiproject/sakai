@@ -1,6 +1,5 @@
 body {
-	background:var(--sakai-background-color-2);
-
+	background: var(--sakai-background-color-2);
 }
 p, h1, form, button {
     border: 0;
@@ -28,11 +27,11 @@ p, h1, form, button {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-	border:2px solid var(--sakai-active-color-1);
-	padding:10px 20px 20px 20px;
-	border:2px solid var(--sakai-active-color-1);
+	border: 2px solid var(--sakai-active-color-1);
+	padding: 10px 20px 20px 20px;
+	border: 2px solid var(--sakai-active-color-1);
 	margin: 2em auto;
-	width:50em;
+	width: 50em;
 }
 
 /* ----------- stylized ----------- */
@@ -179,7 +178,7 @@ p, h1, form, button {
 }
 
 .username {
-	color:var(--infoBanner-color);
+	color: var(--infoBanner-color);
 	font-weight:bold;
 }
 
@@ -225,7 +224,7 @@ form p
 #strengthInfo
 {
 	display: block;
-	color:var(--sakai-text-color-1);
+	color: var(--sakai-text-color-1);
 	background-color: var(--sakai-background-color-1);
 	border: 1px solid var(--sakai-border-color);
 	border-radius: 4px;
@@ -275,7 +274,7 @@ form p
 
 #strengthBar
 {
-	background-color:var(--sakai-background-color-2);
+	background-color var(--sakai-background-color-2);
 	width: 17em;
 	height: 5px;
 	margin: 5px 5px 5px 2em;

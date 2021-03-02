@@ -56,12 +56,14 @@ div#sitelistform\:actionContainer1 input, div#sitelistform\:actionContainer2 inp
 	box-shadow: var(--button-shadow) !important;
 	border: 1px solid var(--button-border-color);
 }
+
 div#sitelistform\:actionContainer1 input:disabled, div#sitelistform\:actionContainer2 input:disabled {
 	background-color: var(--button-disabled-background) !important;
 	color: var(--button-disabled-text-color) !important;
 	box-shadow: var(--button-disabled-shadow) !important;
 	border: 1px solid var(--button-disabled-border-color);
 }
+
 div#sitelistform\:actionContainer1 input:hover:enabled, div#sitelistform\:actionContainer2 input:hover:enabled {
 	background-color: var(--button-hover-background) !important;
 	color: var(--button-hover-text-color) !important;

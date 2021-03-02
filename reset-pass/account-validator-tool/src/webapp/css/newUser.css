@@ -27,11 +27,11 @@ p, h1, form, button {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-	border:2px solid var(--sakai-active-color-1);
-	padding:10px 20px 20px 20px;
+	border: 2px solid var(--sakai-active-color-1);
+	padding: 10px 20px 20px 20px;
 	background: var(--sakai-background-color-1);
 	margin: 2em auto;
-	width:50em;
+	width: 50em;
 }
 
 .stylized .topheading {
@@ -87,7 +87,7 @@ p, h1, form, button {
     color: var(--sakai-text-color-dimmed);
     border-bottom: solid 1px var(--sakai-border-color);
     padding-bottom: 10px;
-	margin-bottom:20px;
+	margin-bottom: 20px;
 }
 
 .stylized label {
@@ -121,10 +121,10 @@ p, h1, form, button {
 }
 
 .stylized .info {
-	background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
-	color:var(--sakai-text-color-dimmed);
-	padding-left:20px;
-	padding-bottom:20px;
+	background: transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+	color: var(--sakai-text-color-dimmed);
+	padding-left: 20px;
+	padding-bottom: 20px;
 }
 
 .stylized > form {
@@ -167,7 +167,7 @@ p, h1, form, button {
 }
 
 .username {
-	color:var(--infoBanner-color);
+	color: var(--infoBanner-color);
 	font-weight:bold;
 }
 

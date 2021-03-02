@@ -4,29 +4,29 @@
 }
 /* The default rubric table to be cloned. */
 .peer-eval-rubric{ /* Change to display:block; to display a blank rubric on the top of the page. */
-	display:none;
+	display: none;
 }
 .rating {
 text-decoration: underline;
 }
 .peer-eval-rubric-table{
-	width:100%;
-	height:100%;
+	width: 100%;
+	height: 100%;
 	background-color: var(--sakai-background-color-1);
 }
 .peer-eval-rubric-table th, .peer-eval-rubric-table td{
-	text-align:center;
+	text-align: center;
 }
 .peer-eval-rubric-table tr:nth-child(2n){
-    background-color: var(--sakai-background-color-2);
+	background-color: var(--sakai-background-color-2);
 }
 .peer-eval-rubric-table thead tr:first-of-type{
-	background-color:var(--sakai-background-color-4);
+	background-color: var(--sakai-background-color-4);
 	font-size: 12pt;
 	color: var(--sakai-text-color-1);
 }
 .peer-eval-rubric-table tr>td:first-of-type , .peer-eval-rubric-table tr>th:first-of-type{
-	width:200px;
+	width: 200px;
 	font-size: 12pt;
 }
 /* The rubric set and its components. */
@@ -41,23 +41,23 @@ text-decoration: underline;
 	font-weight: bold;
 }
 .rubric-userid-div{ /* Change to display:block; to display the users' userids. This may be useful for multiple John Smiths in one class. */
-	display:none;
+	display: none;
 }
 .rubric-activity{
-	float:right;
+	float: right;
 }
 .rubric-rubric{ /* Initial setting for the rubrics inside the rubric sets. */
-	display:block;
-	padding:4px;
+	display: block;
+	padding: 4px;
 }
 .rubric-graders-cell{
-	display:none;
+	display: none;
 }
 .rubric-cell-grader-id{
-	display:none;
+	display: none;
 }
 .inactive-member-id{
-	display:none;
+	display: none;
 }
 .inactive-member-name, .rubric-activity, .rating {
 	text-decoration: underline;
@@ -69,9 +69,9 @@ text-decoration: underline;
 	padding: 5px;
 }
 .peer-eval-btn{
-    padding:5px;
-    font-weight:bold;
+	padding: 5px;
+	font-weight: bold;
 }
 .select-peer-cell {
-   background-color: var(--succcessBanner-bgcolor);
+	background-color: var(--succcessBanner-bgcolor);
 }

@@ -64,7 +64,7 @@
 }
 
 #grade_import_selection tr.no_changes {
-  color:var(--sakai-text-color-dimmed);
+  color: var(--sakai-text-color-dimmed);
 } 
 
 #grade_import_selection tr.external {

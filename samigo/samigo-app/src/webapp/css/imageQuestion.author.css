@@ -38,20 +38,20 @@
 }
 
 .selectiondiv_selected{
-	border:2px solid var(--sakai-color-green);
-	background:var(--sakai-color-blue);
-	opacity:0.7;
-	filter:alpha(opacity=70);
-	margin:0px;
-	padding:0px;
-	display:none;
+	border: 2px solid var(--sakai-color-green);
+	background: var(--sakai-color-blue);
+	opacity: 0.7;
+	filter: alpha(opacity=70);
+	margin: 0px;
+	padding: 0px;
+	display: none;
 }
 
 .textContainer{
-	float:right;
-	font-weight:bold;
-	font-size:16px;
-	margin-right:3px;
+	float: right;
+	font-weight: bold;
+	font-size: 16px;
+	margin-right: 3px;
 	color: var(--sakai-color-red);
 	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
 }

@@ -156,7 +156,7 @@
             }
             &:hover {
               border: 1px solid var(--sakai-border-color);
-            background: linear-gradient(to bottom, var(--sakai-background-color-4) 0,var(--sakai-background-color-3) 100%);
+              background: linear-gradient(to bottom, var(--sakai-background-color-4) 0,var(--sakai-background-color-3) 100%);
             }
             &.openDisc {
               border-bottom-right-radius: 0;
