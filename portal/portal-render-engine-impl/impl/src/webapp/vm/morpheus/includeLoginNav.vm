@@ -168,7 +168,7 @@
 
                                     #end ## END of IF (${tabsSites.tutorial})
 
-                                    #if (${themeSwitcher})
+                                    #if (${sakaiThemesEnabled} && ${themeSwitcher})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userNav__submenuitem-toggle">
                                             <label for="sakai-darkThemeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
@@ -179,7 +179,7 @@
                                             </button>
                                         </li>
 
-                                    #end ## END of IF (${themeSwitcher})
+                                    #end ## END of IF (${sakaiThemesEnabled} && ${themeSwitcher})
 
                             #end ## END of IF (${site.isMyWorkspace})
 
