@@ -165,9 +165,9 @@ class SakaiPermissions extends SakaiElement {
     const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
 
       if (b.checked) {
-        return acc + `${b.id}=true&`;
+        return acc + `${encodeURIComponent(b.id)}=true&`;
       } else {
-        return acc + `${b.id}=false&`;
+        return acc + `${encodeURIComponent(b.id)}=false&`;
       }
     }, "");
 
