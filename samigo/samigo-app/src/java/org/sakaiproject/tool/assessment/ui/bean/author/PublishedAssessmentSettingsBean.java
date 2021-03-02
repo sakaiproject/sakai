@@ -96,6 +96,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -1468,36 +1469,28 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	 * Returns all groups for site
 	 * @return
 	 */
-	public SelectItem[] getGroupsForSite() {
-		SelectItem[] groupSelectItems = new SelectItem[0];
-		TreeMap sortedSelectItems = new TreeMap();
-		Site site;
-		try {
-			site = SiteService.getSite(toolManager.getCurrentPlacement()
-					.getContext());
-			Collection groups = site.getGroups();
-			if (groups != null && groups.size() > 0) {
-				groupSelectItems = new SelectItem[groups.size()];
-				Iterator groupIter = groups.iterator();
-				while (groupIter.hasNext()) {
-					Group group = (Group) groupIter.next();
-					String title = group.getTitle();
-					String groupId = group.getId();
-	                String uniqueTitle = title + groupId;
-	                sortedSelectItems.put(uniqueTitle.toUpperCase(), new SelectItem(group.getId(), title));
-				}
-				Set keySet = sortedSelectItems.keySet();
-				groupIter = keySet.iterator();
-				int i = 0;
-				while (groupIter.hasNext()) {
-					groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
-				}
-			}
-		} catch (IdUnusedException ex) {
-			// No site available
-		}
-		return groupSelectItems;
-	}
+  public SelectItem[] getGroupsForSite(){
+      SelectItem[] groupSelectItems = new SelectItem[0];
+      // This TreeMap will sort the group names nicely in AlphaNumeric order
+      TreeMap<String, SelectItem> sortedSelectItems = new TreeMap<>(new AlphaNumericComparator());
+      try {
+          Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+          Collection<Group> groups = site.getGroups();
+          if (groups != null && groups.size() > 0) {
+              for (Group group : groups) {
+                  String title = group.getTitle();
+                  String groupId = group.getId();
+                  String uniqueTitle = title + groupId;
+                  sortedSelectItems.put(uniqueTitle, new SelectItem(groupId, title));
+              }
+
+              groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
+          }
+      } catch (IdUnusedException ex) {
+          // No site available
+      }
+      return groupSelectItems;
+  }
 
   public SelectItem[] getGroupsForSiteWithNoGroup() {
     SelectItem[] items = getGroupsForSite();
