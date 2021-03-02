@@ -74,18 +74,18 @@
     --sakai-active-color-3: var(--sakai-brand--lighter-4);
 
     // Default: A very light tint of gray. 
-    // Suggested: --sakai-color-gray--lighter-7.
+    // Suggested: --sakai-color-gray--lighter-6.
     // Used as background for non-active/current site in favorites and buttons
     // Commonly used with dark text color.
-    --sakai-passive-color-1: var(--sakai-color-gray--lighter-7);
+    --sakai-passive-color-1: var(--sakai-color-gray--lighter-6);
 
     // Default: A slightly darker shade of --sakai-passive-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-1
-    --sakai-passive-color-2: var(--sakai-color-gray--lighter-6);
+    --sakai-passive-color-2: var(--sakai-color-gray--lighter-5);
 
     // Default: A slightly darker shade of --sakai-passive-color-2
     // Used for active, focus, selected effects with --sakai-text-color-1
-    --sakai-passive-color-3: var(--sakai-color-gray--lighter-5);
+    --sakai-passive-color-3: var(--sakai-color-gray--lighter-4);
 
     // Primary background color. 
     // Suggested: white
@@ -94,16 +94,16 @@
 
     // Default: A slightly darker shade of --sakai-background-color-1
     // Used in hover effects of --sakai-background-color-1, alternating table rows
-    --sakai-background-color-2: var(--sakai-color-gray--lighter-6);
+    --sakai-background-color-2: var(--sakai-color-gray--lighter-7);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
     // Used for active, focus, selected effects of --sakai-background-color-1
     // and hover effects of --sakai-background-color-2
-    --sakai-background-color-3: var(--sakai-color-gray--lighter-5);
+    --sakai-background-color-3: var(--sakai-color-gray--lighter-6);
 
     // Default: A slightly darker shade of --sakai-primary-color-2
     // Used for active, focus, selected effects of --sakai-background-color-3
-    --sakai-background-color-4: var(--sakai-color-gray--lighter-4);
+    --sakai-background-color-4: var(--sakai-color-gray--lighter-5);
 
     // Secondary color. 
     // Suggested: An alterate branding color distinct from
@@ -206,7 +206,7 @@
     --button-border-color: var(--sakai-passive-color-2);
     --button-shadow: none;
     // hover and focus states:
-    --button-hover-text-color: var(--sakai-text-color-2);
+    --button-hover-text-color: var(--button-text-color);
     --button-hover-background: var(--sakai-passive-color-2);
     --button-hover-border-color: var(--sakai-passive-color-3);
     --button-hover-shadow: none;
@@ -225,17 +225,17 @@
     // Primary action button design:
     --button-primary-text-color: var(--sakai-text-color-inverted);
     --button-primary-background: var(--sakai-primary-color-1);
-    --button-primary-border-color: var(--sakai-primary-color-1);
+    --button-primary-border-color: var(--button-primary-background);
     --button-primary-shadow: var(--elevation-2dp);
     // hover and focus states for primary action button:
     --button-primary-hover-text-color: var(--button-primary-text-color);
     --button-primary-hover-background: var(--sakai-primary-color-2);
-    --button-primary-hover-border-color: var(--sakai-primary-color-2);
+    --button-primary-hover-border-color: var(--button-primary-hover-background);
     --button-primary-hover-shadow: var(--elevation-4dp);
     // active state for primary action button:
     --button-primary-active-text-color: var(--button-primary-text-color);
     --button-primary-active-background: var(--sakai-primary-color-3);
-    --button-primary-active-border-color: var(--sakai-primary-color-3);
+    --button-primary-active-border-color: var(--button-primary-active-background);
     --button-primary-active-shadow: var(--elevation-4dp);
 
     --instruction-color: var(--sakai-text-color-disabled);
@@ -304,12 +304,12 @@
     --sites-nav-menu-item-selected-hover-color: var(--sakai-text-color-3);
     --sites-nav-menu-item-selected-hover-border-color: var(--sites-nav-menu-item-selected-hover-background);
     --sites-nav-menu-item-selected-hover-icon-background: var(--sakai-active-color-3);
-    --sites-nav-menu-item-selected-hover-icon-border-color: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-hover-icon-border-color: var(--sites-nav-menu-item-selected-hover-icon-background);
     // Active
     --sites-nav-menu-item-selected-active-background: var(--sakai-active-color-3);
-    --sites-nav-menu-item-selected-active-border-color: var(--sakai-active-color-3);
-    --sites-nav-menu-item-selected-active-icon-background: var(--sakai-active-color-3);
-    --sites-nav-menu-item-selected-active-icon-border-color: var(--sakai-active-color-3);
+    --sites-nav-menu-item-selected-active-border-color: var(--sites-nav-menu-item-selected-active-background);
+    --sites-nav-menu-item-selected-active-icon-background: var(--sites-nav-menu-item-selected-active-background);
+    --sites-nav-menu-item-selected-active-icon-border-color: var(--sites-nav-menu-item-selected-active-background);
     // Tool menu dropdown
     --sites-nav-submenu-selected-border-color: transparent;
     --sites-nav-submenu-selected-background: var(--sites-nav-menu-item-selected-background);

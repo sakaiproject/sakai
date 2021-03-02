@@ -11,9 +11,7 @@ div#questionProgressPanel>div.tier1>table>tbody>tr {
 #questionProgressPanel a[href]:hover {
   text-decoration: none;
 }
-div#questionProgressPanel>div.tier1>table>tbody>tr:hover {
-  /* background: var(--sakai-active-color-1); */
-}
+
 table.table.stat-table {
   margin-bottom: 0;
 }
@@ -1217,7 +1215,7 @@ p.progressItem img {
 }
 
 .rotateQP {
-	color:var(--sakaia-text-color-1);
+	color: var(--sakai-text-color-1);
 	white-space:nowrap;
 	margin-top:154px;
 
