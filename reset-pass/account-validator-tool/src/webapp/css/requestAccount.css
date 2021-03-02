@@ -1,6 +1,6 @@
 body {
-    background:#cccccc;
-    font-family:'Helvetica Neue',Arial,'Nimbus Sans L','Liberation Sans',sans-serif;
+    background: var(--sakai-background-color-2);
+
 }
 p, h1, form, button {
     border: 0;
@@ -23,16 +23,16 @@ table.myform {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-    border: 2px solid #336699;
+    border: 2px solid var(--sakai-active-color-1);
     padding: 10px 20px 20px 20px;
-    background: #fff;
+    background: var(--sakai-background-color-1);
     margin: 2em auto;
     width: 50em;
 }
 
 .header {
     padding: 5px 0 15px;
-    border-bottom: 1px solid #E4E4E4;
+    border-bottom: 1px solid var(--sakai-border-color);
     margin-bottom: 10px;
 }
 
@@ -70,8 +70,8 @@ table.myform {
 }
 
 .stylized p {
-    color: #666666;
-    border-bottom: solid 1px #E4E4E4;
+    color: var(--sakai-text-color-dimmed);
+    border-bottom: solid 1px var(--sakai-border-color);
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -94,9 +94,9 @@ table.myform {
 }
 
 .stylized .info {
-    background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
-    color:#666666;
-    padding-left:20px;
+    background: transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+    color: var(--sakai-text-color-dimmed);
+    padding-left: 20px;
     padding-bottom: 20px;
 }
 
@@ -106,7 +106,7 @@ table.myform {
 }
 
 .stylized .small {
-    color: #666666;
+    color: var(--sakai-text-color-dimmed);
     display: block;
     font-size: 11px;
     font-weight: normal;
@@ -118,7 +118,7 @@ table.myform {
     display: block;
     float: left;
     padding: 4px 2px;
-    border: 1px solid #aacfe4;
+    border: 1px solid var(--sakai-active-color-1);
     width: 150px;
     margin: 0 0 6px 1em;
 }
@@ -148,7 +148,7 @@ table.myform {
 }
 
 .username {
-    color: #336699;
+	color: var(--infoBanner-color);
     font-weight: bold;
 }
 
@@ -178,11 +178,11 @@ table.myform {
 
 #strengthInfo {
     display: block;
-    color: #000;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);
+    color: var(--sakai-text-color-1);
+    background-color: var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
+    border-radius: 4px;
+    box-shadow: var(--elevation-2dp);
     left: 31em;
     padding: 1em;
     position: absolute;
@@ -191,9 +191,9 @@ table.myform {
 }
 
 #strengthInfo:before {
-    border-bottom: 15px solid rgba(0, 0, 0, 0);
-    border-right: 15px solid #ccc;
-    border-top: 15px solid rgba(0, 0, 0, 0);
+    border-bottom: 15px solid var(--sakai-text-color-1);
+    border-right: 15px solid var(--sakai-border-color);
+    border-top: 15px solid var(--sakai-text-color-1);
     position: absolute;
     content: "";
     left: -15px;
@@ -217,17 +217,17 @@ table.myform {
 
 #noMatchMsg, #failMsg {
     background: transparent url("/library/image/silk/cancel.png") no-repeat left center;
-    color: #000;
+    color: var(--sakai-text-color-1);
 }
 
 #matchMsg, #strongMsg,
 #moderateMsg, #weakMsg {
     background: transparent url("/library/image/silk/accept.png") no-repeat left center;
-    color: #000;
+    color: var(--sakai-text-color-1);
 }
 
 #strengthBar {
-    background-color: #ccc;
+    background-color: var(--sakai-background-color-2);
     width: 156px;
     height: 5px;
     margin: 5px 0px 10px 20.5em;
@@ -238,5 +238,5 @@ table.myform {
     display: inline-block;
     width: 0%;
     height: 100%;
-    background-color: #900;
+    background-color: var(--errorBanner-color);
 }

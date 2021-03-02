@@ -31,7 +31,7 @@
 }
 
 #gradebookSorter .gb-sorter-placeholder {
-  border: 1px dashed #CCC;
+  border: 1px dashed var(--sakai-border-color);
   padding: 4px 10px;
   margin-bottom: 4px;
 }

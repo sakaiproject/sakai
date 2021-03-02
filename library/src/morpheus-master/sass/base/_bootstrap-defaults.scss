@@ -246,7 +246,7 @@ $legend-color:                   var(--sakai-text-color-2);
 // $legend-border-color:            #e5e5e5
 
 //** Background color for textual input addons
-// $input-group-addon-bg:           $gray-lighter
+$input-group-addon-bg:           var(--sakai-background-color-2);
 //** Border color for textual input addons
 // $input-group-addon-border-color: $input-border
 
@@ -729,21 +729,21 @@ $popover-title-bg:                   var(--sakai-background-color-3);
 //
 //##
 
-// $panel-bg:                    #fff
+$panel-bg:                    var(--sakai-background-color-1);
 // $panel-body-padding:          15px
 // $panel-heading-padding:       10px 15px
 // $panel-footer-padding:        $panel-heading-padding
 // $panel-border-radius:         $border-radius-base
 
 //** Border color for elements within panels
-// $panel-inner-border:          #ddd
-// $panel-footer-bg:             #f5f5f5
+$panel-inner-border:          var(--sakai-border-color);
+$panel-footer-bg:             var(--sakai-background-color-2);
 
-// $panel-default-text:          $gray-dark
+$panel-default-text:          var(--sakai-text-color-1);
 $panel-default-border:        var(--sakai-border-color);
-// $panel-default-heading-bg:    #f5f5f5
+$panel-default-heading-bg:    var(--sakai-background-color-2);
 
-// $panel-primary-text:          #fff
+$panel-primary-text:          var(--sakai-text-color-1);
 // $panel-primary-border:        $brand-primary
 // $panel-primary-heading-bg:    $brand-primary
 

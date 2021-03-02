@@ -3,7 +3,7 @@
  * ********************************************************************* */
 
 .gb-permissions-form {
-  border-top: 1px solid #DDD;
+  border-top: 1px solid var(--sakai-border-color);
   margin-top: 20px !important;
   padding-top: 10px;
 }
@@ -14,10 +14,10 @@
   padding: 5px;
 }
 .gb-permissions-rule:nth-child(2n-1) {
-  background-color: #f9f9f9;
+  background-color: var(--sakai-background-color-2);
 }
 .gb-permissions-add-rule {
   margin: 10px 0 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid var(--sakai-border-color);
 }
