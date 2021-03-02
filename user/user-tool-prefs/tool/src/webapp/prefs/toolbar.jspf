@@ -13,7 +13,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 1}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 1}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 1}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 1}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 1 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 2}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 2}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -21,7 +21,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 2}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 2}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 2}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 2}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 2 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 3}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 3}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -29,7 +29,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 3}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 3}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 3}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 3}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 3 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 4}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 4}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -37,7 +37,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 4}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 4}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 4}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 4}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 4 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 5}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 5}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -45,7 +45,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 5}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 5}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 5}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 5 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 6}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 6}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -53,7 +53,7 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 6}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 6}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 6}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 6}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 6 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 7}" current="#{cTemplate == 'noti' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 7}" current="#{cTemplate == 'timezone' ? true : false}" />
@@ -61,5 +61,5 @@
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 7}" current="#{cTemplate == 'privacy' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 7}" current="#{cTemplate == 'hidden' ? true : false}" />
 		<sakai:tool_bar_item action="#{UserPrefsTool.processActionEditorFrmEdit}" value="#{msgs.prefs_editor}"  rendered="#{UserPrefsTool.editor_selection == 7}" current="#{cTemplate == 'editor' ? true : false}" />
-		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 7}" current="#{cTemplate == 'theme' ? true : false}" />
+		<sakai:tool_bar_item action="#{UserPrefsTool.processActionThemeFrmEdit}" value="#{msgs.prefs_theme}"  rendered="#{UserPrefsTool.theme_selection == 7 and UserPrefsTool.prefShowThemePreferences==true}" current="#{cTemplate == 'theme' ? true : false}" />
 </sakai:tool_bar>
