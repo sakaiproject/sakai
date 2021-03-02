@@ -4,9 +4,6 @@ var FCKLang    = oEditor.FCKLang ;
 var FCKConfig  = oEditor.FCKConfig ;
 var oMovie     = null;
 var isNew	   = true;
-var flashPlayer = "/library/editor/FCKeditor/editor/plugins/movieplayer/player_flv_maxi.swf";
-
-
 
 /** Initial setup */
 window.onload = function() { 
@@ -63,8 +60,7 @@ function loadMovieSelection() {
 				} else if (name == 'autostart' || name == 'autoplay') {
 					value = (value == 'true' || value == '1') ? 1 : 0;
 					oMovie.setAttribute('autoplay', value);
-				} else if (name == 'src'
-						|| (name == 'movie' && !name.endsWith(flashPlayer))) {
+				} else if (name == 'src' || name == 'movie') {
 					oMovie.setAttribute('url', decodeURI(value));
 				} else {
 					// Other movie types
@@ -150,34 +146,7 @@ Movie.prototype.getInnerHTML = function (objectId){
 	var s = "";
 
 	// html
-	if(this.contentType == "application/x-shockwave-flash") {
-		if(getExtension(this.url) == 'flv') {
-			// Flash video (FLV)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ flashPlayer +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="movie" value="'+ flashPlayer +'" />';
-		    s += '  <PARAM name="FlashVars" value="flv='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+'" />';
-		    s += '</OBJECT>';
-		    
-		}else{
-			// Fix youtube url
-			if(this.url.contains('youtube.com/')) {
-				this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
-			}
-			
-			// Flash object (SWF)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ encodeURI(this.url) +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="movie" value="'+ encodeURI(this.url) +'" />';
-		    s += '  <PARAM name="FlashVars" value="autoplay='+this.autoplay+'" />';
-		    s += '</OBJECT>';			
-		}
-
-	}else{
+	{
 		// Other video types
 		var pluginspace, codebase, classid;
 		if(this.contentType == "video/quicktime") {
@@ -235,11 +204,7 @@ function getExtension(url) {
 	if(ext != null && ext.length && ext.length > 0) {
 		ext = ext[1];
 	}else{
-		if(url.contains('youtube.com/')) {
-			ext = 'swf';
-		}else{
-			ext = '';
-		}
+		ext = '';
 	}
 	return ext;
 }
