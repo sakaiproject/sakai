@@ -343,10 +343,6 @@
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
                 evaluated-item-owner-id="$submitterId"
-
-                #if($!rbcs-state-details && "$!rbcs-state-details" != "")
-                state-details='$rbcs-state-details'
-                #end
             ></sakai-rubric-grading>
         </div>
         </div>

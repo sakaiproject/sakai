@@ -61,7 +61,8 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
 
     @RestResource(path = "by-association", rel = "by-association")
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
-    @Query("select resource from Evaluation resource where resource.toolItemRubricAssociation.id = :toolItemRubricAssociationId " +
+    @Query("select resource from Evaluation resource where " +
+            "resource.toolItemRubricAssociation.id = :toolItemRubricAssociationId " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolItemRubricAssociationId(@Param("toolItemRubricAssociationId") Long toolItemRubricAssociationId);
@@ -72,6 +73,7 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             "resource.evaluatedItemId = :evaluatedItemId " +
             "and resource.toolItemRubricAssociation.toolId = :toolId " +
             "and resource.toolItemRubricAssociation.itemId = :itemId " +
+            "and resource.toolItemRubricAssociation.active = 1 " +
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolIdAndAssociationItemIdAndEvaluatedItemId(@Param("toolId") String toolId,

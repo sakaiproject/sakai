@@ -3830,14 +3830,12 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(GRADE_SUBMISSION_DONE) != null) {
             context.put("gradingDone", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_DONE);
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // put the grade confirmation message if applicable
         if (state.getAttribute(GRADE_SUBMISSION_SUBMIT) != null) {
             context.put("gradingSubmit", Boolean.TRUE);
             state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
         }
 
         // letter grading
@@ -3845,10 +3843,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Check if the assignment has a rubric associated or not
         context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
-
-        if (state.getAttribute(RUBRIC_STATE_DETAILS) != null) {
-            context.put(RUBRIC_STATE_DETAILS, state.getAttribute(RUBRIC_STATE_DETAILS));
-        }
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
@@ -4118,7 +4112,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            state.removeAttribute(RUBRIC_STATE_DETAILS);
             if ("back".equals(option)) {
                 // SAK-29314 - calculate our position relative to the list so we can return to the correct page
                 state.setAttribute(STATE_GOTO_PAGE, calcPageFromSubmission(state));
@@ -5820,7 +5813,6 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
         }
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
     } // doCancel_grade_submission
 
     /**
@@ -5850,8 +5842,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-29314
         state.removeAttribute(STATE_VIEW_SUBS_ONLY);
-
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         resetAllowResubmitParams(state);
     }
@@ -5896,7 +5886,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
         state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
     } // doList_assignments
 
@@ -6104,7 +6093,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Remove any rubrics related state
         state.getAttributeNames().stream().filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(state::removeAttribute);
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         // SAK-29314 - update the list being iterated over
         sizeResources(state);
@@ -6838,10 +6826,6 @@ public class AssignmentAction extends PagedResourceActionII {
         String order = params.getString(NEW_ASSIGNMENT_ORDER);
         state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
-        //Returns the rubrics state in the case of validation problems in the form
-        String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
-        state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
-
         String contextString = toolManager.getCurrentPlacement().getContext();
 
         boolean groupAssignment = rangeAndGroups.setNewOrEditedAssignmentParameters(data, state, contextString);
@@ -7315,8 +7299,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                     if (droppedCategoryPoints != -1) {
-                        int factor = assignmentService.getScaleFactor();
-                        Double enteredPoints = new Double(displayGrade(state, gradePoints, factor));
+                        Double enteredPoints = new Double(displayGrade(state, gradePoints, scaleFactor));
                         if (!enteredPoints.equals(droppedCategoryPoints)) {
                           addAlert(state, rb.getFormattedMessage("pleasee6", new Object[] {droppedCategoryPoints.toString()}));
                         }
@@ -9907,7 +9890,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
 
                         // remove rubric association if there is one
-                        rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                        // TODO: this should be in the service and in a transaction!!
+                        rubricsService.deleteRubricAssociationsByItemIdPrefix(id, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
 
                         assignmentService.deleteAssignment(a);
                     }
@@ -10992,15 +10976,6 @@ public class AssignmentAction extends PagedResourceActionII {
             if (feedbackComment != null) {
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
             }
-
-            // Pour any rubrics parameters into the state
-            Iterable<String> iterable = () -> params.getNames();
-            StreamSupport.stream(iterable.spliterator(), false).filter(n -> n.startsWith(RubricsConstants.RBCS_PREFIX)).forEach(n -> {
-                if (n.endsWith("state-details")) {
-                    state.setAttribute(RUBRIC_STATE_DETAILS, params.get(n));
-                }
-                state.setAttribute(n, params.get(n));
-            });
 
             String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
             // feedbackText value changed?

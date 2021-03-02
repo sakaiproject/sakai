@@ -30,7 +30,7 @@
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
-    <sakai.commons.net>3.7.2</sakai.commons.net>
+    <sakai.commons.net>3.8.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
@@ -50,7 +50,7 @@
     <sakai.stax2.version>4.2</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.12</sakai.lombok.version>
+    <sakai.lombok.version>1.18.18</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.org.json.version>20190722</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -69,7 +69,7 @@
     <sakai.tika.version>1.25</sakai.tika.version>
     <sakai.tomcat.version>9.0.43</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.xerces.impl.version>2.12.0</sakai.xerces.impl.version>
+    <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.30</sakai.slf4j.version>
@@ -962,7 +962,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.19</version>
+        <version>3.0.21</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

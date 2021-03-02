@@ -45,7 +45,7 @@ public class GradingServiceTest {
     String sampleFormula2a = "{var1} * {var2} + {var3}";
     String sampleFormula2b = "{var1 + {var2} - {var3}";
 
-    String sampleItemText3 = "{var0} Sample (1) {var1} + {var2} + {var3} = {{formula1}}, calc=[[{var0}+{var1}+{var2}+{var3}+{var4}]] more [random] text, dblvar1=[[{var1}*2]] f2={{{formula2}}} and c3=[[[{var2}]]] and not calc=[[plain text]] and {var4}";
+    String sampleItemText3 = "{var0} Sample (1) {var1} + {var2} + {var3} = {{formula1}}, calc=[[{var0}+{var1}+{var2}+{var3}+{var4}]] more [random] text, dblvar1=[[{var1}*2]] f2={{{formula2}}} and c3=[[{var2}]] and not calc=[[plain text]] and {var4}";
     String sampleFormula3 = "{var1}+{var2}+{var3}";
 
     @Before

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">        
         <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
-    #if (${themeSwitcher})
+    #if (${sakaiThemesEnabled})
         <script src="$!{portalCDNPath}/portal/scripts/themeswitcher.js$!{portalCDNQuery}"></script>
     #end
     </head>

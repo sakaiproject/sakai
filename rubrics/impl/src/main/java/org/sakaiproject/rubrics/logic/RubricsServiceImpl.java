@@ -97,6 +97,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 /**
  * Implementation of {@link RubricsService}
  */
@@ -142,6 +143,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private Cache<String, Boolean> hasAssociatedRubricCache;
 
     public void init() {
+
         if (StringUtils.isBlank(serverConfigurationService.getString(RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY))) {
             throw new IllegalStateException(String.format("Required deployment property %s was not found. Please " +
                     "configure it in sakai.properties.", RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY));
@@ -251,7 +253,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public boolean hasAssociatedRubric(String tool, String id, String siteId ) {
 
-        siteId = StringUtils.isEmpty(siteId) ? getCurrentSiteId("hasAssociatedRubric") : siteId;
+        if (StringUtils.isBlank(id)) return false;
+
+        siteId = StringUtils.isBlank(siteId) ? getCurrentSiteId("hasAssociatedRubric") : siteId;
 
         String cacheKey = tool + "#" + id;
         Boolean isAssociated = hasAssociatedRubricCache.get(cacheKey);
@@ -284,7 +288,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         String owner = "";
         String ownerType = "";
         String creatorId = "";
-        Long oldRubricId=null;
+        String oldRubricId = null;
         Map <String,Boolean> oldParams = new HashMap<>();
 
         try {
@@ -298,43 +302,92 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 ownerType = association.getMetadata().getOwnerType();
                 creatorId = association.getMetadata().getCreatorId();
                 oldParams = association.getParameters();
-                oldRubricId = association.getRubricId();
+                oldRubricId = association.getRubricId().toString();
             }
 
-            //we will create a new one or update if the parameter rbcs-associate is true
+            String rubricId = params.get(RubricsConstants.RBCS_LIST);
+
+            boolean rubricSwitch = oldRubricId == null ? false : !StringUtils.equals(rubricId, oldRubricId);
+
             String nowTime = LocalDateTime.now().toString();
             if (params.get(RubricsConstants.RBCS_ASSOCIATE).equals("1")) {
+                String baseInput = "{\"toolId\": \"" + tool +"\",\"itemId\": \"" + id + "\",\"rubricId\": " + rubricId + ", \"active\": " + true;
 
-                if (associationHref == null) {  // create a new one.
-                    String input = "{\"toolId\" : \"" + tool +"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + nowTime + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
-                    log.debug("New association {}", input);
-                    String query = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/";
-                    String resultPost = postRubricResource(query, input, tool, null);
-                    log.debug("resultPost: {}", resultPost);
-                } else {
-                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
-                    "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
-                    log.debug("Existing association update {}", input);
-                    if (!Long.valueOf(params.get(RubricsConstants.RBCS_LIST)).equals(oldRubricId)) {
-                        deleteRubricEvaluationsForAssociation(associationHref, tool);
+                if (associationHref == null || rubricSwitch) {
+                    // No existing association or we're switching rubrics
+
+                    if (rubricSwitch) {
+                        // We're switching, deactivate the current association
+                        setAssociationActive(association, false, tool);
                     }
+
+                    // See if there's already an association for the requested rubric and reuse that.
+                    Optional<ToolItemRubricAssociation> optionalExisting = findAssociationByItemIdAndRubricId(id, rubricId, tool, null);
+                    if (optionalExisting.isPresent()) {
+                        setAssociationActive(optionalExisting.get(), true, tool);
+                    } else {
+                        String input = baseInput + ",\"metadata\" : {\"created\" : \"" + nowTime
+                                + "\",\"ownerId\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},"
+                                + "\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
+                        log.debug("New association {}", input);
+                        String query = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/";
+                        String resultPost = postRubricResource(query, input, tool, null);
+                        log.debug("resultPost: {}", resultPost);
+                    }
+                } else {
+                    // We're updating an existing association, not the rubric though.
+                    String input = baseInput + ",\"metadata\" : {\"created\" : \"" + created
+                            + "\",\"ownerId\" : \"" + owner
+                            + "\",\"ownerType\" : \"" + ownerType
+                            + "\",\"creatorId\" : \"" + creatorId + "\"},"
+                            + "\"parameters\" : {" + setConfigurationParameters(params, oldParams) + "}}";
+                    log.debug("Existing association update {}", input);
                     String resultPut = putRubricResource(associationHref, input, tool, null);
                     //update the actual one.
                     log.debug("resultPUT: {}",  resultPut);
                 }
                 hasAssociatedRubricCache.put(tool + "#" + id, true);
             } else {
-                // We delete the association
-                if (associationHref !=null) {
-                    deleteRubricEvaluationsForAssociation(associationHref, tool);
-                    deleteRubricResource(associationHref, tool, null);
-                    hasAssociatedRubricCache.remove(association.getToolId() + "#" + association.getItemId());
+                if (associationHref != null) {
+                    setAssociationActive(association, false, tool);
+                    hasAssociatedRubricCache.remove(tool + "#" + id);
                 }
             }
-
         } catch (Exception e) {
             //TODO If we have an error here, maybe we should return say something to the user
         }
+    }
+
+    private Optional<ToolItemRubricAssociation> findAssociationByItemIdAndRubricId(String itemId, String rubricId, String toolId, String siteId) throws Exception {
+
+        URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+        Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+        Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search",
+                "by-assignment-and-rubric");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
+        builder.withHeaders(headers);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("itemId", itemId);
+        parameters.put("rubricId", Long.parseLong(rubricId));
+
+        CollectionModel<EntityModel<ToolItemRubricAssociation>> associationResources = builder
+            .withTemplateParameters(parameters)
+            .toObject(new TypeReferences.CollectionModelType<EntityModel<ToolItemRubricAssociation>>() {});
+
+        Collection<EntityModel<ToolItemRubricAssociation>> models = associationResources.getContent();
+
+        // Should only be one matching this search criterion
+        if (models.size() > 1) {
+            throw new IllegalStateException(String.format(
+                    "Number of rubric association resources greater than one for request: %s",
+                    associationResources.getLink(Link.REL_SELF).toString()));
+        }
+
+        return models.size() == 1 ? Optional.of(models.iterator().next().getContent()) : Optional.empty();
     }
 
     private String createCriterionJsonPayload(String associatedItemId, String evaluatedItemId,
@@ -690,6 +743,25 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
         } catch (Exception e) {
             log.warn("Error deleting rubric association for id {} : {}", itemId, e.getMessage());
+        }
+    }
+
+    public void setAssociationActive(ToolItemRubricAssociation association, boolean active, String toolId) {
+
+        try {
+            String created = association.getMetadata().getCreated().toString();
+            String owner = association.getMetadata().getOwnerId();
+            String ownerType = association.getMetadata().getOwnerType();
+            String creatorId = association.getMetadata().getCreatorId();
+            Map <String,Boolean> oldParams = association.getParameters();
+            oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
+            String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"active\": " + active + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+            "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+            String href = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/" + association.getId();
+            String resultPut = putRubricResource(href, input, toolId, null);
+            log.debug("resultPUT: {}",  resultPut);
+        } catch (Exception e) {
+            log.warn("Error soft deleting rubric association for item id prefix {} : {}", association.getItemId(), e.getMessage());
         }
     }
 

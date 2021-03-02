@@ -105,16 +105,12 @@ h4.samigo-category-subhead-2 {
   padding:.3em;
 }
 
-/*
-.navModeQuestion
-{background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
-*/
 .navViewAction {
-background-color:var(--sakai-background-color-2);
-text-align:left;
-padding:.3em;
-vertical-align: bottom;
-font-size:1.2em
+  background-color:var(--sakai-background-color-4);
+  text-align:left;
+  padding: 16px;
+  vertical-align: bottom;
+  font-size:1.2em
 }
 
 .textTable
@@ -123,8 +119,8 @@ font-size:1.2em
 .number {
   width:23px;
   height:23px;
-  FONT-WEIGHT: bold;
-  COLOR:var(--sakaia-text-color-inverted);
+  font-weight: bold;
+  color: var(--sakai-text-color-inverted);
   background-image: url(../images/circle.gif);
   vertical-align: middle;
   background-repeat: no-repeat;
@@ -187,7 +183,7 @@ font-size:1.2em
 
 .samLeftTopNav  {
 	vertical-align:top;
-    text-align:top;
+    text-align:left;
 }
 
 .samRightNav  {
@@ -409,13 +405,6 @@ ul.ui-tabs-nav li a {
 ul.ui-tabs-nav li.ui-tabs-selected a {
 	color: var(--sakai-text-color-1);
 }
-#authorIndexForm\:import {
-	display: block;
-	margin-top: 12px;
-}
-#authorIndexForm\:createnew {
-	margin-top: 12px;
-}
 tr.list-row-even td, tr.list-row-odd td {
 	border-bottom: 1px solid var(--sakai-border-color);
 	padding-top: 8px;
@@ -500,8 +489,8 @@ a.hideDivision {
 }
 
 .answerkeyFeedbackCommentLabel {
-	FONT-WEIGHT: bold;
-    COLOR:var(--errorBanner-color);
+    font-weight: bold;
+    color: var(--errorBanner-color);
 } 
 
 .saCharCount {

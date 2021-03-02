@@ -228,7 +228,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private boolean sakaiTutorialEnabled = true;
 	
-	private boolean sakaiThemeSwitcherEnabled = true;
+	private boolean sakaiThemesEnabled = true;
+	private boolean sakaiThemeSwitcherEnabled = false;
+	private boolean sakaiThemesAutoDetectDarkEnabled = false;
 
 	private String handlerPrefix;
 
@@ -1737,12 +1739,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         	}
                         }
 
-                        if(sakaiThemeSwitcherEnabled) {
-                            rcontext.put("themeSwitcher", true);
-                            
-                            String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
-                            rcontext.put("userTheme", userTheme);
-                        }
+			if(sakaiThemesEnabled) {
+				rcontext.put("sakaiThemesEnabled", true);
+
+				if(sakaiThemeSwitcherEnabled) {
+					rcontext.put("themeSwitcher", true);
+				}
+				
+				if(sakaiThemesAutoDetectDarkEnabled) {
+					rcontext.put("themesAutoDetectDark", true);
+				}
+				String userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+				rcontext.put("userTheme", userTheme);
+			}
 
 			if ((poweredByUrl != null) && (poweredByImage != null)
 					&& (poweredByAltText != null)
@@ -2030,7 +2039,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
-		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themeswitcher", true);
+		sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themes.switcher", false);
+		sakaiThemesAutoDetectDarkEnabled = ServerConfigurationService.getBoolean("portal.themes.autoDetectDark", false);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();

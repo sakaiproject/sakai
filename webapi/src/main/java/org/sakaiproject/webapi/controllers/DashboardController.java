@@ -224,7 +224,7 @@ public class DashboardController extends AbstractSakaiApiController {
             bean.setTitle(site.getTitle());
             bean.setWidgets(widgets);
             bean.setProgramme(site.getShortDescription());
-            bean.setOverview(StringEscapeUtils.unescapeHtml4(site.getHtmlDescription()));
+            bean.setOverview(site.getDescription());
             bean.setDefaultWidgetLayouts(defaultWidgetLayouts);
             String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
             if (dashboardConfigJson == null) {

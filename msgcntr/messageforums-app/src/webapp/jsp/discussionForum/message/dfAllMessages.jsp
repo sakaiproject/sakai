@@ -218,7 +218,7 @@
 					<h:panelGroup rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}">
 						<p id="openLinkBlock" class="toggleParent openLinkBlock">
 							<a href="#" id="showMessage" class="toggle show">
-								<h:graphicImage url="/images/expand.gif" alt=""/>
+								<h:graphicImage url="/images/collapse.gif" alt=""/>
 								<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
@@ -226,7 +226,7 @@
 						</p>
 						<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
 							<a href="#" id="hideMessage" class="toggle show">
-								<h:graphicImage url="/images/collapse.gif" alt="" />
+								<h:graphicImage url="/images/expand.gif" alt="" />
 								<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}" />
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
