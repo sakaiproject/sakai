@@ -175,9 +175,6 @@ public final class AssignmentConstants {
      */
     // public static final int ASSIGNMENT_SUBMISSION_TYPE_NOT_SET = -1; change to 0
 
-    public static final int HONOR_PLEDGE_NOT_SET = -1;
-    public static final int HONOR_PLEDGE_NONE = 1;
-    public static final int HONOR_PLEDGE_ENGINEERING = 2;
     // the option of email notification setting per assignment about student submissions
     public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE = "assignment_instructor_notifications_value";
     // no email to instructor
