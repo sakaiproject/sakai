@@ -1,5 +1,5 @@
 import { SakaiElement } from "/webcomponents/sakai-element.js";
-import { css, html, LitElement } from "/webcomponents/assets/lit-element/lit-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "/webcomponents/fa-icon.js";
 import "./sakai-grader-file-picker.js";
@@ -77,12 +77,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   set submission(newValue) {
 
-    let oldValue = this._submission;
     this._submission = newValue;
     this.saved = false;
     this.modified = false;
     this.rubricParams = new Map();
-    this.showResubmission = this._submission.resubmitsAllowed > 0;
+    this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
 
     this.submittedTextMode = this._submission.submittedText;
 
@@ -119,7 +118,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return this._submission;
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.submission;
   }
 
@@ -350,7 +349,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 ${Array(10).fill().map((_, i) => html`
                   <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === (i + 1)}>${i + 1}</option>
                 `)}
-                <option value="-1" .selected=${this.submission.resubmitsAllowed === "-1"}>${this.i18n["unlimited"]}</option>
+                <option value="-1" .selected=${this.submission.resubmitsAllowed === -1}>${this.i18n["unlimited"]}</option>
               </select>
               <span>${this.assignmentsI18n["allow.resubmit.closeTime"]}:</span>
               <sakai-date-picker
@@ -398,12 +397,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return this.showOfficialPhoto && !this.gradable.anonymousGrading && this.submission.firstSubmitterId && !this.submission.groupId;
   }
 
-  toggleRubric(e) {
+  toggleRubric() {
 
     if (!this.rubricShowing) {
       $("#rubric-panel").dialog({
         width: "70%",
-        close: e => this.rubricShowing = false
+        close: () => this.rubricShowing = false
       });
       this.rubricShowing = true;
     } else {
@@ -412,7 +411,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
 
-  doneWithRubricDialog(e) {
+  doneWithRubricDialog() {
 
     this.toggleRubric();
     this.querySelector("#grader-rubric-link").focus();
@@ -464,7 +463,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (!feedbackPanel.dialog("instance")) {
       feedbackPanel.dialog({
         width: "auto",
-        close: (e, ui) => this.toggleFeedback()
+        close: () => this.toggleFeedback()
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment", "100%", 120);
     } else {
@@ -475,20 +474,20 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
 
-  doneWithFeedbackDialog(e) {
+  doneWithFeedbackDialog() {
 
     this.toggleFeedback();
     document.getElementById("grader-feedback-button").focus();
   }
 
-  togglePrivateNotes(e) {
+  togglePrivateNotes() {
 
     let privateNotesPanel = $("#private-notes-panel");
 
     if (!privateNotesPanel.dialog("instance")) {
       privateNotesPanel.dialog({
         width: "auto",
-        close: (e, ui) => this.togglePrivateNotes()
+        close: () => this.togglePrivateNotes()
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes", "100%", 120);
     } else {
@@ -499,7 +498,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
 
-  doneWithPrivateNotesDialog(e) {
+  doneWithPrivateNotesDialog() {
 
     this.togglePrivateNotes();
     document.getElementById("grader-private-notes-button").focus();
@@ -545,7 +544,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.requestUpdate();
   }
 
-  onRubricRatingsChanged(e) {
+  onRubricRatingsChanged() {
     this.modified = true;
   }
 
@@ -610,7 +609,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     formData.set("gradableId", this.gradableId);
     formData.set("submissionId", this.submission.id);
 
-    if (this.showResubmission) {
+    if (this.showResubmission && this.submission.resubmitDate) {
       formData.set("resubmitNumber", this.submission.resubmitsAllowed);
       formData.set("resubmitDate", this.submission.resubmitDate);
     }
@@ -690,8 +689,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancel() {
 
-    let oldSubmission = this.submission;
-
     let os = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     let i = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions.splice(i, 1, os);
@@ -711,7 +708,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
-    } else if (!e.key.match(/[0-9\.,]/)) {
+    } else if (!e.key.match(/[\d.,]/)) {
       e.preventDefault();
       return false;
     } else {
