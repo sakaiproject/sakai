@@ -739,7 +739,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			SignupMeeting meeting = (SignupMeeting) update.object;
 			meeting.setStartTime(Date.from(update.openDate));
 			meeting.setEndTime(Date.from(update.dueDate));
-			signupService.updateSignupMeeting(meeting, false);
+			signupService.updateSignupMeeting(meeting, true);
 		}
 	}
 
