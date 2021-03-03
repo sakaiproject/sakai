@@ -1644,7 +1644,7 @@ public class AssessmentSettingsBean implements Serializable {
               groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
           }
       } catch (IdUnusedException ex) {
-          log.warn("getGroupsForSite no site found", ex);
+          log.warn("No site found while attempting to get groups, {}", ex.toString());
       }
       return groupSelectItems;
   }
