@@ -233,8 +233,8 @@ public class MainController {
 			}
 
 		} catch (Exception e) {
-			log.error("Error updating dates");
-			jsonResponse = String.format("{\"status\": \"ERROR\", \"error\": \"%s\"}", dateManagerService.getMessage("error.uncaught"));
+			log.error("Error updating dates", e);
+			jsonResponse = String.format("{\"status\": \"ERROR\", \"error\": \"%s\"}", dateManagerService.getMessage("error.uncaught") + ": " + e.getMessage());
 		}
 		return jsonResponse;
 	}
