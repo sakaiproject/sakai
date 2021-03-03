@@ -2115,7 +2115,7 @@ return topicTypeUuid;
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
 	  if (StringUtils.isBlank(msg.getSubject())) {
-		  rrepMsg.setTitle(getResourceBundleString("pvt_no_subject"));
+		  rrepMsg.setTitle("[" + getResourceBundleString("pvt_no_subject") + "]");
 	  } else {
 		  rrepMsg.setTitle(msg.getSubject());
 	  }
