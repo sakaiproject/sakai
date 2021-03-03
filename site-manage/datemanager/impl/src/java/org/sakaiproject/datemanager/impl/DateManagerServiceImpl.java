@@ -1,4 +1,3 @@
-
 /**********************************************************************************
  Copyright (c) 2019 Apereo Foundation
  Licensed under the Educational Community License, Version 2.0 (the "License");
