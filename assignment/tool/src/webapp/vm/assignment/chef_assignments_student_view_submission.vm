@@ -20,7 +20,20 @@ $(document).ready(function(){
         $('.cloned a').show();
         ASN.resizeFrame('grow');
     });
-    
+
+    $('body').on('rubrics-grading-loaded', e => {
+        if($('.sakai-rubric-criteria-grading').length) {
+            document.getElementById("confirm").disabled = true;
+            document.getElementById("preview").disabled = true;
+            document.getElementById("save").disabled = true;
+            $('body').on('rubric-ratings-changed', e => {
+                document.getElementById('confirm').disabled = false;
+                document.getElementById('preview').disabled = false;
+                document.getElementById('save').disabled = false;
+            });
+       }
+    });
+
 });
 </script>
 ## Include other javascript specific to this page
@@ -331,10 +344,13 @@ $(document).ready(function(){
 
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
+		#if (!$!rubricSelfReport)
 		<sakai-rubric-student-preview-button
 			token="$!rbcs-token"
 			tool-id="sakai.assignment"
-			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
+			entity-id="$assignment.Id">
+		</sakai-rubric-student-preview-button>
+		#end
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
@@ -408,6 +424,24 @@ $(document).ready(function(){
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignmentReference" />
+		
+		#if ($!rubricSelfReport)
+			<p class="instruction">
+				$tlang.getString("youmustrubric")
+			</p>
+			<sakai-rubric-grading
+			token="$!rbcs-token"
+			tool-id="sakai.assignment"
+			entity-id="$assignment.Id"
+			evaluated-item-id="$submitter.id"
+			evaluated-item-owner-id="$submitter.id"
+			is-peer-or-self="true" 
+
+			#if($rbcs-state-details && "$!rbcs-state-details" != "")
+			state-details="$rbcs-state-details"
+			#end
+			></sakai-rubric-grading>
+		#end
 
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted

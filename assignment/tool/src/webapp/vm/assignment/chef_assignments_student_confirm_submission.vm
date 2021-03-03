@@ -1,4 +1,5 @@
 <!-- start: chef_assignments_student_confirm_submission.vm -->
+#rubricsRequirements
 ###header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}bootstrap${quote});</script>")
 
 <script>
@@ -115,6 +116,19 @@
             </tr>
         #end
     </table>
+    #if ($!rubricSelfReport)
+      <sakai-rubric-student
+          token="$!rbcs-token"
+          tool-id="sakai.assignment"
+          entity-id="$assignment.Id"
+          evaluated-item-id="$submitter.Id"
+          is-peer-or-self="$rubricSelfReport"
+      ></sakai-rubric-student>
+      <p class="instruction">
+      $tlang.getString("reviewrubric")
+      </p>
+    #end
+
     <h4>
         $tlang.getString("gen.submission")
     </h4>

@@ -29,7 +29,7 @@ export class SakaiRubricGrading extends RubricsElement {
       entityId: { attribute: "entity-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
-
+      isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean },
       // Non attribute
       evaluation: { type: Object },
       totalPoints: Number,
@@ -81,7 +81,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
     return html`
       <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
-      ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
+      ${this.evaluation && this.evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
         <div class="sak-banner-warn">
           <sr-lang key="draft_evaluation">DRAFT</sr-lang>
         </div>
@@ -381,11 +381,18 @@ export class SakaiRubricGrading extends RubricsElement {
       url: `/rubrics-service/rest/rubrics/${rubricId}?projection=inlineRubric`,
       headers: { "authorization": this.token }
     }).done(rubric => {
+	
+      if (!this.isPeerOrSelf) {
 
-      $.ajax({
-        url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
-        headers: { "authorization": this.token }
-      }).done(data => {
+        $.ajax({
+          url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+          headers: { "authorization": this.token }
+        }).done(data => {
+          this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
+          this.doCriteriaDecoration(rubric);
+        }).fail((jqXHR, textStatus, errorThrown) => {
+          console.log(textStatus);console.log(errorThrown);
+        });
 
         this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
         this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
@@ -404,14 +411,48 @@ export class SakaiRubricGrading extends RubricsElement {
           c.pointrange = this.getHighLow(c.ratings);
         });
 
-        this.decorateCriteria();
-      }).fail((jqXHR, textStatus, errorThrown) => {
-        console.log(textStatus);console.log(errorThrown);
-      });
+      } else {
+	
+        $.ajax({
+          url: `/rubrics-service/rest/evaluations/search/peer-by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+          headers: { "authorization": this.token }
+        }).done(data => {
+          this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
+          this.doCriteriaDecoration(rubric);
+          document.querySelectorAll('.rating-item.selected').length > 0 ? this.dispatchEvent(new CustomEvent('rubric-ratings-changed', {bubbles: true, composed: true})) 
+          : this.dispatchEvent(new CustomEvent('rubrics-grading-loaded', {bubbles: true, composed: true}));
+        }).fail((jqXHR, textStatus, errorThrown) => {
+          console.log(textStatus);console.log(errorThrown);
+        });
+      }
+
     }).fail((jqXHR, textStatus, errorThrown) => {
       console.log(textStatus);console.log(errorThrown);
     });
   }
+
+  doCriteriaDecoration(rubric) {
+
+    this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
+    if (this.criteria) { 
+      this.decorateCriteria();
+    }
+    this.existingEvaluation = true;
+
+    this.rubric = rubric;
+
+    this.criteria = this.rubric.criterions;
+    this.criteria.forEach(c => {
+
+      if (!c.selectedvalue) {
+        c.selectedvalue = 0;
+      }
+      c.pointrange = this.getHighLow(c.ratings, "points");
+    });
+
+    this.decorateCriteria();
+  }
+
 }
 
 customElements.define("sakai-rubric-grading", SakaiRubricGrading);

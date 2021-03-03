@@ -65,6 +65,8 @@ This section contains the options for grading this assignment, including rubrics
 					#end
 					fine-tune-points="$tlang.getString("option.pointsoverride")"
 					hide-student-preview="$tlang.getString("option.studentpreview")"
+					student-self-report="$tlang.getString("option.selfreport")"
+					show-self-report-check="true"
 				>
 				</sakai-rubric-association>
 			</div>

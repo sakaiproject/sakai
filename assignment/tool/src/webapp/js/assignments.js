@@ -717,11 +717,11 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
 
     if (doEnable)
     {
-        btnPost.removeAttribute('disabled');
+        btnPost.disabled = false;
     }
     else
     {
-        btnPost.setAttribute('disabled', 'disabled');
+        btnPost.disabled = true;
     }
 };
 
@@ -962,6 +962,34 @@ ASN.changeVisibleDate = function()
 
 $(document).ready(() => {
 
+  //peer-review and self-report
+  $('body').on('rubric-association-loaded', e => {
+    if($('#dont-associate-radio').length) {
+      const dontAssociateCheck = document.getElementById("dont-associate-radio");
+      const doAssociateCheck = document.getElementById("do-associate-radio");
+      const numberReviews = document.getElementById("new_assignment_peer_assessment_num_reviews");
+
+      //page-loading
+        if (dontAssociateCheck.checked) {
+          numberReviews.disabled = false;	
+        }
+
+        if (doAssociateCheck.checked) {
+          numberReviews.disabled = true;
+          numberReviews.value = 1;
+        }
+
+        //event manage
+        dontAssociateCheck.addEventListener("change", function() {
+          numberReviews.disabled = false;
+        });
+        doAssociateCheck.addEventListener("change", function() {
+          numberReviews.disabled = true;
+          numberReviews.value = 1;
+        });
+    }
+  });
+
   $("#infoImg").popover({html : true});
 
   const saveRubric = e => {
@@ -985,4 +1013,9 @@ $(document).ready(() => {
     [...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => promises.push(b.releaseEvaluation()));
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
+
+  const confirmButton = document.getElementById("confirm");
+  confirmButton && confirmButton.addEventListener("click", saveRubric);
+  const postButton = document.getElementById("post");
+  postButton && postButton.addEventListener("click", saveRubric);
 });

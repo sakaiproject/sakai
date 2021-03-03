@@ -336,6 +336,22 @@
         #if ($!hasAssociatedRubric)
         </div>
         <div role="tabpanel" class="tab-pane" id="rubric">
+            #if($assignment.getAllowPeerAssessment() || $!rubricSelfReport)
+                <sakai-rubric-student
+                    token="$!rbcs-token"
+                    tool-id="sakai.assignment"
+                    entity-id="$assignment.Id"
+                    evaluated-item-id="$submitter"
+                ></sakai-rubric-student>
+                <p class="help-block">
+                    #if($assignment.getAllowPeerAssessment())
+                        $tlang.getString("peerrubric")
+                    #elseif($!rubricSelfReport)
+                        $tlang.getString("studentrubric")
+                    #end
+                </p>
+                <hr class="itemSeparator" />
+            #end
             <sakai-rubric-grading
                 ## grade-field-id="grade"
                 token="$!rbcs-token"

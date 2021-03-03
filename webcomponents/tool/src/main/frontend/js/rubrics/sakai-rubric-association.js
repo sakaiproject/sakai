@@ -13,7 +13,7 @@ class SakaiRubricAssociation extends RubricsElement {
     this.selectedConfigOptions = {};
 
     this.isAssociated = false;
-
+    this.showSelfReportCheck = false;
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
     this.i18nPromise.then(r => this.i18n = r);
   }
@@ -39,9 +39,19 @@ class SakaiRubricAssociation extends RubricsElement {
       associateValue: { attribute: "associate-value", type: Number },
       fineTunePoints: { attribute: "fine-tune-points", type: String },
       hideStudentPreview: { attribute: "hide-student-preview", type: String },
+      studentSelfReport: { attribute: "student-self-report", type: String },
+      showSelfReportCheck: { attribute: "show-self-report-check", type: Boolean },
       rubrics: { type: Array },
       readOnly: { attribute: "read-only", type: Boolean },
     };
+  }
+
+  set showSelfReportCheck(newValue) {
+    this._showSelfReportCheck = newValue;
+  }
+
+  get showSelfReportCheck() { 
+    return this._showSelfReportCheck;
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -65,13 +75,13 @@ class SakaiRubricAssociation extends RubricsElement {
         ${this.readOnly ? "" : html`
           <div class="radio">
             <label>
-              <input @click="${this.associate}" name="rbcs-associate" type="radio" .value="${this.dontAssociateValue}" ?checked=${!this.isAssociated} ?disabled=${this.readOnly}>${this.dontAssociateLabel}
+              <input @click="${this.associate}" id="dont-associate-radio" name="rbcs-associate" type="radio" .value="${this.dontAssociateValue}" ?checked=${!this.isAssociated} ?disabled=${this.readOnly}>${this.dontAssociateLabel}
             </label>
           </div>
 
           <div class="radio">
             <label>
-              <input @click="${this.associate}" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
+              <input @click="${this.associate}" id="do-associate-radio" name="rbcs-associate" type="radio" .value="${this.associateValue}" ?checked=${this.isAssociated} ?disabled=${this.readOnly}>${this.associateLabel}
             </label>
           </div>
         `}
@@ -101,6 +111,17 @@ class SakaiRubricAssociation extends RubricsElement {
                   <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
                 </label>
               </div>
+            ${this.showSelfReportCheck ?
+              html`
+                <div class="checkbox">
+                   <label>
+                     <input @change=${this.updateStateDetails} id="rbcs-config-studentSelfReport" name="rbcs-config-studentSelfReport" type="checkbox" ?checked=${this.selectedConfigOptions["studentSelfReport"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.studentSelfReport}
+                   </label>
+                </div>
+              `
+              :
+              html``
+            }
             </div>
         `}
         </div>
@@ -176,6 +197,16 @@ class SakaiRubricAssociation extends RubricsElement {
   associate(e) {
     this.isAssociated = e.target.value == 1;
   }
+
+  firstUpdated() {
+    if (this.showSelfReportCheck) {
+      this.dispatchEvent(new CustomEvent('rubric-association-loaded', {
+        bubbles: true,
+        composed: true
+      }));
+    }
+  }
+
 }
 
 customElements.define("sakai-rubric-association", SakaiRubricAssociation);

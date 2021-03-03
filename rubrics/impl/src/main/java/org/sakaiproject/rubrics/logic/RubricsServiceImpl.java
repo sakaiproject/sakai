@@ -610,7 +610,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @return
      */
     private String postRubricResource(String targetUri, String json, String toolId, String siteId) throws IOException {
-        log.debug(String.format("Post to URI '%s' body:", targetUri, json));
+        log.debug("Post to URI {} body: {}", targetUri, json);
 
         HttpURLConnection conn = null;
         try {

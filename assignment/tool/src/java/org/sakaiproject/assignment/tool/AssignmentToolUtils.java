@@ -40,14 +40,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -56,11 +57,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.lti13.LineItemUtil;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
@@ -88,6 +85,7 @@ public class AssignmentToolUtils {
     private TimeService timeService;
     private ToolManager toolManager;
     private LTIService ltiService;
+    private RubricsService rubricsService;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -890,6 +888,18 @@ public class AssignmentToolUtils {
                 gradebookExternalAssessmentService.removeExternalAssessment(gradebookUid, associateGradebookAssignment);
             }
         }
+    }
+
+    public boolean hasRubricSelfReview(String assignmentId) {
+        try {
+            Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+            if (rubricAssociation.isPresent() && rubricAssociation.get().getParameter(RubricsConstants.RBCS_STUDENT_SELF_REPORT)) {
+                return true;
+            }
+        } catch (Exception e) {
+               log.warn("Error trying to retrieve rubrics association for assignment : {}", e.getMessage());
+        }
+        return false;
     }
 
 }

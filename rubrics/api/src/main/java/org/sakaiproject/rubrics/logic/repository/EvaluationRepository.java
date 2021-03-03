@@ -46,6 +46,9 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
     static final String EVALUEE_CONSTRAINT = "(1 = ?#{principal.isEvaluee() ? 1 : 0} and " +
         "resource.evaluatedItemOwnerId = ?#{principal.userId} and status = ?#{ T(org.sakaiproject.rubrics.logic.model.EvaluationStatus).RETURNED })";
 
+    static final String SELF_EVALUATOR_CONSTRAINT = "(1 = ?#{principal.isEvalueeOnly() ? 1 : 0} and " +
+            "resource.evaluatedItemId = ?#{principal.userId})";
+
     @Override
     @PreAuthorize("canRead(#id, 'Evaluation')")
     Optional<Evaluation> findById(Long id);
@@ -77,6 +80,16 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
     @QueryHints(@QueryHint(name="org.hibernate.cacheable", value = "true"))
     List<Evaluation> findByToolIdAndAssociationItemIdAndEvaluatedItemId(@Param("toolId") String toolId,
+            @Param("itemId") String itemId, @Param("evaluatedItemId") String evaluatedItemId);
+
+    @RestResource(path = "peer-by-tool-item-and-associated-item-and-evaluated-item-ids", rel = "peer-by-tool-item-and-associated-item-and-evaluated-item-ids")
+    @PreAuthorize("hasAnyRole('ROLE_EVALUEE')")
+    @Query("select resource from Evaluation resource where " +
+            "resource.evaluatedItemId = :evaluatedItemId " +
+            "and resource.toolItemRubricAssociation.toolId = :toolId " +
+            "and resource.toolItemRubricAssociation.itemId = :itemId " +
+            "and (" + SELF_EVALUATOR_CONSTRAINT + ")")
+    List<Evaluation> peerFindByToolIdAndAssociationItemIdAndEvaluatedItemId(@Param("toolId") String toolId,
             @Param("itemId") String itemId, @Param("evaluatedItemId") String evaluatedItemId);
 
     @RestResource(path = "by-association-and-user", rel = "by-association-and-user")

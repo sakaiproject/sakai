@@ -30,6 +30,7 @@ class SakaiRubricStudent extends RubricsElement {
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
       forcePreview: { attribute: "force-preview", type: Boolean },
+      isPeerOrSelf: { attribute: "is-peer-or-self", type: Boolean }
     };
   }
 
@@ -132,7 +133,9 @@ class SakaiRubricStudent extends RubricsElement {
           contentType: "application/json"
         }).done(rubric => {
 
-          // Now, get the evaluation
+        // Now, get the evaluation
+        if (!this.isPeerOrSelf) {
+
           $.ajax({
             url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
             headers: { "authorization": this.token }
@@ -150,7 +153,33 @@ class SakaiRubricStudent extends RubricsElement {
             this.rubric = rubric;
           }).fail((jqXHR, textStatus, error) => {
             console.log(textStatus);console.log(error);
+           });
+
+        } else {
+
+          //is selfreport
+          $.ajax({
+            url: `/rubrics-service/rest/evaluations/search/peer-by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
+            headers: { "authorization": this.token }
+          }).done(data => {
+            if (data._embedded.evaluations.length) {
+              this.evaluation = data._embedded.evaluations[0];
+              this.preview = false;
+            } else {
+              this.evaluation = {
+                criterionOutcomes: []
+              };
+              this.preview = true;
+            } // Set the rubric, thus triggering a render
+
+            this.rubric = rubric;
+          }).fail((jqXHR, textStatus, error) => {
+            console.log(textStatus);
+            console.log(error);
           });
+
+        }
+
         }).fail((jqXHR, textStatus, error) => {
           console.log(textStatus);console.log(error);
         });

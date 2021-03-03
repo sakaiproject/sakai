@@ -1057,6 +1057,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * Site property for forcing anonymous grading in a site
      */
     private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
+    /**
+     * submitter, the student who do a selfreport
+     */
+    private static final String STUDENT_WITH_SELFREPORT = "submitter";
 
     private static final String FLAG_ON = "on";
     private static final String FLAG_TRUE = "true";
@@ -1763,6 +1767,8 @@ public class AssignmentAction extends PagedResourceActionII {
             canViewAssignmentIntoContext(context, assignment, s);
 
             addAdditionalNotesToContext(submitter, context, state);
+
+            context.put("rubricSelfReport", assignmentToolUtils.hasRubricSelfReview(assignment.getId()));
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -2286,6 +2292,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
             }
         }
+
+        context.put(STUDENT_WITH_SELFREPORT,
+            Optional.ofNullable((User) state.getAttribute("student")).orElse(user));
+
+        context.put("rubricSelfReport", assignmentToolUtils.hasRubricSelfReview(assignment.getId()));
 
         context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
@@ -3600,6 +3611,19 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                     context.put("value_grades", grades);
                 }
+
+                // Check if the assignment has a rubric associated or not
+                context.put(RubricsConstants.RBCS_HAS_ASSOCIATED_RUBRIC, rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId()));
+                if (assignmentToolUtils.hasRubricSelfReview(a.getId())) {
+                	s.getSubmitters().stream().findAny().ifPresent(u -> context.put(STUDENT_WITH_SELFREPORT, u.getSubmitter()));
+                }
+                // Only one peer review for an assignment submission per student.
+                if (a.getAllowPeerAssessment()) {
+                    List<PeerAssessmentItem> reviews = assignmentPeerAssessmentService.getPeerAssessmentItems(s.getId(), a.getScaleFactor());
+                    if(reviews.size() > 1) { log.warn("More than one peer review were found for Rubric assignment"); }
+                    reviews.stream().findFirst().ifPresent(pai -> context.put(STUDENT_WITH_SELFREPORT, pai.getId().getAssessorUserId()));
+                }
+                
             }
 
             // show alert if student is working on a draft
@@ -3843,6 +3867,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // Check if the assignment has a rubric associated or not
         context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
+
+        if (state.getAttribute(RUBRIC_STATE_DETAILS) != null) {
+            context.put(RUBRIC_STATE_DETAILS, state.getAttribute(RUBRIC_STATE_DETAILS));
+        }
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();
@@ -4859,6 +4887,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 securityService.popAdvisor(secAdv);
             }
         }
+
+        context.put(RubricsConstants.RBCS_HAS_ASSOCIATED_RUBRIC, rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId()));
+
         if (s != null) {
             submissionId = s.getId();
             context.put("submission", s);
@@ -4919,7 +4950,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 } else {
                     context.put("view_only", false);
                 }
-
+                context.put(RubricsConstants.RBCS_ASSESSOR_ID, peerAssessmentItem.getId().getAssessorUserId());
                 // get attachments for peer review item
                 List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(peerAssessmentItem.getId().getSubmissionId(), peerAssessmentItem.getId().getAssessorUserId());
                 List<Reference> attachmentRefList = new ArrayList<>();
@@ -7035,6 +7066,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 } catch (Exception e) {
                     addAlert(state, rb.getString("peerassessment.invalidNumReview"));
                 }
+            } else if (params.get(RubricsConstants.RBCS_ASSOCIATE).equals("1")) {
+                state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, 1);
             } else {
                 addAlert(state, rb.getString("peerassessment.specifyNumReview"));
             }
@@ -9285,7 +9318,7 @@ public class AssignmentAction extends PagedResourceActionII {
     public void doView_submissionReviews(RunData data) {
         String submissionId = data.getParameters().getString("submissionId");
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        String assessorId = data.getParameters().getString("assessorId");
+        String assessorId = data.getParameters().getString(RubricsConstants.RBCS_ASSESSOR_ID);
         String assignmentId = StringUtils.trimToNull(data.getParameters().getString("assignmentId"));
         Assignment a = getAssignment(assignmentId, "doEdit_assignment", state);
         if (submissionId != null && !"".equals(submissionId) && a != null) {

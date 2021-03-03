@@ -1,10 +1,22 @@
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
+#rubricsRequirements
+#module("/rubrics-service/webcomponents/rubric-association-requirements.js")
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 	$(document).ready(function(){
 		ASN.setupPeerReviewAttachment();
+		
+		document.body.addEventListener('total-points-updated', (e) => {
+			e.stopPropagation();
+			const gradeField = document.getElementById('grade');
+			if(gradeField) {
+			  gradeField.value = e.detail.value;
+			}
+		});
+		
      });
 </script>
+
 <div class="portletBody">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	## confirmation
@@ -158,6 +170,24 @@
 				#end
 
 						#if ($withGrade)
+							#if ($!hasAssociatedRubric)
+								#if ($!view_only)
+									<sakai-rubric-student
+									token="$!rbcs-token"
+									tool-id="sakai.assignment"
+									entity-id="$assignment.Id"
+									evaluated-item-id="$assessorId"
+									></sakai-rubric-student>
+								#else
+									<sakai-rubric-grading
+									token="$!rbcs-token"
+									tool-id="sakai.assignment"
+									entity-id="$assignment.Id"
+									evaluated-item-id="$assessorId"
+									is-peer-or-self="true"
+									></sakai-rubric-grading>
+								#end
+							#end							
 							<div class="highlightPanel" style="width:80%">
 								#set ($gradeType = $assignment.TypeOfGrade.ordinal())
 								<p class="shorttext">
@@ -319,7 +349,7 @@
 							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.removereview")" />
 						#end
 					#else
-						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
+						<input type="button" id="save" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
 						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade_review', null, null ); return false;" />
 						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
 					#end
