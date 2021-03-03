@@ -23,7 +23,7 @@
     <sakai.version>22-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.11</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.9</sakai.commons-text.version>
