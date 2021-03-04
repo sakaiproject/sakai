@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.meetings.api.SakaiProxy"
+        class="org.sakaiproject.meetings.impl.SakaiProxyImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.meetings.api.MeetingsService"
+        class="org.sakaiproject.meetings.impl.MeetingsServiceImpl"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.meetings.impl.MeetingsEntityProducer"
+        class="org.sakaiproject.meetings.impl.MeetingsEntityProducer"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.meetings.api.BBBAPI"
+        class="org.sakaiproject.meetings.impl.BBBEndpointImpl"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.meetings.impl.BBBAPIWrapper"
+        class="org.sakaiproject.meetings.impl.BBBEndpointHandler"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.meetings.api.persistence.MeetingRepository"
+        class="org.sakaiproject.meetings.impl.persistence.MeetingRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="meetingsHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.meetings.api.persistence.Meeting</value>
+                <value>org.sakaiproject.meetings.api.persistence.MeetingParticipant</value>
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,509 @@
+.#{$namespace}sakai-meetings {
+
+    #meetings-create-and-search {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      div:nth-child(2) {
+        margin-left: auto;
+      }
+    }
+
+    .meetings-create-meeting-wrapper {
+      border-bottom: 1px solid #D3D4D6;
+
+      a { text-decoration: none; }
+    }
+
+    .meetings-input-label {
+      font-size: 13px;
+      color: #262626;
+    }
+
+    .meetings-input-wrapper {
+      margin-top: 7px;
+      margin-bottom: 20px;
+    }
+
+    #meetings-participants-grid {
+      display: grid;
+      align-items: center;
+      grid-template-columns: min-content min-content min-content;
+      gap: 5px;
+
+      div {
+        white-space: nowrap;
+      }
+
+      a {
+        text-decoration: none;
+      }
+    }
+
+    .meetings-checkbox-wrapper {
+      margin-top: 7px;
+      margin-bottom: 7px;
+
+      span {
+        margin-left: 10px;
+        font-size: 14px;
+        font-weight: normal;
+        color: #262626;
+      }
+    }
+
+    .meetings-create-meeting-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 18px;
+      color: #333435;
+      margin-bottom: 20px;
+      margin-top: 10px;
+
+      div:nth-child(1) {
+        flex: 1;
+      }
+      div:nth-child(2) {
+        flex: 1;
+        flex-basis: fit-content;
+        margin-left: auto;
+        text-align: right;
+      }
+    }
+
+    .meetings-create-meeting-block {
+      margin-left: 20px;
+    }
+
+    #meetings-notification-ical-block {
+      margin-left: 10px;
+    }
+
+    .options-menu {
+      background: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      border-radius: 8px;
+      text-transform: none;
+      padding: 5px;
+      z-index: 10000;
+
+      div {
+        margin: 5px;
+        font-size: 12px;
+        color: #262626;
+        white-space: nowrap;
+      }
+
+      a {
+        text-decoration: none;
+      }
+    }
+
+    .meeting-actions {
+      margin: 0;
+      padding: 0;
+
+      div {
+        display: inline-block;
+      }
+    }
+
+    #meetings_container {
+      margin: 5px;
+    }
+
+    #meetings-meeting-table, #meetings-recording-table {
+        margin-top: 20px;
+    }
+
+    sakai-permissions {
+        display: block;
+        margin-top: 20px;
+    }
+
+    .meetings_preview_images {
+      display: inline-block;
+    }
+
+    a[href].preview {
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .thumbnails {
+      border: 2px solid black;
+      border-radius: 2px;
+    }
+
+    #previewImage {
+      border-radius: 7px;
+      padding: 5px 5px;
+      background: black;
+    }
+
+    #preview {
+      position: absolute;
+      display: none;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- Meeting List --------------------------- */
+
+    /** -------------------------------------------- */
+
+    .meetings_sortable_table_header {
+      cursor: pointer;
+      background-repeat: no-repeat;
+      background-position: center right;
+    }
+
+    .meetings_sortable_table_header_sortup {
+      background-image: url(/library/image/sakai/sortascending.gif);
+    }
+
+    .meetings_sortable_table_header_sortdown {
+      background-image: url(/library/image/sakai/sortdescending.gif);
+    }
+
+    th.meetings_name {
+      text-align: left;
+      width: 40%;
+      max-width: 40%;
+    }
+
+    th.meetings_startDate, th.meetings_endDate {
+      width: 140px;
+      max-width: 140px;
+    }
+
+    td.meetings_startDate, td.meetings_endDate {
+      text-align: center;
+    }
+
+    th.meetings_owner {
+      text-align: left;
+      width: 15%;
+    }
+
+    th.meetings_recStatus {
+      width: 100px;
+      max-width: 100px;
+      text-align: left;
+    }
+
+    th.meetings_recStartDate {
+      width: 200px;
+      max-width: 200px;
+      text-align: left;
+    }
+
+    th.meetings_recLength {
+      width: 70px;
+      max-width: 80px;
+      text-align: center;
+    }
+
+    th.meetings_recPreview {
+      width: 180px;
+      max-width: 180px;
+    }
+
+    div.meetings_end_meeting_hidden {
+      display: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    div.meetings_end_meeting_shown {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+
+    .search {
+      width: 200px;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- Create/Update Meeting ------------------ */
+
+    /** -------------------------------------------- */
+
+    #meetings_name_label {
+      margin-right: 5px;
+    }
+
+    .meetings_role_selection {
+      font-weight: bold;
+    }
+
+    .meetings-role-selection-as {
+      font-style: italic;
+      margin-left: 18px;
+      margin-right: 10px;
+    }
+
+    /* Form: */
+
+    select {
+      margin: 0.1em 0.3em;
+      border: 1px solid #888888;
+      width: auto !important;
+      min-width: 120px;
+    }
+
+    #meetings-welcome-message-textarea {
+      width: 300px;
+    }
+
+    input[type="text"] {
+      padding: 0.1em 0.3em;
+      margin: 0.1em 0.3em;
+      border: 1px solid #888888;
+      width: 300px;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- Meeting Details ------------------------ */
+
+    /** -------------------------------------------- */
+
+    table#meetings_meeting_info_table td {
+      vertical-align: top;
+      padding-bottom: 10px;
+      padding-left: 15px;
+    }
+
+    table#meetings_meeting_info_table td h5 {
+      vertical-align: top !important;
+      margin-top: 0 !important;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- Meeting Status ------------------------- */
+
+    /** -------------------------------------------- */
+
+    .meetings_status_notstarted {
+      color: #777;
+    }
+
+    .meetings_status_joinable_available {
+      color: #087817;
+    }
+
+    .meetings_status_joinable_inprogress {
+      color: #087817;
+      font-style: italic;
+    }
+
+    .meetings_status_joinable_unavailable {
+      color: #EE9A00;
+    }
+
+    .meetings_status_joinable_unreachable {
+      color: #FF0000;
+    }
+
+    .meetings_status_finished {
+      color: #777;
+      font-style: oblique;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- Util/Common ---------------------------- */
+
+    /** -------------------------------------------- */
+
+    /* Messages shown to the user: */
+
+    #meetings_messages {
+      overflow: auto;
+    }
+
+    .meetings_message {
+      margin-bottom: 5px;
+      font-weight: normal;
+    }
+
+    /* Ajax indicator (image): */
+
+    .meetings_imgIndicator {
+      margin: 5px;
+      vertical-align: middle;
+    }
+
+    /** -------------------------------------------- */
+
+    /** --- 3rd Party Plugins ---------------------- */
+
+    /** -------------------------------------------- */
+
+    /* Date picker: */
+
+    .date-picker-field {
+      width: 80px !important;
+      min-width: 80px !important;
+      text-align: center;
+    }
+
+    .datepick-trigger {
+      position: relative;
+      bottom: 2px;
+    }
+
+    /* Time picker: */
+
+    .time-picker-field {
+      width: 40px !important;
+      min-width: 40px !important;
+      text-align: center;
+    }
+
+    .time-picker {
+      -moz-background-clip: border;
+      -moz-background-inline-policy: continuous;
+      -moz-background-origin: padding;
+      background: #FFFFFF none repeat scroll 0 0;
+      border: 1px solid #000000;
+      height: 200px;
+      overflow: auto;
+      position: absolute;
+      width: 4em;
+    }
+
+    .time-picker-12hours {
+      width: 6em;
+    }
+
+    .time-picker ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .time-picker li {
+      cursor: pointer;
+      padding: 1px;
+    }
+
+    .time-picker li.selected {
+      -moz-background-clip: border;
+      -moz-background-inline-policy: continuous;
+      -moz-background-origin: padding;
+      background: #316AC5 none repeat scroll 0 0;
+      color: #FFFFFF;
+    }
+
+    /* TipTip */
+
+    #tiptip_holder {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 99999;
+    }
+
+    #tiptip_holder.tip_top {
+      padding-bottom: 5px;
+    }
+
+    #tiptip_holder.tip_bottom {
+      padding-top: 5px;
+    }
+
+    #tiptip_holder.tip_right {
+      padding-left: 5px;
+    }
+
+    #tiptip_holder.tip_left {
+      padding-right: 5px;
+    }
+
+    #tiptip_content {
+      font-size: 11px;
+      padding: 4px 8px;
+      border: 1px solid #333;
+      color: #333;
+      background-color: #eee;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      box-shadow: 0 1px 3px #777;
+      -webkit-box-shadow: 0 1px 3px #777;
+      -moz-box-shadow: 0 1px 3px #777;
+    }
+
+    #tiptip_arrow, #tiptip_arrow_inner {
+      position: absolute;
+      border-color: transparent;
+      border-style: solid;
+      border-width: 6px;
+      height: 0;
+      width: 0;
+    }
+
+    #tiptip_holder.tip_top #tiptip_arrow {
+      border-top-color: #333;
+    }
+
+    #tiptip_holder.tip_bottom #tiptip_arrow {
+      border-bottom-color: #333;
+    }
+
+    #tiptip_holder.tip_right #tiptip_arrow {
+      border-right-color: #333;
+    }
+
+    #tiptip_holder.tip_left #tiptip_arrow {
+      border-left-color: #333;
+    }
+
+    #tiptip_holder.tip_top #tiptip_arrow_inner {
+      margin-top: -7px;
+      margin-left: -6px;
+      border-top-color: #eee;
+    }
+
+    #tiptip_holder.tip_bottom #tiptip_arrow_inner {
+      margin-top: -5px;
+      margin-left: -6px;
+      border-bottom-color: #eee;
+    }
+
+    #tiptip_holder.tip_right #tiptip_arrow_inner {
+      margin-top: -6px;
+      margin-left: -5px;
+      border-right-color: #eee;
+    }
+
+    #tiptip_holder.tip_left #tiptip_arrow_inner {
+      margin-top: -6px;
+      margin-left: -7px;
+      border-left-color: #eee;
+    }
+
+    /* TipTip: Webkit Hacks  */
+
+    @media screen and (-webkit-min-device-pixel-ratio:0) {
+      #tiptip_content {
+        padding: 4px 8px 5px 8px;
+        background-color: #eee;
+      }
+      #tiptip_holder.tip_bottom #tiptip_arrow_inner {
+        border-bottom-color: #eee;
+      }
+      #tiptip_holder.tip_top #tiptip_arrow_inner {
+        border-top-color: #eee;
+      }
+    }
+}

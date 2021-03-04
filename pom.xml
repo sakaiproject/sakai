@@ -81,6 +81,7 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
+                <module>meetings</module>
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
@@ -169,6 +170,7 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
+                <module>meetings</module>
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>

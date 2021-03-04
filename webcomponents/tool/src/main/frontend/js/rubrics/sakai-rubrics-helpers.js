@@ -53,11 +53,13 @@ export class SakaiRubricsHelpers {
   }
 
   static getUserDisplayName(sakaiSessionId, creatorId) {
-  return fetch(`/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${sakaiSessionId}&eid=${creatorId}`)
+
+    return fetch(`/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${sakaiSessionId}&eid=${creatorId}`)
       .then( (response) => response.text() );
   }
 
   static getSiteTitle(sakaiSessionId, siteId) {
+
     return fetch(`/sakai-ws/rest/sakai/getSiteTitle?sessionid=${sakaiSessionId}&siteid=${siteId}`)
       .then( (response) => response.text());
   }

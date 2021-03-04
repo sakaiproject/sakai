@@ -278,6 +278,5 @@ class SakaiPermissions extends SakaiElement {
   }
 }
 
-if (!customElements.get("sakai-permissions")) {
-  customElements.define("sakai-permissions", SakaiPermissions);
-}
+const tagName = "sakai-permissions";
+!customElements.get(tagName) && customElements.define(tagName, SakaiPermissions);

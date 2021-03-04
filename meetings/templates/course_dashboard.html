@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+        <script src="/library/js/headscripts.js"></script>
+        <script>includeWebjarLibrary('ckeditor');</script>
+        <script src="/library/editor/ckeditor.launch.js"></script>
+        <script type="module" th:src="@{~/webcomponents/coursedashboard/sakai-course-dashboard.js} + ${cdnQuery}"></script>
+        [(${sakaiHtmlHead})]
+    </head>
+    <body>
+        <div class="portletBody">
+            <sakai-course-dashboard th:site-id="${siteId}"></sakai-course-dashboard>
+        </div>
+    </body>
+</html>

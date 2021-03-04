@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+  <tool id="sakai.meetings"
+    title="Meetings"
+    description="Sakai Meetings Tool">
+    <category name="course" />
+    <category name="project" />
+  </tool>
+</registration>

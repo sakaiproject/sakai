@@ -1,0 +1,144 @@
+import { SakaiElement } from "../sakai-element.js";
+import { html } from "../assets/lit-html/lit-html.js";
+import { utilsMixin } from "./utils-mixin.js";
+import "./options-menu.js";
+
+class SakaiMeetingRecordings extends utilsMixin(SakaiElement) {
+
+  static get properties() {
+
+    return {
+      recordings: { type: Array },
+    };
+  }
+
+  constructor() {
+
+    super();
+
+    this.loadTranslations("meetings").then(r => this.i18n = r);
+  }
+
+  translateType(type) {
+    return bbb_recording_type[type] === undefined ? type : bbb_recording_type[type];
+  }
+
+  getTypeTooltip(type) {
+    return bbb_recording_view_tooltip[type] === undefined ? type : bbb_recording_view_tooltip[type];
+  }
+
+  getFirstLength(recording) {
+
+    const playback = recording.playback.find(p => p.length);
+    return playback ? playback.length : 0;
+  }
+
+  render() {
+
+    return html`
+      <input type="text" class="search" id="recSearch">
+      <table id="bbb_recording_table" class="listHier">
+        <thead>
+          <tr>
+            <th class="bbb_recName">${this.i18n["meetings_th_recordingname"]}</th>
+            <th class="bbb_recPreview">${this.i18n["meetings_th_recordingpreview"]}</th>
+            <th class="bbb_recStatus">${this.i18n["meetings_th_status"]}</th>
+            <th class="bbb_recStartDate">${this.i18n["meetings_th_recordingdate"]}</th>
+            <th class="bbb_recLinks">${this.i18n["meetings_th_recordings"]}</th>
+            <th class="bbb_recLength">${this.i18n["meetings_th_recordinglength"]}</th>
+          </tr>
+        </thead>
+        <tbody>
+        ${this.recordings.map(r => html`
+          ${r.canEdit || r.published == 'true' ? html`
+          <tr class="recordingRow">
+            <td>
+              <span>${r.name}</span>
+              <div class="itemAction" style="margin:0; padding:0;">
+                <small>
+                ${r.canEdit ? html`
+                  ${r.published == 'true' ? html`
+                    <a href="javascript:;"
+                        @click="return this.meetings.utils.unpublishRecordings('${r.meetingID}','${r.recordID}','${stateFunction}');"
+                        title="${this.i18n["meetings_action_hide_tooltip"]}">
+                          ${this.i18n["meetings_action_hide"]}
+                    </a>
+                  ` : html`
+                    <a href="javascript:;"
+                        @click="return meetings.utils.publishRecordings('${r.meetingID}','${r.recordID}','${stateFunction}');"
+                        title="${this.i18n["meetings_action_show_tooltip"]}">
+                      ${this.i18n["meetings_action_show"]}
+                    </a>
+                  `}
+                ` : ""}
+                ${r.canDelete ? html`
+                  &nbsp;|&nbsp;
+                  <a href="javascript:;"
+                      @click="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');"
+                      title="${this.i18n["meetings_action_delete_recording_tooltip"]}">
+                    ${this.i18n["meetings_action_delete_recording"]}
+                  </a>
+                ` : ""}
+                ${r.canDelete && r.protected ? html`
+                  &nbsp;|&nbsp;
+                  ${r.protected == 'true' ? html`
+                    <a href="javascript:;"
+                        @click="return meetings.utils.unprotectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');"
+                        title="${this.i18n["meetings_action_unprotect_tooltip"]}">
+                      ${this.i18n["meetings_action_unprotect"]}
+                    </a>
+                  ` : html`
+                    <a href="javascript:;"
+                        @click="return meetings.utils.protectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');"
+                        title="${this.i18n["meetings_action_protect_tooltip"]}">
+                      ${this.i18n["meetings_action_protect"]}
+                    </a>
+                  `}
+                ` : ""}
+                </small>
+              </div>
+            </td>
+            <td class="bbb_thumbnails">
+              <div class="bbb_preview_images">
+                ${r.images ? html`
+                  ${r.published == "true" ? html`
+                    ${r.images.map(image => html`
+                    <a href="${image.url}" class="preview" target="_blank">
+                      <img src="${image.url}" class="thumbnails" width="44px" height="34px" alt="${image.title}">
+                    </a>
+                    `)}
+                  ` : html`
+                    ${this.i18n["meetings_recording_thumbnails_hidden"]}
+                  `}
+                : ""}
+              </div>
+            </td>
+            <td>
+              ${r.published == 'true' ? html`
+                ${this.i18n["meetings_recording_status_shown"]}
+              ` : html`
+                ${this.i18n["meetings_recording_status_hidden"]}
+              `}
+            </td>
+            <td class="bbb_startDate">${r.formattedStartTime}</td>
+            <td>
+              ${r.playback.map(p => html`
+                ${r.published == 'true' ? html`
+                  <a href="${p.url}" title="${this.getTypeTooltip(p.type)}" target="_blank">${this.translateType(p.type)}</a>&nbsp;
+                ` : html`
+                  ${this.translateType(p.type)}&nbsp;
+                `}
+              `)}
+            </td>
+            <td>${this.getFirstLength(r)}</td>
+          </tr>
+          ` : ""}
+        `)}
+        </tbody>
+      </table>
+    `;
+  }
+}
+
+const tagName = "sakai-meeting-recordings";
+!customElements.get(tagName) && customElements.define(tagName, SakaiMeetingRecordings);

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+    <script type="module" th:src="@{~/webcomponents/meetings/sakai-meetings.js} + ${cdnQuery}"></script>
+    [(${sakaiHtmlHead})]
+    <script>includeLatestJQuery('sakai.meetings');</script>
+    <script th:src="@{~/library/js/lang-datepicker/lang-datepicker.js} + ${cdnQuery}"></script>
+  </head>
+  <body>
+    <div class="portletBody">
+        <sakai-meetings th:site-id="${siteId}"></sakai-meetings>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html
+      xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="${isoLanguage}"
+      lang="${isoLanguage}">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script>
+        var d = new Date();
+        var meetings = {
+            startupArgs: {
+                language: '${language}',
+                siteId: '${siteId}',
+                skin: '${skin}',
+                state: '${state}',
+                timezoneoffset: '${timezoneOffset}',
+                sakaiVersion: '${sakaiVersion}',
+                maxFileSizeInBytes: '${maxFileSizeInBytes}',
+                checkICalOption: ${checkICalOption},
+             }
+        };
+    </script>
+    ${sakaiHtmlHead}
+    <link rel="stylesheet" type="text/css" href="/meetings-tool/lib/jquery.datepick.package-3.7.5/redmond.datepick.css" />
+    <script>includeLatestJQuery("meetings");</script>
+    <script src="/library/js/trimpath-template-latest.js"></script>
+    <script src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
+    <script>includeWebjarLibrary("jquery.tablesorter");</script>
+    <script src="/meetings-tool/lib/jquery.browser.min.js"></script>
+    <script src="/meetings-tool/lib/jquery.tipTip.minified.js"></script>
+    <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+    <script type="module" src="/webcomponents/meetings/meeting-list.js"></script>
+    <script type="module" src="/webcomponents/meetings/meeting-info.js"></script>
+    <script src="/meetings-tool/js/meetings_utils.js"></script>
+    <script src="/meetings-tool/js/meetings_perms.js"></script>
+</head>
+<body>
+
+<div class="portletBody">
+
+<div id="meetings_toolbar" class="portletBody"></div>
+<div id="meetings_messages" style="display: none"></div>
+<div id="meetings_container">
+    <div id="meetings_content"></div>
+</div>
+<div id="meetings_footer"></div>
+
+<!--  Templates Start -->
+<div id="meetings_toolbar_template" style="display:none;"><!--
+<ul id="meetings_toolbar_items" class="navIntraTool actionToolBar" role="menu">
+
+    <li class="firstToolBarItem" role="menuitem">
+          <span><a id="meetings_home_link" title="${D}{meetings_home_tooltip}" href="javascript:;">${D}{meetings_home_label}</a></span>
+    </li>
+    <li role="menuitem">
+          <span><a id="meetings_recordings_link" title="${D}{meetings_recordings_tooltip}" href="javascript:;">${D}{meetings_recordings_label}</a></span>
+    </li>
+    <li role="menuitem">
+          <span><a id="meetings_permissions_link" title="${D}{meetings_permissions_tooltip}" href="javascript:;">${D}{meetings_permissions_label}</a></span>
+    </li>
+</ul>
+-->
+</div>
+
+<div id="meetings_rooms_template" style="display:none"><!--
+<meeting-list id="meeting-list" site-id="${D}{siteId}"></meeting-list>
+-->
+</div>
+
+<div id="meetings_recordings_template" style="display:none"><!--
+{if stateFunction == "recordings_meeting"}
+    <span>
+        <button onclick="return meetings.switchState('meetingInfo', {'meetingId': '${D}{meetingId}'})" title="${D}{meetings_back_button_tooltip}"><i class="fa fa-arrow-left"></i>&nbsp;${D}{meetings_back_button}</button>
+    </span>
+{else}
+    <button onclick="meetings.switchState('recordings')" title="${D}{meetings_refresh}"><i class="fa fa-refresh"></i>&nbsp;${D}{meetings_refresh}</button>
+{/if}
+    <input type="text" class="search" id="recSearch" placeholder=${meetings_search}>
+    <table id="meetings-recording-table" class="table table-hover table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="meetings_recName">${D}{meetings_th_recordingname}</th>
+                <th class="meetings_recPreview">${D}{meetings_th_recordingpreview}</th>
+                <th class="meetings_recStatus">${D}{meetings_th_status}</th>
+                <th class="meetings_recStartDate">${D}{meetings_th_recordingdate}</th>
+                <th class="meetings_recLinks">${D}{meetings_th_recordings}</th>
+                <th class="meetings_recLength">${D}{meetings_th_recordinglength}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {for r in recordings}
+          {if r.canEdit || r.published == 'true'}
+            <tr class="recordingRow">
+                <td>
+                    <span>${D}{r.name}</span>
+                    <div class="itemAction" style="margin:0; padding:0;">
+                        <small>
+                        {if r.canEdit}
+                          {if r.published == 'true'}
+                            <a href="javascript:;" onclick="return meetings.utils.unpublishRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{meetings_action_hide_tooltip}">${D}{meetings_action_hide}</a>
+                          {else}
+                            <a href="javascript:;" onclick="return meetings.utils.publishRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{meetings_action_show_tooltip}">${D}{meetings_action_show}</a>
+                          {/if}
+                        {/if}
+                        {if r.canDelete}
+                            &nbsp;|&nbsp;
+                            <a href="javascript:;" onclick="return meetings.utils.deleteRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}','${D}{escape(r.name)} [${D}{new Date(parseInt(r.startTime)).toISO8601String()}]');" title="${D}{meetings_action_delete_recording_tooltip}">${D}{meetings_action_delete_recording}</a>
+                        {/if}
+                        {if r.canDelete}
+                          {if r.protected}
+                            &nbsp;|&nbsp;
+                            {if r.protected == 'true'}
+                              <a href="javascript:;" onclick="return meetings.utils.unprotectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{meetings_action_unprotect_tooltip}">${D}{meetings_action_unprotect}</a>
+                            {else}
+                              <a href="javascript:;" onclick="return meetings.utils.protectRecordings('${D}{r.meetingID}','${D}{r.recordID}','${D}{stateFunction}');" title="${D}{meetings_action_protect_tooltip}">${D}{meetings_action_protect}</a>
+                            {/if}
+                          {/if}
+                        {/if}
+                        </small>
+                    </div>
+                </td>
+                <td class="meetings_thumbnails">
+                    <div class="meetings_preview_images">
+                        {if r.images && r.published == 'true'}
+                            {for image in r.images}
+                            <a href="${D}{image.url}" class="preview" target="_blank">
+                                <img src="${D}{image.url}" class="thumbnails" width="44px" height="34px" alt="${D}{image.title}">
+                            </a>
+                            {/for}
+                        {elseif r.images}
+                            ${D}{meetings_recording_thumbnails_hidden}
+                        {/if}
+                    </div>
+                </td>
+                <td>
+                  {if r.published == 'true'}
+                    ${D}{meetings_recording_status_shown}
+                  {else}
+                    ${D}{meetings_recording_status_hidden}
+                  {/if}
+                </td>
+                <td class="meetings_startDate">${D}{r.formattedStartTime}</td>
+                <td>
+                  {for p in r.playback}
+                    {var recType = meetings_recording_type[p.type] === undefined ? p.type : meetings_recording_type[p.type]}
+                    {var viewRecType = meetings_recording_view_tooltip[p.type] === undefined ? p.type : meetings_recording_view_tooltip[p.type]}
+                    {if r.published == 'true'}
+                        <a href="${D}{p.url}" title="${D}{viewRecType}" target="_blank">${D}{recType}</a>&nbsp;
+                    {else}
+                        ${D}{recType}&nbsp;
+                    {/if}
+                  {/for}
+                </td>
+                <td>${D}{r.formattedDuration}</td>
+            </tr>
+          {/if}
+        {/for}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+-->
+</div>
+
+<div id="meetings_addUpdate_meeting_template" style="display:none"><!--
+<form id="meetings_add_update_form" action="${D}{actionUrl}" method="post" enctype="multipart/form-data">
+    <input id="openDate" type="hidden" value=""/>
+    <input id="closeDate" type="hidden" value=""/>
+    <h3>${D}{meetings_info}</h3>
+    <p class="instruction">${D}{meetings_info_instr}</p>
+    <table cellpadding="0" cellspacing="0" border="0" class="meetings_form_container">
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_info_title}</td>
+        <td>
+            <input id="meetings_meeting_name_field" name="name" type="text" {if !isNew}value="${D}{meeting.name}"{/if} style="width: 400px;" />
+        </td>
+      </tr>
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_info_description}</td>
+        <td>
+            <textarea class="meetings_welcome_message_textarea" id="meetings_welcome_message_textarea" name="properties.welcomeMessage" cols="36" rows="10" style="width: 480px;" wrap="virtual">{if isNew}${D}{meetings_default_welcome_description}{else}${D}{meeting.properties.welcomeMessage}{/if}</textarea>
+        </td>
+      </tr>
+      {if recordingEnabled}
+          {var recordingChecked = isNew ? recordingDefault : meeting.recording }
+          {if recordingEditable}
+          <tr>
+            <td class="meetings_lbl">${D}{meetings_info_recording}</td>
+            <td>
+                <input id="recording" name="recording" type="checkbox" {if recordingChecked}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="recording" name="recording" type="hidden" {if recordingEditable}value="${D}{recordingChecked}"{/if}/>
+          {/if}
+      {/if}
+      {if durationEnabled}
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_info_duration}</td>
+        <td>
+            <input id="recordingDuration" name="recordingDuration" type="text" value="${D}{meeting.recordingDuration}" style="width: 35px;" />&nbsp;${D}{meetings_info_recording_duration_units}
+        </td>
+      </tr>
+      {/if}
+      {if waitmoderatorEnabled}
+          {var waitForModerator = isNew ? waitmoderatorDefault : meeting.waitForModerator }
+          {if waitmoderatorEditable}
+          <tr>
+            <td class="meetings_lbl">${D}{meetings_info_waitformoderator}</td>
+            <td>
+                <input id="waitForModerator" name="waitForModerator" type="checkbox" {if waitForModerator}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="waitForModerator" name="waitForModerator" type="hidden" {if waitmoderatorEditable}value="${D}{waitForModerator}"{/if}/>
+          {/if}
+      {/if}
+      {if multiplesessionsallowedEnabled}
+      {var multipleSessionsAllowed = isNew ? multiplesessionsallowedDefault : meeting.multipleSessionsAllowed }
+          {if multiplesessionsallowedEditable}
+          <tr>
+            <td class="meetings_lbl">${D}{meetings_info_multiplesessionsallowed}</td>
+            <td>
+                <input id="multipleSessionsAllowed" name="multipleSessionsAllowed" type="checkbox" {if multipleSessionsAllowed}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="multipleSessionsAllowed" name="mulitpleSessionsAllowed" type="hidden" {if multipleSessionsAllowed}value="${D}{multipleSessionsAllowed}"{/if}/>
+          {/if}
+      {/if}
+      {if preuploadpresentationEnabled}
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_info_preuploadpresentation}</td>
+        <td>
+            <input type="file" id="selectFile" name="selectFile" style="display:inline;"/>
+            <span id="meetings_addFile_ajaxInd"></span>
+            <input type="hidden" id="fileUrl" name="presentation" />
+            <table id="fileView" class="attachList listHier indnt1" style="margin-bottom:.5em; margin-top:0; width:auto; display:none;">
+                <tr>
+                    <td><a href="#" id="url" target="_blank"/></td>
+                    <td><a href="javascript:;" id="removeUpload">${D}{meetings_info_remove}</a></td>
+                </tr>
+            </table>
+        </td>
+      </tr>
+      {/if}
+      {if groupsessionsEnabled}
+          {var groupSessions = isNew ? groupsessionsDefault : meeting.groupSessions }
+          {if groupsessionsEditable}
+          <tr>
+            <td class="meetings_lbl">${D}{meetings_info_groupsessions}</td>
+            <td>
+                <input id="groupSessions" name="groupSessions" type="checkbox" {if groupSessions}checked{/if}/>
+            </td>
+          </tr>
+          {else}
+          <input id="groupSessions" name="groupSessions" type="hidden" {if groupSessions}value="${D}{groupSessions}"{/if}/>
+          {/if}
+      {/if}
+    </table>
+
+    <br/>
+    <h3>${D}{meetings_participants}</h3>
+    <p class="instruction">${D}{meetings_participants_instr}</p>
+    <table cellpadding="0" cellspacing="0" border="0" class="meetings_form_container">
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_participants_add}</td>
+        <td>
+            <select id="selType" onchange="meetings.updateParticipantSelectionUI()">
+                <option value="${D}{selTypes.all.id}" selected="selected">${D}{selTypes.all.title}</option>
+                <option value="${D}{selTypes.user.id}">${D}{selTypes.user.title}</option>
+                {if selOptions['groups'].length > 0}
+                <option value="${D}{selTypes.group.id}">${D}{selTypes.group.title}</option>
+                {/if}
+                <option value="${D}{selTypes.role.id}">${D}{selTypes.role.title}</option>
+            </select>
+            <select id="selOption" disabled="disabled"></select>
+            <input id="meetings_add" type="button" value="${D}{meetings_add}"
+                onclick="meetings.addParticipantRow(jQuery('#selType').val(), jQuery('#selOption').val(), jQuery('#selOption option:selected').text());return false;"/>
+        </td>
+      </tr>
+      <tr>
+        <td class="meetings_lbl" style="padding-top: 6px">${D}{meetings_participants_list}</td>
+        <td>
+            <table id="selContainer">
+                <tbody></tbody>
+            </table>
+        </td>
+      </tr>
+    </table>
+
+    <br/>
+    <h3>${D}{meetings_availability}</h3>
+    <p class="instruction">${D}{meetings_availability_instr}</p>
+    <table cellpadding="0" cellspacing="0" border="0" class="meetings_form_container">
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_availability_startdate}</td>
+        <td>
+            <input id="startDate1" type="checkbox" {if showStartDate}checked{/if} />
+            <input id="startDate2" name="startDate2" class="datepicker" value="" {if !showStartDate}disabled{/if}/>
+            <input id="addToCalendar" type="checkbox" name="addToCalendar" checked style="{if !canAddCalendar}display:none;{/if}"/ {if !showStartDate}disabled{/if} />
+            <span style="{if !canAddCalendar}display:none;{/if}">${D}{meetings_availability_addtocal}</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="meetings_lbl">${D}{meetings_availability_enddate}</td>
+        <td>
+            <input id="endDate1" type="checkbox" {if showEndDate}checked{/if} />
+            <input id="endDate2" name="endDate2" class="datepicker" value="" disabled/>
+        </td>
+      </tr>
+    </table>
+
+    <br/>
+    <h3>${D}{meetings_notification}</h3>
+    <p class="instruction">{if isNew}${D}{meetings_notification_instr}{else}${D}{meetings_notification_instr_edit}{/if}</p>
+    <table cellpadding="0" cellspacing="0" border="0" class="meetings_form_container">
+      <tr>
+        <td class="meetings_lbl">{if isNew}${D}{meetings_notification_notify}{else}${D}{meetings_notification_notify_edit}{/if}</td>
+        <td>
+            {var notifyParticipantsChecked = false }
+            <input id="notifyParticipants" name="notifyParticipants" type="checkbox" {if notifyParticipantsChecked}checked{/if} onclick="meetings.utils.setNotifictionOptions();"/>
+            <span id="notifyParticipants_iCalAttach_span"></span>
+        </td>
+      </tr>
+    </table>
+
+    <input id="isNew" type="hidden" value="${D}{isNew}"/>
+    <input id="siteId" name="siteId" type="hidden" value="${D}{siteId}"/>
+    {if !isNew}<input id="meetingId" type="hidden" value="${D}{meeting.id}"/>{/if}
+    <div class="act">
+        <input id="meetings_save" type="button" class="active" value="${D}{meetings_save}"/>
+        <input id="meetings_cancel" type="button" value="${D}{meetings_cancel}"/>
+        <span id="meetings_addUpdate_ajaxInd"></span>
+    </div>
+</form>
+-->
+</div>
+
+<div id="meetings_permissions_template" style="display:none"><!--
+<sakai-permissions tool="meetings" bundle-key="meetingsperms"></sakai-permissions>
+-->
+</div>
+
+<div id="meetings_meeting-info_template" style="display:none"><!--
+
+    <meeting-info
+        meeting='${D}{JSON.stringify(meeting)}'
+        groups='${D}{JSON.stringify(groups)}'
+    ></meeting-info>
+-->
+</div>
+
+<script src="/meetings-tool/js/meetings.js"></script>
+
+</div> <!-- /portletBody -->
+
+</body>
+</html>
