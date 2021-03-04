@@ -127,6 +127,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import org.springframework.web.context.WebApplicationContext;
@@ -14542,7 +14543,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // sorted by the group title
                 String factor1 = ((Group) o1).getTitle();
                 String factor2 = ((Group) o2).getTitle();
-                result = compareString(factor1, factor2);
+                result = new AlphaNumericComparator().compare(factor1, factor2);
             } else if (m_criteria.equals(SORTED_BY_GROUP_DESCRIPTION)) {
                 // sorted by the group description
                 String factor1 = ((Group) o1).getDescription();
@@ -14622,6 +14623,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     String anon1 = u1.getSubmission().getId();
                     String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
+                } else if (u1.getUser() != null && u2.getUser() != null) {
+                    result = new UserSortNameComparator().compare(u1.getUser(), u2.getUser());
                 } else {
                     String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();
                     String lName2 = u2.getUser() == null ? u2.getGroup().getTitle() : u2.getUser().getSortName();

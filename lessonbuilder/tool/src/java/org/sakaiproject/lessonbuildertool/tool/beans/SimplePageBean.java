@@ -139,6 +139,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
 
@@ -4034,7 +4035,7 @@ public class SimplePageBean {
 		   public int compare(Object o1, Object o2) {
 		       GroupEntry e1 = (GroupEntry)o1;
 		       GroupEntry e2 = (GroupEntry)o2;
-		       return e1.name.compareTo(e2.name);
+		       return new AlphaNumericComparator().compare(e1.name, e2.name);
 		   }
 	       });
 	   currentGroups = groupEntries;
