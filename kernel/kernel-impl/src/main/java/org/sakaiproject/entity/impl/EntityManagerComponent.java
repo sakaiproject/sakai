@@ -448,6 +448,10 @@ public class EntityManagerComponent implements EntityManager
 			{
 				ref = ref.substring(0, n);
 			}
+		} else {
+			if (ref.charAt(0) == '/') {
+				ref = ref.substring(1);
+			}
 		}
 		if (m_rejectRef.get(ref) != null)
 		{
