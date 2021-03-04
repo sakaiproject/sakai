@@ -58,9 +58,21 @@
 
     <h2 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
     <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
-	#if(${sitePages.pageNavIconUrl} != "")
-        <img src="${sitePages.pageNavIconUrl}" alt="" class="img_site_toolmenu">
-	#end
+    #if(${sitePages.pageNavIconUrl} != "")
+        <script>
+            const iconUrl = '${sitePages.pageNavIconUrl}';
+            fetch(iconUrl).then(response => response.blob())
+                .then(blob => {
+                    if (blob && blob.type && blob.type.startsWith('image')) {
+                        const siteToolMenu = document.getElementById('totoolmenu');
+                        const img = document.createElement("img");
+                        img.src = iconUrl;
+                        img.class = 'img_site_toolmenu';
+                        siteToolMenu.after(img);
+                    }
+                });
+        </script>
+    #end
 
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">

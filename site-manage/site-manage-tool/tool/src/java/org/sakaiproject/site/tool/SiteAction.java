@@ -10929,6 +10929,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (!(icon.isEmpty() || formattedText.validateURL(icon))) {
 				addAlert(state, rb.getString("alert.protocol"));
 			}
+			String serverUrl = ServerConfigurationService.getServerUrl();
+			if (!icon.startsWith(serverUrl)){
+				addAlert(state, rb.getString("alert.sitediinf.invalidimagedomain"));
+			}
 			siteInfo.iconUrl = icon;
 		} else if (params.getString("skin") != null) {
 			siteInfo.iconUrl = params.getString("skin");
