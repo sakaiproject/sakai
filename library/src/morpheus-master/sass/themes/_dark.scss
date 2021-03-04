@@ -64,15 +64,15 @@
     // Suggested: A light tint of your institution's main branding color.
     // Used to highlight active/current site in favorites and active/current tool in toolmenu
     // Commonly used with white background color with white text color.
-    --sakai-active-color-1: var(--sakai-brand--lighter-1);
+    --sakai-active-color-1: var(--sakai-brand--darker-1);
 
     // Default: A slightly lighter shade of --sakai-active-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-3
-    --sakai-active-color-2: var(--sakai-brand--lighter-2);
+    --sakai-active-color-2: var(--sakai-brand);
 
     // Default: A slightly lighter shade of --sakai-active-color-2
     // Used for active, focus, selected effects with --sakai-text-color-3
-    --sakai-active-color-3: var(--sakai-brand--lighter-3);
+    --sakai-active-color-3: var(--sakai-brand--lighter-1);
 
         // Default: A very light tint of gray. 
     // Suggested: --sakai-greyblue--darker-5.
