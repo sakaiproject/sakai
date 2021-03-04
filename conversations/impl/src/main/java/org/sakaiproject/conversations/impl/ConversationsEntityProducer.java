@@ -1,6 +1,6 @@
 package org.sakaiproject.conversations.impl;
 
-import org.sakaiproject.entity.api.DefaultEntityProducer;
+import org.sakaiproject.entity.api.EntityProducer;
 
-public class ConversationsEntityProducer extends DefaultEntityProducer {
+public class ConversationsEntityProducer implements EntityProducer {
 }
