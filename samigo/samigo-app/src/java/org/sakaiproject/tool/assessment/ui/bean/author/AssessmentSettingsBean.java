@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.annotation.Resource;
@@ -87,6 +88,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -1629,30 +1631,20 @@ public class AssessmentSettingsBean implements Serializable {
    */
   public SelectItem[] getGroupsForSite(){
       SelectItem[] groupSelectItems = new SelectItem[0];
-      TreeMap sortedSelectItems = new TreeMap();
-      Site site;
+      // This TreeMap will sort the group names nicely in AlphaNumeric order
+      SortedMap<String, SelectItem> sortedSelectItems = new TreeMap<>(new AlphaNumericComparator());
       try {
-          site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-          Collection groups = site.getGroups();
+          Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+          Collection<Group> groups = site.getGroups();
           if (groups != null && groups.size() > 0) {
-              groupSelectItems = new SelectItem[groups.size()];
-              Iterator groupIter = groups.iterator();
-              while (groupIter.hasNext()) {
-                  Group group = (Group) groupIter.next();
-                  String title = group.getTitle();
-                  String groupId = group.getId();
-                  String uniqueTitle = title + groupId;
-                  sortedSelectItems.put(uniqueTitle.toUpperCase(), new SelectItem(group.getId(), title));
+              for (Group group : groups) {
+                  sortedSelectItems.put(group.getTitle(), new SelectItem(group.getId(), group.getTitle()));
               }
-              Set keySet = sortedSelectItems.keySet();
-              groupIter = keySet.iterator();
-              int i = 0;
-              while (groupIter.hasNext()) {
-                  groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
-              }
+
+              groupSelectItems = sortedSelectItems.values().toArray(new SelectItem[0]);
           }
       } catch (IdUnusedException ex) {
-          // No site available
+          log.warn("No site found while attempting to get groups, {}", ex.toString());
       }
       return groupSelectItems;
   }
