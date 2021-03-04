@@ -1438,6 +1438,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.conversations</groupId>
+        <artifactId>sakai-conversations-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.search.elasticsearch</groupId>
         <artifactId>elasticsearch-api</artifactId>
         <version>${sakai.version}</version>
