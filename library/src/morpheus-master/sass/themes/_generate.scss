@@ -1,5 +1,15 @@
-@include sakai-colorize-all($colorPalette);
+$colorPalette: ();
+@each $name, $value in $theme-colors {
+  $colorPalette: map-merge($colorPalette, defineColorHEX($name, $value));
+}
 
+@each $name, $value in $colorPalette {
+    .#{$name} {
+        @include sakai-colorize($name, $colorPalette: $colorPalette);
+    }
+}
+@debug length($colorPalette);
+// @include sakai-colorize-all($colorPalette);
 :root {
   --sakai-theme-switch-ease: background-color 0.6s
     cubic-bezier(0.76, 0, 0.24, 1);

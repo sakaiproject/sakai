@@ -184,7 +184,7 @@
 	}
 
 	
-	@mixin sakaiLessonsLayoutColorScheme($color, $lighterOrDarker, $name){
+	@mixin sakaiLessonsLayoutColorScheme($color, $lighterOrDarker, $name, $colorPalette:$colorPalette){
 	// Color scheme generation in Lessons Layouts
 	// Use any color previously defined via defineColorHSL
 	// @include sakaiLessonsLayoutColorScheme($color, $lighterOrDarker, $name)
@@ -218,15 +218,15 @@
 		.coln#{$name}-header, .coln#{$name}-trans-header {
 			@debug $shade2 + '  #{$shade2}  ' + map-get($colorPalette,#{$shade2});
 
-			@include sakai-colorize($shade2);
+			@include sakai-colorize(#{$shade2}, $colorPalette: $colorPalette);
 			border: 1px solid var(--#{$shade2});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:hover, .collapsibleSectionHeader.coln#{$name}-trans-header:hover {
-			@include sakai-colorize(#{$shade1});
+			@include sakai-colorize(#{$shade1}, $colorPalette: $colorPalette);
 			border-color: var(--#{$shade1});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:active, .collapsibleSectionHeader.coln#{$name}-trans-header:active {
-			@include sakai-colorize(#{$shade3});
+			@include sakai-colorize(#{$shade3}, $colorPalette: $colorPalette);
 			border-color: var(--#{$shade3});
 		}
 		.coln#{$name}-header + .section {
@@ -236,22 +236,22 @@
 		
 		.coln#{$name} {
 			.questionDiv .contentCol, .checklistDiv {
-				@include sakai-colorize(#{$shade4});
+				@include sakai-colorize(#{$shade4}, $colorPalette: $colorPalette);
 			}
 			.usebutton.n#{$name},
 			.usebutton.n#{$name}-trans,
 			input[type="submit"].question-submit,
 			.linkCell .addStudentContent,
 			input[type="submit"].setStudentZero {
-				@include sakai-colorize(#{$shade2});
+				@include sakai-colorize(#{$shade2}, $colorPalette: $colorPalette);
 				border: 1px solid var(--#{$shade2});
 				&:hover,
 				&:focus {
-					@include sakai-colorize(#{$shade1});
+					@include sakai-colorize(#{$shade1}, $colorPalette: $colorPalette);
 					border: 1px solid var(--#{$shade1});
 				}
 				&:active {
-					@include sakai-colorize(#{$shade3});
+					@include sakai-colorize(#{$shade3}, $colorPalette: $colorPalette);
 					border: 1px solid var(--#{$shade3});
 				}
 			}
@@ -271,11 +271,10 @@
 	@include sakaiLessonsLayoutColorScheme('sakai-gold', 'lighter', 'gold');
 	@include sakaiLessonsLayoutColorScheme('sakai-teal', 'lighter', 'teal');
 	@include sakaiLessonsLayoutColorScheme('sakai-purple', 'lighter', 'purple');
-
-	$colorPalette: defineColorHEX(sakai-lessons-navy, #425466);
-	@include sakaiLessonsLayoutColorScheme('sakai-lessons-navy', 'lighter', 'navy' );
-	@include sakaiLessonsLayoutColorScheme('sakai-lessons-navy', 'darker', 'navy2' );
-
+	@include sakaiLessonsLayoutColorScheme('sakai-navy', 'lighter', 'navy');
+	@include sakaiLessonsLayoutColorScheme('sakai-navy', 'darker', 'navy2');
+	
+	
 	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-trans,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;

@@ -20,27 +20,46 @@
   //
   //      To add to an existing map of colors
   //      $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-red, #cc000a));
+  @if (
+      red($colorValue) ==
+        255 and
+        green($colorValue) ==
+        255 and
+        blue($colorValue) ==
+        255
+    ) or
+    (
+      red($colorValue) ==
+        0 and
+        green($colorValue) ==
+        0 and
+        blue($colorValue) ==
+        0
+    )
+  {
+    @return ($colorName: $colorValue);
+  } @else {
+    $colorMap: (
+      #{$colorName}-10: tint-color($colorValue, 90),
+      #{$colorName}-20: tint-color($colorValue, 80),
+      #{$colorName}-25: tint-color($colorValue, 70),
+      #{$colorName}-30: tint-color($colorValue, 60),
+      #{$colorName}-35: tint-color($colorValue, 45),
+      #{$colorName}-40: tint-color($colorValue, 30),
+      #{$colorName}-45: tint-color($colorValue, 15),
+      #{$colorName}-50: $colorValue,
+      #{$colorName}-55: shade-color($colorValue, 15),
+      #{$colorName}-60: shade-color($colorValue, 25),
+      #{$colorName}-65: shade-color($colorValue, 35),
+      #{$colorName}-70: shade-color($colorValue, 46),
+      #{$colorName}-75: shade-color($colorValue, 58),
+      #{$colorName}-80: shade-color($colorValue, 70),
+      #{$colorName}-90: shade-color($colorValue, 82)
+    );
+    @return $colorMap;
+  }
 
-  $colorMap: (
-    #{$colorName}-10: tint-color($colorValue, 90),
-    #{$colorName}-20: tint-color($colorValue, 80),
-    #{$colorName}-25: tint-color($colorValue, 70),
-    #{$colorName}-30: tint-color($colorValue, 60),
-    #{$colorName}-35: tint-color($colorValue, 45),
-    #{$colorName}-40: tint-color($colorValue, 30),
-    #{$colorName}-45: tint-color($colorValue, 15),
-    #{$colorName}-50: $colorValue,
-    #{$colorName}-55: shade-color($colorValue, 15),
-    #{$colorName}-60: shade-color($colorValue, 25),
-    #{$colorName}-65: shade-color($colorValue, 35),
-    #{$colorName}-70: shade-color($colorValue, 46),
-    #{$colorName}-75: shade-color($colorValue, 58),
-    #{$colorName}-80: shade-color($colorValue, 70),
-    #{$colorName}-90: shade-color($colorValue, 82)
-  );
-  $colorPalette: map-merge($colorPalette, $colorMap);
-
-  @return $colorPalette;
+  
 }
 
 @mixin generateCSSProps($colorMap) {
@@ -60,7 +79,11 @@
   }
 }
 
-@function get-a11y-color($color, $contrasting: $color) {
+@function get-a11y-color(
+  $color,
+  $contrasting: $color,
+  $colorPalette: $colorPalette
+) {
   // Get an accessible color based off another color
   // Only works within the same color family "red", "green", etc
   // get-ally-color($color)
@@ -72,7 +95,7 @@
   // Example usage
   //      .selector { color: get-a11y-color(sakai-blue-l7); }
 
-  @debug '#{$color} ' + map-get($colorPalette, $color);
+  // @debug "get-a11y-color(#{$color}: " + map-get($colorPalette, $color) + ")";
 
   @if str-index($color, "var(--") {
     $color: str-slice($color, 7, -2);
@@ -81,15 +104,19 @@
     $contrasting: str-slice($contrasting, 7, -2);
   }
   $family: str-slice($color, 0, -4);
-
-  @debug map-get($colorPalette, #{$contrasting}),
-  map-get($colorPalette, #{$family}-80),
-  map-get($colorPalette, #{$family}-10);
+  $lightContrast: $white;
+  @if map-get($colorPalette, #{$family}-80) {
+    $lightContrast: map-get($colorPalette, #{$family}-80);
+  }
+  $darkContrast: $black;
+  @if map-get($colorPalette, #{$family}-10) {
+    $darkContrast: map-get($colorPalette, #{$family}-10);
+  }
+  // @debug map-get($colorPalette, #{$contrasting}), $lightContrast, $darkContrast;
 
   $tmp: color-contrast(
     map-get($colorPalette, #{$contrasting}),
-    map-get($colorPalette, #{$family}-80),
-    map-get($colorPalette, #{$family}-10)
+    $lightContrast, $darkContrast
   );
   $result: $tmp;
   @if $tmp == map-get($colorPalette, #{$family}-80) {
@@ -105,7 +132,11 @@
   @return get-a11y-color($color);
 }
 
-@mixin sakai-colorize($background, $color: $background) {
+@mixin sakai-colorize(
+  $background,
+  $color: $background,
+  $colorPalette: $colorPalette
+) {
   // Create accessible color combinations
   // @include sakai-colorize($background, $color)
   // @param background
@@ -132,10 +163,13 @@
   //   } @else if $tmp == #{$family}-10 {
   //     $color: var(--#{$family}-10);
   //   }
+
+  // @debug "sakai-colorize(#{$background}: " + map-get($colorPalette, $background) + ")";
+
   @if str-index($background, "var(--") {
     $background: str-slice($background, 7, -2);
   }
-  color: get-a11y-color($color, $background);
+  color: get-a11y-color($color, $background, $colorPalette: $colorPalette);
   background-color: var(--#{$background});
 }
 
@@ -323,26 +357,9 @@ $white: #fff !default;
 $black: #000 !default;
 $color-contrast-light: $white !default;
 $color-contrast-dark: $black !default;
-/* Base theme */
-<<<<<<< HEAD
-:root {
-  --sakai-theme-color-interval: 9;
-  --sakai-color-contrast-threshold: 60%;
-  --sakai-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1);
 
-  --sakai-color-white: hsl(0, 0%, 100%);
-  --sakai-color-black: hsl(0, 0%, 0%);
-  @include defineColorHSL(--sakai-color-gray, 214, 3%, 55%);
-  @include defineColorHSL(--sakai-color-blue, 203, 76%, 52%);
-  @include defineColorHSL(--sakai-color-teal, 180, 100%, 30%);
-  @include defineColorHSL(--sakai-color-gold, 50, 99%, 43%);
-  @include defineColorHSL(--sakai-color-green, 147, 92%, 34%);
-  @include defineColorHSL(--sakai-color-orange, 30, 93%, 44%);
-  @include defineColorHSL(--sakai-color-purple, 240, 94%, 63%);
-  @include defineColorHSL(--sakai-color-red, 357, 100%, 40%);
-  @include defineColorHSL(--sakai-lessons-navy, 211, 21%, 33%);
-}
-=======
+/* Base theme */
+
 $colorPalette: (
   sakai-white: $white,
   sakai-black: $black,
@@ -357,4 +374,16 @@ $colorPalette: defineColorHEX(sakai-orange, #d97008);
 $colorPalette: defineColorHEX(sakai-purple, #4848f9);
 $colorPalette: defineColorHEX(sakai-red, #cc000a);
 
->>>>>>> 5e11820e0c... SAK-45110 Library CSS Performance tuning
+$theme-colors: (
+  sakai-white: $white,
+  sakai-black: $black,
+  sakai-gray: #898c90,
+  sakai-blue: #289ae2,
+  sakai-teal: #009999,
+  sakai-gold: #dab601,
+  sakai-green: #07a64f,
+  sakai-orange: #d97008,
+  sakai-purple: #4848f9,
+  sakai-red: #cc000a,
+  sakai-navy: #425466
+) !default;

@@ -1,6 +1,5 @@
 /* Light Theme */
 
-@import "defaults";
 
 :root{
     /////////////////////////////////////////////////////////////
@@ -32,8 +31,9 @@
     // purple, and red palettes available for you to use.
     // More info about defineColorHSL in sass/themes/_base.scss
 
-    $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
-
+    // $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
+    
+    $theme-colors: map-merge($theme-colors, (sakai-brand: #0f4b70));
     /////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////
@@ -530,6 +530,9 @@
     --sakai-hightlight-color: var(--errorBanner-color);
 
     --progress-bar-bg: var(--infoBanner-bordercolor);
+
+    --sakai-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+
 }
 
 // Tables

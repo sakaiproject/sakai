@@ -377,16 +377,16 @@
         }
       }
       &.communication a {
-        @extend .sakai-colorize--sakai-color-blue;
+        @include sakai-colorize(sakai-blue-50);
       }
       &.assessment a {
-        @extend .sakai-colorize--sakai-color-gold;
+        @include sakai-colorize(sakai-gold-50);
       }
       &.content a {
-        @extend .sakai-colorize--sakai-color-red;
+        @include sakai-colorize(sakai-red-50);
       }
       &.site_management a {
-        @extend .sakai-colorize--sakai-color-orange;
+        @include sakai-colorize(sakai-orange-50);
       }
       &.miscellaneous a {
       }

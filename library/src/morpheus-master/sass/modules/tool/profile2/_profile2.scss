@@ -263,7 +263,8 @@
 	}
 
 	.infoIcon {
-		@extend .fa.fa-info-circle;
+		@extend .fa;
+		@extend .fa-info-circle;
 	}
 	
 	/* sideLink styles */
@@ -795,7 +796,7 @@
 	}
 
 	div.wicket-aa ul li.selected {
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+        @include sakai-colorize(sakai-gold-25);
 	}
 
 	/* message threads styles */
@@ -821,7 +822,7 @@
 	}
 
 	.message-thread-item:hover {
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+        @include sakai-colorize(sakai-gold-25);
 	}
 
 	.message-thread-photo-wrap {
@@ -1072,7 +1073,7 @@
 		padding-left: 5px;
 		padding-top: 5px;
 		padding-bottom: 5px;
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+        @include sakai-colorize(sakai-gold-25);
 	}
 
 	.wall-item-post-comment {
@@ -1080,7 +1081,7 @@
 		height: 100px;
 		padding-left: 5px;
 		padding-top: 5px;
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+        @include sakai-colorize(sakai-gold-25);
 	}
 
 	.wall-comment-input-area {
@@ -1145,7 +1146,7 @@
 	}
 
 	.closebutton:hover {
-		@extend .sakai-colorize--sakai-color-red--lighter-6;
+        @include sakai-colorize(sakai-red-25);
 	}
 
 	/* accessibility */
@@ -1209,7 +1210,7 @@
 	.recordButton {
 		border-radius: 17px;
 		padding: 7px 30px;
-		@extend .sakai-colorize--sakai-color-red;
+        @include sakai-colorize(sakai-red-50);
 		border-color: var(--sakai-color-red);
 		box-shadow: var(--elevation-2dp);
 		margin-bottom: 10px;
@@ -1217,12 +1218,12 @@
 		@include flex-direction(row);
 		@include align-items(center);
 		&:hover {
-			@extend .sakai-colorize--sakai-color-red--darker-1;
+        @include sakai-colorize(sakai-red-55);
 			border-color: var(--sakai-color-red--darker-1);
 			box-shadow: var(--elevation-4dp);
 		}
 		&:active, &:focus {
-			@extend .sakai-colorize--sakai-color-red--darker-2;
+        @include sakai-colorize(sakai-red-60);
 			border-color: var(--sakai-color-red--darker-2);
 			box-shadow: var(--elevation-0dp);
 		}

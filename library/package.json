@@ -1,0 +1,27 @@
+{
+  "name": "library",
+  "version": "1.0.0",
+  "description": "Sakai Library",
+  "main": "",
+  "scripts": {
+    "build": "postcss:watch",
+    "build-sass": "sass src/morpheus-master/sass:src/webapp/skin/morpheus-default --load-path=src/morpheus-master/bootstrap-sass-3.3.7/assets/stylesheets --load-path=src/morpheus-master/font-awesome-sass-4.7.0/assets/stylesheets",
+    "watch-sass": "sass src/morpheus-master/sass:src/webapp/skin/morpheus-default --load-path=src/morpheus-master/bootstrap-sass-3.3.7/assets/stylesheets --load-path=src/morpheus-master/font-awesome-sass-4.7.0/assets/stylesheets --watch",
+    "postcss:watch": "postcss",
+    "empathise": "empathise install",
+    "storybook": "npm install && empathise install --assets-directory=js/assets && start-storybook -s ./storybook-resources -p 6006",
+    "build-storybook": "build-storybook",
+    "test": "mocha -r esm",
+    "eslint": "eslint src/morpheus-master/js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ECL-2.0",
+  "devDependencies": {
+    "cssnano": "^4.1.10",
+    "eslint": "^7.19.0",
+    "postcss": "^8.2.1",
+    "postcss-cli": "^8.3.1",
+    "sass": "^1.38.1"
+  }
+}

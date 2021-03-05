@@ -1,4 +1,4 @@
-@import "base/compass";
+@import "compass";
 
 .blurry{
 	@include filter( blur(0.1em) );

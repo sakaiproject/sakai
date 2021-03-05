@@ -354,6 +354,50 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.8.0</version>
+						<configuration>
+							<installDirectory>target</installDirectory>
+							<workingDirectory>src/morpheus-master</workingDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install node and npm</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<configuration>
+									<nodeVersion>v14.10.1</nodeVersion>
+									<npmVersion>6.14.8</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm install dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										ci --save-dev
+										sass
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm build</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run build-sass
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<executions>
 							<execution>
@@ -514,7 +558,8 @@
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
+
+					<!-- <plugin>
 					   <groupId>com.gitlab.haynes</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>
 					   <version>0.2.26</version>
@@ -534,7 +579,7 @@
 					       <includePath>${basedir}/src/${sakai.skin.source}/bootstrap-sass-${bootstrap-version}/assets/stylesheets/${path.separator}${basedir}/src/${sakai.skin.source}/font-awesome-sass-${font-awesome-version}/assets/stylesheets/</includePath>
 					       <sourceMapOutputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</sourceMapOutputPath>
 					   </configuration>
-					</plugin>
+					</plugin> -->
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
 						<version>3.1.0</version>
@@ -594,6 +639,90 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>eslint</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>eslint</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.8.0</version>
+						<configuration>
+							<installDirectory>target</installDirectory>
+							<workingDirectory>src/morpheus-master</workingDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install node and npm</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<configuration>
+									<nodeVersion>v14.10.1</nodeVersion>
+									<npmVersion>6.14.8</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm install dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										ci --unsafe-perm --save-dev
+										sass
+										postcss-loader@3
+										puppeteer
+										raw-loader@3
+										style-loader@1
+										webpack@4
+										webpack-cli@3
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm build</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run build
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>eslint</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>run eslint</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm empathise</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run empathise -- --query=version=${buildNumber}
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					</plugins>
+					</build>
+
 		</profile>
 		<profile>
 			<!-- These plugins can't be part of the standard build -->

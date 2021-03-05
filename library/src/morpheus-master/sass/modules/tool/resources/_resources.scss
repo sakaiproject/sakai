@@ -120,11 +120,11 @@
 		border-radius: 5px;
 	}
 	.jstree-anchor.jstree-search {
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+        @include sakai-colorize(sakai-gold-20);
 	}
 	.jstree-anchor:hover {
 		text-decoration:none !important;
-		@extend .sakai-colorize--sakai-color-gold--lighter-5;
+        @include sakai-colorize(sakai-gold-25);
 	}
 	.jstree-default .jstree-anchor, .jstree-default .jstree-wholerow {
 		transition: none;
