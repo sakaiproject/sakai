@@ -5,7 +5,6 @@ export let dashboardData = `
   "title":"Playpen",
   "worksiteSetupUrl":null,
   "widgets":[
-    "tasks",
     "announcements",
     "calendar",
     "forums",
