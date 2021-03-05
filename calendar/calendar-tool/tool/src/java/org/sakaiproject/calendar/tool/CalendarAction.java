@@ -5117,6 +5117,9 @@ extends VelocityPortletStateAction
 		}
 		
 		String returnState = state.getReturnState();
+		if(StringUtils.isBlank(returnState) || CalendarAction.STATE_INITED.equals(returnState)) {
+			returnState = this.defaultStateView;
+		}
 		state.setState(returnState);
 		
 	}	 // doBack
