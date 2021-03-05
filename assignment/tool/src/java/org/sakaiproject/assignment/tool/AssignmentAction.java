@@ -149,7 +149,6 @@ import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -7958,9 +7957,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 //RUBRICS, Save the binding between the assignment and the rubric
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
 
-                // Locking and unlocking groups
-                rangeAndGroups.postSaveAssignmentGroupLocking(state, post, rangeAndGroupSettings, aOldGroups, siteId, assignmentReference);
-
                 if (post) {
                     // we need to update the submission
                     if (bool_change_from_non_point || bool_change_resubmit_option) {
@@ -9762,18 +9758,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
                 deleteAssignmentObjects(state, assignment);
-
-                Collection<String> groups = assignment.getGroups();
-
-                Site site = siteService.getSite(siteId);
-
-                for (String reference : groups) {
-                    Group group = site.getGroup(reference);
-                    if (group != null) {
-                        group.setLockForReference(ref, RealmLockMode.NONE);
-                        siteService.save(group.getContainingSite());
-                    }
-                }
             } catch (IdUnusedException e) {
                 log.warn("Cannot find site with ref: {}", siteId);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindSite"));

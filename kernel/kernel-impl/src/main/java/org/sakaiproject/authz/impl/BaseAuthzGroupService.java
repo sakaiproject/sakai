@@ -627,10 +627,19 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		if (azGroup.getId() == null) throw new GroupNotDefinedException("<null>");
 
 		Reference ref = entityManager().newReference(azGroup.getId());
-		if (!siteService.allowUpdateSiteMembership(ref.getId()))
+		String id;
+		if (ref.getReference().startsWith("/site/"))
+		{
+			id = ref.getReference().split("/")[2];
+		}
+		else
+		{
+			id = ref.getId();
+		}
+		if (!siteService.allowUpdateSiteMembership(id))
 		{
 			// check security (throws if not permitted)
-			unlock(SECURE_UPDATE_AUTHZ_GROUP, authzGroupReference(azGroup.getId()));
+			unlock(SECURE_UPDATE_AUTHZ_GROUP, authzGroupReference(id));
 		}
 
 		// make sure it's in storage
