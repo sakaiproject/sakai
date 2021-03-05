@@ -14,7 +14,9 @@
 package org.sakaiproject.datemanager.tool;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -74,62 +76,87 @@ public class MainController {
 		model.addAttribute("userCountry", loc.getCountry());
 		model.addAttribute("userLanguage", loc.getLanguage());
 		model.addAttribute("userLocale", loc.toString());
+		
+		List<DateManagerViewObject> dateManagerViewObjectList = new ArrayList<DateManagerViewObject>();
 
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSIGNMENTS)) {
 			JSONArray assignmentsJson = dateManagerService.getAssignmentsForContext(siteId);
-			model.addAttribute("assignments", assignmentsJson);
-			model.addAttribute("assignmentsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ASSIGNMENTS));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(assignmentsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ASSIGNMENTS));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("assignments {}", assignmentsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ASSESSMENTS)) {
 			JSONArray assessmentsJson = dateManagerService.getAssessmentsForContext(siteId);
-			model.addAttribute("assessments", assessmentsJson);
-			model.addAttribute("assessmentsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ASSESSMENTS));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(assessmentsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ASSESSMENTS));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("assessments {}", assessmentsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_GRADEBOOK)) {
 			JSONArray gradebookItemsJson = dateManagerService.getGradebookItemsForContext(siteId);
-			model.addAttribute("gradebookItems", gradebookItemsJson);
-			model.addAttribute("gradebookItemsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_GRADEBOOK));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(gradebookItemsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_GRADEBOOK));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("gradebookItemsJson {}", gradebookItemsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_SIGNUP)) {
 			JSONArray signupMeetingsJson = dateManagerService.getSignupMeetingsForContext(siteId);
-			model.addAttribute("signupMeetings", signupMeetingsJson);
-			model.addAttribute("signupMeetingsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_SIGNUP));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(signupMeetingsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_SIGNUP));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("signupMeetingsJson {}", signupMeetingsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_RESOURCES)) {
 			JSONArray resourcesJson = dateManagerService.getResourcesForContext(siteId);
-			model.addAttribute("resources", resourcesJson);
-			model.addAttribute("resourcesToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_RESOURCES));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(resourcesJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_RESOURCES));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("resourcesJson {}", resourcesJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_CALENDAR)) {
 			JSONArray calendarJson = dateManagerService.getCalendarEventsForContext(siteId);
-			model.addAttribute("calendarEvents", calendarJson);
-			model.addAttribute("calendarEventsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_CALENDAR));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(calendarJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_CALENDAR));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("calendarJson {}", calendarJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_FORUMS)) {
 			JSONArray forumsJson = dateManagerService.getForumsForContext(siteId);
-			model.addAttribute("forums", forumsJson);
-			model.addAttribute("forumsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_FORUMS));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(forumsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_FORUMS));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("forums {}", forumsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS)) {
 			JSONArray announcementsJson = dateManagerService.getAnnouncementsForContext(siteId);
-			model.addAttribute("announcements", announcementsJson);
-			model.addAttribute("announcementsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(announcementsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("announcementsJson {}", announcementsJson);
 		}
 		if (dateManagerService.currentSiteContainsTool(DateManagerConstants.COMMON_ID_LESSONS)) {
 			JSONArray lessonsJson = dateManagerService.getLessonsForContext(siteId);
-			model.addAttribute("lessons", lessonsJson);
-			model.addAttribute("lessonsToolTitle", dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_LESSONS));
+			DateManagerViewObject dateManagerViewObject = new DateManagerViewObject();
+			dateManagerViewObject.setToolJson(lessonsJson);
+			dateManagerViewObject.setToolTitle(dateManagerService.getToolTitle(DateManagerConstants.COMMON_ID_LESSONS));
+			dateManagerViewObjectList.add(dateManagerViewObject);
 			log.debug("lessonsJson {}", lessonsJson);
 		}
 
+		List<DateManagerViewObject> dateManagerSortedObjectList = dateManagerViewObjectList.stream()
+				.sorted(Comparator.comparing(DateManagerViewObject::getToolTitle))
+				.collect(Collectors.toList());
+		model.addAttribute("dateManagerSortedObjectList", dateManagerSortedObjectList);
+		
 		return "index";
 	}
 
