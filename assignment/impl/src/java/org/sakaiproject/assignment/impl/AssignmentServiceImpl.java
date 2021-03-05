@@ -465,7 +465,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         try {
             Assignment a = getAssignment(ref);
-            return Optional.of(this.getDeepLink(a.getContext(), a.getId(), userDirectoryService.getCurrentUser().getId()));
+            return Optional.of(getDeepLink(a.getContext(), a.getId(), userDirectoryService.getCurrentUser().getId()));
         } catch (Exception e) {
             return Optional.empty();
         }
@@ -2659,7 +2659,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
+    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment, boolean allowGradeAssignment) throws Exception {
         Assignment a = getAssignment(assignmentId);
 
         String assignmentContext = a.getContext(); // assignment context
@@ -2671,7 +2671,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
                 // Three different urls to be rendered depending on the
                 // user's permission
-                if (allowAddAssignment) {
+                if (allowGradeAssignment) {
+                    return serverConfigurationService.getPortalUrl()
+                            + "/directtool/"
+                            + fromTool.getId()
+                            + "?assignmentId="
+                            + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
+                            + "&panel=Main&sakai_action=doGrade_assignment";
+                } else if (allowAddAssignment) {
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
@@ -2713,8 +2720,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean allowReadAssignment = permissionCheck(SECURE_ACCESS_ASSIGNMENT, resourceString, userId);
         boolean allowAddAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId) || (!getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId).isEmpty());
         boolean allowSubmitAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, userId);
+        boolean allowGradeAssignment = permissionCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, resourceString, userId);
 
-        return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment);
+        return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment, allowGradeAssignment);
     }
 
     @Override

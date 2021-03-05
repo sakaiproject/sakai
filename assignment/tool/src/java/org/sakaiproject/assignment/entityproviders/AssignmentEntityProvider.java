@@ -328,10 +328,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     .get("allowAddAssignment")).booleanValue() : false;
             boolean allowSubmitAssignment = params.get("allowSubmitAssignment") != null ? ((Boolean) params
                     .get("allowSubmitAssignment")).booleanValue() : false;
+            boolean allowGradeAssignment = params.get("allowGradeAssignment") != null ? ((Boolean) params
+                    .get("allowGradeAssignment")).booleanValue() : false;
 
             assignData.put("assignmentUrl"
                     , assignmentService.getDeepLinkWithPermissions(context, assignmentId
-                            , allowReadAssignment, allowAddAssignment, allowSubmitAssignment));
+                            , allowReadAssignment, allowAddAssignment, allowSubmitAssignment, allowGradeAssignment));
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("Assignment or site not found", assignmentId, e);
         } catch (PermissionException e) {
