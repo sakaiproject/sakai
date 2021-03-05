@@ -311,7 +311,7 @@
 							var $cell = $('#' + id);
 							$cell.addClass('ajax-error');
 							$cell.find('.errors').text(elt.msg);
-							$('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + updates[elt.toolId][elt.idx].title + ' - ' + elt.msg + '</li>');
+							$('#form-errors').find('ul').append('<li>' + elt.toolTitle + ' - ' + elt.msg + '</li>');
 						});
 						$('html, body').animate({ scrollTop: 0 }, 'slow');
 					}
