@@ -573,7 +573,7 @@
 			    border-radius: 3px;
 			}
 			&__message--new{
-				@extend .sakai-colorize--sakai-color-red--darker-2;
+				@include sakai-colorize(sakai-red-60, sakai-red-10);
 			}
 			
 			/*Chat windows*/

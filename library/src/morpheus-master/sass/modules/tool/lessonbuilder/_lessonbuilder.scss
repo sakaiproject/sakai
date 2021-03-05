@@ -118,7 +118,7 @@
 	}
 	//legacy gray
 	.colgray, .colgray-trans {
-		@extend .sakai-colorize--sakai-color-gray--lighter-6;
+		@include sakai-colorize(sakai-gray-20, sakai-gray-80);
 		border: 1px solid var(--sakai-color-gray--lighter-5);
 	}
 	.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv, .colgray-trans .commentDiv, .colgray-trans .studentContentTable, .colgray-trans .questionDiv .contentCol {
@@ -129,7 +129,7 @@
 	}
 	//legacy red
 	.colred, .colred-trans {
-		@extend .sakai-colorize--sakai-color-red--lighter-6;
+		@include sakai-colorize(sakai-red-20, sakai-red-80);
 		border: 1px solid var(--sakai-color-red--lighter-5);
 	}
 	.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv, .colred-trans .commentDiv, .colred-trans .studentContentTable, .colred-trans .questionDiv .contentCol {
@@ -140,7 +140,7 @@
 	}
 	//legacy blue
 	.colblue, .colblue-trans {
-		@extend .sakai-colorize--sakai-color-blue--lighter-6;
+		@include sakai-colorize(sakai-blue-20, sakai-blue-80);
 		border: 1px solid var(--sakai-color-blue--lighter-5);
 	}
 	.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv, .colblue-trans .commentDiv, .colblue-trans .studentContentTable, .colblue-trans .questionDiv .contentCol {
@@ -151,7 +151,7 @@
 	}
 	//legacy green
 	.colgreen, .colgreen-trans {
-		@extend .sakai-colorize--sakai-color-green--lighter-6;
+		@include sakai-colorize(sakai-green-20, sakai-green-80);
 		border: 1px solid var(--sakai-color-green--lighter-5);
 	}
 	.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv, .colgreen-trans .commentDiv, .colgreen-trans .studentContentTable, .colgreen-trans .questionDiv .contentCol {
@@ -162,7 +162,7 @@
 	}
 	//legacy yellow
 	.colyellow, .colyellow-trans {
-		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+		@include sakai-colorize(sakai-gold-20, sakai-gold-80);
 		border: 1px solid var(--sakai-color-gold--lighter-5);
 	}
 	.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv, .colyellow-trans .commentDiv, .colyellow-trans .studentContentTable, .colyellow-trans .questionDiv .contentCol {
@@ -200,58 +200,59 @@
 	// @returns a set of CSS selectors and rules
 	// Example usage 
 	//      @include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
-
-		$shade1: #{$color}--#{$lighterOrDarker}-4;
-		$shade2: #{$color}--#{$lighterOrDarker}-5;
-		$shade3: #{$color}--#{$lighterOrDarker}-3;
-		$shade4: #{$color}--#{$lighterOrDarker}-7;
+		$shade1: #{$color}-30;
+		$shade2: #{$color}-25;
+		$shade3: #{$color}-35;
+		$shade4: #{$color}-10;
 		@if $lighterOrDarker == 'darker' {
-			$shade1: #{$color}--#{$lighterOrDarker}-3;
-			$shade2: #{$color}--#{$lighterOrDarker}-4;
-			$shade3: #{$color}--#{$lighterOrDarker}-2;
-			$shade4: #{$color}--#{$lighterOrDarker}-6;
+			$shade1: #{$color}-65;
+			$shade2: #{$color}-70;
+			$shade3: #{$color}-60;
+			$shade4: #{$color}-80;
 		}
 		
 		.coln#{$name}, .coln#{$name}-trans {
 			background: var(--sakai-background-color-1);
-			border: 1px solid var($shade1);
+			border: 1px solid var(--$shade1);
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
-			@extend .sakai-colorize#{$shade2};
-			border: 1px solid var(#{$shade2});
+			@debug $shade2 + '  #{$shade2}  ' + map-get($colorPalette,#{$shade2});
+
+			@include sakai-colorize($shade2);
+			border: 1px solid var(--#{$shade2});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:hover, .collapsibleSectionHeader.coln#{$name}-trans-header:hover {
-			@extend .sakai-colorize#{$shade1};
-			border-color: var(#{$shade1});
+			@include sakai-colorize(#{$shade1});
+			border-color: var(--#{$shade1});
 		}
 		.collapsibleSectionHeader.coln#{$name}-header:active, .collapsibleSectionHeader.coln#{$name}-trans-header:active {
-			@extend .sakai-colorize#{$shade3};
-			border-color: var(#{$shade3});
+			@include sakai-colorize(#{$shade3});
+			border-color: var(--#{$shade3});
 		}
 		.coln#{$name}-header + .section {
-			border: 1px solid var(#{$shade2});
+			border: 1px solid var(--#{$shade2});
 			border-top: none;
 		}
 		
 		.coln#{$name} {
 			.questionDiv .contentCol, .checklistDiv {
-				@extend .sakai-colorize#{$shade4};
+				@include sakai-colorize(#{$shade4});
 			}
 			.usebutton.n#{$name},
 			.usebutton.n#{$name}-trans,
 			input[type="submit"].question-submit,
 			.linkCell .addStudentContent,
 			input[type="submit"].setStudentZero {
-				@extend .sakai-colorize#{$shade2};
-				border: 1px solid var(#{$shade2});
+				@include sakai-colorize(#{$shade2});
+				border: 1px solid var(--#{$shade2});
 				&:hover,
 				&:focus {
-					@extend .sakai-colorize#{$shade1};
-					border: 1px solid var(#{$shade1});
+					@include sakai-colorize(#{$shade1});
+					border: 1px solid var(--#{$shade1});
 				}
 				&:active {
-					@extend .sakai-colorize#{$shade3};
-					border: 1px solid var(#{$shade3});
+					@include sakai-colorize(#{$shade3});
+					border: 1px solid var(--#{$shade3});
 				}
 			}
 			input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
@@ -260,21 +261,22 @@
 		}
 	}
 
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'darker', 'black');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-blue', 'lighter', 'blue');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-blue', 'darker', 'blue2');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-red', 'lighter', 'red');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-green', 'lighter', 'green');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-orange', 'lighter', 'orange');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-gold', 'lighter', 'gold');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-teal', 'lighter', 'teal');
-	@include sakaiLessonsLayoutColorScheme('--sakai-color-purple', 'lighter', 'purple');
+	@include sakaiLessonsLayoutColorScheme('sakai-gray', 'lighter', 'gray');
+	@include sakaiLessonsLayoutColorScheme('sakai-gray', 'darker', 'black');
+	@include sakaiLessonsLayoutColorScheme('sakai-blue', 'lighter', 'blue');
+	@include sakaiLessonsLayoutColorScheme('sakai-blue', 'darker', 'blue2');
+	@include sakaiLessonsLayoutColorScheme('sakai-red', 'lighter', 'red');
+	@include sakaiLessonsLayoutColorScheme('sakai-green', 'lighter', 'green');
+	@include sakaiLessonsLayoutColorScheme('sakai-orange', 'lighter', 'orange');
+	@include sakaiLessonsLayoutColorScheme('sakai-gold', 'lighter', 'gold');
+	@include sakaiLessonsLayoutColorScheme('sakai-teal', 'lighter', 'teal');
+	@include sakaiLessonsLayoutColorScheme('sakai-purple', 'lighter', 'purple');
 
-	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
-	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
+	$colorPalette: defineColorHEX(sakai-lessons-navy, #425466);
+	@include sakaiLessonsLayoutColorScheme('sakai-lessons-navy', 'lighter', 'navy' );
+	@include sakaiLessonsLayoutColorScheme('sakai-lessons-navy', 'darker', 'navy2' );
 
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
+	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-trans,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;
 		box-shadow: none;

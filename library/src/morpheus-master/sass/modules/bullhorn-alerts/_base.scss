@@ -13,7 +13,7 @@
 }
 
 #bullhorn-counter.bullhorn-counter-red {
-    @extend .sakai-colorize--sakai-color-red--darker-2;
+    @include sakai-colorize(sakai-red-60, sakai-red-10);
 }
 
 .portal-bullhorns.qtip {

@@ -31,7 +31,9 @@
     // predefined with gray, blue, teal, gold, green, orange,
     // purple, and red palettes available for you to use.
     // More info about defineColorHSL in sass/themes/_base.scss
-    @include defineColorHSL(--sakai-brand, 203, 76%, 25%);
+
+    $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
+
     /////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////
