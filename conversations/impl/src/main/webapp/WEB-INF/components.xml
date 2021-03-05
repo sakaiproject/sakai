@@ -22,4 +22,12 @@
         </property>
     </bean>
 
+    <bean id="org.sakaiproject.conversations.api.repository.TopicRepository"
+        class="org.sakaiproject.conversations.impl.repository.TopicRepositoryImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.ConversationsService"
+        class="org.sakaiproject.conversations.impl.ConversationsServiceImpl">
+    </bean>
+
 </beans>

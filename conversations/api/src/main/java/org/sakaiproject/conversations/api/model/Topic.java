@@ -33,6 +33,9 @@ public class Topic {
     @Column(name = "TITLE", length = 255, nullable = false)
     private String title;
 
+    @Column(name = "MESSAGE", nullable = false)
+    private String message;
+
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
