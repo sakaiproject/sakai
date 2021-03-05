@@ -1006,16 +1006,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+            }
+        }
+
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 
         // remove any realm defined for this resource
         try {
             authzGroupService.removeAuthzGroup(reference);
             log.debug("successful delete for assignment with id = {}", assignment.getId());
-        } catch (AuthzPermissionException e) {
-            log.warn("deleting realm for assignment reference = {}", reference, e);
+        } catch (AuthzPermissionException ape) {
+            log.warn("deleting realm for assignment reference = {}, {}", reference, ape.toString());
         } catch (AuthzRealmLockException arle) {
-            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+            log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
     }
 
@@ -1261,6 +1271,56 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // security check
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
+        }
+
+        Collection<String> oldGroups = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
+        switch (assignment.getTypeOfAccess()) {
+            case GROUP:
+                oldGroups.removeAll(assignment.getGroups());
+                for (String groupRef : oldGroups) { // remove locks for groups that were removed
+                    try {
+                        AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                        authzGroupService.save(group);
+                    } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                        log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+                    }
+                }
+                if (assignment.getIsGroup()) { // lock mode ALL for group assignments
+                    for (String groupRef : assignment.getGroups()) {
+                        try {
+                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                            authzGroupService.save(group);
+                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                            log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
+                        }
+                    }
+                } else { // lock mode DELETE for assignments released to groups
+                    for (String groupRef : assignment.getGroups()) {
+                        try {
+                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
+                            authzGroupService.save(group);
+                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                            log.warn("Exception while adding lock DELETE for assignment {}, {}", assignment.getId(), e.toString());
+                        }
+                    }
+                }
+                break;
+            case SITE:
+                for (String groupRef : oldGroups) { // remove all locks if they exist
+                    try {
+                        AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                        authzGroupService.save(group);
+                    } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                        log.warn("Exception while clearing lock for assignment {}, {}", assignment.getId(), e.toString());
+                    }
+                }
+                break;
+            default:
+                log.warn("Unknown Access for assignment {}, access={}", assignment.getId(), assignment.getTypeOfAccess().name());
         }
 
         assignment.setDateModified(Instant.now());

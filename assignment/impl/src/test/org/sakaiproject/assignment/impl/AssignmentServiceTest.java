@@ -65,7 +65,9 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
@@ -1002,7 +1004,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         return submission;
     }
 
-    private AssignmentSubmission createNewGroupSubmission(String context, String groupSubmitter, Set<String> submitters) throws UserNotDefinedException, IdUnusedException, PermissionException {
+    private AssignmentSubmission createNewGroupSubmission(String context, String groupSubmitter, Set<String> submitters) throws IdUnusedException, PermissionException, GroupNotDefinedException {
 
         // Setup an Assignment for Group Submission
         Assignment assignment = createNewAssignment(context);
@@ -1015,7 +1017,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(siteService.siteReference(context)).thenReturn("/site/" + context);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, assignmentReference)).thenReturn(true);
         when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
-        assignmentService.updateAssignment(assignment);
 
         // configure mock group objects
         Site site = mock(Site.class);
@@ -1038,6 +1039,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(group.getMembers()).thenReturn(members);
         when(siteService.getSite(context)).thenReturn(site);
         Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+
+        AuthzGroup authzGroup = mock(AuthzGroup.class);
+        when(authzGroupService.getAuthzGroup(groupRef)).thenReturn(authzGroup);
+        assignmentService.updateAssignment(assignment);
 
         // pick a submitter to be the current user
         String currentUser = submitters.stream().findAny().get();
