@@ -93,7 +93,8 @@ public class DashboardController extends AbstractSakaiApiController {
 	@Resource
 	private PreferencesService preferencesService;
 
-    private List<String> widgets = new ArrayList<>();
+    private List<String> courseWidgets = new ArrayList<>();
+    private List<String> homeWidgets = new ArrayList<>();
 
     private List<String> defaultHomeLayout = new ArrayList<>();
 
@@ -104,11 +105,17 @@ public class DashboardController extends AbstractSakaiApiController {
     public void init() {
 
         // Load up all the available widgets, from properties
-        String[] widgetsArray = serverConfigurationService.getStrings("dashboard.widgets");
-        if (widgetsArray == null) {
-            widgetsArray = new String[] { "tasks","announcements", "calendar","forums", "grades" };
+        String[] courseWidgetsArray = serverConfigurationService.getStrings("dashboard.course.widgets");
+        if (courseWidgetsArray == null) {
+            courseWidgetsArray = new String[] { "announcements", "calendar","forums", "grades" };
         }
-        widgets = Arrays.asList(widgetsArray);
+        courseWidgets = Arrays.asList(courseWidgetsArray);
+
+        String[] homeWidgetsArray = serverConfigurationService.getStrings("dashboard.home.widgets");
+        if (homeWidgetsArray == null) {
+            homeWidgetsArray = new String[] { "tasks", "announcements", "calendar","forums", "grades" };
+        }
+        homeWidgets = Arrays.asList(homeWidgetsArray);
 
         defaultHomeLayout = Arrays.asList(new String[] { "tasks","announcements", "calendar", "grades", "forums" });
 
@@ -172,7 +179,7 @@ public class DashboardController extends AbstractSakaiApiController {
             }
         }
 
-        bean.setWidgets(widgets);
+        bean.setWidgets(homeWidgets);
 
         // Get the widget layout preference
         Preferences prefs = preferencesService.getPreferences(session.getUserId());
@@ -222,7 +229,7 @@ public class DashboardController extends AbstractSakaiApiController {
         try {
             Site site = siteService.getSite(siteId);
             bean.setTitle(site.getTitle());
-            bean.setWidgets(widgets);
+            bean.setWidgets(courseWidgets);
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());
             bean.setDefaultWidgetLayouts(defaultWidgetLayouts);

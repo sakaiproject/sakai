@@ -67,6 +67,8 @@ html {
   --sakai-button-border-color: green;
   --sakai-button-border-radius: 12px;
   --sakai-button-padding: 6px 10px 6px 10px;
+
+  --link-color: darken(#428bca, 6.5%);
 }
 </style>
 `;
