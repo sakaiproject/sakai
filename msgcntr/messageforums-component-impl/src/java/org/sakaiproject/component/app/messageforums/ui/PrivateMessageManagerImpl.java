@@ -1241,6 +1241,21 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     User currentUser = currentUser(message, isMailArchive);
     List recipientList = new UniqueArrayList();
 
+    if (message.getDraft()) {
+        PrivateMessageRecipient receiver = new PrivateMessageRecipientImpl(currentUserAsString, typeManager.getDraftPrivateMessageType(),
+            contextId, Boolean.TRUE, false);
+
+        recipientList.add(receiver);
+        message.setRecipients(recipientList);
+        Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
+
+        List<DraftRecipient> allDraftRecipients = getDraftRecipients(savedMessage.getId(), draftRecipients, draftBccRecipients);
+        messageManager.deleteDraftRecipientsByMessageId(savedMessage.getId());
+        messageManager.saveDraftRecipients(savedMessage.getId(), allDraftRecipients);
+
+        return;
+    }
+
     //build the message body
     List additionalHeaders = new ArrayList(1);
     additionalHeaders.add("Content-Type: text/html; charset=utf-8");
@@ -1280,7 +1295,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-    		currentUserAsString, message.getDraft() ? typeManager.getDraftPrivateMessageType() : typeManager.getSentPrivateMessageType(),
+    		currentUserAsString, typeManager.getSentPrivateMessageType(),
     		contextId, Boolean.TRUE, false);
 
     recipientList.add(sender);
@@ -1291,14 +1306,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     message.setId(savedMessage.getId());
 
-    // clean up anything in the draftrecipients table since the message has now been sent/saved again
-    List<DraftRecipient> allDraftRecipients = getDraftRecipients(message.getId(), draftRecipients, draftBccRecipients);
+    // clean up anything in the draftrecipients table since the message has now been sent
     messageManager.deleteDraftRecipientsByMessageId(message.getId());
-
-    if (message.getDraft()) {
-        messageManager.saveDraftRecipients(message.getId(), allDraftRecipients);
-        return;
-    }
 
     String bodyString = buildMessageBody(message);
     List<InternetAddress> replyEmail  = new ArrayList<>();
