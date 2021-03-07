@@ -415,10 +415,14 @@ var RcptSelect = function()
 		 */
 		toggleSelectAll: function(checkboxId)
 		{
+			let rcptAll = jQuery('#mailsender-rcpt-all')
 			if (!checkboxId)
 			{
-				var checked = jQuery('#mailsender-rcpt-all').attr('checked');
-				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
+				var checked = rcptAll.attr('checked');
+				if (checked) {
+					// Check all boxes in this section
+					jQuery('input[type=checkbox]', rcptAll.parents('.section')).attr('checked', true);
+				}
 			}
 			else
 			{
@@ -427,7 +431,7 @@ var RcptSelect = function()
 				var context = jQuery(checkbox + ' ~ div');
 				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
 				if (!checked) {
-					jQuery('#mailsender-rcpt-all').attr('checked',false);
+					rcptAll.attr('checked',false);
 				}
 			}
 		},
