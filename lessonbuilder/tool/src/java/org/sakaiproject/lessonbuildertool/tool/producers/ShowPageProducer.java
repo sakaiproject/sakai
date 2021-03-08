@@ -4024,7 +4024,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (i.getType() == SimplePageItem.ASSIGNMENT) {
 				linkText = getLinkText(linkText, i.getSakaiId());
 			}
-			UIOutput.make(container, ID + "-text", linkText);
+			UIOutput.make(container, ID + "-text", linkText).decorate
+				(new UIFreeAttributeDecorator("data-original-name", i.getName()));
 		}
 
 		if (note != null) {

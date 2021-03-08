@@ -1773,7 +1773,13 @@ $(document).ready(function() {
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
-			$("#name").val(row.find(".link-text").text());
+			var linkTextTag = row.find(".link-text");
+
+			// If data-original-name attr is present, use that instead
+			var linkText = 	linkTextTag.attr("data-original-name") 
+			linkText = linkText || linkTextTag.text();
+
+			$("#name").val(linkText);
 			$("#description").val(row.find(".rowdescription").text());
 
 			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
