@@ -1527,9 +1527,14 @@ public class SakaiBLTIUtil {
 			lj.audience = client_id;
 			lj.issuer = getIssuer(site_id);
 			lj.subject = getSubject(user_id, context_id);
+
+			// The name and email info have been checked for release value in addUserInfo
 			lj.name = ltiProps.getProperty("lis_person_name_full");
-			lj.nonce = toolProps.getProperty("nonce");
+			lj.given_name = ltiProps.getProperty("lis_person_name_given");
+			lj.family_name = ltiProps.getProperty("lis_person_name_family");
 			lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
+
+			lj.nonce = toolProps.getProperty("nonce");
 			lj.issued = new Long(System.currentTimeMillis() / 1000L);
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
