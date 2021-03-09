@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.logic.model;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -66,10 +67,13 @@ public class Rating implements Modifiable, Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rbc_rat_seq")
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     @Lob
     private String description;
+
+    @Column(nullable = false)
     private Double points;
 
     @ManyToOne(fetch = FetchType.LAZY)

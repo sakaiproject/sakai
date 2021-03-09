@@ -1,10 +1,10 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
-import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
-import {SakaiItemDelete} from "./sakai-item-delete.js";
-import {SakaiRubricCriterionEdit} from "./sakai-rubric-criterion-edit.js";
-import {SakaiRubricCriterionRatingEdit} from "./sakai-rubric-criterion-rating-edit.js";
+import "./sakai-rubric-edit.js";
+import "./sakai-item-delete.js";
+import "./sakai-rubric-criterion-edit.js";
+import "./sakai-rubric-criterion-rating-edit.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
 import {tr} from "./sakai-rubrics-language.js";
@@ -27,7 +27,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     super.updated(changedProperties);
 
-    var sortableOptions = {
+    const sortableOptions = {
       handle: ".reorder-icon",
       onUpdate: (e) => this.handleSortedCriterionRatings(e),
       draggable: ".rating-item",
@@ -164,11 +164,11 @@ export class SakaiRubricCriteria extends RubricsElement {
     e.target.closest('.criterion-row').classList.remove("focused");
   }
 
-  handleSortedCriteria(e) {
+  handleSortedCriteria() {
 
-    var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/criterions/`;
-    var sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
-    const urlList = sortedIds.reverse().reduce((a, cid) => { return `${baseUrl}${cid}\n${a}` }, '');
+    const baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/criterions/`;
+    const sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
+    const urlList = sortedIds.reverse().reduce((a, cid) => { return `${baseUrl}${cid}\n${a}`; }, '');
 
     $.ajax({
       url: `/rubrics-service/rest/rubrics/${this.rubricId}/criterions`,
@@ -177,8 +177,12 @@ export class SakaiRubricCriteria extends RubricsElement {
       contentType: "text/uri-list",
       data: urlList
     })
-    .done(() => this.letShareKnow() )
-    .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
+    .done(() => this.letShareKnow())
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   letShareKnow() {
@@ -187,9 +191,9 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   debounce(fn, delay) {
 
-    var timer = null;
+    let timer = null;
     return function() {
-      var args = arguments;
+      const args = arguments;
       clearTimeout(timer);
       timer = setTimeout(() => {
         fn.apply(this, args);
@@ -201,17 +205,17 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     e.stopPropagation();
 
-    var criterionId = e.target.dataset.criterionId;
-    var criterion = this.criteria.find(c => c.id == criterionId);
+    const criterionId = e.target.dataset.criterionId;
+    const criterion = this.criteria.find(c => c.id == criterionId);
 
-    var sortedIds = Array.from(this.querySelectorAll(`#cr-table-${criterionId} .rating-item`)).map(r => r.dataset.ratingId);
+    const sortedIds = Array.from(this.querySelectorAll(`#cr-table-${criterionId} .rating-item`)).map(r => r.dataset.ratingId);
 
     // Reorder the ratings based on the sort result
     criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
-    var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/ratings/`;
-    const urlList = sortedIds.reverse().reduce((a, rid) => { return `${baseUrl}${rid}\n${a}` }, '');
-    var url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
+    const baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/ratings/`;
+    const urlList = sortedIds.reverse().reduce((a, rid) => { return `${baseUrl}${rid}\n${a}`; }, '');
+    const url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
     this.updateRatings(url, urlList);
 
     this.criteria = [...this.criteria];
@@ -230,7 +234,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       method: "PATCH",
       data: JSON.stringify(e.detail)
     })
-    .done(data => {
+    .done(() => {
 
       this.criteria.forEach(c => {
         if (c.id == e.detail.criterionId) {
@@ -238,7 +242,7 @@ export class SakaiRubricCriteria extends RubricsElement {
             if (r.id == e.detail.id) {
               r.title = e.detail.title;
               r.description = e.detail.description;
-              r.points = parseFloat(e.detail.points);
+              r.points = e.detail.points;
               r.new = false;
             }
           });
@@ -247,14 +251,18 @@ export class SakaiRubricCriteria extends RubricsElement {
       this.requestUpdate();
       this.letShareKnow();
     })
-    .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   deleteCriterion(e) {
 
     e.stopPropagation();
     const index = this.criteria.findIndex(c => c.id === e.detail.id);
-    this.criteria.splice(index,1);
+    this.criteria.splice(index, 1);
     this.criteriaMap.delete(e.detail.id);
     this.requestUpdate();
     this.letShareKnow();
@@ -267,11 +275,11 @@ export class SakaiRubricCriteria extends RubricsElement {
       e.target.value = 0;
     }
     e.target.value = e.target.value.replace(',', '.');
-    var value = parseFloat(e.target.value);
+    let value = parseFloat(e.target.value);
     if (isNaN(value)) {
       value = 0;
     }
-    var id = parseInt(e.target.getAttribute('data-criterion-id'));
+    const id = parseInt(e.target.getAttribute('data-criterion-id'));
     if (isNaN(id)) {
       return;
     }
@@ -281,38 +289,42 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   addRating(e) {
 
-    var criterionId = e.target.dataset.criterionId;
-    var ratingPos = e.target.dataset.ratingPos;
+    const criterionId = e.target.dataset.criterionId;
+    const ratingPos = e.target.dataset.ratingPos;
 
     $.ajax({
       url: "/rubrics-service/rest/ratings",
-      headers: {"Content-Type": "application/json" , "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
+      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
       method: "POST",
       data: "{}"
     })
     .done(data => this.addRatingResponse(criterionId, ratingPos, data))
-    .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   addRatingResponse(criterionId, ratingPos, newRating) {
 
     newRating.new = true;
 
-    var criterion = this.criteriaMap.get(parseInt(criterionId));
+    const criterion = this.criteriaMap.get(parseInt(criterionId));
 
     if (!criterion.ratings) criterion.ratings = [];
 
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
 
-    var getUrl = window.location;
-    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/ratings/";
+    const getUrl = window.location;
+    const baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/ratings/";
 
-    var urlList = '';
-    for (var i = criterion.ratings.length - 1; i >= 0; i--) {
+    let urlList = '';
+    for (let i = criterion.ratings.length - 1; i >= 0; i--) {
       urlList = baseUrl + criterion.ratings[i].id + '\n' + urlList;
     }
 
-    var url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
+    const url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
     this.updateRatings(url, urlList);
 
     this.letShareKnow();
@@ -323,17 +335,17 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     e.stopPropagation();
 
-    var criterion = this.criteriaMap.get(parseInt(e.detail.criterionId));
-    var ratingIndex = criterion.ratings.findIndex(r => r.id == e.detail.id);
+    const criterion = this.criteriaMap.get(parseInt(e.detail.criterionId));
+    const ratingIndex = criterion.ratings.findIndex(r => r.id == e.detail.id);
     criterion.ratings.splice(ratingIndex, 1);
     this.requestUpdate();
 
-    var getUrl = window.location;
-    var baseUrl = `${getUrl.protocol}//${getUrl.host}/rubrics-service/rest/criterions/`;
+    const getUrl = window.location;
+    const baseUrl = `${getUrl.protocol}//${getUrl.host}/rubrics-service/rest/criterions/`;
 
-    const urlList = criterion.ratings.slice().reverse().reduce((a, v) => { return `${baseUrl}${v.id}\n${a}` }, '');
+    const urlList = criterion.ratings.slice().reverse().reduce((a, v) => { return `${baseUrl}${v.id}\n${a}`; }, '');
 
-    var url = `/rubrics-service/rest/criterions/${e.detail.criterionId}/ratings`;
+    const url = `/rubrics-service/rest/criterions/${e.detail.criterionId}/ratings`;
     this.updateRatings(url, urlList);
   }
 
@@ -349,7 +361,11 @@ export class SakaiRubricCriteria extends RubricsElement {
       data: "{}"
     })
     .done(data => this.createCriterionResponse(data))
-    .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   createCriterionResponse(nc) {
@@ -362,9 +378,9 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteriaMap.set(nc.id, nc);
 
     // Add the criterion to the rubric
-    var getUrl = window.location;
-    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
-    var urlList = baseUrl + nc.id + '\n';
+    const getUrl = window.location;
+    const baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
+    const urlList = baseUrl + nc.id + '\n';
     this.requestUpdate();
 
     $.ajax({
@@ -375,27 +391,31 @@ export class SakaiRubricCriteria extends RubricsElement {
       data: urlList
     })
     .done(() => this.letShareKnow())
-    .fail((jqXHR, error, message) => { console.log(error); console.log(message); });
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   criterionEdited(e) {
 
-    var criterion = this.criteriaMap.get(e.detail.id);
+    const criterion = this.criteriaMap.get(e.detail.id);
     criterion.title = e.detail.title;
     criterion.description = e.detail.description;
     criterion.new = false;
     this.requestUpdate();
 
-    var sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
+    const sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
     sakaiItemDelete.requestUpdate("criterion", criterion);
   }
 
-  saveWeights(e) {
+  saveWeights() {
 
     this.dispatchEvent(new CustomEvent('save-weights'));
   }
 
-  createCriterion(e) {
+  createCriterion() {
 
     $.ajax({
       url: "/rubrics-service/rest/criterions/",
@@ -404,7 +424,11 @@ export class SakaiRubricCriteria extends RubricsElement {
       data: "{}"
     })
     .done(data => this.createCriterionResponse(data))
-    .fail((jqXHR, error, message) => { console.log(error); console.log(message); });
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   updateRatings(url, urlList) {
@@ -417,13 +441,17 @@ export class SakaiRubricCriteria extends RubricsElement {
       data: urlList
     })
     .done(() => this.letShareKnow())
-    .fail((jqXHR, error, message) => {console.log(error); console.log(message);});
+    .fail((jqXHR, error, message) => {
+
+      console.error(error);
+      console.info(message);
+    });
   }
 
   openEditWithKeyboard(e) {
 	
     if (e.keyCode == 32) {
-      this.cloneCriterion(e)
+      this.cloneCriterion(e);
     }
   }
 }
