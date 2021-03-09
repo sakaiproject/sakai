@@ -165,7 +165,7 @@ function toPoint(id)
                   </h:outputText>
                   <h:outputText escape="false" value=" #{deliveryMessages.pt} "/>
                 </span>
-                <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
+                <h:outputLink value="##{part.sequence}#{deliveryMessages.underscore}#{question.number}"> 
                   <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText}"/>
                 </h:outputLink>
                 <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit==true}" value=" #{deliveryMessages.extra_credit_preview}" />
@@ -195,8 +195,8 @@ function toPoint(id)
         <h:outputText value="<a name=\"#{part.number}_#{question.number}\"></a>" escape="false" />
         <h:panelGroup layout="block" styleClass="input-group col-sm-6">
             <span class="input-group-addon">
-              <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
-              <h:outputText value="#{part.questions}#{deliveryMessages.column}  " />
+              <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
+              <h:outputText value="#{part.numbering}#{deliveryMessages.column}  " />
             </span>
             <h:inputText styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);"
                          validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}">
