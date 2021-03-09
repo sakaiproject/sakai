@@ -18,5 +18,14 @@ module.exports = {
     "no-redeclare": "warn",
     "no-cond-assign": "warn",
     "no-empty": "warn",
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "no-param-reassign": "warn",
+    "comma-spacing": "warn",
+    "block-spacing": "warn",
+    "no-duplicate-imports": "warn",
+    "arrow-spacing": "warn",
+    "no-multiple-empty-lines": "warn",
+    "no-tabs": "warn",
   }
 };
