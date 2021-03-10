@@ -11,7 +11,10 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
   }
 
   static get properties() {
-    return { criteria: {type: Array}, weighted: Boolean};
+
+    return {
+      criteria: { type: Array },
+      weighted: Boolean};
   }
 
   render() {
@@ -41,7 +44,7 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
                 <div class="cr-table">
                   <div class="cr-table-row">
                   ${c.ratings.map(r => html`
-                    <div tabindex="0" title="${tr("rating_title")}: ${r.title}. ${tr("rating_description")}: ${r.description}. ${tr("point_value")}: ${r.points.toLocaleString(this.locale)}" class="rating-item" id="rating_item_${r.id}" on-save-ratings="saveRatings" @on-delete-rating="${this.deleteCriterionRating}">
+                    <div tabindex="0" title="${tr("rating_title")}: ${r.title}. ${tr("rating_description")}: ${r.description}. ${tr("point_value")}: ${r.points.toLocaleString(this.locale)}" class="rating-item" id="rating_item_${r.id}">
                       <h5 class="criterion-item-title">${r.title}</h5>
                       <p>${r.description}</p>
                       <span class="points">
