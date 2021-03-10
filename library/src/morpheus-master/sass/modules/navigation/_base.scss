@@ -143,12 +143,16 @@ body.is-logged-out{
 			display: block;
 			padding: 0.65em;
 			text-decoration: none;
-			color: var(--sakai-primary-color-2);
+			color: var(--link-color);
 			line-height: 1em;
-			&:focus, &:hover, &:active
+			&:focus, &:hover{
+				text-decoration: underline;
+				color: var(--link-hover-color);
+			}
+			&:active
 			{
 				text-decoration: underline;
-    			color: var(--sakai-primary-color-2);
+    			color: var(--link-active-color);
 			}
 			.toolMenuIcon{
 				@extend .fa-fw;			// standardize the width of all icons for proper text alignment
@@ -697,11 +701,15 @@ body.is-logged-out{
 				}
 			}
 			a{
-				color: var(--sakai-primary-color-1);
+				color: var(--link-color);
 				padding: 0.25em 0.25em;
-				&:hover, &:active
+				&:hover, &:focus
 				{
-					color: var(--sakai-primary-color-2);
+					color: var(--link-hover-color);
+				}
+				&:active
+				{
+					color: var(--link-active-color);
 				}
 			}
 		}
