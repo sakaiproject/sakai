@@ -1379,7 +1379,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						if (spExisting.getLastVisitStartTime() != null) {
 							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
 						} else {
-							throw new RuntimeException("No initial visit start time found");
+							log.info("No initial visit start time found for {} in {}, skipping", sp.getSiteId(), sp.getUserId());
+							continue;
 						}
 					} 
 					newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
