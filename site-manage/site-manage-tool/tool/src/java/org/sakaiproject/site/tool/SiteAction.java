@@ -3832,7 +3832,6 @@ public class SiteAction extends PagedResourceActionII {
 			if(fromHome) {
 				context.put("back", page.getId());
 			}
-			state.removeAttribute("fromHome");
 
 			return (String) getContext(data).get("template") + TEMPLATE[65];
 		}
@@ -7685,6 +7684,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute("overview");
 		state.removeAttribute("site");
 		state.removeAttribute("allWidgets");
+		state.removeAttribute("fromHome");
 
 		doCancel(data);
 	}
@@ -7778,6 +7778,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.removeAttribute(SITE_USER_SEARCH);
 			state.removeAttribute(STATE_SITE_PARTICIPANT_FILTER);
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+		}
+		else if ("65".equals(currentIndex)) { //after manage overview, go back to where the call was made
+			String pageId = params.getString("back");
+			if(StringUtils.isNotEmpty(pageId) && !"12".equals(pageId)) {
+				String redirectionUrl = getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" + SiteService.PAGE_SUBTYPE + "/" + pageId;
+				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectionUrl);
+			}
+			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		}
 		// if all fails to match
 		else if (isTemplateVisited(state, SiteConstants.SITE_INFO_TEMPLATE_INDEX)) {
@@ -16115,6 +16123,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		state.removeAttribute("overview");
 		state.removeAttribute("site");
 		state.removeAttribute("allWidgets");
+		state.removeAttribute("fromHome");
 
 		// make sure auto-updates are enabled
 		enableObserver(state);
