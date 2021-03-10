@@ -2126,7 +2126,11 @@ return topicTypeUuid;
   private PrivateMessage createResponseMessage(PrivateMessage currentMessage, MimeMessage msg, String from) throws MessagingException {
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
-	  rrepMsg.setTitle(msg.getSubject());
+	  if (StringUtils.isBlank(msg.getSubject())) {
+		  rrepMsg.setTitle("[" + getResourceBundleString("pvt_no_subject") + "]");
+	  } else {
+		  rrepMsg.setTitle(msg.getSubject());
+	  }
 	  try {
 		  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
 	  } catch (UserNotDefinedException e) {
