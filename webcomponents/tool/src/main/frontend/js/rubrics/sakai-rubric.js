@@ -149,6 +149,8 @@ export class SakaiRubric extends RubricsElement {
 
   toggleRubric(e) {
 
+    e.preventDefault();
+
     var titlecontainer = this.querySelector(".rubric-title");
 
     var collapse = $(`#collapse_${this.rubric.id}`);
