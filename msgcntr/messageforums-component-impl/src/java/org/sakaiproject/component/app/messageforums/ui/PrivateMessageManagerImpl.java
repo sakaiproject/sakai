@@ -108,6 +108,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -143,6 +144,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private LearningResourceStoreService learningResourceStoreService;
   @Setter private PreferencesService preferencesService;
   @Setter private ServerConfigurationService serverConfigurationService;
+  @Setter private FormattedText formattedText;
+
   private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
   
   private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
@@ -2163,12 +2166,24 @@ return topicTypeUuid;
 
 	  PrivateMessage rrepMsg = createResponseMessage(currentMessage, msg, from);
 
-	  if (StringUtils.isNotBlank(bodyBuf[0].toString())) {
-		  bodyBuf[0].insert(0, "<pre>");
-		  bodyBuf[0].insert(bodyBuf[0].length(), "</pre>");
-		  rrepMsg.setBody(bodyBuf[0].toString());
+	  
+      StringBuilder alertMsg = new StringBuilder();
+      StringBuilder cleanBody;
+	  if (StringUtils.isNotBlank(bodyBuf[1].toString())) {
+		  cleanBody = new StringBuilder(formattedText.processFormattedText(bodyBuf[1].toString(), alertMsg));
 	  } else {
-		  rrepMsg.setBody(bodyBuf[1].toString());
+		  cleanBody = new StringBuilder(formattedText.escapeHtml(bodyBuf[0].toString()));
+		  if(StringUtils.isNotBlank(cleanBody)) {
+			  cleanBody.insert(0, "<pre>");
+			  cleanBody.insert(cleanBody.length(), "</pre>");
+		  }
+	  }
+	  
+	  if(StringUtils.isBlank(cleanBody)) {
+		  log.warn("358 - Unexpected error processing text of body.");
+		  throw new MessagingException("358 - Unexpected error processing text of body.");
+	  }else {
+		  rrepMsg.setBody(cleanBody.toString());
 	  }
 	  rrepMsg.setLabel(currentMessage.getLabel());
 
