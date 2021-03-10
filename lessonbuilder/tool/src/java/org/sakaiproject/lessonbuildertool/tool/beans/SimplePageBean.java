@@ -3542,44 +3542,29 @@ public class SimplePageBean {
     // code twice, we take that list and translate to titles, rather than calling
     // getItemGroups again
 	public String getItemGroupTitles(String itemGroups, SimplePageItem item) {
-	    String ret = "";
-	    if (StringUtils.isNotBlank(itemGroups)) {
+		String ret = null;
+		if (StringUtils.isNotBlank(itemGroups)) {
 
-	    List<String> groupNames = new ArrayList<>();
-	    Site site = getCurrentSite();
-	    String[] groupIds = split(itemGroups, ",");
-	    for (int i = 0; i < groupIds.length; i++) {
-		Group group=site.getGroup(groupIds[i]);
-		if (group != null) {
-		    String title = group.getTitle();
-		    if (title != null && !title.equals(""))
-			groupNames.add(title);
-		    else
-			groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
-		} else
-		    groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
-	    }
-	    Collections.sort(groupNames);
-	    for (String name: groupNames) {
-		if (StringUtils.isBlank(ret))
-		    ret = name;
-		else
-		    ret = ret + "," + name;
-	    }
+			List<String> groupNames = new ArrayList<>();
+			for (String groupId : split(itemGroups, ",")) {
+				Group group = getCurrentSite().getGroup(groupId);
+				if (group != null && StringUtils.isNotBlank(group.getTitle())) {
+					groupNames.add(group.getTitle());
+				} else {
+					groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
+				}
+			}
+			groupNames.sort(new AlphaNumericComparator());
+			ret = StringUtils.join(groupNames, ", ");
+		}
 
-	    }
+		if (StringUtils.isBlank(ret) && item.isPrerequisite()) {
+			return messageLocator.getMessage("simplepage.prerequisites_tag");
+		} else if (item.isPrerequisite()) {
+			return messageLocator.getMessage("simplepage.prerequisites_tag") + "; " + ret;
+		}
 
-	    if (item.isPrerequisite()) {
-		if (StringUtils.isBlank(ret))
-		    ret = messageLocator.getMessage("simplepage.prerequisites_tag");
-		else
-		    ret = messageLocator.getMessage("simplepage.prerequisites_tag") + "; " + ret;
-	    }
-
-	    if (StringUtils.isBlank(ret))
-		return null;
-
-	    return ret;
+		return ret;
 	}
 	
 	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
