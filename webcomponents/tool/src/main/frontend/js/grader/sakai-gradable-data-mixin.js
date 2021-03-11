@@ -25,8 +25,8 @@ let gradableDataMixin = Base => class extends Base {
 
           this.groups = gradableData.groups;
 
-          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
-          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
+          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
+          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
 
           this.submissions.sort((a,b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
 
