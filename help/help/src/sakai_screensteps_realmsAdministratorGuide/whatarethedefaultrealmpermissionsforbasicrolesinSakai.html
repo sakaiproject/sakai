@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>What are the default realm permissions for basic roles in Sakai?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
+<div><h1 class="article-title">What are the default realm permissions for basic roles in Sakai?</h1></div>
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>Sakai 11 OOTB comes with preconfigured realm permissions as shown below. Administrators may modify the realms on a per-role basis (exercising caution is recommended) and configure new roles with appropriate permissions.</p>
+<p><em>Warning</em>: the list of all possible realm permissions is long.</p>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="aliases-tool-permissions-admin-only">
+    <h2 class="step-title screensteps-heading">Aliases tool permissions (Admin only)</h2>
+      <div class="screensteps-table">
+  <table width="80%">
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+<th>Admin</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>alias.add</td>
+<td>Add/create site aliases (to use instead of the long hexadecimal site ID)</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+<tr>
+<td>alias.del</td>
+<td>Delete site aliases</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+<tr>
+<td>alias.upd</td>
+<td>Modify site aliases</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+</tbody>
+</table>
+<table style="width: 100%;">
+<thead><tr>
+<th>
+<table width="80%">
+<thead><tr>
+<th>Function</th>
+<th>Description</th>
+<th>Admin</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>alias.add</td>
+<td>Add/create site aliases (to use instead of the long hexadecimal site ID)</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+<tr>
+<td>alias.del</td>
+<td>Delete site aliases</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+<tr>
+<td>alias.upd</td>
+<td>Modify site aliases</td>
+<td><div style="margin: auto;">X</div></td>
+</tr>
+</tbody>
+</table>Function</th>
+<th>Description</th>
+<th>Admin</th>
+</tr></thead>
+<tbody><tr>
+<td style="width: 33.3333%;">Alias.add</td>
+<td style="width: 33.3333%;"><br></td>
+<td style="width: 33.2969%;">Value 2<br>
+</td>
+</tr></tbody>
+</table>
+</div>
+ 
+      <div class="screensteps-table">
+  <table style="width: 100%;">
+    <thead>
+      <tr>
+<th style="width: 50.0000%;">Column 1<br>
+</th>
+<th style="width: 50.0000%;">Column 2<br>
+</th>
+</tr>
+    </thead>
+    <tbody>
+      <tr>
+<td style="width: 50.0000%;">Value 1<br>
+</td>
+<td style="width: 50.0000%;">Value 2<br>
+</td>
+</tr>
+    </tbody>
+  </table>
+</div>
+ 
+      <div class="html-embed">
+  <div style="padding-left:5px; padding-right:5px;">
+  <p>The Aliases tool realm permissions are enabled for accounts in the Admin role. These permissions should not be enabled for site roles. The Aliases realm permissions shown here are for reference only.</p>
+</div>
+
+
+<table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Admin</th>
+  </tr>
+  <tr>
+    <td>alias.add</td>
+    <td>Add/create site aliases (to use instead of the long hexadecimal site ID)</td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>alias.del</td>
+    <td>Delete site aliases</td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>alias.upd</td>
+    <td>Modify site aliases</td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="announcements-tool-permissions">
+    <h2 class="step-title screensteps-heading">Announcements tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>annc.all.groups</td>
+    <td>Access all announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.delete.any</td>
+    <td>Delete all announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.delete.own</td>
+    <td>Delete own announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.new</td>
+    <td>Create new announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.read</td>
+    <td>Read posted announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>annc.read.drafts</td>
+    <td>Read draft announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.revise.any</td>
+    <td>Revise all announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>annc.revise.own</td>
+    <td>Revise own announcements</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="assignments-tool-permissions">
+    <h2 class="step-title screensteps-heading">Assignments tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>asn.all.groups</td>
+    <td>Access all group-scoped assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.delete</td>
+    <td>Delete assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.grade</td>
+    <td>Grade assignment submissions</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.new</td>
+    <td>Create new assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.read</td>
+    <td>View assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>asn.receive.notifications</td>
+    <td>Receive assignment notifications</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.revise</td>
+    <td>Edit assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.share.drafts</td>
+    <td>Enables the ability to view draft assignments created by others</td>
+    <td><div style="margin: auto;"></div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>asn.submit</td>
+    <td>Submit assignments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="assessment-tests-quizzes-tool-permissions">
+    <h2 class="step-title screensteps-heading">Assessment (Tests &amp; Quizzes) tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>assessment.createAssessment</td>
+    <td>Create new assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.deleteAssessment.any</td>
+    <td>Delete any/all assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.deleteAssessment.own</td>
+    <td>Delete own assessment</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.editAssessment.any</td>
+    <td>Edit any/all <em>working copy</em>* assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.editAssessment.own</td>
+    <td>Edit own <em>working copy</em>* assessment</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.gradeAssessment.any</td>
+    <td>Grade any/all assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.gradeAssessment.own</td>
+    <td>Grade own assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.publishAssessment.any</td>
+    <td>Publish any/all assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.publishAssessment.own</td>
+    <td>Publish own assessments</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.questionpool.copy.own</td>
+    <td>Copy own question pool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.questionpool.create</td>
+    <td>Create a question pool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.questionpool.delete.own</td>
+    <td>Delete own question pool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.questionpool.edit.own</td>
+    <td>Edit own question pool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.submitAssessmentForGrade</td>
+    <td>Submit an assessment</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>assessment.takeAssessment</td>
+    <td>Take an assessment</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>assessment.template.create</td>
+    <td>Create an assessment template</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.template.delete.own</td>
+    <td>Delete an assessment template</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>assessment.template.edit.own</td>
+    <td>Edit an assessment template</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+<div style="padding-left:5px; padding-right:5px;">
+  <p style="font-style:italic">* In order to edit published versions of exams <strong>with submissions</strong>, an admin must set this site property in the Sites tool as follows:
+  
+  </p>
+<pre>samigo.editPubAssessment.restricted=false</pre>
+</div>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="calendar-tool-permissions">
+    <h2 class="step-title screensteps-heading">Calendar tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>calendar.all.groups</td>
+    <td>Access/create group events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.delete.any</td>
+    <td>Delete any events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.delete.own</td>
+    <td>Delete own events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.import</td>
+    <td>Import events in .ics or .cal format</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.new</td>
+    <td>Create new events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.options</td>
+    <td>Change calendar options</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>calendar.read</td>
+    <td>View events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>calendar.revise.any</td>
+    <td>Edit any events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.revise.own</td>
+    <td>Edit your own events</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.subscribe</td>
+    <td>Subscribe to a site calendar</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>calendar.view.audience</td>
+    <td>Veiw the target audience of an event</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="chat-tool-permissions">
+    <h2 class="step-title screensteps-heading">Chat tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>chat.delete.any</td>
+    <td>Delete any chat messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>chat.delete.channel</td>
+    <td>Delete a chat channel/rooms</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>chat.delete.own</td>
+    <td>Delete own chat messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>chat.new</td>
+    <td>Post chat messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>chat.new.channel</td>
+    <td>Create chat channels/rooms</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>chat.read</td>
+    <td>Read chat messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>chat.revise.channel</td>
+    <td>Edit chat channels/rooms</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="contentPermissions">
+    <h2 class="step-title screensteps-heading">Content (Resources) permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>content.all.groups</td>
+    <td>Access/view all group-scoped content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.delete.any</td>
+    <td>Delete any content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.delete.own</td>
+    <td>Delete own content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.hidden</td>
+    <td>Access/view hidden content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.new</td>
+    <td>Add new content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.read</td>
+    <td>View (unhidden) content - <strong><em>must be enabled in order to access attachments in other tools, as well</em></strong>
+</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>content.revise.any</td>
+    <td>Edit any content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>content.revise.own</td>
+    <td>Edit own content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="course_site_publish_service-admin-only">
+    <h2 class="step-title screensteps-heading">Course_site_publish_service (Admin only)</h2>
+      <div class="html-embed">
+  <div style="padding-left:5px; padding-right:5px;">
+  <p>The course_site_publish_service realm permissions are enabled for accounts in the Admin role. These permissions should not be enabled for site roles. Permissions shown here are for reference only.</p>
+</div>
+
+<table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Version Introduced</th>
+    <th>Admin</th>
+  </tr>
+  <tr>
+    <td>course_site_publish_service.publish</td>
+    <td>admin permission for publishing existing course sites prior to new term (also see associated sakai.properties)</td>
+    <td>11.0</td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>course_site_publish_service.removal</td>
+    <td>admin permission for unpublishing course sites after a term ends (also see associated sakai.properties)</td>
+    <td>11.0</td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="dropbox-tool-permissions">
+    <h2 class="step-title screensteps-heading">Dropbox tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>dropbox.maintain</td>
+    <td>Access/view all dropbox folders</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>dropbox.maintain.own.groups</td>
+    <td>Access/view own group-scoped dropboxes</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>dropbox.own</td>
+    <td>Access/manage own dropbox folder</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="gradebook-tool-permissions">
+    <h2 class="step-title screensteps-heading">Gradebook tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>gradebook.editAssignments</td>
+    <td>Edit gradebook items</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>gradebook.gradeAll</td>
+    <td>Grade all gradebook items</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>gradebook.gradeSection</td>
+    <td>Grade items in assigned section</td>
+    <td><div style="margin: auto;"></div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>gradebook.viewOwnGrades</td>
+    <td>View one's own grades</td>
+    <td><div style="margin: auto;"></div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="lessons-tool-permissions">
+    <h2 class="step-title screensteps-heading">Lessons tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>lessonbuilder.read</td>
+    <td>Access/view lessons content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>lessonbuilder.seeall</td>
+    <td>Access/view all lessons content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>lessonbuilder.upd</td>
+    <td>Revise lessons content</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="mail-email-archive-tool-permissions">
+    <h2 class="step-title screensteps-heading">Mail (Email Archive) tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>mail.delete.any</td>
+    <td>Delete Email Archive messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>mail.new</td>
+    <td>Send Email Archive messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>mail.read</td>
+    <td>Access/view Email Archive messages</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="mailtool-email-tool-permissions">
+    <h2 class="step-title screensteps-heading">Mailtool (Email) tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>mailtool.admin</td>
+    <td>Manage the Email tool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>mailtool.send</td>
+    <td>Send messages using the Email tool</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="messages-tool-permissions">
+    <h2 class="step-title screensteps-heading">Messages tool permissions</h2>
+      <div class="html-embed">
+  <table width="80%" border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>msg.emailout</td>
+    <td>Enable/disable  Messages delivery to primary email accounts</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.allParticipants</td>
+    <td>Show/select All Participants in To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.groups</td>
+    <td>Show/select all groups in To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.myGroupMembers</td>
+    <td>Show/select group members of which you're a member in To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.myGroups</td>
+    <td>Show/select groups of which you're a member in the To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.roles</td>
+    <td>Show/select recipients by role in the To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.allowToField.users</td>
+    <td>Show/select individuals in the To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+  <tr>
+    <td>msg.permissions.viewHidden.groups</td>
+    <td>Show/select hidden groups in the To: list</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="oauth-permissions">
+    <h2 class="step-title screensteps-heading">Oauth permissions</h2>
+      <div class="html-embed">
+  <div style="padding-left:5px; padding-right:5px;">
+  <p>The oauth.admin realm permission is enabled for accounts in the Admin role. This permission should not be enabled for site roles. The realm permissions shown here are for reference only.</p>
+</div>
+
+<table border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Version Introduced</th>
+    <th>Admin</th>
+  </tr>
+  <tr>
+    <td>oauth.admin</td>
+    <td>??? NEED A DESCRIPTION ???</td>
+    <td><div style="margin: auto;">11.0</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="pa-public-address-system-permissions">
+    <h2 class="step-title screensteps-heading">PA (Public Address) System permissions</h2>
+      <div class="html-embed">
+  <div style="padding-left:5px; padding-right:5px;">
+  <p>The PA System was introduced in Sakai 11.0. The pasystem.manage realm permission is enabled for accounts in the Admin role. This permissions should not be enabled for site roles. The realm permissions shown here are for reference only.</p>
+</div>
+
+<table border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Version Introduced</th>
+    <th>Admin</th>
+  </tr>
+  <tr>
+    <td>pasystem.manage</td>
+    <td>Grants admin access to the PA System tool in Administration Workspace?</td>
+    <td><div style="margin: auto;">11.0</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="polls-tool-permissions">
+    <h2 class="step-title screensteps-heading">Polls tool permissions</h2>
+      <div class="html-embed">
+  <table border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>poll.add</td>
+    <td>Create new polls</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>poll.deleteAny</td>
+    <td>Delete any poll</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>poll.deleteOwn</td>
+    <td>Delete own polls</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>poll.editAny</td>
+    <td>Edit any poll</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>poll.editOwn</td>
+    <td>Edit own poll</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>poll.vote</td>
+    <td>Vote on a poll</td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+    <td><div style="margin: auto;">X</div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="portal-chat-permissions">
+    <h2 class="step-title screensteps-heading">Portal Chat permissions</h2>
+      <div class="html-embed">
+  <table border="1" cellpadding="2">
+<tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>portal.chat.permitted</td>
+    <td>Enable for roles to allow portal chats only if sakai.property <strong>portal.chat.securedByUser=true</strong>
+</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="preferences-tool-permissions">
+    <h2 class="step-title screensteps-heading">Preferences tool permissions</h2>
+      <div class="html-embed">
+  <div style="padding-left:5px; padding-right:5px;">
+  <p>The Preferences tool realm permissions are enabled in the <em>!user.template.x</em> realms for the .auth role ONLY. These permissions should not be enabled for roles at the site level, e.g., <em>!site.template.course</em> or <em>!site.template.project</em>.</p>
+</div>
+
+<table border="1" cellpadding="2">
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+    <th>Instructor / maintain</th>
+    <th>Teaching Assistant</th>
+    <th>Student / access</th>
+  </tr>
+  <tr>
+    <td>prefs.add</td>
+    <td>Add preferences</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>prefs.del</td>
+    <td>Delete preferences</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+  <tr>
+    <td>prefs.upd</td>
+    <td>Update preferences</td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+    <td><div style="margin: auto;"> </div></td>
+  </tr>
+</table>
+</div>
+
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="realms-tool-permissions">
+    <h2 class="step-title screensteps-heading">Realms tool permissions</h2>
+  </div>
+
+
+</div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>How do I increase a site's Resources quota?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="sakai.quotaIncreases" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
+<div><h1 class="article-title">How do I increase a site's Resources quota?</h1></div>
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+  <p>As explained in <a href="content.hlp?docId=whatarequotasanduploadlimits">What are quotas and upload limits?</a> users may request additional storage space in either <em>Resources</em> or <em>File Drop.  </em>For <em>File Drop</em>, see <a href="content.hlp?docId=howdoiincreaseapersonsorsitesfiledropquota">How do I increase a site's File Drop quota?</a></p>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="log-in-as-admin">
+    <h2 class="step-title screensteps-heading">Log in as admin.</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p>Log in as an admin (e.g., psg3a-admin).</p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="go-to-administration-workspace">
+    <h2 class="step-title screensteps-heading">Go to Administration Workspace.</h2>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/820/024/original/71aeca7a-e827-42f9-9b7d-c8391a7bf77d.png" alt="" height="100" width="285">
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="access-the-site">
+    <h2 class="step-title screensteps-heading">Locate the site.</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p>Finding a course or collaboration site is easy, but extra steps are required to find someone's <strong>Home</strong> site. <a href="#find-a-users-home-site" target="_self">Skip to the steps for finding a Home site.</a></p>
+</div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="find-a-course-or-collaboration-site">
+    <h3 class="step-title screensteps-heading">Find a course or collaboration site.</h3>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/820/026/original/f862483f-2f08-4ab2-9bc5-a57cbae25618.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/820/026/medium/f862483f-2f08-4ab2-9bc5-a57cbae25618.png" alt="" height="347" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Go to the <em>Worksite Setup</em> tool.</li>
+<li>In the <em>Search</em> box, enter the title of the site, then press <strong>Enter</strong> or <strong>Return</strong> on your keyboard, or select <strong>Search</strong>.</li>
+</ol>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-2" id="find-a-users-home-site">
+    <h3 class="step-title screensteps-heading">Find a user's Home site.</h3>
+        <div class="step screensteps-section screensteps-depth-3" id="find-the-site-id-for-the-user-s-home-site">
+    <h4 class="step-title screensteps-heading">Find the site ID for the user's Home site.</h4>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/820/030/original/a508ed90-6867-46d6-884e-b42d28d71b6e.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/820/030/medium/a508ed90-6867-46d6-884e-b42d28d71b6e.png" alt="" height="391" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Go to the <em>Sites</em> tool.</li>
+<li>In the <em>User ID</em> search box, enter the user's UVA computing ID, e.g., <strong>tls6u</strong>, then press <strong>Enter</strong> or <strong>Return</strong> on your keyboard, or select the <strong>User ID</strong> button.</li>
+<li>Under <em>Site Id</em>, <strong>copy</strong> all the text that comes <strong>after</strong> the <strong>~</strong> to your computer clipboard. For example, if the text shown in the <em>Site Id</em> column is the following:<br><code>~8a062e44-ee5e-47fe-805e-3ef261842ded
+</code>The value you will need is:<br> <code>8a062e44-ee5e-47fe-805e-3ef261842ded</code>
+</li>
+</ol>
+</div>
+ 
+  </div>
+ 
+        <div class="step screensteps-section screensteps-depth-3" id="locate-the-home-site-in-worksite-setup">
+    <h4 class="step-title screensteps-heading">Locate the Home site in Worksite Setup.</h4>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/820/033/original/dd4e4d0d-9975-4d2a-a6e5-262a2939841f.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/820/033/medium/dd4e4d0d-9975-4d2a-a6e5-262a2939841f.png" alt="UVACollab : Administration Workspace : Worksite Setup - Google Chrome" height="348" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Go to the <em>Worksite Setup</em> tool.</li>
+<li>From the <em>View</em> menu, select <strong>Home Sites</strong>.</li>
+<li>In the <em>Search</em> box, enter the <strong>Site ID</strong> copied in the step above.</li>
+</ol>
+</div>
+ 
+  </div>
+ 
+  </div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="access-the-site_1">
+    <h2 class="step-title screensteps-heading">Access the site.</h2>
+      <div class="image screensteps-image">
+    <a href="https://media.screensteps.com/image_assets/assets/003/820/036/original/befc92a5-8d15-4d57-8ea6-d260388e16d3.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/820/036/medium/befc92a5-8d15-4d57-8ea6-d260388e16d3.png" alt="" height="67" width="855">
+    </a>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>Select the link to the site to navigate to it.</p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    <h2 class="step-title screensteps-heading">Go to Resources.</h2>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/820/038/original/619eb6a4-d148-43a1-8209-061270f0a792.png" alt="" height="120" width="164">
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <p>Select <strong>Resources</strong> from the Tool Menu in the site.</p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="edit-details-on-the-main-resources-folder">
+    <h2 class="step-title screensteps-heading">Edit Details on the main Resources folder.</h2>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/820/039/original/ba274605-2d12-40e8-a70f-341ac0b58f1b.png" alt="" height="603" width="639">
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Select the <strong>Actions </strong>menu for the main <em>Resources</em> folder.  The folder's name should be <strong>[site title] Resources</strong>, e.g., in a site named <strong>20Su Family in OF Saints Lives</strong>, the main folder is <strong>20Su Family in OF Saints Lives Resources</strong>.</li>
+<li>Select <strong>Edit Details</strong>.</li>
+</ol>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="enter-the-new-quota">
+    <h2 class="step-title screensteps-heading">Enter the new quota.</h2>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/820/040/original/f9b65820-066e-4d63-ae56-4fec3e4f3779.png" alt="" height="392" width="831">
+</div>
+ 
+      <div class="step-instructions screensteps-textblock">
+  <ol>
+<li>Select the <strong>Special quota</strong> checkbox.</li>
+<li>In the box provided, enter the new quota in <strong>Kilobytes (binary)</strong>. For quick reference, here is a list of custom <em>Resources </em>quotas we've enabled for users within the past few years:<ul>
+<li>6 GB = 6291456 KB</li>
+<li>8 GB = 8388608 KB</li>
+<li>15 GB = 15728640 KB</li>
+<li>20 GB = 20971520 KB</li>
+<li>25 GB = 26214400 KB</li>
+<li>50 GB = 52428800 KB</li>
+</ul>
+</li>
+</ol>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+  <p><strong>Note:</strong> To find the appropriate value for a different number of GB, do a <a href="https://www.google.com/search?hl=en&amp;ei=9CvIXt-gD9CvggfH4YmQCQ&amp;q=GB+in+KB+binary&amp;oq=GB+in+KB+binary&amp;gs_lcp=CgZwc3ktYWIQAzIGCAAQCBAeMgYIABAIEB5Q2cMcWNnDHGCGxhxoAHAAeACAAe8BiAHvAZIBAzItMZgBAKABAaoBB2d3cy13aXo&amp;sclient=psy-ab&amp;ved=0ahUKEwjf6r6FnsjpAhXQl-AKHcdwApIQ4dUDCAw&amp;uact=5" target="_blank">Google search for "GB to KB binary"</a>.  </p>
+</div>
+ 
+      <div class="step-instructions screensteps-textblock screensteps-wrapper--tip screensteps-wrapper">
+  <p><strong>Tip:</strong> 6 GB or 8 GB is typically used when the user does not specify the new requested value, but we have one instructor who requests a quota of either 20 GB or 25 GB for his site every semester he teaches.</p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="select-update">
+    <h2 class="step-title screensteps-heading">Select Update.</h2>
+      <div class="image screensteps-image">
+    <img src="https://media.screensteps.com/image_assets/assets/003/820/041/original/1554cd5f-29ba-47b4-a996-92ba1762af90.png" alt="" height="39" width="150">
+</div>
+ 
+  </div>
+
+
+</div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>
