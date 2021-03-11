@@ -123,7 +123,7 @@
 						#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
 						##For Re-ordering of Announcement Messages
 							<span style="display:none"> 
-								<input type="checkbox" id="check-$rowCount" name="selectedMembers2" checked="checked" value="$ann_item.Reference"/>
+								<input type="checkbox" id="check-$count" name="selectedMembers2" checked="checked" value="$ann_item.Reference"/>
 							</span>
 					</li>
 								#set($count = $count + 1)
