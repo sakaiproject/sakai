@@ -196,6 +196,10 @@
 		color: var(--sakai-text-color-disabled);
 		cursor: not-allowed;
 	}
+
+	:root.sakaiUserTheme-dark & {
+		background-image: url("images/icon-arrow-down-dark.png");
+	}
 }
 
 .nav.nav-tabs, .sakai_tabs{
