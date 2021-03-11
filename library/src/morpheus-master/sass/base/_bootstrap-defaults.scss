@@ -875,13 +875,13 @@ $breadcrumb-active-color:       var(--sakai-text-color-3);
 //** Horizontal offset for forms and lists.
 // $component-offset-horizontal: 180px
 //** Text muted color
-// $text-muted:                  $gray-light
+$text-muted:                  var(--sakai-text-color-dimmed);
 //** Abbreviations and acronyms border color
 // $abbr-border-color:           $gray-light
 //** Headings small color
-// $headings-small-color:        $gray-light
+$headings-small-color:        var(--sakai-text-color-dimmed);
 //** Blockquote small color
-// $blockquote-small-color:      $gray-light
+$blockquote-small-color:      var(--sakai-text-color-dimmed);
 //** Blockquote font size
 // $blockquote-font-size:        ($font-size-base * 1.25)
 //** Blockquote border color
