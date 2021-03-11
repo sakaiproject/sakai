@@ -24,7 +24,7 @@
 <h:outputText value="#{msgs.searching}" />
 </div>  
 
-<h:form id="helpSearchForm">
+<h:form id="helpSearchForm" style="padding:6px">
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
       --%>
@@ -35,7 +35,7 @@
 	<%-- The h:panelGroup is so that the label/for/id doesn't generate an error and 
 	     the outputting of the h1 in verbatim is so that the title is put inbetween them. --%>
 	<h:panelGroup>
-		<f:verbatim><h1 style="font-size:1em;padding:0;margin:0"></f:verbatim>
+		<f:verbatim><h1 style="font-size:1em"></f:verbatim>
 			<h:outputText value="#{msgs.search}" />
 		<f:verbatim></h1></f:verbatim>
 		<h:outputLabel value="#{msgs.search}" for="searchField" styleClass="skip"/>
