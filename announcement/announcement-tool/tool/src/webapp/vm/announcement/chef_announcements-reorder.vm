@@ -102,7 +102,7 @@
 			</div>
 				<ul id="reorder-list" class="styled-reorder-list">
 
-				#set($count = 0)
+				#set($count = 1)
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
 					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count" tabindex="0">
