@@ -82,7 +82,7 @@
 		@extend .fa-fw;		// fixed width icons
 		@extend #{$icon};	// icon passed in through mixin's parameter
 		margin-right: $standard-space;	// space between icon and message text
-		color: $bordercolor;
+		color: $color;
 	}
 	
 	// display a closing X on the right of the banner to indicate that the banner is dismissible
