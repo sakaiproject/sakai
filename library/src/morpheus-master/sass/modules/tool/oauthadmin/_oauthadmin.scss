@@ -1,52 +1,51 @@
-.#{$namespace}sakai-oauth-admin{
+.#{$namespace}sakai-oauth-admin {
+  .flex-container {
+    display: flex;
+  }
 
-    .flex-container {
-        display: flex;
-     }
+  .configuration {
+    width: 60%;
+  }
 
-    .configuration {
-        width:60%;	
-    }
+  .permissions {
+    width: 40%;
+    background: var(--sakai-background-color-2);
+  }
 
-    .permissions {
-        width:40%;	
-    }
+  fieldset {
+    border-radius: 10px;
+    background: var(--sakai-background-color-2);
+    margin: 20px 10px !important;
+    padding: 16px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    border: 2px groove threedface !important;
+    width: 80%;
+  }
 
-    fieldset {
-        border-radius: 10px;
-        background: #eee;
-        margin: 20px 10px !important;
-        padding: 16px !important;
-        box-shadow: 0 0 10px rgba(0,0,0,.3);
-        position: relative;
-        border: 2px groove threedface !important;
-        width: 80%;
-    }
+  .sectionFieldSet {
+    margin: 10px;
+  }
 
-    .sectionFieldSet {
-        margin:10px;	
-    }
+  input[type="submit"] {
+    margin-top: 20px !important;
+  }
 
-    input[type=submit] {
-        margin-top: 20px !important;
-    }
+  input[type="checkbox"] {
+    margin-right: 5px !important;
+  }
 
-    input[type="checkbox"] {
-        margin-right: 5px !important;
-    }
+  label {
+    font-weight: normal !important;
+    display: inline !important;
+  }
 
-    label {
-        font-weight: normal !important;
-        display: inline !important;
-    }
+  .permissions label {
+    cursor: pointer !important;
+  }
 
-    .permissions label {
-        cursor: pointer !important;
-    }
-
-    label::after { 
-        content: "\A"; 
-        white-space: pre; 
-    } 
-
+  label::after {
+    content: "\A";
+    white-space: pre;
+  }
 }
