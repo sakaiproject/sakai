@@ -4,9 +4,8 @@
 <title>How do I check my content for accessibility?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
-<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -20,21 +19,25 @@
 </script>
 </head>
 <body>
-  <div><div>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
 <div><h1 class="article-title">How do I check my content for accessibility?</h1></div>
-<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
   <p><em>Note: The </em>Accessibility Checker <em>is a third party add-on for the Rich Text Editor. While it is open source software, the licensing guidelines do not allow it to come packaged with Sakai. If your institution has installed this add-on, the features described below will be available. If you do not see the </em>Accessibility Checker <em>icon, that means that your institution has not installed this add-on.</em></p>
 </div>
 
     <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>You can use the <em>Accessibility Checker</em> to inspect the accessibility level of content created in the <em>Rich Text Editor</em> and immediately solve any issues that are found.</p>
-<p>The <em>Accessibility Checker</em> presents issues with each item in the editor one at a time.  For many issues, the <em>Accessibility Checker</em> gives you a <em>Quick fix</em> option.  If a <em>Quick fix</em> is not available, the checker will describe what needs to be done to fix the issue.</p>
+<p>The <em>Accessibility Checker</em> presents issues with each item in the editor one at a time. For many issues, the <em>Accessibility Checker</em> gives you a <em>Quick fix</em> option. If a <em>Quick fix</em> is not available, the checker will describe what needs to be done to fix the issue.</p>
 </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="click-the-accessibility-checker-icon">
-    <h2 class="step-title screensteps-heading">Select the Accessibility Checker Button</h2>
+    <h2 class="step-title screensteps-heading">Select the Accessibility Checker button.</h2>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/001/609/573/original/d41c4d44-3dfd-4a1d-b42b-4c709d7aef6b.png" alt="" height="237" width="766">
+    <img src="https://media.screensteps.com/image_assets/assets/003/998/970/original/d41c4d44-3dfd-4a1d-b42b-4c709d7aef6b.png" alt="" height="303" width="766">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -44,9 +47,9 @@
   </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="use-quick-fix-options-to-correct-issues">
-    <h2 class="step-title screensteps-heading">Use Quick Fix Options to Correct Issues</h2>
+    <h2 class="step-title screensteps-heading">Use Quick Fix options to correct issues.</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>The accessibility checker has multiple <strong>Quick fix</strong> options to correct accessibility issues.  Below are a few of the most commonly used ones.</p>
+  <p>The accessibility checker has multiple <strong>Quick fix</strong> options to correct accessibility issues. The following are a few of the most commonly used ones.</p>
 </div>
  
         <div class="step screensteps-section screensteps-depth-2" id="quick-fix-option-for-images">
@@ -65,7 +68,7 @@
       <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
   <p>Notes:</p>
 <ul>
-<li>If the image requires a longer description, include that description in the body of the document.  If the text you would normally use as alternative text would be redundant to your description, leave the <strong>Alternative text</strong> box blank instead.</li>
+<li>If the image requires a longer description, include that description in the body of the document. If the text you would normally use as alternative text would be redundant to your description, leave the <strong>Alternative text</strong> box blank instead.</li>
 <li>If the image is purely decorative or used for visual formatting (e.g., a decorative horizontal bar that has no meaning, but separates text on the page), the alternative text description should be left blank to hide it from users of assistive technology.</li>
 <li>For more information about creating meaningful text alternatives for images, see <a href="content.hlp?docId=howcanimakeimagesmoreaccessible">How can I make images more accessible?</a>
 </li>
@@ -81,7 +84,7 @@
       <div class="step-instructions screensteps-textblock">
   <p>Structuring your document with paragraph headings helps users of assistive technology navigate the page and "skim" content to get to what they need.</p>
 <ol>
-<li>Select a <strong>Header level</strong> from the drop-down menu (the accessibility checker will automatically suggest a header level for you).</li>
+<li>Select a <strong>Header level</strong> from the drop-down menu. (The accessibility checker will automatically suggest a header level for you.)</li>
 <li>Click <strong>Quick fix</strong>.</li>
 </ol>
 </div>
@@ -97,7 +100,7 @@
       <div class="step-instructions screensteps-textblock">
   <p>Users of screen readers cannot read tables the same way sighted users do. Sighted users can tell at a glance what column and row a given cell is associated with, but a screen reader user needs a table to include appropriate headers and captions so that they can match up content in columns and rows.</p>
 <ol>
-<li>From the <strong>Position</strong> drop-down menu, select where the headers belong in the table.  Choosing <strong>Horizontally</strong> makes the text in the first row into headers (i.e., the text in each column of the first row becomes the title of that column). Choosing <strong>Vertically</strong> makes the text in the first column into headers (i.e., the text in each row of the first column will be the title of that row).  Choosing <strong>Both</strong> puts headers in both the first row and the first column.</li>
+<li>From the <strong>Position</strong> drop-down menu, select where the headers belong in the table. Choosing <strong>Horizontally</strong> makes the text in the first row into headers (i.e., the text in each column of the first row becomes the title of that column). Choosing <strong>Vertically</strong> makes the text in the first column into headers (i.e., the text in each row of the first column will be the title of that row). Choosing <strong>Both</strong> puts headers in both the first row and the first column.</li>
 <li>Click <strong>Quick fix</strong>.</li>
 </ol>
 </div>
@@ -109,13 +112,13 @@
   </div>
 
       <div class="step screensteps-section screensteps-depth-1" id="manually-fix-issues">
-    <h2 class="step-title screensteps-heading">Manually Fix Issues</h2>
+    <h2 class="step-title screensteps-heading">Manually fix issues.</h2>
       <div class="image screensteps-image">
     <img src="https://media.screensteps.com/image_assets/assets/001/609/577/original/32a4a9e2-ce43-4032-bbd4-b864e7e761ee.png" alt="" height="1039" width="761">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Sometimes the accessibility checker cannot provide a <strong>Quick fix</strong> because the suggested fix requires editing your text.  For example, if you have a list of items that has been created by typing "1), 2), 3)" rather than using the Numbered List button, the accessibility checker will warn you that you need to select the text and make it into a real numbered list, so that users of assistive technology can navigate it more easily.</p>
+  <p>Sometimes the accessibility checker cannot provide a <strong>Quick fix</strong> because the suggested fix requires editing your text. For example, if you have a list of items that has been created by typing "1), 2), 3)" rather than using the Numbered List button, the accessibility checker will warn you that you need to select the text and make it into a real numbered list, so that users of assistive technology can navigate it more easily.</p>
 <ol>
 <li>If you need to make manual changes, select the <strong>X </strong>icon (<strong>Close</strong>) in the top-right corner of the accessibility checker.</li>
 <li>Edit your document's content accordingly.</li>
@@ -126,7 +129,11 @@
   </div>
 
 
-</div>
 </div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
 </body>
 </html>

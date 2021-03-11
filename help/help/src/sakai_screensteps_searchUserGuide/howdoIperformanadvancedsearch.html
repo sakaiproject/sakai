@@ -4,9 +4,8 @@
 <title>How do I perform an advanced search?</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
-<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -20,9 +19,13 @@
 </script>
 </head>
 <body>
-  <div><div>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
 <div><h1 class="article-title">How do I perform an advanced search?</h1></div>
-<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>The Search Tool is driven by an index that contains multiple sub indexes. When using the tool for basic search, only two of these indexes are used: the context index, and the content index. The content index contains a stored and tokenized full text index of a digested form of the content. This means that a Word document uploaded to Resources will have had all its text extracted and indexed, whereas a video package may have had only the metadata indexed. When the search results are returned, it is this content that is shown with the matching terms highlighted.</p>
 <p>The context index provides a keyword index of the source of the content. This is the worksite or course that contains the content. When the search tool performs a basic search, it adds a search term of +content:&lt;currentsiteid&gt; where &lt;currentsiteid&gt; is the context or site ID where the search is being performed. This can be translated as "results must come from the current site."</p>
 <p>You can search for terms within any of the indexes. For example to search only in announcements, you can use the search terms +tool:announcement +content:cowslip, which will only return announcements containing the word cowslip.</p>
@@ -238,7 +241,11 @@
   </div>
 
 
-</div>
 </div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
 </body>
 </html>
