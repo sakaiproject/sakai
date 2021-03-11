@@ -3599,10 +3599,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // show alert if student is working on a draft
-            if (!s.getSubmitted() // not submitted
-                    && ((s.getSubmittedText() != null && s.getSubmittedText().length() > 0) // has some text
-                    || (s.getAttachments() != null && s.getAttachments().size() > 0))) // has some attachment
-            {
+            if (assignmentToolUtils.isDraftSubmission(s)) {
                 if (s.getAssignment().getCloseDate().isAfter(Instant.now())) {
                     // not pass the close date yet
                     addGradeDraftAlert = true;

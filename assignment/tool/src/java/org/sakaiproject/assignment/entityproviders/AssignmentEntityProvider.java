@@ -1289,6 +1289,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private List<DecoratedAttachment> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
         private Instant assignmentCloseTime;
+        private boolean draft;
+        private boolean visible;
 
         public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa) throws Exception {
 
@@ -1297,10 +1299,18 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.id = as.getId();
             this.gradableId = as.getAssignment().getId();
             this.assignmentCloseTime = sa.getCloseTime();
+            this.draft = assignmentToolUtils.isDraftSubmission(as);
             this.submitted = as.getSubmitted();
-            if (this.submitted) {
+
+            Instant due = sa.getDueTime();
+            Instant close = sa.getCloseTime();
+            this.visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
+                && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
+            if (this.submitted || (this.draft && this.visible)) {
                 this.submittedText = as.getSubmittedText();
-                this.dateSubmitted = as.getDateSubmitted();
+                if (this.submitted) {
+                    this.dateSubmitted = as.getDateSubmitted();
+                }
                 if (dateSubmitted != null) {
                     this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
                 }

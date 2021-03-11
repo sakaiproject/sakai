@@ -1,6 +1,6 @@
 export class Submission {
 
-  constructor(init, groups) {
+  constructor(init, groups, i18n) {
 
     if (init) {
       this.id = init.id;
@@ -20,11 +20,17 @@ export class Submission {
       if (init.dateSubmitted) {
         this.submittedTime = moment.unix(init.dateSubmitted.epochSecond).format("M/D/YYYY @ H:mm");
         this.submittedText = init.submittedText;
-      } else {
+      } else if (init.draft && init.visible) {
+        this.submittedTime = i18n["draft_not_submitted"];
         this.submittedText = init.submittedText;
-        this.submittedText = "No submission";
+      } else {
+        this.submittedText = i18n["no_submission"];
         this.submittedTime = "";
       }
+
+      this.visible = init.visible;
+
+      this.draft = init.draft;
 
       this.graded = init.graded;
 
@@ -71,7 +77,7 @@ export class Submission {
 
   set resubmitsAllowed(value) {
 
-    let old = this._resubmitsAllowed;
+    const old = this._resubmitsAllowed;
     this._resubmitsAllowed = value;
     if (old === 0 && (value === -1 || value > 0)) {
       // This is the first time resubmits have been allowed, so set the date to the

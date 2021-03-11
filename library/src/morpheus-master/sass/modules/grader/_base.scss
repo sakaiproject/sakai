@@ -144,6 +144,11 @@ sakai-grader {
     width: 400px;
     background-color: var(--sakai-title-bar-bg-color);
 
+    .draft-submission {
+        margin-left: 8px;
+        color: var(--errorBanner-color);
+    }
+
     .rubric-active {
       color: var(--successBanner-color);
     }
@@ -291,8 +296,11 @@ sakai-grader {
   }
 
   .submitted-time {
-    font-weight: bold;
     font-style: italic;
+  }
+
+  .draft-time {
+    color: var(--errorBanner-color);
   }
 
   .attachments-header {
