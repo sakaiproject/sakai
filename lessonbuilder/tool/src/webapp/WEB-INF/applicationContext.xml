@@ -320,6 +320,8 @@ simplePageBean.addForumSummary
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="contentFilterService"><ref bean="org.sakaiproject.content.api.ContentFilterService"/></property>
     <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+    <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
