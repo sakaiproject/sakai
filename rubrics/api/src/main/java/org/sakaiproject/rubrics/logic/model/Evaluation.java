@@ -95,7 +95,8 @@ public class Evaluation implements Modifiable, Serializable {
     private ToolItemRubricAssociation toolItemRubricAssociation;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "rbc_eval_criterion_outcomes")
+    @JoinTable(name = "rbc_eval_criterion_outcomes",
+            joinColumns = @JoinColumn(name = "rbc_evaluation_id", referencedColumnName = "id", nullable = false))
     private List<CriterionOutcome> criterionOutcomes;
 
     @Enumerated
