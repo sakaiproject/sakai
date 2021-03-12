@@ -1,4 +1,3 @@
-<div id="roster-members-grid">
 {{#each members}}
     <div class="roster-member-card">
         {{#if ../viewPicture}}
@@ -37,19 +36,21 @@
             {{#if ../viewUserNamePronunciation}}
             <div class="roster-card-label">{{tr 'facet_user_name_pronunciation'}}</div>
             <div class="roster-card-value namePronunciation">
+                <span class="namePronunciation">
                 {{#if pronunciation}}
-                {{{pronunciation}}}
+                    {{{pronunciation}}}
                 {{else}}
                     {{#ifCond ../currentUserId userId}}
                         {{#if ../profileNamePronunciationLink}}
-                        <a href="{{../profileNamePronunciationLink}}">{{tr 'name_pronunciation_profile_link'}}</a>
+                            <a href="{{../profileNamePronunciationLink}}">{{tr 'name_pronunciation_profile_link'}}</a>
                         {{else}}
-                        {{{tr 'name_pronunciation_not_provided'}}}
+                            {{{tr 'name_pronunciation_not_provided'}}}
                         {{/if}}
-                        {{else}}
+                    {{else}}
                         {{{tr 'name_pronunciation_not_provided'}}}
                     {{/ifCond}}
                 {{/if}}
+                </span>
             </div>
             {{/if}}
 
@@ -133,4 +134,3 @@
         </div> <!-- /roster-info-card -->
     </div> <!-- /roster-member-card -->
 {{/each}}
-</div>

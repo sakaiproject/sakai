@@ -28,7 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.TemporalType;
 
@@ -45,6 +47,7 @@ import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -66,7 +69,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	public void destroy() {
 		log.info("Destroying " + getClass().getName());
 	}
-	
+
 	/**
 	 * A generic approach to finding objects by their eid.  This is "coding by convention",
 	 * since it expects the parameterized query to use "eid" as the single named parameter.
@@ -467,11 +470,14 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		}
 	}
 
+	public String getEnrollmentStatusDescription(String statusId) {
+		return new ResourceLoader("enrollmentstatus").getString(statusId, statusId);
+	}
+
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("enrolled", "Enrolled");
-		map.put("wait", "Waitlisted");
-		return map;
+
+		ResourceLoader rl = new ResourceLoader("enrollmentstatus");
+		return ((Set<String>) rl.keySet()).stream().collect(Collectors.toMap(k -> k, k -> rl.getString(k, k)));
 	}
 
 	public Map<String, String> getGradingSchemeDescriptions(Locale locale) {

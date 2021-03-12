@@ -63,7 +63,6 @@
             <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
             <div id="rosterMainContainer">
-
                 <div id="roster_content" class="view_mode_${defaultOverviewMode}"></div>
             </div>
 
