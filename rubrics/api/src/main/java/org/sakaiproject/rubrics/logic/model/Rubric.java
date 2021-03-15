@@ -33,6 +33,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -82,7 +83,9 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
     private Boolean weighted = Boolean.FALSE;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "rbc_rubric_criterions")
+    @JoinTable(name = "rbc_rubric_criterions",
+            joinColumns = @JoinColumn(name = "rbc_rubric_id", referencedColumnName = "id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "criterions_id", referencedColumnName = "id", nullable = false))
     @OrderColumn(name = "order_index")
     private List<Criterion> criterions;
 
