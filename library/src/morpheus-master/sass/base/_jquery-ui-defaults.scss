@@ -247,4 +247,14 @@
         -webkit-box-shadow:var(--elevation-4dp);
         box-shadow:var(--elevation-4dp);
     }
+
+    .ui-state-default.ui-slider-handle {
+        background: var(--button-primary-background);
+        border: var(--button-primary-border-color);
+    }
+
+    .ui-widget.ui-slider {
+        border: 1px solid var(--sakai-background-color-3);
+        background: var(--sakai-background-color-3);
+    }
 }
