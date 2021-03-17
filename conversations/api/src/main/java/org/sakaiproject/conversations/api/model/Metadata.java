@@ -8,12 +8,15 @@ import java.time.Instant;
 @Embeddable
 public class Metadata {
 
-    @Column(name = "AUTHOR", length = 99)
-    private String author;
+    @Column(name = "CREATOR", length = 99)
+    private String creator;
 
     @Column(name = "CREATED", nullable = false)
     private Instant created;
 
-    @Column(name = "LAST_MODIFIED")
-    private Instant lastModified;
+    @Column(name = "MODIFIER", length = 99)
+    private String modifier;
+
+    @Column(name = "MODIFIED")
+    private Instant modified;
 }

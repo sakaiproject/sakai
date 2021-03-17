@@ -70,5 +70,22 @@ html {
 
   --link-color: darken(#428bca, 6.5%);
 }
+
+.topic {
+  border: 1px black solid;
+  padding: 10px;
+}
+
+.topic-author-image-wrapper {
+  display: inline-block;
+  border-radius: 20px;
+}
+.topic-title {
+  display: inline-block;
+}
+
+.topic-author-image {
+  width: 40px;
+}
 </style>
 `;
