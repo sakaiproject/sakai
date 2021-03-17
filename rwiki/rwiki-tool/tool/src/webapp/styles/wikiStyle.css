@@ -53,7 +53,7 @@ ul.tabs li.tabHeadOff {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-	background-color: var(--sakai-background-color-2);
+  background-color: var(--sakai-background-color-2);
 }
 /* turn on tab header */
 ul.tabs li.tabHeadOn  {
@@ -67,7 +67,7 @@ ul.tabs li.tabHeadOn  {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-	background-color: var(sakai-background-color-1);
+  background-color: var(sakai-background-color-1);
 }
 /* turn the tab content off */
 div.tabOff {
@@ -651,14 +651,16 @@ added only to site index, could be added to other things*/
 }
 #selectList{
 	list-style:none;
-	margin:0;padding:0
+	margin:0;
+	padding:0
 }
 #selectList li{
 	margin:.1em 0;padding:.3em 0;
 	width:80%;
 }
 .selectedSelected{
-	background: #def;
+	background: var(--sakai-background-color-2);
+	color:var(--sakai-text-color-1);
 }
 /*PART 2 - USER CREATED CONTENT STYLES*/
 
