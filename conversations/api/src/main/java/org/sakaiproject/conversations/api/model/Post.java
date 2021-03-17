@@ -15,14 +15,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+
 @Entity
 @Table(name = "CONV_POSTS")
 public class Post {
 
     @Id
-    @GeneratedValue
-    @Column(name = "POST_ID")
-    private Long id;
+    @Column(name = "POST_ID", length = 36, nullable = false)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TOPIC_ID")
