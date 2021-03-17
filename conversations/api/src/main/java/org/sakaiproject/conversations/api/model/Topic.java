@@ -17,6 +17,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import org.sakaiproject.conversations.api.TopicType;
 
 import lombok.Getter;
@@ -27,9 +29,10 @@ import lombok.Getter;
 public class Topic {
 
     @Id
-    @GeneratedValue
-    @Column(name = "TOPIC_ID")
-    private Long id;
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
 
     @Column(name = "ABOUT_REFERENCE", length = 255, nullable = false)
     private String aboutReference;
