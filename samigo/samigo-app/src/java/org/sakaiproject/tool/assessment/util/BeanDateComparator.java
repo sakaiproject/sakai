@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -106,7 +107,7 @@ public class BeanDateComparator
       }
     }
 
-    if (s1 != "" && s2 != "" && i1 == null && i2 == null) {
+    if (StringUtils.isNoneBlank(s1, s2) && i1 == null && i2 == null) {
       log.warn("Could not parse date patterns for s1={}, s2={}", s1, s2);
     }
 
