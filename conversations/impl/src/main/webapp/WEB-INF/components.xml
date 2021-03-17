@@ -15,9 +15,13 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
+                <value>org.sakaiproject.conversations.api.model.BannedTopic</value>
                 <value>org.sakaiproject.conversations.api.model.Comment</value>
                 <value>org.sakaiproject.conversations.api.model.Post</value>
+                <value>org.sakaiproject.conversations.api.model.PostStatus</value>
+                <value>org.sakaiproject.conversations.api.model.ReadingListItem</value>
                 <value>org.sakaiproject.conversations.api.model.Topic</value>
+                <value>org.sakaiproject.conversations.api.model.TopicPoster</value>
             </list>
         </property>
     </bean>
