@@ -27,8 +27,8 @@ public class TopicPoster {
     @JoinColumn(name = "TOPIC_ID", nullable = false)
     private Topic topic;
 
-    @Column(name = "POSTER", length = 99, nullable = false)
-    private String poster;
+    @Column(name = "USER_ID", length = 99, nullable = false)
+    private String userId;
 
     @Column(name = "NUMBER_OF_POSTS", nullable = false)
     private Integer numberOfPosts;
