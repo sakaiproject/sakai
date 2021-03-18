@@ -71,21 +71,67 @@ html {
   --link-color: darken(#428bca, 6.5%);
 }
 
-.topic {
+#conv-mobile {
+}
+
+#conv-mobile .topic {
+  padding: 20px;
   border: 1px black solid;
-  padding: 10px;
+  margin-top: 20px;
 }
 
-.topic-author-image-wrapper {
-  display: inline-block;
-  border-radius: 20px;
-}
-.topic-title {
-  display: inline-block;
+#conv-mobile .topic-data {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 1rem;
 }
 
-.topic-author-image {
-  width: 40px;
+#conv-desktop {
+  display: grid;
+  grid-template-columns: 4fr 1fr 3fr 1fr 2fr 2fr;
+  grid-auto-rows: minmax(10px, auto);
+  grid-gap: 1rem;
+}
+
+#conv-desktop .header {
+  font-weight: bold;
+}
+
+sakai-conversations .topic-title-wrapper {
+  font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  #conv-desktop {
+    display: none;
+  }
+  #conv-mobile {
+    display: block;
+  }
+  sakai-conversations .topic-title-wrapper {
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 600px) {
+  #conv-desktop {
+    display: grid;
+  }
+  #conv-mobile {
+    display: none;
+  }
+}
+
+
+sakai-conversations .topic-poster-images-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
+  grid-gap: 1rem;
+}
+
+sakai-conversations .topic-poster-image {
+  width: 26px;
+  height: 26px;
 }
 </style>
 `;

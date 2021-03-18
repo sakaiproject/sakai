@@ -1,5 +1,6 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
+import moment from "../assets/moment/dist/moment.js";
 
 export class SakaiConversations extends SakaiElement {
 
@@ -28,8 +29,11 @@ export class SakaiConversations extends SakaiElement {
       .then(r => r.json())
       .then(topics => {
 
-        console.log(topics);
-        this.topics = topics;
+        this.topics = topics.map(t => {
+
+          t.lastActivityHuman = moment.duration(t.lastActivity - Date.now(), "milliseconds").humanize(true);
+          return t;
+        });
       });
   }
 
@@ -42,18 +46,57 @@ export class SakaiConversations extends SakaiElement {
   render() {
 
     return html`
-      <h2>${this.i18n["title"]}</h2>
-      ${this.topics.map(t => html`
+      <div id="conv-desktop">
+        <div class="header">Topic</div>
+        <div class="header">Type</div>
+        <div class="header">Posters</div>
+        <div class="header">Unread</div>
+        <div class="header">Posts</div>
+        <div class="header">Last Activity</div>
+        ${this.topics.map(t => html`
+          <div class="topic-title-wrapper">
+            ${t.type === "QUESTION" ? html`
+            <span class="question-prefix">${this.i18n["question"]}</span>
+            ` : ""}
+            <span class="topic-title">${t.title}</span>
+          </div>
+          <div>${this.i18n[t.type]}</div>
+          <div class="topic-poster-images-wrapper">
+            <div class="topic-poster-image-wrapper"><img src="${t.metadata.creatorImage}" class="topic-poster-image" /></div>
+            ${t.posters.map(p => html`
+            <div class="topic-poster-image-wrapper"><img src="${p.posterImage}" class="topic-poster-image" /></div>
+            `)}
+          </div>
+          <div>${t.numberOfPosts - t.viewed}</div>
+          <div>${t.numberOfPosts}</div>
+          <div>${t.lastActivityHuman}</div>
+        `)}
+      </div>
+      <div id="conv-mobile">
+        ${this.topics.map(t => html`
         <div class="topic">
-          ${t.type === "QUESTION" ? html`
-          <span>${this.i18n["question"]}</span>
-          ` : ""}
-          <div class="topic-title">${t.title}</div>
-          <div class="topic-messagesauthor-image-wrapper">
-            <img src="${t.metadata.authorImage}" class="topic-author-image" />
+          <div class="topic-title-wrapper">
+            ${t.type === "QUESTION" ? html`
+            <span class="question-prefix">${this.i18n["question"]}</span>
+            ` : ""}
+            <span class="topic-title">${t.title}</span>
+          </div>
+          <div class="topic-data">
+            <div class="header">Type:</div><div>${this.i18n[t.type]}</div>
+            <div class="header">Posters</div>
+            <div class="topic-poster-images-wrapper">
+              <div class="topic-poster-image-wrapper"><img src="${t.metadata.creatorImage}" class="topic-poster-image" /></div>
+              ${t.posters.map(p => html`
+              <div class="topic-poster-image-wrapper"><img src="${p.posterImage}" class="topic-poster-image" /></div>
+              `)}
+            </div>
+            <div class="header">Unread</div><div>${t.numberOfPosts - t.viewed}</div>
+            <div class="header">Posts</div><div>${t.numberOfPosts}</div>
+            <div class="header">Last Activity</div><div>${t.lastActivityHuman}</div>
           </div>
         </div>
-      `)}
+        `)}
+      </div>
     `;
   }
 }
