@@ -42,7 +42,8 @@
 
 <!-- the href and rel must equal the id of the toolTipText span and have #prepended to them, see below: -->
 <a wicket:id="link" href="#text" rel="#text" title="#text" class="sakai-wicket-iconwithtooltip">
-	<span wicket:id="icon"></span>
+	<span wicket:id="icon" aria-hidden="true"></span>
+	<span wicket:id="srText" class="sr-only"></span>
 </a>
 
 </wicket:panel>
