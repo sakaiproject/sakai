@@ -182,23 +182,23 @@ public class PortletIFrame extends GenericPortlet {
     private final static String MACRO_EXPANSION       = "expandMacros";
 
     /** Macro name: Site id (GUID) */
-    protected static final String MACRO_SITE_ID             = "${SITE_ID}";
+    protected static final String MACRO_SITE_ID             = "$SITE_ID";
     /** Macro name: User id */
-    protected static final String MACRO_USER_ID             = "${USER_ID}";
+    protected static final String MACRO_USER_ID             = "$USER_ID";
     /** Macro name: User enterprise id */
-    protected static final String MACRO_USER_EID            = "${USER_EID}";
+    protected static final String MACRO_USER_EID            = "$USER_EID";
     /** Macro name: First name */
-    protected static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
+    protected static final String MACRO_USER_FIRST_NAME     = "$USER_FIRST_NAME";
     /** Macro name: Last name */
-    protected static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
+    protected static final String MACRO_USER_LAST_NAME      = "$USER_LAST_NAME";
     /** Macro name: Role */
-    protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
+    protected static final String MACRO_USER_ROLE           = "$USER_ROLE";
 
     private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
    
     private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 
-    private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
+    private static final String MACRO_DEFAULT_ALLOWED = "$USER_ID,$USER_EID,$USER_FIRST_NAME,$USER_LAST_NAME,$SITE_ID,$USER_ROLE";
 
 	// Default is six hours
     private static final String IFRAME_XFRAME_CACHETIME = "iframe.xframe.cachetime";
@@ -242,9 +242,11 @@ public class PortletIFrame extends GenericPortlet {
 
         allowedMacrosList = new ArrayList();
 
+        
         final String allowedMacros =
-            ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
-
+            ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED)
+            // Remove braces from allowedMacros as those were previously allowed so this is for compatibility 
+            .replaceAll("\\{|\\}", "");
         String parts[] = allowedMacros.split(",");
 
         if(parts != null) {
@@ -1267,10 +1269,9 @@ public class PortletIFrame extends GenericPortlet {
 				return this.getUserRole();
 			}
 
-			if (macroName.startsWith("${"+MACRO_CLASS_SITE_PROP)) 
+			if (macroName.startsWith("$"+MACRO_CLASS_SITE_PROP)) 
 			{
-				macroName = macroName.substring(2); // Remove leading "${"
-				macroName = macroName.substring(0, macroName.length()-1); // Remove trailing "}" 
+				macroName = macroName.substring(1); // Remove leading "$"
 				
 				// at this point we have "SITE_PROP:some-property-name"
 				// separate the property name from the prefix then return the property value
@@ -1329,7 +1330,7 @@ public class PortletIFrame extends GenericPortlet {
 		/*
 		 * Quit now if no macros are embedded in the text
 		 */
-		if (originalText.indexOf("${") == -1)
+		if (originalText.indexOf("$") == -1)
 		{
 			return originalText;
 		}
@@ -1337,6 +1338,8 @@ public class PortletIFrame extends GenericPortlet {
 		 * Expand each macro
 		 */
 		sb = new StringBuilder(originalText);
+        // Remove braces from allowedMacros as those were previously allowed so this is for compatibility 
+		originalText = originalText.replaceAll("\\{|\\}", "");
 
 		Iterator i = allowedMacrosList.iterator();
 		
@@ -1409,8 +1412,7 @@ public class PortletIFrame extends GenericPortlet {
         }
 
         // Validate the url
-        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
-        return urlValidator.isValid(urlToValidate);
+        return formattedText.validateURL(urlToValidate);
     }
 
     public String sanitizeHrefURL(String urlToEscape) {
