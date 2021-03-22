@@ -47,12 +47,13 @@ public class IconWithToolTip extends Panel{
 		link.add(new AttributeModifier("title", true, textModel));
 		
 		//icon
-		Label icon = new Label("icon");
+		Label icon = new Label("icon", new Model<String>(""));
+		
+		icon.add(new AttributeModifier("class", new Model(iconClass)));
 		
 		//text for screen readers
 		Label srText = new Label("srText", new ResourceModel("accessibility.tooltip"));
 		
-		icon.add(new AttributeModifier("class", new Model(iconClass)));
 		
 		link.add(icon);	                
 		link.add(srText);
