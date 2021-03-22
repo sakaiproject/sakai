@@ -41,7 +41,9 @@ public class AuthenticatedRequestContext implements UserDetails {
     private final String contextType;
     private final Collection<GrantedAuthority> authorities = new ArrayList<>();
     private final String queryMode;
-
+    private static final String ALL_MODE = "all";
+    private static final String SITE_MODE = "site";
+    
     public AuthenticatedRequestContext(String userId, String toolId, String contextId, String contextType, String queryMode) {
         this.userId = userId;
         this.username = userId;
@@ -142,9 +144,13 @@ public class AuthenticatedRequestContext implements UserDetails {
     }
     @JsonIgnore
     public int isSharedAll() {
-    	if(this.queryMode.equalsIgnoreCase("all")) {
-    		return 1;
-    	}
-    	return this.queryMode.equalsIgnoreCase("site") ? 2 : 0;
+    	switch (this.queryMode.toLowerCase()) {
+		case ALL_MODE:
+			return 1;
+		case SITE_MODE:
+			return 2;
+		default:
+			return 0;
+		}
     }
 }

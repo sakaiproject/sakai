@@ -111,7 +111,7 @@ public class JwtTokenUtil implements Serializable {
                     jwt.getClaim(JWT_CUSTOM_CLAIM_TOOL_ID).asString(),
                     jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID).asString(),
                     jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE).asString(),
-                    serverConfigurationService.getString("rubrics.shared.rubrics", "all"));
+                    serverConfigurationService.getString("rubrics.shared.mode", "all"));
 
             List<String> roles = jwt.getClaim(JWT_CUSTOM_CLAIM_ROLES).asList(String.class);
             for (String role : roles) {
