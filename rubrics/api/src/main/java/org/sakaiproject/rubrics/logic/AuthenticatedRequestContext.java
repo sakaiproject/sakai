@@ -142,6 +142,9 @@ public class AuthenticatedRequestContext implements UserDetails {
     }
     @JsonIgnore
     public int isSharedAll() {
-    	return this.queryMode.equals("all") ? 1 : 0;
+    	if(this.queryMode.equalsIgnoreCase("all")) {
+    		return 1;
+    	}
+    	return this.queryMode.equalsIgnoreCase("site") ? 2 : 0;
     }
 }

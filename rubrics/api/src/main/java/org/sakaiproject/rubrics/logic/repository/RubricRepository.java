@@ -51,7 +51,7 @@ public interface RubricRepository extends MetadataRepository<Rubric, Long> {
 
     @RestResource(path = "shared-only", rel = "shared-only")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-	@Query("select resource from Rubric resource where resource.metadata.shared = true and ((resource.metadata.creatorId = ?#{principal.userId} or "+ QUERY_CONTEXT_CONSTRAINT +") or 1 = ?#{principal.isSharedAll()}) order by resource.title")
+	@Query("select resource from Rubric resource where resource.metadata.shared = true and ((resource.metadata.creatorId = ?#{principal.userId} or ("+ QUERY_CONTEXT_CONSTRAINT +" and 2 = ?#{principal.isSharedAll()})) or 1 = ?#{principal.isSharedAll()}) order by resource.title")
     List<Rubric> getAllSharedRubrics();
 
     @RestResource(path = "rubrics-from-site", rel = "rubrics-from-site")
