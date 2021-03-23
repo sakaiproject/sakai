@@ -37,32 +37,22 @@ package org.sakaiproject.roster.api;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * Container for a site.
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
-@RequiredArgsConstructor
+@Data
 public class RosterSite {
 
-	@Getter
 	private final String id;
-	@Getter @Setter
 	private String title;
-	@Getter @Setter
 	private List<String> userRoles;
-	@Getter @Setter
 	private List<RosterGroup> siteGroups;
-	@Getter @Setter
 	private List<RosterEnrollment> siteEnrollmentSets;
-	@Getter @Setter
 	private Map<String, String> enrollmentStatusCodes;
-	@Getter @Setter
 	private int membersTotal;
-	@Getter @Setter
 	private Map<String, Integer> roleCounts;
 }

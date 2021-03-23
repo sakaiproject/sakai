@@ -34,21 +34,16 @@
 
 package org.sakaiproject.roster.api;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * Container for an enrollment set.
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
-@RequiredArgsConstructor
+@Data
 public class RosterEnrollment {
 	
-	@Getter
 	private final String id;
-	@Getter @Setter
 	private String title;
-	
 }

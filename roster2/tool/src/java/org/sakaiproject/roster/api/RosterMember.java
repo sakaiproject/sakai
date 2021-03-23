@@ -35,12 +35,10 @@
 package org.sakaiproject.roster.api;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * <code>RosterMember</code> wraps together fields from <code>User</code>,
@@ -49,72 +47,41 @@ import lombok.Setter;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
-@RequiredArgsConstructor
+@Data
 public class RosterMember {
-	
-	@Getter
+
 	private final String userId;
-	@Setter
 	private String eid;
-	@Getter @Setter
 	private String displayId;
-	@Getter @Setter
 	private String displayName;
-	@Getter @Setter
 	private String sortName;
-	@Getter @Setter
 	private String email;
-	@Getter @Setter
 	private String role;
-	@Getter @Setter
 	private String enrollmentStatusId;
-	@Getter @Setter
 	private String enrollmentStatusText;
-	@Getter @Setter
 	private String credits;
-	@Getter @Setter
+	private String pronouns;
 	private String pronunciation;
-	@Getter
 	private Map<String, String> groups = new HashMap<String, String>();
-	@Getter @Setter
 	private Map<String, String> userProperties = new HashMap<>();
-	@Getter @Setter
 	private int connectionStatus; // connection status to the current user
-	@Getter @Setter
 	private int totalSiteVisits;
-	@Getter @Setter
 	private long lastVisitTime;
-	
+
 	public void addGroup(String groupId, String groupTitle) {
-		
+
 		if (null == groupId) {
 			throw new IllegalArgumentException("groupId cannot be null");
 		}
 
 		groups.put(groupId, groupTitle);
 	}
-		
+
 	public String getGroupsToString() {
-		
-		StringBuilder groupsString = new StringBuilder();
-		
-		Iterator<String> iterator = groups.values().iterator();
-		while (iterator.hasNext()) {
-			groupsString.append(iterator.next());
-			
-			if (iterator.hasNext()) {
-				groupsString.append(", ");
-			}
-		}
-		return groupsString.toString();
+		return groups.values().stream().collect(Collectors.joining(","));
 	}
 
 	public String getEid() {
-		if (null == eid) {
-			return userId;
-		}
-		
-		return eid;
+		return eid == null ? userId : eid;
 	}
-	
 }

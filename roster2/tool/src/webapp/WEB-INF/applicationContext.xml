@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.roster.impl"/>
 
     <bean name="org.sakaiproject.roster.api.SakaiProxy"
         class="org.sakaiproject.roster.impl.SakaiProxyImpl" init-method="init">
-        <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
-        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-        <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
-        <property name="groupProvider"><ref bean="org.sakaiproject.authz.api.GroupProvider"/></property>
-        <property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
-        <property name="profileLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileLogic"/></property>
-        <property name="connectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
-        <property name="sakaiPersonManager"><ref bean="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/></property>
-        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-        <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
-        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-        <property name="statsManager"><ref bean="org.sakaiproject.sitestats.api.StatsManager"/></property>
-        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
-        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
     </bean>
 
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.roster.tool.entityprovider.RosterPOIEntityProvider">
-        <property name="sakaiProxy"><ref bean="org.sakaiproject.roster.api.SakaiProxy"/></property>
 	</bean>
 	
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.roster.tool.entityprovider.RosterSiteEntityProvider">
-        <property name="sakaiProxy"><ref bean="org.sakaiproject.roster.api.SakaiProxy"/></property>
     </bean>
 
 </beans>

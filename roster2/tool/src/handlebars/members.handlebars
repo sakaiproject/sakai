@@ -25,10 +25,19 @@
         </div>
     {{/unless}}
 
+    {{#if ../viewPronouns}}
+        <div class="roster-table-cell roster-pronouns-cell">
+            <div class="roster-mobile-label">{{tr 'facet_pronouns'}}</div>
+            <span class="pronouns">
+                {{{pronouns}}}
+            </span>
+        </div>
+    {{/if}}
+
     {{#if ../viewUserNamePronunciation}}
         <div class="roster-table-cell roster-user-name-pronunciation-cell">
             <div class="roster-mobile-label">{{tr 'facet_user_name_pronunciation'}}</div>
-                <span class="namePronunciation">
+            <span class="namePronunciation">
                 {{#if pronunciation}}
                     {{{pronunciation}}}
                 {{else}}
@@ -42,7 +51,7 @@
                         {{{tr 'name_pronunciation_not_provided'}}}
                     {{/ifCond}}
                 {{/if}}
-                </span>
+            </span>
         </div>
     {{/if}}
 
