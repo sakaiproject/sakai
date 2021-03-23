@@ -270,7 +270,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <div class="grade-block">
           ${this.gradeScale === "LETTER_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
-            <select aria-label="${this.i18n["lettergrade_selector_label"]}" @change=${this.gradeSelected}>
+            <select id="letter-grade-selector"
+                      aria-label="${this.i18n["lettergrade_selector_label"]}"
+                      @change=${this.gradeSelected}>
               <option value="">${this.assignmentsI18n["non.submission.grade.select"]}</option>
               ${this.letterGradeOptions.map(grade => html`<option value="${grade}" .selected=${this.submission.grade === grade}>${grade}</option>`)}
             </select>
@@ -279,7 +281,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ` : ""}
           ${this.gradeScale === "SCORE_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
-            <input aria-label="${this.i18n["number_grade_label"]}"
+            <input id="score-grade-input" aria-label="${this.i18n["number_grade_label"]}"
               @keydown=${this.validateGradeInput}
               @keyup=${this.gradeSelected}
               type="text"
@@ -303,7 +305,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.renderFailed()}
           ` : ""}
           ${this.gradeScale === "CHECK_GRADE_TYPE" ? html`
-            <input aria-label="${this.i18n["checkgrade_label"]}" @click=${this.gradeSelected} type="checkbox" value="Checked" .checked=${this.submission.grade === this.assignmentsI18n["gen.checked"]}></input><span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
+            <input id="check-grade-input"
+                    type="checkbox"
+                    aria-label="${this.i18n["checkgrade_label"]}"
+                    @click=${this.gradeSelected}
+                    value="Checked"
+                    .checked=${this.submission.grade === this.assignmentsI18n["gen.checked"]}>
+            </input>
+            <span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
             ${this.renderSaved()}
             ${this.renderFailed()}
           ` : ""}
@@ -784,6 +793,27 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.resetEditors(true);
 
     this.modified = false;
+
+    switch (this.gradeScale) {
+      case "SCORE_GRADE_TYPE": {
+        const input = document.getElementById("score-grade-input");
+        input  && (input.value = this.submission.grade);
+        break;
+      } case "PASS_FAIL_GRADE_TYPE": {
+        const input = document.getElementById("pass-fail-selector");
+        input  && (input.value = this.submission.grade);
+        break;
+      } case "LETTER_GRADE_TYPE": {
+        const input = document.getElementById("letter-grade-selector");
+        input  && (input.value = this.submission.grade);
+        break;
+      } case "CHECK_GRADE_TYPE": {
+        const input = document.getElementById("check-grade-input");
+        input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"]);
+        break;
+      }
+      default:
+    }
   }
 
   canNavigate() {
