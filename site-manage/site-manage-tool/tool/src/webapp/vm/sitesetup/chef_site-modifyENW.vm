@@ -132,9 +132,7 @@
 									$tool.Title
 									#if (!$toolId.equals($originToolId))
 									## the last instance is not removable
-									<a href="#" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'removeToolSpinner' );document.toolForm.option.value='remove_$toolId';document.toolForm.submit();" title ="$tlang.getString('multipleTools.remove')"> 
-										<img src="/library/image/silk/cross.png" alt="$tlang.getString('multipleTools.remove')" style="vertical-align:text-bottom"/>
-									</a>
+									<a href="#" class="fa fa-times removeTool" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'removeToolSpinner' );document.toolForm.option.value='remove_$toolId';document.toolForm.submit();" title ="$tlang.getString('multipleTools.remove')"> </a>
 									<div id="removeToolSpinner" class="allocatedSpinPlaceholder"></div>
 									#end
 								</h4>
