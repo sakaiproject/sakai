@@ -213,6 +213,7 @@ public class MyProfile extends BasePage {
 		userProfile.setPersonalSummary(sakaiPerson.getNotes());
 
 		userProfile.setPhoneticPronunciation(sakaiPerson.getPhoneticPronunciation());
+		userProfile.setPronouns(sakaiPerson.getPronouns());
 
 		// social networking fields
 		SocialNetworkingInfo socialInfo = profileLogic.getSocialNetworkingInfo(userProfile.getUserUuid());
