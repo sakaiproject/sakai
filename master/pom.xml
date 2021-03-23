@@ -331,6 +331,13 @@
         <enabled>true</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>shib-release</id>
+      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <dependencyManagement>
