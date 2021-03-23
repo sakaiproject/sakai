@@ -100,8 +100,7 @@ public class Evaluation implements Modifiable, Serializable {
     private List<CriterionOutcome> criterionOutcomes;
 
     @Enumerated
-    @Column(nullable = false)
-    private EvaluationStatus status = EvaluationStatus.DRAFT;
+    private EvaluationStatus status = EvaluationStatus.RETURNED;
 
     @Embedded
     private Metadata metadata;
