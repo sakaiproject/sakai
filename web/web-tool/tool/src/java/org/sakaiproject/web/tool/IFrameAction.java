@@ -730,7 +730,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		{
 			return originalText;
 		}
-        // Remove braces from allowedMacros as those were previously allowed so this is for compatibility 
+		// Remove braces from allowedMacros as those were previously allowed so this is for compatibility 
 		originalText = originalText.replaceAll("\\{|\\}", "");
 
 		/*
