@@ -61,7 +61,7 @@ class SakaiRubricStudentButton extends RubricsElement {
 
     const token = `Bearer ${this.token}`;
 
-    let url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
+    let url = `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-and-evaluated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
     return fetch(url, {
       credentials: "same-origin",
       headers: {
