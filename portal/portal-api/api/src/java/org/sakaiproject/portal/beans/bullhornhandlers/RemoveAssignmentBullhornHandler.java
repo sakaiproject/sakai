@@ -29,9 +29,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.portal.api.BullhornData;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,20 +65,20 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
                 .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
                 .setString("ref", ref.replace("/a/","/s/")+"%").list());
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
+            transactionTemplate.execute(status -> {
+
                     sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
                         .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
                         .setString("ref", ref).executeUpdate();
-                }
-            });
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    return null;
+                });
+            transactionTemplate.execute(status -> {
+
                     sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref like :ref")
                         .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
                         .setString("ref", ref.replace("/a/","/s/")+"%").executeUpdate();
-                }
-            });
+                    return null;
+                });
         } catch (Exception e1) {
             log.error("Failed to delete bullhorn request event", e1);
         }
