@@ -482,7 +482,7 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("tan(40)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("-1.12", result);
-        // use rad() to transform input into degrees before passing to tan()
+        // use rad() to transform input from degrees before passing to tan()
         result = gradingService.processFormulaIntoValue("tan(rad(40))", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("0.84", result);
