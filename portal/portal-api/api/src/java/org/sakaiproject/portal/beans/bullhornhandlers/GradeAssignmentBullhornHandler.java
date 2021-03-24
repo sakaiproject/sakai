@@ -18,10 +18,14 @@ package org.sakaiproject.portal.beans.bullhornhandlers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -31,8 +35,11 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.portal.beans.BullhornAlert;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +49,12 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
 
     @Inject
     private AssignmentService assignmentService;
+
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    private SessionFactory sessionFactory;
+
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
 
     @Override
     public List<String> getHandledEvents() {
@@ -70,14 +83,26 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
                 String title = assignment.getTitle();
                 List<BullhornData> bhEvents = new ArrayList<>();
                 submission.getSubmitters().forEach(to -> {
-                    try {
-                        String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
-                        if (StringUtils.isNotBlank(url)) { 
-                            bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
+
+                    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+                    long currentCount = transactionTemplate.execute(status -> {
+
+                            return (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                                .add(Restrictions.eq("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION))
+                                .add(Restrictions.eq("ref", ref))
+                                .add(Restrictions.eq("toUser", to.getSubmitter())).setProjection(Projections.rowCount()).uniqueResult();
+                        });
+
+                    if (currentCount == 0) {
+                        try {
+                            String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
+                            if (StringUtils.isNotBlank(url)) { 
+                                bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url));
+                            }
+                            countCache.remove(to.getSubmitter());
+                        } catch(Exception exc) {
+                            log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);
                         }
-                        countCache.remove(to.getSubmitter());
-                    } catch(Exception exc) {
-                        log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);
                     }
                 });
 

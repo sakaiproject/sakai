@@ -18,7 +18,6 @@ package org.sakaiproject.portal.beans.bullhornhandlers;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Resource;
@@ -34,8 +33,6 @@ import org.hibernate.SessionFactory;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,15 +66,12 @@ public class FriendConfirmBullhornHandler extends AbstractBullhornHandler {
         String to = pathParts[2];
         try {
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+            transactionTemplate.execute(status -> {
 
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
-                        .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
-                        .setString("fromUser", to).executeUpdate();
-                }
+                sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
+                    .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
+                    .setString("fromUser", to).executeUpdate();
+                return null;
             });
         } catch (Exception e1) {
             log.error("Failed to delete bullhorn request event", e1);
