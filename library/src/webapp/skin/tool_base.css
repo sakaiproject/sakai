@@ -370,10 +370,10 @@ ul.alertMessage{
 }
 
 /*highlight certain texts*/
-/*see: create a draft announcement - see the list*/
+/*see: assignment due date in list*/
 .highlight{
-	color: var(--errorBanner-color);
-    font-weight:bold;
+	color: var(--sakai-hightlight-color);
+	font-weight:bold;
 }
 
 /*see: top of resources*/
