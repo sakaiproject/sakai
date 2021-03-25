@@ -500,6 +500,19 @@ public class GradingServiceTest {
         Assert.assertNotNull(result);
         Assert.assertEquals("2", result);
 
+        // tan is specified in radians by default
+        result = gradingService.processFormulaIntoValue("tan(40)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("-1.12", result);
+        // use rad() to transform input from degrees before passing to tan()
+        result = gradingService.processFormulaIntoValue("tan(rad(40))", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("0.84", result);
+        // complex real example
+        result = gradingService.processFormulaIntoValue("1.5*((6^2*tan(rad(90-50))+4*6)*80)/27", 0);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("241", result);
+
         // E
         result = gradingService.processFormulaIntoValue("(1.44e-34) * (1.44E15)", 2);
         Assert.assertNotNull(result);
