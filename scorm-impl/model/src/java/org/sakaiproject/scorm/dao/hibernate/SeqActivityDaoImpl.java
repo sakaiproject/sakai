@@ -20,7 +20,7 @@ import java.util.List;
 import org.sakaiproject.scorm.dao.api.SeqActivityDao;
 import org.sakaiproject.scorm.model.api.SeqActivitySnapshot;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class SeqActivityDaoImpl extends HibernateDaoSupport implements SeqActivityDao
 {

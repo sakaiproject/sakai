@@ -27,8 +27,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 
 import org.springframework.web.filter.GenericFilterBean;
 
-public class ScormSecurityFilter extends GenericFilterBean
-{
+public class ScormSecurityFilter extends GenericFilterBean {
+
 	private static final SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
 
 	@Override

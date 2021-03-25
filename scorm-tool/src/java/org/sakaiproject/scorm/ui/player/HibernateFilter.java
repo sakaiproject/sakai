@@ -20,7 +20,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
+import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
 
 public class HibernateFilter extends OpenSessionInViewFilter
 {
