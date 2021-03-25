@@ -1558,6 +1558,7 @@ public class RequestFilter implements Filter
 			HttpSession rv = null;
 
 			// use the "current" settings for this
+
 			int curHttpSession = ((Integer) threadLocalManager.get(CURRENT_HTTP_SESSION)).intValue();
 			String curContext = (String) threadLocalManager.get(CURRENT_CONTEXT);
 
