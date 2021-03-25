@@ -27,7 +27,12 @@ public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements Ac
 	@Override
 	public ActivityTreeHolder find(long contentPackageId, String learnerId)
 	{
-		List r = getHibernateTemplate().find("from " + ActivityTreeHolder.class.getName() + " where contentPackageId=? and learnerId=?", new Object[] { contentPackageId, learnerId });
+
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + ActivityTreeHolder.class.getName() + " where contentPackageId=:cpid and learnerId=:lid")
+				.setParameter("cpid", contentPackageId)
+				.setParameter("lid", learnerId)
+				.getResultList();
 		if (r.isEmpty())
 		{
 			return null;

@@ -32,7 +32,11 @@ public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqAc
 	@Override
 	public ISeqActivityTree find(long contentPackageId, String userId)
 	{
-		List r = getHibernateTemplate().find("from " + SeqActivityTree.class.getName() + " where contentPackageId=? and mLearnerID=?", new Object[] { contentPackageId, userId });
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + SeqActivityTree.class.getName() + " where contentPackageId=:cpid and mLearnerID=:lid")
+				.setParameter("cpid", contentPackageId)
+				.setParameter("lid", userId)
+				.getResultList();
 
 		log.info("SeqActivityTreeDAO::find: records: {}", r.size());
 
@@ -46,7 +50,11 @@ public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqAc
 
 	public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId)
 	{
-		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mCourseID=? and mLearnerID=?", new Object[] { courseId, userId });
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + SeqActivityTreeSnapshot.class.getName() + " where mCourseID=:cid and mLearnerID=:lid")
+				.setParameter("cid", courseId)
+				.setParameter("lid", userId)
+				.getResultList();
 
 		log.info("SeqActivityTreeDAO::findSnapshot: records: {}", r.size());
 
@@ -60,7 +68,10 @@ public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqAc
 
 	public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId)
 	{
-		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mLearnerID=?", new Object[] { userId });
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + SeqActivityTreeSnapshot.class.getName() + " where mLearnerID=:lid")
+				.setParameter("lid", userId)
+				.getResultList();
 
 		log.info("SeqActivityTreeDAO::findUserSnapshots: records: {}", r.size());
 

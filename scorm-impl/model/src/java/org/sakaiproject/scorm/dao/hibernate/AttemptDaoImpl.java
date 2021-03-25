@@ -67,31 +67,47 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 	@Override
 	public List<Attempt> find(long contentPackageId)
 	{
-		return (List<Attempt>) getHibernateTemplate().find("from " + Attempt.class.getName() + " where contentPackageId=? ", new Object[] { contentPackageId });
+		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + Attempt.class.getName() + " where contentPackageId=:cpid ")
+				.setParameter("cpid", contentPackageId)
+				.getResultList();
 	}
 
 	@Override
 	public List<Attempt> find(long contentPackageId, String learnerId)
 	{
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=? and learnerId=? order by attemptNumber desc");
-		return (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId });
+		buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=:cpid and learnerId=:lid order by attemptNumber desc");
+		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cpid", contentPackageId)
+				.setParameter("lid", learnerId)
+				.getResultList();
 	}
 
 	@Override
 	public List<Attempt> find(String courseId, String learnerId)
 	{
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=? and learnerId=? order by attemptNumber desc");
-		return (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId });
+		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=:cid and learnerId=:lid order by attemptNumber desc");
+		return (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cid", courseId)
+				.setParameter("lid", learnerId)
+				.getResultList();
 	}
 
 	@Override
 	public Attempt find(String courseId, String learnerId, long attemptNumber)
 	{
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=? and learnerId=? and attemptNumber=? ");
-		List<Attempt> r = (List<Attempt>) getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, learnerId, attemptNumber });
+		buffer.append("from ").append(Attempt.class.getName()).append(" where courseId=:cid and learnerId=:lid and attemptNumber=:number ");
+		List<Attempt> r = (List<Attempt>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cid", courseId)
+				.setParameter("lid", learnerId)
+				.setParameter("number", attemptNumber)
+				.getResultList();
 		if (r.isEmpty())
 		{
 			return null;
@@ -118,9 +134,9 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 				buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=:contentPackageId and learnerId=:learnerId and attemptNumber=:attemptNumber");
 
 				Query query = session.createQuery(buffer.toString());
-				query.setLong("contentPackageId", contentPackageId);
-				query.setString("learnerId", learnerId);
-				query.setLong("attemptNumber", attemptNumber);
+				query.setParameter("contentPackageId", contentPackageId);
+				query.setParameter("learnerId", learnerId);
+				query.setParameter("attemptNumber", attemptNumber);
 
 				return query.uniqueResult();
 			}
