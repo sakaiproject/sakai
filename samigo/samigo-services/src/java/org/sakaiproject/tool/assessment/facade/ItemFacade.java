@@ -1295,9 +1295,4 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public String getTagListToJsonString() {
     return  this.data.getTagListToJsonString();
   }
-
-  public void setTagListToJsonString(String tagListToJsonString) {
-    this.data.setTagListToJsonString(tagListToJsonString);
-  }
-
 }
