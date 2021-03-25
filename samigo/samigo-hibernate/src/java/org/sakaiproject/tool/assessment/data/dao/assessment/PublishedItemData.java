@@ -417,7 +417,7 @@ public class PublishedItemData
 
   public Set<ItemTagIfc> getItemTagSet() { return itemTagSet; }
 
-  public void setItemTagSet(Set<ItemTagIfc> itemTagSet) { this.itemTagSet = itemTagSet; this.tagListToJsonString = convertTagListToJsonString(itemTagSet);}
+  public void setItemTagSet(Set<ItemTagIfc> itemTagSet) { this.itemTagSet = itemTagSet; }
 
   public Set getItemFeedbackSet() {
     return itemFeedbackSet;
@@ -1148,10 +1148,6 @@ public class PublishedItemData
   }
 
   public String getTagListToJsonString() {
-    return this.tagListToJsonString;
-  }
-
-  public void setTagListToJsonString(String tagListToJsonString) {
-    this.tagListToJsonString = tagListToJsonString;
+    return convertTagListToJsonString(itemTagSet);
   }
 }
