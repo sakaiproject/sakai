@@ -30,8 +30,8 @@ import org.hibernate.criterion.Subqueries;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.model.api.Attempt;
 
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao
 {

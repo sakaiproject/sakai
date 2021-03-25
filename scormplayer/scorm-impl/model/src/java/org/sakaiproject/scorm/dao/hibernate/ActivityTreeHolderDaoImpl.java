@@ -20,7 +20,7 @@ import java.util.List;
 import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements ActivityTreeHolderDao
 {

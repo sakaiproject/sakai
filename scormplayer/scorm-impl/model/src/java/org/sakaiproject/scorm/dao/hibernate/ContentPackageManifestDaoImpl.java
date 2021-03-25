@@ -20,7 +20,7 @@ import java.io.Serializable;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class ContentPackageManifestDaoImpl extends HibernateDaoSupport implements ContentPackageManifestDao
 {

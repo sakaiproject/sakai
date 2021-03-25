@@ -25,7 +25,7 @@ import org.adl.datamodels.SCODataManager;
 
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao

@@ -24,7 +24,7 @@ import org.adl.sequencer.SeqActivityTree;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao

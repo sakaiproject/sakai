@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao
 {
