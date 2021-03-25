@@ -183,6 +183,11 @@ public class MockServerConfigurationService implements ServerConfigurationServic
     }
 
     @Override
+    public long getLong(String name, long dflt) {
+        return 0;
+    }
+
+    @Override
     public List<String> getToolCategories( String category )
     {
         throw new UnsupportedOperationException( "Not supported yet." );

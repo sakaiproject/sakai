@@ -48,8 +48,11 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	@Override
 	public List<ContentPackage> find(String context)
 	{
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where context = ? and deleted = ? ").toString();
-		return (List<ContentPackage>) getHibernateTemplate().find(statement, new Object[] { context, false });
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where context = :context and deleted = :deleted ").toString();
+		return getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(statement)
+				.setParameter("context", context)
+				.setParameter("deleted", false)
+				.getResultList();
 	}
 
 	@Override
@@ -66,8 +69,11 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	@Override
 	public ContentPackage loadByResourceId(String resourceId)
 	{
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where resourceId = ? and deleted = ? ").toString();
-		List<ContentPackage> result = (List<ContentPackage>) getHibernateTemplate().find(statement, new Object[] { resourceId, false });
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where resourceId = :id and deleted = :deleted ").toString();
+		List<ContentPackage> result = getHibernateTemplate().getSessionFactory().getCurrentSession().createQuery(statement)
+			.setParameter("id", resourceId)
+			.setParameter("deleted", false)
+			.getResultList();
 
 		if (result.isEmpty())
 		{

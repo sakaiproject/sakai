@@ -34,16 +34,27 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber)
 	{
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=? and userId=? and attemptNumber=? ");
-		return (List<IDataManager>) getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId, attemptNumber });
+		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=:cpid and userId=:lid and attemptNumber=:number ");
+		return (List<IDataManager>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cpid", contentPackageId)
+				.setParameter("lid", learnerId)
+				.setParameter("number", attemptNumber)
+				.getResultList();
 	}
 
 	@Override
 	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId)
 	{
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=? and userId=? and attemptNumber=? and scoId=?");
-		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, learnerId, attemptNumber, scoId });
+		buffer.append("from ").append(SCODataManager.class.getName()).append(" where contentPackageId=:cpid and userId=:lid and attemptNumber=:number and scoId=:scoid");
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cpid", contentPackageId)
+				.setParameter("lid", learnerId)
+				.setParameter("number", attemptNumber)
+				.setParameter("scoid", scoId)
+				.getResultList();
 
 		if (r.isEmpty())
 		{
@@ -56,7 +67,10 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 
 	public List<IDataManager> find(String courseId)
 	{
-		List r = getHibernateTemplate().find("from " + SCODataManager.class.getName() + " where courseId=? ", new Object[] { courseId });
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + SCODataManager.class.getName() + " where courseId=:cid ")
+				.setParameter("cid", courseId)
+				.getResultList();
 		return r;
 	}
 
@@ -71,8 +85,15 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 			buffer.append(" fetch all properties ");
 		}
 
-		buffer.append(" where courseId=? and scoId=? and userId=? and attemptNumber=? ");
-		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { courseId, scoId, userId, attemptNumber });
+		buffer.append(" where courseId=:cid and scoId=:scoid and userId=:uid and attemptNumber=:number ");
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cid", courseId)
+				.setParameter("scoid", scoId)
+				.setParameter("uid", userId)
+				.setParameter("number", attemptNumber)
+				.getResultList();
+
 
 		log.debug("DataManagerDaoImpl::find: records: {}", r.size());
 
@@ -96,8 +117,14 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	{
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("from ").append(SCODataManager.class.getName());
-		buffer.append(" where contentPackageId=? and activityId=? and userId=? and attemptNumber=? ");
-		List r = getHibernateTemplate().find(buffer.toString(), new Object[] { contentPackageId, activityId, userId, attemptNumber });
+		buffer.append(" where contentPackageId=:cpid and activityId=:aid and userId=:uid and attemptNumber=:number ");
+		List r = getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery(buffer.toString())
+				.setParameter("cpid", contentPackageId)
+				.setParameter("aid", activityId)
+				.setParameter("uid", userId)
+				.setParameter("number", attemptNumber)
+				.getResultList();
 
 		log.debug("DataManagerDaoImpl::findByActivityId: records: {}", r.size());
 

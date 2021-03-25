@@ -27,7 +27,11 @@ public class SeqActivityDaoImpl extends HibernateDaoSupport implements SeqActivi
 	@Override
 	public SeqActivitySnapshot findSnapshot(String activityId)
 	{
-		List<SeqActivitySnapshot> r = (List<SeqActivitySnapshot>) getHibernateTemplate().find("from " + SeqActivitySnapshot.class.getName() + " where activityId=?", new Object[] { activityId });
+		List<SeqActivitySnapshot> r = (List<SeqActivitySnapshot>) getHibernateTemplate().getSessionFactory().getCurrentSession()
+				.createQuery("from " + SeqActivitySnapshot.class.getName() + " where activityId=:aid")
+				.setParameter("aid", activityId)
+				.getResultList();
+
 		if (r.isEmpty())
 		{
 			return null;
