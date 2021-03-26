@@ -80,8 +80,11 @@ $(document).ready(function () {
     $(".edit-button").blur(function () { 
         $(this).addClass("offscreen"); 
     }); 
-
-    $(".sakai-wicket-iconwithtooltip").qtip();
+    //$(".sakai-wicket-iconwithtooltip").qtip();
+	
+    $('[data-toggle="tooltip"]').tooltip({
+	trigger: 'click'	
+    });
 });
 
 function doUpdateCK(){

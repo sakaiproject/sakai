@@ -44,19 +44,15 @@ public class IconWithToolTip extends Panel{
 				//nothing
 			}
 		};
-		link.add(new AttributeModifier("title", true, textModel));
+		link.add(new AttributeModifier("title", textModel));
+		link.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.tooltip")));
 		
 		//icon
 		Label icon = new Label("icon", new Model<String>(""));
 		
 		icon.add(new AttributeModifier("class", new Model(iconClass)));
 		
-		//text for screen readers
-		Label srText = new Label("srText", new ResourceModel("accessibility.tooltip"));
-		
-		
 		link.add(icon);	                
-		link.add(srText);
 		
 		add(link);	
 	}
