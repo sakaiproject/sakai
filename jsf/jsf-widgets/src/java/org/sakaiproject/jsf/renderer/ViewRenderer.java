@@ -33,6 +33,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
@@ -84,12 +85,15 @@ public class ViewRenderer extends Renderer
 
             String lang = locale.getLanguage();
 
-            String thisUser = SessionManager.getCurrentSessionUserId();
-            PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
-            Preferences prefs = preferencesService.getPreferences(thisUser);
             String userTheme = "sakaiUserTheme-notSet";
-            if ( prefs != null ) {
-                userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+            boolean sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+            if ( sakaiThemesEnabled ) {
+                String thisUser = SessionManager.getCurrentSessionUserId();
+                PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+                Preferences prefs = preferencesService.getPreferences(thisUser);
+                if ( prefs != null ) {
+                    userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+                }
             }
 
             if(lang == null || lang.equals("")) lang = "en";

@@ -345,14 +345,17 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
             context.put("language",languageCode);
             context.put("dir", rl.getOrientation(locale));
 
-			String thisUser = SessionManager.getCurrentSessionUserId();
-			PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
-
-			Preferences prefs = preferencesService.getPreferences(thisUser);
-
 			String userTheme = "sakaiUserTheme-notSet";
-			if ( prefs != null ) {
-				userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+			boolean sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+			if ( sakaiThemesEnabled ) {
+				String thisUser = SessionManager.getCurrentSessionUserId();
+				PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+
+				Preferences prefs = preferencesService.getPreferences(thisUser);
+
+				if ( prefs != null ) {
+					userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+				}
 			}
 
 			context.put("userTheme", userTheme);
