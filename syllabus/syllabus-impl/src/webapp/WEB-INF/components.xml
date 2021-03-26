@@ -2,20 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.syllabus"
-		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="mappingResources">
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.syllabus"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
 			<list>
-				<value>
-					org/sakaiproject/component/app/syllabus/SyllabusItemImpl.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/component/app/syllabus/SyllabusDataImpl.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/component/app/syllabus/SyllabusAttachment.hbm.xml
-				</value>
+				<value>org.sakaiproject.api.app.syllabus.SyllabusItem</value>
+				<value>org.sakaiproject.api.app.syllabus.SyllabusData</value>
+				<value>org.sakaiproject.api.app.syllabus.SyllabusAttachment</value>
 			</list>
 		</property>
 	</bean>

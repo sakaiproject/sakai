@@ -898,14 +898,14 @@ public class SyllabusTool
         	  }
         	  boolean statusChanged = den.getStatusChanged();
         	  //this will update the calendar if it's posted and inCalendar is selected
-              syllabusManager.saveSyllabus(den.getEntry());
+              SyllabusData saved = syllabusManager.saveSyllabus(den.getEntry());
               if(posted && statusChanged){
             	  //went from draft to post:
-            	  syllabusService.postChangeSyllabus(den.getEntry());
+            	  syllabusService.postChangeSyllabus(saved);
               }
               if(!posted && statusChanged){
             	  //went from post to draft
-            	  syllabusService.draftChangeSyllabus(den.getEntry());
+            	  syllabusService.draftChangeSyllabus(saved);
               }
           }
          
@@ -1372,7 +1372,7 @@ public class SyllabusTool
       else
       {
         int initPosition = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
-        SyllabusData en = syllabusManager.createSyllabusDataObject(null, initPosition, null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE, null, null);
+        SyllabusData en = syllabusManager.createSyllabusDataObject(null, initPosition, null, null, SyllabusData.ITEM_DRAFT, "none", null, null, Boolean.FALSE, null, null, syllabusItem);
         en.setView("no");
 
         entry = new DecoratedSyllabusEntry(en);
@@ -1553,22 +1553,22 @@ public class SyllabusTool
        if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus(SyllabusData.ITEM_DRAFT);
-          syllabusManager.saveSyllabus(getEntry().getEntry());
+          SyllabusData saved = syllabusManager.saveSyllabus(getEntry().getEntry());
           
           for(int i=0; i<attachments.size(); i++)
           {
-            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+            syllabusManager.addSyllabusAttachToSyllabusData(saved,
                 (SyllabusAttachment)attachments.get(i));            
           }
           //update calendar attachments
-          if(getEntry().getEntry().getCalendarEventIdStartDate() != null){
-        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdStartDate(), attachments);
+          if(saved.getCalendarEventIdStartDate() != null){
+        	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdStartDate(), attachments);
           }
-          if(getEntry().getEntry().getCalendarEventIdEndDate() != null){
-        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdEndDate(), attachments);
+          if(saved.getCalendarEventIdEndDate() != null){
+        	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdEndDate(), attachments);
           }
           
-          syllabusService.draftChangeSyllabus(getEntry().getEntry());
+          syllabusService.draftChangeSyllabus(saved);
         }
       }
       
@@ -1653,21 +1653,21 @@ public class SyllabusTool
         if (entry.justCreated == false)
         {
           getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
-          syllabusManager.saveSyllabus(getEntry().getEntry());
+          SyllabusData saved = syllabusManager.saveSyllabus(getEntry().getEntry());
 
-          syllabusService.postChangeSyllabus(getEntry().getEntry());
+          syllabusService.postChangeSyllabus(saved);
           
           for(int i=0; i<attachments.size(); i++)
           {
-            syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
+            syllabusManager.addSyllabusAttachToSyllabusData(saved,
                 (SyllabusAttachment)attachments.get(i));            
           }
           //update calendar attachments
-          if(getEntry().getEntry().getCalendarEventIdStartDate() != null){
-        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdStartDate(), attachments);
+          if(saved.getCalendarEventIdStartDate() != null){
+        	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdStartDate(), attachments);
           }
-          if(getEntry().getEntry().getCalendarEventIdEndDate() != null){
-        	  syllabusManager.addCalendarAttachments(getEntry().getEntry().getSyllabusItem().getContextId(), getEntry().getEntry().getCalendarEventIdEndDate(), attachments);
+          if(saved.getCalendarEventIdEndDate() != null){
+        	  syllabusManager.addCalendarAttachments(saved.getSyllabusItem().getContextId(), saved.getCalendarEventIdEndDate(), attachments);
           }
                
           entries.clear();
