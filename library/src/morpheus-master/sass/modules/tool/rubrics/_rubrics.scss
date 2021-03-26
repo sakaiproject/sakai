@@ -135,7 +135,8 @@
     }
 
     select.form-control {
-        -webkit-appearance: menulist;
+        @include appearance(none);
+        padding: 0px 30px 0px 5px;
         width: auto;
         display: inline-block;
         margin: 0 20px 10px 0;
