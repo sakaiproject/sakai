@@ -4,6 +4,8 @@
 name: Java CI with Maven
 
 on:
+  push:
+    branches: [ master, 20.x, 21.x, 22.x, 23.x ]
   pull_request:
     branches: [ master, 20.x, 21.x, 22.x, 23.x ]
 
