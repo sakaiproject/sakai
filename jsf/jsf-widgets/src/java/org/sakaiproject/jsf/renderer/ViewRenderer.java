@@ -27,6 +27,13 @@ package org.sakaiproject.jsf.renderer;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.component.cover.ComponentManager;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UIViewRoot;
@@ -77,6 +84,14 @@ public class ViewRenderer extends Renderer
 
             String lang = locale.getLanguage();
 
+            String thisUser = SessionManager.getCurrentSessionUserId();
+            PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+            Preferences prefs = preferencesService.getPreferences(thisUser);
+            String userTheme = "sakaiUserTheme-notSet";
+            if ( prefs != null ) {
+                userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+            }
+
             if(lang == null || lang.equals("")) lang = "en";
 
             String countryCode = locale.getCountry();
@@ -85,7 +100,7 @@ public class ViewRenderer extends Renderer
             }
 
 			writer.write("<!DOCTYPE html>\n");
-			writer.write("<html lang=\"" + lang + "\" dir=\"" + LocaleUtil.getOrientation(locale) + "\">\n");
+			writer.write("<html lang=\"" + lang + "\" dir=\"" + LocaleUtil.getOrientation(locale) + "\" class=\"Mrphs-html "+userTheme+"\">\n");
 			writer.write("<head>\n");
 			String title = (String) RendererUtil.getAttribute(context, component, "title");
 			if (title != null)
