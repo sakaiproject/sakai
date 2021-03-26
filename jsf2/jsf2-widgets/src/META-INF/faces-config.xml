@@ -20,6 +20,11 @@
   </component>
 
   <component>
+    <component-type>org.sakaiproject.InputColor</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InputColorComponent</component-class>
+  </component>
+
+  <component>
     <component-type>org.sakaiproject.InstructionMessage</component-type>
     <component-class>org.sakaiproject.jsf2.component.InstructionMessageComponent</component-class>
   </component>
@@ -184,6 +189,13 @@
       <component-family>javax.faces.Output</component-family>
       <renderer-type>org.sakaiproject.ViewContent</renderer-type>
       <renderer-class>org.sakaiproject.jsf2.renderer.ViewContentRenderer</renderer-class>
+    </renderer>
+
+    <!-- color picker -->
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>org.sakaiproject.InputColor</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InputColorRenderer</renderer-class>
     </renderer>
 
     <renderer>

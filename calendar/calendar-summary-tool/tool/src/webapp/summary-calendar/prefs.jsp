@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
 <% 
 	response.setContentType("text/html; charset=UTF-8");
 	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
@@ -11,9 +11,9 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<sakai:script contextBase="/jsf-resource/" path="/inputColor/inputColor.js"/>
-	<sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/>
-	<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
+	<script src="/jsf-resource/inputColor/inputColor.js<h:outputText value="#{PrefsBean.CDNQuery}" />"></script>
+	<script src="/jsf-resource/hideDivision/hideDivision.js<h:outputText value="#{PrefsBean.CDNQuery}" />"></script>
+	<script src="/sakai-calendar-summary-tool/summary-calendar/js/calendar-summary.js<h:outputText value="#{PrefsBean.CDNQuery}" />"></script>
 	
 	<h:outputText value="#{PrefsBean.initValues}"/>
 	
@@ -62,9 +62,9 @@
 				</div>
 				<div class="col-xs-12">
 					<h:commandButton onclick="moveMediumToHigh(); return false;"
-									action="" immediate="true" value="#{msgs.prefs_move_up}" />
+									immediate="true" value="#{msgs.prefs_move_up}" />
 					<h:commandButton onclick="moveHighToMedium(); return false;"
-									action="" immediate="true" value="#{msgs.prefs_move_down}" />
+									immediate="true" value="#{msgs.prefs_move_down}" />
 				</div>
 			</div>
 		</div>
@@ -82,9 +82,9 @@
 				</div>
 				<div class="col-xs-12">
 					<h:commandButton onclick="moveLowToMedium(); return false;"
-									action="" immediate="true" value="#{msgs.prefs_move_up}" />
+									immediate="true" value="#{msgs.prefs_move_up}" />
 		            <h:commandButton onclick="moveMediumToLow(); return false;"
-							action="" immediate="true" value="#{msgs.prefs_move_down}" />
+							immediate="true" value="#{msgs.prefs_move_down}" />
 				</div>
 			</div>
 		</div>
@@ -108,7 +108,7 @@
 		<div class="form-group row">
 			<h:outputLabel for="highPriorityColor" value="#{msgs.prefs_high_priority}: " styleClass="col-xs-3"/>
 			<div class="col-xs-8">
-				<sakai:inputColor 
+				<sakai:inputColor
 					id="highPriorityColor"
 					value="#{PrefsBean.selectedHighPriorityColor}" />
 			</div>
@@ -116,7 +116,7 @@
 		<div class="form-group row">
 			<h:outputLabel for="mediumPriorityColor" value="#{msgs.prefs_medium_priority}: " styleClass="col-xs-3"/>
 			<div class="col-xs-8">
-				<sakai:inputColor 
+				<sakai:inputColor
 					id="mediumPriorityColor"
 					value="#{PrefsBean.selectedMediumPriorityColor}"/>
 			</div>
@@ -125,7 +125,7 @@
 		<div class="form-group row">
 			<h:outputLabel for="lowPriorityColor" value="#{msgs.prefs_low_priority}: " styleClass="col-xs-3"/>
 			<div class="col-xs-8">
-				<sakai:inputColor 
+				<sakai:inputColor
 					id="lowPriorityColor"
 					value="#{PrefsBean.selectedLowPriorityColor}"/>
 			</div>
