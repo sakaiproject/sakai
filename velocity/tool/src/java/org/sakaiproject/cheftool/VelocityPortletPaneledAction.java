@@ -55,6 +55,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.EditorConfiguration;
@@ -342,6 +344,21 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
             }
             context.put("language",languageCode);
             context.put("dir", rl.getOrientation(locale));
+
+			String userTheme = "sakaiUserTheme-notSet";
+			boolean sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
+			if ( sakaiThemesEnabled ) {
+				String thisUser = SessionManager.getCurrentSessionUserId();
+				PreferencesService preferencesService = ComponentManager.get(PreferencesService.class);
+
+				Preferences prefs = preferencesService.getPreferences(thisUser);
+
+				if ( prefs != null ) {
+					userTheme = StringUtils.defaultIfEmpty(prefs.getProperties(PreferencesService.USER_SELECTED_UI_THEME_PREFS).getProperty("theme"), "sakaiUserTheme-notSet");
+				}
+			}
+
+			context.put("userTheme", userTheme);
 
 			String browserId = session.getBrowserId();
 			if (UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId)
