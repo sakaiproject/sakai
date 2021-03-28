@@ -53,7 +53,7 @@ ul.tabs li.tabHeadOff {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-  background-color: var(--sakai-background-color-2);
+    background-color: var(--sakai-background-color-2);
 }
 /* turn on tab header */
 ul.tabs li.tabHeadOn  {
@@ -67,7 +67,7 @@ ul.tabs li.tabHeadOn  {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-  background-color: var(sakai-background-color-1);
+    background-color: var(--sakai-background-color-1);
 }
 /* turn the tab content off */
 div.tabOff {
@@ -164,7 +164,7 @@ a.anchorpoint { vertical-align: top }
 	float: left;
 	width: 80%;
 	padding: 5px 0px 2px 0;
-	background: var(sakai-background-color-1);
+	background: var(--sakai-background-color-1);
 }
 .nosidebar{ float: none; padding: 5px 0 2px 0 }
 .nosidebar-head{ display: none }
@@ -187,7 +187,7 @@ a.anchorpoint { vertical-align: top }
 #restoreVersion, #restoreDate{ color: #777; background: transparent }
 #restoreDate{ width: 30em }
 #rwiki_content textarea:focus { border: 1px solid #777 }
-.rwiki_edit_wrapper{ background: var(sakai-background-color-1); height: 100%; overflow: hidden }
+.rwiki_edit_wrapper{ background: var(--sakai-background-color-1); height: 100%; overflow: hidden }
 /* you have to use padding to make it fit */
 #rwiki_sidebar {
 	width: 17%;
@@ -527,9 +527,9 @@ MOOT
 	-webkit-border-top-right-radius: 10px;
 	-moz-border-radius: 10px 10px 0 0;
 	padding: .5em;
-	background: var(--sakai-background-color-2)
+	background: var(--sakai-background-color-2);
 }
-.rwikicomenttext{
+.rwikicomenttext {
 	-webkit-border-bottom-right-radius: 10px;
 	-webkit-border-bottom-left-radius: 10px;
 	-moz-border-radius: 0 0 10px 10px;
@@ -538,19 +538,19 @@ MOOT
 	background: var(--sakai-background-color-2);
 	padding: 0  10px  10px  10px
 }
-.rwikicomenttext p.paragraph{
+.rwikicomenttext p.paragraph {
 	background-color: var(--sakai-background-color-2);
 	color: var(--sakai-text-color-1);
 	margin: 0;
 	padding: 0
 }
-.commentsHeader{
+.commentsHeader {
 	border-top: 2px solid #ccc;
 	overflow: hidden;
 	height: 100%;
 	padding-top: .3em;
 	background-color: var(--sakai-background-color-2);
-	color: var(--sakai-text-color-1)
+	color: var(--sakai-text-color-1);
 }
 .commentsHeader:active{ outline: none }
 .commentsHeader h5{ margin: 0; padding: 0 }
@@ -582,11 +582,11 @@ MOOT
 
 .rwiki_comments { list-style: none; margin: 0; padding: 0 }
 .rwiki_comments .hidden .rwikicommenttop, .rwiki_comments .hidden .rwikicomenttext{
-	background:var(--sakai-background-color-2);
-	color:var(--sakai-text-color-1)
+	background: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
 }
 .rwiki_comments .hidden .commentAuthor{ /*.commentHeader*/
-	color: var(--sakai-text-color-2)
+	color: var(--sakai-text-color-2);
 }
 
 .lastmodified { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
@@ -651,8 +651,8 @@ added only to site index, could be added to other things*/
 }
 #selectList{
 	list-style:none;
-	margin:0;
-	padding:0
+	margin: 0;
+	padding: 0;
 }
 #selectList li{
 	margin:.1em 0;padding:.3em 0;
