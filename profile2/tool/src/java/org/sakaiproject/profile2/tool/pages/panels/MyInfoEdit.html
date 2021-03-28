@@ -142,16 +142,8 @@
 			    console.error(exception);
 			});		
 
-			$('.sakai-wicket-iconwithtooltip').cluetip({
-				local: true,
-				showTitle: false,
-				attribute: 'rel',
-				cursor: 'pointer',
-				cluetipClass: 'jtip',
-				arrows: true,
-				hoverIntent: true
-			});	
-			
+			//initialize tooltip
+			$('[data-toggle="tooltip"]').tooltip();
 		});
 
 	</script> 
