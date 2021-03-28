@@ -82,9 +82,7 @@ $(document).ready(function () {
     }); 
     //$(".sakai-wicket-iconwithtooltip").qtip();
 	
-    $('[data-toggle="tooltip"]').tooltip({
-	trigger: 'click'	
-    });
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 function doUpdateCK(){
