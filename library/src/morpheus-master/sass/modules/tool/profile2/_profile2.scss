@@ -136,6 +136,7 @@
 	.google:before,
 	.facebook:before,
 	.linkedin:before,
+	.info-circle:before,
 	.myspace:before {
 		@extend .fa;
 		margin-right: $standard-space-2x;
@@ -246,6 +247,10 @@
 
 	.linkedin {
 		@extend .fa-linkedin;
+	}
+
+	.info-circle	{
+		@extend .fa-info-circle;
 	}
 
 	.myspace {
