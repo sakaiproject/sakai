@@ -81,7 +81,7 @@ $(document).ready(function () {
         $(this).addClass("offscreen"); 
     }); 
     //$(".sakai-wicket-iconwithtooltip").qtip();
-	
+    //initialize tooltip
     $('[data-toggle="tooltip"]').tooltip();
 });
 
