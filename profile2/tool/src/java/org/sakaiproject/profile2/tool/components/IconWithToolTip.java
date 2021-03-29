@@ -26,13 +26,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-/*
- * 
- * Eventually this will be done via setters on this object
- * 
- * 
- */
-
 public class IconWithToolTip extends Panel{
 	
 	public IconWithToolTip(String id, String iconClass, IModel textModel) {
