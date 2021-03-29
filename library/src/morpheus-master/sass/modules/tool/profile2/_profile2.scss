@@ -745,37 +745,6 @@
 		font-weight: normal;
 	}
 
-	/* modal window styles (also modalWindowButtons above) */
-	.modalWindowWrapper {
-		display: block;
-		position: relative;
-		left: 5px;
-		top: 5px;
-		width: 450px; /* must be smaller than the actual modal window */
-		height: 120px;
-	}
-
-	.modalWindowImage {
-		position: absolute;
-		top: 0;
-		left: 0;
-		max-width: 100px;
-		width: 100px;
-		border: 1px solid var(--sakai-border-color);
-		padding: 2px;
-	}
-
-	.modalWindowMain {
-		position: relative;
-		top: 0;
-		left: 120px;
-		width: 300px;
-	}
-
-	.modalWindowText {
-		margin-top: 5px;
-	}
-
 	/* style the indicator for form submits that use an IndicatingAjaxButton as the button */
 	span.wicket-ajax-indicator img { 
 		padding-left: 2px; 
@@ -1364,4 +1333,35 @@
 	    max-width: 65em;
 	}
 
+}
+
+/* modal window styles (also modalWindowButtons above) */
+.profileModalWindowWrapper {
+	display: block;
+	position: relative;
+	left: 5px;
+	top: 5px;
+	width: 450px; /* must be smaller than the actual modal window */
+	height: 120px;
+}
+
+.profileModalWindowImage {
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 100px;
+	width: 100px;
+	border: 1px solid var(--sakai-border-color);
+	padding: 2px;
+}
+
+.profileModalWindowMain {
+	position: relative;
+	top: 0;
+	left: 120px;
+	width: 300px;
+}
+
+.profileModalWindowText {
+	margin-top: 5px;
 }
