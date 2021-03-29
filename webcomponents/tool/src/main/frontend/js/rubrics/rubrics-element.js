@@ -1,4 +1,4 @@
-import {SakaiElement} from "/webcomponents/sakai-element.js";
+import {SakaiElement} from "../sakai-element.js";
 
 class RubricsElement extends SakaiElement {
 

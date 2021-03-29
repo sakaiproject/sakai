@@ -1,8 +1,8 @@
 import {SakaiElement} from "./sakai-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import "/webcomponents/fa-icon.js";
+import {html} from "./assets/lit-element/lit-element.js";
+import "./fa-icon.js";
 
-class SakaiMaximiseButton extends SakaiElement {
+export class SakaiMaximiseButton extends SakaiElement {
 
   constructor() {
 
