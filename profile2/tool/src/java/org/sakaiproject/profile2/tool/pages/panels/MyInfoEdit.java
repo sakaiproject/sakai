@@ -161,7 +161,7 @@ public class MyInfoEdit extends Panel {
 		birthday.setOutputMarkupId(true);
 		birthdayContainer.add(birthday);
 		//tooltip
-		birthdayContainer.add(new IconWithToolTip("birthdayToolTip", "info-circle", new ResourceModel("text.profile.birthyear.tooltip")));
+		birthdayContainer.add(new IconWithToolTip("birthdayToolTip", "infoIcon", new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
 
 		//personal summary

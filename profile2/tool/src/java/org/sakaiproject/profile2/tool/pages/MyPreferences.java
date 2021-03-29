@@ -369,7 +369,7 @@ public class MyPreferences extends BasePage{
 		kudosSetting.setOutputMarkupId(true);
 		kudosContainer.add(kudosSetting);
 		//tooltip
-		kudosContainer.add(new IconWithToolTip("kudosToolTip", "info-circle", new ResourceModel("preferences.widget.kudos.tooltip")));
+		kudosContainer.add(new IconWithToolTip("kudosToolTip", "infoIcon", new ResourceModel("preferences.widget.kudos.tooltip")));
 		
 
 		//updater
@@ -395,7 +395,7 @@ public class MyPreferences extends BasePage{
 		galleryFeedSetting.setOutputMarkupId(true);
 		galleryFeedContainer.add(galleryFeedSetting);
 		//tooltip
-		galleryFeedContainer.add(new IconWithToolTip("galleryFeedToolTip", "info-circle", new ResourceModel("preferences.widget.gallery.tooltip")));
+		galleryFeedContainer.add(new IconWithToolTip("galleryFeedToolTip", "infoIcon", new ResourceModel("preferences.widget.gallery.tooltip")));
 		
 		//updater
 		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -420,7 +420,7 @@ public class MyPreferences extends BasePage{
 		onlineStatusSetting.setOutputMarkupId(true);
 		onlineStatusContainer.add(onlineStatusSetting);
 		//tooltip
-		onlineStatusContainer.add(new IconWithToolTip("onlineStatusToolTip", "info-circle", new ResourceModel("preferences.widget.onlinestatus.tooltip")));
+		onlineStatusContainer.add(new IconWithToolTip("onlineStatusToolTip", "infoIcon", new ResourceModel("preferences.widget.onlinestatus.tooltip")));
 		
 		//updater
 		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
