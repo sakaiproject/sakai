@@ -22,9 +22,9 @@ pronounsSelect && pronounsSelect.addEventListener("change", function (e) {
 
   var pronounsInput = document.getElementById("pronouns-input");
   if (text === pronounsSelect.dataset.entermyown) {
-    pronounsInput && (pronounsInput.style.display = "inline");
+    pronounsInput.classList.remove("hidden");
   } else {
-    pronounsInput && (pronounsInput.style.display = "none");
+    pronounsInput.classList.add("hidden");
     pronounsInput && (pronounsInput.value = "");
   }
 });
