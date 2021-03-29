@@ -19,54 +19,36 @@
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
-      xml:lang="en"  
-      lang="en"> 
-       
+		xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+		xml:lang="en"
+		lang="en">
 <body>
 
 <wicket:panel>
-
-	<div class="modalWindowWrapper">
+	<div class="profileModalWindowWrapper">
 		<form wicket:id="form">
-		
-		<table class="profileContent">
-					
+		<table class="profileContent">			
 			<!-- to -->
 			<tr>
 				<td class="label" wicket:id="toLabel">[toLabel]</td>
 				<td class="content" wicket:id="toContent">[toContent]</td>
-			</tr>
-			
+			</tr>	
 			<!-- subject -->
 			<tr>
 				<td class="label" wicket:id="subjectLabel">[subjectLabel]</td>
 				<td class="content"><input type="text" wicket:id="subjectField" class="formInputField" /></td>
-			</tr>
-			
+			</tr>	
 			<!-- message -->
 			<tr>
 				<td class="label" wicket:id="messageLabel">[messageLabel]</td>
 				<td class="content"><textarea wicket:id="messageField" class="formInputArea" rows="4" cols="40">[messageField]</textarea></td>
 			</tr>
-			
 		</table>
-		
-						
-		<div class="modalWindowButtons">
+		<div>
 			<input type="submit" wicket:id="sendButton" value="[Send]" />
 		</div>
-			
 	</form>
-		
-		
-		
-		
-		
-    </div>
-    
-</wicket:panel>
-
-	
+	</div>
+</wicket:panel>	
 </body>
 </html>
