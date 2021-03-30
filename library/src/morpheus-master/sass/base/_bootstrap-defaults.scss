@@ -787,8 +787,8 @@ $panel-primary-text:          var(--sakai-text-color-1);
 //
 //##
 
-// $well-bg:                     #f5f5f5
-// $well-border:                 darken($well-bg, 7%)
+$well-bg:                     var(--sakai-background-color-2);
+$well-border:                 var(--sakai-border-color);
 
 
 //== Badges
