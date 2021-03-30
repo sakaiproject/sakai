@@ -363,11 +363,11 @@
 	margin-right: $standard-space;
 }
 
-button.btn-primary, .act .active {
+button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$namespace}html .ui-widget-content .ui-priority-primary, .#{$namespace}html .ui-widget-header .ui-priority-primary {
 	@include sakai_primary_button();
 }
 
-.button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
+.button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link, .#{$namespace}html .ui-priority-secondary, .#{$namespace}html .ui-widget-content .ui-priority-secondary, .#{$namespace}html .ui-widget-header .ui-priority-secondary {
 	@include sakai_secondary_button();
 }
 
