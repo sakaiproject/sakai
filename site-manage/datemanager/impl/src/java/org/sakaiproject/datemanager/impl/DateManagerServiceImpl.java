@@ -484,7 +484,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 					feedbackEnd = null;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(assessment, openDate, dueDate, acceptUntil, feedbackStart, feedbackEnd);
+				DateManagerUpdate update = new DateManagerUpdate(assessment, openDate, dueDate, acceptUntil);
+				update.setFeedbackStartDate(feedbackStart);
+				update.setFeedbackEndDate(feedbackEnd);
 
 				if (dueDate != null && !update.openDate.isBefore(update.dueDate)) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "assessments", toolTitle, idx));
@@ -662,6 +664,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 			mobj.put("title", meeting.getTitle());
 			mobj.put("due_date", formatToUserDateFormat(meeting.getEndTime()));
 			mobj.put("open_date", formatToUserDateFormat(meeting.getStartTime()));
+			mobj.put("signup_begins", formatToUserDateFormat(meeting.getSignupBegins()));
+			mobj.put("signup_deadline", formatToUserDateFormat(meeting.getSignupDeadline()));
 			mobj.put("tool_title", toolTitle);
 			mobj.put("url", url);
 			mobj.put("extraInfo", "false");
@@ -697,6 +701,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("open_date")).toInstant();
 				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("due_date")).toInstant();
+				Instant signupBegins = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("signup_begins")).toInstant();
+				Instant signupDeadline = userTimeService.parseISODateInUserTimezone((String)jsonMeeting.get("signup_deadline")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "signupMeetings", toolTitle, idx));
@@ -704,6 +710,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (dueDate == null) {
 					errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "signupMeetings", toolTitle, idx));
+					errored = true;
+				}
+				if (signupBegins == null) {
+					errors.add(new DateManagerError("signup_begins", rb.getString("error.signup.begins.not.found"), "signupMeetings", toolTitle, idx));
+					errored = true;
+				}
+				if (signupDeadline == null) {
+					errors.add(new DateManagerError("signup_deadline", rb.getString("error.signup.deadline.not.found"), "signupMeetings", toolTitle, idx));
 					errored = true;
 				}
 				if (errored) {
@@ -717,8 +731,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 
 				DateManagerUpdate update = new DateManagerUpdate(meeting, openDate, dueDate, null);
+				update.setSignupBegins(signupBegins);
+				update.setSignupDeadline(signupDeadline);
 				if (!update.openDate.isBefore(update.dueDate)) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "signupMeetings", toolTitle, idx));
+					continue;
+				}
+				if (update.signupBegins.isAfter(update.openDate)) {
+					errors.add(new DateManagerError("signup_begins", rb.getString("error.signup.begins.after.open.date"), "signupMeetings", toolTitle, idx));
+					continue;
+				}
+				if (update.signupDeadline.isAfter(update.dueDate)) {
+					errors.add(new DateManagerError("signup_deadline", rb.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
 					continue;
 				}
 				updates.add(update);
@@ -742,6 +766,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 			SignupMeeting meeting = (SignupMeeting) update.object;
 			meeting.setStartTime(Date.from(update.openDate));
 			meeting.setEndTime(Date.from(update.dueDate));
+			meeting.setSignupBegins(Date.from(update.signupBegins));
+			meeting.setSignupDeadline(Date.from(update.signupDeadline));
 			signupService.updateSignupMeeting(meeting, true);
 		}
 	}
@@ -1280,14 +1306,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateAnnouncements(DateManagerValidation announcementValidate) throws Exception {
+	public void updateAnnouncements(DateManagerValidation announcementValidate) {
 		String anncRef = announcementService.channelReference(getCurrentSiteId(), SiteService.MAIN_CONTAINER);
-		AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) announcementValidate.getUpdates()) {
-			AnnouncementMessageEdit msg = (AnnouncementMessageEdit) update.object;
-			msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
-			msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
-			aChannel.commitMessage(msg, NotificationService.NOTI_IGNORE);
+		try {
+			AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
+			for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) announcementValidate.getUpdates()) {
+				AnnouncementMessageEdit msg = (AnnouncementMessageEdit) update.object;
+				msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, timeService.newTime(Date.from(update.openDate).getTime()).toString());
+				msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, timeService.newTime(Date.from(update.dueDate).getTime()).toString());
+				aChannel.commitMessage(msg, NotificationService.NOTI_IGNORE);
+			}
+		} catch (Exception e) {
+			log.error("Announcement channel {} doesn't exist. {}", anncRef, e.getMessage());
 		}
 	}
 
