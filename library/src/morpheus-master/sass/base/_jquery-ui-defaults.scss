@@ -184,27 +184,25 @@
     .ui-priority-primary,
     .ui-widget-content .ui-priority-primary,
     .ui-widget-header .ui-priority-primary {
-        font-weight: bold;
+        //Defined in extendables
     }
 
     .ui-priority-secondary,
     .ui-widget-content .ui-priority-secondary,
     .ui-widget-header .ui-priority-secondary {
-        opacity: .7;
-        filter:Alpha(Opacity=70); /* support: IE8 */
-        font-weight: normal;
+        //Defined in extendables
     }
 
     .ui-state-disabled,
     .ui-widget-content .ui-state-disabled,
     .ui-widget-header .ui-state-disabled {
-        opacity: .35;
-        filter:Alpha(Opacity=35); /* support: IE8 */
-        background-image: none;
+        color: var(--button-disabled-text-color);
+        background: var(--button-disabled-background);
+        border: 1px solid var(--button-disabled-border-color);
     }
 
     .ui-state-disabled .ui-icon {
-        filter:Alpha(Opacity=35); /* support: IE8 - See #6059 */
+        opacity: 1;
     }
 
     // Misc visuals
@@ -248,6 +246,27 @@
         box-shadow:var(--elevation-4dp);
     }
 
+    .ui-datepicker {
+        padding: $standard-space;
+    }
+
+    .ui-datepicker .ui-datepicker-buttonpane {
+        border: none;
+        margin: 0;
+        padding: 0;
+        button {
+            opacity: 1;
+        }
+    }
+
+    .ui-datepicker table {
+        margin-bottom: $standard-space-2x;
+    }
+
+    .ui-datepicker .ui-controlgroup button:first-of-type {
+        margin-right: $standard-space;
+    }
+  
     .ui-state-default.ui-slider-handle {
         background: var(--button-primary-background);
         border: var(--button-primary-border-color);
