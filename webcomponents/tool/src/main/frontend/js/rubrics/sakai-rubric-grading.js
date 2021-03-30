@@ -1,9 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { ifDefined } from "/webcomponents/assets/lit-html/directives/if-defined.js";
-import { SakaiRubricGradingComment } from "./sakai-rubric-grading-comment.js";
-import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
-import { tr } from "./sakai-rubrics-language.js";
+import "./sakai-rubric-grading-comment.js";
+import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 
 export class SakaiRubricGrading extends RubricsElement {
 
@@ -11,7 +9,6 @@ export class SakaiRubricGrading extends RubricsElement {
 
     super();
 
-    this.selectedRatings = [];
     this.existingEvaluation = false;
 
     this.rubric = { title: "" };
@@ -34,7 +31,6 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluation: { type: Object },
       totalPoints: Number,
       translatedTotalPoints: { type: Number },
-      selectedRatings: { type: Array },
       criteria: { type: Array },
       rubric: { type: Object }
     };
@@ -48,9 +44,7 @@ export class SakaiRubricGrading extends RubricsElement {
       this._token = newValue;
     }
 
-    if (this.entityId && this.toolId && this.token) {
-      this.getAssociation();
-    }
+    this.getAssociation();
   }
 
   get token() {
@@ -60,19 +54,23 @@ export class SakaiRubricGrading extends RubricsElement {
   set entityId(value) {
 
     this._entityId = value;
-    if (this.entityId && this.toolId && this.token) {
-      this.getAssociation();
-    }
+    this.getAssociation();
   }
 
   get entityId() { return this._entityId; }
 
+  set evaluatedItemId(value) {
+
+    this._evaluatedItemId = value;
+    this.getAssociation();
+  }
+
+  get evaluatedItemId() { return this._evaluatedItemId; }
+
   set toolId(value) {
 
     this._toolId = value;
-    if (this.entityId && this.toolId && this.token) {
-      this.getAssociation();
-    }
+    this.getAssociation();
   }
 
   get toolId() { return this._toolId; }
@@ -89,7 +87,7 @@ export class SakaiRubricGrading extends RubricsElement {
       <div class="criterion grading style-scope sakai-rubric-criteria-grading" style="margin-bottom: 10px;">
       ${this.criteria.map(c => html`
         <div id="criterion_row_${c.id}" class="criterion-row">
-          <div class="criterion-detail">
+          <div class="criterion-detail" tabindex="0">
             <h4 class="criterion-title">${c.title}</h4>
             <p>${c.description}</p>
             ${this.rubric.weighted ?
@@ -110,7 +108,13 @@ export class SakaiRubricGrading extends RubricsElement {
             <div class="cr-table">
               <div class="cr-table-row">
               ${c.ratings.map(r => html`
-                <div class="rating-item ${this.selectedRatings.includes(r.id) ? "selected" : ""}" tabindex="0" data-rating-id="${r.id}" id="rating-item-${r.id}" data-criterion-id="${c.id}" @keypress=${this.toggleRating} @click=${this.toggleRating}>
+                <div class="rating-item ${r.selected ? "selected" : ""}"
+                      tabindex="0"
+                      data-rating-id="${r.id}"
+                      id="rating-item-${r.id}"
+                      data-criterion-id="${c.id}"
+                      @keypress=${this.toggleRating}
+                      @click=${this.toggleRating}>
                   <h5 class="criterion-item-title">${r.title}</h5>
                   <p>${r.description}</p>
                   <span class="points" data-points="${r.points}">
@@ -206,11 +210,15 @@ export class SakaiRubricGrading extends RubricsElement {
           c.selectedRatingId = ed.selectedRatingId;
           if (ed.pointsAdjusted) {
             c.pointoverride = ed.points;
-            let ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
+            const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
               c.selectedvalue = ratingItem.points;
             }
           } else {
+            const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
+            if (ratingItem) {
+              ratingItem.selected = true;
+            }
             c.pointoverride = ed.points;
             c.selectedvalue = ed.points;
           }
@@ -233,7 +241,7 @@ export class SakaiRubricGrading extends RubricsElement {
       return;
     }
 
-    var criterion = this.criteria.find(c => c.id == e.target.dataset.criterionId);
+    const criterion = this.criteria.find(c => c.id == e.target.dataset.criterionId);
 
     criterion.pointoverride = parsed;
     if (criterion.selectedvalue) {
@@ -243,7 +251,12 @@ export class SakaiRubricGrading extends RubricsElement {
     }
 
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
-    var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterion.id, value: criterion.pointoverride };
+    const detail = {
+      evaluatedItemId: this.evaluatedItemId,
+      entityId: this.entityId,
+      criterionId: criterion.id,
+      value: criterion.pointoverride,
+    };
     this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
 
     this.updateTotalPoints();
@@ -308,28 +321,27 @@ export class SakaiRubricGrading extends RubricsElement {
 
     e.stopPropagation();
 
-    const criterionId = e.currentTarget.dataset.criterionId;
-    const ratingId = e.currentTarget.dataset.ratingId;
+    const criterionId = parseInt(e.currentTarget.dataset.criterionId);
+    const ratingId = parseInt(e.currentTarget.dataset.ratingId);
 
     // Look up the criterion and rating objects
     const criterion = this.criteria.filter(c => c.id == criterionId)[0];
-    const rating = criterion.ratings.filter(r => r.id == ratingId)[0];
+    const rating = criterion.ratings.filter(r => r.id === ratingId)[0];
 
-    const clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
-    if (clickedRatingElement.classList.contains("selected")) {
-      clickedRatingElement.classList.remove("selected");
+    criterion.ratings.forEach(r => r.selected = false);
+
+    if (rating.selected) {
       criterion.selectedvalue = 0.0;
       criterion.selectedRatingId = 0;
       criterion.pointoverride = 0.0;
+      rating.selected = false;
     } else {
-      const ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
-      ratingElements.forEach(i => i.classList.remove('selected'));
-      clickedRatingElement.classList.add("selected");
       const auxPoints = this.rubric.weighted ?
         (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
       criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
       criterion.pointoverride = auxPoints;
+      rating.selected = true;
     }
 
     // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
@@ -355,12 +367,20 @@ export class SakaiRubricGrading extends RubricsElement {
     if (parseFloat(this.totalPoints) < 0) this.totalPoints = 0;
 
     if (notify) {
-      var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }) };
+      const detail = {
+        evaluatedItemId: this.evaluatedItemId,
+        entityId: this.entityId,
+        value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }),
+      };
       this.dispatchEvent(new CustomEvent('total-points-updated', { detail: detail, bubbles: true, composed: true }));
     }
   }
 
   getAssociation() {
+
+    if (!this.toolId || !this.entityId || !this.token || !this.evaluatedItemId) {
+      return;
+    }
 
     $.ajax({
       url: `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`,
@@ -368,10 +388,12 @@ export class SakaiRubricGrading extends RubricsElement {
     }).done(data => {
 
       this.association = data._embedded['rubric-associations'][0];
-      var rubricId = data._embedded['rubric-associations'][0].rubricId;
-      this.getRubric(rubricId);
+      this.rubricId = data._embedded['rubric-associations'][0].rubricId;
+      this.getRubric(this.rubricId);
     }).fail((jqXHR, textStatus, errorThrown) => {
-      console.log(textStatus);console.log(errorThrown);
+
+      console.info(textStatus);
+      console.error(errorThrown);
     });
   }
 
@@ -388,7 +410,6 @@ export class SakaiRubricGrading extends RubricsElement {
       }).done(data => {
 
         this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
-        this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
         this.existingEvaluation = true;
 
         this.rubric = rubric;
@@ -406,12 +427,18 @@ export class SakaiRubricGrading extends RubricsElement {
 
         this.decorateCriteria();
       }).fail((jqXHR, textStatus, errorThrown) => {
-        console.log(textStatus);console.log(errorThrown);
+
+        console.info(textStatus);
+        console.error(errorThrown);
       });
     }).fail((jqXHR, textStatus, errorThrown) => {
-      console.log(textStatus);console.log(errorThrown);
+
+      console.info(textStatus);
+      console.error(errorThrown);
     });
   }
 }
 
-customElements.define("sakai-rubric-grading", SakaiRubricGrading);
+if (!customElements.get("sakai-rubric-grading")) {
+  customElements.define("sakai-rubric-grading", SakaiRubricGrading);
+}
