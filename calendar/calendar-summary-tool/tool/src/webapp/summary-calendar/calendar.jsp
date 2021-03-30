@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
 
 <% 
 	response.setContentType("text/html; charset=UTF-8");
@@ -21,7 +21,9 @@
 			<h:commandLink action="#{MenuBean.processPreferences}" >
 				<h:outputText value="#{CalBean.accessibleOptionsLink}" escape="false"/>
             </h:commandLink>
-			<sakai:tool_bar_item rendered="#{MenuBean.subscribeEnabled}" action="#{MenuBean.processSubscribe}" value="#{msgs['java.opaque_subscribe']}" immediate="true" />
+			<h:commandLink rendered="#{MenuBean.subscribeEnabled}" action="#{MenuBean.processSubscribe}" >
+                <h:outputText value="#{msgs['java.opaque_subscribe']}" escape="false"/>
+            </h:commandLink>
 		</sakai:tool_bar>
     </h:panelGroup>
 
@@ -44,7 +46,7 @@
 			var="week"
 			styleClass="mainCalendar"
 			headerClass="calHeader"
-			columnClasses="calDay"
+			columnClasses="calDay,calDay,calDay,calDay,calDay,calDay,calDay"
 			>
 			<h:column id="sunday">
 				<f:facet name="header">	 

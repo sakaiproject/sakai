@@ -43,12 +43,12 @@
     </dependency>
 <!-- Sakai Project dependencies (Web/JSF related) -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-app</artifactId>
       <exclusions>
         <exclusion>
           <groupId>javax.faces</groupId>
@@ -57,13 +57,13 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>myfaces-widgets-depend</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-widgets-sun-depend</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-spreadsheet</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-spreadsheet</artifactId>
     </dependency>
     <!-- Apache Commons -->
     <dependency>
@@ -81,6 +81,20 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-shaded</artifactId>
+      <version>${sakai.weld.shaded.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk21</artifactId>
+      <version>1.1.14</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
     </dependency>
   </dependencies>
 </project>

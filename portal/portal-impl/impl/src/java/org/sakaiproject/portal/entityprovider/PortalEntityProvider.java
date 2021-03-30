@@ -42,8 +42,8 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.portal.api.BullhornService;
-import org.sakaiproject.portal.beans.BullhornAlert;
+import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.BullhornAlert;
 import org.sakaiproject.portal.beans.PortalNotifications;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
@@ -80,10 +80,8 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	private final static String CONNECTIONSEARCH_CACHE = "org.sakaiproject.portal.entityprovider.connectionSearchCache";
 	private final static String WORKSPACE_IDS_KEY = "workspaceIds";
 
-	private static final ResourceLoader rl = new ResourceLoader("bullhorns");
-
-	private BullhornService bullhornService;
 	private MemoryService memoryService;
+	private MessagingService messagingService;
 	private SearchService searchService;
 	private SessionManager sessionManager;
 	private SiteService siteService;
@@ -148,24 +146,17 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	@EntityCustomAction(action = "bullhornAlerts", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getBullhornAlerts(EntityView view) {
 
-		List<BullhornAlert> alerts = bullhornService.getAlerts(getCheckedCurrentUser());
+		ResourceLoader rl = new ResourceLoader("bullhorns");
+		List<BullhornAlert> alerts = messagingService.getAlerts(getCheckedCurrentUser());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("i18n", rl);
 
 		if (alerts.size() > 0) {
-			Map<String, Object> data = new HashMap<>();
 			data.put("alerts", alerts);
-			data.put("i18n", rl);
+        }
 
-			return new ActionReturn(data);
-		} else {
-			Map<String, String> i18n = new HashMap<>();
-			i18n.put("noAlerts", rl.getString("noAlerts"));
-
-			Map<String, Object> data = new HashMap<>();
-			data.put("message", "NO_ALERTS");
-			data.put("i18n", i18n);
-
-			return new ActionReturn(data);
-		}
+        return new ActionReturn(data);
 	}
 
 	@EntityCustomAction(action = "clearBullhornAlert", viewKey = EntityView.VIEW_LIST)
@@ -175,7 +166,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		try {
 			long alertId = Long.parseLong((String) params.get("id"));
-			return bullhornService.clearAlert(currentUserId, alertId);
+			return messagingService.clearAlert(currentUserId, alertId);
 		} catch (Exception e) {
 			log.error("Failed to clear bullhorn alert", e);
 		}
@@ -189,19 +180,12 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		String currentUserId = getCheckedCurrentUser();
 
 		try {
-			return bullhornService.clearAllAlerts(currentUserId);
+			return messagingService.clearAllAlerts(currentUserId);
 		} catch (Exception e) {
 			log.error("Failed to clear all bullhorn alerts", e);
 		}
 
 		return false;
-	}
-
-	@EntityCustomAction(action = "bullhornAlertCount", viewKey = EntityView.VIEW_LIST)
-	public ActionReturn getBullhornAlertCount(EntityView view) {
-
-		String currentUserId = getCheckedCurrentUser();
-		return new ActionReturn(bullhornService.getAlertCount(currentUserId));
 	}
 
 	private String getCheckedCurrentUser() throws SecurityException {

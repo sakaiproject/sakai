@@ -57,9 +57,12 @@
    padding: 10px 15px;
 }
 
+.gb-schema-table {
+  min-width: min-content;
+}
+
 .gb-schema-chart {
-  margin-left: 4em;
-  margin-top: 2em;
+  max-width: 100%;
 }
 
 .gb-category-runningtotal {

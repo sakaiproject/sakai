@@ -30,9 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXlsx;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
+import org.sakaiproject.jsf2.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf2.spreadsheet.SpreadsheetDataFileWriterXlsx;
+import org.sakaiproject.jsf2.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j

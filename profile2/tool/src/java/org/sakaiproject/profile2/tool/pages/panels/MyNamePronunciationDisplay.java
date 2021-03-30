@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -41,6 +42,9 @@ public class MyNamePronunciationDisplay extends Panel {
 
     @SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
     private SakaiProxy sakaiProxy;
+
+    @SpringBean(name="org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
 
     @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
     private ProfileLogic profileLogic;
@@ -59,6 +63,7 @@ public class MyNamePronunciationDisplay extends Panel {
         //heading
         add(new Label("heading", new ResourceModel("heading.name.pronunciation")));
 
+        addPronouns();
         addPhoneticPronunciation();
         addNameRecord();
 
@@ -87,6 +92,20 @@ public class MyNamePronunciationDisplay extends Panel {
             noFieldsMessage.setVisible(false);
         }
     }
+
+    private void addPronouns() {
+
+        WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
+
+        pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
+        pronounsContainer.add(new Label("pronouns", ProfileUtils.processHtml(userProfile.getPronouns())).setEscapeModelStrings(false));
+        pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));
+        add(pronounsContainer);
+
+        if (StringUtils.isBlank(userProfile.getPronouns())) pronounsContainer.setVisible(false);
+        else visibleFieldCount++;
+    }
+
 
     private void addPhoneticPronunciation() {
         WebMarkupContainer phoneticPronunciationContainer = new WebMarkupContainer("phoneticPronunciationContainer");

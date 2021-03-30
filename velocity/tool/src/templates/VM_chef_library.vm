@@ -150,7 +150,7 @@
 #macro (chef_start)
 #if ($sakai_fragment=='false')
 <!DOCTYPE html>
-<html lang="#if($language)$language#{else}en#end" dir="#if($dir)$dir#{else}ltr#end">
+<html lang="#if($language)$language#{else}en#end" dir="#if($dir)$dir#{else}ltr#end" class="Mrphs-html $!{userTheme}">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
