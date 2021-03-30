@@ -31,7 +31,7 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
                         <span class="fa fa-quote-left"></span> Replace this text, the title, the subtitle, and the picture to create a personal message you would like to communicate to your students. It should be no more than a short paragraph or two. An image size of <b>130px x 130px</b> would fit best with this template.<span class="fa fa-quote-right"></span>
                         <span></span>
                     </div>
-                    <div class="panel-body sakai-colorize--sakai-color-gray--lighter-7"><em>Here&#39;s an extra bit of instruction can can optionally add.</em></div>
+                    <div class="panel-body sakai-colorize--sakai-color-gray--lighter-7"><em>Here&#39;s an extra bit of instruction you can optionally add.</em></div>
                 </div>
                 `
         },

@@ -37,6 +37,7 @@ import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -584,6 +585,10 @@ public class PrefsBean {
 		lists.dataList = list;
 		lists.tempList = temp;
 		return lists;
+	}
+
+	public String getCDNQuery() {
+		return PortalUtils.getCDNQuery();
 	}
 }
 

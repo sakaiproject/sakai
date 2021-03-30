@@ -1,13 +1,10 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE faces-config PUBLIC
-  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
-
 <!-- =========== FACES CONFIGURATION FILE ================================== -->
-
-<faces-config>
-
+	<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+				  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+				  version="2.3">
   <!-- =================== Bundle ============== -->
 	<application>
     	<message-bundle>org.sakaiproject.umem.tool.bundle.Messages</message-bundle>
@@ -44,15 +41,6 @@
 		<managed-bean-class>org.sakaiproject.umem.tool.ui.SiteListBean</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
-
-	
-	<render-kit>
-        <renderer>
-            <component-family>javax.faces.Command</component-family>
-            <renderer-type>org.apache.myfaces.SortHeader</renderer-type>
-            <renderer-class>org.sakaiproject.umem.tool.jsf.HtmlSortHeaderRenderer</renderer-class>
-        </renderer>
-    </render-kit>
 
 	<navigation-rule>
           <from-view-id>/usermembership/*</from-view-id>

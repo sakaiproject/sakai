@@ -313,6 +313,46 @@
   </tag>
 
   <tag>
+    <name>inputColor</name>
+    <tag-class>org.sakaiproject.jsf2.tag.InputColorTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Render a sample-color bar and a color picker icon, as well as
+      an hidden field with the component value.  Clicking icon
+      causes color picker to popup. Transfer chosen
+      color picker value to hidden field and render bar in that color.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The component identifier for this component.  This value must be
+        unique within the closest parent component that is a naming
+        container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
 
     <name>panel_edit</name>
     <tag-class>org.sakaiproject.jsf2.tag.PanelEditTag</tag-class>

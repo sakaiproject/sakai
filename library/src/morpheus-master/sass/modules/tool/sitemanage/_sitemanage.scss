@@ -436,6 +436,7 @@
   }
   .removeTool {
     text-decoration: none !important;
+    color: var(--errorBanner-color);
   }
   #alertBox {
     background: var(--errorBanner-bgcolor);

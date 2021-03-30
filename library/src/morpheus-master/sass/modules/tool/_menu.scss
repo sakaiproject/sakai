@@ -12,8 +12,7 @@
 	li{
 		display: inline-block;
 		font-size: $default-font-size;
-		margin: 0 -1px 0 0;
-		margin: 0 0 0 $standard-space;
+		margin: 2px 0 0 $standard-space;
 
 		span{
 			display: inline;
@@ -70,7 +69,6 @@
 				margin: 0;
 				padding: 0 0.6em;
 				line-height: $tool-tab-height;
-				height: $tool-tab-height;
 				display: block;
 				margin-bottom: -1px;
 

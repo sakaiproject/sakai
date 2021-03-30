@@ -223,7 +223,6 @@ function importLTI13Config() {
                         jQuery("#lti13_on-input").prop("checked", true);
                         jQuery("#allowtitle_allow-input").prop("checked", true);
                         jQuery("#allowlaunch_allow-input").prop("checked", true);
-                        jQuery("#allowconsumerkey_allow-input").prop("checked", true);
                         jQuery("#pl_linkselection").prop("checked", true);
                         jQuery("#pl_launch").prop("checked", false);
                         jQuery("#pl_lessonsselection").prop("checked", true);

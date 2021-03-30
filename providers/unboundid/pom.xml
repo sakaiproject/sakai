@@ -12,7 +12,7 @@
   <artifactId>sakai-unboundid-provider</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <sakai.unboundid.version>5.1.3</sakai.unboundid.version>
+    <sakai.unboundid.version>5.1.4</sakai.unboundid.version>
     <deploy.target />
   </properties>
   <dependencies>
