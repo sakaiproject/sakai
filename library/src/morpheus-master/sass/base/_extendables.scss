@@ -199,6 +199,9 @@
 
 	:root.sakaiUserTheme-dark & {
 		background-image: url("images/icon-arrow-down-dark.png");
+		&[multiple], &[size]:not([size='1']) {
+			background-image: none;
+		}
 	}
 }
 
