@@ -104,7 +104,7 @@ public class ProfileConstants {
 	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/bullet_yellow.png";
 
 	//css classes for fontawsome icons
-	public static final String INFO_ICON = "fa fa-info-circle";
+	public static final String INFO_ICON = "infoIcon";
 
 	//profile picture settings for use in API and tool and their values for sakai.properties
 	//and the default if not specified or invalid one specified

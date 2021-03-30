@@ -107,7 +107,7 @@ public class MySocialNetworkingEdit extends Panel {
 		facebookUrl.setOutputMarkupId(true);
 		facebookUrl.add(new UrlValidator());
 		facebookContainer.add(facebookUrl);
-		facebookContainer.add(new IconWithToolTip("facebookToolTip", "infoIcon", new ResourceModel("text.profile.facebook.tooltip")));
+		facebookContainer.add(new IconWithToolTip("facebookToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.facebook.tooltip")));
 		
 		//feedback
         final FeedbackLabel facebookUrlFeedback = new FeedbackLabel("facebookUrlFeedback", facebookUrl);
@@ -133,7 +133,7 @@ public class MySocialNetworkingEdit extends Panel {
 		linkedinUrl.setOutputMarkupId(true);
 		linkedinUrl.add(new UrlValidator());
 		linkedinContainer.add(linkedinUrl);
-		linkedinContainer.add(new IconWithToolTip("linkedinToolTip", "infoIcon", new ResourceModel("text.profile.linkedin.tooltip")));
+		linkedinContainer.add(new IconWithToolTip("linkedinToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.linkedin.tooltip")));
 		
 		//feedback
 		final FeedbackLabel linkedinUrlFeedback = new FeedbackLabel("linkedinUrlFeedback", linkedinUrl);
@@ -159,7 +159,7 @@ public class MySocialNetworkingEdit extends Panel {
 		myspaceUrl.setOutputMarkupId(true);
 		myspaceUrl.add(new UrlValidator());
 		myspaceContainer.add(myspaceUrl);
-		myspaceContainer.add(new IconWithToolTip("myspaceToolTip", "infoIcon", new ResourceModel("text.profile.myspace.tooltip")));
+		myspaceContainer.add(new IconWithToolTip("myspaceToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.myspace.tooltip")));
 		
 		//feedback
 		final FeedbackLabel myspaceUrlFeedback = new FeedbackLabel("myspaceUrlFeedback", myspaceUrl);
@@ -185,7 +185,7 @@ public class MySocialNetworkingEdit extends Panel {
 		twitterUrl.setOutputMarkupId(true);
 		twitterUrl.add(new UrlValidator());
 		twitterContainer.add(twitterUrl);
-		twitterContainer.add(new IconWithToolTip("twitterToolTip", "infoIcon", new ResourceModel("text.profile.twitter.tooltip")));
+		twitterContainer.add(new IconWithToolTip("twitterToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.twitter.tooltip")));
 		
 		//feedback
 		final FeedbackLabel twitterUrlFeedback = new FeedbackLabel("twitterUrlFeedback", twitterUrl);

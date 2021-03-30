@@ -171,7 +171,7 @@ public class CreateWorksitePanel extends Panel {
 		createButton.setModel(new ResourceModel("button.worksite.create"));
 		form.add(createButton);
 		
-		form.add(new IconWithToolTip("createWorksiteToolTip", "infoIcon", new ResourceModel("text.worksite.create")));
+		form.add(new IconWithToolTip("createWorksiteToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.worksite.create")));
 		
 		Label refreshLabel = new Label("refreshLabel", new ResourceModel("text.worksite.refresh"));
 		form.add(refreshLabel);

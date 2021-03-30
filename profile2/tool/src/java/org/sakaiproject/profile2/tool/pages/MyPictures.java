@@ -147,7 +147,7 @@ public class MyPictures extends BasePage {
 
 		addPictureContainer
 				.add(new IconWithToolTip("galleryImageUploadToolTip",
-						"infoIcon", new StringResourceModel(
+						ProfileConstants.INFO_ICON, new StringResourceModel(
 								"text.gallery.upload.tooltip", null,
 								new Object[] { sakaiProxy.getMaxProfilePictureSize()
 										* ProfileConstants.MAX_GALLERY_FILE_UPLOADS })));
