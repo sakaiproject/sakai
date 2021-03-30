@@ -563,7 +563,7 @@ $nav-tabs-active-link-hover-border-color:   var(--tool-tab-background-color);
 //##
 
 //** Popover body background color
-$popover-bg:                          var(--sakai-background-color-2);
+$popover-bg:                          var(--sakai-popover-background);
 //** Popover maximum width
 // $popover-max-width:                   276px
 //** Popover border color
@@ -572,7 +572,7 @@ $popover-bg:                          var(--sakai-background-color-2);
 // $popover-fallback-border-color:       #ccc
 
 //** Popover title background color
-$popover-title-bg:                   var(--sakai-background-color-3);
+$popover-title-bg:                   var(--sakai-popover-title-background);
 
 //** Popover arrow width
 // $popover-arrow-width:                 10px
