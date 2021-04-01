@@ -47,7 +47,7 @@ public class IconWithToolTip extends Panel{
 		
 		link.add(icon);	                
 		
-		add(link);	
+		add(link);
 	}
 
 }
