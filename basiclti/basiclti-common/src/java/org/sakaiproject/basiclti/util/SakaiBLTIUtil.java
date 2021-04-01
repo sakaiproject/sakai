@@ -1059,7 +1059,6 @@ public class SakaiBLTIUtil {
 			// Pull in the ResouceLink.id.history value from JSON
 			String content_id_history = (String) content_json.get(LTIService.LTI_ID_HISTORY);
 			if ( StringUtils.isNotBlank(content_id_history) ) {
-				setProperty(ltiProps, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 				setProperty(lti13subst, LTICustomVars.RESOURCELINK_ID_HISTORY, content_id_history);
 			}
 
