@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
@@ -23,11 +24,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfiguration> {
 
+    public static final String IGNITE_ADDRESS = "ignite.address";
+    public static final String IGNITE_ADDRESSES = "ignite.addresses";
+    public static final String IGNITE_HOME = "ignite.home";
+    public static final String IGNITE_MODE = "ignite.mode";
+    public static final String IGNITE_PORT = "ignite.port";
+    public static final String IGNITE_RANGE = "ignite.range";
+    public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
+    public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
+
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
     private static Boolean configured = Boolean.FALSE;
 
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private CacheConfiguration[] cacheConfiguration;
+    @Setter private DataStorageConfiguration dataStorageConfiguration;
 
     @Getter @Setter private String address;
     @Getter @Setter private String home;
@@ -46,12 +57,12 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     @Override
     protected IgniteConfiguration createInstance() {
         if (!configured) {
-            address = serverConfigurationService.getString("ignite.address");
-            home = serverConfigurationService.getString("ignite.home");
-            remoteAddresses = serverConfigurationService.getStrings("ignite.addresses");
-            port = serverConfigurationService.getInt("ignite.port", 0);
-            range = serverConfigurationService.getInt("ignite.range", 10);
-            mode = serverConfigurationService.getString("ignite.mode", "worker");
+            address = serverConfigurationService.getString(IGNITE_ADDRESS);
+            home = serverConfigurationService.getString(IGNITE_HOME);
+            remoteAddresses = serverConfigurationService.getStrings(IGNITE_ADDRESSES);
+            port = serverConfigurationService.getInt(IGNITE_PORT, 0);
+            range = serverConfigurationService.getInt(IGNITE_RANGE, 10);
+            mode = serverConfigurationService.getString(IGNITE_MODE, "server");
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
 
@@ -79,11 +90,13 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
             igniteConfiguration.setCacheConfiguration(cacheConfiguration);
-	    
-            //User configuration for metrics update freqency
-            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong("ignite.metrics.update.freq", IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
 
-            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong("ignite.metrics.log.freq", 0L));
+            igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+
+            //User configuration for metrics update freqency
+            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
+
+            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
 
             // local node network configuration
