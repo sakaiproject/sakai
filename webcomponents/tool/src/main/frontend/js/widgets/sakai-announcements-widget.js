@@ -159,7 +159,7 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
         }
           .header a {
             text-decoration: none;
-            color: black;
+            color: var(--sakai-text-color-1);
           }
         .title {
           flex: 2;

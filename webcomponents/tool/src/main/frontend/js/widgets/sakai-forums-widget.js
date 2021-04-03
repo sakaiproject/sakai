@@ -190,7 +190,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
         }
           .header a {
             text-decoration: none;
-            color: black;
+            color: var(--sakai-text-color-1);
           }
         .cell {
           padding: 8px;

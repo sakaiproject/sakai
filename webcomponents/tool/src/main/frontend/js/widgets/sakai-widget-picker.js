@@ -91,7 +91,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
       }
       .widget-option a {
         text-decoration: none;
-        color: black;
+        color: var(--sakai-text-color-1);
         font-size: 18px;
       }
     `;
