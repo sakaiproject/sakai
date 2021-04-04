@@ -236,7 +236,7 @@ function mySetMainFrameHeightViewCell(id)
 		  	<f:verbatim>
 	 			<div class="hideInfo" style="display: none;"> 			
 	 		</f:verbatim> 
-				<h:outputText styleClass="information" value="#{msgs.syn_hide_info}"/><h:outputText styleClass="highlight" value="#{msgs.syn_hide_info_hidden_msg}"/>
+				<h:outputText styleClass="instruction" value="#{msgs.syn_hide_info}"/><h:outputText styleClass="sak-banner-info" value="#{msgs.syn_hide_info_hidden_msg}"/>
 		  	<f:verbatim>
 		  		</div>
 		  	</f:verbatim>
@@ -344,12 +344,10 @@ function mySetMainFrameHeightViewCell(id)
 		 		</t:dataTable>
 		 	</t:div>
 		 	
-	 		<f:verbatim>
-	 			<div class="optionsTable" style="display: none;"> 			
-	 			<br>
-	 			<br>
-	 		</f:verbatim>
-	 		<h:commandButton id="update" value="#{msgs.syn_update}" action="#{mfSynopticBeanLite.proccessActionSaveChanges}"/>	 		
+			<f:verbatim>
+				<div class="act optionsTable" style="display: none;">
+			</f:verbatim>
+			<h:commandButton id="update" value="#{msgs.syn_update}" action="#{mfSynopticBeanLite.proccessActionSaveChanges}" styleClass="active" />
 	 		<f:verbatim>
 	 			<input type="button" id="cancel" value='</f:verbatim><h:outputText value="#{msgs.syn_cancel}"/><f:verbatim>' onclick="$('.optionsTable').fadeOut(resize);$('.optionLink').parent().parent().toggle();SynMainLite.resetCheckboxes();$('.hideInfo').fadeOut();if(SynMainLite.getCount() == 1){$('.noActivity').fadeIn();$('.workspaceTable').fadeOut();};">
 	 		</f:verbatim> 		
