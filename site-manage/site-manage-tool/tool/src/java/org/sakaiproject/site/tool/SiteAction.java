@@ -12907,6 +12907,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							String attributeInput = StringUtils.trimToNull(params.getString(attribute + "_" + id));
 							if (attributeInput != null)
 							{
+								
+								attributeInput = formattedText.sanitizeHrefURL(attributeInput);
 								// save the attribute input if valid, otherwise generate alert
 								if ( formattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
