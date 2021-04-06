@@ -110,7 +110,7 @@ public class ViewRenderer extends Renderer
 			
 			writer.write("</head>\n");
 
-			writer.write("<body");
+			writer.write("<body class=\"Mrphs-container\"");
 
 			if (bodyonload != null && bodyonload.length() > 0)
 			{
