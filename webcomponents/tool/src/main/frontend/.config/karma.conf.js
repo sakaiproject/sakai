@@ -1,3 +1,5 @@
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
 module.exports = function(config) {
 
   config.set({
@@ -14,6 +16,16 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
+    customLaunchers: {
+      ChromeHeadless: {
+        base: 'Chrome',
+        flags: [
+          '--headless',
+          '--no-sandbox',
+          '--remote-debugging-port=9222'
+        ]
+      }
+    },
     browsers: ["ChromeHeadless"],
     concurrency: Infinity,
     singleRun: true,

@@ -155,6 +155,7 @@
                                 style-loader@1
                                 webpack@4
                                 webpack-cli@3
+                                puppeteer@5
                             </arguments>
                         </configuration>
                     </execution>
