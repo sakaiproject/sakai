@@ -120,7 +120,9 @@ public class FeedbackTool extends HttpServlet {
         if (userId != null) {
             setMapAttribute(request, "siteUpdaters", emailRecipients);
         } else {
-            if (sakaiProxy.getConfigBoolean("user.recaptcha.enabled", false)) {
+            boolean recaptchaEnabled = sakaiProxy.getConfigBoolean("user.recaptcha.enabled", false);
+            request.setAttribute("recaptchaEnabled", recaptchaEnabled);
+            if (recaptchaEnabled) {
                 String publicKey = sakaiProxy.getConfigString("user.recaptcha.public-key", "");
                 setStringAttribute(request, "recaptchaPublicKey", publicKey);
             }
