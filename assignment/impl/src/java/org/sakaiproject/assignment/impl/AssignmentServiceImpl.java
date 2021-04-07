@@ -568,7 +568,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
-                                    gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
+                                    gradeSheetExporter.writeGradesSpreadsheet(out, queryString);
                                 } catch (Exception e) {
                                     log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
                                 }
