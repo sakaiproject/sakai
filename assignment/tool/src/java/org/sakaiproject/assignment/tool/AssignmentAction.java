@@ -13027,6 +13027,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private Charset getZipFileCharset(File tempFile) {
         final Charset[] possibleCharSets = new Charset[]{
                 StandardCharsets.UTF_8,
+                Charset.forName("IBM437"),
                 Charset.forName("windows-1252"),
                 StandardCharsets.ISO_8859_1,
                 StandardCharsets.US_ASCII,
