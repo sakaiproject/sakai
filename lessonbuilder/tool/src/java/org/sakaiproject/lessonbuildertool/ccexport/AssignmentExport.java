@@ -141,7 +141,14 @@ public class AssignmentExport {
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
                 Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
-                double maxPoints = new Double(assignmentService.getMaxPointGradeDisplay(scaleFactor, assignment.getMaxGradePoint()));
+                String aux = assignmentService.getMaxPointGradeDisplay(scaleFactor, assignment.getMaxGradePoint());
+                String decSeparator = formattedText.getDecimalSeparator();
+                double maxPoints = 0.0;
+                try {
+                    maxPoints = Double.valueOf(StringUtils.replace(aux, decSeparator, "."));
+                } catch (NumberFormatException e ) {
+                    log.error("Could not parse max points [{}] as a Double, {}", aux, e.getMessage());
+                }
                 ret.setMaxPoints(maxPoints);
                 ret.setForPoints(true);
             case LETTER_GRADE_TYPE:
