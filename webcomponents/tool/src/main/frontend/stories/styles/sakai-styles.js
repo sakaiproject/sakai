@@ -132,6 +132,7 @@ sakai-topic-list .topic-poster-image {
   width: 26px;
   height: 26px;
 }
+
 .sakai-user-photo {
     min-width: 32px;
     max-width: 32px;
