@@ -97,7 +97,7 @@ html {
   font-weight: bold;
 }
 
-sakai-conversations .topic-title-wrapper {
+sakai-topic-list .topic-title-wrapper {
   font-weight: bold;
 }
 
@@ -108,7 +108,7 @@ sakai-conversations .topic-title-wrapper {
   #conv-mobile {
     display: block;
   }
-  sakai-conversations .topic-title-wrapper {
+  sakai-topic-list .topic-title-wrapper {
     margin-bottom: 20px;
   }
 }
@@ -122,16 +122,24 @@ sakai-conversations .topic-title-wrapper {
   }
 }
 
-
-sakai-conversations .topic-poster-images-wrapper {
+sakai-topic-list .topic-poster-images-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
   grid-gap: 1rem;
 }
 
-sakai-conversations .topic-poster-image {
+sakai-topic-list .topic-poster-image {
   width: 26px;
   height: 26px;
+}
+.sakai-user-photo {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    float: left;
+    background-position: 50%;
+    background-size: auto 100%;
+    border-radius: 50%;
 }
 </style>
 `;

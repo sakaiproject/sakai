@@ -261,3 +261,13 @@ span.marker {
     margin: 0;
   }
 }
+
+.sakai-user-photo {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    float: left;
+    background-position: 50%;
+    background-size: auto 100%;
+    border-radius: 50%;
+}

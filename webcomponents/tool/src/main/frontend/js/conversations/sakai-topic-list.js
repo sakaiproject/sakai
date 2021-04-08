@@ -2,7 +2,7 @@ import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import moment from "../assets/moment/dist/moment.js";
 
-export class SakaiConversations extends SakaiElement {
+export class SakaiTopicList extends SakaiElement {
 
   static get properties() {
 
@@ -23,9 +23,7 @@ export class SakaiConversations extends SakaiElement {
 
     this._siteId = value;
 
-    console.log("here");
-
-    fetch(`/api/sites/${this.siteId}/conversations`)
+    fetch(`/api/sites/${this.siteId}/topics`)
       .then(r => r.json())
       .then(topics => {
 
@@ -55,10 +53,12 @@ export class SakaiConversations extends SakaiElement {
         <div class="header">Last Activity</div>
         ${this.topics.map(t => html`
           <div class="topic-title-wrapper">
-            ${t.type === "QUESTION" ? html`
-            <span class="question-prefix">${this.i18n["question"]}</span>
-            ` : ""}
-            <span class="topic-title">${t.title}</span>
+            <a href="javascript:;" class="topic-view-link" data-topic-id="${t.id}">
+              ${t.type === "QUESTION" ? html`
+              <span class="question-prefix">${this.i18n["question"]}</span>
+              ` : ""}
+              <span class="topic-title">${t.title}</span>
+            </a>
           </div>
           <div>${this.i18n[t.type]}</div>
           <div class="topic-poster-images-wrapper">
@@ -76,10 +76,12 @@ export class SakaiConversations extends SakaiElement {
         ${this.topics.map(t => html`
         <div class="topic">
           <div class="topic-title-wrapper">
-            ${t.type === "QUESTION" ? html`
-            <span class="question-prefix">${this.i18n["question"]}</span>
-            ` : ""}
-            <span class="topic-title">${t.title}</span>
+            <a href="javascript:;" class="topic-view-link" data-topic-id="${t.id}">
+              ${t.type === "QUESTION" ? html`
+              <span class="question-prefix">${this.i18n["question"]}</span>
+              ` : ""}
+              <span class="topic-title">${t.title}</span>
+            </a>
           </div>
           <div class="topic-data">
             <div class="header">Type:</div><div>${this.i18n[t.type]}</div>
@@ -101,6 +103,6 @@ export class SakaiConversations extends SakaiElement {
   }
 }
 
-if (!customElements.get("sakai-conversations")) {
-  customElements.define("sakai-conversations", SakaiConversations);
+if (!customElements.get("sakai-topic-list")) {
+  customElements.define("sakai-topic-list", SakaiTopicList);
 }
