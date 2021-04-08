@@ -291,7 +291,8 @@ public final class AssignmentConstants {
         UNGRADED,
         RETURNED,
         COMMENTED,
-        GRADED
+        GRADED,
+        RETURNED_PENDING_RESUBMIT
     }
 
 	// IMS Score Publishing Service - states
