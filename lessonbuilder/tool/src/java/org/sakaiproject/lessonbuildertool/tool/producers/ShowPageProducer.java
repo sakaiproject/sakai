@@ -1042,9 +1042,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		simplePageBean.addPrevLink(tofill, pageItem);
 		simplePageBean.addNextLink(tofill, pageItem);
 
-		// swfObject is not currently used
-		boolean shownSwfObject = false;
-
 		long newItemId = -1L;
 		String newItemStr = (String)toolSession.getAttribute("lessonbuilder.newitem");
 		if (newItemStr != null) {
@@ -2193,17 +2190,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
                             }
 
-                            // FLV is special. There's no player for flash video in
-                            // the browser
-                            // it shows with a special flash program, which I
-                            // supply. For the moment MP4 is
-                            // shown with the same player so it uses much of the
-                            // same code
-                            if (mimeType != null && (mimeType.equals("video/x-flv") || mimeType.equals("video/flv") || isMp4)) {
-                                mimeType = "application/x-shockwave-flash";
-                                movieUrl = "/lessonbuilder-tool/templates/StrobeMediaPlayback.swf";
-                                useFlvPlayer = true;
-                            }
                             // for IE, if we're not supplying a player it's safest
                             // to use embed
                             // otherwise Quicktime won't work. Oddly, with IE 9 only
