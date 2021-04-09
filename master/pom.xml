@@ -975,7 +975,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.21</version>
+        <version>3.0.22</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
