@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.mXparser;
 import org.sakaiproject.tool.assessment.services.GradingService;
 
 
@@ -46,6 +47,7 @@ public class SamigoExpressionParser
   public SamigoExpressionParser()
   {
     expr = "";
+    mXparser.setEpsilon(1.0E-99);
   }
 
   /**
@@ -81,12 +83,18 @@ public class SamigoExpressionParser
       Expression e = null;
       try {
           e = new Expression(expr);
+          if (expr.contains("E")) {
+              mXparser.disableUlpRounding();
+          }
           double d = e.calculate();
           ans = new BigDecimal(d, MathContext.DECIMAL64);
       }
       catch (NumberFormatException nfe) {
           String errorMessage = e != null ? e.getErrorMessage() : expr;
           throw new SamigoExpressionError(401, errorMessage);
+      }
+      finally {
+          mXparser.enableUlpRounding();
       }
 
       GradingService service = new GradingService();
