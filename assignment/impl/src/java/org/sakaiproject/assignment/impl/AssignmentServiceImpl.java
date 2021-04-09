@@ -1478,6 +1478,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Priorities.HIGH);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+
+        Map<String, String> assignmentProperties = assignment.getProperties();
+        String resubmitNumber = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        String resubmitCloseTime = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+        if (StringUtils.isNotBlank(resubmitNumber)) {
+            String ref = String.format("%s/%s/%s", 
+                    AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference(),
+                    resubmitNumber,
+                    resubmitCloseTime);
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT, ref, true));
+        }
     }
 
     @Override
@@ -2355,6 +2366,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             // otherwise, use assignment close time as the resubmission close time
                             resubmitCloseTime = assignment.getCloseDate();
                         }
+                        if (StringUtils.isNotBlank(allowResubmitNumString)) {
+                            String ref = String.format("%s/%s/%s",
+                                    AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference(),
+                                    allowResubmitNumString,
+                                    resubmitCloseTime);
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION, ref, true));
+                        }
                         return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && !currentTime.isAfter(resubmitCloseTime);
                     } catch (NumberFormatException e) {
                         log.warn("allowResubmitNumString = {}, allowResubmitCloseTime = {}", allowResubmitNumString, allowResubmitCloseTime, e);
@@ -2587,6 +2605,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)
                                                     ? assignmentAllowResubmitCloseDate
                                                     : String.valueOf(a.getCloseDate().toEpochMilli()));
+                                }
+                                if (StringUtils.isNotBlank(assignmentAllowResubmitNumber)) {
+                                    String ref = String.format("%s/%s/%s",
+                                            AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(),
+                                            assignmentAllowResubmitNumber,
+                                            assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION, ref, true));
                                 }
                                 assignmentRepository.updateSubmission(submission);
                                 submitterMap.put(user, submission);
