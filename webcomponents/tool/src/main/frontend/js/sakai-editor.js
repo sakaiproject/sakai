@@ -25,6 +25,10 @@ class SakaiEditor extends SakaiElement {
     this.elementId = "editable";
   }
 
+  getContent() {
+    return this.editor.getData();
+  }
+
   shouldUpdate(changed) {
     return (this.content || this.elementId) && typeof CKEDITOR !== "undefined";
   }
@@ -54,7 +58,7 @@ class SakaiEditor extends SakaiElement {
       this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
     }
     this.editor.on("change", (e) => {
-      this.dispatchEvent(new CustomEvent("changed", { detail: { overview: e.editor.getData() }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("changed", { detail: { content: e.editor.getData() }, bubbles: true }));
     });
   }
 

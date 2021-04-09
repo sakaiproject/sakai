@@ -134,24 +134,36 @@ sakai-topic-list .topic-poster-image {
 }
 
 .sakai-user-photo {
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   background-position: 50%;
   background-size: auto 100%;
   border-radius: 50%;
 }
 
+.sakai-user-photo.medium-thumbnail {
+  width: 32px;
+  height: 32px;
+}
+
+.sakai-user-photo.small-thumbnail {
+  width: 24px;
+  height: 24px;
+}
+
 .post {
   border: 1px black solid;
   padding: 8px;
-  border-radius: 5px 5px 0 0;
+  border-radius: 8px 8px 0 0;
   margin-left: 20px;
+  margin-top: 10px;
 }
 
 .reply {
   border-radius: 0;
   padding-left: 50px;
   border-top: 0;
+  margin-top: 0;
 }
 
 .author-block {
@@ -169,6 +181,7 @@ sakai-topic-list .topic-poster-image {
 
 .starter-post {
   margin-left: 0;
+  margin-top: 20px;
 }
 
 .posts {
@@ -183,5 +196,35 @@ sakai-topic-list .topic-poster-image {
 .replies {
   border-radius: 0 0 5px 5px;
 }
+
+.post-to-topic {
+  border: black solid 1px;
+  background-color: #D3D3D3;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 8px;
+}
+.post-to-topic-link-block {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.post-to-topic-link {
+  margin-left: 10px;
+}
+
+.post-to-topic-link a {
+  text-decoration: none;
+}
+
+.post-editor {
+  padding: 50px;
+}
+
+.post-buttons {
+  margin-top: 10px;
+}
+
 </style>
 `;

@@ -3,6 +3,7 @@ import { unsafeHTML } from "../assets/lit-html/directives/unsafe-html.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-user-photo.js";
 import moment from "../assets/moment/dist/moment.js";
+import "../sakai-editor.js";
 
 export class SakaiTopic extends SakaiElement {
 
@@ -11,6 +12,7 @@ export class SakaiTopic extends SakaiElement {
     return {
       topicId: { attribute: "topic-id", type: String },
       topic: { type: Object },
+      creatingPost: Boolean,
     };
   }
 
@@ -48,26 +50,77 @@ export class SakaiTopic extends SakaiElement {
         t.lastActivityHuman = moment.duration(t.lastActivity - Date.now(), "milliseconds").humanize(true);
         t.formattedCreatedDate = this.formatDate(t.created);
 
-        let setFormattedCreatedDate = (p) => {
-
-          p.formattedCreatedDate = this.formatDate(p.created);
-          p.replies && p.replies.forEach(p => setFormattedCreatedDate(p));
-        };
-
-        t.posts.forEach(p => setFormattedCreatedDate(p));
+        t.posts.forEach(p => this.setFormattedCreatedDate(p));
 
         this.topic = t;
       });
   }
 
+  setFormattedCreatedDate(p) {
+
+    p.formattedCreatedDate = this.formatDate(p.created);
+    p.replies && p.replies.forEach(p => this.setFormattedCreatedDate(p));
+  }
+
+  decoratePost(p) {
+      this.setFormattedCreatedDate(p);
+  }
+
   get topicId() { return this._topicId; }
+
+  shouldUpdate() {
+    return this.i18n && this.topic;
+  }
+  
+  firstUpdated() {
+  }
+
+  toggleCreatePost() {
+    this.creatingPost = !this.creatingPost;
+  }
+
+  postToTopic() {
+
+    this.creatingPost = false;
+
+    const post = {
+      message: this.querySelector("sakai-editor").getContent(),
+    };
+
+    fetch(`/api/topics/${this.topic.id}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    })
+    .then(r => {
+
+      console.log(r);
+
+      if (!r.ok) {
+        throw new Error("Network error while posting to topic.");
+      }
+      return r.json();
+    })
+    .then(post => {
+
+      this.decoratePost(post);
+      this.topic.posts.push(post);
+      this.requestUpdate();
+    })
+    .catch (error => {
+      //TODO: show error message to user here
+    });
+  }
 
   renderPost(p, isReply) {
 
     return html`
       <div class="post ${isReply ? "reply" : ""}">
         <div class="author-block">
-          <div><sakai-user-photo user-id="${p.creator}"></sakai-user-photo></div>
+          <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
           <div>
             <div class="author-details">
               <span>${p.creatorDisplayName}</span>
@@ -83,10 +136,6 @@ export class SakaiTopic extends SakaiElement {
       </div>
       ` : ""}
     `;
-  }
-
-  shouldUpdate() {
-    return this.i18n && this.topic;
   }
 
   render() {
@@ -109,6 +158,19 @@ export class SakaiTopic extends SakaiElement {
           </div>
         </div>
         <div class="message">${unsafeHTML(this.topic.message)}</div>
+      </div>
+      <div class="post-to-topic">
+        <div class="post-to-topic-link-block">
+          <div><sakai-user-photo user-id="${parent.portal.userId}" size-class="small-thumbnail"></sakai-user-photo></div>
+          <div class="post-to-topic-link"><a href="javascript:;" @click=${this.toggleCreatePost}>Post to Topic ...</a></div>
+        </div>
+        <div class="post-editor" style="display: ${this.creatingPost ? "block" : "none"}">
+          <sakai-editor toolbar="basic"></sakai-editor>
+          <div class="post-buttons">
+            <button @click=${this.postToTopic} active>Post</button>
+            <button @click=${this.toggleCreatePost}>Cancel</button>
+          </div>
+        </div>
       </div>
       <div class="posts">
         ${this.topic.posts.map(p => this.renderPost(p))}
