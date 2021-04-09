@@ -134,13 +134,54 @@ sakai-topic-list .topic-poster-image {
 }
 
 .sakai-user-photo {
-    min-width: 32px;
-    max-width: 32px;
-    height: 32px;
-    float: left;
-    background-position: 50%;
-    background-size: auto 100%;
-    border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  background-position: 50%;
+  background-size: auto 100%;
+  border-radius: 50%;
+}
+
+.post {
+  border: 1px black solid;
+  padding: 8px;
+  border-radius: 5px 5px 0 0;
+  margin-left: 20px;
+}
+
+.reply {
+  border-radius: 0;
+  padding-left: 50px;
+  border-top: 0;
+}
+
+.author-block {
+  display: flex;
+}
+
+.author-block sakai-user-photo {
+  flex: 1;
+}
+
+.author-details {
+  flex; 1;
+  margin-left: 10px;
+}
+
+.starter-post {
+  margin-left: 0;
+}
+
+.posts {
+  margin-top: 30px;
+}
+
+.post .message {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.replies {
+  border-radius: 0 0 5px 5px;
 }
 </style>
 `;
