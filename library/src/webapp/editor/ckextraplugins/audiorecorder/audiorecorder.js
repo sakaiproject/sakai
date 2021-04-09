@@ -2,9 +2,6 @@ var CKEDITOR   = window.parent.CKEDITOR;
 var oEditor = CKEDITOR.instances[getParameterByName("parentname")];
 var oMovie     = null;
 var isNew	   = true;
-//var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/player_flv_maxi.swf";
-var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/StrobeMediaPlayback.swf";
-
 
 function GetAttribute(element,value,defaultvalue) {
     if (element.attributes[value])

@@ -27,67 +27,6 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 ##  If you increase the width to 500x300 there and set debug = "true"
 ##  debug output will appear on the screnn
 ##
-<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
- codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
- WIDTH="1" HEIGHT="1" id="localstore" ALIGN="" >
- <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf" /> 
- <PARAM NAME="quality" VALUE="high" /> 
- <PARAM NAME="play" VALUE="false" /> 
- <PARAM NAME="loop" VALUE="false" /> 
- <PARAM NAME="bgcolor" VALUE="#FFFFFF" /> 
- <EMBED src="/sakai-rwiki-tool/scripts/localstore.swf" 
- quality="high" bgcolor="#FFFFFF"  
- WIDTH="1" 
- HEIGHT="1" 
- STYLE="visibility:hidden" 
- NAME="localstore" 
- play="false"
- loop="false"
- swLiveConnect="true"
- ALIGN=""
- TYPE="application/x-shockwave-flash" 
- PLUGINSPAGE="https://www.macromedia.com/go/getflashplayer">
- </EMBED>
-</OBJECT>
-
-<SCRIPT LANGUAGE="VBScript" >
-	on error resume next
-	Sub localstore_FSCommand(ByVal command, ByVal args)
-	  call localstore_DoFSCommand(command, args)
-	end sub
-</SCRIPT> 
-	
-<script type="text/javascript" >
-<!--
-function localstore_DoFSCommand(command,args) {
- try {
-	log("Callback for "+command);
-	var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
-	var flashObj = InternetExplorer ? localstore : document.localstore;
- var flashid = "localstore";
-	if ( command == "setdom" ) {
-		var argsA = args.split(";");
-		for(i = 0; i < argsA.length; i+=2){
-			var v =  flashObj.GetVariable(argsA[i+1]);
-	  log("Setting "+argsA[i]+"["+v+"]");
-	  try {
-	    var obj = document.getElementById(argsA[i]);
-			  obj.value = v;
-			} catch (e) {
-			  log("Failed to set "+argsA[i]+"["+v+"]");
-			} 
-		}
-	} else {
-         flashBridgeObj[flashid].doUpdate(command,args);
-	}
-	} catch (e) {
-		log("DoFSCommand Failed "+e);
-	}
-}
-// -->
-</script>
-
-
 <!--
 <div id="logdiv" >
 LOG-LOG-LOG-LOG-LOG

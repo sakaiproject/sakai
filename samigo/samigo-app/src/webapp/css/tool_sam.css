@@ -667,7 +667,12 @@ span.author_mcLabelText {
     background-color: #ccc;
 }
 #audio-analyzer {
-    height: 180px;
+    height: 128px;
+    width: 100%;
+    background-color: black;
+}
+#playback-analyzer {
+    height: 128px;
     width: 100%;
     background-color: black;
 }
