@@ -206,6 +206,10 @@ export class SakaiDashboardWidget extends LitElement {
           padding: 5px;
           flex: 1;
         }
+      a {
+	text-decoration: none;	
+        color: var(--link-color);
+      }
     `;
   }
 }
