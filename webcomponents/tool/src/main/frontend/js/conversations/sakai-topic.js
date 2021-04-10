@@ -13,12 +13,15 @@ export class SakaiTopic extends SakaiElement {
       topicId: { attribute: "topic-id", type: String },
       topic: { type: Object },
       creatingPost: Boolean,
+      replyEditorDisplayed: { type: Array },
     };
   }
 
   constructor() {
 
     super();
+
+    this.replyEditorDisplayed = [];
 
     this.loadTranslations("conversations").then(r => this.i18n = r);
   }
@@ -79,6 +82,15 @@ export class SakaiTopic extends SakaiElement {
     this.creatingPost = !this.creatingPost;
   }
 
+  toggleReplyToPost(e) {
+
+    e.preventDefault();
+
+    const postId = e.target.dataset.postId;
+    this.replyEditorDisplayed[postId] = !this.replyEditorDisplayed[postId];
+    this.requestUpdate();
+  }
+
   postToTopic() {
 
     this.creatingPost = false;
@@ -129,6 +141,18 @@ export class SakaiTopic extends SakaiElement {
           </div>
         </div>
         <div class="message">${unsafeHTML(p.message)}</div>
+        ${p.replyable ? html`
+        <div class="reply-block">
+          <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
+          <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
+            <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}"></sakai-editor>
+            <div class="post-buttons">
+              <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
+              <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
+            </div>
+          </div>
+        </div>
+        ` : ""}
       </div>
       ${p.replies ? html`
       <div class="replies">
@@ -165,7 +189,7 @@ export class SakaiTopic extends SakaiElement {
           <div class="post-to-topic-link"><a href="javascript:;" @click=${this.toggleCreatePost}>Post to Topic ...</a></div>
         </div>
         <div class="post-editor" style="display: ${this.creatingPost ? "block" : "none"}">
-          <sakai-editor toolbar="basic"></sakai-editor>
+          <sakai-editor toolbar="basic" element-id="post-to-topic-${this.topic.id}"></sakai-editor>
           <div class="post-buttons">
             <button @click=${this.postToTopic} active>Post</button>
             <button @click=${this.toggleCreatePost}>Cancel</button>
