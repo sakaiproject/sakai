@@ -208,7 +208,7 @@ export class SakaiDashboardWidget extends LitElement {
         }
 
       a {
-	text-decoration: none;	
+        text-decoration: none;
         color: var(--link-color);
       }
     `;
