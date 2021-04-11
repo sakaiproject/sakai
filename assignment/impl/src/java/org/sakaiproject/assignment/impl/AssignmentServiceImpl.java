@@ -568,7 +568,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
-                                    gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
+                                    gradeSheetExporter.writeGradesSpreadsheet(out, queryString);
                                 } catch (Exception e) {
                                     log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
                                 }
@@ -2109,7 +2109,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // return true if resubmission is allowed and current time is before resubmission close time
                 // get the resubmit settings from submission object first
                 String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
-                if (NumberUtils.isParsable(allowResubmitNumString) && submission.getSubmitted() && submission.getDateSubmitted() != null) {
+                if (NumberUtils.isParsable(allowResubmitNumString) && (submission.getSubmitted() || submission.getDateSubmitted() != null)) {
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                     try {
                         int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);

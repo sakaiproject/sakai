@@ -144,7 +144,6 @@
 				width: 100%;		// to maximize click area
 				height: 100%;
 				color: $calendar-event-text-color;
-				text-shadow: 0 0 2px var(--sakai-background-color-1);			// to be able to see text on dark user-picked background colours
 				text-decoration: none;
 
 				&:hover, &:focus

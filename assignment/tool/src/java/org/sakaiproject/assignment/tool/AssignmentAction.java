@@ -56,6 +56,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6273,6 +6274,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (submission != null) {
                     // the submission already exists, change the text and honor pledge value, post it
+                    submission.setUserSubmission(true);
+                    submission.setSubmittedText(text);
+                    submission.setDateSubmitted(Instant.now());
+                    submission.setSubmitted(post);
+
                     Map<String, String> properties = submission.getProperties();
 
                     if (a.getIsGroup()) {
@@ -6301,10 +6307,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         setResubmissionProperties(a, submission);
                     }
 
-                    submission.setUserSubmission(true);
-                    submission.setSubmittedText(text);
-                    submission.setDateSubmitted(Instant.now());
-                    submission.setSubmitted(post);
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
                     submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
@@ -13006,8 +13008,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
             final Path destination = Paths.get(tempFile.getCanonicalPath());
             Files.copy(fileContentStream, destination, StandardCopyOption.REPLACE_EXISTING);
+            final Charset tempFileCharset = getZipFileCharset(tempFile);
 
-            ZipFile zipFile = new ZipFile(tempFile, StandardCharsets.UTF_8);
+            ZipFile zipFile = new ZipFile(tempFile, tempFileCharset);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             ZipEntry entry;
             // SAK-17606
@@ -13327,6 +13330,33 @@ public class AssignmentAction extends PagedResourceActionII {
 
         }
         return submissionTable;
+    }
+
+    private Charset getZipFileCharset(File tempFile) {
+        final Charset[] possibleCharSets = new Charset[]{
+                StandardCharsets.UTF_8,
+                Charset.forName("IBM437"),
+                Charset.forName("windows-1252"),
+                StandardCharsets.ISO_8859_1,
+                StandardCharsets.US_ASCII,
+                Charset.forName("Cp437")
+        };
+
+        for (Charset c : possibleCharSets) {
+            try {
+                ZipFile zf = new ZipFile(tempFile, c);
+                Enumeration<? extends ZipEntry> zipEntries = zf.entries();
+                // Try to provoke a MalformedNameException
+                while (zipEntries.hasMoreElements()) {
+                    zipEntries.nextElement();
+                }
+                return c;
+            } catch (Exception e) {
+                log.debug("ZIP encoding detection was incorrect for charset=", c.toString());
+            }
+        }
+
+        return StandardCharsets.UTF_8;
     }
 
     /**

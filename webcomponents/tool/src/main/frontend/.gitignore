@@ -1,11 +1,11 @@
 **/*.js
 !js/**/*.js
 !src/**/*.js
-!conf/*.js
+!.config/*.js
 !stories/*.js
 !stories/i18n/*.js
 !stories/data/*.js
 !stories/styles/*.js
 !.storybook/*.js
 !.eslintrc.js
-!test/*
+!test/**

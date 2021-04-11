@@ -24,8 +24,10 @@ import java.text.RuleBasedCollator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -75,7 +78,7 @@ public class GradeSheetExporter {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
 
-    private ResourceLoader rb = new ResourceLoader("assignment");
+    @Setter private ResourceLoader rb = new ResourceLoader("assignment");
     
     /**
     * A comparator that sorts by student sortName
@@ -99,14 +102,12 @@ public class GradeSheetExporter {
     };
     
     /**
-     * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
-     *
-     * @param out The outputStream to stream the grades spreadsheet into.
      * @param reference The reference, either to a specific assignment, or just to an assignment context.
      * @param query The query string from the request with the following params contextString, viewString, searchString, searchFilterOnly
      *              <br/>see <b>AssignmentAction#build_instructor_report_submissions()</b>
      */
-    public void getGradesSpreadsheet(final OutputStream out, final String reference, final String query) {
+    public Optional<Workbook> getGradesSpreadsheet(final String query) {
+
         Map<String, String> params = new HashMap<>();
         Pattern.compile("&").splitAsStream(query).map(p -> Arrays.copyOf(p.split("="), 2)).forEach(a -> params.put(a[0], a[1]));
         // get site title for display purpose
@@ -125,7 +126,7 @@ public class GradeSheetExporter {
             }
         } catch (Exception e) {
             log.warn("Cannot get site context: {}, {}", params.get("contextString"), e.getMessage());
-            return;
+            return Optional.empty();
         }
 
         // select only assignments that can be graded by the current user
@@ -137,7 +138,8 @@ public class GradeSheetExporter {
 
         if (downloadable.isEmpty()) {
             // no assignments to download
-            log.warn("No gradable assignments can be downloaded for reference: {}", reference);
+            log.warn("No gradable assignments can be downloaded for context: {}", context);
+            return Optional.empty();
         } else {
         	// site members excluding those who can add assignments
             // hashmap which stores the Excel row number for particular user
@@ -204,7 +206,7 @@ public class GradeSheetExporter {
 
             // We have to build a Map of the results so that we can sort them afterwards so that we don't expose data
             // by having the anonymous results in the same position as the original listing.
-            Map<Submitter, List<Object>> results = new TreeMap<>();
+            Map<Submitter, List<SubmissionInfo>> results = new TreeMap<>();
             int index = 0;
             int assignmentSize = downloadable.size();
             // the grade data portion starts from the third column, since the first two are used for user's display id and sort name
@@ -217,6 +219,10 @@ public class GradeSheetExporter {
                 cell = row.createCell(cellColumnNum); // since the first two column is taken by student id and name
                 cell.setCellStyle(style);
                 cell.setCellValue(a.getTitle());
+                cell = row.createCell(cellColumnNum + 1);
+                cell.setCellValue("Date");
+                cell = row.createCell(cellColumnNum + 2);
+                cell.setCellValue("Late");
 
                 // begin to populate the column for this assignment, iterating through student list
                 for (AssignmentSubmission submission : assignmentService.getSubmissions(a)) {
@@ -232,7 +238,7 @@ public class GradeSheetExporter {
                                     submitter = new Submitter(userId, submitter);
                                 }
 
-                                List<Object> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.nCopies(assignmentSize, null)));
+                                List<SubmissionInfo> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.<SubmissionInfo>nCopies(assignmentSize, null)));
                                 // Create item and fill up if doesn't exist.
 
                                 if (submission.getGraded() && submission.getGrade() != null) {
@@ -252,22 +258,19 @@ public class GradeSheetExporter {
                                             for (int j = 0; j < dec; j++) {
                                                 format = format.concat("0");
                                             }
-                                            objects.set(index, new FloatCell(format, f));
+                                            objects.set(index, new SubmissionInfo(new FloatCell(format, f), submission));
                                         } catch (Exception e) {
                                             // TODO originally
-                                            // objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGrade() : submission.getGradeForUser(userId));
-                                            objects.set(index, submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade());
+                                            objects.set(index, new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission));
                                             log.warn("Cannot get grade for assignment submission={}, user={}", submission.getId(), userId);
                                         }
                                     } else {
                                         // String cell type
-                                        objects.set(index, submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade());
-                                        // TODO originally
-                                        // objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() : submission.getGradeForUser(userId));
+                                        objects.set(index, new SubmissionInfo(submissionSubmitter.getGrade() == null ? submission.getGrade() : submissionSubmitter.getGrade(), submission));
                                     }
                                 } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                     // submitted, but no grade available yet
-                                    objects.set(index, rb.getString("gen.nograd"));
+                                    objects.set(index, new SubmissionInfo(rb.getString("gen.nograd"), submission));
                                 }
                             } // if
                         }
@@ -285,7 +288,7 @@ public class GradeSheetExporter {
 	                            submitter = new Submitter(submission.getId() + " " + rb.getString("grading.anonymous.title"), submitter);
 	                        }
                         
-	                        List<Object> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.nCopies(assignmentSize, null)));
+	                        List<SubmissionInfo> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.<SubmissionInfo>nCopies(assignmentSize, null)));
 	                        // Create item and fill up if doesn't exist.
 	                        // find right row
 	
@@ -309,20 +312,20 @@ public class GradeSheetExporter {
 	                                    }
 	                                    style.setDataFormat(wb.createDataFormat().getFormat(format));
 	                                    cell.setCellStyle(style);
-	                                    objects.set(index, new FloatCell(format, f));
+	                                    objects.set(index, new SubmissionInfo(new FloatCell(format, f), submission));
 	                                } catch (Exception e) {
-	                                    objects.set(index, grade);
+	                                    objects.set(index, new SubmissionInfo(grade, submission));
 	                                }
 	                            } else {
-	                                objects.set(index, grade);
+	                                objects.set(index, new SubmissionInfo(grade, submission));
 	                            }
 	                        } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
-	                            objects.set(index, rb.getString("gen.nograd"));
+	                            objects.set(index, new SubmissionInfo(rb.getString("gen.nograd"), submission));
 	                        }
                     	}
                     }
                 }
-                index++;
+                index += 3;
 
                 if (isNotesEnabled) {
                     // Add the notes header
@@ -339,7 +342,7 @@ public class GradeSheetExporter {
                 Collections.sort(submitters, SUBMITTER_NAME_COMPARATOR);
 
                 for (final Submitter submitter : submitters) {
-                    List<Object> rowValues = results.get(submitter);
+                    List<SubmissionInfo> rowValues = results.get(submitter);
                     int column = 0;
                     Row sheetRow = null;
                     if (!submitter.anonymous) {
@@ -347,9 +350,9 @@ public class GradeSheetExporter {
                         sheetRow.createCell(column++).setCellValue(submitter.sortName);
                         sheetRow.createCell(column++).setCellValue(submitter.id);
 
-	                    for (Object rowValue : rowValues) {
-	                        if (rowValue instanceof FloatCell) {
-	                            FloatCell floatValue = (FloatCell) rowValue;
+	                    for (SubmissionInfo rowValue : rowValues) {
+	                        if (rowValue != null && rowValue.grade instanceof FloatCell) {
+	                            FloatCell floatValue = (FloatCell) rowValue.grade;
 	                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
 	                            cell.setCellValue(floatValue.value);
 	                            style = wb.createCellStyle();
@@ -357,11 +360,29 @@ public class GradeSheetExporter {
 	                            cell.setCellStyle(style);
 	                        } else if (rowValue != null) {
 	                            cell = sheetRow.createCell(column++, CellType.STRING);
-	                            cell.setCellValue(rowValue.toString());
+	                            cell.setCellValue(rowValue.grade.toString());
 	                        } else {
 	                            cell = sheetRow.createCell(column++, CellType.STRING);
 	                            cell.setCellValue(rb.getString("listsub.nosub"));
 	                        }
+
+                            // Date submitted
+                            CellStyle dateCellStyle = wb.createCellStyle();
+                            CreationHelper createHelper = wb.getCreationHelper();
+                            dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("mm/dd/yyyy hh:mm"));
+
+                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
+                            cell.setCellStyle(dateCellStyle);
+                            if (rowValue != null && rowValue.dateSubmitted != null) {
+                                cell.setCellValue(Date.from(rowValue.dateSubmitted));
+                                cell = sheetRow.createCell(column++, CellType.BOOLEAN);
+                                cell.setCellValue(rowValue.late);
+                            } else {
+                                cell.setCellStyle(null);
+                                cell.setCellValue(0);
+                                cell = sheetRow.createCell(column++, CellType.BOOLEAN);
+                                cell.setCellValue(false);
+                            }
 	                    }
                     }
                     if (isNotesEnabled) {
@@ -374,20 +395,34 @@ public class GradeSheetExporter {
                 }
             }
 
-            try {
+            return Optional.of(wb);
+        }
+    }
+
+    /**
+     * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
+     *
+     * @param out The outputStream to stream the grades spreadsheet into.
+     * @param reference The reference, either to a specific assignment, or just to an assignment context.
+     * @param query The query string from the request with the following params contextString, viewString, searchString, searchFilterOnly
+     *              <br/>see <b>AssignmentAction#build_instructor_report_submissions()</b>
+     */
+    public void writeGradesSpreadsheet(final OutputStream out, final String query) {
+
+        getGradesSpreadsheet(query).ifPresent(wb -> {
+
+            try  {
                 wb.write(out);
             } catch (IOException e) {
                 log.warn("Failed to write out spreadsheet:" + e.getMessage());
+            } finally {
+                try {
+                    wb.close();
+                } catch(IOException e) {
+                    log.warn("Failed to close spreadsheet:" + e.getMessage());
+                }
             }
-            finally {
-            	try {
-            		wb.close();
-            	}
-            	catch(IOException e) {
-            		log.warn("Failed to close spreadsheet:" + e.getMessage());
-            	}
-            }
-        }
+        });
     }
 
 	private String getGrade(final AssignmentSubmissionSubmitter submissionSubmitter) {
@@ -463,6 +498,24 @@ public class GradeSheetExporter {
 
         public void setSortName(String sortName) {
             this.sortName = sortName;
+        }
+    }
+
+    private class SubmissionInfo {
+
+        Object grade;
+        Instant dateSubmitted;
+        boolean late = false;
+
+        //SubmissionInfo(Object grade, Instant dateSubmitted) {
+        SubmissionInfo(Object grade, AssignmentSubmission submission) {
+
+            this.grade = grade;
+            this.dateSubmitted = submission.getDateSubmitted();
+
+            if (this.dateSubmitted != null) {
+                this.late = submission.getDateSubmitted().isAfter(submission.getAssignment().getDueDate());
+            }
         }
     }
 }
