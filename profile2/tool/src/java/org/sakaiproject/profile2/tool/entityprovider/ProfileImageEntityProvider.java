@@ -33,7 +33,7 @@ import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.OutputStream;
 import java.util.Map;
@@ -45,6 +45,7 @@ public class ProfileImageEntityProvider extends AbstractEntityProvider implement
     private ProfileImageLogic imageLogic;
     private ProfileImageService profileImageService;
     private SessionManager sessionManager;
+    private UserDirectoryService userDirectoryService;
 
     @Override
     public String[] getHandledOutputFormats() {
@@ -67,7 +68,7 @@ public class ProfileImageEntityProvider extends AbstractEntityProvider implement
             return result.toJSONString();
         }
 
-        User currentUser = UserDirectoryService.getCurrentUser();
+        User currentUser = userDirectoryService.getCurrentUser();
         String currentUserId = currentUser.getId();
 
         if (currentUserId == null) {
@@ -95,7 +96,7 @@ public class ProfileImageEntityProvider extends AbstractEntityProvider implement
 
         result.put("status", "ERROR");
 
-        User currentUser = UserDirectoryService.getCurrentUser();
+        User currentUser = userDirectoryService.getCurrentUser();
         String currentUserId = currentUser.getId();
 
         if (currentUserId == null) {
@@ -124,7 +125,7 @@ public class ProfileImageEntityProvider extends AbstractEntityProvider implement
             return result.toJSONString();
         }
 
-        User currentUser = UserDirectoryService.getCurrentUser();
+        User currentUser = userDirectoryService.getCurrentUser();
         String currentUserId = currentUser.getId();
 
         if (currentUserId == null) {
