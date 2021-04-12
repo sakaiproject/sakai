@@ -17,13 +17,22 @@ export default {
       id: "post5",
       creator: "adrian",
       created: Date.now(),
-      creatorDisplayName: "Adrian Fish"
+      creatorDisplayName: "Adrian Fish",
+      replyable: true,
     };
 
     fetchMock
       .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*/, conversationsI18n, {overwriteRoutes: true})
-      .get(/api\/topics\/topic1/, topic1Data, {overwriteRoutes: true})
-      .post(/api\/topics\/.*/, (url, opts) => { post.message = JSON.parse(opts.body).message; return post; }, {overwriteRoutes: true})
+      .get(/api\/conversations\/topics\/topic1/, topic1Data, {overwriteRoutes: true})
+      .post(/api\/conversations\/posts/, (url, opts) => {
+
+        const requestPost = JSON.parse(opts.body);
+        post.id = ""+Math.floor(Math.random() * 20) + 1;
+        post.message = requestPost.message;
+        post.parentPost = requestPost.parse(opts.body).parentPost;
+        post.parentTopic = requestPost.parenTopic;
+        return post;
+      }, {overwriteRoutes: true})
       .get("*", 500, {overwriteRoutes: true});
     return storyFn();
   }],

@@ -46,14 +46,14 @@ export class SakaiTopic extends SakaiElement {
 
     this._topicId = value;
 
-    fetch(`/api/topics/${this.topicId}`)
+    fetch(`/api/conversations/topics/${this.topicId}`)
       .then(r => r.json())
       .then(t => {
 
         t.lastActivityHuman = moment.duration(t.lastActivity - Date.now(), "milliseconds").humanize(true);
         t.formattedCreatedDate = this.formatDate(t.created);
 
-        t.posts.forEach(p => this.setFormattedCreatedDate(p));
+        t.replies.forEach(p => this.setFormattedCreatedDate(p));
 
         this.topic = t;
       });
@@ -97,9 +97,10 @@ export class SakaiTopic extends SakaiElement {
 
     const post = {
       message: this.querySelector("sakai-editor").getContent(),
+      parentTopic: this.topic.id,
     };
 
-    fetch(`/api/topics/${this.topic.id}`, {
+    fetch(`/api/conversations/topics/${this.topic.id}`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -127,6 +128,82 @@ export class SakaiTopic extends SakaiElement {
     });
   }
 
+  findPost(topic, postId) {
+
+
+    const transform1 = (reply) =>
+      [ reply, ...transformAll(reply) ];
+
+    const transformAll = (topic) =>
+      topic.replies.flatMap(r => transform1(r));
+
+    const flattened = transformAll(topic);
+
+
+    let post = flattened.find(p => p.id === postId);
+    return post;
+
+    /*
+    let post = this.topic.replies.find(p => p.id === postId);
+
+    if (post) return post;
+
+    return this.topic.replies.mapforEach(this.findTopicReply(
+
+    this.topic.posts.forEach(p => {
+      console.log(`${p.id} === ${postId}`);
+      post = p.replies.find(p => p.id === postId);
+      if (post) return post;
+    });
+    */
+  }
+
+  replyToPost(e) {
+
+    const postId = e.target.dataset.postId;
+    //const post = this.topic.posts.find(p => { console.log(p.id); return p.id === postId;});
+    const post = this.findPost(this.topic, postId);
+
+    if (!post) {
+      console.error("Replying to a post that doesn't exist");
+      return;
+    }
+
+    const reply = {
+      message: document.getElementById(`reply-to-${postId}-editor`).getContent(),
+      parentPost: postId,
+    };
+
+    fetch("/api/conversations/messages", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reply),
+    })
+    .then(r => {
+
+      console.log(r);
+
+      if (!r.ok) {
+        throw new Error("Network error while replying to a post.");
+      }
+      return r.json();
+    })
+    .then(reply => {
+
+      this.decoratePost(reply);
+      if (!post.replies) post.replies = [];
+      post.replies.push(reply);
+      this.requestUpdate();
+    })
+    .catch (error => {
+      //TODO: show error message to user here
+    });
+  }
+
+
   renderPost(p, isReply) {
 
     return html`
@@ -145,7 +222,7 @@ export class SakaiTopic extends SakaiElement {
         <div class="reply-block">
           <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
           <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
-            <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}"></sakai-editor>
+            <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}" id="reply-to-${p.id}-editor"></sakai-editor>
             <div class="post-buttons">
               <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
               <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
@@ -197,7 +274,7 @@ export class SakaiTopic extends SakaiElement {
         </div>
       </div>
       <div class="posts">
-        ${this.topic.posts.map(p => this.renderPost(p))}
+        ${this.topic.replies.map(p => this.renderPost(p))}
       </div>
     `;
   }

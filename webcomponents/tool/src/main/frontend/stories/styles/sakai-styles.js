@@ -227,6 +227,7 @@ sakai-topic-list .topic-poster-image {
 }
 
 .reply-block {
+  margin-top: 10px;
   margin-left: 20px;
 }
 
