@@ -27,7 +27,6 @@
 %>
 <f:view>
   <sakai:view >
-    <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
 	<script>
@@ -158,6 +157,7 @@
 				menuLinkSpan.html(menuLink.text());
 			});
 		</script>
+        <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		
 		<div id="dialogDiv" title="Grade Messages" style="display:none">
 			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
