@@ -73,7 +73,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 Sakai 21.0 ([release](http://source.sakaiproject.org/release/21.0/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 Is the community supported release of Sakai 21.
 
-Sakai 20.2 ([release](http://source.sakaiproject.org/release/20.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
+Sakai 20.3 ([release](http://source.sakaiproject.org/release/20.3/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.3+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
 Is the community supported release of Sakai 20.
 
 Sakai 19.6 ([release](http://source.sakaiproject.org/release/19.6/) | [fixes](https://confluence.sakaiproject.org/display/DOC/19.6+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
@@ -89,9 +89,9 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 21.1](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 21. It is expected to release Q1 2021.
+[Sakai 21.1](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 21. It is expected to release Q2 2021.
 
-[Sakai 20.3](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 20. It is expected to release Q2 2021.
+[Sakai 20.4](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 20. It is expected to release Q3 2021.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
