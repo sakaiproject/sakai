@@ -327,6 +327,13 @@ public interface CourseManagementService {
 	public Set<Enrollment> getEnrollments(String enrollmentSetEid) throws IdNotFoundException;
 
 	/**
+	 * Gets the known enrollment status code for the id
+	 *
+	 * @return the status description as an Optional<String>
+	 */
+	public String getEnrollmentStatusDescription(String statusId);
+
+	/**
 	 * Gets the known enrollment status codes and descriptions for Enrollments.
 	 * 
 	 * @return

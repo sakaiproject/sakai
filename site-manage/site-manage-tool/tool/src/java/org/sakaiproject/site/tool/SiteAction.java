@@ -2082,6 +2082,9 @@ public class SiteAction extends PagedResourceActionII {
 			// Will have the choice to active/inactive user or not
 			context.put("activeInactiveUser", ServerConfigurationService.getBoolean("activeInactiveUser", false));
 
+			context.put("showEnrollmentStatus", ServerConfigurationService.getBoolean(
+				"sitemanage.manageParticipants.showEnrollmentStatus", false));
+
 			// Provide last modified time
 			realmId = SiteService.siteReference(site.getId());
 			try {

@@ -1,0 +1,136 @@
+{{#each members}}
+    <div class="roster-member-card">
+        {{#if ../viewPicture}}
+        <div class="roster-picture-card">
+            {{#if ../viewProfile}}
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+            {{/if}}
+            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
+            {{#if ../viewProfile}}
+            </a>
+            {{/if}}
+        </div> <!-- /roster-picture-card -->
+        {{/if}}
+
+        <div class="roster-info-card">
+            {{#unless ../hideNames}}
+            <div class="roster-card-label">{{tr 'facet_name'}}</div>
+            <div class="roster-card-value">
+                {{#if ../../viewProfile}}
+                <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+                {{/if}}
+                {{getName firstNameLastName}}
+                {{#if ../../viewProfile}}
+                </a>
+                {{/if}}
+            </div>
+            {{/unless}}
+
+            {{#if ../viewPronouns}}
+                {{#if pronouns}}
+                <div class="roster-card-label">{{tr 'facet_pronouns'}}</div>
+                <div class="roster-card-value pronouns">{{{pronouns}}}</div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewUserNamePronunciation}}
+            <div class="roster-card-label">{{tr 'facet_user_name_pronunciation'}}</div>
+            <div class="roster-card-value namePronunciation">
+                <span class="namePronunciation">
+                {{#if pronunciation}}
+                    {{{pronunciation}}}
+                {{else}}
+                    {{#ifCond ../currentUserId userId}}
+                        {{#if ../profileNamePronunciationLink}}
+                            <a href="{{../profileNamePronunciationLink}}">{{tr 'name_pronunciation_profile_link'}}</a>
+                        {{else}}
+                            {{{tr 'name_pronunciation_not_provided'}}}
+                        {{/if}}
+                    {{else}}
+                        {{{tr 'name_pronunciation_not_provided'}}}
+                    {{/ifCond}}
+                {{/if}}
+                </span>
+            </div>
+            {{/if}}
+
+            {{#if ../viewUserDisplayId}}
+            <div class="roster-card-label">{{tr 'facet_userId'}}</div>
+            <div class="roster-card-value">
+                {{#if ../../viewProfile}}
+                <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+                {{/if}}
+                {{displayId}}
+                {{#if ../../viewProfile}}
+                </a>
+                {{/if}}
+            </div>
+            {{/if}}
+
+            {{#if ../enrollmentsMode}}
+                <div class="roster-card-label">{{tr 'facet_status'}}</div>
+                <div class="roster-card-value roster-status">{{enrollmentStatusText}}</div>
+                <div class="roster-card-label">{{tr 'facet_credits'}}</div>
+                <div class="roster-card-value roster-credits">{{credits}}</div>
+            {{else}}
+                <div class="roster-cell-label">{{tr 'facet_role'}}</div>
+                <div class="roster-card-value roster-role">{{role}}</div>
+            {{/if}}
+
+            {{#if ../showVisits}}
+                {{#if ../../viewSiteVisits}}
+                <div class="roster-card-label">{{tr 'total_visits'}}</div>
+                <div class="roster-card-value roster-total-visits">{{totalSiteVisits}}</div>
+                {{/if}}
+                {{#if formattedLastVisitTime}}
+                <div class="roster-card-label">{{tr 'last_visit'}}</div>
+                <div class="roster-card-value roster-last-visit">{{formattedLastVisitTime}}</div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewGroup}}
+            <div class="roster-card-label">{{tr 'facet_groups'}}</div>
+            {{#if hasGroups}}
+            <div class="roster-card-value roster-group-cell">
+                {{#if singleGroup}}
+                <a href="javascript:;" class="roster-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
+                {{else}}
+                <span class="skip">{{tr 'screenreader_comboBox'}}</span>
+                <label for="roster-groups-{{userId}}">{{tr 'roster_user_groups_label'}}</label>
+                <select class="roster-groups-selector" id="roster-groups-{{userId}}">
+                    <option value="all">{{tr 'member_group_all_option'}}</option>
+                    {{#each groups}}
+                    <option value="{{id}}">{{title}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+            </div>
+            {{else}}
+            <div class="roster-card-value roster-no-groups-label">{{tr 'roster_group_ungrouped'}}</div>
+            {{/if}}
+            {{/if}}
+
+            {{#if ../viewEmail}}
+                {{#if email}}
+                <div class="roster-card-label">{{tr 'facet_email'}}</div>
+                <div class="roster-card-value">
+                    <a href="mailto:{{email}}" title="{{tr 'profile_email'}} {{email}}">{{email}}</a>
+                </div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewUserProperty}}
+                {{#if hasProperties}}
+                <div class="roster-card-label">{{tr 'facet_userProperties'}}</div>
+                <div class="roster-card-value">
+                    <ul class="roster-user-properties">
+                        {{#each userProperties}}
+                        <li>{{@key}}: {{this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+                {{/if}}
+            {{/if}}
+        </div> <!-- /roster-info-card -->
+    </div> <!-- /roster-member-card -->
+{{/each}}

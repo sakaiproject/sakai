@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -117,9 +118,7 @@ public class SiteParticipantHelper {
 			if (enrollments != null)
 			{
 				Map<String, User> eidToUserMap = getEidUserMapFromCollection(enrollments);
-				for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
-				{
-					Enrollment e = (Enrollment) eIterator.next();
+				for (Enrollment e : (Set<Enrollment>) enrollments) {
 					
 					// ignore the dropped enrollments
 					if(e.isDropped()){
@@ -158,44 +157,46 @@ public class SiteParticipantHelper {
 						{
 							try
 							{
-							// get or add provided participant
-							Participant participant;
-							if (participantsMap.containsKey(userId))
-							{
-								participant = (Participant) participantsMap.get(userId);
-								//does this section contain the eid already
-								if (!participant.getSectionEidList().contains(sectionTitle)) {
-									participant.addSectionEidToList(sectionTitle);
-								}
-								if (e.getCredits() != null && e.getCredits().length() >0)
+								// get or add provided participant
+								Participant participant;
+								if (participantsMap.containsKey(userId))
 								{
-									participant.credits = participant.credits.concat(", <br />" + e.getCredits());
-								}
-							}
-							else
-							{
-								participant = new Participant();
-								participant.credits = e.getCredits() != null?e.getCredits():"";
-								participant.name = user.getSortName();
-								if (member.isProvided())
-								{
-									participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-									participant.removeable = false;
+									participant = (Participant) participantsMap.get(userId);
+									//does this section contain the eid already
+									if (!participant.getSectionEidList().contains(sectionTitle)) {
+										participant.addSectionEidToList(sectionTitle);
+									}
+									if (StringUtils.isNotBlank(e.getCredits()))
+									{
+										participant.credits = participant.credits.concat(", <br />" + e.getCredits());
+									}
 								}
 								else
 								{
-									participant.providerRole="";
-									participant.removeable = true;
+									participant = new Participant();
+									participant.credits = e.getCredits() != null ? e.getCredits() : "";
+									final String statusId = Optional.ofNullable(e.getEnrollmentStatus()).orElse("");
+									participant.enrollmentStatus = cms.getEnrollmentStatusDescription(statusId);
+									participant.name = user.getSortName();
+									if (member.isProvided())
+									{
+										participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+										participant.removeable = false;
+									}
+									else
+									{
+										participant.providerRole="";
+										participant.removeable = true;
+									}
+									// get contextual user display id
+									participant.regId = cus != null ? cus.getUserDisplayId(user, "Site Info") : user.getDisplayId();
+									participant.role = member.getRole()!=null?member.getRole().getId():"";
+									participant.addSectionEidToList(sectionTitle);
+									participant.uniqname = userId;
+									participant.active = member.isActive();
 								}
-								// get contextual user display id
-								participant.regId = cus != null ? cus.getUserDisplayId(user, "Site Info") : user.getDisplayId();
-								participant.role = member.getRole()!=null?member.getRole().getId():"";
-								participant.addSectionEidToList(sectionTitle);
-								participant.uniqname = userId;
-								participant.active = member.isActive();
-							}
 
-							conditionallyAddParticipantToMap(participantsMap, filterType, filterID, userId, participant, groupMembership);
+								conditionallyAddParticipantToMap(participantsMap, filterType, filterID, userId, participant, groupMembership);
 							}
 							catch (Exception ee)
 							{
