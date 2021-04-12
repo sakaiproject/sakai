@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -37,6 +37,8 @@ public class StatsAuthzImpl implements StatsAuthz {
 	@Setter private SessionManager sessionManager;
 	@Setter private StatsManager statsManager;
 	@Setter private ToolManager toolManager;
+	@Setter private SiteService siteService;
+	
 
 	public void init() {
 		functionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
@@ -48,18 +50,18 @@ public class StatsAuthzImpl implements StatsAuthz {
 
 	@Override
 	public boolean isUserAbleToViewSiteStats(String siteId) {
-		return isUserAbleToViewSiteStatsForSiteRef(SiteService.siteReference(siteId));
+		return isUserAbleToViewSiteStatsForSiteRef(siteService.siteReference(siteId));
 	}
 
 	@Override
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
-		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
+		return hasPermission(siteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
 	}
 
 	@Override
 	public boolean isUserAbleToViewSiteStatsOwn(String siteId) {
 		boolean showOwnStatisticsToStudents = statsManager.getPreferences(siteId, true).isShowOwnStatisticsToStudents();
-		boolean hasPermission = hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_OWN);
+		boolean hasPermission = hasPermission(siteService.siteReference(siteId), PERMISSION_SITESTATS_OWN);
 		return (showOwnStatisticsToStudents && hasPermission);
 	}
 
@@ -79,13 +81,13 @@ public class StatsAuthzImpl implements StatsAuthz {
 			return true;
 		}
 
-		String siteRef = SiteService.siteReference(siteId);
+		String siteRef = siteService.siteReference(siteId);
 		return hasPermission(siteRef, permission);
 	}
 
 	@Override
 	public boolean canUserBeTracked(String siteID, String userID) {
-		return userHasPermission(userID, SiteService.siteReference(siteID), PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
+		return userHasPermission(userID, siteService.siteReference(siteID), PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
 	}
 
 	@Override
@@ -94,7 +96,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 			return true;
 		}
 
-		String siteRef = SiteService.siteReference(siteID);
+		String siteRef = siteService.siteReference(siteID);
 		return isUserAbleToViewSiteStatsForSiteRef(siteRef) && hasPermission(siteRef, PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
 	}
 
