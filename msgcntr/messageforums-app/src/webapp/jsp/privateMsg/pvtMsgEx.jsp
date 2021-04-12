@@ -23,9 +23,9 @@
                 menuLinkSpan.html(menuLink.text());
             });
         </script>
-        <%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 		<h:form id="prefs_pvt_form">
+			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 
 			<%@ include file="topNav.jsp" %>
 
