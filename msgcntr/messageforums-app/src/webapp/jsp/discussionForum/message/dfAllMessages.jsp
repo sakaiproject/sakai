@@ -92,7 +92,6 @@
          }
 
  		</script>
-		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
 	<%--//
@@ -127,6 +126,7 @@
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
+        <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
         <f:subview id="picker2">
             <%@ include file="moveThreadPicker.jsp" %>
         </f:subview>
