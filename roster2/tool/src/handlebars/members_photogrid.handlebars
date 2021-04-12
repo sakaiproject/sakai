@@ -1,0 +1,47 @@
+{{#each members}}
+    <div class="roster-member-card photogrid">
+        {{#if ../viewPicture}}
+        <div class="roster-picture-card">
+            {{#if ../viewProfile}}
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+            {{/if}}
+            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
+            {{#if ../viewProfile}}
+            </a>
+            {{/if}}
+        </div> <!-- /roster-picture-card -->
+        {{/if}}
+
+        <div class="roster-info-card">
+            {{#unless ../hideNames}}
+            <div class="roster-card-value">
+                {{#if ../../viewProfile}}
+                <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+                {{/if}}
+                {{getName firstNameLastName}}
+                {{#if ../../viewProfile}}
+                </a>
+                {{/if}}
+            </div>
+            {{/unless}}
+
+            {{#if ../viewPronouns}}
+                {{#if pronouns}}
+                <div class="roster-card-value pronouns">{{{pronouns}}}</div>
+                {{/if}}
+            {{/if}}
+
+            {{#if ../viewUserDisplayId}}
+            <div class="roster-card-value">
+                {{#if ../../viewProfile}}
+                <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+                {{/if}}
+                {{displayId}}
+                {{#if ../../viewProfile}}
+                </a>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div> <!-- /roster-info-card -->
+    </div> <!-- /roster-member-card -->
+{{/each}}

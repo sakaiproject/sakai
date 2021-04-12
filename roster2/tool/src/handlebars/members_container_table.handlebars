@@ -1,0 +1,43 @@
+<table id="roster-members-table" class="table table-striped table-bordered">
+    <tbody id="roster-table-head">
+        <tr>
+            {{#if viewPicture}}
+            <th>{{tr 'facet_picture'}}</th>
+            {{/if}}
+            {{#unless hideNames}}
+            <th>{{tr 'facet_name'}}</th>
+            {{/unless}}
+            {{#if viewPronouns}}
+            <th>{{tr 'facet_pronouns'}}</th>
+            {{/if}}
+            {{#if viewUserNamePronunciation}}
+            <th>{{tr 'facet_user_name_pronunciation'}}</th>
+            {{/if}}
+            {{#if viewUserDisplayId}}
+            <th>{{tr 'facet_userId'}}</th>
+            {{/if}}
+            {{#if enrollmentsMode}}
+            <th>{{tr 'facet_status'}}</th>
+            <th>{{tr 'facet_credits'}}</th>
+            {{else}}
+            <th>{{tr 'facet_role'}}</th>
+            {{/if}}
+            {{#if showVisits}}
+                {{#if ../viewSiteVisits}}
+            <th>{{tr 'total_visits'}}</th>
+            <th>{{tr 'last_visit'}}</th>
+                {{/if}}
+            {{/if}} <!-- showVisits -->
+            {{#if viewGroup}}
+            <th>{{tr 'facet_groups'}}</th>
+            {{/if}}
+            {{#if viewEmail}}
+            <th>{{tr 'facet_email'}}</th>
+            {{/if}}
+            {{#if viewUserProperty}}
+            <th>{{tr 'facet_userProperties'}}</th>
+            {{/if}}
+        </tr>
+    </tbody>
+    <tbody id="roster-members"></tbody>
+</table>

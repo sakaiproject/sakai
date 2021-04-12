@@ -34,6 +34,8 @@ import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -910,6 +912,21 @@ public class CourseManagementServiceFederatedImpl implements
 			}
 		}
 		return null;
+	}
+
+	public String getEnrollmentStatusDescription(String statusId) {
+
+		if (StringUtils.isBlank(statusId)) {
+			return StringUtils.EMPTY;
+		}
+
+		for (CourseManagementService cm : implList) {
+			String desc = cm.getEnrollmentStatusDescription(statusId);
+			if (StringUtils.isNotBlank(desc)) {
+				return desc;
+			}
+		}
+		return StringUtils.EMPTY;
 	}
 
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
