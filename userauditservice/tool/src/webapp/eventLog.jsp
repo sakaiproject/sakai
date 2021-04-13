@@ -30,20 +30,12 @@ response.setContentType("text/html; charset=UTF-8");
 	                        rows="#{eventLog.rowsNumber}"
 	                        styleClass="table table-responsive table-hover table-striped">
 	               <h:column>
-					<f:facet name="header">
-						<t:commandSortHeader columnName="userDisplayName" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.event_log_name}" />
-						</t:commandSortHeader>
-				   	</f:facet>
-						<h:outputText value="#{audit.userDisplayName}" />
-				</h:column>
-	               <h:column>
 	                   <f:facet name="header">
 	                       <t:commandSortHeader columnName="userId" immediate="true" arrow="true">
 	                           <h:outputText value="#{msgs.event_log_user_id}" />
 	                       </t:commandSortHeader>
 	                   </f:facet>
-	                   <h:outputText value="#{audit.user.displayId}" />
+	                   <h:outputText value="#{audit.userEid}" />
 	               </h:column>
 	               <h:column>
 	                   <f:facet name="header">
