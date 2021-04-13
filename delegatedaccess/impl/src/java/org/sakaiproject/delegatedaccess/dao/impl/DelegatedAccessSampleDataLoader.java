@@ -16,16 +16,11 @@
 
 package org.sakaiproject.delegatedaccess.dao.impl;
 
+import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
-import org.joda.time.DateTime;
-
 import org.quartz.JobExecutionException;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
@@ -50,6 +45,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DelegatedAccessSampleDataLoader {
@@ -85,8 +83,8 @@ public class DelegatedAccessSampleDataLoader {
 			securityService.pushAdvisor(yesMan);
 			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template.course");
 		
-			DateTime date = new DateTime();
-			String term = "Spring " + date.getYear();
+			Year date = Year.now();
+			String term = "Spring " + date.toString();
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
