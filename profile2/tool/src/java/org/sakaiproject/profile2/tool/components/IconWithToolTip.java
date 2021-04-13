@@ -20,22 +20,15 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-/*
- * 
- * Eventually this will be done via setters on this object
- * 
- * 
- */
-
-public class IconWithClueTip extends Panel{
+public class IconWithToolTip extends Panel{
 	
-	public IconWithClueTip(String id, String iconUrl, IModel textModel) {
+	public IconWithToolTip(String id, String iconClass, IModel textModel) {
 		super(id);
 			
 		//link
@@ -44,16 +37,17 @@ public class IconWithClueTip extends Panel{
 				//nothing
 			}
 		};
-		link.add(new AttributeModifier("title", true, textModel));
+		link.add(new AttributeModifier("title", textModel));
+		link.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.tooltip")));
 		
-		//image
-		ContextImage image = new ContextImage("icon",new Model(iconUrl));
-		image.add(new AttributeModifier("alt", true, new ResourceModel("accessibility.tooltip")));
-		link.add(image);
+		//icon
+		Label icon = new Label("icon", new Model<String>(""));
+		
+		icon.add(new AttributeModifier("class", new Model(iconClass)));
+		
+		link.add(icon);
 		
 		add(link);
-	
 	}
-	
-	
+
 }
