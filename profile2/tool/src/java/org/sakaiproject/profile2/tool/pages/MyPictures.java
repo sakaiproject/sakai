@@ -49,7 +49,7 @@ import org.apache.wicket.util.lang.Bytes;
 
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
-import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.tool.components.IconWithToolTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -146,8 +146,8 @@ public class MyPictures extends BasePage {
 		addPictureContainer.add(submitButton);
 
 		addPictureContainer
-				.add(new IconWithClueTip("galleryImageUploadToolTip",
-						ProfileConstants.INFO_IMAGE, new StringResourceModel(
+				.add(new IconWithToolTip("galleryImageUploadToolTip",
+						ProfileConstants.INFO_ICON, new StringResourceModel(
 								"text.gallery.upload.tooltip", null,
 								new Object[] { sakaiProxy.getMaxProfilePictureSize()
 										* ProfileConstants.MAX_GALLERY_FILE_UPLOADS })));

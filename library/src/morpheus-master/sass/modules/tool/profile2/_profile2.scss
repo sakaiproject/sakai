@@ -262,6 +262,10 @@
 		margin-left: 7px;
 	}
 
+	.infoIcon {
+		@extend .fa.fa-info-circle;
+	}
+	
 	/* sideLink styles */
 	#sideLink{
 		list-style-type: none;
