@@ -51,7 +51,7 @@
 
           function checkMarkers() {
               var markerPair = $("#itemForm\\:markers").val();
-                if (markerPair.match(/[\"\'.,&\ |*]/)) {
+                if (markerPair.match(/[\"\'.,&<>\ |*]/)) {
                   return;
               }
               if (markerPair.charAt(0) == markerPair.charAt(1)) {

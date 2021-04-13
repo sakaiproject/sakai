@@ -106,12 +106,14 @@ public class GradingServiceTest {
 	public void fibContainsIllegalsTest() {
 		GradingService gradingService = new GradingService();
 		
-		//The forbidden characters "'.,&\s|*	
+		//The forbidden characters "'.,&<>\s|*
 		Assert.assertEquals(3, gradingService.checkMarkersFIB("\"}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB("'}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB(".}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB(",}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB("&}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB("<}"));
+		Assert.assertEquals(3, gradingService.checkMarkersFIB(">}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB(" }"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB("|}"));
 		Assert.assertEquals(3, gradingService.checkMarkersFIB("*}"));
