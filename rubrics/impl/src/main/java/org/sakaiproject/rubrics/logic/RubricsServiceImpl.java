@@ -33,9 +33,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +49,6 @@ import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.joda.time.DateTime;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -95,6 +96,7 @@ import org.w3c.dom.Element;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -192,7 +194,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         String userId = sessionManager.getCurrentSessionUserId();
 
         try {
-            DateTime now = DateTime.now();
+            Instant now = Instant.now();
 
             JWTCreator.Builder jwtBuilder = JWT.create();
             jwtBuilder.withIssuer(JWT_ISSUER)
@@ -200,14 +202,14 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     .withSubject(userId)
                     .withClaim(JWT_CUSTOM_CLAIM_TOOL_ID, tool)
                     .withClaim(JWT_CUSTOM_CLAIM_SESSION_ID, sessionManager.getCurrentSession().getId())
-                    .withIssuedAt(now.toDate());
+                    .withIssuedAt(Date.from(now));
             int sessionTimeoutInSeconds = sessionManager.getCurrentSession().getMaxInactiveInterval();
             if (sessionTimeoutInSeconds > 0) {
-                jwtBuilder.withExpiresAt(now.plusSeconds(sessionTimeoutInSeconds).toDate());
+                jwtBuilder.withExpiresAt(Date.from(now.plusSeconds(sessionTimeoutInSeconds)));
             } else {
                 // if Sakai is configured for sessions to never timeout (negative value), we will set 30 minutes for
                 // tokens - the rubrics service will check Sakai session validity if it receives an expired token.
-                jwtBuilder.withExpiresAt(now.plusMinutes(30).toDate());
+                jwtBuilder.withExpiresAt(Date.from(now.plusSeconds(30*60)));
             }
 
             if (securityService.isSuperUser()) {
