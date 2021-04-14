@@ -29,8 +29,8 @@ export default {
         const requestPost = JSON.parse(opts.body);
         post.id = ""+Math.floor(Math.random() * 20) + 1;
         post.message = requestPost.message;
-        post.parentPost = requestPost.parse(opts.body).parentPost;
-        post.parentTopic = requestPost.parenTopic;
+        post.parentPost = requestPost.parentPost;
+        post.parentTopic = requestPost.parentTopic;
         return post;
       }, {overwriteRoutes: true})
       .get("*", 500, {overwriteRoutes: true});

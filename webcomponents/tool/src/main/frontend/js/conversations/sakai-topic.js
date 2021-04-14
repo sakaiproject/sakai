@@ -110,8 +110,6 @@ export class SakaiTopic extends SakaiElement {
     })
     .then(r => {
 
-      console.log(r);
-
       if (!r.ok) {
         throw new Error("Network error while posting to topic.");
       }
@@ -130,38 +128,23 @@ export class SakaiTopic extends SakaiElement {
 
   findPost(topic, postId) {
 
-
     const transform1 = (reply) =>
       [ reply, ...transformAll(reply) ];
 
-    const transformAll = (topic) =>
-      topic.replies.flatMap(r => transform1(r));
+    const transformAll = (replyable) => {
+
+      if (!replyable.replies) replyable.replies = [];
+      return replyable.replies.flatMap(r => transform1(r));
+    };
 
     const flattened = transformAll(topic);
 
-
-    let post = flattened.find(p => p.id === postId);
-    return post;
-
-    /*
-    let post = this.topic.replies.find(p => p.id === postId);
-
-    if (post) return post;
-
-    return this.topic.replies.mapforEach(this.findTopicReply(
-
-    this.topic.posts.forEach(p => {
-      console.log(`${p.id} === ${postId}`);
-      post = p.replies.find(p => p.id === postId);
-      if (post) return post;
-    });
-    */
+    return flattened.find(p => p.id === postId);
   }
 
   replyToPost(e) {
 
     const postId = e.target.dataset.postId;
-    //const post = this.topic.posts.find(p => { console.log(p.id); return p.id === postId;});
     const post = this.findPost(this.topic, postId);
 
     if (!post) {
@@ -174,7 +157,7 @@ export class SakaiTopic extends SakaiElement {
       parentPost: postId,
     };
 
-    fetch("/api/conversations/messages", {
+    fetch("/api/conversations/posts", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -183,8 +166,6 @@ export class SakaiTopic extends SakaiElement {
       body: JSON.stringify(reply),
     })
     .then(r => {
-
-      console.log(r);
 
       if (!r.ok) {
         throw new Error("Network error while replying to a post.");
@@ -196,9 +177,11 @@ export class SakaiTopic extends SakaiElement {
       this.decoratePost(reply);
       if (!post.replies) post.replies = [];
       post.replies.push(reply);
+      this.replyEditorDisplayed[postId] = !this.replyEditorDisplayed[postId];
       this.requestUpdate();
     })
     .catch (error => {
+      console.error(error);
       //TODO: show error message to user here
     });
   }
@@ -207,7 +190,7 @@ export class SakaiTopic extends SakaiElement {
   renderPost(p, isReply) {
 
     return html`
-      <div class="post ${isReply ? "reply" : ""}">
+      <div id="post-${p.id}" class="post ${isReply ? "reply" : ""}">
         <div class="author-block">
           <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
           <div>
