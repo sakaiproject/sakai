@@ -15,22 +15,22 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.impl.EntityManagerComponent;
 import org.sakaiproject.entity.impl.ReferenceComponent;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 
 public class EntityManagerComponentTest {
 
 	private EntityManagerComponent entityManager;
-	private ArrayList<String> rawRefs;
 	private HashMap<String, Reference> refs;
-
 	
     @Before
     public void setup() {
         entityManager = new EntityManagerComponent();
         entityManager.init();
         //Currently used references
-        rawRefs = new ArrayList<String>(Arrays.asList("user",
+        ArrayList<String> rawRefs = new ArrayList<String>(Arrays.asList("user",
         		"prefs", "site", "realm", "rubrics", "alias",
         		"calendar", "announcement", "assignment", "content",
         		"poll", "basiclti", "commons", "mailarchive", "messageforum",
@@ -39,13 +39,13 @@ public class EntityManagerComponentTest {
         		));
 
         refs = new HashMap<String, Reference>();
-    	rawRefs.forEach(ref -> {
+        rawRefs.forEach(ref -> {
     		EntityProducer ep = mock(EntityProducer.class);
     		Reference reference = new ReferenceComponent(entityManager, ref);
     		refs.put(ref, reference);
     		when(ep.parseEntityReference(any(String.class), any(Reference.class))).thenReturn(ref.contains(reference.getReference()));
     		entityManager.registerEntityProducer(ep, ref);
-    	});
+        });
     }
     
     @Test
