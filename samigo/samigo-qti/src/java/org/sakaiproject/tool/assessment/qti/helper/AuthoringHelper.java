@@ -84,6 +84,10 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
 
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+
+
 /**
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
@@ -908,6 +912,17 @@ public class AuthoringHelper
     try
     {
       DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+
+      documentBuilder.setEntityResolver(new EntityResolver() {
+          @Override
+          public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+              if (systemId != null && systemId.endsWith("/ims_qtiasiv1p2p1.dtd")) {
+                  return new InputSource(this.getClass().getClassLoader().getResourceAsStream("xml/author/v1p2/ims_qtiasiv1p2p1.dtd"));
+              }
+              return null;
+          }
+      });
+
       document = documentBuilder.parse(inputStream);
     }
     catch (ParserConfigurationException e)

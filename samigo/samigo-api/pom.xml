@@ -45,6 +45,7 @@
 			<resource>
 				<directory>${basedir}/src/java</directory>
 				<includes>
+					<include>**/*.dtd</include>
 					<include>**/*.xml</include>
 					<include>**/*.xsl</include>
 					<include>**/*.xsd</include>
