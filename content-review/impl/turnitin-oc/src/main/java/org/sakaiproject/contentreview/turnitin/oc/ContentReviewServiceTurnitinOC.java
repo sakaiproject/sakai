@@ -325,7 +325,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		autoExcludeSelfMatchingScope =Arrays.stream(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.values())
 				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
-				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
+				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP_CONTEXT).name();
 		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
 		
 		// Find any permission overrides, if not set, set value to null to skip overrides
