@@ -40,8 +40,8 @@ public class Topic {
     @Column(name = "TITLE", length = 255, nullable = false)
     private String title;
 
-    @Column(name = "BODY", nullable = false)
-    private String body;
+    @Column(name = "MESSAGE", nullable = false)
+    private String message;
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
@@ -67,6 +67,22 @@ public class Topic {
 
     @Column(name = "PINNED")
     private Boolean pinned = Boolean.FALSE;
+
+    @Column(name = "DRAFT")
+    private Boolean draft = Boolean.FALSE;
+
+    // This is our soft delete type flag
+    @Column(name = "HIDDEN")
+    private Boolean hidden = Boolean.FALSE;
+
+    @Column(name = "ANON_ALLOWED")
+    private Boolean anonAllowed = Boolean.FALSE;
+
+    @Column(name = "UPVOTES")
+    private Integer upvotes = 0;
+
+    @Column(name = "GROUP", length = 99)
+    private String group;
 
     @Embedded
     private Metadata metadata;

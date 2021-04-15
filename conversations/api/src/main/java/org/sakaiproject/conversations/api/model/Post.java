@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "CONV_POSTS")
+@Table(name = "CONV_POSTS", indexes = @Index(name = "creator_index", columnList = "CREATOR"))
 public class Post {
 
     @Id
@@ -34,7 +34,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
-    @Column(name = "MESSAGE", length = 255, nullable = false)
+    @Column(name = "MESSAGE", nullable = false)
     private String message;
 
     @Column(name = "DRAFT", nullable = false)
@@ -42,6 +42,9 @@ public class Post {
 
     @Column(name = "HIDDEN", nullable = false)
     private Boolean hidden;
+
+    @Column(name = "UPVOTES")
+    private Integer upvotes = 0;
 
     @Embedded
     private Metadata metadata;

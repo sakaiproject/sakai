@@ -29,8 +29,10 @@ import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.id.factory.internal.MutableIdentifierGeneratorFactoryInitiator;
 import org.hsqldb.jdbcDriver;
 import org.mockito.Mockito;
+
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +58,7 @@ public class ConversationsTestConfiguration {
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory() throws IOException {
+
         DataSource dataSource = dataSource();
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource);
         StandardServiceRegistryBuilder srb = sfb.getStandardServiceRegistryBuilder();
@@ -70,6 +73,7 @@ public class ConversationsTestConfiguration {
 
     @Bean(name = "javax.sql.DataSource")
     public DataSource dataSource() {
+
         DriverManagerDataSource db = new DriverManagerDataSource();
         db.setDriverClassName(environment.getProperty(org.hibernate.cfg.Environment.DRIVER, jdbcDriver.class.getName()));
         db.setUrl(environment.getProperty(org.hibernate.cfg.Environment.URL, "jdbc:hsqldb:mem:test"));
@@ -80,6 +84,7 @@ public class ConversationsTestConfiguration {
 
     @Bean
     public Properties hibernateProperties() {
+
         return new Properties() {
             {
                 setProperty(org.hibernate.cfg.Environment.DIALECT, environment.getProperty(org.hibernate.cfg.Environment.DIALECT, HSQLDialect.class.getName()));
@@ -93,6 +98,7 @@ public class ConversationsTestConfiguration {
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
     public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
+
         HibernateTransactionManager txManager = new HibernateTransactionManager();
         txManager.setSessionFactory(sessionFactory);
         return txManager;
