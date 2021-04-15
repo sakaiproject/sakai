@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.UserTimeService;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
 * <p>CalendarUtil is a bunch of utility methods added to a java Calendar object.</p>
 */
@@ -599,6 +601,7 @@ public class CalendarUtil
 		return localZone.toZoneId();
 	}
 	// Used for tests
+	@VisibleForTesting
 	static String getLocalAMString(Instant now, ZoneId zoneId) {
 		Locale locale = new ResourceLoader().getLocale();
 		//we need an AM date
@@ -617,6 +620,7 @@ public class CalendarUtil
 	}
 
 	// Used for tests
+	@VisibleForTesting
 	static String getLocalPMString(Instant now, ZoneId zoneId) {
 		Locale locale = new ResourceLoader().getLocale();
 		//we need an PM date
