@@ -24,10 +24,14 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -36,19 +40,18 @@ import java.util.stream.IntStream;
 
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>This bean represents a Part in an assessment </p>
@@ -58,9 +61,8 @@ import org.sakaiproject.util.ResourceLoader;
 public class SectionContentsBean
   implements Serializable
 {
-	private static final long serialVersionUID = 5959692528847396966L;
-	private String text;
-	private String nonDefaultText;
+  private static final long serialVersionUID = 5959692528847396966L;
+  private String text;
   private List<ItemContentsBean> itemContents;
   private String sectionId;
   private String number;
@@ -412,10 +414,10 @@ public class SectionContentsBean
               try{
 
                 // bjones86 - SAM-1604
-                DateTime drawDate;
-                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();	//The Date Time is in ISO format
+                Instant drawDate;
+                DateTimeFormatter fmt = DateTimeFormatter.ISO_DATE_TIME;	//The Date Time is in ISO format
                 try {
-                    drawDate = fmt.parseDateTime(randomDrawDate);
+                    drawDate = Instant.parse(randomDrawDate);
                 } catch(Exception ex) {
                     Date date = null;
                     try
@@ -447,14 +449,18 @@ public class SectionContentsBean
                     }
                     else
                     {
-                        drawDate = new DateTime(date);
+                        drawDate = date.toInstant();
                     }
                 }
 
                     //We need the locale to localize the output string
                     Locale loc = new ResourceLoader().getLocale();
-                    String drawDateString = DateTimeFormat.fullDate().withLocale(loc).print(drawDate);
-                    String drawTimeString = DateTimeFormat.fullTime().withLocale(loc).print(drawDate);
+                    ZoneId zone = ComponentManager.get(UserTimeService.class).getLocalTimeZone().toZoneId();
+                    DateTimeFormatter dateF = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(loc);
+                    DateTimeFormatter timeF = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL).withLocale(loc)
+                                           .withZone(zone);
+                    String drawDateString = LocalDateTime.ofInstant(drawDate, zone).format(dateF);
+                    String drawTimeString = LocalDateTime.ofInstant(drawDate, zone).format(timeF);
                     setRandomQuestionsDrawDate(drawDateString);
                     setRandomQuestionsDrawTime(drawTimeString);
 

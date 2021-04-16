@@ -25,21 +25,20 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Description: Time conversion utility class</p>
  */
@@ -51,7 +50,7 @@ public class TimeUtil
   private TimeZone m_server_timezone= null;
 
   public TimeUtil() {
-    m_client_timezone= TimeService.getLocalTimeZone();
+    m_client_timezone= ComponentManager.get(UserTimeService.class).getLocalTimeZone();
     m_server_timezone= TimeZone.getDefault();
   }
 
