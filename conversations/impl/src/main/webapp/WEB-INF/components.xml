@@ -21,7 +21,7 @@
                 <value>org.sakaiproject.conversations.api.model.PostStatus</value>
                 <value>org.sakaiproject.conversations.api.model.ReadingListItem</value>
                 <value>org.sakaiproject.conversations.api.model.Topic</value>
-                <value>org.sakaiproject.conversations.api.model.TopicPoster</value>
+                <value>org.sakaiproject.conversations.api.model.UserStatistics</value>
             </list>
         </property>
     </bean>

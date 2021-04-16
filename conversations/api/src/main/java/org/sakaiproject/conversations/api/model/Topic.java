@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
+import org.sakaiproject.conversations.api.model.UserStatistics;
 
 import lombok.Getter;
 
@@ -43,11 +44,11 @@ public class Topic {
     @Column(name = "MESSAGE", nullable = false)
     private String message;
 
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TopicPoster> posters = new ArrayList<>();
+    private List<UserStatistics> userStatistics = new ArrayList<>();
 
     @Column(name = "TYPE", length = 32, nullable = false)
     @Enumerated(EnumType.STRING)
