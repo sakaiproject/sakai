@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<%@ page contentType="text/xml;charset=utf-8" pageEncoding="utf-8" %>
+<%@ page contentType="text/xml;charset=utf-8" pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <% response.setHeader("Cache-Control", "private"); %>
