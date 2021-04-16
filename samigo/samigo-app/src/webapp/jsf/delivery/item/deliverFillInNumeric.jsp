@@ -161,6 +161,7 @@ $( document ).ready(function() {
   $('.fillInNumericInput').each( function() {
     $(this).attr('data-toggle', 'popover'); 
     $(this).attr('data-content', finFormatError);
+    $(this).attr('data-trigger', 'focus');
   });
 
   $('#takeAssessmentForm').submit(function() {
@@ -170,8 +171,8 @@ $( document ).ready(function() {
     });
   });
 
-  $('.fillInNumericInput').focus( function() {
-    $(this).popover();
+  $('.fillInNumericInput').popover({
+    trigger: 'focus'
   });
 
   $('.fillInNumericInput').change( function() {
