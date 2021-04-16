@@ -75,9 +75,6 @@ export class SakaiTopic extends SakaiElement {
     return this.i18n && this.topic;
   }
   
-  firstUpdated() {
-  }
-
   toggleCreatePost() {
     this.creatingPost = !this.creatingPost;
   }
@@ -100,7 +97,7 @@ export class SakaiTopic extends SakaiElement {
       parentTopic: this.topic.id,
     };
 
-    fetch(`/api/conversations/topics/${this.topic.id}`, {
+    fetch("/api/conversations/posts", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -111,17 +108,18 @@ export class SakaiTopic extends SakaiElement {
     .then(r => {
 
       if (!r.ok) {
-        throw new Error("Network error while posting to topic.");
+        throw new Error("Network error while posting.");
       }
       return r.json();
     })
     .then(post => {
 
       this.decoratePost(post);
-      this.topic.posts.push(post);
+      this.topic.replies.push(post);
       this.requestUpdate();
     })
     .catch (error => {
+      console.error(error);
       //TODO: show error message to user here
     });
   }
@@ -190,27 +188,25 @@ export class SakaiTopic extends SakaiElement {
   renderPost(p, isReply) {
 
     return html`
-      <div id="post-${p.id}-wrapper" class="post-wrapper ${isReply ? "reply" : ""}">
-        <div id="post-${p.id}" class="post">
-          <div class="author-block">
-            <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
-            <div>
-              <div class="author-details">
-                <span>${p.creatorDisplayName}</span>
-                <div class="message-date">${p.formattedCreatedDate}</div>
-              </div>
+      <div id="post-${p.id}" class="post ${isReply ? "reply" : ""}">
+        <div class="author-block">
+          <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
+          <div>
+            <div class="author-details">
+              <span>${p.creatorDisplayName}</span>
+              <div class="message-date">${p.formattedCreatedDate}</div>
             </div>
           </div>
-          <div class="message">${unsafeHTML(p.message)}</div>
-          ${p.replyable ? html`
-          <div class="reply-editor-block">
-            <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
-            <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
-              <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}" id="reply-to-${p.id}-editor"></sakai-editor>
-              <div class="post-buttons">
-                <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
-                <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
-              </div>
+        </div>
+        <div class="message">${unsafeHTML(p.message)}</div>
+        ${p.replyable ? html`
+        <div class="reply-editor-block">
+          <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
+          <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
+            <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}" id="reply-to-${p.id}-editor"></sakai-editor>
+            <div class="post-buttons">
+              <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
+              <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
             </div>
           </div>
         </div>
@@ -231,30 +227,32 @@ export class SakaiTopic extends SakaiElement {
         <span class="title">${this.topic.title}</span>
         <span class="author"> ${this.i18n["by"]} ${this.topic.creatorDisplayName}</span>
       </div>
-      <div class="post starter-post">
-        <div class="author-block">
-          <div><sakai-user-photo user-id="${this.topic.creator}"></sakai-user-photo></div>
-          <div>
-            <div class="author-details">
-              <span>${this.topic.creatorDisplayName}</span>
-              <span>(${this.topic.creatorRole})</span>
-              <span> - ${this.i18n["topic_author"]}</span>
-              <div class="message-date">${this.topic.formattedCreatedDate}</div>
+      <div class="topic-wrapper">
+        <div class="topic">
+          <div class="author-block">
+            <div><sakai-user-photo user-id="${this.topic.creator}"></sakai-user-photo></div>
+            <div>
+              <div class="author-details">
+                <span>${this.topic.creatorDisplayName}</span>
+                <span>(${this.topic.creatorRole})</span>
+                <span> - ${this.i18n["topic_author"]}</span>
+                <div class="message-date">${this.topic.formattedCreatedDate}</div>
+              </div>
             </div>
           </div>
+          <div class="message">${unsafeHTML(this.topic.message)}</div>
         </div>
-        <div class="message">${unsafeHTML(this.topic.message)}</div>
-      </div>
-      <div class="post-to-topic">
-        <div class="post-to-topic-link-block">
-          <div><sakai-user-photo user-id="${parent.portal.userId}" size-class="small-thumbnail"></sakai-user-photo></div>
-          <div class="post-to-topic-link"><a href="javascript:;" @click=${this.toggleCreatePost}>Post to Topic ...</a></div>
-        </div>
-        <div class="post-editor" style="display: ${this.creatingPost ? "block" : "none"}">
-          <sakai-editor toolbar="basic" element-id="post-to-topic-${this.topic.id}"></sakai-editor>
-          <div class="post-buttons">
-            <button @click=${this.postToTopic} active>Post</button>
-            <button @click=${this.toggleCreatePost}>Cancel</button>
+        <div class="post-to-topic">
+          <div class="post-to-topic-link-block">
+            <div><sakai-user-photo user-id="${parent.portal.userId}" size-class="small-thumbnail"></sakai-user-photo></div>
+            <div class="post-to-topic-link"><a href="javascript:;" @click=${this.toggleCreatePost}>Post to Topic ...</a></div>
+          </div>
+          <div class="post-editor" style="display: ${this.creatingPost ? "block" : "none"}">
+            <sakai-editor toolbar="basic" element-id="post-to-topic-${this.topic.id}"></sakai-editor>
+            <div class="post-buttons">
+              <button @click=${this.postToTopic} active>Post</button>
+              <button @click=${this.toggleCreatePost}>Cancel</button>
+            </div>
           </div>
         </div>
       </div>

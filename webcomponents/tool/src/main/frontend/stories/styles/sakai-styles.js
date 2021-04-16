@@ -152,14 +152,15 @@ sakai-topic-list .topic-poster-image {
 }
 
 .post-wrapper {
+}
+
+.post {
   border: 1px black solid;
   border-radius: 8px;
   margin-left: 20px;
   margin-top: 10px;
-}
-
-.post {
   margin: 8px;
+  padding: 8px;
 }
 
 .reply {
@@ -181,9 +182,16 @@ sakai-topic-list .topic-poster-image {
   margin-left: 10px;
 }
 
-.starter-post {
-  margin-left: 0;
-  margin-top: 20px;
+.topic-wrapper {
+  border: 1px black solid;
+  border-radius: 8px;
+  margin-left: 20px;
+  margin-top: 10px;
+  margin: 8px;
+}
+
+.topic {
+  margin: 8px;
 }
 
 .posts {
@@ -196,11 +204,9 @@ sakai-topic-list .topic-poster-image {
 }
 
 .post-to-topic {
-  border: black solid 1px;
   background-color: #D3D3D3;
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
   padding: 8px;
+  border-radius: 0 0 8px 8px;
 }
 .post-to-topic-link-block {
   display: flex;
