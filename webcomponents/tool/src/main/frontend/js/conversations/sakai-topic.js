@@ -190,35 +190,37 @@ export class SakaiTopic extends SakaiElement {
   renderPost(p, isReply) {
 
     return html`
-      <div id="post-${p.id}" class="post ${isReply ? "reply" : ""}">
-        <div class="author-block">
-          <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
-          <div>
-            <div class="author-details">
-              <span>${p.creatorDisplayName}</span>
-              <div class="message-date">${p.formattedCreatedDate}</div>
+      <div id="post-${p.id}-wrapper" class="post-wrapper ${isReply ? "reply" : ""}">
+        <div id="post-${p.id}" class="post">
+          <div class="author-block">
+            <div><sakai-user-photo user-id="${p.creator}" size-class="medium-thumbnail"></sakai-user-photo></div>
+            <div>
+              <div class="author-details">
+                <span>${p.creatorDisplayName}</span>
+                <div class="message-date">${p.formattedCreatedDate}</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="message">${unsafeHTML(p.message)}</div>
-        ${p.replyable ? html`
-        <div class="reply-block">
-          <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
-          <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
-            <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}" id="reply-to-${p.id}-editor"></sakai-editor>
-            <div class="post-buttons">
-              <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
-              <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
+          <div class="message">${unsafeHTML(p.message)}</div>
+          ${p.replyable ? html`
+          <div class="reply-editor-block">
+            <a href="javascript:;" data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Reply</a>
+            <div class="post-reply-editor-block" style="display: ${this.replyEditorDisplayed[p.id] ? "block" : "none"}">
+              <sakai-editor toolbar="basic" element-id="reply-to-post-${p.id}" id="reply-to-${p.id}-editor"></sakai-editor>
+              <div class="post-buttons">
+                <button data-post-id="${p.id}" @click=${this.replyToPost} active>Post</button>
+                <button data-post-id="${p.id}" @click=${this.toggleReplyToPost}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>
         ` : ""}
+        ${p.replies ? html`
+        <div class="replies">
+          ${p.replies.map(r => this.renderPost(r, true))}
+        </div>
+        ` : ""}
       </div>
-      ${p.replies ? html`
-      <div class="replies">
-        ${p.replies.map(r => this.renderPost(r, true))}
-      </div>
-      ` : ""}
     `;
   }
 
