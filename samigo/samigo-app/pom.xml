@@ -235,13 +235,6 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
-        	<groupId>joda-time</groupId>
-        	<artifactId>joda-time</artifactId>
-        	<version>${joda.time.version}</version>
-        	<type>jar</type>
-        	<scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.tags</groupId>
             <artifactId>tags-api</artifactId>
         </dependency>
