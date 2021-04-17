@@ -415,7 +415,6 @@ public class SectionContentsBean
 
                 // bjones86 - SAM-1604
                 Instant drawDate;
-                DateTimeFormatter fmt = DateTimeFormatter.ISO_DATE_TIME;	//The Date Time is in ISO format
                 try {
                     drawDate = Instant.parse(randomDrawDate);
                 } catch(Exception ex) {
