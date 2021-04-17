@@ -24,16 +24,15 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
@@ -54,12 +53,15 @@ public class TimeUtil
     m_server_timezone= TimeZone.getDefault();
   }
 
-  /*
-   * @deprecated use UserTimeService instead
+  /**
+   *  @deprecated use {@link org.sakaiproject.time.api.UserTimeService} instead
    * This will return a formatted date/time without adjustment for client time zone.
-   * If instructor is located in Michigan and teaches on Sakai based in Chicago, 
+   * If instructor is located in Michigan and teaches on Sakai based in Chicago,
+   * @param ndf
+   * @param serverDate
+   * @return
    */
-  public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
+public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate) {
      //we can't format a null date
     if (serverDate == null) {
       return "";
@@ -74,52 +76,64 @@ public class TimeUtil
     return "";
   }
 
-  /*
+  /**
    * SAM-2323: this is useful for simple sorting by jQuery tablesorter plugin
    * In USA, I expect a date like 2015-02-15 04:00pm
    * In Sweden, I expect a date like 2015-02-15 16:00
-   */
-  public String getIsoDateWithLocalTime(Date dateToConvert) {
+   * @param dateToConvert
+   * @return
+   	*/
+public String getIsoDateWithLocalTime(Date dateToConvert) {
       if (dateToConvert == null) {
           return null;
       }
-      DateTime dt = new DateTime(dateToConvert);
-      DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
-      DateTimeFormatter localFmt = fmt.withLocale(new ResourceLoader().getLocale());
-      DateTimeFormatter fmtTime = DateTimeFormat.shortTime();
-      DateTimeFormatter localFmtTime = fmtTime.withLocale(new ResourceLoader().getLocale());
-
-      // If the client browser is in a different timezone than server, need to modify date
-      if (m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(m_client_timezone);
-        localFmt = localFmt.withZone(dateTimeZone);
-        localFmtTime = localFmtTime.withZone(dateTimeZone);
-      }
-      return dt.toString(localFmt) + " " + dt.toString(localFmtTime);
+      
+      LocalDateTime i = LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneOffset.UTC);
+      DateTimeFormatter fmDate = DateTimeFormatter.ISO_LOCAL_DATE;
+      Locale locale = new ResourceLoader().getLocale();
+      DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale);
+      
+      
+         // If the client browser is in a different timezone than server, need to modify date
+         if (m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
+           ZoneId dateTimeZone = m_client_timezone.toZoneId();
+           fmt = fmt.withZone(dateTimeZone);
+           fmDate = fmDate.withZone(dateTimeZone);
+         }
+         
+         return i.format(fmDate) + " " + i.format(fmt);
   }
 
-  public String getDateTimeWithTimezoneConversion(Date dateToConvert) {
+  /**
+ * @param dateToConvert
+ * @return
+ */
+public String getDateTimeWithTimezoneConversion(Date dateToConvert) {
       if (dateToConvert == null) {
           return null;
       }
-      DateTime dt = new DateTime(dateToConvert);
-      DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
-      DateTimeFormatter fmtTime = ISODateTimeFormat.hourMinuteSecond();
+      LocalDateTime dt = LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneOffset.UTC);
+      
+      Locale locale = new ResourceLoader().getLocale();
+      DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE.withLocale(locale);
+      DateTimeFormatter fmtTime = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withLocale(locale);
 
       // If the client browser is in a different timezone than server, need to modify date
       if (m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
-        DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(m_client_timezone);
+        ZoneId dateTimeZone = m_client_timezone.toZoneId();
         fmt = fmt.withZone(dateTimeZone);
         fmtTime = fmtTime.withZone(dateTimeZone);
       }
-      return dt.toString(fmt) + " " + dt.toString(fmtTime);
+      return dt.format(fmt) + " " + dt.format(fmtTime);
   }
 
-  /*
+  /**
    * User could be in a different timezone and modifying dates in the date picker.
    * We need to take the user date and convert back to server time zone for storage in database.
+   * @param dateString
+   * @return
    */
-  public Date parseISO8601String(final String dateString) {
+public Date parseISO8601String(final String dateString) {
 	  if (StringUtils.isBlank(dateString)) {
 		  return null;
 	  }
