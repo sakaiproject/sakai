@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -415,8 +416,10 @@ public class SectionContentsBean
 
                 // bjones86 - SAM-1604
                 Instant drawDate;
+                DateTimeFormatter fmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME; //The Date Time is in ISO format
                 try {
-                    drawDate = Instant.parse(randomDrawDate);
+                    drawDate = LocalDateTime.parse(randomDrawDate, fmt).toInstant(ZoneOffset.UTC);
+                    log.debug("OK: ISO_OFFSET_DATE_TIME");
                 } catch(Exception ex) {
                     Date date = null;
                     try
