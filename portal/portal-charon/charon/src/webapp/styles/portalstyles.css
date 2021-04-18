@@ -1,5 +1,4 @@
 .toolSubMenuHolder {
-	/*background-color:#F0F0F0;*/
 	position: relative;
 	top: 4px;
 	border:1px solid var(--sakai-border-color);
@@ -29,7 +28,7 @@
 .toolSubMenuHeading {
 	text-align: left;
 	padding-left: 2px;
-	background-color: var(--sakai-background-color-4);
+	background-color: var(--sakai-background-color-2);
 	margin: 3px;
 }
 .toolSubMenuHolder_tools {
