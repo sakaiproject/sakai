@@ -33,25 +33,30 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.extern.slf4j.Slf4j;
 /**
  * <p>Description: Time conversion utility class</p>
  */
 @Slf4j
-public class TimeUtil 
-{
+public class TimeUtil extends SpringBeanAutowiringSupport {
 
-  private TimeZone m_client_timezone= null;
-  private TimeZone m_server_timezone= null;
+    @Autowired
+    @Qualifier("org.sakaiproject.time.api.UserTimeService")
+    private UserTimeService userTimeService;
 
-  public TimeUtil() {
-    m_client_timezone= ComponentManager.get(UserTimeService.class).getLocalTimeZone();
-    m_server_timezone= TimeZone.getDefault();
-  }
+    private TimeZone m_client_timezone;
+    private TimeZone m_server_timezone;
+
+    public TimeUtil() {
+        m_client_timezone = userTimeService.getLocalTimeZone();
+        m_server_timezone = TimeZone.getDefault();
+    }
 
   /**
    *  @deprecated use {@link org.sakaiproject.time.api.UserTimeService} instead

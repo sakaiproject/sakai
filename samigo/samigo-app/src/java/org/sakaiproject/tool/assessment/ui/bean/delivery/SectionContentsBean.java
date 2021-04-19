@@ -43,7 +43,6 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -51,6 +50,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,10 +61,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class SectionContentsBean
-  implements Serializable
-{
+public class SectionContentsBean extends SpringBeanAutowiringSupport implements Serializable {
   private static final long serialVersionUID = 5959692528847396966L;
+
+  @Autowired
+  @Qualifier("org.sakaiproject.time.api.UserTimeService")
+  private UserTimeService userTimeService;
   private String text;
   private List<ItemContentsBean> itemContents;
   private String sectionId;
@@ -457,7 +461,7 @@ public class SectionContentsBean
 
                     //We need the locale to localize the output string
                     Locale loc = new ResourceLoader().getLocale();
-                    ZoneId zone = ComponentManager.get(UserTimeService.class).getLocalTimeZone().toZoneId();
+                    ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
                     DateTimeFormatter dateF = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(loc);
                     DateTimeFormatter timeF = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL).withLocale(loc)
                                            .withZone(zone);
