@@ -103,7 +103,7 @@ public class SamigoExport {
         List<ItemDataIfc> publishedItemList = preparePublishedItemList(assessment);
         String assessmentTitle = formattedText.convertFormattedTextToPlaintext(assessment.getTitle());
 
-        out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+        out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
         switch (ccVersion) {
             case V11:
@@ -134,7 +134,7 @@ public class SamigoExport {
 
     public boolean outputBank(CCConfig ccConfig, Long poolId, ZipPrintStream out, PrintWriter resultsWriter, CCResourceItem ccResourceItem, CCVersion ccVersion) {
 
-        out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+        out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
         switch (ccVersion) {
             case V11:
