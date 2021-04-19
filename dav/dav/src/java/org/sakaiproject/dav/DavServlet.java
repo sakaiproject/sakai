@@ -78,6 +78,8 @@
 
 package org.sakaiproject.dav;
 
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -92,6 +94,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -116,21 +120,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.catalina.util.DOMWriter;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.buf.UDecoder;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXParseException;
-
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -141,21 +134,20 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.dav.MD5Encoder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
@@ -163,24 +155,29 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.AuthenticationManager;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
 
-import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
@@ -286,7 +283,72 @@ public class DavServlet extends HttpServlet
 	protected static final int MAX_XML_STREAM_LENGTH = 4096;
 
 	/** Configuration: allow use of alias for site id in references. */
-	protected boolean m_siteAlias = true;        
+	protected boolean m_siteAlias = true;
+
+	// ----------------------------------------------------- Instance Variables
+
+	/**
+	 * Repository of the locks put on single resources.
+	 * <p>
+	 * Key : path <br>
+	 * Value : LockInfo
+	 */
+	private Hashtable<String,LockInfo> resourceLocks = new Hashtable<String,LockInfo>();
+
+	/**
+	 * Repository of the lock-null resources.
+	 * <p>
+	 * Key : path of the collection containing the lock-null resource<br>
+	 * Value : Vector of lock-null resource which are members of the collection. Each element of the Vector is the path associated with the lock-null resource.
+	 */
+	private Hashtable<String,Vector<String>> lockNullResources = new Hashtable<String,Vector<String>>();
+
+	/**
+	 * Vector of the heritable locks.
+	 * <p>
+	 * Key : path <br>
+	 * Value : LockInfo
+	 */
+	private Vector<LockInfo> collectionLocks = new Vector<LockInfo>();
+
+	/**
+	 * Secret information used to generate reasonably secure lock ids.
+	 */
+	private String secret = "catalina";
+
+	/**
+	 * Don't show directories starting with "protected" to non-owner This defaults off because it requires corresponding changes in AccessServlet, which currently aren't present.
+	 */
+	private boolean doProtected = false;
+
+	/**
+	 * MD5 message digest provider.
+	 */
+	protected static MessageDigest md5Helper;
+
+	/**
+	 * Array of file patterns we are not supposed to accept on PUT
+	 */
+	private String[] ignorePatterns = null;
+
+	/**
+	 * Output cookies for DAV requests
+	 */
+	private boolean useCookies = false;
+
+	/**
+	 * Non Dav Browsers
+	 */
+	private String[] nonDavUserAgent = null;
+
+	private ContentHostingService contentHostingService;private CitationService citationService;
+	private EntityManager entityManager;
+	private AliasService aliasService;
+	private AuthenticationManager authenticationManager;
+	private UsageSessionService usageSessionService;
+	private UserDirectoryService userDirectoryService;
+	private SiteService siteService;
+	private UserTimeService userTimeService;
 
         // can be called on id with or withing adjustid, since
         // the prefixes we check for are not adjusted
@@ -383,16 +445,16 @@ public class DavServlet extends HttpServlet
  				// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
  				if (m_siteAlias && (context != null) && (context.length() > 0))
  				{
- 					if (!SiteService.siteExists(context))
+ 					if (!siteService.siteExists(context))
  					{
  						try
  						{
  							String target = aliasService.getTarget(context);
-							Reference targetRef = EntityManager.newReference(target);
+							Reference targetRef = entityManager.newReference(target);
  							boolean changed = false;
 
  							// for a site reference
- 							if (SiteService.APPLICATION_ID.equals(targetRef.getType()))
+ 							if (siteService.APPLICATION_ID.equals(targetRef.getType()))
  							{
  								// use the ref's id, i.e. the site id
  								context = targetRef.getId();
@@ -461,7 +523,7 @@ public class DavServlet extends HttpServlet
 
 		return id;
 	}
-        
+
 	private String mountNewId(String id, String[] parts) {
 		String newId = StringUtils.join(parts, Entity.SEPARATOR);
 
@@ -564,11 +626,6 @@ public class DavServlet extends HttpServlet
 
 	@Setter private ContentHostingService contentHostingService;
 
-	private CitationService citationService;
-
-	private org.sakaiproject.entity.api.EntityManager entityManager;
-
-	private AliasService aliasService;
 
 	@Setter private UserDirectoryService userDirectoryService;
 
@@ -581,9 +638,12 @@ public class DavServlet extends HttpServlet
 	{
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 		citationService = ComponentManager.get(CitationService.class);
-		entityManager = ComponentManager.get(org.sakaiproject.entity.api.EntityManager.class);
+		entityManager = ComponentManager.get(EntityManager.class);
 		aliasService = ComponentManager.get(AliasService.class);
+		authenticationManager = ComponentManager.get(AuthenticationManager.class);
+		usageSessionService = ComponentManager.get(UsageSessionService.class);
 		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -1071,14 +1131,14 @@ public class DavServlet extends HttpServlet
 					throw new AuthenticationException("missing required fields");
 				}
 
-				Authentication a = AuthenticationManager.authenticate(e);
+				Authentication a = authenticationManager.authenticate(e);
 
 				// No need to log in again if UsageSession is not null, active, and the eid is the 
 				// same as that resulting from the DAV basic auth authentication
 				
-				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed()
-						|| !a.getEid().equals(UsageSessionService.getSession().getUserEid()))
-						&& !UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
+				if ((usageSessionService.getSession() == null || usageSessionService.getSession().isClosed()
+						|| !a.getEid().equals(usageSessionService.getSession().getUserEid()))
+						&& !usageSessionService.login(a, req, usageSessionService.EVENT_LOGIN_DAV))
 				{
 					// login failed
 					res.addHeader("WWW-Authenticate","Basic realm=\"DAV\"");
@@ -1756,8 +1816,8 @@ public class DavServlet extends HttpServlet
 
 						long filesize = ((nextres.getContentLength() - 1) / 1024) + 1;
 						String createdBy = getUserPropertyDisplayName(properties, ResourceProperties.PROP_CREATOR);
-						Time modTime = properties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-						String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
+						Instant modTime = properties.getInstantProperty(ResourceProperties.PROP_MODIFIED_DATE);
+						String modifiedTime =  userTimeService.shortLocalizedTimestamp(modTime, rb.getLocale());
 						String filetype = nextres.getContentType();
 						out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "\">" + Validator.escapeHtml(xss)
 								+ "</a></td><td>" + filesize + "</td><td>" + createdBy + "</td><td>" + filetype + "</td><td>"
@@ -2696,7 +2756,7 @@ public class DavServlet extends HttpServlet
 		// For MS office, ignore the supplied content type if we can figure out one from file type
 		// they send text/xml for doc and docx files
 		if (contentType != null) {
-		    UsageSession session = UsageSessionService.getSession();
+		    UsageSession session = usageSessionService.getSession();
 		    String agent = null;
 		    if (session != null)
 			agent = session.getUserAgent();
@@ -3741,7 +3801,6 @@ public class DavServlet extends HttpServlet
 
 	} // getDestinationPath
 
-    @SuppressWarnings("unchecked")
 	private ResourcePropertiesEdit duplicateResourceProperties(ResourceProperties properties, String id) {
 
 	ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
