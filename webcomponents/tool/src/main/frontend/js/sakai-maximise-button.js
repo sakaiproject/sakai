@@ -19,7 +19,7 @@ export class SakaiMaximiseButton extends SakaiElement {
     };
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 

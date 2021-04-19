@@ -64,7 +64,7 @@ class SakaiDatePicker extends LitElement {
     this.enabled = false;
 
     this.flatpicker.destroy();
-    let el = this.shadowRoot.getElementById("picker");
+    const el = this.shadowRoot.getElementById("picker");
     el.disabled = true;
     el.value = this.start.format("LLLL");
   }
@@ -84,7 +84,7 @@ class SakaiDatePicker extends LitElement {
 
     const self = this;
 
-    let config = {
+    const config = {
       enableTime: true,
       appendTo: this.shadowRoot,
       time_24hr: true,
@@ -97,7 +97,7 @@ class SakaiDatePicker extends LitElement {
         this.showTimeInput = true;
         this.setDate(self.start.toDate());
       },
-      onChange(selectedDates, dateStr, instance) {
+      onChange(selectedDates) {
 
         self.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis: selectedDates[0].getTime() }, bubbles: true }));
       }
@@ -106,11 +106,11 @@ class SakaiDatePicker extends LitElement {
     config.locale = window.top.portal && window.top.portal.locale ? window.top.portal.locale.split("-")[0] : "default";
     if (config.locale === "en") config.locale = "default";
 
-    let el = this.shadowRoot.getElementById("picker");
+    const el = this.shadowRoot.getElementById("picker");
     this.flatpicker = flatpickr(el, config);
   }
 
-  firstUpdated(changedProperties) {
+  firstUpdated() {
     this.attachPicker();
   }
 
@@ -126,7 +126,7 @@ class SakaiDatePicker extends LitElement {
   getPreferredSakaiDatetime(epochMillis) {
 
     if (typeof portal !== "undefined" && portal.user && portal.user.offsetFromServerMillis) {
-      let osTzOffset = new Date().getTimezoneOffset();
+      const osTzOffset = new Date().getTimezoneOffset();
       return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
     } else {
       window.console && window.console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");

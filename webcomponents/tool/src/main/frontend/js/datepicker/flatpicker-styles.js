@@ -1,5 +1,6 @@
 import { css } from "../assets/lit-element/lit-element.js";
-export let flatpickerStyles = css`
+
+export const flatpickerStyles = css`
 .flatpickr-calendar {
   background: transparent;
   opacity: 0;

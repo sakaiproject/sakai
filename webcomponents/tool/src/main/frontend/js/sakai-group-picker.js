@@ -42,7 +42,7 @@ export class SakaiGroupPicker extends SakaiElement {
 
   get siteId() { return this._siteId; }
 
-  shouldUpdate(changedProps) {
+  shouldUpdate() {
     return this.i18n;
   }
 

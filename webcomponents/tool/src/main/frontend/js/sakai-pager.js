@@ -47,7 +47,7 @@ export class SakaiPager extends SakaiElement {
 
   initSetsOfPages() {
 
-    let allPages = [...Array(this.numPages).keys()].map(i => i + 1);
+    const allPages = [...Array(this.numPages).keys()].map(i => i + 1);
 
     this.setsOfPages = [];
     if (this.numPages < 10) {
@@ -94,7 +94,7 @@ export class SakaiPager extends SakaiElement {
     `;
   }
 
-  showPreviousPageNumbers(e) {
+  showPreviousPageNumbers() {
 
     this.currentPagesIndex = this.currentPagesIndex - 1;
     this.currentPageNumbers = this.setsOfPages[this.currentPagesIndex];
@@ -104,7 +104,7 @@ export class SakaiPager extends SakaiElement {
     this.dispatchEvent(new CustomEvent("page-clicked", {detail: {page: e.target.dataset.page}}));
   }
 
-  showNextPageNumbers(e) {
+  showNextPageNumbers() {
 
     this.currentPagesIndex = this.currentPagesIndex + 1;
     this.currentPageNumbers = this.setsOfPages[this.currentPagesIndex];

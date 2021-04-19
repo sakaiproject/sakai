@@ -116,7 +116,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
   setupEditor() {
 
-    let editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
+    const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
 
     try {
       var commentEditor = CKEDITOR.replace(editorKey, {
@@ -125,7 +125,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
         height: 40
       });
 
-      commentEditor.on('change', e => this.criterion.comments = commentEditor.getData());
+      commentEditor.on('change', () => this.criterion.comments = commentEditor.getData());
     } catch (error) {
       console.log(error);
     }

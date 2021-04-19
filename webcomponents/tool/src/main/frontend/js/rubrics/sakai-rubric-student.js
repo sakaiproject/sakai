@@ -1,8 +1,8 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { SakaiRubricCriterionPreview } from "./sakai-rubric-criterion-preview.js";
-import { SakaiRubricCriterionStudent } from "./sakai-rubric-criterion-student.js";
-import { SakaiRubricStudentComment } from "./sakai-rubric-student-comment.js";
+import "./sakai-rubric-criterion-preview.js";
+import "./sakai-rubric-criterion-student.js";
+import "./sakai-rubric-student-comment.js";
 import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
 
 class SakaiRubricStudent extends RubricsElement {

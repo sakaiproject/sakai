@@ -1,7 +1,7 @@
 import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import './sakai-icon.js';
 import './sakai-options-menu.js';
-import { loadProperties, tr } from "./sakai-i18n.js";
+import { loadProperties } from "./sakai-i18n.js";
 
 export class SakaiCourseCard extends LitElement {
 
@@ -182,7 +182,7 @@ export class SakaiCourseCard extends LitElement {
     }).catch((error) =>  console.error(error));
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.toolnameMap;
   }
 

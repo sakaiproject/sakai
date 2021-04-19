@@ -24,7 +24,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
 
     this.messagesClass = "three-col";
 
-    let url = this.siteId ? `/api/sites/${this.siteId}/forums` : `/api/users/${this.userId}/forums`;
+    const url = this.siteId ? `/api/sites/${this.siteId}/forums` : `/api/users/${this.userId}/forums`;
     fetch(url)
       .then(r => {
         if (r.ok) {
@@ -41,7 +41,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
 
   toggleSite(e) {
 
-    let forum = this.forums.find(f => f.siteId === e.target.dataset.siteId);
+    const forum = this.forums.find(f => f.siteId === e.target.dataset.siteId);
     forum.hidden = e.target.checked;
     this.requestUpdate();
   }
@@ -84,7 +84,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
 
   set showOptions(value) {
 
-    let old = this._showOptions;
+    const old = this._showOptions;
     this._showOptions = value;
     if (this._showOptions) {
       this.messagesClass = "four-col";
@@ -96,7 +96,7 @@ export class SakaiForumsWidget extends SakaiDashboardWidget {
 
   get showOptions() { return this._showOptions; }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.forums;
   }
 

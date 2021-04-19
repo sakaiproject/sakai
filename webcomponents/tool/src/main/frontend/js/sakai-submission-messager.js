@@ -35,7 +35,7 @@ class SakaiSubmissionMessager extends SakaiElement {
     };
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 
@@ -136,7 +136,7 @@ class SakaiSubmissionMessager extends SakaiElement {
 
   getFormData() {
 
-    let formData = new FormData();
+    const formData = new FormData();
     formData.set("action", this.action);
     formData.set("groupRef", this.group || "");
     formData.set("minScore", this.minScore || "");
@@ -148,9 +148,9 @@ class SakaiSubmissionMessager extends SakaiElement {
     return formData;
   }
 
-  listRecipients(e) {
+  listRecipients() {
 
-    let formData = this.getFormData();
+    const formData = this.getFormData();
 
     fetch(`/direct/gbng/listMessageRecipients.json`, {method: "POST", cache: "no-cache", credentials: "same-origin", body: formData})
       .then(r => r.json())
@@ -160,14 +160,14 @@ class SakaiSubmissionMessager extends SakaiElement {
       });
   }
 
-  sendMessage(e) {
+  sendMessage() {
 
     if (!this.subject || !this.body) {
       this.validationError = "You need to supply a subject and body!";
       return;
     }
 
-    let formData = this.getFormData();
+    const formData = this.getFormData();
 
     this.sending = true;
 

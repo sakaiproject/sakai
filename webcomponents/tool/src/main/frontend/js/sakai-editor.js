@@ -20,18 +20,18 @@ class SakaiEditor extends SakaiElement {
   constructor() {
 
     super();
+
     if (this.debug) console.debug("Sakai Editor constructor");
     this.content = "";
     this.elementId = "editable";
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return (this.content || this.elementId) && typeof CKEDITOR !== "undefined";
   }
 
   set active(value) {
 
-    let old = this._active;
     this._active = value;
     if (value) {
       this.attachEditor();

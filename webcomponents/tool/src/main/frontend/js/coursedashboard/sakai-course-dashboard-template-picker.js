@@ -19,7 +19,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
     loadProperties("dashboard").then(r => this.i18n = r);
   }
 
-  select(e) {
+  select() {
 
     this.close();
     this.dispatchEvent(new CustomEvent("template-selected", { detail: { template: this.template }, bubbles: true}));
@@ -29,7 +29,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
     return html`${this.i18n["template_picker_title"]}`;
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.template;
   }
 

@@ -1,5 +1,4 @@
-import { LitElement, html, css } from "../assets/lit-element/lit-element.js";
-import { render } from "../assets/lit-html/lit-html.js";
+import { html, css } from "../assets/lit-element/lit-element.js";
 import {ifDefined} from '../assets/lit-html/directives/if-defined.js';
 import  "./sakai-calendar-create-event.js";
 import  "./sakai-calendar-display-event.js";
@@ -37,7 +36,7 @@ export class SakaiCalendar extends LionCalendar {
 
     this.addEventListener("user-selected-date-changed", e => {
 
-      let time = e.detail.selectedDate.getTime();
+      const time = e.detail.selectedDate.getTime();
       this.daysEvents = this.events.filter(e => e.start > time && e.start < (time + 24*60*60*1000));
       this.selectedDate = time;
     });
@@ -65,7 +64,7 @@ export class SakaiCalendar extends LionCalendar {
 
   loadData() {
 
-    let url = this.siteId
+    const url = this.siteId
       ? `/api/sites/${this.siteId}/calendar` : `/api/users/${this.userId}/calendar`;
 
     fetch(url, { cache: "no-cache", credentials: "same-origin" }).then(res => res.json()).then(data => this.events = data);
@@ -80,8 +79,8 @@ export class SakaiCalendar extends LionCalendar {
       c.classList.remove("has-events");
       c.classList.remove("deadline");
 
-      let time = c.date.getTime();
-      let e = this.events.find(e => e.start > time && e.start < (time + 24*60*60*1000));
+      const time = c.date.getTime();
+      const e = this.events.find(e => e.start > time && e.start < (time + 24*60*60*1000));
       if (e) {
         c.classList.add("has-events");
         if (e.type === "deadline") {

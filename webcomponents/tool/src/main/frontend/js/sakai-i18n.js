@@ -72,7 +72,7 @@ function loadProperties(options) {
     params.append("resourceclass", options.resourceClass);
     params.append("resourcebundle", options.bundle);
 
-    let existingPromise = window.sakai.translations.existingPromises[options.bundle];
+    const existingPromise = window.sakai.translations.existingPromises[options.bundle];
     if (existingPromise && options.cache) {
       if (options.debug) console.debug("Returning existing promise ...");
       return existingPromise;

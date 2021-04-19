@@ -61,7 +61,7 @@ class SakaiRubricStudentButton extends RubricsElement {
 
     const token = `Bearer ${this.token}`;
 
-    let url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
+    const url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
     return fetch(url, {
       credentials: "same-origin",
       headers: {
@@ -74,7 +74,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       const evaluation = data._embedded.evaluations[0];
       if (evaluation) {
         evaluation.status = 2;
-        let url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
+        const url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
         await fetch(url, {
           body: JSON.stringify(evaluation),
           credentials: "same-origin",

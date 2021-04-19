@@ -48,7 +48,7 @@ export class SakaiCourseList extends LitElement {
 
         for (let i = 0; i < this.sites.length; i++) {
           if (!this.sites[i].course) continue;
-          let site = this.sites[i];
+          const site = this.sites[i];
           if (!this.termCourses.has(site.term)) {
             this.termCourses.set(site.term, []);
           }
@@ -92,7 +92,7 @@ export class SakaiCourseList extends LitElement {
 
   get sites() { return this._sites; }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 
@@ -105,14 +105,14 @@ export class SakaiCourseList extends LitElement {
 
   addFavourite(e) {
 
-    let newFave = this.sites.find(cd => cd.id === e.detail.id);
+    const newFave = this.sites.find(cd => cd.id === e.detail.id);
     newFave.favourite = true;
     this.filtered.favourites.push(newFave);
   }
 
   removeFavourite(e) {
 
-    let oldFaveIndex = this.filtered.favourites.findIndex(cd => cd.id === e.detail.id);
+    const oldFaveIndex = this.filtered.favourites.findIndex(cd => cd.id === e.detail.id);
     this.filtered.favourites.splice(oldFaveIndex, 1)[0].favourite = false;
     if (this.currentFilter === "favourites") {
       this.displayedSites = [...this.filtered.favourites];

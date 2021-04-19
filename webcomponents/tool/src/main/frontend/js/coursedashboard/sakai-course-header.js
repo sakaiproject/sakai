@@ -21,7 +21,7 @@ class SakaiCourseHeader extends LitElement {
     loadProperties("dashboard").then(r => this.i18n = r);
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.site;
   }
 

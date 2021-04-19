@@ -1,7 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricCriteriaReadonly} from "./sakai-rubric-criteria-readonly.js";
-import {SharingChangeEvent} from "./sharing-change-event.js";
+import "./sakai-rubric-criteria-readonly.js";
 import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricReadonly extends RubricsElement {
@@ -55,7 +54,7 @@ export class SakaiRubricReadonly extends RubricsElement {
     `;
   }
 
-  toggleRubric(e) {
+  toggleRubric() {
 
     var titlecontainer = this.querySelector(".rubric-title");
 

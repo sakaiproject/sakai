@@ -1,7 +1,7 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
-import {SakaiRubricStudentComment} from "./sakai-rubric-student-comment.js";
+import "./sakai-rubric-student-comment.js";
 
 export class SakaiRubricCriterionStudent extends RubricsElement {
 
@@ -20,7 +20,6 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
   set criteria(newVal) {
 
-    var oldVal = this._criteria;
     this._criteria = newVal;
     this.criteria.forEach(c => {
 

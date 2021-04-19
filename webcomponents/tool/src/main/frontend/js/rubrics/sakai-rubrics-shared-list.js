@@ -1,7 +1,7 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
-import {SakaiRubricReadonly} from "./sakai-rubric-readonly.js";
+import "./sakai-rubric-readonly.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
 const rubricName = 'name';
@@ -61,7 +61,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
 
     var options = { extraHeaders: { "x-copy-source": e.detail, "lang": this.locale  } };
     SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, options)
-      .then(data => this.dispatchEvent(new CustomEvent("copy-share-site")));
+      .then(() => this.dispatchEvent(new CustomEvent("copy-share-site")));
   }
 
   sortRubrics(rubricType, ascending) {

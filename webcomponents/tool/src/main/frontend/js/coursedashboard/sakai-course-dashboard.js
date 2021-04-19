@@ -1,4 +1,4 @@
-import { html, css, LitElement } from '../assets/lit-element/lit-element.js';
+import { html, LitElement } from '../assets/lit-element/lit-element.js';
 import { loadProperties } from "../sakai-i18n.js";
 import "../widgets/sakai-widget-panel.js";
 import "../assets/@lion/dialog/lion-dialog.js";
@@ -56,7 +56,7 @@ export class SakaiCourseDashboard extends LitElement {
       .catch(error => console.error(error));
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.data;
   }
 
@@ -70,7 +70,7 @@ export class SakaiCourseDashboard extends LitElement {
     this.requestUpdate();
   }
 
-  edit(e) {
+  edit() {
 
     this.editing = !this.editing;
     this.imageBackup = this.data.image;
@@ -80,7 +80,7 @@ export class SakaiCourseDashboard extends LitElement {
     this.templateBackup = this.data.template;
   }
 
-  cancel(e) {
+  cancel() {
 
     this.editing = false;
     this.data.overview = this.overviewBackup;
@@ -93,16 +93,16 @@ export class SakaiCourseDashboard extends LitElement {
     this.requestUpdate();
   }
 
-  save(e) {
+  save() {
 
     this.editing = !this.editing;
 
     if (this.newImageBlob) {
 
-      let fd = new FormData();
+      const fd = new FormData();
       fd.append("siteImage", this.newImageBlob);
 
-      let imageUrl = `/api/sites/${this.siteId}/image`
+      const imageUrl = `/api/sites/${this.siteId}/image`
       fetch(imageUrl, {
         method: "POST",
         credentials: "include",
@@ -125,14 +125,14 @@ export class SakaiCourseDashboard extends LitElement {
       .catch(error => console.error(error.message));
     }
 
-    let data = {
+    const data = {
       layout: this.data.layout,
       overview: this.data.overview,
       programme: this.data.programme,
       template: this.data.template,
     };
 
-    let url = `/api/sites/${this.siteId}/dashboard`
+    const url = `/api/sites/${this.siteId}/dashboard`
     fetch(url, {
       method: "PUT",
       credentials: "include",
@@ -153,7 +153,7 @@ export class SakaiCourseDashboard extends LitElement {
     this.requestUpdate();
   }
 
-  showTemplates(e) {
+  showTemplates() {
     document.getElementById("templates").__toggle();
   }
 

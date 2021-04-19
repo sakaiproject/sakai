@@ -24,7 +24,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
   set criterion(newValue) {
 
-    let oldValue = this._criterion;
+    const oldValue = this._criterion;
     this._criterion = newValue;
     this.criterionClone = JSON.parse(JSON.stringify(newValue));
     this.requestUpdate("criterion", oldValue);

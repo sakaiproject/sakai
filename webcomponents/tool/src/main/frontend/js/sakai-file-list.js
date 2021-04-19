@@ -34,7 +34,7 @@ class SakaiFileList extends LitElement {
     };
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.files;
   }
 

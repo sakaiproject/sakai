@@ -1,4 +1,4 @@
-export let sakaiWidgets = {
+export const sakaiWidgets = {
 
   getIds: () => ["announcements", "calendar", "forums", "grades", "tasks"],
   getWidgets: () => {

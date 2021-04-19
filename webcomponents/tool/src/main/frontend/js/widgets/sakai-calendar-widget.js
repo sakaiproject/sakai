@@ -1,4 +1,4 @@
-import { css, html } from "../assets/lit-element/lit-element.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import '../sakai-icon.js';
 import '../calendar/sakai-calendar.js';
@@ -16,7 +16,7 @@ export class SakaiCalendarWidget extends SakaiDashboardWidget {
     this.loadTranslations("calendar");
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.siteId || this.userId;
   }
 

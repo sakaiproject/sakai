@@ -189,7 +189,7 @@ export class SakaiItemDelete extends RubricsElement {
     });
   }
 
-  updateUi(data) {
+  updateUi() {
 
     this.dispatchEvent(new CustomEvent('delete-item', {detail: this.item, bubbles: true, composed: true}));
     this.hideToolTip();

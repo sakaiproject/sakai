@@ -31,7 +31,7 @@ export class SakaiOptionsMenu extends LitElement {
 
   get placement() { return this._placement; }
 
-  firstUpdated(changed) {
+  firstUpdated() {
 
     this.content = this.shadowRoot.querySelector('slot[name="content"]').assignedNodes()[0];
     this.content.addEventListener("keydown", (e) => this._handleEscape(e));

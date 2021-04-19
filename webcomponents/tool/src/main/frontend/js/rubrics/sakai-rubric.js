@@ -1,12 +1,12 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricCriteria} from "./sakai-rubric-criteria.js";
-import {SakaiRubricCriteriaReadonly} from "./sakai-rubric-criteria-readonly.js";
-import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
-import {SakaiItemDelete} from "./sakai-item-delete.js";
-import {SakaiRubricSiteTitle} from "./sakai-rubric-site-title.js";
-import {SakaiRubricModifiedDate} from "./sakai-rubric-modified-date.js";
-import {SakaiRubricCreatorName} from "./sakai-rubric-creator-name.js";
+import "./sakai-rubric-criteria.js";
+import "./sakai-rubric-criteria-readonly.js";
+import "./sakai-rubric-edit.js";
+import "./sakai-item-delete.js";
+import "./sakai-rubric-site-title.js";
+import "./sakai-rubric-modified-date.js";
+import "./sakai-rubric-creator-name.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 
@@ -56,7 +56,7 @@ export class SakaiRubric extends RubricsElement {
 
   get rubric() { return this._rubric; }
 
-  shouldUpdate(changedProperties) {
+  shouldUpdate() {
     return this.rubric;
   }
 
@@ -149,7 +149,7 @@ export class SakaiRubric extends RubricsElement {
 
   toggleRubric(e) {
 
-    e.preventDefault();
+    e && e.preventDefault();
 
     var titlecontainer = this.querySelector(".rubric-title");
 
@@ -194,7 +194,7 @@ export class SakaiRubric extends RubricsElement {
       });
   }
 
-  handleSaveWeights(e) {
+  handleSaveWeights() {
 
     var saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
     var saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-success`);
@@ -210,7 +210,7 @@ export class SakaiRubric extends RubricsElement {
         method: "PATCH",
         contentType: "application/json",
         data: JSON.stringify({ weight: cr.weight })
-      }).done(data => {
+      }).done(() => {
 
         if(saveSuccessLbl) saveSuccessLbl.classList.add('in');
         setTimeout(() => {
@@ -233,7 +233,6 @@ export class SakaiRubric extends RubricsElement {
     this.rubric.criterions = payload.criteria;
     var criterionModified = this.rubric.criterions.find(el => el.id === payload.criterionId);
     var oldValue = criterionModified.weight;
-    var criterionId = criterionModified.id;
 
     payload.value = payload.value.toLocaleString(this.locale);
     criterionModified.weight = payload.value;
@@ -334,7 +333,7 @@ export class SakaiRubric extends RubricsElement {
 
   openEditWithKeyboard(e) {
 
-    let spaceBarKeyCode = (e.keyCode == 32);	
+    const spaceBarKeyCode = (e.keyCode == 32);	
 
     if (spaceBarKeyCode && e.target.classList.contains('weighted')) {
       this.weightedChange(e);

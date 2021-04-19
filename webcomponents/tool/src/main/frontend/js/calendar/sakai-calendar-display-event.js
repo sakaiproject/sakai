@@ -2,7 +2,6 @@ import { html, css } from "../assets/lit-element/lit-element.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
 import "../sakai-file-list.js";
-import moment from "../assets/moment/dist/moment.js";
 
 class SakaiCalendarDisplayEvent extends SakaiDialogContent {
 
@@ -38,7 +37,7 @@ class SakaiCalendarDisplayEvent extends SakaiDialogContent {
     };
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.selected;
   }
 

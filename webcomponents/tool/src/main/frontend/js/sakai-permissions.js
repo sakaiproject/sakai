@@ -79,11 +79,11 @@ class SakaiPermissions extends SakaiElement {
 
   get tool() { return this._tool; }
 
-  updated(changedProperties) {
+  updated() {
     this.attachHandlers();
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 
@@ -161,7 +161,6 @@ class SakaiPermissions extends SakaiElement {
     document.body.style.cursor = "wait";
 
     const boxes = document.querySelectorAll(`#${this.tool.replace('.', '\\.')}-permissions-table input[type="checkbox"]`);
-    const myData = {};
     const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
 
       if (b.checked) {
@@ -196,13 +195,13 @@ class SakaiPermissions extends SakaiElement {
 
     this.updateComplete.then(() => {
 
-      let inputs = this.renderRoot.querySelectorAll("input[type='checkbox']");
+      const inputs = this.renderRoot.querySelectorAll("input[type='checkbox']");
       inputs.forEach(elem => {
 
-          let role = elem.getAttribute('data-role');
-          let perm = elem.getAttribute('data-perm');
+          const role = elem.getAttribute('data-role');
+          const perm = elem.getAttribute('data-perm');
           if (role && perm) {
-            let elemChanged = (elem.checked != this.on[role].includes(perm));
+            const elemChanged = (elem.checked != this.on[role].includes(perm));
             elem.checked = this.on[role].includes(perm);
             if (elemChanged) {
               elem.dispatchEvent(new Event("change"));
@@ -260,7 +259,6 @@ class SakaiPermissions extends SakaiElement {
 
       const role = e.target.dataset.role.replace("\.", "\\.");
 
-      var col = ($(e.target).parent('th').prevAll().size());
       var anyChecked = $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input:checked').not('[disabled]').length > 0;
       $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input').not('[disabled]').prop('checked', !anyChecked).change();
       e.preventDefault();

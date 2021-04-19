@@ -1,6 +1,6 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricCriterionPreview} from "./sakai-rubric-criterion-preview.js";
+import "./sakai-rubric-criterion-preview.js";
 
 export class SakaiRubricPreview extends RubricsElement {
 

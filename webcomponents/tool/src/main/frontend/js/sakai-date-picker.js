@@ -65,11 +65,11 @@ class SakaiDatePicker extends SakaiElement {
     return this._hoursFromNow;
   }
 
-  firstUpdated(changedProperties) {
+  firstUpdated() {
 
     const self = this;
 
-    let config = {
+    const config = {
       enableTime: true,
       time_24hr: true,
       allowInput: true,
@@ -107,7 +107,7 @@ class SakaiDatePicker extends SakaiElement {
   getPreferredSakaiDatetime(epochMillis) {
 
     if (portal.user && portal.user.offsetFromServerMillis) {
-      let osTzOffset = new Date().getTimezoneOffset();
+      const osTzOffset = new Date().getTimezoneOffset();
       return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
     } else {
       window.console && console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");

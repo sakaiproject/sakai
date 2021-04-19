@@ -11,7 +11,7 @@ export class SakaiButton extends LitElement {
     };
   }
 
-  clicked(e) {
+  clicked() {
 
     if (this.href) {
       window.parent.location = this.href;

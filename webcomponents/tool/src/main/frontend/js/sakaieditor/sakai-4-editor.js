@@ -1,5 +1,6 @@
 import {SakaiElement} from "../sakai-element.js";
 import {html} from "../assets/lit-element/lit-element.js";
+import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 
 class Sakai4Editor extends SakaiElement {
 
@@ -23,20 +24,18 @@ class Sakai4Editor extends SakaiElement {
     this.elementId = "editable";
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.elementId;
   }
 
   render() {
 
-    console.log(this.content);
-
     return html `
-      <div id="${this.editorId}" contenteditable=${isDefined(this.type === "inline" ? "true" : undefined)}></div>
+      <div id="${this.editorId}" contenteditable=${ifDefined(this.type === "inline" ? "true" : undefined)}></div>
     `;
   }
 
-  firstUpdated(changedProperties) {
+  firstUpdated() {
 
     const element = document.getElementById(`${this.elementId}`);
 

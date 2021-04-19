@@ -53,7 +53,7 @@ export class SakaiHomeDashboard extends LitElement {
       .catch(error => console.error(error));
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.data;
   }
 
@@ -61,24 +61,24 @@ export class SakaiHomeDashboard extends LitElement {
     this.data.layout = e.detail.layout;
   }
 
-  edit(e) {
+  edit() {
 
     this.editing = !this.editing;
     this.layoutBackup = [...this.data.layout];
   }
 
-  cancel(e) {
+  cancel() {
 
     this.editing = false;
     this.data.layout = [...this.layoutBackup];
     this.requestUpdate();
   }
 
-  save(e) {
+  save() {
 
     this.editing = !this.editing;
 
-    let url = `/api/users/${this.userId}/dashboard`;
+    const url = `/api/users/${this.userId}/dashboard`;
     fetch(url, {
       method: "PUT",
       credentials: "include",
@@ -127,7 +127,7 @@ export class SakaiHomeDashboard extends LitElement {
         ` : ""}
         ${this.data.motd ? html`
           <div id="motd">
-            <div id="motd-title-block" @click=${e => this.showMotd = !this.showMotd}>
+            <div id="motd-title-block" @click=${() => this.showMotd = !this.showMotd}>
               <div id="motd-title">${this.i18n["motd"]}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
