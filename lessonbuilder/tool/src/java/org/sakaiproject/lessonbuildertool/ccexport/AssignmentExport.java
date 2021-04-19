@@ -27,6 +27,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Validator;
 
 import lombok.Setter;
@@ -38,6 +39,7 @@ public class AssignmentExport {
     @Setter private AssignmentService assignmentService;
     @Setter private CCUtils ccUtils;
     @Setter private ContentHostingService contentHostingService;
+    @Setter private FormattedText formattedText;
 
     private List<CCAssignmentItem> getItemsInSite(String siteId) {
         List<CCAssignmentItem> list = new ArrayList<>();

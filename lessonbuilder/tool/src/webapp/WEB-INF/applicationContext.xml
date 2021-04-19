@@ -398,6 +398,7 @@ simplePageBean.addForumSummary
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 		<property name="ccUtils" ref="org.sakaiproject.lessonbuildertool.ccexport.CCUtils"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 
  	<bean id="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
