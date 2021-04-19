@@ -233,6 +233,11 @@ public class SamigoExport {
                     .sorted(Comparator.comparing(AnswerIfc::getSequence))
                     .collect(Collectors.toList());
 
+            Double score = 0.0;
+            if (!answers.isEmpty()) {
+                score = answers.get(0).getScore();
+            }
+
             Long type = item.getTypeId();
             boolean survey = false;
 
@@ -360,7 +365,7 @@ public class SamigoExport {
                 out.println("        </presentation>");
                 out.println("        <resprocessing>");
                 out.println("          <outcomes>");
-                out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
+                out.println("            <decvar maxvalue=\"" + score + "\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
                 out.println("          </outcomes>");
 
                 if (item.getGeneralItemFeedback() != null) {
@@ -470,7 +475,7 @@ public class SamigoExport {
                 if (type.equals(TypeIfc.FILL_IN_BLANK) && answers.size() > 0) {
                     out.println("        <resprocessing>");
                     out.println("          <outcomes>");
-                    out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
+                    out.println("            <decvar maxvalue=\"" + score + "\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
                     out.println("          </outcomes>");
 
                     if (item.getGeneralItemFeedback() != null) {
@@ -554,7 +559,7 @@ public class SamigoExport {
                 if (item.getGeneralItemFeedback() != null) {
                     out.println("        <resprocessing>");
                     out.println("          <outcomes>");
-                    out.println("            <decvar maxvalue=\"100\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
+                    out.println("            <decvar maxvalue=\"" + score + "\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
                     out.println("          </outcomes>");
                     out.println("          <respcondition continue=\"No\">");
                     out.println("            <conditionvar><other/></conditionvar>");
@@ -563,6 +568,12 @@ public class SamigoExport {
                     out.println("        </resprocessing>");
                     CCFeedbackItem ccFeedbackItem = new CCFeedbackItem("general_fb", item.getGeneralItemFeedback());
                     ccFeedbackItems.add(ccFeedbackItem);
+                } else {
+                    out.println("        <resprocessing>");
+                    out.println("          <outcomes>");
+                    out.println("            <decvar maxvalue=\"" + score + "\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Decimal\"/>");
+                    out.println("          </outcomes>");
+                    out.println("        </resprocessing>");
                 }
             }
 
