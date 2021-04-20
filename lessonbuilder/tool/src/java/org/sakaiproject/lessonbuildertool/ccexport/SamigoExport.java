@@ -234,6 +234,7 @@ public class SamigoExport {
                     .collect(Collectors.toList());
 
             Long type = item.getTypeId();
+            Long authenticType = type;
             boolean survey = false;
 
             String profile;
@@ -463,7 +464,11 @@ public class SamigoExport {
                 // FIB has correct or incorrect, essay has general
 
                 out.println("          <response_str ident=\"QUE_" + itemId + "_RL\">");
-                out.println("            <render_fib columns=\"30\" rows=\"1\"/>");
+                if (authenticType.equals(TypeIfc.FILL_IN_NUMERIC)) {
+                    out.println("            <render_fin columns=\"30\" rows=\"1\"/>");
+                } else {
+                    out.println("            <render_fib columns=\"30\" rows=\"1\"/>");
+                }
                 out.println("          </response_str>");
                 out.println("        </presentation>");
 

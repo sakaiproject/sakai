@@ -181,7 +181,21 @@ public class QtiImport {
 		return "Fill In the Blank";
 
 	}
-	
+
+	// response_fin is for numeric response
+	// matching has an explicit type, so just need to see if true false
+	NodeList fin = ((Element)itemnode).getElementsByTagName("render_fin");
+	if (fin != null && fin.item(0) != null) {
+	    NodeList varequal = ((Element)itemnode).getElementsByTagName("varequal");
+	    if (varequal != null && varequal.item(0) != null) {
+	        return "Numeric Response";
+	    }
+	    NodeList varsubstring = ((Element)itemnode).getElementsByTagName("varsubstring");
+	    if (varsubstring != null && varsubstring.item(0) != null) {
+	        return "Numeric Response";
+	    }
+	}
+
 	return "Short Answers/Essay";
 
     }
@@ -806,7 +820,7 @@ public class QtiImport {
 
     }
 
-    boolean procshort(Node item) throws IOException{
+    boolean procshort(Node item, String type) throws IOException{
 	log.debug("short");
 
 	String title = null;
@@ -891,15 +905,24 @@ public class QtiImport {
 	Node response = getFirstByName(presentation, "response_str");
 	while (response != null) {
 	    Node fib = getFirstByName(response, "render_fib");
-	    if (fib == null) {
-		log.debug("No render_fib for response_str");
-		return false;
+	    Node fin = getFirstByName(response, "render_fin");
+	    if (fib == null && fin == null ) {
+		    log.debug("No render_fib or render_fin for response_str");
+		    return false;
 	    }
 	    String qident = getAttribute(response, "ident");
 	    String rident = null;
-	    Node label = getFirstByName(fib, "response_label");
-	    if (label != null)
-		rident = getAttribute(label, "ident");
+
+	    Node label = null;
+	    if (fib != null) {
+	        label = getFirstByName(fib, "response_label");
+	    } else if (fin != null) {
+	        label = getFirstByName(fin, "response_label");
+	    }
+
+	    if (label != null) {
+	        rident = getAttribute(label, "ident");
+	    }
 
 	    if (qident == null && rident == null) {
 		log.debug("No ident for response_label");
@@ -1078,7 +1101,11 @@ public class QtiImport {
 	out.println("    <qtimetadata>");
 	out.println("      <qtimetadatafield>");
 	out.println("        <fieldlabel>qmd_itemtype</fieldlabel>");
-	out.println("        <fieldentry>Fill In the Blank</fieldentry>");
+	if (type.equalsIgnoreCase("Fill In the Blank")) {
+	    out.println("        <fieldentry>Fill In the Blank</fieldentry>");
+	} else if (type.equalsIgnoreCase("Numeric Response")) {
+	    out.println("        <fieldentry>Numeric Response</fieldentry>");
+	}
 	out.println("      </qtimetadatafield>");
 	out.println("    </qtimetadata>");
 	out.println("    <qtimetadata>");
@@ -1088,12 +1115,14 @@ public class QtiImport {
 	out.println("      </qtimetadatafield>");
 	out.println("    </qtimetadata>");
 	out.println("    <qtimetadata>");
+	if (type.equalsIgnoreCase("Fill In the Blank")) {
+	    out.println("      <qtimetadatafield>");
+	    out.println("        <fieldlabel>CASE_SENSITIVE</fieldlabel>");
+	    out.println("        <fieldentry>"+casesens+"</fieldentry>");
+	    out.println("      </qtimetadatafield>");
+	}
 	out.println("      <qtimetadatafield>");
-	out.println("        <fieldlabel>CASE_SENSITIVE</fieldlabel>");
-	out.println("        <fieldentry>"+casesens+"</fieldentry>");
-	out.println("      </qtimetadatafield>");
-	out.println("      <qtimetadatafield>");
-        out.println("            <fieldlabel>hasRationale</fieldlabel>");
+	out.println("            <fieldlabel>hasRationale</fieldlabel>");
 	out.println("            <fieldentry>false</fieldentry>");
 	out.println("      </qtimetadatafield>");
 	out.println("    </qtimetadata>");
@@ -1128,7 +1157,11 @@ public class QtiImport {
 	    if (ident == null)
 		ident = ans.qident;
 
-	    out.println("<response_str ident=\""+rident+"\" rcardinality=\"Ordered\" rtiming=\"No\"><render_fib charset=\"ascii-us\" columns=\"20\" encoding=\"UTF_8\" fibtype=\"String\" prompt=\"Box\" rows=\"1\"></render_fib>");
+	    if (type.equalsIgnoreCase("Fill In the Blank")) {
+		    out.println("<response_str ident=\"" + rident + "\" rcardinality=\"Ordered\" rtiming=\"No\"><render_fib charset=\"ascii-us\" columns=\"20\" encoding=\"UTF_8\" fibtype=\"String\" prompt=\"Box\" rows=\"1\"></render_fib>");
+	    } else if (type.equalsIgnoreCase("Numeric Response")) {
+		    out.println("<response_str ident=\"" + rident + "\" rcardinality=\"Ordered\" rtiming=\"No\"><render_fin charset=\"ascii-us\" columns=\"20\" encoding=\"UTF_8\" fibtype=\"String\" prompt=\"Box\" rows=\"1\"></render_fin>");
+	    }
 	    out.println("");
 	    out.println("</response_str>");
 	    out.println("");
@@ -1579,8 +1612,8 @@ public class QtiImport {
 	if (resproc != null)
 	    qticomment = getFirstByName(resproc, "qticomment");
 
+	String type = guessQuestionType(item);
 	if (qticomment == null) {
-	    String type = guessQuestionType(item);
 	    log.debug("main we guess type {}", type);
 
 	    // matching not used in CC, not tested
@@ -1590,13 +1623,15 @@ public class QtiImport {
 		return procpara(item);
 	    // pattern match will be seen as FIB, which is best we can do
 	    else if (type.equalsIgnoreCase("Fill In the Blank"))
-		return procshort(item);
+		return procshort(item, type);
 	    else if (type.equalsIgnoreCase("Multiple Choice"))
 		return procmc(item, false);
 	    else if (type.equalsIgnoreCase("Multiple Correct"))
 		return procmc(item, false);
 	    else if (type.equalsIgnoreCase("True False"))
 		return procmc(item, true);
+	    else if (type.equalsIgnoreCase("Numeric Response"))
+		return procshort(item, type);
 	    else {
 	        log.debug("type not matched");
 		return false;
@@ -1614,7 +1649,7 @@ public class QtiImport {
 	else if (commenttext.startsWith("Paragraph Question"))
 	    return procpara(item);
 	else if (commenttext.startsWith("Short answer Question"))
-	    return procshort(item);
+	    return procshort(item, type);
 	else if (commenttext.startsWith("Multiple Choice Question"))
 	    return procmc(item, false);
 
