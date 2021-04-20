@@ -47,12 +47,13 @@
 }
 .pasystem-banner-alert.pasystem-banner-timezone,
 .pasystem-banner-alert.pasystem-banner-low {
-  background-color: #c7e4f4;
+  background-color: var(--infoBanner-bgcolor);
+  color: var(--infoBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-timezone:before,
 .pasystem-banner-alert.pasystem-banner-low:before {
   content: '\f05a';
-  color: #144bae;
+  color: var(--infoBanner-color);
 }
 .pasystem-banner-alert .pasystem-banner-alert-close {
   position: absolute;
@@ -60,7 +61,6 @@
   right: 10px;
   text-decoration: none;
   margin-top: -10px;
-  color: #666;
 }
 .pasystem-banner-alert .pasystem-banner-alert-close:before {
   font-family: 'pasystem-icons';
@@ -141,7 +141,7 @@
     padding: 8px;
   }
 }
-
+pasystem/pasystem-tool/tool/src/webapp/stylesheets/pasystem.css
 .featherlight .featherlight-content {
     min-width: 450px;
     max-width: 782px;
