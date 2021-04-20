@@ -3602,10 +3602,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /**
    * FIB QUESTIONS
    * @param toExamine marker_pair to determine if contain illegal chars
-   * @return if cotains illegals ["'.,&\s|*]
+   * @return if contains illegals ["'.,&<>\s|*]
    */
   private boolean fibTextContainsIllegalCharacters(String toExamine) {
-	  Pattern pattern = Pattern.compile("[\"\'.,&\\s|*]");
+	  Pattern pattern = Pattern.compile("[\"\'.,&<>\\s|*]");
 	  Matcher matcher = pattern.matcher(toExamine);
 	  return matcher.find();
   }
