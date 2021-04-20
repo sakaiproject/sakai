@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE Parts SYSTEM "http://www.imsproject.org/question/qtiv1p2p1/XMLSchemav1p2p1/xmla/ims_qtiasiv1p2p1schema/dtds/qtiasifulldtd/ims_qtiasiv1p2p1.dtd">
+<!DOCTYPE Parts SYSTEM "jar:file:ims_qtiasiv1p2p1.dtd">
 <questestinterop>
   <assessment ident="" title="">
     <qticomment/>
