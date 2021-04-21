@@ -23,7 +23,7 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
 
   loadData() {
 
-    let url = this.siteId ? `/api/sites/${this.siteId}/announcements`
+    const url = this.siteId ? `/api/sites/${this.siteId}/announcements`
       : `/api/users/${this.userId}/announcements`;
 
     fetch(url)
@@ -45,7 +45,7 @@ export class SakaiAnnouncementsWidget extends SakaiDashboardWidget {
     if (e.target.value.length === 0) {
       this.data.forEach(a => a.visible = true);
     } else {
-      let search = e.target.value.toLowerCase();
+      const search = e.target.value.toLowerCase();
       this.data.forEach(a => {
         a.visible = !(!a.subject.toLowerCase().includes(search) && !a.author.toLowerCase().includes(search) && !a.siteTitle.toLowerCase().includes(search));
       });

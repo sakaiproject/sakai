@@ -61,7 +61,7 @@ export class SakaiRubricEdit extends RubricsElement {
     `;
   }
 
-  firstUpdated(changedProperties) {
+  firstUpdated() {
 
     $(this).find(".popover.rubric-edit-popover input").on('keydown', function(event) {
       if(event.keyCode == 9){

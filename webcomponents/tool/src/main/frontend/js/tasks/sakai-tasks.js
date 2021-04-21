@@ -1,5 +1,4 @@
 import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
-import {ifDefined} from '../assets/lit-html/directives/if-defined.js';
 import {unsafeHTML} from '../assets/lit-html/directives/unsafe-html.js';
 import '../sakai-icon.js';
 import moment from "../assets/moment/dist/moment.js";
@@ -65,7 +64,8 @@ export class SakaiTasks extends LitElement {
 
   loadData() {
 
-    fetch("/api/tasks")
+    const url = "/api/tasks";
+    fetch(url)
       .then(r => {
 
         if (r.ok) {
@@ -149,7 +149,7 @@ export class SakaiTasks extends LitElement {
 
   editTask(e) {
 
-    let task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
+    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
     this.shadowRoot.getElementById("add-edit-dialog").__toggle();
     this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
   }
@@ -162,7 +162,8 @@ export class SakaiTasks extends LitElement {
 
     const taskId = e.currentTarget.dataset.taskId;
 
-    fetch(`/api/tasks/${taskId}`, {
+    const url = `/api/tasks/${taskId}`;
+    fetch(url, {
       credentials: "include",
       method: "DELETE",
     })
@@ -190,7 +191,8 @@ export class SakaiTasks extends LitElement {
 
     task.softDeleted = true;
     task.visible = false;
-    fetch(`/api/tasks/${task.taskId}`, {
+    const url = `/api/tasks/${task.taskId}`;
+    fetch(url, {
       credentials: "include",
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -215,7 +217,8 @@ export class SakaiTasks extends LitElement {
 
     task.softDeleted = false;
     task.visible = true;
-    fetch(`/api/tasks/${task.taskId}`, {
+    const url = `/api/tasks/${task.taskId}`;
+    fetch(url, {
       credentials: "include",
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -238,13 +241,13 @@ export class SakaiTasks extends LitElement {
       });
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 
   taskCreated(e) {
 
-    let existingIndex = this.tasks.findIndex(t => t.taskId == e.detail.task.taskId);
+    const existingIndex = this.tasks.findIndex(t => t.taskId == e.detail.task.taskId);
 
     if (existingIndex === -1) {
       this.tasks.push(this.decorateTask(e.detail.task));
@@ -321,7 +324,7 @@ export class SakaiTasks extends LitElement {
             ${t.notes ? html`
               <div class="task-text-toggle">
                 <a href="javascript:;"
-                    @click=${e => {t.textVisible = !t.textVisible; this.requestUpdate(); }}
+                    @click=${() => {t.textVisible = !t.textVisible; this.requestUpdate(); }}
                     title="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}"
                     arial-label="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}">
                   ${t.textVisible ? this.i18n["less"] : this.i18n["more"]}

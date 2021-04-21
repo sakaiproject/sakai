@@ -50,7 +50,7 @@ export class SakaiDashboardWidget extends LitElement {
 
   loadTranslations(options) {
 
-    let p = loadProperties(options);
+    const p = loadProperties(options);
     p.then(r => {
       this.i18n = r;
       this.title = r["widget_title"];
@@ -60,11 +60,11 @@ export class SakaiDashboardWidget extends LitElement {
 
   content() {}
 
-  remove(e) {
+  remove() {
     this.dispatchEvent(new CustomEvent("remove", { bubbles: true }));
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n && this.baseI18n && this.title;
   }
 
@@ -147,7 +147,7 @@ export class SakaiDashboardWidget extends LitElement {
   moved() {
 
     // This may not have been rendered if we are in the remove state.
-    let optionsMenu = this.shadowRoot.querySelector("sakai-options-menu");
+    const optionsMenu = this.shadowRoot.querySelector("sakai-options-menu");
     if (optionsMenu) {
       optionsMenu.refresh();
     }

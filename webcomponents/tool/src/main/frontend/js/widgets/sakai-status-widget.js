@@ -1,4 +1,4 @@
-import { css, html } from "../assets/lit-element/lit-element.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import '../sakai-icon.js';
 import { SakaiDashboardWidget } from './sakai-dashboard-widget.js';
 

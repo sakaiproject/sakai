@@ -1,7 +1,7 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
-import {SakaiRubric} from "./sakai-rubric.js";
+import "./sakai-rubric.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 

@@ -38,7 +38,7 @@ class SakaiDialogContent extends LitElement {
 
   buttons() {}
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.baseI18n;
   }
 

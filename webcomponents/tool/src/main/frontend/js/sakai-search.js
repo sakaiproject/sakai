@@ -1,5 +1,5 @@
 import {SakaiElement} from "./sakai-element.js";
-import {SakaiPager} from "./sakai-pager.js";
+import "./sakai-pager.js";
 import {html} from "./assets/lit-element/lit-element.js";
 import {unsafeHTML} from "./assets/lit-html/directives/unsafe-html.js";
 
@@ -59,7 +59,7 @@ class SakaiSearch extends SakaiElement {
 
   get pageSize() { return this._pageSize; }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return this.i18n;
   }
 
@@ -79,7 +79,7 @@ class SakaiSearch extends SakaiElement {
       ` : ""}
       ${this.results.length > 0 && this.showField ? html`
         <div class="sakai-search-results" tabindex="1">
-          ${this.currentPageOfResults.map((r,i) => html`
+          ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
             <a href="${r.url}">
               <div>
@@ -103,7 +103,7 @@ class SakaiSearch extends SakaiElement {
 
   toggleField() {
 
-    let $input = $('#sakai-search-input');
+    const $input = $('#sakai-search-input');
 
     this.showField = !this.showField;
     if (!this.showField) {

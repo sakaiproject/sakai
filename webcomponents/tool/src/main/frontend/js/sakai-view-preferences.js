@@ -2,13 +2,13 @@ function getViewPreferences(tool, options) {
 
   if (!options) options = {debug: false};
 
-  let url = `/direct/userPrefs/key/${portal.user.id}/viewpreferences.json`;
+  const url = `/direct/userPrefs/key/${portal.user.id}/viewpreferences.json`;
 
   if (options.debug) {
     console.debug(`getViewPreferences: url=${url}`);
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
 
     fetch(url, { cache: "no-store", headers: { "Content-Type": "application/json" },})
     .then(d => d.json())
@@ -35,7 +35,7 @@ function updateViewPreferences(tool, value, options) {
 
   if (!options) options = {debug: false};
 
-  let url = `/direct/userPrefs/updateKey/${portal.user.id}/viewpreferences?${tool}=${encodeURIComponent(value)}`;
+  const url = `/direct/userPrefs/updateKey/${portal.user.id}/viewpreferences?${tool}=${encodeURIComponent(value)}`;
 
   if (options.debug) {
     console.debug(`updateViewPreferences: url=${url}`);
@@ -43,7 +43,7 @@ function updateViewPreferences(tool, value, options) {
   }
 
   fetch(url, { method: "PUT", cache: "no-store" })
-  .catch(error => console.error(
+  .catch(() => console.error(
                     `Failed to update view preferences for tool '${tool}'. Take a look at the server logs?`));
 }
 
