@@ -59,7 +59,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
     this.dispatchEvent(new CustomEvent("widget-picked", { detail: { id: e.target.id}, bubbles: true }));
   }
 
-  remove(e) {
+  remove() {
     this.dispatchEvent(new CustomEvent("remove", { detail: { newState: "view" }, bubbles: true }));
   }
 

@@ -13,7 +13,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
 
   loadData() {
 
-    let url = this.siteId ? `/api/sites/${this.siteId}/grades`
+    const url = this.siteId ? `/api/sites/${this.siteId}/grades`
       : `/api/users/${this.userId}/grades`;
     fetch(url)
       .then(r => {

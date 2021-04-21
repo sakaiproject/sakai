@@ -1,6 +1,6 @@
 import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
-import { faStar, faEllipsisV, faBell, faTimes, faTimesCircle, faCheckSquare, faComments, faBook, faFile, faFileAlt,
+import { faStar, faEllipsisV, faBell, faTimes, faCheckSquare, faComments, faBook, faFile, faFileAlt,
           faGripVertical, faMinus, faPlus, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync,
           faTrash, faTrashRestore, faEdit, faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faCompressArrowsAlt, faExpandArrowsAlt }
   from './assets/@fortawesome/free-solid-svg-icons/index.es.js';

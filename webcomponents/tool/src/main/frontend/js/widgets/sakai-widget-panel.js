@@ -48,7 +48,7 @@ export class SakaiWidgetPanel extends LitElement {
 
   set editing(value) {
 
-    let old = this._editing;
+    const old = this._editing;
     this._editing = value;
     if (!value) this.changeState("view");
     this.requestUpdate("editing", old);
@@ -97,8 +97,8 @@ export class SakaiWidgetPanel extends LitElement {
         // After a widget's been picked
         picker.addEventListener("widget-picked", (e) => {
 
-          let pickerIndex = this.layout.findIndex(w => w === "picker");
-          this.layout.splice(pickerIndex,1);
+          const pickerIndex = this.layout.findIndex(w => w === "picker");
+          this.layout.splice(pickerIndex, 1);
           this.state = "view";
 
           this.layout.unshift(e.detail.id);
@@ -114,7 +114,7 @@ export class SakaiWidgetPanel extends LitElement {
 
   removeWidget(e) {
 
-    let i = this.layout.findIndex(w => w === e.target.id);
+    const i = this.layout.findIndex(w => w === e.target.id);
     if (i !== -1) this.layout.splice(i, 1);
     this.fireChanged();
     this.requestUpdate();
@@ -128,8 +128,8 @@ export class SakaiWidgetPanel extends LitElement {
 
   moveWidget(e) {
 
-    let currentIndex = this.layout.findIndex(w => w === e.detail.widgetId);
-    let tmpWidgetId = this.layout[currentIndex];
+    const currentIndex = this.layout.findIndex(w => w === e.detail.widgetId);
+    const tmpWidgetId = this.layout[currentIndex];
 
     switch (e.detail.direction) {
       case "left":
@@ -166,7 +166,7 @@ export class SakaiWidgetPanel extends LitElement {
 
   getWidget(r) {
 
-    let w = this.widgets.find(w => w.id === r);
+    const w = this.widgets.find(w => w.id === r);
 
     switch (r) {
       case "tasks":

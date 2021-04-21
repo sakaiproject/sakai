@@ -10,8 +10,6 @@ rubrics.utils = rubrics.utils || {
       return;
     }
 
-    var scrollTop = rubrics.utils.windowRef.pageYOffset || rubrics.utils.windowRef.document.documentElement.scrollTop;
-
     // appends HTML string as node
     const appendStringAsNodes = function (element, html) {
 

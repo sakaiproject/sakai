@@ -11,7 +11,7 @@ class RubricsElement extends SakaiElement {
 
   isUtilsAvailable() {
 
-    let available = window.top.rubrics && window.top.rubrics.utils;
+    const available = window.top.rubrics && window.top.rubrics.utils;
     if (!available) {
       console.error("Rubrics Utils has not been loaded (sakai-rubrics-utils.js). THINGS WILL BREAK!");
     }

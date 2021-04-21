@@ -1,9 +1,8 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricsLanguage, tr} from "./sakai-rubrics-language.js";
-import {SakaiRubricsList} from "./sakai-rubrics-list.js";
-import {SakaiRubricsSharedList} from "./sakai-rubrics-shared-list.js";
-import {loadProperties} from "/webcomponents/sakai-i18n.js";
+import "./sakai-rubrics-list.js";
+import "./sakai-rubrics-shared-list.js";
 
 class SakaiRubricsManager extends RubricsElement {
 
@@ -21,7 +20,7 @@ class SakaiRubricsManager extends RubricsElement {
     return { token: String, i18nLoaded: Boolean };
   }
 
-  shouldUpdate(changedProperties) {
+  shouldUpdate() {
     return this.i18nLoaded;
   }
 
@@ -87,7 +86,7 @@ class SakaiRubricsManager extends RubricsElement {
     `;
   }
 
-  handleSharingChange(e) {
+  handleSharingChange() {
     document.getElementById("sakai-rubrics-shared-list").refresh();
   }
 
@@ -163,7 +162,7 @@ class SakaiRubricsManager extends RubricsElement {
     this.querySelector(query).classList.add(ascending ? arrowDownIcon : arrowUpIcon);
     ascending = !ascending;
 
-    let elementChildSite = this.querySelector(rubricClass === 'site' ? 'sakai-rubrics-list' : 'sakai-rubrics-shared-list');
+    const elementChildSite = this.querySelector(rubricClass === 'site' ? 'sakai-rubrics-list' : 'sakai-rubrics-shared-list');
     elementChildSite.sortRubrics(rubricType, ascending);
   }
 
