@@ -31,19 +31,21 @@
 }
 .pasystem-banner-alert,
 .pasystem-banner-alert.pasystem-banner-medium {
-  background-color: #f7e084;
+  background-color: var(--warnBanner-bgcolor);
+  color: var(--warnBanner-color);
 }
 .pasystem-banner-alert:before,
 .pasystem-banner-alert.pasystem-banner-medium:before {
   content: '\f071';
-  color: #a9860c;
+  color: var(--warnBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-high {
-  background-color: #f1d3d3;
+  background-color: var(--errorBanner-bgcolor);
+  color: var(--errorBanner-color); 
 }
 .pasystem-banner-alert.pasystem-banner-high:before {
   content: '\f06a';
-  color: #b30e0a;
+  color: var(--errorBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-timezone,
 .pasystem-banner-alert.pasystem-banner-low {
