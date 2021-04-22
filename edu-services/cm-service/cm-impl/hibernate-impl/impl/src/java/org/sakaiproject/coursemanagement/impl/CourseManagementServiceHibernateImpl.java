@@ -475,12 +475,20 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
-
-		ResourceLoader rl = new ResourceLoader("enrollmentstatus");
-		return ((Set<String>) rl.keySet()).stream().collect(Collectors.toMap(k -> k, k -> rl.getString(k, k)));
+		// Avoid invoking the resource loader if locale is null
+		if (locale == null) {
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("enrolled", "Enrolled");
+			map.put("wait", "Waitlisted");
+			return map;
+		} else {
+			ResourceLoader rl = new ResourceLoader("enrollmentstatus");
+			return ((Set<String>) rl.keySet()).stream().collect(Collectors.toMap(k -> k, k -> rl.getString(k, k)));
+		}
 	}
 
 	public Map<String, String> getGradingSchemeDescriptions(Locale locale) {
+		//TODO: Look these up in ResourceLoader but allow SampleDataLoader to pass null
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("standard", "Letter Grades");
 		map.put("pnp", "Pass / Not Pass");
@@ -488,6 +496,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public Map<String, String> getMembershipStatusDescriptions(Locale locale) {
+		//TODO: Look these up in ResourceLoader but allow SampleDataLoader to pass null
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("member", "Member");
 		map.put("guest", "Guest");

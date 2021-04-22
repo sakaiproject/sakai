@@ -272,8 +272,8 @@ public class SampleDataLoader implements BeanFactoryAware {
 			cmAdmin.addOrUpdateCourseOfferingMembership("instructor2","I", co2.getEid(), null);
 		}
 
-		Map<String, String> enrollmentStatuses = cmService.getEnrollmentStatusDescriptions(Locale.US);
-		Map<String, String> gradingSchemes = cmService.getGradingSchemeDescriptions(Locale.US);
+		Map<String, String> enrollmentStatuses = cmService.getEnrollmentStatusDescriptions(null);
+		Map<String, String> gradingSchemes = cmService.getGradingSchemeDescriptions(null);
 
 		List<String> enrollmentEntries = new ArrayList<String>(enrollmentStatuses.keySet());
 		List<String> gradingEntries = new ArrayList<String>(gradingSchemes.keySet());
