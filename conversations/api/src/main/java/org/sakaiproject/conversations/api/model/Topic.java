@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 import org.sakaiproject.conversations.api.TopicType;
+import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.model.UserStatistics;
 
 import lombok.Getter;
@@ -84,6 +85,10 @@ public class Topic {
 
     @Column(name = "GROUP", length = 99)
     private String group;
+
+    @Column(name = "VISIBILITY", length = 32, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TopicVisibility visibility;
 
     @Embedded
     private Metadata metadata;
