@@ -41,6 +41,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
@@ -1901,6 +1902,9 @@ public class DeliveryActionListener
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     String markers_pair = StringEscapeUtils.unescapeHtml4(item.getItemMetaDataByLabel("MARKERS_PAIR"));
+    if ((StringUtils.isEmpty(markers_pair)) || markers_pair.length() != 2) {
+        markers_pair = "{}";
+    }
     List fibs = new ArrayList();
     String alltext = text.getText();
     List texts = extractFIBFINTextArray(alltext, markers_pair);
