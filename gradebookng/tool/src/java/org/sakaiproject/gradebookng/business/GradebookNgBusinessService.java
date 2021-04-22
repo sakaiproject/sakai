@@ -2827,13 +2827,13 @@ public class GradebookNgBusinessService {
 	 * @param grade the new grade
 	 * @return
 	 */
-	public boolean updateCourseGrade(final String studentUuid, final String grade) {
+	public boolean updateCourseGrade(final String studentUuid, final String grade, final String gradeScale) {
 
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		try {
-			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade, gradeScale);
 			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
 			return true;
 		} catch (final Exception e) {
