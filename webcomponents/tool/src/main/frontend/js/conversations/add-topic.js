@@ -68,6 +68,25 @@ export class AddTopic extends SakaiElement {
     this.topic.message = e.detail.content;
   }
 
+  setType(e) {
+    this.topic.type = e.target.dataset.type;
+    this.requestUpdate();
+  }
+
+  selectTag(e) {
+
+    const tag = e.target.dataset.tag;
+
+    const existingIndex = this.topic.tags.indexOf(tag);
+    if (existingIndex !== -1) {
+      this.topic.tags.splice(existingIndex, 1);
+    } else {
+      this.topic.tags.push(tag);
+    }
+
+    this.requestUpdate();
+  }
+
   shouldUpdate() {
     return this.i18n && (this.topic || this.aboutReference);
   }
@@ -80,16 +99,16 @@ export class AddTopic extends SakaiElement {
 
         <div class="add-topic-block">
           <div id="post-type-label" class="add-topic-label">${this.i18n["post_type"]}</div>
-          <label class="add-topic-radio-container">${this.i18n["type_question"]}
-            <input type="radio" name="post-type" value="QUESTION"
-              ?checked=${this.topic.type === "QUESTION"}>
-            <span class="checkmark"></span>
-          </label>
-          <label class="add-topic-radio-container">${this.i18n["type_discussion"]}
-            <input type="radio" name="post-type" value="DISCUSSION"
-              ?checked=${this.topic.type === "DISCUSSION"}>
-            <span class="checkmark"></span>
-          </label>
+          <div @click=${this.setType}
+              data-type="QUESTION"
+              class="topic-type-toggle ${this.topic.type === "QUESTION" ? "active" : ""}">
+            <div>${this.i18n["type_question"]}</div>
+          </div>
+          <div @click=${this.setType}
+              data-type="DISCUSSION"
+              class="topic-type-toggle ${this.topic.type === "DISCUSSION" ? "active" : ""}">
+            <div>${this.i18n["type_discussion"]}</div>
+          </div>
         </div>
 
         <div class="add-topic-block">
@@ -109,7 +128,15 @@ export class AddTopic extends SakaiElement {
           </sakai-editor>
         </div>
 
-        <div id="tag-post-label" class="add-topic-label">${this.i18n["tag_post"]}</div>
+        <div id="tag-post-block" class="add-topic-block">
+          <div id="tag-post-label" class="add-topic-label">${this.i18n["tag_post"]}</div>
+          <div>
+          ${this.topic.availableTags.map(tag => html`
+            <div data-tag="${tag}" @click=${this.selectTag}
+                class="topic-tag ${this.topic.tags.includes(tag) ? "selected-tag" : ""}">${tag}</div>
+          `)}
+          </div>
+        </div>
 
         <div id="post-to-block" class="add-topic-block">
           <div id="post-to-label" class="add-topic-label">${this.i18n["post_to"]}</div>

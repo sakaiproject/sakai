@@ -238,8 +238,6 @@ sakai-topic-list .topic-poster-image {
   margin-left: 20px;
 }
 
-
-
 #add-topic-wrapper {
   padding: var(--sakai-topic-wrapper-vertical-padding, 10px) var(--sakai-topic-wrapper-horizontal-padding, 40px);
 }
@@ -273,45 +271,50 @@ sakai-topic-list .topic-poster-image {
   margin-bottom: 12px;
 }
 
-.add-topic-radio-container {
-  display: inline-block;
-  position: relative;
+.topic-type-toggle {
+  display: inline-flex;
   width: 184px;
   height: 80px;
-  padding-left: 35px;
-  margin-bottom: 12px;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 16px;
   user-select: none;
   background: #F4F4F4;
   border: 1px solid #AFAFAF;
   box-sizing: border-box;
   border-radius: 4px;
-  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
 }
 
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: #eee;
-  opacity: 0.5;
+.topic-type-toggle div {
+  pointer-events: none;
 }
 
-/* Hide the browser's default checkbox */
-.add-topic-radio-container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
+.active {
+  background-color: #A0D3F2;
 }
 
-.add-topic-radio-container input:checked ~ .checkmark {
-  background-color: #2196F3;
+#post-to-block input {
 }
 
+.topic-tag {
+  display: inline-flex;
+  width: 136px;
+  height: 32px;
+  background: #F4F4F4;
+  border: 1px solid #AFAFAF;
+  box-sizing: border-box;
+  border-radius: 100px;
+  align-items: center;
+  justify-content: center;
+}
+
+.topic-tag div {
+  pointer-events: none;
+}
+
+.selected-tag {
+  background-color: #A0D3F2;
+}
 </style>
 `;
