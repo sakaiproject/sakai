@@ -69,6 +69,9 @@ html {
   --sakai-button-padding: 6px 10px 6px 10px;
 
   --link-color: darken(#428bca, 6.5%);
+
+  /* CONVERSATIONS */
+  --sakai-topic-wrapper-vertical-padding: 20px;
 }
 
 #conv-mobile {
@@ -233,6 +236,81 @@ sakai-topic-list .topic-poster-image {
 .reply-editor-block {
   margin-top: 10px;
   margin-left: 20px;
+}
+
+
+
+#add-topic-wrapper {
+  padding: var(--sakai-topic-wrapper-vertical-padding, 10px) var(--sakai-topic-wrapper-horizontal-padding, 40px);
+}
+
+#post-type-block {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+#summary {
+  width: 100%;
+  height: 40px;
+  background: #F4F4F4;
+
+  border: 1px solid #AFAFAF;
+  box-sizing: border-box;
+  border-radius: 4px;
+  padding-left: 8px;
+}
+
+.add-topic-label {
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  color: #262626;
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
+
+.add-topic-block {
+  margin-bottom: 12px;
+}
+
+.add-topic-radio-container {
+  display: inline-block;
+  position: relative;
+  width: 184px;
+  height: 80px;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  user-select: none;
+  background: #F4F4F4;
+  border: 1px solid #AFAFAF;
+  box-sizing: border-box;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #eee;
+  opacity: 0.5;
+}
+
+/* Hide the browser's default checkbox */
+.add-topic-radio-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.add-topic-radio-container input:checked ~ .checkmark {
+  background-color: #2196F3;
 }
 
 </style>

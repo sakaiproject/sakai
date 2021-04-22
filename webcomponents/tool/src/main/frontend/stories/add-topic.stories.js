@@ -16,7 +16,7 @@ export default {
     fetchMock
       .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*/, conversationsI18n, {overwriteRoutes: true})
       .get(/api\/conversations\/topics\/topic1/, topic1Data, {overwriteRoutes: true})
-      .post(/api\/topics/, (url, opts) => {
+      .post(/api\/topics$/, (url, opts) => {
 
         const requestTopic = JSON.parse(opts.body);
         return {
@@ -31,6 +31,23 @@ export default {
           draft: requestTopic.draft,
           visibility: requestTopic.visibility,
         };
+      }, {overwriteRoutes: true})
+      .post(/api\/topics\/.*/, (url, opts) => {
+
+        const requestTopic = JSON.parse(opts.body);
+        return {
+          id: requestTopic.id,
+          creator: "adrian",
+          created: Date.now(),
+          title: requestTopic.title,
+          message: requestTopic.message,
+          creatorDisplayName: "Adrian Fish",
+          type: requestTopic.type,
+          pinned: requestTopic.pinned,
+          draft: requestTopic.draft,
+          visibility: requestTopic.visibility,
+        };
+
       }, {overwriteRoutes: true})
       .get("*", 500, {overwriteRoutes: true});
 
@@ -55,7 +72,7 @@ export const UpdateTopic = () => {
   return html`
     ${unsafeHTML(styles)}
     <div>
-      <add-topic topic="${JSON.stringify(topic1Data)}"></add-topic>
+      <add-topic @topic-saved=${e => console.log(e.detail.topic)} topic="${topic1Data}"></add-topic>
     </div>
   `;
 };
