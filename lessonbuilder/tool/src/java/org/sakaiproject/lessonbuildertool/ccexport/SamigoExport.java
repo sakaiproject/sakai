@@ -404,7 +404,7 @@ public class SamigoExport {
                 if (type.equals(TypeIfc.MULTIPLE_CHOICE) || type.equals(TypeIfc.TRUE_FALSE)) {
                     int remaining = -1; // default to allow all correct answers
                     if (correctSet.size() > 1) {
-                        if (ccVersion.greaterThan(V12)) {
+                        if (ccVersion.lessThan(V12)) {
                             ccConfig.getResults().add(messageSource.getMessage("simplepage.exportcc-sam-mcss", null, ccConfig.getLocale()).replace("{1}", title).replace("{2}", assessmentTitle));
                             remaining = 1;
                         } else
