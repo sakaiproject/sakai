@@ -39,8 +39,19 @@
           $(function () {
               defining_answers = $("#defining_answers").html();
               mutually_exclusive = $("#mutually_exclusive").html();
-              checkMarkers();
-              $("#itemForm\\:markers").change(function () {
+              const markers = $("#itemForm\\:newmarkers").val();
+              if (markers == "{}") {
+                  $("#itemForm\\:customMarker\\:0").prop('checked', true);
+                  $("#customMarkerSettings").hide();
+              } else {
+                  $("#itemForm\\:customMarker\\:1").prop('checked', true);
+                  checkMarkers();
+                  $("#customMarkerSettings").show();
+              }
+              $("input[name='itemForm\\:customMarker']").change(function () {
+                  markerRadio();
+              });
+              $("#itemForm\\:newmarkers").change(function () {
                   checkMarkers();
               });
           });
@@ -49,8 +60,24 @@
               return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
           }
 
+          function markerRadio() {
+              const markerState = $("input[name='itemForm\\:customMarker']:checked").val();
+              if (markerState == "true") {
+                  if (last_markers) {
+                      $("#itemForm\\:newmarkers").val(last_markers);
+                      checkMarkers();
+                  }
+                  $("#customMarkerSettings").slideDown();
+              } else {
+                  $("#customMarkerSettings").slideUp();
+                  last_markers = $("#itemForm\\:newmarkers").val();
+                  $("#itemForm\\:newmarkers").val("{}");
+                  checkMarkers();
+              }
+          }
+
           function checkMarkers() {
-              var markerPair = $("#itemForm\\:markers").val();
+              const markerPair = $("#itemForm\\:newmarkers").val();
                 if (markerPair.match(/[\"\'.,&<>\ |*]/)) {
                   return;
               }
@@ -147,12 +174,27 @@
 
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.fib_marker}" styleClass="col-md-4 col-lg-2 form-control-label" />
+        <div class="col-md-2 samigo-inline-radio">
+            <h:selectOneRadio value="customMarker" id="customMarker">
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.fib_marker_default}"
+                    id="default" />
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.fib_marker_custom}"
+                    id="custom" />
+            </h:selectOneRadio>
+            <h:outputText value="#{authorMessages.fib_note_5}" />
+            <h:message for="customMarker" styleClass="validate" />
+        </div>
+    </div>
+
+    <div class="form-group row" id="customMarkerSettings" style="display: none;">
+        <h:outputLabel value="#{authorMessages.fib_label_custom_markers}" styleClass="col-md-4 col-lg-2 form-control-label" />
         <div class="col-md-6">
-            <h:inputText id="markers" style="width: 50px;" value="#{itemauthor.currentItem.markersPair}"
+            <h:inputText id="newmarkers" style="width: 50px;" value="#{itemauthor.currentItem.markersPair}"
                 required="false" styleClass="form-control" maxlength="2">
+          <f:validateLength maximum="2" minimum="2" />
         </h:inputText>
         <h:outputText value="#{authorMessages.fib_note_4}<br />" escape="false" />
-        <h:message for="markers" styleClass="validate" />
+        <h:message for="newmarkers" styleClass="validate" />
       </div>
     </div>
 
