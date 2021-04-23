@@ -3,12 +3,13 @@ import { SakaiElement } from "../sakai-element.js";
 import "../sakai-editor.js";
 import "../sakai-icon.js";
 
-export class AddTopic extends SakaiElement {
+export class SakaiAddTopic extends SakaiElement {
 
   static get properties() {
 
     return {
       aboutReference: { attribute: "about-reference", type: String },
+      availableTags: { attribute: "available-tags", type: Array },
       topic: { type: Object },
     };
   }
@@ -22,6 +23,7 @@ export class AddTopic extends SakaiElement {
       message: "",
       type: "QUESTION",
       visibility: "INSTRUCTORS",
+      tags: [],
     };
 
     this.new = true;
@@ -89,7 +91,7 @@ export class AddTopic extends SakaiElement {
   }
 
   shouldUpdate() {
-    return this.i18n && (this.topic || this.aboutReference);
+    return this.i18n && this.availableTags && (this.topic || this.aboutReference);
   }
 
   render() {
@@ -136,7 +138,7 @@ export class AddTopic extends SakaiElement {
         <div id="tag-post-block" class="add-topic-block">
           <div id="tag-post-label" class="add-topic-label">${this.i18n["tag_post"]}</div>
           <div>
-          ${this.topic.availableTags.map(tag => html`
+          ${this.availableTags.map(tag => html`
             <div data-tag="${tag}" @click=${this.selectTag}
                 class="topic-tag ${this.topic.tags.includes(tag) ? "selected-tag" : ""}">${tag}</div>
           `)}
@@ -212,6 +214,6 @@ export class AddTopic extends SakaiElement {
   }
 }
 
-if (!customElements.get("add-topic")) {
-  customElements.define("add-topic", AddTopic);
+if (!customElements.get("sakai-add-topic")) {
+  customElements.define("sakai-add-topic", SakaiAddTopic);
 }
