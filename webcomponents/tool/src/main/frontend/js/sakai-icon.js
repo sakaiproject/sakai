@@ -1,7 +1,7 @@
 import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
 import { faStar, faEllipsisV, faBell, faTimes, faTimesCircle, faCheckSquare, faComments, faBook, faFile, faFileAlt,
-          faGripVertical, faMinus, faPlus, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync,
+          faGripVertical, faMinus, faPlus, faQuestion, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync,
           faTrash, faTrashRestore, faEdit, faArrowDown, faArrowLeft, faArrowRight, faArrowUp }
   from './assets/@fortawesome/free-solid-svg-icons/index.es.js';
 
@@ -92,7 +92,8 @@ library.add(faArrowDown); // Down
 library.add(faArrowLeft); // Left
 library.add(faArrowRight); // Right
 library.add(faSync); // Refresh
-library.add(faMinus); // Refresh
+library.add(faMinus);
+library.add(faQuestion);
 
 SakaiIcon.lookups = new Map();
 SakaiIcon.lookups.set("favourite", faStar);
@@ -121,6 +122,7 @@ SakaiIcon.lookups.set("left", faArrowLeft);
 SakaiIcon.lookups.set("right", faArrowRight);
 SakaiIcon.lookups.set("refresh", faSync);
 SakaiIcon.lookups.set("minus", faMinus);
+SakaiIcon.lookups.set("question", faQuestion);
 
 if (!customElements.get("sakai-icon")) {
   customElements.define("sakai-icon", SakaiIcon);

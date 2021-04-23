@@ -1,6 +1,7 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-editor.js";
+import "../sakai-icon.js";
 
 export class AddTopic extends SakaiElement {
 
@@ -99,15 +100,19 @@ export class AddTopic extends SakaiElement {
 
         <div class="add-topic-block">
           <div id="post-type-label" class="add-topic-label">${this.i18n["post_type"]}</div>
-          <div @click=${this.setType}
-              data-type="QUESTION"
-              class="topic-type-toggle ${this.topic.type === "QUESTION" ? "active" : ""}">
-            <div>${this.i18n["type_question"]}</div>
-          </div>
-          <div @click=${this.setType}
-              data-type="DISCUSSION"
-              class="topic-type-toggle ${this.topic.type === "DISCUSSION" ? "active" : ""}">
-            <div>${this.i18n["type_discussion"]}</div>
+          <div id="topic-type-toggle-block">
+            <div @click=${this.setType}
+                data-type="QUESTION"
+                class="topic-type-toggle ${this.topic.type === "QUESTION" ? "active" : ""}">
+              <sakai-icon type="question" size="medium"></sakai-icon>
+              <div>${this.i18n["type_question"]}</div>
+            </div>
+            <div @click=${this.setType}
+                data-type="DISCUSSION"
+                class="topic-type-toggle ${this.topic.type === "DISCUSSION" ? "active" : ""}">
+              <sakai-icon type="forums" size="medium"></sakai-icon>
+              <div>${this.i18n["type_discussion"]}</div>
+            </div>
           </div>
         </div>
 
@@ -140,31 +145,67 @@ export class AddTopic extends SakaiElement {
 
         <div id="post-to-block" class="add-topic-block">
           <div id="post-to-label" class="add-topic-label">${this.i18n["post_to"]}</div>
-          <input type="radio" name="post-to" value="SITE"
-            ?checked=${this.topic.visibility === "SITE"} />${this.i18n["everyone"]}
-          <input type="radio" name="post-to" value="INSTRUCTORS"
-            ?checked=${this.topic.visibility === "INSTRUCTORS"} />${this.i18n["instructors"]}
+          <div id="topic-options-wrapper">
+            <div>
+              <input type="radio" name="post-to" value="SITE"
+                ?checked=${this.topic.visibility === "SITE"}>
+              </input>
+              <div class="topic-options-label-block">
+                <div class="topic-option-label">${this.i18n["everyone"]}</div>
+                <div class="topic-option-label-text">${this.i18n["everyone_text"]}</div>
+              </div>
+            </div>
+            <div>
+              <input type="radio" name="post-to" value="INSTRUCTORS"
+                ?checked=${this.topic.visibility === "INSTRUCTORS"}>
+              </input>
+              <div class="topic-options-label-block">
+                <div class="topic-option-label">${this.i18n["instructors"]}</div>
+                <div class="topic-option-label-text">${this.i18n["instructors_text"]}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="post-options-block" class="add-topic-block">
           <div id="post-options-label" class="add-topic-label">${this.i18n["post_options"]}</div>
-          <input type="checkbox" id="pinned-checkbox"
-            @click=${(e) => this.topic.pinned = e.target.checked}
-            ?checked=${this.topic.pinned}>${this.i18n["pinned"]}
-          </input>
-          <input type="checkbox" id="anonymous-checkbox"
-            @click=${(e) => this.topic.anonymous = e.target.checked}
-            ?checked=${this.topic.anonymous}>${this.i18n["anonymous"]}
-          </input>
-          <input type="checkbox" id="anonymous-comments-checkbox"
-            @click=${(e) => this.topic.anonymousComments = e.target.checked}
-            ?checked=${this.topic.anonymousComments}>${this.i18n["anonymous_comments"]}
-          </input>
+          <div id="topic-options-wrapper">
+            <div>
+              <input type="checkbox" id="pinned-checkbox"
+                @click=${(e) => this.topic.pinned = e.target.checked}
+                ?checked=${this.topic.pinned}>
+              </input>
+              <div class="topic-options-label-block">
+                <div class="topic-option-label">${this.i18n["pinned"]}</div>
+                <div class="topic-option-label-text">${this.i18n["pinned_text"]}</div>
+              </div>
+            </div>
+            <div>
+              <input type="checkbox" id="anonymous-checkbox"
+                @click=${(e) => this.topic.anonymous = e.target.checked}
+                ?checked=${this.topic.anonymous}>
+              </input>
+              <div class="topic-options-label-block">
+                <div class="topic-option-label">${this.i18n["anonymous"]}</div>
+                <div class="topic-option-label-text">${this.i18n["anonymous_text"]}</div>
+              </div>
+            </div>
+            <div>
+              <input type="checkbox" id="anonymous-comments-checkbox"
+                @click=${(e) => this.topic.anonymousComments = e.target.checked}
+                ?checked=${this.topic.anonymousComments}>
+              </input>
+              <div class="topic-options-label-block">
+                <div class="topic-option-label">${this.i18n["anonymous_comments"]}</div>
+                <div class="topic-option-label-text">${this.i18n["anonymous_comments_text"]}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <button @click=${this.save} active>${this.i18n["save"]}</button>
-          <button id="cancel-topic">${this.i18n["cancel"]}</button>
+        <div id="button-block">
+          <button class="button active" @click=${this.save}>${this.i18n["save"]}</button>
+          <button class="button" @click=${this.cancel}>${this.i18n["cancel"]}</button>
         </div>
       </div>
     `;
