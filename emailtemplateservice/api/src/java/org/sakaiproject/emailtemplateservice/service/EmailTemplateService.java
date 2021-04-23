@@ -168,11 +168,13 @@ public interface EmailTemplateService {
    
    
    /**
-    * Does a template for the key exist in this locale?
-    * @param key
+    * Does a template for the key exist in this locale ignoring current template?
+    * @param key the key we are looking for
+    * @param locale locale we are looking for
+    * @param templateId ignore the current template id
     * @return
     */
-   public boolean templateExists(String key, Locale locale);
+   public boolean templateExists(String key, Locale locale, Long templateId);
    /**
    * Utility to send message to user, also when user has changed the email address.
    * @param userIds

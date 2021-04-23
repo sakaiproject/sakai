@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.emailtemplateservice"
+        title="Email template administration"
+        description="emailtemplateservice created by Sakai App Builder Plugin">
+    </tool>
+</registration>

@@ -178,7 +178,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    
-	public boolean templateExists(String key, Locale locale) {
+	public boolean templateExists(String key, Locale locale, Long templateId) {
 		List<EmailTemplate> et;
 		Search search = new Search("key", key);
 		if (locale == null) {
@@ -186,7 +186,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 		} else {
 			search.addRestriction( new Restriction("locale", locale.toString()));
 		}
-        et = dao.findBySearch(EmailTemplate.class, search);
+                if (templateId != null) {
+			search.addRestriction(new Restriction("id", templateId, Restriction.NOT_EQUALS));
+		}
+		et = dao.findBySearch(EmailTemplate.class, search);
 		return et != null && et.size() > 0;
 	}
    
