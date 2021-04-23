@@ -1,7 +1,8 @@
 import { html } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import fetchMock from "fetch-mock";
-import { styles } from "./styles/sakai-styles.js";
+import { sakaiStyles } from "./styles/sakai-styles.js";
+import { addTopicStyles } from "./styles/add-topic-styles.js";
 import { conversationsI18n } from "./i18n/conversations-i18n.js";
 import { topic1Data } from "./data/conversations/topic1-data.js";
 
@@ -55,22 +56,22 @@ export default {
   }],
 };
 
-
 export const AddTopic = () => {
 
   return html`
-    ${unsafeHTML(styles)}
+    ${unsafeHTML(sakaiStyles)}
+    ${unsafeHTML(addTopicStyles)}
     <div>
       <add-topic about-reference="/site/playpen"></add-topic>
     </div>
   `;
 };
 
-
 export const UpdateTopic = () => {
 
   return html`
-    ${unsafeHTML(styles)}
+    ${unsafeHTML(sakaiStyles)}
+    ${unsafeHTML(addTopicStyles)}
     <div>
       <add-topic @topic-saved=${e => console.log(e.detail.topic)} topic="${topic1Data}"></add-topic>
     </div>
