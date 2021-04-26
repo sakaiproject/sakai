@@ -472,7 +472,47 @@
                             </execution>
                         </executions>
                     </plugin>
-
+					<plugin>
+						<groupId>com.google.code.maven-replacer-plugin</groupId>
+						<artifactId>replacer</artifactId>
+						<version>1.5.3</version>
+						<executions>
+							<execution>
+								<id>replace-for-custom-skin</id>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>replace</goal>
+								</goals>
+								<configuration>
+									<ignoreMissingFile>false</ignoreMissingFile>
+									<file>src/morpheus-master/sass/_defaults.scss</file>
+									<replacements>
+										<replacement>
+											<token>morpheus-default</token>
+											<value>${sakai.skin.target}</value>
+										</replacement>
+									</replacements>
+								</configuration>
+							</execution>
+							<execution>
+								<id>revert-previous-replace</id>
+								<phase>package</phase>
+								<goals>
+									<goal>replace</goal>
+								</goals>
+								<configuration>
+									<ignoreMissingFile>false</ignoreMissingFile>
+									<file>src/morpheus-master/sass/_defaults.scss</file>
+									<replacements>
+										<replacement>
+											<token>${sakai.skin.target}</token>
+											<value>morpheus-default</value>
+										</replacement>
+									</replacements>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 					   <groupId>com.gitlab.haynes</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>

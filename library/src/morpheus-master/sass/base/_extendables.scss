@@ -166,7 +166,7 @@
 
 .select{
 	background-color: var(--sakai-background-color-1);
-	background-image: url("images/icon-arrow-down.png");
+	background-image: url(#{$skin-path}images/icon-arrow-down.png);
 	background-position: right 50%;
 	background-repeat: no-repeat;
 	color: var(--sakai-text-color-1);
@@ -198,7 +198,7 @@
 	}
 
 	:root.sakaiUserTheme-dark & {
-		background-image: url("images/icon-arrow-down-dark.png");
+		background-image: url(#{$skin-path}images/icon-arrow-down-dark.png);
 		&[multiple], &[size]:not([size='1']) {
 			background-image: none;
 		}
@@ -419,7 +419,7 @@ a.noPointers, input.noPointers {
 
 .spinButton:after, .spinPlaceholder:after, .spinSelect:after {
 	content: "";
-	background: url("images/ring58.png") center center no-repeat;
+	background: url(#{$skin-path}images/ring58.png) center center no-repeat;
 	-moz-animation-name: rotate;
 	-moz-animation-duration: 1.6s;
 	-moz-animation-iteration-count: infinite;
