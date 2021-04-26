@@ -16,7 +16,7 @@ public class FsItemAdapter implements FsItem {
 
     @Override
     public FsVolume getVolume() {
-        return new FsVolumeAdapter(sakaiFsItem.getVolume());
+        return (sakaiFsItem == null) ? null : new FsVolumeAdapter(sakaiFsItem.getVolume());
     }
 
     public String getId() {
