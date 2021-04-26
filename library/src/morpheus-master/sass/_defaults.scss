@@ -251,6 +251,7 @@ $header-font-family: $font-family !default;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 $skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
+$skin-path: if($skin-name, "/library/skin/" + $skin-name + "/", "");
 
 $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
 

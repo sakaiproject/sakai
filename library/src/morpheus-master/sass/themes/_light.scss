@@ -1,5 +1,7 @@
 /* Light Theme */
 
+@import "defaults";
+
 :root{
     /////////////////////////////////////////////////////////////
     // Color palette generation
@@ -40,7 +42,7 @@
     /////////////////////////////////////////////////////////////
 
     // Logo
-    --logo: url('images/logo-jewel.png');
+    --logo: url(#{$skin-path}images/logo-jewel.png);
     --logo-height: 36px;
     --logo-width: 126px;
     --logo-opacity: 1;

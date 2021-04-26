@@ -71,7 +71,7 @@
 		}
 
 		input[type="password"].capsLockOnDisplay {
-			background: var(--errorBanner-bgcolor) url("images/capsLock.png") no-repeat right;
+			background: var(--errorBanner-bgcolor) url(#{$skin-path}images/capsLock.png) no-repeat right;
 		}
 	}
 
@@ -130,5 +130,5 @@
 }
 
 .capsLockOnDisplay {
-	background: var(--sakai-background-color-1) url("images/capsLock.png") no-repeat right;
+	background: var(--sakai-background-color-1) url(#{$skin-path}images/capsLock.png) no-repeat right;
 }
