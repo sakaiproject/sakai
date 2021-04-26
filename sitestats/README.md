@@ -39,6 +39,14 @@ sitestats.externalDb.hibernate.dialect=org.hibernate.dialect.HSQLDialect
 sitestats.externalDb.auto.ddl=update
 sitestats.externalDb.hibernate.show_sql=false
 ```
+Caching for the external db is disabled by default
+Enabling this will require configuring a region in Ignite's configuration
+```
+sitestats.externalDb.hibernate.cache.region.factory_class=
+sitestats.externalDb.hibernate.cache.use_query_cache=false
+sitestats.externalDb.hibernate.cache.use_second_level_cache=false
+```
+
 ## Server Wide Stats
 See the following [doc](server_wide_stats.md)
 
