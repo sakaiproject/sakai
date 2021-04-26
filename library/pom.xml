@@ -491,7 +491,7 @@
 								</goals>
 								<configuration>
 									<ignoreMissingFile>false</ignoreMissingFile>
-									<file>src/morpheus-master/sass/_defaults.scss</file>
+                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
 									<replacements>
 										<replacement>
 											<token>morpheus-default</token>
@@ -508,7 +508,7 @@
 								</goals>
 								<configuration>
 									<ignoreMissingFile>false</ignoreMissingFile>
-									<file>src/morpheus-master/sass/_defaults.scss</file>
+                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
 									<replacements>
 										<replacement>
 											<token>${sakai.skin.target}</token>
