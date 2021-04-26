@@ -323,7 +323,7 @@
     <repository>
       <id>gridgain</id>
       <name>Gridgain Systems</name>
-      <url>http://gridgainsystems.com/nexus/content/repositories/external</url>
+      <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
