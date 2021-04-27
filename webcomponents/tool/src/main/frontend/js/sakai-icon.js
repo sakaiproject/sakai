@@ -1,6 +1,6 @@
 import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
-import { faStar, faEllipsisV, faBell, faTimes, faTimesCircle, faCheckSquare, faComments, faBook, faFile, faFileAlt,
+import { faStar, faEllipsisV, faBell, faCircle, faTimes, faTimesCircle, faCheckSquare, faCheckCircle, faComments, faBook, faFile, faFileAlt,
           faGripVertical, faMinus, faPlus, faQuestion, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync,
           faTrash, faTrashRestore, faEdit, faArrowDown, faArrowLeft, faArrowRight, faArrowUp }
   from './assets/@fortawesome/free-solid-svg-icons/index.es.js';
@@ -72,6 +72,8 @@ library.add(faStar); // Favourite
 library.add(faBell); // General alerts
 library.add(faComments); // Forums
 library.add(faBook); // Gradebook
+library.add(faCircle);
+library.add(faCheckCircle);
 library.add(faCheckSquare); // Gradebook
 library.add(faFile);
 library.add(faFileAlt); // Assignments
@@ -123,6 +125,8 @@ SakaiIcon.lookups.set("right", faArrowRight);
 SakaiIcon.lookups.set("refresh", faSync);
 SakaiIcon.lookups.set("minus", faMinus);
 SakaiIcon.lookups.set("question", faQuestion);
+SakaiIcon.lookups.set("circle", faCircle);
+SakaiIcon.lookups.set("check_circle", faCheckCircle);
 
 if (!customElements.get("sakai-icon")) {
   customElements.define("sakai-icon", SakaiIcon);

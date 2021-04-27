@@ -1,6 +1,7 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import moment from "../assets/moment/dist/moment.js";
+import "./sakai-topic-list.js";
 
 export class SakaiConversations extends SakaiElement {
 
@@ -8,7 +9,7 @@ export class SakaiConversations extends SakaiElement {
 
     return {
       siteId: { attribute: "site-id", type: String },
-      topics: { type: Array },
+      data: { type: Object },
     };
   }
 
@@ -23,13 +24,13 @@ export class SakaiConversations extends SakaiElement {
 
     this._siteId = value;
 
-    console.log("here");
-
-    fetch(`/api/sites/${this.siteId}/conversations`)
+    fetch(`/api/sites/${this.siteId}/topics`)
       .then(r => r.json())
-      .then(topics => {
+      .then(data => {
 
-        this.topics = topics.map(t => {
+        this.data = data;
+
+        this.data.topics = this.data.topics.map(t => {
 
           t.lastActivityHuman = moment.duration(t.lastActivity - Date.now(), "milliseconds").humanize(true);
           return t;
@@ -40,62 +41,57 @@ export class SakaiConversations extends SakaiElement {
   get siteId() { return this._siteId; }
 
   shouldUpdate() {
-    return this.i18n && this.topics;
+    return this.i18n && this.data;
   }
 
   render() {
 
     return html`
       <div id="conv-desktop">
-        <div class="header">Topic</div>
-        <div class="header">Type</div>
-        <div class="header">Posters</div>
-        <div class="header">Unread</div>
-        <div class="header">Posts</div>
-        <div class="header">Last Activity</div>
-        ${this.topics.map(t => html`
-          <div class="topic-title-wrapper">
-            ${t.type === "QUESTION" ? html`
-            <span class="question-prefix">${this.i18n["question"]}</span>
-            ` : ""}
-            <span class="topic-title">${t.title}</span>
-          </div>
-          <div>${this.i18n[t.type]}</div>
-          <div class="topic-poster-images-wrapper">
-            <div class="topic-poster-image-wrapper"><img src="${t.metadata.creatorImage}" class="topic-poster-image" /></div>
-            ${t.posters.map(p => html`
-            <div class="topic-poster-image-wrapper"><img src="${p.posterImage}" class="topic-poster-image" /></div>
-            `)}
-          </div>
-          <div>${t.numberOfPosts - t.viewed}</div>
-          <div>${t.numberOfPosts}</div>
-          <div>${t.lastActivityHuman}</div>
-        `)}
-      </div>
-      <div id="conv-mobile">
-        ${this.topics.map(t => html`
-        <div class="topic">
-          <div class="topic-title-wrapper">
-            ${t.type === "QUESTION" ? html`
-            <span class="question-prefix">${this.i18n["question"]}</span>
-            ` : ""}
-            <span class="topic-title">${t.title}</span>
-          </div>
-          <div class="topic-data">
-            <div class="header">Type:</div><div>${this.i18n[t.type]}</div>
-            <div class="header">Posters</div>
-            <div class="topic-poster-images-wrapper">
-              <div class="topic-poster-image-wrapper"><img src="${t.metadata.creatorImage}" class="topic-poster-image" /></div>
-              ${t.posters.map(p => html`
-              <div class="topic-poster-image-wrapper"><img src="${p.posterImage}" class="topic-poster-image" /></div>
-              `)}
+
+        <div id="conv-filters-and-list">
+          <div id="conv-filters">
+            <div id="conv-filter-tags">
+              <div>Tags</div>
+              <div>
+                <select @changed=${this.tagSelected}>
+                ${this.data.availableTags.map(tag => html`
+                  <option value="${tag}">${tag}</option>
+                `)}
+                </select>
+              </div>
             </div>
-            <div class="header">Unread</div><div>${t.numberOfPosts - t.viewed}</div>
-            <div class="header">Posts</div><div>${t.numberOfPosts}</div>
-            <div class="header">Last Activity</div><div>${t.lastActivityHuman}</div>
+            <div id="conv-filter-dunno">
+              <div>Filter</div>
+              <div>
+                <select @changed=${this.filterSelected}>
+                ${this.data.availableTags.map(tag => html`
+                  <option value="${tag}">${tag}</option>
+                `)}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="conv-list">
+            <sakai-topic-list data="${JSON.stringify(this.data)}"></sakai-topic-list>
           </div>
         </div>
-        `)}
+
+        <div id="conv-add-post-and-content">
+
+          <div id="conv-add-post">
+            <button class="active">New Post</button>
+          </div>
+
+          <div id="conv-content">
+            ${this.selectedTopic ? html`
+            <sakai-topic topic="${JSON.stringify(this.selectedTopic)}"></sakai-topic>
+            ` : html`
+            BALLS
+            `}
+          </div>
+        </div>
       </div>
     `;
   }
