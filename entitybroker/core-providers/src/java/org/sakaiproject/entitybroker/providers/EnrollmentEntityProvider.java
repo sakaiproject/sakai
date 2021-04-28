@@ -1,35 +1,34 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.NotImplementedException;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.cmprovider.data.EnrollmentData;
-import org.sakaiproject.cmprovider.data.DateUtils;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.DateUtils;
+import org.sakaiproject.entitybroker.providers.model.EnrollmentData;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides a REST API for working with enrollments.
@@ -63,7 +62,7 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Same as updateEntity.
-   * @see EnrollmentEntityProviderImpl#updateEntity
+   * @see EnrollmentSetEntityProvider#updateEntity
    */
   public void create(Object entity) { 
     createOrUpdateEnrollment(entity);  
@@ -71,7 +70,7 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Add or update an enrollment. Wraps CourseManagementAdministration.addOrUpdateEnrollment
-   * @see CourseManagementAdministration#addOrUpdateEnrollment
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#addOrUpdateEnrollment
    * @see EnrollmentData
    */
   public void update(Object entity) {
@@ -92,15 +91,14 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Get an enrollment by enrollment set eid and user eid. Wraps CourseManagementService.findEnrollment.
-   * @see CourseManagementService#findEnrollment
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#findEnrollment
    */
   public Object get(String eid) {
     String[] eids = splitEid(eid);
     Enrollment enrollment = cmService.findEnrollment(eids[0], eids[1]);
     if (enrollment == null) return null;
-    
-    EnrollmentData data = new EnrollmentData(enrollment, eids[1]);
-    return data;
+
+    return new EnrollmentData(enrollment, eids[1]);
   }
 
   /**
@@ -129,15 +127,11 @@ public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
       try {
         AuthzGroup group = authzGroupService.getAuthzGroup(id);
         authzGroupService.save(group);
-      } catch (GroupNotDefinedException ex) {
+      } catch (GroupNotDefinedException | AuthzPermissionException ex) {
         // This should never happen since the id was given to us from getAuthzGroupIds.
         log.error(ex.getMessage(), ex);
         throw new RuntimeException("An error occured updating site " + id + " with provider id " + enrollmentSetEid);
-      } catch (AuthzPermissionException ex) {
-        // This should also never happen since a SecurityException would've been thrown earlier.
-        log.error(ex.getMessage(), ex);
-        throw new RuntimeException("An error occured updating site " + id + " with provider id " + enrollmentSetEid);
-      }
+      } // This should also never happen since a SecurityException would've been thrown earlier.
     }
   }
 }
