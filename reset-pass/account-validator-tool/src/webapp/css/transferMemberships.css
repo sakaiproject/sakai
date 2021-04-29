@@ -1,6 +1,5 @@
 body {
-	background:#cccccc;
-	font-family:'Helvetica Neue',Arial,'Nimbus Sans L','Liberation Sans',sans-serif;
+	background: var(--sakai-background-color-2);
 }
 p, h1, form, button {
     border: 0;
@@ -15,7 +14,7 @@ p, h1, form, button {
 
 /* ----------- Activate Form ----------- */
 .transferForm {
-	border: 1px solid #DDDDDD;
+	border: 1px solid var(--sakai-border-color);
 	margin: 0 auto;
 	padding: 1em;
 }
@@ -28,11 +27,11 @@ p, h1, form, button {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-	border:2px solid #336699;
-	padding:10px 20px 20px 20px;
-	background:#fff;
+	border: 2px solid var(--sakai-active-color-1);
+	padding: 10px 20px 20px 20px;
+	border: 2px solid var(--sakai-active-color-1);
 	margin: 2em auto;
-	width:50em;
+	width: 50em;
 }
 
 /* ----------- stylized ----------- */
@@ -70,7 +69,7 @@ p, h1, form, button {
 }
 
 .stylized p {
-    color: #666666;
+    color: var(--sakai-text-color-dimmed);
 	margin: 1em auto;
 	text-align: center;
 	width: 66%;
@@ -136,7 +135,7 @@ p, h1, form, button {
 
 
 .stylized .small {
-    color: #666666;
+    color: var(--sakai-text-color-dimmed);
     display: block;
     font-size: 11px;
     font-weight: normal;
@@ -148,7 +147,7 @@ p, h1, form, button {
     display: block;
     float: left;
     padding: 4px 2px;
-    border: 1px solid #aacfe4;
+    border: 1px solid var(--sakai-active-color-1);
     width: 10em;
     margin: 0 0 6px 1em;
 }
@@ -179,7 +178,7 @@ p, h1, form, button {
 }
 
 .username {
-	color:#336699;
+	color: var(--infoBanner-color);
 	font-weight:bold;
 }
 
@@ -208,8 +207,9 @@ p, h1, form, button {
 
 .yellowBackground
 {
-	background-color: #FFFFCC;
-	border: 1px solid #EEEEEE;
+	background-color: var(--warnBanner-bgcolor);
+	color: var(--warnBanner-color);
+	border: 1px solid var(--warnBanner-bordercolor);
 	display: inline-block;
 	margin: 1em auto;
 	max-width:500px;
@@ -224,11 +224,11 @@ form p
 #strengthInfo
 {
 	display: block;
-	color: #000;
-	background-color: #fff;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);
+	color: var(--sakai-text-color-1);
+	background-color: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-border-color);
+	border-radius: 4px;
+	box-shadow: var(--elevation-2dp);
 	padding: 1em;
 	position: relative;
 	margin: 0px auto 20px;
@@ -245,9 +245,9 @@ form p
 	content: "";
 	width: 0;
 	height: 0;
-    border-bottom: 15px solid #ccc;
-    border-left: 15px solid rgba(0, 0, 0, 0);
-    border-right: 15px solid rgba(0, 0, 0, 0);
+	border-bottom: 15px solid var(--sakai-text-color-1);
+	border-right: 15px solid var(--sakai-border-color);
+	border-top: 15px solid var(--sakai-text-color-1);
 }
 
 #matchMsg, #strongMsg, #noMatchMsg, 
@@ -262,19 +262,19 @@ form p
 #noMatchMsg, #failMsg
 {
     background: transparent url("/library/image/silk/cancel.png") no-repeat left center;
-    color: #000;
+    color: var(--sakai-text-color-1);
 }
 
 #matchMsg, #strongMsg, 
 #moderateMsg, #weakMsg
 {
     background: transparent url("/library/image/silk/accept.png") no-repeat left center;
-    color: #000;    
+    color: var(--sakai-text-color-1);
 }
 
 #strengthBar
 {
-	background-color: #ccc;
+	background-color var(--sakai-background-color-2);
 	width: 17em;
 	height: 5px;
 	margin: 5px 5px 5px 2em;
@@ -291,5 +291,5 @@ form p
 	display: inline-block;
 	width: 0%;
 	height: 100%;
-	background-color: #900;
+	background-color: var(--errorBanner-color);
 }

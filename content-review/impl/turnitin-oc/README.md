@@ -113,7 +113,7 @@ assignment.useContentReview=true
 # NONE (Exclude no self matching submissions from Similarity Report)
 # GROUP (Exclude all self matching submissions in current assignment from Similarity Report)
 # GROUP_CONTEXT (Exclude all self matching submissions in current course from Similarity Report)
-# default: GROUP
+# default: GROUP_CONTEXT
 
 # turnitin.oc.may_view_submission_full_source.student
 # Allows you to customize the default student role permission for being able to view the full source for a matching student paper in the report.

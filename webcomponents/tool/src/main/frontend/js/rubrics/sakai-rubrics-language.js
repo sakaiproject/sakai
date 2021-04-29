@@ -1,6 +1,6 @@
 import { RubricsElement } from "./rubrics-element.js";
-import { html } from "/webcomponents/assets/lit-element/lit-element.js";
-import { loadProperties, tr as translate } from "/webcomponents/sakai-i18n.js";
+import { html } from "../assets/lit-element/lit-element.js";
+import { loadProperties, tr as translate } from "../sakai-i18n.js";
 
 export class SakaiRubricsLanguage extends RubricsElement {
 

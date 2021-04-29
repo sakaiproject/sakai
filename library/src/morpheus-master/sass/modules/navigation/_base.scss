@@ -143,12 +143,16 @@ body.is-logged-out{
 			display: block;
 			padding: 0.65em;
 			text-decoration: none;
-			color: var(--sakai-primary-color-2);
+			color: var(--link-color);
 			line-height: 1em;
-			&:focus, &:hover, &:active
+			&:focus, &:hover{
+				text-decoration: underline;
+				color: var(--link-hover-color);
+			}
+			&:active
 			{
 				text-decoration: underline;
-    			color: var(--sakai-primary-color-2);
+    			color: var(--link-active-color);
 			}
 			.toolMenuIcon{
 				@extend .fa-fw;			// standardize the width of all icons for proper text alignment
@@ -697,11 +701,15 @@ body.is-logged-out{
 				}
 			}
 			a{
-				color: var(--sakai-primary-color-1);
+				color: var(--link-color);
 				padding: 0.25em 0.25em;
-				&:hover, &:active
+				&:hover, &:focus
 				{
-					color: var(--sakai-primary-color-2);
+					color: var(--link-hover-color);
+				}
+				&:active
+				{
+					color: var(--link-active-color);
 				}
 			}
 		}
@@ -842,10 +850,22 @@ body.is-logged-out{
 			&:hover {
 				box-shadow: var(--elevation-2dp);
 				transition: $active-transition-hover;
+				background: var(--sites-nav-menu-item-hover-background);
+				border-color: var(--sites-nav-menu-item-hover-border-color);
+				a {
+					background: var(--sites-nav-menu-item-hover-background);
+					border-color: var(--sites-nav-menu-item-hover-border-color);
+				}
 			}
 			&:active {
 				box-shadow: var(--elevation-1dp);
 				transition: $active-transition-active;
+				background: var(--sites-nav-menu-item-active-background);
+				border-color: var(--sites-nav-menu-item-active-border-color);
+				a {
+					background: var(--sites-nav-menu-item-active-background);
+					border-color: var(--sites-nav-menu-item-active-border-color);
+				}
 			}
 
 			.link-container{
@@ -853,14 +873,7 @@ body.is-logged-out{
 				@include align-items( center );
 				@include sitesNavStyling();
 			}
-			// This is a rounded element, use a box-shadow to emulate outline styles on :focus
-			// and the shadow will inherit the shape of the element
-			.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
-				&:focus {
-					outline:none;
-					box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
-				}
-			}
+
 			&.dropdown-is-visible {
 				background: var(--sites-nav-menu-item-background);
 				border-radius: $sites-nav-menu-item-border-radius $sites-nav-menu-item-border-radius 0 0;
@@ -895,6 +908,12 @@ body.is-logged-out{
 				box-sizing: content-box;			// to allow width and height control the size to match the site title link text
 				width: $default-font-size; 			// to match the height
 				height: $default-font-size;			// to match the link text size
+
+				&:hover,
+				&:focus {
+					background: var(--sites-nav-menu-item-hover-icon-background);
+					border-color: var(--sites-nav-menu-item-hover-icon-border-color);
+				}
 			}
 			
 			.#{$namespace}sitesNav__dropdown{
@@ -1014,6 +1033,24 @@ body.is-logged-out{
 			&.is-selected {
 				background: var(--sites-nav-menu-item-selected-background);
 
+				&:hover {
+					background: var(--sites-nav-menu-item-selected-hover-background);
+					border-color: var(--sites-nav-menu-item-selected-hover-border-color);
+					a {
+						background: var(--sites-nav-menu-item-selected-hover-background);
+						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
+					}
+				}
+
+				&:active {
+					background: var(--sites-nav-menu-item-selected-active-background);
+					border-color: var(--sites-nav-menu-item-selected-active-border-color);
+					a {
+						background: var(--sites-nav-menu-item-selected-active-background);
+						border-color: var(--sites-nav-menu-item-selected-active-border-color);
+					}
+				}
+
 				.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
 					background: var(--sites-nav-menu-item-selected-background);
 					border-top: $sites-nav-menu-item-selected-border-top;
@@ -1034,13 +1071,27 @@ body.is-logged-out{
 					}
 					&:active {
 						background: var(--sites-nav-menu-item-selected-active-background);
+						border-color: var(--sites-nav-menu-item-selected-active-border-color);
+						
 					}
 				}
-
+				.#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
+					&:hover,
+					&:focus {
+						background: var(--sites-nav-menu-item-selected-hover-icon-background);
+						border-color: var(--sites-nav-menu-item-selected-hover-icon-border-color);
+					}
+					&:active {
+						background: var(--sites-nav-menu-item-selected-active-icon-background);
+						border-color: var(--sites-nav-menu-item-selected-active-icon-border-color);
+					}
+				}
 				&.dropdown-is-visible {
+					background:var(--sites-nav-menu-item-selected-background);
+
 					&:after {	// the rest of the properties will inherit from the default case above
 						content: "";
-						border-bottom: var(--sites-nav-selected-submenu-border)
+						border-bottom: var(--sites-nav-selected-submenu-border);
 					}
 					
 					.link-container, .#{$namespace}sitesNav__dropdown, .#{$namespace}sitesNav__favbtn {
@@ -1100,7 +1151,7 @@ body.is-logged-out{
 			}
 
 			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home {
-				margin-right: $standard-space;
+				margin-right: $standard-space-4x;
 			}
 			
 			.#{$namespace}sitesNav__gateway {

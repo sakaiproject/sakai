@@ -14,7 +14,7 @@ class SakaiCourseOverview extends SakaiElement {
     };
   }
 
-  shouldUpdate(changed) {
+  shouldUpdate() {
     return (typeof this.overview) !== "undefined";
   }
 

@@ -3,29 +3,29 @@
  * *************************************************************** */
  
  /* style applied to the UL rendered for a feedback panel */
- ul.feedbackPanel {
+ul.feedbackPanel {
  	list-style-type: none;
  	margin: 0;
- }
- ul.feedbackPanel li span {
+}
+ul.feedbackPanel li span {
    display: block;
- }
+}
  
  /* Bootstrap > Morpheus overrides */
- .dropdown-menu>li>a,
- .nav>li>a {
-   text-decoration: none;
- }
- .checkbox input[type="checkbox"][disabled],
- .radio input[type="radio"][disabled]{
-   background-color: #eee;
- }
- .checkbox input[type="checkbox"][disabled]+span,
- .radio input[type="radio"][disabled]+span,
- .checkbox input[type="checkbox"][disabled]+label,
- .radio input[type="radio"][disabled]+label{
-   color: #999;
- }
+.dropdown-menu>li>a,
+.nav>li>a {
+  text-decoration: none;
+}
+.checkbox input[type="checkbox"][disabled],
+.radio input[type="radio"][disabled]{
+  background-color: var(--sakai-background-color-3);
+}
+.checkbox input[type="checkbox"][disabled]+span,
+.radio input[type="radio"][disabled]+span,
+.checkbox input[type="checkbox"][disabled]+label,
+.radio input[type="radio"][disabled]+label{
+  color: var(--sakai-text-color-dimmed);
+}
 
 /* required labels should have a prefix asterisk */
 .control-label.required:before {
@@ -34,8 +34,8 @@
 
 /* align the input boxes with the remove button in the grading schema table */
 .table>tbody>tr>td {
-	vertical-align: middle !important;
+  vertical-align: middle !important;
 }
 .btn-table {
-	height: 34px;
+  height: 34px;
 }

@@ -1,0 +1,279 @@
+/*!
+ * jQuery UI CSS Framework 1.12.1
+ * http://jqueryui.com
+ *
+ * Copyright jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/category/theming/
+ *
+ * To view and modify this theme, visit http://jqueryui.com/themeroller/?scope=&folderName=base&cornerRadiusShadow=8px&offsetLeftShadow=0px&offsetTopShadow=0px&thicknessShadow=5px&opacityShadow=30&bgImgOpacityShadow=0&bgTextureShadow=flat&bgColorShadow=666666&opacityOverlay=30&bgImgOpacityOverlay=0&bgTextureOverlay=flat&bgColorOverlay=aaaaaa&iconColorError=cc0000&fcError=5f3f3f&borderColorError=f1a899&bgTextureError=flat&bgColorError=fddfdf&iconColorHighlight=777620&fcHighlight=777620&borderColorHighlight=dad55e&bgTextureHighlight=flat&bgColorHighlight=fffa90&iconColorActive=ffffff&fcActive=ffffff&borderColorActive=003eff&bgTextureActive=flat&bgColorActive=007fff&iconColorHover=555555&fcHover=2b2b2b&borderColorHover=cccccc&bgTextureHover=flat&bgColorHover=ededed&iconColorDefault=777777&fcDefault=454545&borderColorDefault=c5c5c5&bgTextureDefault=flat&bgColorDefault=f6f6f6&iconColorContent=444444&fcContent=333333&borderColorContent=dddddd&bgTextureContent=flat&bgColorContent=ffffff&iconColorHeader=444444&fcHeader=333333&borderColorHeader=dddddd&bgTextureHeader=flat&bgColorHeader=e9e9e9&cornerRadius=3px&fwDefault=normal&fsDefault=1em&ffDefault=Arial%2CHelvetica%2Csans-serif
+ */
+
+.#{$namespace}html {
+    // Component containers
+    .ui-widget {
+        font-family: $font-family;
+        font-size: 1em;
+    }
+
+    .ui-widget .ui-widget {
+        font-size: 1em;
+    }
+
+    .ui-widget input,
+    .ui-widget select,
+    .ui-widget textarea,
+    .ui-widget button {
+        font-family: $font-family;
+        font-size: 1em;
+    }
+
+    .ui-widget.ui-widget-content {
+        border: 1px solid var(--sakai-border-color);
+    }
+
+    .ui-widget-content {
+        border: 1px solid var(--sakai-border-color);
+        background: var(--sakai-background-color-1);
+        color: var(--sakai-text-color-1);
+    }
+
+    .ui-widget-content a {
+        color: var(--link-color);
+        background: var(--link-background-color);
+    }
+
+    .ui-widget-header {
+        border: 1px solid var(--sakai-border-color);
+        background: var(--sakai-background-color-2);
+        color: var(--sakai-text-color-1);
+        font-weight: bold;
+    }
+
+    .ui-widget-header a {
+        color: var(--link-color);
+        background: var(--link-background-color);
+    }
+
+    // Interaction states
+    .ui-state-default,
+    .ui-widget-content .ui-state-default,
+    .ui-widget-header .ui-state-default,
+    .ui-button,
+
+    /* We use html here because we need a greater specificity to make sure disabled
+    works properly when clicked or hovered */
+    html .ui-button.ui-state-disabled:hover,
+    html .ui-button.ui-state-disabled:active {
+        border: 1px solid var(--button-border-color);
+        background: var(--button-background);
+        font-weight: normal;
+        color: var(--button-text-color);
+    }
+
+    .ui-state-default a,
+    .ui-state-default a:link,
+    .ui-state-default a:visited,
+    a.ui-button,
+    a:link.ui-button,
+    a:visited.ui-button,
+    .ui-button {
+        color: var(--button-text-color);
+        text-decoration: none;
+    }
+
+    .ui-state-hover,
+    .ui-widget-content .ui-state-hover,
+    .ui-widget-header .ui-state-hover,
+    .ui-state-focus,
+    .ui-widget-content .ui-state-focus,
+    .ui-widget-header .ui-state-focus,
+    .ui-button:hover,
+    .ui-button:focus {
+        border: 1px solid var(--button-hover-border-color);
+        background: var(--button-hover-background);
+        font-weight: normal;
+        color: var(--button-hover-text-color);
+    }
+
+    .ui-state-hover a,
+    .ui-state-hover a:hover,
+    .ui-state-hover a:link,
+    .ui-state-hover a:visited,
+    .ui-state-focus a,
+    .ui-state-focus a:hover,
+    .ui-state-focus a:link,
+    .ui-state-focus a:visited,
+    a.ui-button:hover,
+    a.ui-button:focus {
+        color: var(--button-hover-text-color);
+        text-decoration: none;
+    }
+
+    .ui-visual-focus {
+        box-shadow: 0 0 3px 1px var(--focus-outline-color);
+    }
+
+    .ui-state-active,
+    .ui-widget-content .ui-state-active,
+    .ui-widget-header .ui-state-active,
+    a.ui-button:active,
+    .ui-button:active,
+    .ui-button.ui-state-active:hover {
+        border: 1px solid var(--button-active-border-color);
+        background: var(--button-active-background);
+        font-weight: normal;
+        color: var(--button-active-text-color);
+    }
+
+    .ui-icon-background,
+    .ui-state-active .ui-icon-background {
+        border: var(--button-border-color);
+        background-color: var(--button-background);
+    }
+
+    .ui-state-active a,
+    .ui-state-active a:link,
+    .ui-state-active a:visited {
+        color: var(--link-color);
+        text-decoration: none;
+    }
+
+    // Interaction Cues
+    .ui-state-highlight,
+    .ui-widget-content .ui-state-highlight,
+    .ui-widget-header .ui-state-highlight {
+        border: 1px solid var(--warnBanner-bordercolor);
+        background: var(--warnBanner-bgcolor);
+        color: var(--warnBanner-color);
+    }
+
+    .ui-state-checked {
+        border: 1px solid var(--warnBanner-bordercolor);
+      background: var(--warnBanner-bgcolor);
+    }
+
+    .ui-state-highlight a,
+    .ui-widget-content .ui-state-highlight a,
+    .ui-widget-header .ui-state-highlight a {
+        color: var(--warnBanner-color);
+    }
+
+    .ui-state-error,
+    .ui-widget-content .ui-state-error,
+    .ui-widget-header .ui-state-error {
+        border: 1px solid var(--errorBanner-bordercolor);
+        background: var(--errorBanner-background);
+        color: var(--errorBanner-color);
+    }
+
+    .ui-state-error a,
+    .ui-widget-content .ui-state-error a,
+    .ui-widget-header .ui-state-error a {
+        color: var(--errorBanner-color);
+    }
+
+    .ui-state-error-text,
+    .ui-widget-content .ui-state-error-text,
+    .ui-widget-header .ui-state-error-text {
+        color: var(--errorBanner-color);
+    }
+
+    .ui-priority-primary,
+    .ui-widget-content .ui-priority-primary,
+    .ui-widget-header .ui-priority-primary {
+        //Defined in extendables
+    }
+
+    .ui-priority-secondary,
+    .ui-widget-content .ui-priority-secondary,
+    .ui-widget-header .ui-priority-secondary {
+        //Defined in extendables
+    }
+
+    .ui-state-disabled,
+    .ui-widget-content .ui-state-disabled,
+    .ui-widget-header .ui-state-disabled {
+        color: var(--button-disabled-text-color);
+        background: var(--button-disabled-background);
+        border: 1px solid var(--button-disabled-border-color);
+    }
+
+    .ui-state-disabled .ui-icon {
+        opacity: 1;
+    }
+
+    // Misc visuals
+
+    .ui-corner-all,
+    .ui-corner-top,
+    .ui-corner-left,
+    .ui-corner-tl {
+        border-top-left-radius: $button-radius;
+    }
+
+    .ui-corner-all,
+    .ui-corner-top,
+    .ui-corner-right,
+    .ui-corner-tr {
+        border-top-right-radius: $button-radius;
+    }
+
+    .ui-corner-all,
+    .ui-corner-bottom,
+    .ui-corner-left,
+    .ui-corner-bl {
+        border-bottom-left-radius: $button-radius;
+    }
+
+    .ui-corner-all,
+    .ui-corner-bottom,
+    .ui-corner-right,
+    .ui-corner-br {
+        border-bottom-right-radius: $button-radius;
+    }
+
+    .ui-widget-overlay {
+        background: var(--sakai-color-black);
+        opacity: .3;
+        filter: Alpha(Opacity=30); /* support: IE8 */
+    }
+
+    .ui-widget-shadow {
+        -webkit-box-shadow:var(--elevation-4dp);
+        box-shadow:var(--elevation-4dp);
+    }
+
+    .ui-datepicker {
+        padding: $standard-space;
+    }
+
+    .ui-datepicker .ui-datepicker-buttonpane {
+        border: none;
+        margin: 0;
+        padding: 0;
+        button {
+            opacity: 1;
+        }
+    }
+
+    .ui-datepicker table {
+        margin-bottom: $standard-space-2x;
+    }
+
+    .ui-datepicker .ui-controlgroup button:first-of-type {
+        margin-right: $standard-space;
+    }
+  
+    .ui-state-default.ui-slider-handle {
+        background: var(--button-primary-background);
+        border: var(--button-primary-border-color);
+    }
+
+    .ui-widget.ui-slider {
+        border: 1px solid var(--sakai-background-color-3);
+        background: var(--sakai-background-color-3);
+    }
+}

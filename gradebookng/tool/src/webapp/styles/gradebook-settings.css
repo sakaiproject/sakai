@@ -2,7 +2,7 @@
  *                      Gradebook Settings styles                        *
  * ********************************************************************* */
 
- @font-face {
+@font-face {
   font-family:"gradebook-icons";
   src:url(../fonts/gradebook-icons.eot);
   src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
@@ -21,7 +21,7 @@
 .gb-category-sort-handle,
 .gb-category-sort-handle:hover {
   text-decoration: none !important;
-  color: #BBB !important;
+  color: var(--sakai-text-color-dimmed) !important;
 }
 .gb-category-sort-handle:before {
   font-family: "gradebook-icons";
@@ -29,37 +29,40 @@
   font-size: 2em;
 }
 .gb-category-sort-placeholder {
-  border: 3px dashed #CCC;
+  border: 3px dashed var(--sakai-border-color);
   height: 45px;
 }
 
 /* Bootstrap > Morpheus overrides */
 .checkbox input[type="checkbox"][disabled],
 .radio input[type="radio"][disabled]{
-  background-color: #eee;
+  background-color: var(--sakai-background-color-3);
 }
 .checkbox input[type="checkbox"][disabled]+span,
 .radio input[type="radio"][disabled]+span,
 .checkbox input[type="checkbox"][disabled]+label,
 .radio input[type="radio"][disabled]+label{
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 
 /* reset the padding and add to link instead, to make whole div clickable. See #3756 */
 .panel-heading {
-    padding:0 !important;
+  padding: 0 !important;
 }
 
 .panel-heading > .panel-title > a {
-    display: inline-block;
-    height: 100%;
-    width: 100%;
-    padding: 10px 15px;
+   display: inline-block;
+   height: 100%;
+   width: 100%;
+   padding: 10px 15px;
+}
+
+.gb-schema-table {
+  min-width: min-content;
 }
 
 .gb-schema-chart {
-	margin-left: 4em;
-	margin-top: 2em;
+  max-width: 100%;
 }
 
 .gb-category-runningtotal {

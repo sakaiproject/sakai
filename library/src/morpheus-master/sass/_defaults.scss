@@ -73,7 +73,7 @@ $button-text-transform: none !default;
 $button-radius-pill:            16px !default;
 
 // Default (non-primary) button design:
-$button-font-weight: 600 !default;
+$button-font-weight: 400 !default;
 $button-disabled-font-weight:   300 !default;
 
 // Primary action button design:
@@ -182,7 +182,7 @@ $tool-menu-item-hidden-active-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-selected-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-selected-active-border-left: $tool-menu-item-border-left !default;
-$tool-menu-collapse-border-top:                            none !default;
+$tool-menu-collapse-border-top:                            1px solid var(--sakai-border-color) !default;
 $tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-border-top !default;
 $tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
 $tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-border-top !default;
@@ -251,6 +251,7 @@ $header-font-family: $font-family !default;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 $skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
+$skin-path: if($skin-name, "/library/skin/" + $skin-name + "/", "");
 
 $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
 

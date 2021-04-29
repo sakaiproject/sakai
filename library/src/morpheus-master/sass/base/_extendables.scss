@@ -82,7 +82,7 @@
 		@extend .fa-fw;		// fixed width icons
 		@extend #{$icon};	// icon passed in through mixin's parameter
 		margin-right: $standard-space;	// space between icon and message text
-		color: $bordercolor;
+		color: $color;
 	}
 	
 	// display a closing X on the right of the banner to indicate that the banner is dismissible
@@ -166,7 +166,7 @@
 
 .select{
 	background-color: var(--sakai-background-color-1);
-	background-image: url("images/icon-arrow-down.png");
+	background-image: url(#{$skin-path}images/icon-arrow-down.png);
 	background-position: right 50%;
 	background-repeat: no-repeat;
 	color: var(--sakai-text-color-1);
@@ -195,6 +195,13 @@
 		background-color: var(--sakai-background-color-4);
 		color: var(--sakai-text-color-disabled);
 		cursor: not-allowed;
+	}
+
+	:root.sakaiUserTheme-dark & {
+		background-image: url(#{$skin-path}images/icon-arrow-down-dark.png);
+		&[multiple], &[size]:not([size='1']) {
+			background-image: none;
+		}
 	}
 }
 
@@ -359,11 +366,11 @@
 	margin-right: $standard-space;
 }
 
-button.btn-primary, .act .active {
+button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$namespace}html .ui-widget-content .ui-priority-primary, .#{$namespace}html .ui-widget-header .ui-priority-primary {
 	@include sakai_primary_button();
 }
 
-.button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
+.button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link, .#{$namespace}html .ui-priority-secondary, .#{$namespace}html .ui-widget-content .ui-priority-secondary, .#{$namespace}html .ui-widget-header .ui-priority-secondary {
 	@include sakai_secondary_button();
 }
 
@@ -412,7 +419,7 @@ a.noPointers, input.noPointers {
 
 .spinButton:after, .spinPlaceholder:after, .spinSelect:after {
 	content: "";
-	background: url("images/ring58.png") center center no-repeat;
+	background: url(#{$skin-path}images/ring58.png) center center no-repeat;
 	-moz-animation-name: rotate;
 	-moz-animation-duration: 1.6s;
 	-moz-animation-iteration-count: infinite;

@@ -1136,7 +1136,7 @@ public class SiteHandler extends WorksiteHandler
 		// this so we will do the same - so that we can be
 		// somewhat clean - we search for the "last" end
 		// body tag - for the normal case there will only be one
-		int bodyEnd = StringUtils.indexOfIgnoreCase(responseStr, "</body");
+		int bodyEnd = StringUtils.lastIndexOfIgnoreCase(responseStr, "</body");
 		// If there is no body end at all or it is before the body
 		// start tag we simply - take the rest of the response
 		if ( bodyEnd < bodyStart ) bodyEnd = responseStr.length() - 1;

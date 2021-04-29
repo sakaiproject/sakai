@@ -1,5 +1,4 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
-import {ifDefined} from '../assets/lit-html/directives/if-defined.js';
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
 import "../datepicker/sakai-date-picker.js";
@@ -61,13 +60,13 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
         this.close();
       })
-      .catch(error => {});
+      .catch(() => {});
   }
 
   resetDate() {
 
     this.task.due = Date.now();
-    let el = this.shadowRoot.getElementById("due");
+    const el = this.shadowRoot.getElementById("due");
     if (el) {
       el.epochMillis = this.task.due;
     }
@@ -75,7 +74,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   set task(value) {
 
-    let old = this._task;
+    const old = this._task;
     this._task = value;
 
     this.error = false;
@@ -83,7 +82,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.requestUpdate("task", old);
     this.updateComplete.then(() => {
 
-      let datePicker = this.shadowRoot.getElementById("due");
+      const datePicker = this.shadowRoot.getElementById("due");
 
       if (value.system) {
         datePicker.disable();
@@ -91,11 +90,11 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         datePicker.enable();
         datePicker.epochMillis = value.due;
       }
-      let descriptionEl = this.shadowRoot.getElementById("description");
+      const descriptionEl = this.shadowRoot.getElementById("description");
       descriptionEl.disabled = value.system;
       descriptionEl.value = value.description;
       this.shadowRoot.getElementById("priority").value = value.priority;
-      let editor = this.getEditor();
+      const editor = this.getEditor();
       if (editor) {
         editor.setData(value.notes);
         editor.isReadOnly = value.system;
@@ -113,10 +112,10 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   getEditorTag() {
 
-    let el = this.shadowRoot.querySelector("slot[name='task-text'");
+    const el = this.shadowRoot.querySelector("slot[name='task-text'");
 
     if (el) {
-      let slottedNodes = this.shadowRoot.querySelector("slot[name='task-text'").assignedNodes();
+      const slottedNodes = this.shadowRoot.querySelector("slot[name='task-text'").assignedNodes();
       return slottedNodes[0].querySelector("sakai-editor");
     }
   }
@@ -149,7 +148,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     super.connectedCallback();
 
     if (typeof CKEDITOR !== "undefined") {
-      let tag = this.getEditorTag();
+      const tag = this.getEditorTag();
       if (tag) {
         return tag.attachEditor();
       }

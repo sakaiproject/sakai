@@ -81,12 +81,14 @@ public class MapResourceBundle extends ResourceBundle {
     @Override
     public Enumeration<String> getKeys() {
         Set<String> allKeysSet = new HashSet<String>(map.keySet());
-        Enumeration<String> parentKeys = parent.getKeys();
-        if (parentKeys != null) {
-            while (parentKeys.hasMoreElements()) {
-                String next = parentKeys.nextElement();
-                if (!allKeysSet.contains(next)) {
-                    allKeysSet.add(next);
+        if (parent != null) {
+            Enumeration<String> parentKeys = parent.getKeys();
+            if (parentKeys != null) {
+                while (parentKeys.hasMoreElements()) {
+                    String next = parentKeys.nextElement();
+                    if (!allKeysSet.contains(next)) {
+                        allKeysSet.add(next);
+                    }
                 }
             }
         }

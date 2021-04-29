@@ -464,7 +464,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         try {
             Assignment a = getAssignment(ref);
-            return Optional.of(this.getDeepLink(a.getContext(), a.getId(), userDirectoryService.getCurrentUser().getId()));
+            return Optional.of(getDeepLink(a.getContext(), a.getId(), userDirectoryService.getCurrentUser().getId()));
         } catch (Exception e) {
             return Optional.empty();
         }
@@ -568,7 +568,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
-                                    gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
+                                    gradeSheetExporter.writeGradesSpreadsheet(out, queryString);
                                 } catch (Exception e) {
                                     log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
                                 }
@@ -1006,16 +1006,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
+        for (String groupReference : assignment.getGroups()) {
+            try {
+                AuthzGroup group = authzGroupService.getAuthzGroup(groupReference);
+                group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                authzGroupService.save(group);
+            } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+            }
+        }
+
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 
         // remove any realm defined for this resource
         try {
             authzGroupService.removeAuthzGroup(reference);
             log.debug("successful delete for assignment with id = {}", assignment.getId());
-        } catch (AuthzPermissionException e) {
-            log.warn("deleting realm for assignment reference = {}", reference, e);
+        } catch (AuthzPermissionException ape) {
+            log.warn("deleting realm for assignment reference = {}, {}", reference, ape.toString());
         } catch (AuthzRealmLockException arle) {
-            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
+            log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
     }
 
@@ -1261,6 +1271,56 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // security check
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
+        }
+
+        Collection<String> oldGroups = assignmentRepository.findGroupsForAssignmentById(assignment.getId());
+        switch (assignment.getTypeOfAccess()) {
+            case GROUP:
+                oldGroups.removeAll(assignment.getGroups());
+                for (String groupRef : oldGroups) { // remove locks for groups that were removed
+                    try {
+                        AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                        authzGroupService.save(group);
+                    } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                        log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
+                    }
+                }
+                if (assignment.getIsGroup()) { // lock mode ALL for group assignments
+                    for (String groupRef : assignment.getGroups()) {
+                        try {
+                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                            authzGroupService.save(group);
+                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                            log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
+                        }
+                    }
+                } else { // lock mode DELETE for assignments released to groups
+                    for (String groupRef : assignment.getGroups()) {
+                        try {
+                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
+                            authzGroupService.save(group);
+                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                            log.warn("Exception while adding lock DELETE for assignment {}, {}", assignment.getId(), e.toString());
+                        }
+                    }
+                }
+                break;
+            case SITE:
+                for (String groupRef : oldGroups) { // remove all locks if they exist
+                    try {
+                        AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                        group.setLockForReference(reference, AuthzGroup.RealmLockMode.NONE);
+                        authzGroupService.save(group);
+                    } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                        log.warn("Exception while clearing lock for assignment {}, {}", assignment.getId(), e.toString());
+                    }
+                }
+                break;
+            default:
+                log.warn("Unknown Access for assignment {}, access={}", assignment.getId(), assignment.getTypeOfAccess().name());
         }
 
         assignment.setDateModified(Instant.now());
@@ -2049,7 +2109,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // return true if resubmission is allowed and current time is before resubmission close time
                 // get the resubmit settings from submission object first
                 String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
-                if (NumberUtils.isParsable(allowResubmitNumString) && submission.getSubmitted() && submission.getDateSubmitted() != null) {
+                if (NumberUtils.isParsable(allowResubmitNumString) && (submission.getSubmitted() || submission.getDateSubmitted() != null)) {
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
                     try {
                         int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
@@ -2459,7 +2519,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
+    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment, boolean allowGradeAssignment) throws Exception {
         Assignment a = getAssignment(assignmentId);
 
         String assignmentContext = a.getContext(); // assignment context
@@ -2471,7 +2531,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
                 // Three different urls to be rendered depending on the
                 // user's permission
-                if (allowAddAssignment) {
+                if (allowGradeAssignment) {
+                    return serverConfigurationService.getPortalUrl()
+                            + "/directtool/"
+                            + fromTool.getId()
+                            + "?assignmentId="
+                            + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
+                            + "&panel=Main&sakai_action=doGrade_assignment";
+                } else if (allowAddAssignment) {
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
@@ -2513,8 +2580,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean allowReadAssignment = permissionCheck(SECURE_ACCESS_ASSIGNMENT, resourceString, userId);
         boolean allowAddAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId) || (!getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId).isEmpty());
         boolean allowSubmitAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, userId);
+        boolean allowGradeAssignment = permissionCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, resourceString, userId);
 
-        return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment);
+        return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment, allowGradeAssignment);
     }
 
     @Override

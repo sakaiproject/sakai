@@ -576,6 +576,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 				        	toOption.setStatus(fromOption.getStatus());
 				        	toOption.setPollId(toPoll.getPollId());
 				        	toOption.setDeleted(fromOption.getDeleted());
+				        	toOption.setOptionOrder(fromOption.getOptionOrder());
 				        	saveOption(toOption);
 				        	
 				        	toPoll.addOption(toOption);

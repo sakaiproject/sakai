@@ -4,8 +4,6 @@ var tab1doc=null;
 var tab1window=null;
 var oAudio=null;
 var isNew=true;
-var flashPlayer = "/library/editor/ckextraplugins/movieplayer/StrobeMediaPlayback.swf";
-var youtubePlugin = "/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf";
 var videoMimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash','video/x-ms-wmv'];
 var audioMimeSupported = ['audio/x-wav'];
 //IE8 compatibility

@@ -18,30 +18,24 @@
 
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
-      xml:lang="en"  
-      lang="en"> 
-       
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+		xml:lang="en"
+		lang="en">
 <body>
-
 <wicket:panel>
-
-    <div class="modalWindowWrapper">
-		<img class="modalWindowImage" wicket:id="image"/>
-    	<div class="modalWindowMain">
-    		<div class="modalWindowText" wicket:id="text">[text]</div>
-    		<form wicket:id="form">
-				<div class="modalWindowButtons">
+	<div class="profileModalWindowWrapper">
+		<img class="profileModalWindowImage" wicket:id="image"/>
+		<div class="profileModalWindowMain">
+			<div class="profileModalWindowText" wicket:id="text">[text]</div>
+			<form wicket:id="form">
+				<div>
 					<input type="submit" wicket:id="submit" value="Submit" />
 					<input type="button" wicket:id="cancel" value="Cancel"/>
 				</div>
 			</form>
 		</div>
-    </div>
-
+	</div>
 </wicket:panel>
-
-	
 </body>
 </html>

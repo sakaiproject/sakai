@@ -178,33 +178,15 @@ public class MainController {
 					announcementValidate.getErrors().isEmpty() &&
 					lessonsValidate.getErrors().isEmpty()) {
 
-				if (assignmentValidate.getErrors().isEmpty()) {
-					dateManagerService.updateAssignments(assignmentValidate);
-				}
-				if (assessmentValidate.getErrors().isEmpty()) {
-					dateManagerService.updateAssessments(assessmentValidate);
-				}
-				if (gradebookValidate.getErrors().isEmpty()) {
-					dateManagerService.updateGradebookItems(gradebookValidate);
-				}
-				if (signupValidate.getErrors().isEmpty()) {
-					dateManagerService.updateSignupMeetings(signupValidate);
-				}
-				if (resourcesValidate.getErrors().isEmpty()) {
-					dateManagerService.updateResources(resourcesValidate);
-				}
-				if (calendarValidate.getErrors().isEmpty()) {
-					dateManagerService.updateCalendarEvents(calendarValidate);
-				}
-				if (forumValidate.getErrors().isEmpty()) {
-					dateManagerService.updateForums(forumValidate);
-				}
-				if (announcementValidate.getErrors().isEmpty()) {
-					dateManagerService.updateAnnouncements(announcementValidate);
-				}
-				if (lessonsValidate.getErrors().isEmpty()) {
-					dateManagerService.updateLessons(lessonsValidate);
-				}
+				dateManagerService.updateAssignments(assignmentValidate);
+				dateManagerService.updateAssessments(assessmentValidate);
+				dateManagerService.updateGradebookItems(gradebookValidate);
+				dateManagerService.updateSignupMeetings(signupValidate);
+				dateManagerService.updateResources(resourcesValidate);
+				dateManagerService.updateCalendarEvents(calendarValidate);
+				dateManagerService.updateForums(forumValidate);
+				dateManagerService.updateAnnouncements(announcementValidate);
+				dateManagerService.updateLessons(lessonsValidate);
 				jsonResponse = "{\"status\": \"OK\"}";
 			} else {
 				JSONArray errorReport = new JSONArray();
@@ -233,8 +215,8 @@ public class MainController {
 			}
 
 		} catch (Exception e) {
-			log.error("Error updating dates");
-			jsonResponse = String.format("{\"status\": \"ERROR\", \"error\": \"%s\"}", dateManagerService.getMessage("error.uncaught"));
+			log.error("Error updating dates", e);
+			jsonResponse = String.format("{\"status\": \"ERROR\", \"error\": \"%s\"}", dateManagerService.getMessage("error.uncaught") + ": " + e.getMessage());
 		}
 		return jsonResponse;
 	}

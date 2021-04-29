@@ -34,10 +34,12 @@
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th th:case="'assessments'" th:text="#{column.feedback.start.date}">Show Feedback On</th>
+						<th th:case="'signupMeetings'" th:text="#{column.signup.begins.date}">Sign-up Begins Date</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 					<th:block th:switch="${toolId}">
 						<th th:case="'assessments'" th:text="#{column.feedback.end.date}">Show Feedback Until</th>
+						<th th:case="'signupMeetings'" th:text="#{column.signup.deadline.date}">Sign-up Ends Date</th>
 						<th:block th:case="*"></th:block>
 					</th:block>
 				</tr>
@@ -99,6 +101,14 @@
 									<div><small class="errors"></small></div>
 								</div>
 							</td>
+							<td th:case="'signupMeetings'">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.signup_begins}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_begins" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
 							<th:block th:case="*">
 							</th:block>
 						</th:block>
@@ -107,6 +117,14 @@
 								<div>
 									<input type="text" class="form-control datepicker" />
 									<input type="hidden" th:value="${item.feedback_end}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="feedback_end" />
+									<div><small class="text-muted day-of-week"></small></div>
+									<div><small class="errors"></small></div>
+								</div>
+							</td>
+							<td th:case="'signupMeetings'">
+								<div>
+									<input type="text" class="form-control datepicker" />
+									<input type="hidden" th:value="${item.signup_deadline}" th:attr="data-idx=${iter.index},data-tool=${toolId}" data-field="signup_deadline" />
 									<div><small class="text-muted day-of-week"></small></div>
 									<div><small class="errors"></small></div>
 								</div>

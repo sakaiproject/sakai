@@ -1,7 +1,6 @@
 import { html } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import fetchMock from "fetch-mock";
-import { withA11y } from "@storybook/addon-a11y";
 import { styles } from "./styles/sakai-styles.js";
 import { calendarI18n } from "./i18n/calendar-i18n.js";
 import { datepickerI18n } from "./i18n/datepicker-i18n.js";
@@ -13,7 +12,7 @@ import '@lion/calendar';
 
 export default {
   title: 'Sakai Calendar',
-  decorators: [withA11y, (storyFn) => {
+  decorators: [(storyFn) => {
     parent.portal = {locale: "en-GB"};
     const baseUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en-GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=";
     const calendarI18nUrl = `${baseUrl}calendar`;

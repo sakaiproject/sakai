@@ -19,7 +19,7 @@
 
 .#{$namespace}sakai-forums{
 	.topicBlocLone{
-		@extend .bs-callout-warn;
+		@extend .bs-callout-info;
 	}
 
 	.permissionRow{
@@ -91,7 +91,7 @@
 		}
 
 		.view-message-nav{
-			text-align:right;
+			text-align: right;
 		}
 	}
 
@@ -118,7 +118,7 @@
 	}
 
 	.allMessages{
-		border: 1px solid #ddd;
+		border: 1px solid var(--sakai-border-color);
 		border-collapse: collapse;
 		width: 100%;
 		margin: 1em 0 0 0;
@@ -126,11 +126,11 @@
 			th{
 				vertical-align: text-bottom;
 				padding: 0.8em 0em;
-				background: #F9F9F9;
-				border: 1px solid #ddd;
+				background: var(--sakai-background-color-2);
+				border: 1px solid var(--sakai-border-color);
 				text-align: center;
 				&.header{
-					padding: 0.8em 0.4em;					
+					padding: 0.8em 0.4em;
 					text-align: left;
 				}
 			}
@@ -297,7 +297,7 @@
 	}
 
 	.statsTally {
-		color: #666;
+		color: var(--sakai-text-color-dimmed);
 		font-weight: bold;
 	}
 }

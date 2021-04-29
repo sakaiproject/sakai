@@ -1773,7 +1773,13 @@ $(document).ready(function() {
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
-			$("#name").val(row.find(".link-text").text());
+			var linkTextTag = row.find(".link-text");
+
+			// If data-original-name attr is present, use that instead
+			var linkText = 	linkTextTag.attr("data-original-name") 
+			linkText = linkText || linkTextTag.text();
+
+			$("#name").val(linkText);
 			$("#description").val(row.find(".rowdescription").text());
 
 			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
@@ -1788,7 +1794,11 @@ $(document).ready(function() {
                 "nrudy",
                 "nnavy",
                 "nnavy2",
-                "ngreen"];
+                "ngreen",
+				"norange",
+				"ngold",
+				"nteal",
+				"npurple"];
 			var classList = row.find(".usebutton").attr('class').split(' ');
 
 			var color = null;
@@ -2775,14 +2785,14 @@ $(document).ready(function() {
 		    col.removeClass('split');
 		col.removeClass('coltrans colgray colred colblue colgreen colyellow colngray colngray-trans colnblack colnblack-trans colnblue colnblue-trans' +
 			' colnblue2 colnblue2-trans colnred colnred-trans colnrudy colnrudy-trans colnnavy colnnavy-trans colnnavy2 colnnavy2-trans colngreen colngreen-trans' +
-			' colgray-trans colred-trans colblue-trans colgreen-trans colyellow-trans');
+			' colgray-trans colred-trans colblue-trans colgreen-trans colyellow-trans colnorange colnorange-trans colngold colngold-trans colnteal colnteal-trans colnpurple colnpurple-trans');
 		if (color !== '')
 		    col.addClass('col' + color);
 
 		if (isSection) {
             header.removeClass('coltrans-header colgray-header colred-header colblue-header colgreen-header colyellow-header colngray-header colngray-trans-header colnblack-header colnblack-trans-header colnblue-header colnblue-trans-header' +
                 ' colnblue2-header colnblue2-trans-header colnred-header colnred-trans-header colnrudy-header colnrudy-trans-header colnnavy-header colnnavy-trans-header colnnavy2-header colnnavy2-trans-header colngreen-header colngreen-trans-header' +
-                ' colgray-trans-header colred-trans-header colblue-trans-header colgreen-trans-header colyellow-trans-header');
+                ' colgray-trans-header colred-trans-header colblue-trans-header colgreen-trans-header colyellow-trans-header colnorange-header colnorange-trans-header colngold-header colngold-trans-header colnteal-header colnteal-trans-header colnpurple-header colnpurple-trans-header');
             if(color !== '')
                 header.addClass('col' + color + '-header');
         }

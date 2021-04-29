@@ -18,7 +18,7 @@ Licenses.
 
 .sakai-ppkr {
     display: none;
-    background-color: #FFF; 
+    background-color: var(--sakai-background-color-1);
     width: 540px;
     padding: 6px;
 }
@@ -43,7 +43,7 @@ Licenses.
     font-style: normal;
     display: block;
     font-size: 1.1em;
-    color: #000;
+    color: var(--sakai-text-color-1);
 }
 
 .sakai-ppkr-search-field {
@@ -52,7 +52,7 @@ Licenses.
 }
 
 .sakai-ppkr-filter-fields {
-    border: 1px solid #D0D3D7;
+    border: 1px solid var(--sakai-border-color);
     padding: 0.4em 0.6em;
 }
 
@@ -89,13 +89,13 @@ Licenses.
 }
 
 .sakai-ppkr-header, .sakai-ppkr-source-picker, .sakai-ppkr-collection-picker {
-    border: 1px solid #D0D3D7;
-    background-color: #EBECED;
+    border: 1px solid var(--sakai-border-color);
+    background-color: var(--sakai-background-color-2);
     margin-bottom: 2px;
 }
 
 .sakai-ppkr-header {
-    padding: 3px 6px;    
+    padding: 3px 6px;
 }
 
 .sakai-ppkr-header h3 {
@@ -115,12 +115,12 @@ Licenses.
     width: 124px;
 }
 .sakai-ppkr-source-footer, .sakai-ppkr-collection-footer {
-    border-top: 1px solid #D0D3D7;
+    border-top: 1px solid var(--sakai-border-color);
     padding: 5px 12px;
 }
 
 .sakai-ppkr-source-list-header, .sakai-ppkr-collection-list-header {
-    border-bottom: 1px solid #D0D3D7;
+    border-bottom: 1px solid var(--sakai-border-color);
     padding: 4px 6px;
     font-size: 1em;
 }
@@ -135,7 +135,7 @@ Licenses.
 	overflow: auto;
 	overflow-x: hidden;
 	overflow-y: auto;
-	background-color: white;
+	background-color: var(--sakai-background-color-1);
     height: 248px;
     margin: 0;
     padding: 0;
@@ -144,7 +144,7 @@ Licenses.
 .sakai-ppkr-source-list div, .sakai-ppkr-collection-list div  {
     cursor: pointer;
     padding: 6px;
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid var(--sakai-border-color);
     background-repeat: no-repeat;
     background-position: 6px 6px;
 }
@@ -158,17 +158,17 @@ Licenses.
 }
 
 .scroller div.even {
-    background-color: #F8F9FA;
+    background-color: var(--sakai-background-color-2);
 }
 
 .sakai-ppkr-source-list div.selected {
-	background-color: #FFD;
+	background-color: var(--warnBanner-bgcolor);
 }
 
 .sakai-ppkr-source-list div.key-highlight, #collection div.key-highlight {
-	background-color: #FFD;
-	color: #000;
-	border: 2px solid #333;
+	background-color: var(--warnBanner-bgcolor);
+	color: var(--warnBanner-color);
+	border: 2px solid var(--warnBanner-bordercolor);
 	padding: 4px 4px 0 5px;
 }
 
@@ -178,9 +178,6 @@ Licenses.
 
 .sakai-ppkr-collection-list div {
 	padding-right: 24px;
-}
-
-.sakai-ppkr-collection-list div:hover {
 }
 
 .sakai-ppkr-btn-add-all, .sakai-ppkr-btn-remove-all {
@@ -207,14 +204,14 @@ Licenses.
 
 .sakai-ppkr-to-container-scroller, .messages-to-field {
     margin-top: 2px;
-    border: 1px solid #CCC;
+    border: 1px solid var(--sakai-border-color);
     min-height: 34px;
-    overflow: auto;    
+    overflow: auto;
     padding-bottom: 3px;
 }
 
 .messages-to-field { 
-    border-color: #D4DCE7;
+    border-color: var(--sakai-border-color);
     max-height: 116px;
     padding: 3px;
 }
@@ -225,7 +222,7 @@ html>body .messages-to-field {
 }
 
 .sakai-ppkr-to-container p {
-    color: #666;
+    color: var(--sakai-text-color-dimmed);
     margin: 0.4em 0.6em 0.2em; 
 }
 
@@ -241,7 +238,7 @@ html>body .messages-to-field {
 .display-sakai-ppkr {
     display: block;
     float: right !important;
-    color: #333 !important;
+    color: var(--sakai-text-color-1) !important;
 }
 
 .sakai-ppkr-by-role input[type="checkbox"] {
@@ -255,7 +252,7 @@ html>body .messages-to-field {
 }
 
 .jsfFormTable td {
-    border-bottom: 1px solid #CCC;
+    border-bottom: 1px solid var(--sakai-border-color);
 }
 
 .sakai-ppkr-token {
@@ -263,24 +260,22 @@ html>body .messages-to-field {
     display: block;
     white-space: nowrap;
     float: left;
-    background-color: #D8E2FF;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #D8E2FF #BDC5DF #BDC5DF #D8E2FF;
+    background-color: var(--infoBanner-bgcolor);
+    border: 1px solid var(--infoBanner-bordercolor);
+    color: var(--infoBanner-color);
     margin: 2px 0 0 2px;
     padding: 1px 1px 1px 4px;
-    -moz-border-radius: 0.3em;
-    -webkit-border-radius: 0.3em;
+    border-radius: 4px;
 }
 
 .token-all {
-    background-color: #ECD8FF;
-    border-color: #ECD8FF #CEBDDF #CEBDDF #ECD8FF;
+    background-color: var(--sakai-color-purple--lighter-6);
+    border-color: var(--sakai-color-purple--lighter-3);
     font-style: italic;
 }
 
 .token-role-participates {
-     background-color: #FFD8D8;   
+     background-color: var(--sakai-color-red--lighter-6);
 }
 
 .token-hidden { 
@@ -288,25 +283,23 @@ html>body .messages-to-field {
 }
 
 .token-inactive { 
-    color:gray
+    color: var(--sakai-text-color-dimmed);
 }
 
 .ppkr-remove { 
     cursor: pointer;
-    font-family: Tahoma, Arial, Helvetica, sans-serif;
-    color: rgb(102, 102, 102);
+    color: var(--sakai-text-color-1);
     font-size: 90%;
     font-weight: bold;
     font-style: normal;
     background-color: transparent;
     padding: 0 4px 2px;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
 .ppkr-remove:hover { 
-    color: #9F2A2A;
-    background-color: white;
+    color: var(--errorBanner-color);
+    background-color: var(--errorBanner-bgcolor);
 }
 
 .jsfFormTable td.sakai-ppkr-from {
@@ -349,7 +342,7 @@ html>body .messages-to-field {
 }
 
 .forumsRankName {
- color: #000000;
+ color: var(--sakai-text-color-1);
  font-size: 0.95em;
  font-weight: bold;
  padding-bottom: 0 !important;
@@ -361,15 +354,16 @@ html>body .messages-to-field {
 }
 
 .addrank_msgbox{
-        background-color: #FAFAD6;
-        border: 1px solid #F6D87D;
+        background-color: var(--warnBanner-bgcolor);
+        border: 1px solid var(--warnBanner-bordercolor);
+        color: var(--warnBanner-color);
         padding: 5px;
         margin: 5px 10px 10px 10px;
         border-radius: 5px;
 }
 .addrank_msgtext{
-	color: #404040;
-        font-size: 95%;
+    color: var(--sakai-text-color-1);
+    font-size: 95%;
 }
 
 .ranktable-name {
@@ -396,7 +390,7 @@ html>body .messages-to-field {
     background-image: url(../images/headerBg.jpg);
     border: 0px;
     background-repeat:repeat-x;
-    color: #ffffff;
+    color: var(--sakai-background-color-1);
     font-weight: bold; 
 }
 
@@ -411,22 +405,21 @@ margin-top: 0;
 
 
 a:link{
-    color: #0080C0;
+    color: var(--link-color);
     text-decoration: none;
 }
 
 a:visited{
-    color: #0080C0;
+    color: var(--link-color);
     text-decoration: none;
 }
 
-a:hover,a:active{
-    color: #0080C0;
+a:hover,a:focus{
+    color: var(--link-hover-color);
     text-decoration: underline !important;
 }
 
-a:focus{
-    color: #0080C0;
+a:active{
+    color: var(--link-active-color);
     text-decoration: underline !important;
 }
-

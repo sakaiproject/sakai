@@ -23,7 +23,7 @@ import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 
 @Configuration
-@EnableSwagger2
+//@EnableSwagger2
 public class SwaggerConfiguration {
 
     @Bean

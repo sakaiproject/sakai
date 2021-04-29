@@ -1,4 +1,4 @@
-import { css, html } from "../assets/lit-element/lit-element.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { ifDefined } from "../assets/lit-html/directives/if-defined.js";
 import { SakaiDashboardWidget } from './sakai-dashboard-widget.js';
 import '../tasks/sakai-tasks.js';

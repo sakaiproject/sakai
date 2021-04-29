@@ -207,8 +207,4 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	public String getTagListToJsonString() {
 		return  this.data.getTagListToJsonString();
 	}
-
-	public void setTagListToJsonString(String tagListToJsonString) {
-		this.data.setTagListToJsonString(tagListToJsonString);
-	}
 }

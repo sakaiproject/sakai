@@ -17,7 +17,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
   set rating(newValue) {
 
-    var oldValue = this._rating;
+    const oldValue = this._rating;
     this._rating = newValue;
     this.requestUpdate("rating", oldValue);
     if (this._rating.new) {
@@ -80,13 +80,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     if (!this.classList.contains("show-tooltip")) {
       this.closeOpen();
       this.classList.add("show-tooltip");
-      var popover = $(`#edit_criterion_rating_${this.rating.id}`);
+      const popover = $(`#edit_criterion_rating_${this.rating.id}`);
 
       popover[0].style.top = e.target.offsetTop + 20 + "px";
       popover[0].style.left = (e.target.offsetLeft - popover.width()/2) + "px";
 
       popover.show();
-      var titleinput = this.querySelector('[type="text"]');
+      const titleinput = this.querySelector('[type="text"]');
       titleinput.focus();
       titleinput.setSelectionRange(0, titleinput.value.length);
 
@@ -120,13 +120,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     e.stopPropagation();
 
     this.rating.title = document.getElementById(`rating-title-${this.rating.id}`).value;
-    this.rating.points = document.getElementById(`rating-points-${this.rating.id}`).value;
+    this.rating.points = parseFloat(document.getElementById(`rating-points-${this.rating.id}`).value);
 
     // Enforce a points value. Blank breaks things.
-    if (this.rating.points.length === 0) this.rating.points = "0";
+    if (isNaN(this.rating.points)) this.rating.points = 0.0;
 
     // Round user input to two digits
-    if (this.rating.points.length > 1) this.rating.points = parseFloat(this.rating.points).toFixed(2);
+    this.rating.points = this.rating.points.toFixed(2);
 
     this.rating.description = document.getElementById(`rating-description-${this.rating.id}`).value;
     this.rating.criterionId = this.criterionId;
@@ -149,7 +149,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
   openEditWithKeyboard(e) {
 	
     if (e.keyCode == 32) {
-      this.editRating(e)
+      this.editRating(e);
     }
   }
 }

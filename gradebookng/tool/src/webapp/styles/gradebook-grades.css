@@ -104,7 +104,7 @@
   max-height: 340px;
   top: 38px;
   background-color: var(--sakai-background-color-1);
-  box-shadow: 1px 1px 2px #AAA;
+  box-shadow: var(--elevation-2dp);
   z-index: 200;
   overflow: auto;
   padding-right: 14px;
@@ -142,7 +142,7 @@
 }
 #gradeItemsTogglePanel .gb-item-category-filter .weighting {
   font-weight: 200;
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeItemsTogglePanel .gb-item-filter-signal {
   height: 1.2em;
@@ -201,7 +201,7 @@
   border-bottom: none;
 }
 #gradeItemsTogglePanel .gb-item-filter-group {
-  border-bottom: 1px dotted #DDD;
+  border-bottom: 1px dotted var(--sakai-border-color);
   padding-bottom: 5px;
   margin-bottom: 5px;
 }
@@ -289,7 +289,7 @@ div.wicket-modal div.w_content_container > div > form > h2:first-child {
   /* remove the large morpheus top padding and margin from the first header element */
   padding: 0 0 20px;
   margin: 0 0 20px;
-  border-bottom: 1px solid #EEE;
+  border-bottom: 1px solid var(--sakai-border-color);
 }
 /* override Bootstrap for the date picker */
 div.wicket-modal div.w_content_container .input-group-btn button {
@@ -319,7 +319,7 @@ div.wicket-modal div.w_caption {
   cursor: move;
 }
 div.wicket-modal div.w_right > div {
-  box-shadow: 0 0 5px 2px #444;
+  box-shadow: var(--elevation-4dp);
 }
 
 div.wicket-modal .w_blue div.w_caption,
@@ -377,7 +377,7 @@ div.wicket-modal .w_blue div.w_content
   padding: 4px;
   font-size: 12px;
   line-height: 35px;
-  color: #666;
+  color: var(--sakai-text-color-2);
   margin: 0 0 0 10px;
 }
 
@@ -387,7 +387,7 @@ div.wicket-modal .w_blue div.w_content
   z-index: 99999999;
   top: 80px;
   padding: 5px;
-  box-shadow: 1px 1px 5px #999;
+  box-shadow: var(--elevation-2dp);
   font-size: 12px;
   width: 350px;
   margin-left: -175px;
@@ -402,12 +402,12 @@ div.wicket-modal .w_blue div.w_content
 /* Summary styles */
 #instructorView.tab-pane,
 #studentView.tab-pane {
-  border-top: 1px dotted #EEE;
+  border-top: 1px dotted var(--sakai-border-color);
   margin-top: 20px;
   padding-top: 20px;
 }
 .gb-summary-grade-score-outof {
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 .gb-summary-grade-panel {
   position: relative;
@@ -510,7 +510,7 @@ div.wicket-modal .w_blue div.w_content
   -webkit-overflow-scrolling: touch;
   padding: 10px 0;
   margin: 0 0 10px;
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid var(--sakai-border-color);
 }
 .gb-summary-grade-panel .gb-summary-grade-flags {
   padding-left: 10px;
@@ -518,7 +518,7 @@ div.wicket-modal .w_blue div.w_content
 }
 .gb-summary-not-released-flag,
 .gb-summary-not-released-message {
-  color: #888;
+  color: var(--sakai-text-color-dimmed);
 }
 #studentGradeSummary {
   margin: 30px 0 0;
@@ -570,7 +570,7 @@ div.wicket-modal .w_blue div.w_content
 
 .gb-summary-grade-score-dropped
 {
-  background-image: repeating-linear-gradient(135deg, #eee, #eee 5px, #fff 5px, #fff 10px);
+  background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
   position: relative;
 }
 
@@ -583,7 +583,7 @@ div.wicket-modal .w_blue div.w_content
 .gb-summary-grade-category-dropInfo
 {
   font-size: 0.9em;
-  color: #999999;
+  color: var(--sakai-text-color-dimmed);
   font-weight: normal;
   margin: 0 0 0 24px;
 }
@@ -596,7 +596,7 @@ div.wicket-modal .w_blue div.w_content
 .gb-summary-grade-category-col-dropInfo
 {
   font-size: 0.9em;
-  color: #999999;
+  color: var(--sakai-text-color-dimmed);
   font-weight: normal;
   margin: 0;
 }
@@ -611,7 +611,7 @@ div.wicket-modal .w_blue div.w_content
   padding: 1em;
   font-size: 20px;
   text-align: center;
-  color: #666;
+  color: var(--sakai-text-color-2);
   background-color: var(--sakai-background-color-3);
   -ms-grid-row: 3;
   -ms-grid-row-span: 1;
@@ -719,12 +719,12 @@ div.wicket-modal .w_blue div.w_content
   text-align: center;
   line-height: 1em;
   font-size: 16px;
-  color: #666;
+  color: var(--sakai-text-color-2);
 }
 
 .gradeTableOuterWrapper
 {
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--sakai-border-color);
   position: relative;
 }
 

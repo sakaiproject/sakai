@@ -40,7 +40,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.tool.components.IconWithToolTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -161,7 +161,7 @@ public class MyInfoEdit extends Panel {
 		birthday.setOutputMarkupId(true);
 		birthdayContainer.add(birthday);
 		//tooltip
-		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
+		birthdayContainer.add(new IconWithToolTip("birthdayToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
 
 		//personal summary

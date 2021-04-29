@@ -225,10 +225,17 @@ public class UserPrefsTool
 	// SAK-23895
 	private boolean prefShowTabLabelOption = true;
 	
+	// SAK-45006: only show Themes preference page if themes are enabled
+	private boolean prefShowThemePreferences = false;
+	
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
 
 	public boolean isPrefShowTabLabelOption() {
 	    return prefShowTabLabelOption;
+	}
+	
+	public boolean isPrefShowThemePreferences() {
+	    return prefShowThemePreferences;
 	}
 
 	/**
@@ -498,6 +505,8 @@ public class UserPrefsTool
 		// do we show the option to display by site title or short description?
 		boolean show_tab_label_option = ServerConfigurationService.getBoolean("preference.show.tab.label.option", true);
 		setPrefShowTabLabelOption(show_tab_label_option);
+		
+		setPrefShowThemePreferences(ServerConfigurationService.getBoolean("portal.themes", false));
 
 		//To indicate that it is in the refresh mode
 		refreshMode=true;

@@ -1,11 +1,11 @@
 import {Submission} from "./submission.js";
 
-let gradableDataMixin = Base => class extends Base {
+const gradableDataMixin = Base => class extends Base {
 
   loadGradableData(gradableId, courseId, submissionId) {
 
     // Grab all of the initial data we need, submissions and students. This will come from the grading service in future.
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
 
       fetch(`/direct/assignment/gradable.json?gradableId=${gradableId}`, {cache: "no-cache", credentials: "same-origin"})
         .then(res => res.json())
@@ -25,8 +25,8 @@ let gradableDataMixin = Base => class extends Base {
 
           this.groups = gradableData.groups;
 
-          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
-          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups));
+          this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
+          this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
 
           this.submissions.sort((a,b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
 

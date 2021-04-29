@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="sakai.usermembership" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app id="sakai.usermembership"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
     <display-name>usermembership</display-name>
     <description>User Membership Tool</description>
 
@@ -26,7 +28,7 @@
         </description>
         <param-name>com.sun.faces.verifyObjects</param-name>
         <param-value>false</param-value>
-    </context-param>    
+    </context-param>
     
     <!-- Faces Servlet -->
     <servlet>
@@ -61,7 +63,7 @@
 	<!-- Sakai JSF Tool Servlet, for the User Membership tool -->
     <servlet>
         <servlet-name>sakai.usermembership</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.jsf2.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>userlist</param-value>

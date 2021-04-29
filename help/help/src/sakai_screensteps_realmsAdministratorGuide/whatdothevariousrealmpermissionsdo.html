@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>What do the various realm permissions do?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="" name="description">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
+<script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    includeWebjarLibrary('featherlight');
+    $(document).ready(function(){
+      $("a.screensteps-image-zoom").featherlight({
+        type: { image:true },
+        closeOnClick: 'anywhere'
+      }); 
+    });   
+</script>
+</head>
+<body>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
+<div><h1 class="article-title">What do the various realm permissions do?</h1></div>
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock">
+  <p><strong>Realm Permissions </strong>control the actions that specific user roles have permission to perform within the system. Certain sets of permissions are associated with user types by default (e.g. instructors, students, etc.) which allow them to perform the common tasks associated with that role. In some cases, you may need to modify the realm permissions for a specific user or a specific role. Additionally, system administrators can also create custom roles and assign custom sets of realm permissions to those roles.</p>
+<p> </p>
+</div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="alias">
+    <h2 class="step-title screensteps-heading">Alias</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>alias.add</strong> - User can add a new alias.</p>
+<p><strong>alias.del</strong> - User can delete an existing alias. </p>
+<p><strong>alias.upd</strong> - User can edit an existing alias.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="announcements">
+    <h2 class="step-title screensteps-heading">Announcements</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>annc.all.groups</strong> - Maintain type role members of the site (Instructors and the like) might expect to have permissions to see and manipulate the announcements in the site as well as all the site groups, without having explicit membership in each group. If the user’s membership in the site includes annc.all.groups, then the user has access to all the groups in the site without needing explicit group membership.</p>
+<p><strong>annc.delete.any</strong> - User can delete any announcement regardless of who created it.</p>
+<p><strong>annc.delete.own</strong> - User can delete only announcements they created.</p>
+<p><strong>annc.new</strong> - Allows users to create new announcements.</p>
+<p><strong>annc.read</strong> - Allows users to read announcements. This permission is needed to view the list of announcements.</p>
+<p><strong>annc.read.drafts</strong> - Allows users to read draft announcements.</p>
+<p><strong>annc.revise.any</strong> - Allows users to edit any announcement, created by anyone.</p>
+<p><strong>annc.revise.own</strong> - Allows user to edit only announcements they created.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="assignments">
+    <h2 class="step-title screensteps-heading">Assignments</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>asn.all.groups</strong> - Maintain type role members of the site (Instructors and the like) might expect to have permissions to create/edit assignments in the site as well as all the site groups, without having explicit membership in each group. If the user’s membership in the site includes asn.all.groups, then the user has access to all the groups in the site without needing explicit group membership.</p>
+<p><strong>asn.delete</strong> - Gives user the ability to delete assignments. </p>
+<p><strong>asn.grade</strong> - Gives the role the ability to grade assignments. If the role has asn.new permission, then that role also has the ability to grade (any role with asn.new also has the ability to grade, regardless of the asn.grade setting). If the role does not have asn.new, then grading permission can be granted by giving the role asn.grade.</p>
+<p><strong>asn.new</strong> - Gives user the ability to create new assignments. Also controls the type of assignment list view the user sees (see asn.read above). </p>
+<p><strong>asn.read</strong> - Allows user to view the assignment list. The list they see will differ depending on the asn.new permission. Those with asn.new see an ‘instructor’ list (list of all assignments, including drafts, with action links for revising, deleting). Those without asn.new see a ‘student’ list (list of open assignments, where clicking on the assignment opens it for submission).</p>
+<p><strong>asn.receive.notifications</strong> - Gives user the ability to receive notifications.</p>
+<p><strong>asn.revise</strong> - Gives user the ability to revise assignments.</p>
+<p><strong>asn.share.drafts</strong> - Gives the user the ability to see other instructors’ assignments in the draft state</p>
+<p><strong>asn.submit</strong> - Gives user the ability to submit assignments. This includes ‘instructor’ type roles, which can submit as though they were a ‘student’ using a link on the Student View page. Without this permission, the ‘Submit as Student’ function does not appear to roles with asn.new.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="tests-quizzes">
+    <h2 class="step-title screensteps-heading">Tests &amp; Quizzes</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>assessment.createAssessment</strong> - Allows user to create a new assessment.</p>
+<p><strong>assessment.deleteAssessment.any</strong> - User can delete any assessment created by anyone.</p>
+<p><strong>assessment.deleteAssessment.own</strong> - User can delete assessments they created.</p>
+<p><strong>assessment.editAssessment.any</strong> - User can edit any assessment created by anyone.</p>
+<p><strong>assessment.editAssessment.own</strong> - User can edit assessments they created.</p>
+<p><strong>assessment.gradeAssessment.any</strong> - User can grade any assessment.</p>
+<p><strong>assessment.gradeAssessment.own</strong> - User can grade assessments they created.</p>
+<p><strong>assessment.publishAssessment.any</strong> - User can publish any assessment.</p>
+<p><strong>assessment.publishAssessment.own</strong> - User can publish only assessments they have created</p>
+<p><strong>assessment.questionpool.copy.own</strong> - Users can make a copy of any assessment pool.</p>
+<p><strong>assessment.questionpool.create</strong> - User can create a question pool.</p>
+<p><strong>assessment.questionpool.delete.own</strong> - User can delete their own question pools.</p>
+<p><strong>assessment.questionpool.edit.own</strong> - User can edit question pools they have created.</p>
+<p><strong>assessment.submitAssessmentForGrade</strong> - User has the ability to create a submission to assessments which will be available to the grader for evaluation.</p>
+<p><strong>assessment.takeAssessment</strong> - User has the ability to take an assessment.</p>
+<p><strong>assessment.template.create</strong> - User has the ability to create a new template that can then be used to control assessment settings.</p>
+<p><strong>assessment.template.delete.own</strong> - User can delete templates they have created.</p>
+<p><strong>assessment.template.edit.own</strong> - User can edit templates they have created.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="calendar">
+    <h2 class="step-title screensteps-heading">Calendar</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>calendar.all.groups</strong> - Allows user to create events for a group or groups. With this permission, the group selection dropdown is available when creating an event, so that the event can be targeted to one or more groups rather than the entire site.</p>
+<p><strong>calendar.delete.any</strong> - Allows user to delete any schedule event.</p>
+<p><strong>calendar.delete.own</strong> - Allows users to delete schedule events which they have created.</p>
+<p><strong>calendar.import</strong> - Allows users to import schedule events from Outlook, Meeting Maker, or csv files. (Import adds events without syncing  importing the same file multiple times results in multiple copies of events).</p>
+<p><strong>calendar.new</strong> - Allows users to create a new schedule item.</p>
+<p><strong>calendar.options</strong> - Allows user to set their own calendar display options/preferences.</p>
+<p><strong>calendar.read</strong> - Allows users to view the schedule and to read schedule items. This permission is needed in order to see schedule events.</p>
+<p><strong>calendar.revise.any</strong> - Allows users to revise any event.</p>
+<p><strong>calendar.revise.own</strong> - Allows user to edit calendar events they have created.</p>
+<p><strong>calendar.subscribe</strong> - Allows a user to subscribe to a calendar.</p>
+<p><strong>calendar.view.audience</strong> - Allows the user to view the audience (i.e. site - wide or specific group/s) for a calendar item.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="chat">
+    <h2 class="step-title screensteps-heading">Chat</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>chat.delete.any</strong> - Gives the user the ability to delete any chat message, posted by any user. </p>
+<p><strong>chat.delete.channel</strong> - User can delete a channel (a channel equates to a chat room). </p>
+<p><strong>chat.delete.own</strong> - Allows user to delete their own chat messages only.</p>
+<p><strong>chat.new</strong> - Gives user the ability to post new messages. Required in order to view the chat message type in field.</p>
+<p><strong>chat.new.channel</strong> - Allows user to create new chat rooms.</p>
+<p><strong>chat.read</strong> - Gives user the ability to read chat messages. Required in order to view the chat message window.</p>
+<p><strong>chat.revise.channel</strong> - With this permission the user can edit the channel (chat room) metadata.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="commons">
+    <h2 class="step-title screensteps-heading">Commons</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>commons.comment.create</strong> - Allows a user to create a comment.</p>
+<p><strong>commons.comment.delete.any</strong> - Allows a user to delete any comment.</p>
+<p><strong>commons.comment.delete.own</strong> - Allows a user to delete their own comments only.</p>
+<p><strong>commons.comment.read.any</strong> - Allows a user to read any comment.</p>
+<p><strong>commons.comment.update.any</strong> - Allows a user to update any comment.</p>
+<p><strong>commons.comment.update.own</strong> - Allows a user to update their own comments only.</p>
+<p><strong>commons.post.create</strong> - Allows a user to create a post.</p>
+<p><strong>commons.post.delete.any</strong> - Allows a user to delete any post.</p>
+<p><strong>commons.post.delete.own</strong> - Allows a user to delete their own post only.</p>
+<p><strong>commons.post.read.any</strong> - Allows a user to read any post.</p>
+<p><strong>commons.post.update.any</strong> - Allows a user to update any post.</p>
+<p><strong>commons.post.update.own</strong> - Allows a user to update their own posts only.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="resources">
+    <h2 class="step-title screensteps-heading">Resources</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>content.all.groups</strong> - Allows user to view content for all groups.</p>
+<p><strong>content.delete.any</strong> - Allows a user to delete any item in Resources.</p>
+<p><strong>content.delete.own</strong> - Allows a user to delete their own items in Resources only.</p>
+<p><strong>content.hidden</strong> - Allows a user to view hidden files/folders in Resources.</p>
+<p><strong>content.new</strong> - Allows user to upload files to Resources, or create new text, html, or URL resources. </p>
+<p><strong>content.read</strong> - Allows users to access the Resources area -  view the list of Resources and navigate to sub - folders. There is currently no way to remove read in a sibling folder when it has been granted to the parent folder. read is needed in order to see toolbar actions and anything in the resources list. </p>
+<p><strong>content.revise.any</strong> - Allows user to revise files in Resources created by any user. revise is needed along with delete in order to delete files.</p>
+<p><strong>content.revise.own</strong> - Allows user to revise just their own files.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="site-publish">
+    <h2 class="step-title screensteps-heading">Site Publish</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>course_site_publish_service.publish</strong> -  User can publish the site.</p>
+<p><strong>course_site_removal_service.removal</strong> -  User can unpublish the site.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="dropbox">
+    <h2 class="step-title screensteps-heading">Dropbox</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>dropbox.maintain</strong> - Roles granted dropbox.maintain will be have read/write access to all dropboxes. They will see the entire list of dropboxes and can navigate into any dropbox, and can read and upload files there.</p>
+<p><strong>dropbox.maintain.own.groups</strong> - Allows users to view and filter group - based dropboxes for groups to which they belong. (Typically used for TAs who need access to view their assigned sections’ dropboxes.)</p>
+<p><strong>dropbox.own</strong> - Roles granted dropbox.own will have an individual dropbox and will not be able to see any other user’s dropbox. </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="gradebook">
+    <h2 class="step-title screensteps-heading">Gradebook</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>gradebook.editAssignments</strong> - User can edit Gradebook entries to change the metadata.</p>
+<p><strong>gradebook.gradeAll</strong> - User can enter grades for all Gradebook entries.</p>
+<p><strong>gradebook.gradeSection</strong> - User can enter grades only for Gradebook entries associated with the sections they belong to.</p>
+<p><strong>gradebook.viewOwnGrades</strong> - User can view their grades in the Gradebook.</p>
+<p><strong>gradebook.viewStudentNumbers</strong> -  User can view student number in Gradebook.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="lessons">
+    <h2 class="step-title screensteps-heading">Lessons</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>lessonbuilder.read</strong> - User can view Lessons pages.</p>
+<p><strong>lessonbuilder.seeall</strong> - User can view all Lessons pages, including hidden pages or pages that are restricted to particular groups. </p>
+<p><strong>lessonbuilder.upd</strong> - User can create and update Lessons pages.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="email">
+    <h2 class="step-title screensteps-heading">Email</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>mail.delete.any</strong> - Allows user to delete any email message in the archive, sent by any user.</p>
+<p><strong>mail.new</strong> - Gives user the ability to send email to the site, which is stored in the email archive and sent on to site participants with read permission.</p>
+<p><strong>mail.read</strong> - Gives user the ability to view the email archive list and read emails in the list.</p>
+<p><strong>mailtool.admin</strong> - User can administer the Mailtool settings.</p>
+<p><strong>mailtool.send</strong> - User can send email via the Mailtool.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="messages">
+    <h2 class="step-title screensteps-heading">Messages</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>msg.emailout</strong> - Used by Private Messages. Allows user to copy external email address.</p>
+<p><strong>msg.permissions.allowToField.allParticipants</strong> -  User can send messages to all participants in a site.</p>
+<p><strong>msg.permissions.allowToField.groups</strong> -  User can view group list in "To" field.</p>
+<p><strong>msg.permissions.allowToField.myGroupMembers</strong> -  User can view members of their own groups in the "To" field.</p>
+<p><strong>msg.permissions.allowToField.myGroupRoles</strong> -  User can view members with the same site role in the "To" field.</p>
+<p><strong>msg.permissions.allowToField.myGroups</strong> -  </p>
+<p><strong>msg.permissions.allowToField.roles</strong> -  User can view site roles in "To" field.</p>
+<p><strong>msg.permissions.allowToField.users</strong> -  User can view individual site participants in "To" field.</p>
+<p><strong>msg.permissions.viewHidden.groups</strong> -  User can view hidden groups in the "To" field.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="oauth">
+    <h2 class="step-title screensteps-heading">Oauth</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>oauth.admin</strong> - if you don’t have this permission the oauth tool won’t render and it will send an HTTP 401 unauthorized</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="pa-system">
+    <h2 class="step-title screensteps-heading">PA System</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>pasystem.manage</strong> - User can create, edit, and delete banner and popup messages in the PA System.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="polls">
+    <h2 class="step-title screensteps-heading">Polls</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>poll.add</strong> - User can add a new poll in the Polls tool.</p>
+<p><strong>poll.deleteAny</strong> - User can delete any poll.</p>
+<p><strong>poll.deleteOwn</strong> - User can delete their own polls only.</p>
+<p><strong>poll.editAny</strong> - User can edit any poll.</p>
+<p><strong>poll.editOwn</strong> - User can edit their own polls only.</p>
+<p><strong>poll.vote</strong> - User can vote in a poll.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="portal-chat">
+    <h2 class="step-title screensteps-heading">Portal Chat</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p> <strong>portal.chat.permitted</strong> - Allows the user to access Portal Chat.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="preferences">
+    <h2 class="step-title screensteps-heading">Preferences</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>prefs.add</strong> -  </p>
+<p><strong>prefs.del</strong> -  </p>
+<p><strong>prefs.upd</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="realms">
+    <h2 class="step-title screensteps-heading">Realms</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>realm.add</strong> - User can add a new realm.</p>
+<p><strong>realm.del</strong> - User can delete an existing realm.</p>
+<p><strong>realm.upd</strong> - User can update any realm.</p>
+<p><strong>realm.upd.own</strong> - User can update realms they have created only.</p>
+<p><strong>realm.view.all</strong> - User can view all realms.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="roster">
+    <h2 class="step-title screensteps-heading">Roster</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>roster.export</strong> - User can export the roster list (the ‘Export CSV’ button is visible to users with this permission).</p>
+<p><strong>roster.viewallmembers</strong> -  User can see all users in the Roster list.</p>
+<p><strong>roster.viewemail</strong> -  </p>
+<p><strong>roster.viewenrollmentstatus</strong> -  </p>
+<p><strong>roster.viewgroup</strong> -  </p>
+<p><strong>roster.viewhidden</strong> - User can see all participants including those who have hidden their information via a setting in the Profile tool.</p>
+<p><strong>roster.viewofficialphoto</strong> -  </p>
+<p><strong>roster.viewprofile</strong> -  </p>
+<p><strong>roster.viewsitevisits</strong> -  </p>
+<p><strong>roster.viewuserproperties</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="wiki">
+    <h2 class="step-title screensteps-heading">Wiki</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>rwiki.admin</strong> -  User has access to the admin controls.</p>
+<p><strong>rwiki.create</strong> -  Ability to create wiki pages.</p>
+<p><strong>rwiki.read</strong> -  Ability to read wiki pages.</p>
+<p><strong>rwiki.superadmin</strong> -  User can do anything anywhere in the wiki.</p>
+<p><strong>rwiki.update</strong> -  Ability to edit wiki pages.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="section-info">
+    <h2 class="step-title screensteps-heading">Section Info</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>section.role.instructor</strong> -  </p>
+<p><strong>section.role.student</strong> -  </p>
+<p><strong>section.role.ta</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="sign-up">
+    <h2 class="step-title screensteps-heading">Sign-Up</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>signup.attend</strong> -  </p>
+<p><strong>signup.attend.all</strong> -  </p>
+<p><strong>signup.create.group</strong> -  </p>
+<p><strong>signup.create.group.all</strong> -  </p>
+<p><strong>signup.create.site</strong> -  </p>
+<p><strong>signup.delete.group</strong> -  </p>
+<p><strong>signup.delete.group.all</strong> -  </p>
+<p><strong>signup.delete.site</strong> -  </p>
+<p><strong>signup.update.group</strong> -  </p>
+<p><strong>signup.update.group.all</strong> -  </p>
+<p><strong>signup.update.site</strong> -  </p>
+<p><strong>signup.view</strong> -  </p>
+<p><strong>signup.view.all</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="site-info">
+    <h2 class="step-title screensteps-heading">Site Info</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>site.add</strong> - Allows the user to create sites. (They see the New button in their My Workspace.) This permission is set in the !user.template realms, not applicable in !site.template realms.</p>
+<p><strong>site.add.course</strong> -  </p>
+<p><strong>site.add.portfolio</strong> -  </p>
+<p><strong>site.add.project</strong> -  </p>
+<p><strong>site.add.usersite</strong> - Used in the !user.template  gives user the right to create their my workspace (not applicable in the !site.template realm)</p>
+<p><strong>site.del</strong> - Gives user the right to delete the site.</p>
+<p><strong>site.del.softly.deleted</strong> -  </p>
+<p><strong>site.import.archive</strong> -  </p>
+<p><strong>site.roleswap</strong> -  </p>
+<p><strong>site.upd</strong> - Gives user the right to edit the site  users will see the Options and Permissions actions in Toolbars</p>
+<p><strong>site.upd.grp.mbrshp</strong> - For the Section Info tool, for roles that do not have site.upd, allows user to modify (but not create) membership in sections. </p>
+<p><strong>site.upd.site.mbrshp</strong> - For the Section Info tool, for roles that do not have site.upd, allows user to add and remove participants from the site.</p>
+<p><strong>site.viewRoster</strong> - Allows users to view the roster in Site Info. This is settable only via Admin Realms tool when editing the !site.template (e.g., there is not Permissions page in Site Info)</p>
+<p><strong>site.visit</strong> - Gives user the ability to see the site tab. Without this, even though a user may be a participant of the site, they will not see the tab.</p>
+<p><strong>site.visit.softly.deleted</strong> -  </p>
+<p><strong>site.visit.unp</strong> -  Gives user the ability to see the site when it is unpublished.</p>
+<p><strong>sitestats.admin.view</strong> -  </p>
+<p><strong>sitestats.view</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="syllabus">
+    <h2 class="step-title screensteps-heading">Syllabus</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>syllabus.add.item</strong> - User can add a single item to the syllabus.</p>
+<p><strong>syllabus.bulk.add.item</strong> - User can bulk add multiple syllabus items.</p>
+<p><strong>syllabus.bulk.edit.item</strong> - User can bulk edit multiple syllabus items.</p>
+<p><strong>syllabus.redirect</strong> - User can redirect the syllabus to a URL.</p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="tag-service">
+    <h2 class="step-title screensteps-heading">Tag Service</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>tagservice.manage</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="users">
+    <h2 class="step-title screensteps-heading">Users</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>user.add</strong> - Used in the !user.template realm. Allows a user to create a new account. Could be set in the .anon and .auth role to let anyone create an account.</p>
+<p><strong>user.del</strong> -  </p>
+<p><strong>user.studentnumber.visible</strong> -  </p>
+<p><strong>user.upd.any</strong> -  </p>
+<p><strong>user.upd.own</strong> - Allows a user to revise their own user information. Used in the !user.template realm.</p>
+<p><strong>user.upd.own.email</strong> -  </p>
+<p><strong>user.upd.own.name</strong> -  </p>
+<p><strong>user.upd.own.passwd</strong> -  </p>
+<p><strong>user.upd.own.type</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1" id="user-membership">
+    <h2 class="step-title screensteps-heading">User Membership</h2>
+      <div class="step-instructions screensteps-textblock">
+  <p><strong>usermembership.view</strong> -  </p>
+<p> </p>
+</div>
+ 
+  </div>
+
+      <div class="step screensteps-section screensteps-depth-1">
+    
+  </div>
+
+
+</div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

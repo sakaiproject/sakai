@@ -7,6 +7,7 @@
       <version>22-SNAPSHOT</version>
       <relativePath>../master/pom.xml</relativePath>
     </parent>
+
   <name>Sakai Syllabus Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>syllabus-base</artifactId>
@@ -15,7 +16,6 @@
   <modules>
     <module>syllabus-api</module>
     <module>syllabus-app</module>
-    <module>syllabus-hbm</module>
     <module>syllabus-impl</module>
   </modules>
 
@@ -26,13 +26,7 @@
         <artifactId>sakai-syllabus-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-syllabus-hbm</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
-
 
 </project>

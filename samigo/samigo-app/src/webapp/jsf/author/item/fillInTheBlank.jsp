@@ -34,9 +34,11 @@
       <script src="/samigo-app/js/authoring.js"></script>
       <script type="text/javascript">
           var defining_answers;
+          var mutually_exclusive;
           var last_markers;
           $(function () {
               defining_answers = $("#defining_answers").html();
+              mutually_exclusive = $("#mutually_exclusive").html();
               checkMarkers();
               $("#itemForm\\:markers").change(function () {
                   checkMarkers();
@@ -49,7 +51,7 @@
 
           function checkMarkers() {
               var markerPair = $("#itemForm\\:markers").val();
-                if (markerPair.match(/[\"\'.,\ |*]/)) {
+                if (markerPair.match(/[\"\'.,&<>\ |*]/)) {
                   return;
               }
               if (markerPair.charAt(0) == markerPair.charAt(1)) {
@@ -59,6 +61,7 @@
                   return;
               }
               $("#defining_answers").html(defining_answers.replace(/{/g, safe_tags(markerPair.charAt(0))).replace(/}/g, safe_tags(markerPair.charAt(1))));
+              $("#mutually_exclusive").html(mutually_exclusive.replace(/{/g, safe_tags(markerPair.charAt(0))).replace(/}/g, safe_tags(markerPair.charAt(1))));
           }
         </script>
       </head>
@@ -188,7 +191,7 @@
         </p>
     </div>
 
-    <div>
+    <div id="mutually_exclusive">
         <div class="samigo-checkbox">
             <h:selectBooleanCheckbox id="exclusive" value="#{itemauthor.currentItem.mutuallyExclusiveForFib}">
             </h:selectBooleanCheckbox>

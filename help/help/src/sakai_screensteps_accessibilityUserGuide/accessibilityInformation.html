@@ -4,9 +4,8 @@
 <title>Accessibility Information</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="sakai.accessibility" name="description">
-<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -20,35 +19,39 @@
 </script>
 </head>
 <body>
-  <div><div>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
 <div><h1 class="article-title">Accessibility Information</h1></div>
-<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>Sakai is a Learning Management System created to assist faculty and students by providing online tools for communication, assessment, content delivery, etc.</p>
-<p>Sakai is composed of sites, and each site has a number of tools selected by the site creator. There is also a special site, My Workspace, private to you, where you can access personal information and change your settings.</p>
+<p>Sakai is composed of sites, and each site has a number of tools selected by the site creator. There is also a special site, My Workspace (private to you), where you can access personal information and change your settings.</p>
 <p>This document is assistive technology agnostic and will briefly describe the different areas of the interface, point out how they are implemented for accessibility, and go into more depth where extra assistance may be needed.</p>
 <p>If you need specific help with your assistive technology, please contact your institution's office for Disability Student Services and/or Information Technology Services.</p>
 <p>For additional information visit the <a href="https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group" target="_blank">Accessibility Working Group</a> on the Confluence Wiki.</p>
 <p><em>Note: The content depicted in images on this page may differ from what you experience, due to your institution's customization of Sakai.</em></p>
 <p>This article describes the following:</p>
 <ul>
-<li><a href="content.hlp?docId=versusmobileview">Desktop versus Mobile View in Sakai</a></li>
+<li><a href="#desktop-versus-mobile-view" target="_self">Desktop versus Mobile View in Sakai</a></li>
 <li>
-<a href="content.hlp?docId=ofuvacollab">Organization of Sakai</a><ul>
-<li><a href="content.hlp?docId=accesskeys">Important Access Keys for Main Navigation</a></li>
-<li><a href="content.hlp?docId=accessskiptolinks">Quick Access (Skip to...) Links</a></li>
-<li><a href="content.hlp?docId=sites">Sites</a></li>
-<li><a href="content.hlp?docId=profilepictureandnameusethismenutologout">Your Profile Picture and Name (Use This Menu to Log Out)</a></li>
-<li><a href="content.hlp?docId=siteslist">Favorite Sites List (on Desktop View)</a></li>
-<li><a href="content.hlp?docId=menuforthecurrentsite">Tool Menu for the Current Site</a></li>
-<li><a href="content.hlp?docId=collapsetoolnavigationforsightedusers">Expand/Collapse Tool Navigation (for Sighted Users, on Desktop View)</a></li>
-<li><a href="content.hlp?docId=area">Content Area</a></li>
-<li><a href="content.hlp?docId=keystonavigatethecontentarea">Access Keys to Navigate the Content Area</a></li>
-<li><a href="content.hlp?docId=footer">Footer</a></li>
+<a href="#organization-of-uvacollab" target="_self">Organization of Sakai</a><ul>
+<li><a href="#important-access-keys" target="_self">Important Access Keys for Main Navigation</a></li>
+<li><a href="#quick-access-skip-to-links" target="_self">Quick Access (Skip to...) Links</a></li>
+<li><a href="#my-sites" target="_self">Sites</a></li>
+<li><a href="#your-profile-picture-and-name-use-this-menu-to-log-out" target="_self">Your Profile Picture and Name (Use This Menu to Log Out)</a></li>
+<li><a href="#favorite-sites-list" target="_self">Favorite Sites List (on Desktop View)</a></li>
+<li><a href="#tool-menu-for-the-current-site" target="_self">Tool Menu for the Current Site</a></li>
+<li><a href="#expand-collapse-tool-navigation-for-sighted-users" target="_self">Expand/Collapse Tool Navigation (for Sighted Users, on Desktop View)</a></li>
+<li><a href="#content-area" target="_self">Content Area</a></li>
+<li><a href="#access-keys-to-navigate-the-content-area" target="_self">Access Keys to Navigate the Content Area</a></li>
+<li><a href="#footer" target="_self">Footer</a></li>
 </ul>
 </li>
-<li><a href="content.hlp?docId=texteditoraccessibility">Rich-Text Editor Accessibility</a></li>
-<li><a href="content.hlp?docId=forenlargingscreenelementsmodifyingcolorscontrast">Instructions for Enlarging Screen Elements, Modifying Colors/Contrast</a></li>
-<li><a href="content.hlp?docId=morehelp">How to Get More Help</a></li>
+<li><a href="#rich-text-editor-accessibility" target="_self">Rich-Text Editor Accessibility</a></li>
+<li><a href="#instructions-for-enlarging-screen-elements-modifying-colors-contrast" target="_self">Instructions for Enlarging Screen Elements, Modifying Colors/Contrast</a></li>
+<li><a href="#getting-more-help" target="_self">How to Get More Help</a></li>
 </ul>
 <p>If you need specific help with your assistive technology, please refer to your local institution's website to find contact information for groups that can assist you with accessibility accommodations. </p>
 </div>
@@ -56,7 +59,7 @@
       <div class="step screensteps-section screensteps-depth-1" id="desktop-versus-mobile-view">
     <h2 class="step-title screensteps-heading">Desktop versus Mobile View</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>Sakai has a responsive design to adapt to different screen sizes, so certain elements only display when an internet browser window is larger than 770 pixels in width.  In the descriptions below, <strong>Desktop View</strong> will be used to refer to the display when an internet browser window is larger than 770 pixels in width.  <strong>Mobile View</strong> will refer to the display on smaller windows.</p>
+  <p>Sakai has a responsive design to adapt to different screen sizes, so certain elements only display when an internet browser window is larger than 770 pixels in width. In the descriptions that follow, <strong>Desktop View</strong> will be used to refer to the display when an internet browser window is larger than 770 pixels in width. <strong>Mobile View</strong> will refer to the display on smaller windows.</p>
 </div>
  
   </div>
@@ -116,7 +119,7 @@
 <li>Most Mac browsers: <strong>Ctrl + Option + [the Access key]</strong>
 </li>
 </ul>
-<p>The information on Access keys in this note provided by <a href="http://webaim.org" target="_blank">WebAIM.org</a> (opens new window).  You can learn more about Access keys on their website, <a href="http://webaim.org/techniques/keyboard/accesskey" target="_blank">Keyboard Accessibility © WebAIM</a> (opens new window).</p>
+<p>The information on Access keys in this note provided by <a href="http://webaim.org" target="_blank">WebAIM.org</a> (opens new window). You can learn more about Access keys on their website, <a href="http://webaim.org/techniques/keyboard/accesskey" target="_blank">Keyboard Accessibility © WebAIM</a> (opens new window).</p>
 </div>
  
   </div>
@@ -154,7 +157,7 @@
         <div class="step screensteps-section screensteps-depth-2" id="your-profile-picture-and-name-use-this-menu-to-log-out">
     <h3 class="step-title screensteps-heading">Your Profile Picture and Name (Use This Menu to Log Out)</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/003/129/668/original/78544000-6a3f-4f04-aef4-4a8706408df3.png" alt="" height="384" width="376">
+    <img src="https://media.screensteps.com/image_assets/assets/003/970/314/original/78544000-6a3f-4f04-aef4-4a8706408df3.png" alt="" height="388" width="378">
 </div>
  
       <div class="step-instructions screensteps-textblock">
@@ -167,6 +170,7 @@
 <li>A <strong>Calendar</strong> link that will take you to your aggregated calendar for all enrolled sites</li>
 <li>A <strong>Preferences</strong> link that will take you to a page where you can edit your Sakai notifications, time zone, language, and active sites</li>
 <li>A <strong>Tutorial</strong> link to start the Sakai introductory tutorial (this tutorial also appears the first time you log into Sakai)</li>
+<li>You have the option to select a theme for your Sakai site--either dark or light view depending on your preference. </li>
 <li>A <strong>Log Out </strong>link to log you out and take you to back to the <em>Gateway</em> page of Sakai</li>
 </ol>
 </div>
@@ -184,13 +188,13 @@
       <div class="step-instructions screensteps-textblock">
   <ul>
 <li>
-<strong>Location</strong>:  On Desktop View only, the favorite sites list appears after the Tool Menu.</li>
+<strong>Location:</strong> On Desktop View only, the favorite sites list appears after the Tool Menu.</li>
 <li>
-<strong>Landmark</strong>: navigation (“Sites list begins here”)  </li>
+<strong>Landmark:</strong> Navigation (“Sites list begins here”)  </li>
 <li>
-<strong>Heading</strong>: Level 1 (“Sites list begins here”)</li>
+<strong>Heading:</strong> Level 1 (“Sites list begins here”)</li>
 </ul>
-<p>This list contains the links to sites you most commonly use.  You can select which sites appear in the list by selecting them as Favorites from the <strong>View All Sites</strong> menu.  Each favorite site's tab will either take you to the site, or if you <strong>Tab</strong> to the menu and press the <strong>Down</strong> arrow key, it will supply you with a submenu of that site’s tools so that you can go straight to that tool on the selected site.</p>
+<p>This list contains the links to sites you most commonly use. You can select which sites appear in the list by selecting them as Favorites from the <strong>View All Sites</strong> menu. Each favorite site's tab will either take you to the site, or if you <strong>Tab</strong> to the menu and press the <strong>Down</strong> arrow key, it will supply you with a submenu of that site’s tools so that you can go straight to that tool on the selected site.</p>
 <p>Using the <strong>Up</strong> and <strong>Down</strong> arrow keys, you can navigate the submenu to the site specific tool links. These links can be activated using the <strong>Enter</strong> key.</p>
 <p>If you have a large number of favorite sites, only the first 15 sites will display in this list.</p>
 </div>
@@ -200,19 +204,19 @@
         <div class="step screensteps-section screensteps-depth-2" id="tool-menu-for-the-current-site">
     <h3 class="step-title screensteps-heading">Tool Menu for the Current Site</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/003/129/670/original/55fcf9bb-e87c-4506-be77-f64a07040aee.png" alt="" height="837" width="572">
+    <img src="https://media.screensteps.com/image_assets/assets/003/974/754/original/55fcf9bb-e87c-4506-be77-f64a07040aee.png" alt="" height="856" width="565">
 </div>
  
       <div class="step-instructions screensteps-textblock">
   <ul>
 <li>
-<strong>Location</strong>: On Desktop View, the Tool Menu appears to the left of the screen. On Mobile View, it can be accessed by selecting <strong>Tools</strong> near the top of the screen.</li>
+<strong>Location:</strong> On Desktop View, the Tool Menu appears to the left of the screen. On Mobile View, it can be accessed by selecting <strong>Tools</strong> near the top of the screen.</li>
 <li>
-<strong>Landmark</strong>: navigation (“Tools list begins here”)</li>
+<strong>Landmark:</strong> Navigation (“Tools list begins here”)</li>
 <li>
-<strong>Heading</strong>: Level 1 (“Tools list begins here”)</li>
+<strong>Heading:</strong> Level 1 (“Tools list begins here”)</li>
 <li>
-<strong>Access key</strong>: [<strong>L</strong>]</li>
+<strong>Access key:</strong> [<strong>L</strong>]</li>
 </ul>
 <p>Pictured above is the Tool Menu of a <strong>Home</strong> site, in both Desktop View and Mobile View.</p>
 </div>
@@ -226,11 +230,11 @@
         <div class="step screensteps-section screensteps-depth-2" id="expand-collapse-tool-navigation-for-sighted-users">
     <h3 class="step-title screensteps-heading">Expand/Collapse Tool Navigation (for Sighted Users, on Desktop View)</h3>
       <div class="image screensteps-image">
-    <img src="https://media.screensteps.com/image_assets/assets/002/261/016/original/61352154-3d3d-431f-a48e-ee5996268398.png" alt="" height="247" width="430">
+    <img src="https://media.screensteps.com/image_assets/assets/003/974/756/original/61352154-3d3d-431f-a48e-ee5996268398.png" alt="" height="340" width="430">
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p><strong>Location</strong>: On Desktop View only, at the bottom of the screen underneath the Tool Menu is a button to collapse or expand the menu.  When collapsed, the Tool Menu displays with icons only, no text.</p>
+  <p><strong>Location: </strong>On Desktop View only, at the bottom of the screen underneath the Tool Menu is a button to collapse or expand the menu. When collapsed, the Tool Menu displays with icons only, no text.</p>
 <p>The <strong>Expand/Collapse Tool Navigation</strong> button display switches between <strong>&lt;&lt; </strong>(to collapse the Tool Menu) and <strong>&gt;&gt;</strong> (to expand the Tool Menu), depending on the state of the menu.</p>
 </div>
  
@@ -243,8 +247,8 @@
         <div class="step screensteps-section screensteps-depth-2" id="content-area">
     <h3 class="step-title screensteps-heading">Content Area</h3>
       <div class="image screensteps-image">
-    <a href="https://media.screensteps.com/image_assets/assets/002/273/346/original/10706a15-6440-4314-a962-6d66b4362e3a.png" class="screensteps-image-zoom">
-      <img src="https://media.screensteps.com/image_assets/assets/002/273/346/medium/10706a15-6440-4314-a962-6d66b4362e3a.png" alt="" height="167" width="855">
+    <a href="https://media.screensteps.com/image_assets/assets/003/974/764/original/630fcc86-1980-4243-bfbc-87bfc6b33e72.png" class="screensteps-image-zoom">
+      <img src="https://media.screensteps.com/image_assets/assets/003/974/764/medium/630fcc86-1980-4243-bfbc-87bfc6b33e72.png" alt="" height="121" width="855">
     </a>
 </div>
  
@@ -252,17 +256,17 @@
   <p>The content comes after the Tool Menu.  </p>
 <ul>
 <li>
-<strong>Location</strong>: On Desktop View, the content displays to the right of the Tool Menu.  On Mobile View, the content appears underneath the <strong>Tools</strong> link.</li>
+<strong>Location:</strong> On Desktop View, the content displays to the right of the Tool Menu. On Mobile View, the content appears underneath the <strong>Tools</strong> link.</li>
 <li>
-<strong>Landmark</strong>: main</li>
+<strong>Landmark:</strong> Main</li>
 <li>
-<strong>Heading</strong>: Level 1 “Content begins here”</li>
+<strong>Heading:</strong> Level 1 “Content begins here”</li>
 <li>
-<strong>Access key</strong>: [<strong>C</strong>]</li>
+<strong>Access key:</strong> [<strong>C</strong>]</li>
 </ul>
 <p>At the top of the content area for most tools, you will find:</p>
 <ol>
-<li>The <strong>title of the tool</strong> you are currently viewing.  This is also a <strong>Refresh Tool</strong> link that returns you to the main page of the tool when clicked.  Pictured above is an example of an <strong>Assignments</strong> (<strong>Refresh Tool</strong>) link.</li>
+<li>The <strong>title of the tool</strong> you are currently viewing. This is also a <strong>Refresh Tool</strong> link that returns you to the main page of the tool when clicked.  Pictured above is an example of an <strong>Assignments</strong> (<strong>Refresh Tool</strong>) link.</li>
 <li>The title will be followed by a <strong>Help</strong> button, which opens a new tab or window (depending on your internet browser preferences) with help documentation for the current tool.</li>
 </ol>
 </div>
@@ -274,24 +278,24 @@
       <div class="step-instructions screensteps-textblock">
   <p>Most content views use some or all of these Access keys:</p>
 <ul>
-<li>Delete, remove, or cancel - <strong>Access key</strong>: [<strong>X</strong>]</li>
-<li>Edit or revise -  <strong>Access key</strong>: [<strong>E</strong>]</li>
-<li>Help -   <strong>Access key</strong>: [<strong>0</strong>]</li>
-<li>Refresh -   <strong>Access key</strong>: [<strong>U</strong>]</li>
-<li>Save -  <strong>Access key</strong>: [<strong>S</strong>]</li>
-<li>View or preview -  <strong>Access key</strong>: [<strong>V</strong>] </li>
+<li>Delete, remove, or cancel - <strong>Access key:</strong> [<strong>X</strong>]</li>
+<li>Edit or revise -  <strong>Access key:</strong> [<strong>E</strong>]</li>
+<li>Help -   <strong>Access key:</strong> [<strong>0</strong>]</li>
+<li>Refresh -   <strong>Access key: </strong>[<strong>U</strong>]</li>
+<li>Save -  <strong>Access key:</strong> [<strong>S</strong>]</li>
+<li>View or preview -  <strong>Access key:</strong> [<strong>V</strong>] </li>
 </ul>
 </div>
  
       <div class="step-instructions screensteps-textblock screensteps-wrapper--info screensteps-wrapper">
-  <p>Note:<strong> </strong>The exact keyboard commands to trigger an Access key depend on your computer operating system and internet browser.  Commonly used browsers tend to use the following commands:</p>
+  <p>Note:<strong> </strong>The exact keyboard commands to trigger an Access key depend on your computer operating system and internet browser. Commonly used browsers tend to use the following commands:</p>
 <ul>
 <li>Most Windows browsers: <strong>Shift + Alt + [the Access key]</strong>
 </li>
 <li>Most Mac browsers: <strong>Ctrl + Option + [the Access key]</strong>
 </li>
 </ul>
-<p>The information on Access keys in this note provided by <a href="http://webaim.org" target="_blank">WebAIM.org</a> (opens new window).  You can learn more about Access keys on their website, <a href="http://webaim.org/techniques/keyboard/accesskey" target="_blank">Keyboard Accessibility © WebAIM</a> (opens new window).</p>
+<p>The information on Access keys in this note provided by <a href="http://webaim.org" target="_blank">WebAIM.org</a> (opens new window). You can learn more about Access keys on their website, <a href="http://webaim.org/techniques/keyboard/accesskey" target="_blank">Keyboard Accessibility © WebAIM</a> (opens new window).</p>
 </div>
  
   </div>
@@ -308,9 +312,9 @@
   <p>The footer contains a list of links:</p>
 <ul>
 <li>
-<strong>Gateway</strong>, which takes you to the main page (homepage) of Sakai</li>
+<strong>Gateway,</strong> which takes you to the main page (homepage) of Sakai</li>
 <li>
-<strong>Accessibility Information</strong>, which displays the accessibility help documentation</li>
+<strong>Accessibility Information,</strong> which displays the accessibility help documentation</li>
 <li>
 <strong>The Sakai Project</strong> and <strong>Powered by Sakai</strong> links, which take you to the Sakai LMS website</li>
 </ul>
@@ -332,7 +336,7 @@
     <h2 class="step-title screensteps-heading">Rich-Text Editor Accessibility</h2>
       <div class="step-instructions screensteps-textblock">
   <p>In most areas of Sakai where text can be entered, you can use the <strong>Rich-Text Editor</strong> to edit and format your text, and to add links, images, or media.</p>
-<p>Steps to access the Rich-Text Editor's toolbar with a keyboard are included in <a href="content.hlp?docId=whataresomekeyboardshortcutsfortherichtexteditor">What are some keyboard shortcuts for the Rich-Text Editor?</a></p>
+<p>Steps to access the Rich-Text Editor's toolbar with a keyboard are included in <a href="content.hlp?docId=whataresomekeyboardshortcutsfortherichtexteditor">What are some keyboard shortcuts for the Rich Text Editor?</a></p>
 </div>
  
   </div>
@@ -340,7 +344,7 @@
       <div class="step screensteps-section screensteps-depth-1" id="instructions-for-enlarging-screen-elements-modifying-colors-contrast">
     <h2 class="step-title screensteps-heading">Instructions for Enlarging Screen Elements, Modifying Colors/Contrast</h2>
       <div class="step-instructions screensteps-textblock">
-  <p>You can use the browser’s zooming function to increase text size.  Sakai will work well up to 200% zoom.</p>
+  <p>You can use the browser’s zooming function to increase text size. Sakai will work well up to 200% zoom.</p>
 <p>If you need a higher level of magnification, or if you need to have the cursor/pointer augmented, you may be more comfortable using a third-party magnifier such as <a href="https://www.freedomscientific.com/Products/LowVision/MAGic" target="_blank">MAGic</a> (opens new window) or <a href="https://www.zoomtext.com/products/" target="_blank">ZoomText</a> (opens new window).</p>
 <p>To change color and contrast settings, use the operating system settings, browser settings, or your preferred browser plug-ins.  </p>
 </div>
@@ -357,7 +361,11 @@
   </div>
 
 
-</div>
 </div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
 </body>
 </html>

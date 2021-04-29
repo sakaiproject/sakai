@@ -7,7 +7,11 @@
 		.panel-chat {
 			padding: 0;
 			margin: 14px 0 0 0;
+			background: var(--sakai-background-color-1);
+
 			.panel-heading {
+				background: var(--sakai-background-color-1);
+
 				h3 {
 					margin: 0;
 					padding-top: 0;
@@ -27,7 +31,7 @@
 			}
 			.nav.nav-tabs {
 				margin: 10px 0 0 0;
-				border-color: #dddddd;
+				border-color: var(--sakai-border-color);
 				display: none;
 				@media #{$tablet} {
 					display: block;
@@ -89,7 +93,7 @@
 								li {
 									margin: 0 17px;
 									padding: 19px 0 5px 0;
-									border-top: 1px solid #f1f1f1;
+									border-top: 1px solid var(--sakai-border-color);
 									position: relative;
 									&.nestedMessage {
 										padding: 0 0 5px 0;
@@ -108,8 +112,8 @@
 										margin: 0 0 5px 0;
 										padding: 5px 17px;
 										text-align: center;
-										border-bottom: 1px solid #f1f1f1;
-										background: #f7f7f7;
+										border-bottom: 1px solid var(--sakai-border-color);
+										background: var(--sakai-background-color-2);
 										+ li {
 											border-top: 0;
 										}
@@ -119,7 +123,7 @@
 											border-radius: 50px;
 											padding: 2px 7px;
 											font-size: 10px;
-											color: #fff;
+											color: var(--sakai-text-color-inverted);
 											margin-right: 5px;
 										}
 									}
@@ -133,7 +137,7 @@
 										height: 42px;
 										border-radius: 21px;
 										line-height: 40px;
-										color: #fff;
+										color: var(--sakai-text-color-inverted);
 										text-align: center;
 										font-weight: bold;
 										font-size: 15px;
@@ -142,7 +146,7 @@
 										background-repeat: no-repeat;
 										background-position-x: center;
 										.chatUserOnline {
-											background: #8BC34A;
+											background: var(--sakai-user-status-online);
 											height: 12px;
 											width: 12px;
 											position: absolute;
@@ -173,7 +177,7 @@
 									}
 									.chatMessage {
 										display: block;
-										color: #656565;
+										color: var(--sakai-text-color-1);
 										position: relative;
 										line-height: 19px;
 										margin: 5px 0 5px 53px;
@@ -214,8 +218,8 @@
 						width: 40px;
 						height: 40px;
 						border-radius: 20px;
-						background: white;
-						border: 1px solid #dcdcdc;
+						background: var(--sakai-background-color-1);
+						border: 1px solid var(--sakai-border-color);
 						cursor: pointer;
 
 						.newMessages {
@@ -227,7 +231,7 @@
 							font-size: 10px;
 							transform: translate(-50%);
 							left: 50%;
-							color: #fff;
+							color: var(--sakai-text-color-inverted);
 						}
 
 						.scrollIcon {
@@ -237,7 +241,7 @@
 				}
 				.chatListOnline {
 					width: 300px;
-					border-left: 1px solid #f1f1f1;
+					border-left: 1px solid var(--sakai-border-color);
 					max-height: 517px;
 					overflow-y: scroll;
 					@media #{$desktop} {
@@ -252,7 +256,7 @@
 						margin: 0 10px 0 10px;
 						padding: 8px 0 5px 0;
 						font-size: 15px;
-						border-bottom: 1px solid #f1f1f1;
+						border-bottom: 1px solid var(--sakai-border-color);
 						text-align: center;
 						@media #{$tablet} {
 							display: none;
@@ -271,9 +275,11 @@
 				}
 			}
 			.panel-footer {
+				background: var(--sakai-background-color-1);
+				
 				#topForm\:controlPanel\:message {
 					width: 100%;
-					border: 1px solid #dddddd;
+					border: 1px solid var(--sakai-border-color);
 					padding: 2px 5px;
 				}
 				.act {
@@ -356,7 +362,7 @@
 		    text-align: center;
 		    margin-right: auto;
 		    vertical-align: text-bottom;
-		    border: 1px solid #FFF;
+		    border: 1px solid transparent;
 		    margin-left: 5px;
 		    padding: 0;
 		    font-size: 0.8em;
@@ -392,8 +398,8 @@
 	}
 	&presence {
 		&__area {
-		    background-color: #fff;
-		    border: 1px solid #ccc;
+		    background-color: var(--sakai-background-color-1);
+		    border: 1px solid var(--sakai-border-color);
 		    position: fixed;
 		    height: 265px;
 		    width: 175px;
@@ -452,7 +458,7 @@
 		    padding: 0px;
 		    display: none;
 
-		    box-shadow: 0 -2px 2px var(--sakai-color-gray--darker-3);
+		    box-shadow: var(--elevation-2dp);
 			
 			h5{
 				margin-bottom: 5px !important;
@@ -558,25 +564,19 @@
 			}
 			&__connection--ping{
 			 	display: none;
-			    color: #fff;
+			    color: var(--sakai-text-color-inverted);
 			    padding: 2px;
 			    position: absolute;
 			    right: 30px;
 			    top: 1px;
-			    background: green;
+			    background: var(--sakai-user-status-online);
 			    -moz-border-radius: 3px;
 			    -webkit-border-radius: 3px;
 			    -khtml-border-radius: 3px;
 			    border-radius: 3px;
 			}
 			&__message--new{
-				background-color: #fcc6c6;
-			    background: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
-			    background: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-			    background: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-			    background: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-			    background: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
-			    background: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+				@extend .sakai-colorize--sakai-color-red--darker-2;
 			}
 			
 			/*Chat windows*/
@@ -585,7 +585,7 @@
 					height: 300px;
 				    width: 256px;
 				    float: right;
-				    border: #ccc solid 1px;
+				    border: 1px solid var(--sakai-border-color);
 				    border-bottom: 0;
 				    bottom: 0;
 				    margin-right: 5px;
@@ -616,7 +616,6 @@
 	    		}
 	    		&maximised{
 	    			margin-top: 0px;
-	   				font-family: 'Helvetica Neue', Arial;
 	    		}
 	    		&minimised{
 	    			margin-top: 260px;
@@ -627,7 +626,7 @@
 					-webkit-border-radius: 5px;
 					-moz-border-radius: 5px;
 					border-radius: 3px;
-					border: #fff solid 1px;
+					border: 1px solid transparent;
 					display: inline-block;
 					width: 80%;
 					margin-left: 5px;
@@ -705,14 +704,14 @@
     				font-weight: bold;
     				font-size: 0.9em;
     				padding: 0 5% 5% 5%;
-    				text-align: center;    		
+    				text-align: center;
 	    		}
 	    		&displayname{
 					margin-left: -20px;
-    				margin-top: 3px;    		
+    				margin-top: 3px;
 	    		}
 				&messageheader{
-				  color: #555;
+				  color: var(--sakai-text-color-dimmed);
 				  position: absolute;
 				  right: 3px;
 				  top: 3px;
@@ -721,8 +720,8 @@
 	    		
 	    		&editorwrapper {
 				    padding: 5px 5px 0px 7px;
-				    background: #f3f3f3;
-				    border-top: 1px solid #ccc;
+				    background: var(--sakai-background-color-2);
+				    border-top: 1px solid var(--sakai-border-color);
 				    height: 200px;
 				}
 				&editor {
@@ -731,12 +730,12 @@
 				    padding: 1px;
 				}
 				&videocontent{
-					  background-color: #000;
+					  background-color:var(--sakai-color-black);
 				}
 				&messages{
 					list-style: none;
 					padding: 0px;
-				    background: white;
+				    background: var(--sakai-background-color-1);
 				    height: 225px;
 				    overflow: auto;
 				    margin: 0;
@@ -746,7 +745,7 @@
 						img{
 							max-width: 10%;
 							width: 10%;
-							border: 1px solid #ccc;
+							border: 1px solid var(--sakai-border-color);
 							margin-left: 2px;
 						}
 					}
@@ -776,7 +775,7 @@
 					overflow: hidden;
 					position: relative;
 					height: 18px;
-					border-bottom: 1px solid #CCC;
+					border-bottom: 1px solid var(--sakai-border-color);
 				}
 				&answerelement{
 					  font-size: 12px;
@@ -788,7 +787,7 @@
 				}
 				&leftelement{
 					float: left;
-  					width: 25%;				
+  					width: 25%;
 				}
 				&rightelement{
 					font-size: 15px;
@@ -798,7 +797,7 @@
 					text-align: right;
 				}
 				&remotevideo{
-						background: black;
+						background: var(--sakai-color-black);
 						position: relative;
 						z-index: 101;
 				}
@@ -809,7 +808,7 @@
 				&statusbar{
 					  position: relative;
 					  top: 150px;
-					  color: #DEDEDE;
+					  color: var(--sakai-text-color-dimmed);
 					  font-weight: bold;
 					  font-size: 10pt;
 					  text-align: center;
@@ -826,7 +825,7 @@
 					  position: relative;
 					  top: 20px;
 					  color: $footerApp__chat__header__color;
-					  background-color: #000;
+					  background-color: var(--sakai-color-black);
 					  .Mrphs-footerApp--icon {
 					  	font-size: 3em;
 					  	padding-top: 10px;
@@ -857,126 +856,37 @@
 						width: 10px;
 						height: 10px;
 						margin: 90px auto;
-						background: #FFFFFF;
-						-moz-border-radius: 50px;
-						-moz-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
-						-webkit-border-radius: 50px;
-						-webkit-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
-						-ms-border-radius: 50px;
-						-ms-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
-						-o-border-radius: 50px;
-						-o-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						background: var(--sakai-background-color-1);
 						border-radius: 50px;
 						animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
 						
 						&.Mrphs-portalChat__videochat--bubblingG_1 {
-							-moz-animation-delay: 0s;
-							-webkit-animation-delay: 0s;
-							-ms-animation-delay: 0s;
-							-o-animation-delay: 0s;
 							animation-delay: 0s;
 						}
 						&.Mrphs-portalChat__videochat--bubblingG_2 {
-							-moz-animation-delay: 0.39s;
-							-webkit-animation-delay: 0.39s;
-							-ms-animation-delay: 0.39s;
-							-o-animation-delay: 0.39s;
 							animation-delay: 0.39s;
 						}
 						&.Mrphs-portalChat__videochat--bubblingG_3 {
-							-moz-animation-delay: 0.78s;
-							-webkit-animation-delay: 0.78s;
-							-ms-animation-delay: 0.78s;
-							-o-animation-delay: 0.78s;
 							animation-delay: 0.78s;
 						}
 					}
 				} 
-				
-				@-moz-keyframes &bubblingG {
-					0% {
-						width: 10px;
-						height: 10px;
-						background-color:#FFFFFF;
-						-moz-transform: translateY(0);
-					}
-					
-					100% {
-						width: 24px;
-						height: 24px;
-						background-color:#4D4D4D;
-						-moz-transform: translateY(-21px);
-					}
-				
-				}
-				
-				@-webkit-keyframes Mrphs-portalChat__videochat--bubblingG {
-					0% {
-						width: 10px;
-						height: 10px;
-						background-color:#FFFFFF;
-						-webkit-transform: translateY(0);
-					}
-					
-					100% {
-						width: 24px;
-						height: 24px;
-						background-color:#4D4D4D;
-						-webkit-transform: translateY(-21px);
-					}
-				}
-				
-				@-ms-keyframes Mrphs-portalChat__videochat--bubblingG {
-					0% {
-						width: 10px;
-						height: 10px;
-						background-color:#FFFFFF;
-						-ms-transform: translateY(0);
-					}
-					
-					100% {
-						width: 24px;
-						height: 24px;
-						background-color:#4D4D4D;
-						-ms-transform: translateY(-21px);
-					}
-				}
-				
-				@-o-keyframes Mrphs-portalChat__videochat--bubblingG {
-					0% {
-						width: 10px;
-						height: 10px;
-						background-color:#FFFFFF;
-						-o-transform: translateY(0);
-					}
-					
-					100% {
-						width: 24px;
-						height: 24px;
-						background-color:#4D4D4D;
-						-o-transform: translateY(-21px);
-					}
-				}
 
 				@keyframes Mrphs-portalChat__videochat--bubblingG {
 					0% {
 						width: 10px;
 						height: 10px;
-						background-color:#FFFFFF;
+						background-color:var(--sakai-background-color-1);
 						transform: translateY(0);
 					}
 					
 					100% {
 						width: 24px;
 						height: 24px;
-						background-color:#4D4D4D;
+						background-color: var(--sakai-background-color-4);
 						transform: translateY(-21px);
 					}
 				}
-				
 			}
-		
 	}
-	
-
 }

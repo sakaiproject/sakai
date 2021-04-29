@@ -45,6 +45,7 @@ public class WebAppConfiguration implements WebApplicationInitializer {
                         "/*");
 
         ServletRegistration.Dynamic servlet = servletContext.addServlet("sakai.webapi", new DispatcherServlet(rootContext));
+        servlet.setAsyncSupported(true);
         servlet.addMapping("/");
         servlet.setLoadOnStartup(1);
     }

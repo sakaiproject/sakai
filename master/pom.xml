@@ -23,7 +23,7 @@
     <sakai.version>22-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.11</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.9</sakai.commons-text.version>
@@ -44,18 +44,18 @@
     <sakai.httpcore5.version>5.0.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.9.1</sakai.ignite.version>
     <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
-    <sakai.jackson.version>2.11.2</sakai.jackson.version>
+    <sakai.jackson.version>2.12.2</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.18</sakai.lombok.version>
+    <sakai.lombok.version>1.18.20</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.org.json.version>20190722</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
-    <sakai.opencsv.version>5.3</sakai.opencsv.version>
+    <sakai.opencsv.version>5.4</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
@@ -66,8 +66,8 @@
     <sakai.spring.security.version>5.2.6.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
-    <sakai.tika.version>1.25</sakai.tika.version>
-    <sakai.tomcat.version>9.0.43</sakai.tomcat.version>
+    <sakai.tika.version>1.26</sakai.tika.version>
+    <sakai.tomcat.version>9.0.45</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -77,7 +77,7 @@
     <sakai.mockito.version>3.4.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.7</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.6</joda.time.version>
+    <joda.time.version>2.10.10</joda.time.version>
     <sakai.weld.shaded.version>3.1.3.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
@@ -325,13 +325,20 @@
     <repository>
       <id>gridgain</id>
       <name>Gridgain Systems</name>
-      <url>http://gridgainsystems.com/nexus/content/repositories/external</url>
+      <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
       </releases>
+    </repository>
+    <repository>
+      <id>shib-release</id>
+      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -490,6 +497,12 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
+        <version>${sakai.spring.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webflux</artifactId>
         <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -962,7 +975,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.21</version>
+        <version>3.0.22</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2231,7 +2244,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.1.3</version>
+          <version>4.2.2</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2242,7 +2255,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.1.3</version>
+               <version>4.2.2</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2281,7 +2294,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>3.0</version>
+            <version>4.0</version>
             <configuration>
                 <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
                 <includes>
@@ -2305,7 +2318,7 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
                     <!-- make sure you use the same version as license-maven-plugin -->
-                    <version>3.0</version>
+                    <version>4.0</version>
                 </dependency>
             </dependencies>
         </plugin>

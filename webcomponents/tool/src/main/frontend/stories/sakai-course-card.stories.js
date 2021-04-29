@@ -1,7 +1,6 @@
 import { html } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import fetchMock from "fetch-mock";
-import { withA11y } from "@storybook/addon-a11y";
 import { styles } from "./styles/sakai-styles.js";
 import { coursecardI18n } from "./i18n/course-card-i18n.js";
 import { toolnameMappings } from "./data/toolname-mappings.js";
@@ -10,7 +9,7 @@ import '../js/sakai-course-card.js';
 
 export default {
   title: 'Sakai Course Card',
-  decorators: [withA11y, (storyFn) => {
+  decorators: [(storyFn) => {
     parent.portal = {locale: "en-GB"};
     fetchMock
       .get(/sakai-ws\/rest\/i18n\/getI18nProperties.*/, coursecardI18n, {overwriteRoutes: true})

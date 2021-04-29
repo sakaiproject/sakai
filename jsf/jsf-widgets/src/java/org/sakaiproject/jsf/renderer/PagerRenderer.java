@@ -109,7 +109,6 @@ public class PagerRenderer extends Renderer
 		// get stuff for page size selection and display
 		
 		String textPageSize = getString(context, component, "textPageSize", "Show {0}");
-		String textPageSizeAll = getString(context, component, "textPageSizeAll", "all");
 		String pageSizesStr = getString(context, component, "pageSizes", "5,10,20,50,100");
 		String[] pageSizes = pageSizesStr.split(",");
 		String idSelect = clientId+"_pageSize";
@@ -131,15 +130,13 @@ public class PagerRenderer extends Renderer
 		// TODO: Probably need to cache this for performance
 		String onchangeHandler = "javascript:this.form.submit(); return false;";
 		String selectedValue = String.valueOf(pageSize);
-		String[] optionTexts = new String[pageSizes.length+1];
-		String[] optionValues = new String[pageSizes.length+1];
+		String[] optionTexts = new String[pageSizes.length];
+		String[] optionValues = new String[pageSizes.length];
 		for (int i=0; i<pageSizes.length; i++)
 		{
 			optionTexts[i] = MessageFormat.format(textPageSize, new Object[] {pageSizes[i]});
 			optionValues[i] = pageSizes[i];
 		}
-		optionTexts[pageSizes.length] = MessageFormat.format(textPageSize, new Object[] {textPageSizeAll});
-		optionValues[pageSizes.length] = "0";
 		
 		// Output HTML
 		

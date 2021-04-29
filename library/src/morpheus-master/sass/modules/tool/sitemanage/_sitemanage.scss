@@ -35,7 +35,7 @@
     @include display-flex();
     margin: 0 auto $standard-spacing 0;
     font-size: 12px;
-    color: #505050;
+    color: var(--sakai-text-color-dimmed);
 
     a {
         margin-left: 4px;
@@ -86,19 +86,19 @@
 .#{$namespace}sakai-siteinfo, .#{$namespace}sakai-sitesetup {
   .toggledContent {
     margin: 0;
-    border: 2px solid #cef;
+    border: 2px solid var(--infoBanner-bordercolor);
     border-top: none;
     padding: .5em;
   }
   #templateSettings {
     padding: .5em;
-    background: #eee;
+    background: var(--sakai-background-color-2);
     width: 100%;
     @include border-radius( 5px );
   }
   #siteTypeList {
     padding: .5em;
-    background: #eee;
+    background: var(--sakai-background-color-2);
     width: 100%;
     @include border-radius( 5px );
     p {
@@ -109,7 +109,7 @@
   }
   #archiveSettings {
     padding: .5em;
-    background: #eee;
+    background: var(--sakai-background-color-2);
     width: 100%;
     @include border-radius( 5px );
   }
@@ -122,23 +122,23 @@
     padding: 0;
     list-style: none;
     li {
-      background: #fff;
+      background: var(--sakai-background-color-1);
       margin: 0 5px !important;
       padding: 10px 5px;
       height: 100%;
       overflow: hidden;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid var(--sakai-border-color);
       &.siteTypeRow {
         padding: 2px 5px;
-        background: #eee;
+        background: var(--sakai-background-color-2);
         outline: none;
         margin: 5px 0 0 0 !important;
         border-bottom: none;
         h4 {
           margin: 0 !important;
           a {
-            border: 1px solid #d6d7d9;
-            background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+            border: 1px solid var(--sakai-border-color);
+            background: linear-gradient(to bottom, var(--sakai-background-color-3) 0,var(--sakai-background-color-4) 100%);
             text-decoration: none;
             padding: 5px;
             display: block;
@@ -151,12 +151,12 @@
             .siteType {
               text-transform: capitalize;
               padding: 2px 8px;
-              background: #fff;
+              background: var(--sakai-background-color-1);
               @include border-radius( 3px );
             }
             &:hover {
-              border: 1px solid #cccdd1;
-              background: linear-gradient(to bottom, #d9dadd 0,#cccccc 100%);
+              border: 1px solid var(--sakai-border-color);
+              background: linear-gradient(to bottom, var(--sakai-background-color-4) 0,var(--sakai-background-color-3) 100%);
             }
             &.openDisc {
               border-bottom-right-radius: 0;
@@ -165,7 +165,7 @@
           }
         }
         span.siteTypeRowBlurb {
-          color: #555;
+          color:var(--sakai-text-color-dimmed);
           padding: 5px;
           font-size: 85%;
           text-transform: none;
@@ -187,7 +187,7 @@
         }
       }
       &.selectedTemplate {
-        background: #ffe;
+        background: var(--warnBanner-bgcolor);
       }
     }
   }
@@ -195,11 +195,11 @@
     margin: 15px 5px 0;
     height: 100%;
     overflow: hidden;
-    background: #fff;
-    border: 1px solid #eee;
+    background:var(--sakai-background-color-1);
+    border: 1px solid var(--sakai-border-color);
   }
   .allTemplateSettingsHighlight {
-    border: 1px solid #aaa !important;
+    border: 1px solid var(--sakai-border-color) !important;
   }
   #templateSettingsTitleTermContainer {
     padding: 5px 8px;
@@ -220,12 +220,12 @@
   }
   #fromTemplateSettingsContainer_instruction_body {
     position: absolute;
-    background: #ffe;
-    color: #000;
-    border: 1px solid #9d9d9d;
+    background: var(--warnBanner-bgcolor);
+    color: var(--warnBanner-color);
+    border: 1px solid var(--warnBanner-bordercolor);
     padding: 3px;
     //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
-    box-shadow: 2px 2px 2px 2px #cecece;
+    box-shadow: var(--elevation-2dp);
     font-size: 90%;
     &:hover {
       cursor: pointer;
@@ -289,7 +289,8 @@
         position: static;
         border-top: $manageTools-panel-border;
         &.highlightTool {
-          background-color: #ffc;
+          background-color: var(--warnBanner-bgcolor);
+          color: var(--warnBanner-color);
         }
         &:first-child {
           border-top: none;
@@ -356,6 +357,7 @@
         &:hover, &:hover .checkedCount, &:focus, &:focus .checkedCount {
           background: $manageTools-heading-hover-background;
           outline-offset: -#{$focus-outline-width};	// keep outline contained within the element
+          color: var(--sakai-text-color-1);
         }
         &:before {
           content: "\25B8\0020\0020";
@@ -365,9 +367,9 @@
             content: "";
           }
           &:hover, &:focus {
-            border: 1px solid #d6d7d9;
-            background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
-            color: #555;
+            border: 1px solid var(--sakai-border-color);
+            background: linear-gradient(to bottom, var(--sakai-background-color-3) 0,var(--sakai-background-color-4) 100%);
+            color: var(--sakai-text-color-2);
           }
         }
         &.open:before {
@@ -375,24 +377,16 @@
         }
       }
       &.communication a {
-        color: #fff;
-        border: 1px solid #47a2ff;
-        background: linear-gradient(to bottom, #7abcff 0,#60abf8 44%,#4096ee 100%);
+        @extend .sakai-colorize--sakai-color-blue;
       }
       &.assessment a {
-        color: #fff;
-        border: 1px solid #a89e37;
-        background: linear-gradient(to bottom, #bbb03d 0,#928b36 100%);
+        @extend .sakai-colorize--sakai-color-gold;
       }
       &.content a {
-        color: #fff;
-        border: 1px solid #b80324;
-        background: linear-gradient(to bottom, #d10329 0,#bc0224 44%,#9e001d 100%);
+        @extend .sakai-colorize--sakai-color-red;
       }
       &.site_management a {
-        color: #fff;
-        border: 1px solid #754326;
-        background: linear-gradient(to bottom, #884e2c 0,#6b3d21 100%);
+        @extend .sakai-colorize--sakai-color-orange;
       }
       &.miscellaneous a {
       }
@@ -406,7 +400,7 @@
       }
     }
     .checkedCount {
-      color: #555;
+      color: var(--sakai-text-color-1);
       display: block;
       float: right;
       min-width: 10px;
@@ -418,13 +412,14 @@
   .selectAll {
     font-style: normal;
     margin-left: 10px;
-    color: #0064cd;
+    color: var(--link-color);
     font-weight: bold;
     text-decoration: none;
     font-size: 90%;
     text-transform: none;
     &:hover {
       cursor: pointer;
+      color: var(--link-hover-color);
     }
   }
   #collExpContainer {
@@ -432,7 +427,7 @@
     a {
       font-style: normal;
       margin-left: 10px;
-      color: #0064cd;
+      color: var(--link-color);
       font-weight: bold;
       text-decoration: none;
       font-size: 90%;
@@ -441,10 +436,11 @@
   }
   .removeTool {
     text-decoration: none !important;
+    color: var(--errorBanner-color);
   }
   #alertBox {
-    background: #c00;
-    color: #fff;
+    background: var(--errorBanner-bgcolor);
+    color: var(--errorBanner-color);
     white-space: nowrap;
     z-index: 100;
 
@@ -452,7 +448,7 @@
         padding: $standard-spacing 0;
     }
     a {
-      color: #fff;
+      color: var(--errorBanner-color);
       margin: 0 $standard-space;
     }
   }
@@ -465,10 +461,11 @@
     left: 30%;
     right: 30%;
     padding: 15px;
-    border: 1px solid #ccc;
-    background: #ffe;
+    border: 1px solid var(--warnBanner-bordercolor);
+    background: var(--warnBanner-bgcolor);
+    color: var(--warnBanner-color);
     @include border-radius( 3px );
-    box-shadow: 2px 2px 2px #cccccc;
+    box-shadow: var(--elevation-4dp);
     vertical-align: middle;
     a.newSiteAlertClose {
       text-decoration: none;
@@ -519,7 +516,7 @@
       white-space: nowrap;
     }
     &.grayText {
-      color: #888;
+      color: var(--sakai-text-color-dimmed);
     }
   }
   #toolHolderWW {
@@ -535,15 +532,15 @@
     }
   }
   h4.toggleAnchor {
-    border: 1px solid #cef;
-    background: #cef !important;
+    border: 1px solid var(--infoBanner-bordercolor);
+    background: var(--infoBanner-bgcolor) !important;
     padding: 5px !important;
     cursor: pointer;
     outline: none;
-    color: black;
+    color: var(--infoBanner-color);
   }
   .toggleAnchor:hover {
-    border: 1px solid #9cf;
+    border: 1px solid var(--infoBanner-bordercolor);
   }
   dl.defList {
     margin: 0;
@@ -570,21 +567,20 @@
     margin-right: 10px;
     a {
       padding: 3px 6px;
-      background: linear-gradient(to bottom, #e3e4e5 0,#d9d9d9 100%);
+      background: var(--sakai-background-color-3);
       text-decoration: none !important;
       margin: 0 0 0 5px;
-      border: 1px solid #e0e3e5 !important;
+      border: 1px solid var(--sakai-background-color-4) !important;
       @include border-radius( 3px );
       //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
-      box-shadow: 0 1px 1px 0 #999999 !important;
-      color: #555555 !important;
+      box-shadow: var(--elevation-2dp) !important;
+      color: var(--sakai-text-color-2) !important;
       font-size: 11px !important;
       font-weight: bold !important;
       height: 24px !important;
       margin-left: 0 !important;
       margin-right: 3px;
       //Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
-      text-shadow: 0 2px 3px #ffffff !important;
     }
   }
   input#btnSearch {
@@ -683,6 +679,10 @@
     }
   }
 
+  .enrollment-status {
+      font-size: $default-font-size-small;
+  }
+
   i.icon-sakai--pdf {
     padding-left: 0.2em;
   }
@@ -705,7 +705,7 @@
   }
 
   .worksiteSetupViewAndTermFilterForm ~ .sakai-table-searchFilter {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--sakai-border-color);
     padding-top: $standard-spacing;
     margin-top: calc(#{$standard-spacing} - #{$standard-space});	// standard spacing minus the bottom marging space = padding from previous line
   }
@@ -735,11 +735,11 @@
 
 .form-control-label {
   font-weight: bold;
-  color: #555;
+  color: var(--sakai-text-color-2);
 }
 
 td.disabled{
-  color: #555;
+  color: var(--sakai-text-color-disabled);
 }
 
 .manageList {
@@ -754,14 +754,14 @@ td.disabled{
     border:none;
 
     &.disabled{
-      background-color: #ffffff;
+      background-color: var(--sakai-background-color-1);
     }
   }
 }
 
 .manageTable{
   thead{
-    background-color: #efefef;
+    background-color: var(--sakai-background-color-2);
   }
   a{
     text-decoration: none !important;

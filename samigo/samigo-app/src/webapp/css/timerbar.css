@@ -1,16 +1,18 @@
 .ui-progressbar {
 	position: relative;
-	background: #A0A0A0;
+	background: var(--sakai-background-color-2);
 	margin-bottom: 15px;
 }
 
 .progress-label {
 	position: absolute;
 	width: 100%;
-	top: 3px;
 	font-weight: bold;
-	text-shadow: 1px 1px 0 #fff;
 	text-align: center;
+	color: var(--sakai-color-white);
+	background: rgba(0, 0, 0, 0.2);
+	height: 26px;
+	line-height: 26px;
 }
 
 #dialog-timeout {
@@ -19,9 +21,9 @@
 
 #timeoutWarning {
 	display: none;
-	background-color: #f2dede;
-	border-color: #ebccd1;
-	color: #a94442;
+	background-color: var(--errorBanner-bgcolor);
+	border-color: var(--errorBanner-bordercolor);
+	color: var(--errorBanner-color);
 	padding: 15px;
 	margin-bottom: 20px;
 	border: 1px solid transparent;
@@ -39,7 +41,7 @@
 	position: absolute;
 	top: 0px;
 	width: 75%;
-	background-color: #000036; 
+	background-color: var(--sakai-primary-color-1);
 	margin: 0;
 	margin-left: 15px;
 	padding: 0;
@@ -70,13 +72,12 @@ div#showHide:focus {
 #showHideText {
 	padding-right: 3px;
 	padding-left: 3px;
-	font-family: sans-serif;
-	color: #ffffff;
+	color: var(--sakai-text-color-inverted);
 	font-weight: bold;
 }
 
 .showHideSym {
-	color: #ffffff;
+	color: var(--sakai-text-color-inverted);
 }
 
 .ajaxImg {
@@ -106,7 +107,7 @@ div#showHide:focus {
 }
 
 tr.timerSubmission:nth-child(even) {
-	background-color: #eee;
+	background-color: var(--sakai-background-color-2);
 }
 
 @media only screen and (max-width: 770px) {
@@ -114,7 +115,7 @@ tr.timerSubmission:nth-child(even) {
 		position: absolute;
 		top: 0px;
 		width: 100%;
-		background-color: #022f6a;
+		background-color: var(--sakai-active-color-2);
 		margin: 0;
 		padding: 0;
 		z-index: 2;

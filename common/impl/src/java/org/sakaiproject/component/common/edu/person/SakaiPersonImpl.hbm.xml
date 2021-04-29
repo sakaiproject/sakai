@@ -134,6 +134,7 @@
 			<property name="publications" column="PUBLICATIONS" type="materialized_clob" length="75000"  />
 			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="materialized_clob" length="75000" />
 			<property name="phoneticPronunciation" column="PHONETIC_PRONUNCIATION" length="255" />
+			<property name="pronouns" column="PRONOUNS" length="255" />
             
           </subclass>
         </subclass>

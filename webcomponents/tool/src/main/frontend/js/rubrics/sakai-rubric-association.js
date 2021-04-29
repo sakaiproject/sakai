@@ -53,7 +53,7 @@ class SakaiRubricAssociation extends RubricsElement {
     }
   }
 
-  shouldUpdate(changedProperties) {
+  shouldUpdate() {
     return this.i18n && this.rubrics && this.rubrics.length > 0;
   }
 

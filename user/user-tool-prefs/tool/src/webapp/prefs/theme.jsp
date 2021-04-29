@@ -12,7 +12,7 @@
 	<sakai:view_container title="#{msgs.prefs_title}">
 	<link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
-		<h:form id="theme_form">
+		<h:form id="theme_form" rendered="#{UserPrefsTool.prefShowThemePreferences==true}">
 
 			<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
@@ -39,7 +39,6 @@
 			<p class="instruction"><h:outputFormat value="#{msgs.theme_prefs_instructions}"><f:param value="#{UserPrefsTool.serviceName}"/></h:outputFormat></p>
 
 			<t:selectOneRadio id="themeOptions" value="#{UserPrefsTool.selectedTheme}" layout="spread">
-				<f:selectItem itemValue="sakaiUserTheme-notSet" itemLabel="#{msgs.theme_prefs_autoTheme}"/>
 				<f:selectItem itemValue="sakaiUserTheme-light" itemLabel="#{msgs.theme_prefs_lightTheme}"/>
 				<f:selectItem itemValue="sakaiUserTheme-dark" itemLabel="#{msgs.theme_prefs_darkTheme}"/>
 			</t:selectOneRadio>
@@ -47,7 +46,6 @@
 			<ul class="prefs-themeSelection">
 				<li><t:radio for="themeOptions" index="0" /></li>
 				<li><t:radio for="themeOptions" index="1" /></li>
-				<li><t:radio for="themeOptions" index="2" /></li>
 			</ul>
 
 			<div class="submit-buttons act">

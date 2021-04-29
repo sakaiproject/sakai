@@ -38,6 +38,7 @@
                 firstNameLastName: ${firstNameLastName},
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
+                viewPronouns: ${viewPronouns},
                 viewUserNamePronunciation: ${viewUserNamePronunciation},
                 viewUserProperty: ${viewUserProperty},
                 officialPictureMode: ${officialPicturesByDefault},
@@ -62,7 +63,6 @@
             <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
             <div id="rosterMainContainer">
-
                 <div id="roster_content" class="view_mode_${defaultOverviewMode}"></div>
             </div>
 

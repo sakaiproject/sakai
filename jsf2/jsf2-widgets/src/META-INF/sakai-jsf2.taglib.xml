@@ -22,6 +22,14 @@
 	</tag>
 
 	<tag>
+		<tag-name>inputColor</tag-name>
+		<component>
+			<component-type>org.sakaiproject.InputColor</component-type>
+			<renderer-type>org.sakaiproject.InputColor</renderer-type>
+		</component>
+	</tag>
+
+	<tag>
 		<tag-name>instruction_message</tag-name>
 		<component> 
 			<component-type>org.sakaiproject.InstructionMessage</component-type> 

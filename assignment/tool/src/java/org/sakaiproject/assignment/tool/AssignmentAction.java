@@ -56,6 +56,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -150,7 +151,6 @@ import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -241,6 +241,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
@@ -3603,10 +3604,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // show alert if student is working on a draft
-            if (!s.getSubmitted() // not submitted
-                    && ((s.getSubmittedText() != null && s.getSubmittedText().length() > 0) // has some text
-                    || (s.getAttachments() != null && s.getAttachments().size() > 0))) // has some attachment
-            {
+            if (assignmentToolUtils.isDraftSubmission(s)) {
                 if (s.getAssignment().getCloseDate().isAfter(Instant.now())) {
                     // not pass the close date yet
                     addGradeDraftAlert = true;
@@ -6276,6 +6274,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (submission != null) {
                     // the submission already exists, change the text and honor pledge value, post it
+                    submission.setUserSubmission(true);
+                    submission.setSubmittedText(text);
+                    submission.setDateSubmitted(Instant.now());
+                    submission.setSubmitted(post);
+
                     Map<String, String> properties = submission.getProperties();
 
                     if (a.getIsGroup()) {
@@ -6304,10 +6307,6 @@ public class AssignmentAction extends PagedResourceActionII {
                         setResubmissionProperties(a, submission);
                     }
 
-                    submission.setUserSubmission(true);
-                    submission.setSubmittedText(text);
-                    submission.setDateSubmitted(Instant.now());
-                    submission.setSubmitted(post);
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
                     submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true));
@@ -8008,9 +8007,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
-
-                // Locking and unlocking groups
-                rangeAndGroups.postSaveAssignmentGroupLocking(state, post, rangeAndGroupSettings, aOldGroups, siteId, assignmentReference);
 
                 if (post) {
                     // we need to update the submission
@@ -9815,18 +9811,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
                 deleteAssignmentObjects(state, assignment);
-
-                Collection<String> groups = assignment.getGroups();
-
-                Site site = siteService.getSite(siteId);
-
-                for (String reference : groups) {
-                    Group group = site.getGroup(reference);
-                    if (group != null) {
-                        group.setLockForReference(ref, RealmLockMode.NONE);
-                        siteService.save(group.getContainingSite());
-                    }
-                }
             } catch (IdUnusedException e) {
                 log.warn("Cannot find site with ref: {}", siteId);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindSite"));
@@ -13024,8 +13008,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
             final Path destination = Paths.get(tempFile.getCanonicalPath());
             Files.copy(fileContentStream, destination, StandardCopyOption.REPLACE_EXISTING);
+            final Charset tempFileCharset = getZipFileCharset(tempFile);
 
-            ZipFile zipFile = new ZipFile(tempFile, StandardCharsets.UTF_8);
+            ZipFile zipFile = new ZipFile(tempFile, tempFileCharset);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             ZipEntry entry;
             // SAK-17606
@@ -13345,6 +13330,33 @@ public class AssignmentAction extends PagedResourceActionII {
 
         }
         return submissionTable;
+    }
+
+    private Charset getZipFileCharset(File tempFile) {
+        final Charset[] possibleCharSets = new Charset[]{
+                StandardCharsets.UTF_8,
+                Charset.forName("IBM437"),
+                Charset.forName("windows-1252"),
+                StandardCharsets.ISO_8859_1,
+                StandardCharsets.US_ASCII,
+                Charset.forName("Cp437")
+        };
+
+        for (Charset c : possibleCharSets) {
+            try {
+                ZipFile zf = new ZipFile(tempFile, c);
+                Enumeration<? extends ZipEntry> zipEntries = zf.entries();
+                // Try to provoke a MalformedNameException
+                while (zipEntries.hasMoreElements()) {
+                    zipEntries.nextElement();
+                }
+                return c;
+            } catch (Exception e) {
+                log.debug("ZIP encoding detection was incorrect for charset=", c.toString());
+            }
+        }
+
+        return StandardCharsets.UTF_8;
     }
 
     /**
@@ -14869,7 +14881,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // sorted by the group title
                 String factor1 = ((Group) o1).getTitle();
                 String factor2 = ((Group) o2).getTitle();
-                result = compareString(factor1, factor2);
+                result = new AlphaNumericComparator().compare(factor1, factor2);
             } else if (m_criteria.equals(SORTED_BY_GROUP_DESCRIPTION)) {
                 // sorted by the group description
                 String factor1 = ((Group) o1).getDescription();
@@ -14949,6 +14961,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     String anon1 = u1.getSubmission().getId();
                     String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
+                } else if (u1.getUser() != null && u2.getUser() != null) {
+                    result = new UserSortNameComparator().compare(u1.getUser(), u2.getUser());
                 } else {
                     String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();
                     String lName2 = u2.getUser() == null ? u2.getGroup().getTitle() : u2.getUser().getSortName();

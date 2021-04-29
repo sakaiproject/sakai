@@ -7,9 +7,9 @@
 
 /* override for jquery ui */
 .ui-state-highlight{
-   border: 1px solid #2e83ff;
-   background: #f8fcff;
-   color: #184993;
+   border: 1px solid var(--sakai-active-color-3);
+   background: var(--sakai-active-color-1);
+   color: var(--sakai-text-color-3);
 }
 .ui-front {
 	z-index: 100001;
@@ -112,7 +112,8 @@
 	font-size: 16px;
 	border-style: dotted;
 	border-width: 2px;
-	background-color: #fdd;
+	background-color: var(--errorBanner-bgcolor);
+    color: var(--errorBanner-color);
 	margin-left: auto;
 	margin-right: auto;
 	width: 200px;
@@ -120,7 +121,7 @@
 }
 .expert {
 	margin-top: 10px;
-	background-color: #eee;
+	background-color: var(--sakai-background-color-2);
 	padding: 5px;
 }
 .Mrphs-siteHierarchy {
@@ -139,15 +140,12 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
-.breadcrumbs a[title="Reset"] {
-
-}
 .breadcrumbs span {
 	display: inline-block;
 }
 .breadcrumbs span > span {
     margin-left: 5px;
-    margin-right:5px    
+    margin-right:5px;
 }
 .breadcrumbs span > span.bold {
     margin-left:0;
@@ -182,9 +180,9 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 	border-width: 2px;
 }
 .instructionPanel,.controlsPanel {
-    border:1px solid #bbb;
+    border:1px solid var(--sakai-border-color);
     font-size:12px;
-    background: #ddd;
+    background: var(--sakai-background-color-3);
     padding:5px;
     margin:5px 0
 }
@@ -233,33 +231,33 @@ span.group-name{
 	width: 97%;
 }
 .fake-disabled {
-	color: #999 !important;
+	color: var(--sakai-text-color-disabled) !important;
 	text-decoration: underline;
 }
 .disabled:link {
-	color: #cccccc
+	color: var(--sakai-text-color-disabled);
 }
 .disabled-multimedia-item {
-	color: #cccccc;
+	color: var(--sakai-text-color-disabled);
     margin-top:4px;
     display: inline-block;
     /*padding-left: 8px !important;*/
 }
 .disabled-text-item {
-	color: #cccccc;
+	color: var(--sakai-text-color-disabled);
     margin-top:4px;
 }
 .disabled:visited {
-	color: #cccccc
+	color: var(--sakai-text-color-disabled);
 }
 .disabled:active {
-	color: #cccccc
+	color: var(--sakai-text-color-disabled);
 }
 .disabled:hover {
-	color: #cccccc
+	color: var(--sakai-text-color-disabled);
 }
 .portletBody a.ui-button:link, .portletBody a.ui-button:visited {
-	color: black;
+	color: var(--button-color);
 	text-decoration: none !important;
 }
 .gradingTable a.ui-button .ui-button-text{
@@ -286,7 +284,7 @@ body .error-spacingabove + .error-spacingabove{
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
-	background-color: #eee;
+	background-color: var(--sakai-background-color-3);
 }
 .border2.controlsPanel label.mm-file {
     padding-left: 0;
@@ -300,10 +298,11 @@ span.mm-file-input-name {
 }
 .mm-file-input-delete {
 	cursor: pointer;
-    color: #ff0000;
+    color: var(--errorBanner-color);
+    background: var(--errorBanner-bgcolor);
 }
 div.mm-file-group {
-    border: 1px solid #D3D3D3;
+    border: 1px solid var(--sakai-border-color);
     padding: 8px;
     margin-bottom: 5px;
 }
@@ -318,18 +317,18 @@ div.mm-file-group {
 a[href].collapse-toggle {
     font-size: 14px;
     font-weight: bold;
-    border: 1px solid lightgray;
+    border: 1px solid var(--sakai-border-color);
     padding: 7px;
     margin-bottom: 5px;
     border-radius: 3px;
-    background-color: #f3f3f3;
+    background-color: var(--sakai-background-color-2);
     display: block;
     text-decoration: none;
 }
 a[href].collapse-toggle:hover {
     cursor: pointer;
     text-decoration: underline;
-    background-color: #f3f3f3;
+    background-color: var(--sakai-background-color-3);
 }
 span.remove-upload {
     margin-left: 6px;
@@ -339,8 +338,8 @@ span.remove-upload {
 .add-another-file-div {
 	padding: 10px;
 	padding-top: 0px;
-	background-color: #ddd;
-	border: 1px solid #bbb;
+	background-color: var(--sakai-background-color-2);
+	border: 1px solid var(--sakai-border-color);
 }
 .ui-button-text {
 	padding: 0.25em 0.8em !important
@@ -373,7 +372,7 @@ span.remove-upload {
 }
 
 .newItem {
-   border-left: 5px solid black !important;
+   border-left: 5px solid var(--sakai-border-color) !important;
    margin-left: -5px;
 }
 .listHierFlex {
@@ -403,12 +402,9 @@ span.remove-upload {
     margin: 4px 8px 4px 8px;
     padding: 25px 7px 15px 7px;
     list-style:none;
-    background-color: var(--sakai-background-color-1);
-    border: 1px solid var(--sakai-border-color);
     display:inline-block;
     vertical-align: top;
     border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 
@@ -487,7 +483,7 @@ span.remove-upload {
 
 .collapsibleSectionHeader:hover {
     cursor: pointer;
-    background-color: #eee;
+    background-color: var(--sakai-background-color-2);
 }
 
 .collapsibleSectionHeader:hover .toggleCollapse {
@@ -496,7 +492,7 @@ span.remove-upload {
 }
 
 div.layout-option {
-    border:2px solid #fff;
+    border:2px solid var(--sakai-background-color-1);
     padding:4px;
 }
 
@@ -505,9 +501,9 @@ div.layout-option > div {
 }
 
 .addSectionTitleExample {
-    border:1px solid #ccc;
-    background:white;
-    color:black;
+    border:1px solid var(--sakai-border-color);
+    background:var(--sakai-background-color-1);
+    color:var(--sakai-active-color-1);
     padding:4px;
 }
 
@@ -519,7 +515,7 @@ div.layout-option > div {
 }
 
 .addSectionColumn {
-    border:1px solid #aaa;
+    border:1px solid var(--sakai-border-color);
     height:100px;
     padding:4px;
 }
@@ -557,8 +553,7 @@ div.layout-option > div {
     margin-bottom: 10px;
 } 
 .mainList div.question .multipleChoiceAnswer {
-}
-.mainList div.question .multipleChoiceForm input.bold {
+    padding: .5em 0;
 }
 .multipleChoiceAnswer label {
   margin-left: 5px;
@@ -569,16 +564,8 @@ div.layout-option > div {
 .questionPollGraph {
   max-width: 100%;
 }
-.questionStatusText {
-}
-.mainList .textbox ul {
-
-}
 .mainList .textbox ul.forumSummaryList, .mainList .textbox ul.announcementSummaryList {
     display: inherit;
-}
-.mainList div.item .textbox {
-
 }
 /*maybe a universal selector, instead of a p*/
 .mainList div.item .textbox p:first-child{
@@ -647,16 +634,16 @@ div.layout-option > div {
 }
 
 .flc-reorderer-module {
-    border: 1px solid #ccc;
+    border: 1px solid var(--sakai-border-color);
     margin:5px 0;
     position:relative;
     padding: 0px 0px 0px 0px;
 }
 .flc-reorderer-module:focus {
-    outline:1px dashed #000
+    outline:1px dashed var(--focus-outline-color);
 } 
 .flc-reorderer-module:hover {
-    border:1px solid #000;
+    border:1px solid var(--focus-outline-color);
 }
 .reorderItemsContainer {
     min-height: 60px;
@@ -683,10 +670,10 @@ div.layout-option > div {
     text-overflow: ellipsis;
     width: 100%;
     white-space: nowrap;
-    overflow: hidden;    
+    overflow: hidden;
 }
 .highlightEl {
-    background:#ffa
+    background: var(--warnBanner-bgcolor);
 }
 
 .col2 .reordItemContainer {
@@ -713,7 +700,6 @@ div.layout-option > div {
 }
 
 span.reorder-icon {
-    dispay: inline-block;
     width: 22px;
 }
 /**
@@ -721,12 +707,12 @@ span.reorder-icon {
  */
 
 .layoutReorderer-movable-selected {
-    border: 1px solid #fff;
+    border: 1px solid var(--sakai-background-color-1);
 }
 
 .layoutReorderer-avatar {
-    background-color:#ccc;
-    outline: 2px solid #000;
+    background-color:var(--sakai-background-color-3);
+    outline: 2px solid var(--focus-outline-color);
     opacity: 0.5;
     filter: alpha(opacity=50); /* ie opacity fix */
 }
@@ -746,8 +732,8 @@ span.reorder-icon {
 }
 
 .layoutReorderer-dropMarker {
-    background: #d9edf7;
-    color: #31708f;
+    background: var(--sakai-active-color-1);
+    color: var(--sakai-text-color-3);
     height: 40px;
     padding: 0 0 0 0;
     margin-left: 1em;
@@ -764,12 +750,12 @@ span.reorder-icon {
 .deleteListMessage {
     padding:5px;
     padding-left: 25px;
-    background: #fff url(/library/image/silk/bin.png) 5px 5px no-repeat;
+    background: var(--sakai-background-color-1) url(/library/image/silk/bin.png) 5px 5px no-repeat;
 }
 .deleteListMessageEmpty {
     padding:5px;
     padding-left: 25px;
-    background: #fff url(/library/image/silk/bin_empty.png) 5px 5px no-repeat;
+    background: var(--sakai-background-color-1) url(/library/image/silk/bin_empty.png) 5px 5px no-repeat;
     
 }
 .deleteListMessage.panel-heading, .deleteListMessageEmpty.panel-heading {
@@ -778,9 +764,9 @@ span.reorder-icon {
 }
 
 #reorderCol1 {
-    background: #eee;
+    background: var(--sakai-background-color-3);
     padding: .5em;
-    border: 1px solid #ccc;
+    border: 1px solid var(--sakai-border-color);
 }
 
 #reorderCol1 .list-group-item:not(.list-group-item-info):not(.active) {
@@ -792,12 +778,12 @@ h3.section-label {
 }
 
 .active .column-section-break-text {
-    color: #fff;
+    color: var(--sakai-text-color-inverted);
 }
 
 .deleteAnswerLinkOptions > span {
     font-size: 1.5em;
-    color: #fff;
+    color: var(--sakai-text-color-inverted);
     padding: 8px 4px;
 }
 
@@ -812,7 +798,7 @@ h3.section-label {
 }
 
 .section-delete-icon {
-    color: #fff;
+    color: var(--sakai-text-color-inverted);
     font-size: 24px !important;
     margin-top: 8px;
 }
@@ -832,12 +818,12 @@ h3.section-label {
 }
 /* also uses nextprev. this is specific for ShowItem */
 .returnheader a:link, .returnheader a:visited {
-	background-color: #fee !important;
-	color:black !important;
+	background-color: var(--errorBanner-bgcolor) !important;
+	color:var(--errorBanner-color) !important;
 }
-.returnheader a:hover, returnheader  a:active {
-	background-color: #edd !important;
-	color:black !important;
+.returnheader a:hover, .returnheader  a:active {
+	background-color: var(--errorBanner-bgcolor) !important;
+	color:var(--errorBanner-color) !important;
 }
 .showItemNoMorpheus .returnheader {
     display:block;
@@ -856,7 +842,7 @@ h3.section-label {
 h3.author {
 	margin-right: 10px;
 	font-weight: bold;
-	color: #039;
+	color: var(--sakai-text-color-3);
 	display: inline;
 }
 .replaceWithComments {
@@ -864,18 +850,18 @@ h3.author {
 }
 .commentPageTitle {
 	margin: 0 10px;
-	color: #906;
+	color: var(--sakai-text-color-3);
 }
 .commentDiv {
 	margin-top: 5px;
 	margin-bottom: 5px;
-	background-color: #e4edff;
+	background-color: var(--sakai-background-color-2);
 	padding: 5px 10px;
 }
 .gradingTable .commentDiv {
     padding:5px;
     margin-top:5px;
-    outline:1px solid #ccc;
+    outline:1px solid var(--focus-outline-color);
 }
 .commentBody {
 	margin-top: 3px
@@ -884,7 +870,7 @@ h3.author {
 	margin-bottom: 0px;
 }
 .specialCommenter {
-	background-color: white;
+	background-color: var(--sakai-background-color-1);
 	padding: 0 3px 1px 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -895,28 +881,28 @@ h3.author {
 }
 /* Commenter looking at their own comment */
 .personalComment {
-	background-color: white !important
+	background-color: var(--sakai-background-color-1) !important
 }
 /* Site Owner Comment */
 .ownerComment {
-	background-color: #CCCEED !important;
-	color: black !important;
+	background-color: var(--infoBanner-bgcolor) !important;
+	color: var(--infoBanner-color) !important;
 }
 .item-group-titles {
 	font-style: italic;
-	color: #666666;
+	color: var(--sakai-text-color-dimmed);
 	padding-left: 1em;
 }
 .item-group-titles.released {
-    color:#390;
+    color:var(--successBanner-color);
 }
 
 .item-group-titles.not-released {
-    color: #930;
+    color: var(--warnBanner-color);
 }
 .page-picker-note {
 	font-style: italic;
-	color: #930;
+	color: var(--warnBanner-color);
 	padding-left: 0.5em;
 	padding-right: 0.25em;
 }
@@ -952,18 +938,17 @@ a.peer-eval-stats {
         font-size:75% !important
 }
 .peer-eval-title-student {
-        font-size:110%;			 
+        font-size:110%;
 }
 .noDisplay {
 	display: none !important;
 }
-.imgCell {
-}
+
 .studentCell {
 	padding-left: 7px
 }
 .studentTitle {
-	color: black;
+	color: var(--sakai-text-color-1);
 	margin-top: 0px;
 }
 .studentContentTitle, .mainList li.question .questionText, h3.author {
@@ -981,7 +966,7 @@ a.peer-eval-stats {
 .studentContentTable {
     margin-top:10px;
 	border: none;
-	background-color: #e4edff; 
+	background-color: var(--infoBanner-bgcolor); 
 	padding: 14px 8px;
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
@@ -1014,26 +999,19 @@ a.peer-eval-stats {
 	width: 350px;
 	margin-top: 0;
 	margin-left: 0.5em;
-	background-color: #EEE;
+	background: var(--sakai-background-color-2);
 	padding: 5px !important;
-	background: #eeeeee !important;
-	background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%) !important;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4)) !important;
-	background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
-	background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
-	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
-	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
-    border: 1px solid #d1d1d1 !important;
+	background: linear-gradient(top, var(--sakai-background-color-2) 0%, var(--sakai-background-color-3) 100%) !important;
+    border: 1px solid var(--sakai-border-color) !important;
     z-index: 10;
-    -webkit-box-shadow: 1px 1px 3px 2px #eeeeee;
-    box-shadow: 1px 1px 3px 2px #eeeeee;
+    box-shadow: var(--elevation-2dp);
 }
 .dropDownDiv  ul {
     margin:0;
     padding: 0;
 }
 .dropDownDiv li {
-    background: #fff !important;
+    background: var(--sakai-background-color-1) !important;
     padding: 3px !important;
     padding-left: 7px !important;
     display:block;
@@ -1054,9 +1032,7 @@ a.peer-eval-stats {
 .dropDownDiv li div {
     font-size: .85em !important
 }
-.Mrphs-siteHierarchy span.nextprev {
 
-}
 .lessons-siteHierarchy-title {
    font-weight: bold;
 }
@@ -1066,8 +1042,7 @@ a.peer-eval-stats {
   position:relative;
   top:-4px;
 }
-span.nextprev {
-}
+
 .crumb-link {
   margin-right: 0.5em;
 }
@@ -1089,7 +1064,7 @@ img {
        display:none;
 }
 .unsubmitted {
-	background-color: #FFC9D7
+	background-color: var(--errorBanner-bgcolor);
 }
 .showPollGraph span {
 	font-size: 70%;
@@ -1105,10 +1080,10 @@ img {
        padding-right: 2em;
 }
 .bottomBorder {
-	border-bottom: 1px solid black
+	border-bottom: 1px solid var(--sakai-border-color);
 }
 .topBorder td {
-	border-top: 3px solid white
+	border-top: 3px solid var(--sakai-background-color-1);
 }
 .forum-summary-div, .forumSummary  .textbox, .forumSummary .right-col{
    width: 100%;
@@ -1121,8 +1096,6 @@ img {
    width: 100.0%;
    vertical-align: top;
    overflow: hidden;
-   -moz-border-radius: 6px 6px 0 0;
-   -webkit-border-radius: 6px 6px 0 0;
    border-radius: 6px 6px 0 0;
 }
 .forumSummaryHeader{
@@ -1132,27 +1105,23 @@ img {
 }
 .forumSummaryLink{
  text-decoration: none;
- color: #444;
+ color: var(--sakai-text-color-1);
  margin-left: 5px;
 }
 .forumSummaryDate{
  font-size:12px;
- color:#000;
+ color:var(--sakai-text-color-1);
  font-weight: normal;
 }
 .forumSummaryList, .announcementSummaryList{
  list-style: none;
  padding: 0 15px;
- font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
- color: #666;
- -moz-border-radius: 0 0 6px 6px;
- -webkit-border-radius: 0 0 6px 6px;
+ color: var(--sakai-text-color-2);
  border-radius: 0 0 6px 6px;
- border: solid #ddd 1px;
+ border: 1px solid var(--sakai-border-color);
  border-top-style: none;
 }
-.first-row {
-}
+
 .first-row td {
    padding: 0px;
 }
@@ -1160,7 +1129,7 @@ img {
    padding-left: 2em
 }
 .details-row td:hover {
-    background: #fff
+    background: var(--sakai-background-color-1);
 }
 .gradingarea {
 	margin-left: 1em;
@@ -1173,31 +1142,31 @@ img {
 	border-radius: 3px;
 }
 .backgroundHighlight {
-	border: 2px solid black;
-	background-color: #F8F8F8;
+	border: 2px solid var(--sakai-border-color);
+	background-color: var(--sakai-background-color-2);
 }
 .linkCell {
 	margin-top: 1.5em
 }
 .itemcopylink {
 	display: none;
-	border: 1px solid black;
+	border: 1px solid var(--warnBanner-bordercolor);
 	padding: 2px;
 	margin-left: 2px;
 	text-decoration: none !important;
-	background-color: #ffc;
+	background-color: var(--warnBanner-bgcolor);
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 	border-radius: 2px;
-	color: black !important;
+	color: var(--warnBanner-color) !important;
 }
 #peer-eval-create-table td, #peer-eval-create-table th {
 	padding:5px;
-	border: 1px solid black !important;
+	border: 1px solid var(--sakai-border-color) !important;
 }
 #peer-eval-create-table thead{
-	background-color: grey;
-	color: white;
+	background-color: var(--sakai-background-color-3);
+	color: var(--sakai-text-color-1);
 }
 #question-correct-text, #question-incorrect-text {
 	width: 400px;
@@ -1212,7 +1181,7 @@ img {
  overflow-y: auto;
  float: left;margin:
  0 10.0px 20.0px 0;
- border: solid #ddd 1px;
+ border: 1px solid var(--sakai-border-color);
  border-radius: 0 0 6px 6px;
  clear: right;
 }
@@ -1225,28 +1194,13 @@ float:left;
 .question-multiplechoice-answer, .question-shortanswer-answer {
 	width: 250px;
 }
-input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
-   margin: inherit;
-   margin-top:15px;
-   border:1px solid #999;
-   color: black !important;
-   font-family: inherit;
-   cursor: pointer;
-   padding:6px 20px !important;
-   background:#f0f0f0;
-   font-weight: normal;
-   font-size: inherit;
-   letter-spacing: inherit;   
-   line-height: inherit;
-   border-radius: 3px;
-   position: static;
-}
+
 .linkCell .addStudentContent {
  -webkit-border-radius: 3px;
  -moz-border-radius: 3px;
  background-image:none;
  border-radius: 3px;
- border:solid #999 1px;
+ border: 1px solid var(--sakai-border-color);
  text-decoration:none;
  margin-top:0px;
 }
@@ -1273,13 +1227,10 @@ input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="s
 }
 
 div[role="dialog"] {
-    -webkit-box-shadow: 1px 1px 2px 1px #ccc;
-     box-shadow: 1px 1px 2px 1px #ccc;
+     box-shadow: var(--elevation-2dp);
 }
 .commentsType div[role="dialog"] {
-    -webkit-box-shadow: 0px 0px 0px 0px #ccc;
-     box-shadow: 0px 0px 0px 0px #ccc;
-    
+     box-shadow: var(--elevation-2dp);
 }
 #multipleChoiceAnswers, #copyableShortanswerDiv {
     line-height:30px;
@@ -1314,7 +1265,7 @@ textarea.shortAnswerInput {
     padding-left:5px;
 }
 .pageList img {
-    vertical-align:middle;   
+    vertical-align:middle;
 }
 .itemListContainer {
     padding-top: 5px;
@@ -1324,7 +1275,7 @@ textarea.shortAnswerInput {
     margin-left: 20px;
     display: none;
     list-style:none;
-    background-color: #F3F3F3;
+    background-color: var(--sakai-background-color-2);
     padding-bottom: 1.0em;
     margin-bottom: 0.5em;
 }
@@ -1387,7 +1338,7 @@ textarea.shortAnswerInput {
     outline: none;
 }
 .portletTitle .title a:focus, .portletTitle .action a:focus {
-    outline: black dotted thin
+    outline: 1px dotted var(--focus-outline-color);
 }
 .portletTitle .action a.help:hover, .portletTitle .action a.help:focus img {
     background: url(../images/help_h.gif) center right no-repeat
@@ -1404,10 +1355,10 @@ textarea.shortAnswerInput {
 }
 .direct-url-wrap {
     font-size: 85%;
-    color: #555;
+    color: var(--sakai-text-color-dimmed);
 }
 .direct-url-wrap textarea {
-    color: #000;
+    color: var(--sakai-text-color-1);
     overflow:auto;
     width:250px;
     display:block;
@@ -1431,12 +1382,12 @@ textarea.shortAnswerInput {
     text-decoration: none;    
 }
 .portletTitle .title h2 .siteTitle {
-    color: #333
+    color: var(--sakai-active-color-2);
 }
 .portletTitle .title a.reload {
     background: url(../images/reload.gif) center left no-repeat;
     text-decoration: none !important;
-    border: 1px solid #fff;
+    border: 1px solid var(--sakai-background-color-1);
     height: 1.5em;
     outline: none;
 }
@@ -1502,7 +1453,7 @@ margin-left: 5px;
  -moz-border-radius: 0 0 6px 6px;
  -webkit-border-radius: 0 0 6px 6px;
  border-radius: 0 0 6px 6px;
- border: solid #ddd 1px;
+ border: 1px solid var(--sakai-border-color);
  border-top-style: none;
  padding-bottom:15px;
 }
@@ -1531,22 +1482,22 @@ div.navIntraTool {
 margin-top:4px;
 display:inline-block;
 position:absolute;
-background-color:#eee;
+background-color:var(--sakai-background-color-3);
 top:-5px;
 right:-8px;
 z-index: 15;
 -webkit-border-radius: 3px;
 -moz-border-radius: 3px;
 border-radius: 3px;
-border: solid #bbb 1px;
+border: 1px solid var(--sakai-border-color);
 padding:1px;
 }
 .edit-col span {
-color: #666;
+color: var(--sakai-text-color-2);
 }
 .calendar-div{
 max-width: 650px;
-border: solid #ddd 1px;
+border: 1px solid var(--sakai-border-color);
 border-radius: 0px 0px 10px 10px;
 }
 
@@ -1562,7 +1513,7 @@ cursor: pointer;
 margin-bottom: 6px; /*to add space between two events*/
 }
 .fc-state-default {
-color: #333 !important;
+color: var(--sakai-text-color-1) !important;
 }
 .fc-toolbar {
 padding: 10px 15px;
@@ -1575,8 +1526,7 @@ background: none !important;
 }
 .sectionHeader {
     padding: 8px;
-    border-radius: 2px;
-    margin-bottom: 4px;
+    margin: 16px 0 0;
 }
 
 .sectionHeader .collapseIcon {
@@ -1587,6 +1537,9 @@ background: none !important;
 .sectionCollapsedIcon {
     font-family: FontAwesome;
     margin-left: 1em;
+}
+.section {
+    margin-bottom: 1em;
 }
 #expandCollapseButtons {
     width: 100%;
@@ -1613,15 +1566,14 @@ background: none !important;
     position: absolute;
     opacity: 0;
     z-index: 1000000;
-    webkit-transition: 0.3s ease;
-    moz-transition: 0.3s ease;
+    transition: 0.3s ease;
     pointer-events: none;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: var(--sakai-background-color-2);
+    color: var(--sakai-text-color-1);
     padding: 8px 10px;
     font-size: 12px;
     white-space: nowrap;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--elevation-2dp);
     top: 100%;
     left: 50%;
     margin: -2px 0 0 -10px;
@@ -1639,16 +1591,16 @@ background: none !important;
 }
 .sectionedit {
    display:inline-block;
-   background-color:#eee;
+   background-color:var(--sakai-background-color-3);
    z-index: 3;
    border-radius: 2px;
-   border: solid #ccc 1px;
+   border: 1px solid var(--sakai-border-color);
    padding: 0 5px;
    font-size: 20px;
    line-height: 24px;
 }
 .sectionedit a span {
-   color: #666;
+   color: var(--sakai-text-color-dimmed);
 }
 .addbottom {
    position:absolute;
@@ -1684,10 +1636,6 @@ margin-left: 0px;
   padding-right: 25px;
 }
 
-li.listType .contentCol {
-}
-li.question .contentCol {
-}
 /* links should be spaced as close as possible to each other, so override padding */
 li.resourceType .right-col {
   padding-top: 0px;
@@ -1696,7 +1644,6 @@ li.resourceType .right-col {
 
 .edit-col a:link {
  background:none;
- border:none;
 }
 .itemclass {
   margin-top: 2.0em !important;
@@ -1710,11 +1657,9 @@ li.resourceType .right-col {
 
 /* for ShowItem */
 .itemDate {
-font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
 font-size: 12px;
 }
-.itemHeader {
-}
+
 .itemHeader-resource {
   margin-bottom:20px; 
   border-bottom:none;
@@ -1849,7 +1794,7 @@ span.nextprev {
 .fa-edit-icon{
   font-size:16px;
   font-weight: normal;
-  color: #666;
+  color: var(--sakai-text-color-dimmed);
   font-family:FontAwesome;
 }
 .fa-group-icon {
@@ -1857,13 +1802,10 @@ span.nextprev {
   font-family:FontAwesome;
 }
 .mainList div:hover.canEdit {
-    background-color: #eee;
+    background-color: var(--sakai-background-color-3);
 }
 .peer-eval-row .newPeerCell {
-   background-color: rgb(173,216,230) !important;
-}
-.peer-eval-row .selectedPeerCell {
-/* nothing - used to save information */
+   background-color: var(--infoBanner-bgcolor) !important;
 }
 
 .Mrphs-siteHierarchy .action .lessonsToolButton {
@@ -1878,17 +1820,12 @@ span.nextprev {
 /* this section is to make things work when lessons is in an iframe */
 .contentButton span a {
   display:inline-block !important;
-  border:1px solid #e0e0e0;
+  border:1px solid var(--sakai-border-color);
 }
 body > .portletBody {
   margin-top:-15px;
   padding-top:0px;
   padding-bottom:0px;
-}
-.oldPortal + .navIntroTool {
-}
-.oldPortal .title {
-
 }
 .oldPortal + .navIntraTool {
   padding-top:0px;
@@ -2020,10 +1957,9 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     font-style: italic;
     font-size: 100%;
     font-weight: normal;
-    color: #000;
+    color: var(--sakai-text-color-1);
 }
 .checklistSaveMessage {
-    font-family:Arial, Helvetica, sans-serif;
     font-size:13px;
     margin: 0 0 0 1em;
     padding:4px 4px 4px 24px;
@@ -2031,11 +1967,11 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     background-position: 4px center;
 }
 .saveChecklistSuccess {
-    color: #4F8A10;
+    color: var(--successBanner-color);
     background-image:url('../images/success.png');
 }
 .saveChecklistError {
-    color: #D8000C;
+    color: var(--errorBanner-bgcolor);
     background-image: url('../images/failed.png');
     background-size: 16px 16px;
 }
@@ -2139,7 +2075,7 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
 }
 
 .layout-option {
-    border: 1px solid #025aa5;
+    border: 1px solid var(--sakai-active-color-1);
     padding: 4px;
 }
 .layout-option:hover {
@@ -2153,28 +2089,26 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     margin-right: 0;
 }
 .blueLessonsIcon {
-    color: #0033FF;
+    color: var(--sakai-color-blue--darker-3);
 }
 .darkblueLessonsIcon {
-    color: #000099;
+    color: var(--sakai-color-blue--darker-5);
 }
 .darkgrayLessonsIcon {
-    color: #686868;
+    color: var(--sakai-color-gray--darker-3);
 }
 .greenLessonsIcon {
-    color: #006633;
+    color: var(--sakai-color-green--darker-3);
 }
 .redLessonsIcon {
-    color: #900000;
+    color: var(--sakai-color-red--darker-3);
 }
 .orangeLessonsIcon {
-    color: #e68a00;
+    color: var(--sakai-color-orange--darker-3);
 }
 /* SAK-44158 */
 #addContentDiv {
-    background: #fff !important;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
+    background: var(--sakai-background-color-1) !important;
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
@@ -2222,7 +2156,7 @@ p.checkbox{
 }
 
 button.accordionBtn {
-    color: #333 !important; /*have to override Sakai button color*/
+    color: var(--sakai-text-color-1) !important; /*have to override Sakai button color*/
     background-color: transparent !important;
     border: none !important;
     margin: 0 !important;
@@ -2234,12 +2168,12 @@ button.accordionBtn:focus {
 button.accordionBtn:before {
     font-family: "FontAwesome";
     content: "\f0d7";
-    color: #333;
+    color: var(--sakai-text-color-1);
     padding-right: 5px;
 }
 button.accordionBtn.collapsed:before {
     font-family: "FontAwesome";
     content: "\f0da";
-    color: #333;
+    color: var(--sakai-text-color-1);
     padding-right: 5px;
 }

@@ -326,4 +326,18 @@ public interface SakaiPerson extends EduPerson
 	 * @return
 	 */
 	public String getPhoneticPronunciation();
+
+	/**
+	 * Set the pronouns for this person
+	 *
+	 * @param The free form string of pronouns
+	 */
+	public void setPronouns(String pronouns);
+
+	/**
+	 * Returns the preferred pronouns for this person
+	 *
+	 * @return The preferred pronouns in a free form string
+	 */
+	public String getPronouns();
 }

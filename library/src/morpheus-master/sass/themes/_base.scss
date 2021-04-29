@@ -41,13 +41,13 @@
   @while $i > 0 {
     #{$color}--lighter-#{$i}: tint-color(hsl($hue, $saturation, $lightness), $j);
 
-    .sakai-colorize#{$color}--lighter-#{$i} { 
-      color: color-contrast( 
-        tint-color(hsl($hue, $saturation, $lightness), $j), 
-        shade-color(hsl($hue, $saturation, $lightness), 8), 
-        tint-color(hsl($hue, $saturation, $lightness), 8) 
-      ); 
-      background-color: tint-color(hsl($hue, $saturation, $lightness), $j); 
+    .sakai-colorize#{$color}--lighter-#{$i} {
+      color: color-contrast(
+        tint-color(hsl($hue, $saturation, $lightness), $j),
+        shade-color(hsl($hue, $saturation, $lightness), 8),
+        tint-color(hsl($hue, $saturation, $lightness), 8)
+      );
+      background-color: tint-color(hsl($hue, $saturation, $lightness), $j);
     }
     $j: $j - 1.5;
     $i: $i - 1;
@@ -55,13 +55,13 @@
 
   #{$color}: hsl($hue, $saturation, $lightness);
 
-  .sakai-colorize#{$color} { 
-    color: color-contrast( 
-      hsl($hue, $saturation, $lightness), 
-      shade-color(hsl($hue, $saturation, $lightness), 8), 
-      tint-color(hsl($hue, $saturation, $lightness), 8) 
-    ); 
-    background-color: hsl($hue, $saturation, $lightness); 
+  .sakai-colorize#{$color} {
+    color: color-contrast(
+      hsl($hue, $saturation, $lightness),
+      shade-color(hsl($hue, $saturation, $lightness), 8),
+      tint-color(hsl($hue, $saturation, $lightness), 8)
+    );
+    background-color: hsl($hue, $saturation, $lightness);
   }
 
   $j: 1;
@@ -69,13 +69,13 @@
   @while $i < 8 {
     #{$color}--darker-#{$i}: shade-color(hsl($hue, $saturation, $lightness), $j);
 
-    .sakai-colorize#{$color}--darker-#{$i} { 
-      color: color-contrast( 
-        shade-color(hsl($hue, $saturation, $lightness), $j), 
-        shade-color(hsl($hue, $saturation, $lightness), 8), 
-        tint-color(hsl($hue, $saturation, $lightness), 8) 
-      ); 
-      background-color: shade-color(hsl($hue, $saturation, $lightness), $j); 
+    .sakai-colorize#{$color}--darker-#{$i} {
+      color: color-contrast(
+        shade-color(hsl($hue, $saturation, $lightness), $j),
+        shade-color(hsl($hue, $saturation, $lightness), 8),
+        tint-color(hsl($hue, $saturation, $lightness), 8)
+      );
+      background-color: shade-color(hsl($hue, $saturation, $lightness), $j);
     }
     $j: $j + 1.5;
     $i: $i + 1;

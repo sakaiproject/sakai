@@ -45,9 +45,9 @@
   right: 2px;
   background-color: var(--sakai-background-color-2);
   font-size: 1em;
-  color: #666;
+  color: var(--sakai-text-color-dimmed);
   top: 2px;
-  border-left: 1px solid #EEE;
+  border-left: 1px solid var(--sakai-border-color);
   height: 28px;
   line-height: 28px;
   padding: 0 12px;
@@ -131,8 +131,8 @@
   border-bottom: 1px solid transparent;
 }
 #gradeTableWrapper .currentRow .relative {
-  border-top: 1px solid rgb(82, 146, 247);
-  border-bottom: 1px solid rgb(82, 146, 247);
+  border-top: 1px solid var(--sakai-active-color-1);
+  border-bottom: 1px solid var(--sakai-active-color-1);
 }
 
 #gradeTableWrapper .handsontable td {
@@ -204,7 +204,7 @@
   line-height: 10px;
   padding: 0 10px;
   opacity: 0.2;
-  border-color: #EEE;
+  border-color: var(--sakai-border-color);
 }
 #gradeTableWrapper th:hover .btn-group > a,
 #gradeTableWrapper td:hover .btn-group > a,
@@ -218,22 +218,22 @@
 }
 
 #gradebookSpreadsheet.gb-grouped-by-category #gradeTableWrapper th.gb-categorized {
-  border-top: 10px solid #F0F0F0;
+  border-top: 10px solid var(--sakai-border-color);
 }
 #gradeTableWrapper .swatch {
   width: 1em;
   height: 1em;
   display: inline-block;
   margin-right: 4px;
-  box-shadow: 1px 1px 2px #CCC;
+  box-shadow: var(--elevation-1dp);
 }
 #gradeTableWrapper .gb-category-weight {
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
   font-weight: normal;
 }
 #gradeTableWrapper .gb-uncategorized {
   text-align: left;
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeTableWrapper tbody td .gb-value {
   line-height: 30px;
@@ -253,7 +253,7 @@
   font-size: 16px;
   min-width: 16px;
   height: 20px;
-  color: #AAA;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeTableWrapper .gb-comment-notification:before,
 .gb-flag-comment:before {
@@ -271,7 +271,7 @@
   margin-top: -10px;
 }
 [class*="gb-flag"] {
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
   font-family: 'gradebook-icons';
   display: inline-block;
   min-width: 16px;
@@ -306,7 +306,7 @@
 }
 #gradeTableWrapper .gb-excused {
   text-decoration: line-through;
-  color: #555;
+  color: var(--sakai-text-color-dimmed);
 }
 
 .gb-flag-excused::before {
@@ -337,58 +337,58 @@
 }
 #gradeTableWrapper th .gb-flag-equal-weight:before,
 #gradeTableWrapper th .gb-flag-extra-credit:before {
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeTableWrapper .gb-save-success,
 #gradeTableWrapper .currentCol .gb-save-success,
 #gradeTableWrapper .currentRow .gb-save-success {
-  background-color: #DFF0D8 !important;
+  background-color: var(--successBanner-bgcolor) !important;
 }
 #gradeTableWrapper .gb-save-success .gb-notification:before {
   font-family: "gradebook-icons";
   content: "\f05d" !important;
-  color: green;
+  color: var(--successBanner-color);
 }
 #gradeTableWrapper .gb-just-synced,
 #gradeTableWrapper .currentCol .gb-just-synced,
 #gradeTableWrapper .currentRow .gb-just-synced {
-  background-color: #DFF0D8 !important;
+  background-color: var(--successBanner-bgcolor) !important;
 }
 #gradeTableWrapper .gb-save-error,
 #gradeTableWrapper .currentCol .gb-save-error,
 #gradeTableWrapper .currentRow .gb-save-error {
-	background-color: #FFBBBB !important;
+	background-color: var(--errorBanner-bgcolor) !important;
 }
 #gradeTableWrapper .gb-save-error .gb-notification:before,
 .gb-flag-save-error:before {
   font-family: "gradebook-icons";
   content: "\f06a" !important;
-  color: rgb(204,0,0) !important;
+  color: var(--errorBanner-color) !important;
 }
 #gradeTableWrapper .gb-save-invalid,
 #gradeTableWrapper .gb-external-invalid {
-  background-color: #FCF8E3 !important;
+  background-color: var(--warnBanner-bgcolor) !important;
 }
 #gradeTableWrapper .gb-save-invalid .gb-notification:before,
 .gb-flag-save-invalid:before,
 #gradeTableWrapper .gb-external-invalid .gb-notification:before {
   font-family: "gradebook-icons";
   content: "\f071" !important;
-  color: rgb(200,144,0) !important;
+  color: var(--warnBanner-color) !important;
 }
 #gradeTableWrapper .gb-read-only {
-  color: #777;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeTableWrapper .gb-read-only .gb-notification:before {
   font-family: "gradebook-icons";
   content: '\f023';
-  color: #DDD;
+  color: var(--sakai-text-color-dimmed);
 }
 #gradeTableWrapper .gb-read-only .gb-notification.gb-flag-equal-weight:after,
 #gradeTableWrapper .gb-read-only .gb-notification.gb-flag-extra-credit:after {
   font-family: "gradebook-icons";
   content: '\f0fe';
-  color: rgb(200,144,0);
+  color: var(--warnBanner-color);
   font-size: 10px;
   position: absolute;
   right: -5px;
@@ -398,12 +398,12 @@
 .gb-flag-concurrent-edit:before {
   font-family: "gradebook-icons";
   content: '\f040';
-  color: rgb(204,0,0);
+  color: var(--errorBanner-color);
 }
 #gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell,
 #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .gb-dropped-grade-cell,
 #gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative .gb-dropped-grade-cell {
-  background-image: repeating-linear-gradient(135deg, #eee, #eee 5px, #fff 5px, #fff 10px);
+  background-image: repeating-linear-gradient(135deg, var(--sakai-background-color-2), var(--sakai-background-color-2) 5px, var(--sakai-background-color-1) 5px, var(--sakai-background-color-1) 10px);
   background-clip: padding-box;
 }
 #gradeTableWrapper .handsontable tbody tr td .gb-dropped-grade-cell .gb-value {
@@ -417,10 +417,10 @@
   padding: 10px;
   font-size: 0.9em;
   background: var(--sakai-background-color-2);
-  color: #212121;
+  color: var(--sakai-text-color-1);
   z-index: 1000;
   border-radius: 5px;
-  box-shadow: 1px 1px 5px 1px #999;
+  box-shadow: var(--elevation-2dp);
 }
 .gb-metadata p,
 .gb-metadata dl,
@@ -430,7 +430,7 @@
 }
 .gb-metadata dt {
   width: 80px !important;
-  color: #555;
+  color: var(--sakai-text-color-2);
 }
 .gb-metadata dd {
   margin-left: 90px !important;
@@ -452,13 +452,13 @@
 }
 .gb-metadata:after {
   border-color: transparent;
-  border-bottom-color: #FAFAFA;
+  border-bottom-color: var(--sakai-border-color);
   border-width: 10px;
   margin-left: -10px;
 }
 .gb-metadata:before {
   border-color: transparent;
-  border-bottom-color: #DDD;
+  border-bottom-color: var(--sakai-border-color);
   border-width: 10px;
   margin-left: -10px;
 }
@@ -492,27 +492,29 @@
   margin-top: -8px;
   height: 16px;
   right: 8px;
-  color: #999;
+  color: var(--sakai-text-color-dimmed);
 }
 .gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
 .gb-student-summary .gb-student-summary-counts.warn-students-hidden {
-  color: #CA7311;
+  color: var(--warnBanner-color);
   font-weight: bold;
 }
 /* table caption and toggle */
 #captionToggle {
-  color: #777;
+  color: var(--sakai-text-color-dimmed);
   vertical-align: middle;
   text-decoration: none;
   font-size: 25px;
-  margin-left: 10px;
+  margin-left: 8px;
+  padding: 0 8px;
 }
 #captionToggle:before {
   font-family: 'gradebook-icons';
   content: '\f11c';
 }
 #captionToggle:hover {
-  text-shadow: 0 0 5px #AAA;
+  background-color: var(--button-hover-background);
+  color: var(--button-hover-text-color);
 }
 #gradeTableWrapper #gradeTableCaption {
   /* hide the caption from users, but retain for screen readers */
@@ -530,14 +532,14 @@
   width: 80%;
   height: 60%;
   background: var(--sakai-background-color-2);
-  color: #212121;
+  color: var(--sakai-text-color-1);
   z-index: 1000;
   top: 20%;
   left: 150px;
   padding: 10px;
   margin: 0;
   border-radius: 5px;
-  box-shadow: 1px 1px 20px 5px #999;
+  box-shadow: var(--elevation-8dp);
   overflow: auto;
   clip: auto;
 }
@@ -564,9 +566,7 @@
 .gb-hidden-column-visual-cue:focus {
   text-decoration: none;
   background-color: var(--sakai-background-color-1);
-  background-color: rgba(255,255,255,0.5);
-  border-color: #43a7c8;
-  border-color: rgba(67, 167, 200, 0.5);
+  border-color: var(--sakai-active-color-1);
 }
 .gb-hidden-column-visual-cue:before {
   font-family: 'gradebook-icons';

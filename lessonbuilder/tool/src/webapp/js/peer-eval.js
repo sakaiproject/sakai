@@ -156,6 +156,7 @@ $(function() {
 		addIndexAndMoveToSubmitRubric = function() {
 			$(rowInputs = "#peer-eval-create-dialog .peer-eval-create-form table tbody tr").each(function() {
 				var $inputBox = $("input:first", this);
+				$inputBox.val($inputBox.val().trim());
 				$inputBox.val($("span.rubricRowIndex", $inputBox.parent()).text() + ":" + $inputBox.val());
 			});
 			$("#peer-eval-rows-for-submission").html($("#peer-eval-create-dialog .peer-eval-create-form input").clone());

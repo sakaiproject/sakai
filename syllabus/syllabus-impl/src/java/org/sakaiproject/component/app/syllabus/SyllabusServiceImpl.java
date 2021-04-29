@@ -557,7 +557,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                 List<String> attachStringList = new ArrayList<String>();
 
                                 syDataCount = syDataCount + 1;
-                                SyllabusData syData = new SyllabusDataImpl();
+                                SyllabusData syData = new SyllabusData();
                                 syData.setView(syDataElement
                                     .getAttribute(SYLLABUS_DATA_VIEW));
                                 syData.setTitle(syDataElement
@@ -629,22 +629,20 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                 syData = syllabusManager.createSyllabusDataObject(syData.getTitle(), (new Integer(initPosition)), syData.getAsset(),
                                         syData.getView(), syData.getStatus(),
                                         syData.getEmailNotification(), syData.getStartDate(), syData.getEndDate(), syData.getLinkCalendar(),
-                                        syData.getCalendarEventIdStartDate(), syData.getCalendarEventIdEndDate());
+                                        syData.getCalendarEventIdStartDate(), syData.getCalendarEventIdEndDate(), syllabusItem);
 
                                 Set<SyllabusAttachment> attachSet = new TreeSet<SyllabusAttachment>();
                                 for(int m=0; m<attachStringList.size(); m++)
                                 {
                                   ContentResource cr = contentHostingService.getResource((String)attachStringList.get(m));
                                   ResourceProperties rp = cr.getProperties();
-//                                SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
-//                                (String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                                  SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
-                                    cr.getId(),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                                  SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(cr.getId(), rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
                                   tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
                                   tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
                                   tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
                                   tempAttach.setUrl(cr.getUrl());
                                   tempAttach.setAttachmentId(cr.getId());
+                                  tempAttach.setSyllabusData(syData);
 
                                   attachSet.add(tempAttach);
                                 }
@@ -682,10 +680,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     return results.toString();
   }
 
-  /**
-   * @param attribute
-   * @return
-   */
   private String addSyllabusToolToPage(String siteId,String pageName)
   {
     return siteId;
@@ -738,7 +732,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                   		  .createSyllabusDataObject(toSyData.getTitle(),
                           positionNo, toSyData.getAsset(), toSyData.getView(),
                           toSyData.getStatus(), toSyData.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.getLinkCalendar(),
-                          toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate());
+                          toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate(), toSyItem);
                   
                   syllabusManager.addSyllabusToSyllabusItem(toSyItem, newToSyData, false);
                 }
@@ -1165,7 +1159,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 										toSyData.getView(), toSyData
 												.getStatus(), toSyData
 												.getEmailNotification(), toSyData.getStartDate(), toSyData.getEndDate(), toSyData.getLinkCalendar(),
-												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate());
+												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate(), toSyItem);
 						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
 						Iterator attachIter = attachSet.iterator();
 						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>();
@@ -1182,6 +1176,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 							SyllabusAttachment thisSyllabusAttach = syllabusManager.createSyllabusAttachmentObject(
 								attachment.getId(), 
 								attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+							thisSyllabusAttach.setSyllabusData(newToSyData);
 							newAttachSet.add(thisSyllabusAttach);
 						}
 						newToSyData.setAttachments(newAttachSet);

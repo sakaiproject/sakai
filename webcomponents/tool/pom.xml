@@ -72,7 +72,7 @@
                             </includes>
                             <excludes>
                                 <exclude>js/**</exclude>
-                                <exclude>conf/**</exclude>
+                                <exclude>.config/**</exclude>
                                 <exclude>stories/**</exclude>
                                 <exclude>storybook-resources/**</exclude>
                                 <exclude>test/**</exclude>
@@ -100,7 +100,7 @@
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
                         js/**,
-                        conf/**,
+                        .config/**,
                         node_modules/**,
                         package.json,
                         package-lock.json,
@@ -110,8 +110,8 @@
                         <resource>
                             <directory>src/main/frontend</directory>
                             <excludes>
-                                <exclude>conf/**</exclude>
                                 <exclude>js/**</exclude>
+                                <exclude>.config/**</exclude>
                                 <exclude>node_modules/**</exclude>
                                 <exclude>stories/**</exclude>
                                 <exclude>.storybook/**</exclude>
@@ -151,6 +151,7 @@
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3
+                                puppeteer
                                 raw-loader@3
                                 style-loader@1
                                 webpack@4
@@ -184,9 +185,17 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                run build
-                            </arguments>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm test-setup</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run test-setup</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -196,42 +205,12 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                run test
-                            </arguments>
+                            <arguments>run test</arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
-    <!--profiles>
-        <profile>
-            <id>jsdev</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sakaiproject.maven.plugins</groupId>
-                        <artifactId>sakai</artifactId>
-                        <version>1.4.6-SNAPSHOT</version>
-                        <executions>
-                            <execution>
-                                <id>copyjs</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copyjs</goal>
-                                </goals>
-                                <configuration combine.self="override">
-                                    <sourceDir>src/main/frontend/js</sourceDir>
-                                    <targetDir>src/main/frontend</targetDir>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles-->
 
 </project>

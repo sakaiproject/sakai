@@ -3,7 +3,7 @@
 	/*panel holding all forum metadata in forum list view*/
 	width: 100%;
     background: var(--sakai-background-color-2);
-    border: 1px solid #D9C9A7;
+    border: 1px solid var(--sakai-border-color);
     margin-bottom: 0;
     margin-top: 1em;
 }
@@ -46,7 +46,6 @@
 }
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
-	border-left: 2px solid #fc6;
 	width: 80%;
 	padding: 0 .5em;
 	margin: 0;
@@ -75,10 +74,10 @@
      word-break: break-word;
 }
 .messageNew{
-	color: #000;
-	font: .84em/1em verdana, arial,sans-serif;
-	background: #fe9;
-	outline:1px solid var(--sakai-border-color);
+	color: var(--warnBanner-color);
+	font: .84em/1em;
+	background: var(--warnBanner-bgcolor);
+	outline:1px solid var(--warnBanner-bordercolor);
 	padding: 1px 2px;
 	margin-right: 5px;
 	/*	display:none; - uncomment to hide the "new" message */
@@ -87,16 +86,16 @@
 	margin-left: 5px;
 }
 .childrenNew{
-	color: #e90;
+	color: var(--warnBanner-color);
+	background: var(--warnBanner-bgcolor);
 	font-size:87%;
 	font-weight:bold;
 	padding: 1px 2px;
 	/*	display:none; - uncomment to hide the message associated with parents of new messages*/
 }
 
-
 .childrenNewZero {
-    color: #555555;
+    color: var(--sakai-text-color-2);
     font-size: 85%;
     font-weight: normal;
     margin-left: 5px;
@@ -119,13 +118,13 @@
 	border:1px solid var(--sakai-border-color);
 	padding:3px;
 	padding-left:18px;
-	background: #eee url(../images/silk/arrow_down.png) center left no-repeat;
+	background: var(--sakai-background-color-2) url(../images/silk/arrow_down.png) center left no-repeat;
 }
 .markAllAsRead {
 	border:1px solid var(--sakai-border-color);
 	padding:3px;
 	padding-left:30px;
-	background: #eee url(../images/markAsRead.gif)  5px center no-repeat;
+	background: var(--sakai-background-color-2) url(../images/markAsRead.gif)  5px center no-repeat;
 }
 
 .topicIcon{
@@ -133,18 +132,18 @@
 }
 /* PART 2 - TOPIC/THREAD VIEWS*/
 .messagePending{
-	background: #bf9;
-	font: .84em/1em verdana, arial,sans-serif;
-	color: #000;
-	outline:1px solid var(--sakai-border-color);
+	background: var(--successBanner-bgcolor);
+	font: .84em/1em;
+	color: var(--successBanner-color);
+	outline:1px solid var(--successBanner-bordercolor);
 	padding: 1px 2px;
 	margin-right: 5px;
 }
 .messageDenied{
-	color: #000;
-	font: .84em/1em verdana, arial,sans-serif;
-	background: #f9a;
-	outline:1px solid var(--sakai-border-color);
+	color: var(--errorBanner-color);
+	font: .84em/1em;
+	background: var(--errorBanner-bgcolor);
+	outline:1px solid var(--errorBanner-bordercolor);
 	padding: 1px 2px;
 	margin-right: 5px;
 }
@@ -179,7 +178,7 @@
 }
 .messagesFlat tbody tr td div.hierItemBlock,.messagesThreaded tbody tr td div.hierItemBlock{
 	padding: 0 10px;
-	border-left: 2px solid #cd5 !important;
+	border-left: 2px solid var(--sakai-tertiary-color-1) !important;
 	margin: 10px;
 }
 .messagesThreaded tbody tr td{
@@ -200,7 +199,7 @@
 }
 .messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
 	/*first message in thread in visible body view*/
-	border-left: 2px solid #69d;
+	border-left: 2px solid var(--sakai-secondary-color-1);
 	width: 100%;
 }
 .messagesThreaded tbody tr.hierItemBlock td.bogus:first-child > div{
@@ -233,7 +232,7 @@
 /*PART 3 - SINGLE MESSAGE DISPLAY*/
 .singleMessage{
 	/*title + metadata block of a single message display*/
-	border-left: 2px solid #69d;
+	border-left: 2px solid var(--sakai-secondary-color-1);
 	background: var(--sakai-background-color-2);
 	margin-top: 1em;
 	padding:.3em  .5em;
@@ -245,19 +244,19 @@
 .singleMessageReply{
 	/*title + metadata block of a single message display*/
 	border:1px solid var(--sakai-border-color);
-	background:--var(sakai-color-gold--lighter-7);
+	background: var(--sakai-background-color-2);
 	margin-top: 1em;
 	padding:.3em  .5em;
 }
 table.messageActions {
 	/*single message action links top container*/
-	background: #eee;
+	background: var(--sakai-background-color-2);
 }
 table.messageActions td{
 	/*single message action links inner container*/
 	padding: 6px;
 	vertical-align: middle;
-	background: #eee;
+	background: var(--sakai-background-color-2);
 }
 .messageActions a{
 	/*single message action links*/
@@ -273,13 +272,13 @@ table.messageActions td{
 	white-space: nowrap;
 }
 .messageActions a:hover{
-	border: 1px solid #555  !important;
+	border: 1px solid var(--sakai-border-color)  !important;
 	text-decoration: none !important;
 }
 #permalinkHolder{
 	border:1px solid var(--sakai-border-color);
 	display:none;
-	background:--var(sakai-color-gold--lighter-7);
+	background:var(--sakai-background-color-2);
 	position:absolute;
 	padding:5px;
 	z-index: 1;
@@ -288,7 +287,8 @@ table.messageActions td{
 #permalinkHolder a{
 	font-weight:bold;
 	top:0;right:4px;
-	outline:none;padding:0;
+	outline:none;
+	padding:0;
 	display:block;
 	float:right;
 }
@@ -307,23 +307,23 @@ table.messageActions td{
 /*PART $ MESSAGE TYPES */
 .messageAlert{
     list-style: none;
-	background: #FFEEEE url(../images/exclamation.gif) 5px 5px no-repeat;
-	border: 1px solid #FF5555;
-	color: #FF5555;
+	background: var(--errorBanner-bgcolor) url(../images/exclamation.gif) 5px 5px no-repeat;
+	border: 1px solid var(--errorBanner-bordercolor);
+	color: var(--errorBanner-color);
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
 .messageInformation{
-	background: #ffe url(../images/asterisk_yellow.gif) 5px 5px no-repeat;
-	border: 1px solid #d93;
-	color: #d93;
+	background: var(--warnBanner-bgcolor) url(../images/asterisk_yellow.gif) 5px 5px no-repeat;
+	border: 1px solid var(--warnBanner-bordercolor);
+	color: var(--warnBanner-color);
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
 .messageComfirm{
-	background: #cd5 url(../images/accept.gif) 5px 5px no-repeat;
-	border: 1px solid #790;
-	color: #779900;
+	background: var(--successBanner-bgcolor) url(../images/accept.gif) 5px 5px no-repeat;
+	border: 1px solid var(--successBanner-bordercolor);
+	color: var(--successBanner-color);
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
@@ -344,13 +344,13 @@ td div.title{
 	font-size: 1.3em;
 }
 .unreadMsg a:link,.unreadMsg a:visited{
-	color: #f55 !important;
+	color:var(--errorBanner-color) !important;
 	text-decoration: none;
 }
 .selChanged{
 	/*flag an item as changed in organize view*/
-	border: 1px solid var(--sakai-border-color);
-	background-color: #fc6;
+	border: 1px solid var(--warnBanner-bordercolor);
+	background-color: var(--warnBanner-bgcolor);
 }
 .attachPanel{
 /*panel listing attachmetns when in edit mode for forum/topic/message*/
@@ -362,7 +362,7 @@ td div.title{
 	background: none !important;
 }
 .attachPanel th{
-	background: --var(sakai-color-gold--lighter-7);
+	background: var(--sakai-background-color-2);
 	border-bottom: 1px solid var(--sakai-border-color);
 	text-align: left;
 	font-weight: normal;
@@ -407,7 +407,7 @@ td div.title{
 .permissionRow .ui-icon { width: 16px; height: 16px; background-image: url(ui-lightness/images/ui-icons_222222_256x240.png); }
 .permissionRow .ui-icon-triangle-1-s { background-position: -64px -16px; }
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
-.permissionRow .ui-accordion-content { background: #eee; border: 1px solid var(--sakai-border-color); }
+.permissionRow .ui-accordion-content { background: var(--sakai-background-color-2); border: 1px solid var(--sakai-border-color); }
 .permissionRow span.ui-accordion-header {
 	margin: 0 0 0.5em 4em;
 	display:inline-block;
@@ -418,9 +418,8 @@ td div.title{
 
 table.discTria{
 	/*some adjustments to sakai discTria - to make whole clickable looking*/
-	border: none;
-	background: #ddd;
-	border:1px solid #ddd
+	background: var(--sakai-background-color-3);
+	border:1px solid var(--sakai-border-color);
 }
 table.discTria h4{
 	display: inline;
@@ -438,14 +437,13 @@ table.discTria:hover{
 	background: transparent;
 }
 .inactive{
-	color: #aaa;
+	color: var(--sakai-text-color-disabled);
 }
 .printBlock{
 	/*top  most parent of any printable block - used in print previews/pretty prints*/
 	margin: 1em;
 	padding: .5em;
 	font-size: 93%;
-	font-family: Georgia,"Times New Roman",Times,serif;
 	line-height:1.5em;
 }
 .printBlock .textPanel  a:after{
@@ -460,15 +458,16 @@ table.discTria:hover{
 	border-color: var(--sakai-border-color);
 }
 .printBlock .messagePending{
-	background: var(--sakai-border-color);
-	color: #000;
+	background: var(--sakai-background-color-1);
+	color: var(--sakai-text-color-1);
 	padding: 2px;
 	margin-right: 5px;
-	border: 1px solid #000;
+	border: 1px solid var(--successBanner-bordercolor);
 }
 .printBlock .messageDenied{
-	color: #fff;
-	background: #000;
+	color: var(--sakai-text-color-1);
+	background: var(--sakai-background-color-1);
+	border: 1px solid var(--errorBanner-bordercolor);
 	padding: 3px;
 	margin-right: 5px;
 }
@@ -488,8 +487,9 @@ a .textPanelFooter{
 form{margin-bottom:0;}
 
 .messageCommentWrap{
-	border:1px solid  #ddd !important;
-	background: #ffd;
+	border:1px solid var(--warnBanner-bordercolor) !important;
+	background: var(--warnBanner-bgcolor);
+	color: var(--warnBanner-color);
 	padding:3px 5px;
 	margin-bottom:10px
 }
@@ -553,13 +553,14 @@ img.authorImage {
     padding:5px;
 }
 .moreMenu li a:hover{
-    background:#eee;
+    background: var(--button-hover-background);
+	color: var(--button-hover-text-color);
     text-decoration:none;
 }
 div.msgcntr-profile-qtip {
 	max-height: 220px;
     max-width: 640px;
-    background-color: #fff;
+    background-color: var(--sakai-background-color-1);
 }
 .qtip-content .profile2-profile-content{
     float: right;
@@ -615,7 +616,7 @@ div.msgcntr-profile-qtip {
 }
 
 .forumsRank .forumsRankNameContainer .forumsRankName {
-    color: #000000;
+    color: var(--sakai-text-color-1);
     font-size: 0.95em;
     padding: 0 !important;
     text-align: left;

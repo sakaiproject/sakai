@@ -1,0 +1,135 @@
+{{#each members}}
+    <tr class="roster-member">
+    {{#if ../viewPicture}}
+        <td class="roster-picture-cell">
+        {{#if ../viewProfile}}
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+        {{/if}}
+            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
+        {{#if ../viewProfile}}
+            </a>
+        {{/if}}
+        </td> <!-- /roster-table-cell -->
+    {{/if}}
+
+    {{#unless ../hideNames}}
+        <td class="roster-name-cell">
+        {{#if ../../viewProfile}}
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+        {{/if}}
+            <span title="{{getName firstNameLastName}}">{{getName firstNameLastName}}</span>
+        {{#if ../../viewProfile}}
+            </a>
+        {{/if}}
+        </td>
+    {{/unless}}
+
+    {{#if ../viewPronouns}}
+        <td class="roster-pronouns-cell">
+            <span class="pronouns">
+                {{{pronouns}}}
+            </span>
+        </td>
+    {{/if}}
+
+    {{#if ../viewUserNamePronunciation}}
+        <td class="roster-user-name-pronunciation-cell">
+            <span class="namePronunciation">
+                {{#if pronunciation}}
+                    {{{pronunciation}}}
+                {{else}}
+                    {{#ifCond ../currentUserId userId}}
+                        {{#if ../profileNamePronunciationLink}}
+                            <a href="{{../profileNamePronunciationLink}}">{{tr 'name_pronunciation_profile_link'}}</a>
+                        {{else}}
+                            {{{tr 'name_pronunciation_not_provided'}}}
+                        {{/if}}
+                    {{else}}
+                        {{{tr 'name_pronunciation_not_provided'}}}
+                    {{/ifCond}}
+                {{/if}}
+            </span>
+        </td>
+    {{/if}}
+
+    {{#if ../viewUserDisplayId}}
+        <td class="roster-userId-cell">
+            <span class="roster-userId">
+            {{#if ../../viewProfile}}
+                <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+            {{/if}}
+                {{displayId}}
+            {{#if ../../viewProfile}}
+                </a>
+            {{/if}}
+            </span>
+        </td>
+    {{/if}}
+
+    {{#if ../enrollmentsMode}}
+        <td class="roster-status-cell">
+            <span class="roster-status">{{enrollmentStatusText}}</span>
+        </td>
+        <td class="roster-credits-cell">
+            <span class="roster-credits">{{credits}}</span>
+        </td>
+    {{else}}
+        <td class="roster-role-cell">
+            <span class="roster-role">{{role}}</span>
+            <span class="roster-status">{{enrollmentStatusText}}</span>
+        </td>
+    {{/if}}
+
+    {{#if ../showVisits}}
+        {{#if ../../viewSiteVisits}}
+        <td class="roster-total-visits-cell">
+            <span class="roster-total-visits">{{totalSiteVisits}}</span>
+        </td>
+            {{#if formattedLastVisitTime}}
+        <td class="roster-last-visit-cell">
+            <span class="roster-last-visit">{{formattedLastVisitTime}}</span>
+        </td>
+            {{/if}}
+        {{/if}}
+    {{/if}}
+
+    {{#if ../viewGroup}}
+    <td class="roster-groups-cell">
+        {{#if hasGroups}}
+            <div class="roster-group-cell">
+                {{#if singleGroup}}
+                <a href="javascript:;" class="roster-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
+                {{else}}
+                <span class="skip">{{tr 'screenreader_comboBox'}}</span>
+                <select class="roster-groups-selector">
+                    <option value="all">{{tr 'member_group_all_option'}}</option>
+                    {{#each groups}}
+                    <option value="{{id}}">{{title}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+            </div>
+        {{else}}
+        <span class="roster-no-groups-label">{{tr 'roster_group_ungrouped'}}</span>
+        {{/if}}
+    </td>
+    {{/if}}
+
+    {{#if ../viewEmail}}
+        <td class="roster-email-cell">
+            <a href="mailto:{{email}}" title="{{tr 'profile_email'}} {{email}}">{{email}}</a>
+        </td>
+    {{/if}}
+
+    {{#if ../viewUserProperty}}
+        <td class="roster-user-props-cell">
+            <ul class="roster-user-properties">
+            {{#each userProperties}}
+                <li>{{@key}}: {{this}}</li>
+            {{/each}}
+            </ul>
+        </td>
+    {{/if}}
+
+    </tr> <!-- /roster-table-row -->
+{{/each}}

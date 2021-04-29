@@ -113,6 +113,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -372,7 +373,11 @@ public class SimplePageBean {
 			"nrudy",
 			"nnavy",
 			"nnavy2",
-			"ngreen"
+			"ngreen",
+			"norange",
+			"ngold",
+			"nteal",
+			"npurple"
 	};
 	public static final String NewColorLabels[] = {
 			"Default",
@@ -384,7 +389,11 @@ public class SimplePageBean {
 			"Rudy",
 			"Navy",
 			"Navy Dark",
-			"Green"
+			"Green",
+			"Orange",
+			"Gold",
+			"Teal",
+			"Purple"
 	};
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
@@ -3533,44 +3542,29 @@ public class SimplePageBean {
     // code twice, we take that list and translate to titles, rather than calling
     // getItemGroups again
 	public String getItemGroupTitles(String itemGroups, SimplePageItem item) {
-	    String ret = "";
-	    if (StringUtils.isNotBlank(itemGroups)) {
+		String ret = null;
+		if (StringUtils.isNotBlank(itemGroups)) {
 
-	    List<String> groupNames = new ArrayList<>();
-	    Site site = getCurrentSite();
-	    String[] groupIds = split(itemGroups, ",");
-	    for (int i = 0; i < groupIds.length; i++) {
-		Group group=site.getGroup(groupIds[i]);
-		if (group != null) {
-		    String title = group.getTitle();
-		    if (title != null && !title.equals(""))
-			groupNames.add(title);
-		    else
-			groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
-		} else
-		    groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
-	    }
-	    Collections.sort(groupNames);
-	    for (String name: groupNames) {
-		if (StringUtils.isBlank(ret))
-		    ret = name;
-		else
-		    ret = ret + "," + name;
-	    }
+			List<String> groupNames = new ArrayList<>();
+			for (String groupId : split(itemGroups, ",")) {
+				Group group = getCurrentSite().getGroup(groupId);
+				if (group != null && StringUtils.isNotBlank(group.getTitle())) {
+					groupNames.add(group.getTitle());
+				} else {
+					groupNames.add(messageLocator.getMessage("simplepage.deleted-group"));
+				}
+			}
+			groupNames.sort(new AlphaNumericComparator());
+			ret = StringUtils.join(groupNames, ", ");
+		}
 
-	    }
+		if (StringUtils.isBlank(ret) && item.isPrerequisite()) {
+			return messageLocator.getMessage("simplepage.prerequisites_tag");
+		} else if (item.isPrerequisite()) {
+			return messageLocator.getMessage("simplepage.prerequisites_tag") + "; " + ret;
+		}
 
-	    if (item.isPrerequisite()) {
-		if (StringUtils.isBlank(ret))
-		    ret = messageLocator.getMessage("simplepage.prerequisites_tag");
-		else
-		    ret = messageLocator.getMessage("simplepage.prerequisites_tag") + "; " + ret;
-	    }
-
-	    if (StringUtils.isBlank(ret))
-		return null;
-
-	    return ret;
+		return ret;
 	}
 
     private String getParentTitle(SimplePageItem item, boolean continuation, Set<Long> seen) {
@@ -4139,7 +4133,7 @@ public class SimplePageBean {
 		   public int compare(Object o1, Object o2) {
 		       GroupEntry e1 = (GroupEntry)o1;
 		       GroupEntry e2 = (GroupEntry)o2;
-		       return e1.name.compareTo(e2.name);
+		       return new AlphaNumericComparator().compare(e1.name, e2.name);
 		   }
 	       });
 	   currentGroups = groupEntries;

@@ -20,63 +20,78 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.syllabus;
 
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
-/**
- * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
- * @version $id
- */
-public interface SyllabusItem
-{
-  /**
-   * @return Returns the syllabi.
-   */
-  public Set<SyllabusData> getSyllabi();
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
-  /**
-   * @param syllabi The syllabi to set.
-   */
-  public void setSyllabi(Set<SyllabusData> syllabi);
+import org.hibernate.annotations.BatchSize;
 
-  /**
-   * @return Returns the contextId.
-   */
-  public String getContextId();
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-  /**
-   * @param contextId The contextId to set.
-   */
-  public void setContextId(String contextId);
+@Entity
+@Table(name = "SAKAI_SYLLABUS_ITEM",
+        indexes = {
+                @Index(name = "syllabus_userId", columnList = "userId"),
+                @Index(name = "syllabus_contextId", columnList = "contextId")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uniqueSyllabus", columnNames = {"userId", "contextId"})
+        }
+)
+@Data
+@EqualsAndHashCode(of = {"userId", "contextId", "redirectURL"})
+@NoArgsConstructor
+@ToString(of = {"surrogateKey", "userId", "contextId", "redirectURL", "lockId"})
+public class SyllabusItem {
 
-  /**
-   * @return Returns the lockId.
-   */
-  public Integer getLockId();
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "syllabus_item_sequence")
+    @SequenceGenerator(name = "syllabus_item_sequence", sequenceName = "SyllabusItemImpl_SEQ")
+    private Long surrogateKey;
 
-  /**
-   * @return Returns the surrogateKey.
-   */
-  public Long getSurrogateKey();
+    @Version
+    private Integer lockId;
 
-  /**
-   * @return Returns the userId.
-   */
-  public String getUserId();
+    @Column(length = 36, nullable = false)
+    private String userId;
 
-  /**
-   * @param userId The userId to set.
-   */
-  public void setUserId(String userId);
+    @Column(nullable = false)
+    private String contextId;
 
-  /**
-   * @return Returns the redirectURL.
-   */
-  public String getRedirectURL();
+    @Column(length = 512)
+    private String redirectURL;
 
-  /**
-   * @param redirectURL The redirectURL to set.
-   */
-  public void setRedirectURL(String redirectURL);
+    @OneToMany(mappedBy = "syllabusItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
+    @OrderBy("position ASC")
+    private Set<SyllabusData> syllabi = new TreeSet<>();
 
+
+    public SyllabusItem(String userId, String contextId, String redirectURL) {
+        Objects.requireNonNull(userId);
+        Objects.requireNonNull(contextId);
+
+        this.userId = userId;
+        this.contextId = contextId;
+        this.redirectURL = redirectURL;
+    }
 }
-

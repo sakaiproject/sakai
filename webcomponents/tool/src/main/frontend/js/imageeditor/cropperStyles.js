@@ -1,6 +1,6 @@
 import { css } from "../assets/lit-element/lit-element.js";
 
-export let cropperStyles = css`
+export const cropperStyles = css`
 /*!
  * Cropper.js v1.5.7
  * https://fengyuanchen.github.io/cropperjs

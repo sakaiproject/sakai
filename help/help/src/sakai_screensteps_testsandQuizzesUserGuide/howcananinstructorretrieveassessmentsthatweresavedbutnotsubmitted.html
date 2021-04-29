@@ -4,9 +4,8 @@
 <title>How can an instructor retrieve assessments that were saved but not submitted? </title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="" name="description">
-<link href="/library/skin/tool_base.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="../css/help.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
-<link href="/library/skin/morpheus-default/tool.css" media="screen" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="../css/help.css" media="all" rel="stylesheet" type="text/css" charset="utf-8">
+<link href="/library/webjars/fontawesome/4.7.0/css/font-awesome.min.css" media="screen" rel="stylesheet">
 <script src="/library/webjars/jquery/1.12.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/library/js/headscripts.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
@@ -20,11 +19,15 @@
 </script>
 </head>
 <body>
-  <div><div>
+  <div class="screensteps-main-content" role="main">
+    <div class="screensteps-article">
+      <div class="screensteps-article-content">
+
+        <div><div>
 <div><h1 class="article-title">How can an instructor retrieve assessments that were saved but not submitted? </h1></div>
-<div>    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
+<div><div class="screensteps-steps">    <div class="step-instructions screensteps-textblock screensteps-wrapper--introduction screensteps-wrapper">
   <p>When a student clicks the <strong>Submit for Grading</strong> button on the last page of an assessment or the <em>Table of Contents</em>, they are taken to an <em>Assessment Submission Warning</em> screen to confirm their submission. If they do not click the final <strong>Submit for Grading</strong> button to confirm, and the assessment is NOT timed, their responses may be saved, but the assessment will remain <em>In Progress</em>.</p>
-<p>Instructors do not have access to the content of<em> In Progress</em> assessments. On the <em><a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen, students with incomplete submissions would be listed as having <em>No Submission</em> recorded.</p>
+<p>Instructors do not have access to the content of<em> In Progress</em> assessments. On the <a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessmentgototestsquizzes"><em>Total Scores</em></a> screen, students with incomplete submissions would be listed as having <em>No Submission</em> recorded.</p>
 <p>However, if a student has not yet submitted a copy of an untimed assessment, an instructor can retrieve their submission using the <strong>Automatic Submission</strong> (<strong>Autosubmit</strong>) feature in <em>Tests &amp; Quizzes</em>.</p>
 <p><em>Note: The autosubmit option is only available if it has been enabled on your system.</em></p>
 </div>
@@ -40,7 +43,7 @@
 <li>Did this student press the <strong>Begin Assessment</strong> button, save their work, but fail to successfully submit the assessment via the <strong>Submit for Grading</strong> button on the <em>Assessment Submission Warning</em> screen?</li>
 <li>Is this the student's first submission attempt?</li>
 </ol>
-<p>If all four conditions above are true, the system will automatically submit the student’s saved assessment. The submission data will be available to instructors on the <em><a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen within five minutes (or however often your system is configured to run) after the <strong>latest acceptance date</strong> passes.</p>
+<p>If all four conditions above are true, the system will automatically submit the student’s saved assessment. The submission data will be available to instructors on the <a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessmentgototestsquizzes"><em>Total Scores</em></a> screen within five minutes (or however often your system is configured to run) after the <strong>latest acceptance date</strong> passes.</p>
 <p>Instructors can review all student submissions normally. Any assessments that were submitted via the automatic submission feature will be flagged on the <em>Total Scores</em> screen with the text <em>AUTO-SUBMIT</em>. All answers that were saved will be included in the student's automatic submission.</p>
 <p><em>Note: Timed assessments are automatically submitted when the timer expires, so you do not need to enable Autosubmit for a timed assessment.</em></p>
 </div>
@@ -278,11 +281,11 @@
 </div>
  
       <div class="step-instructions screensteps-textblock">
-  <p>Instructors access automatic submissions from the <em><a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen just as they would any other assessment submission. However, automatic submissions display differently from manual or timer submissions as follows:</p>
+  <p>Instructors access automatic submissions from the <a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessmentgototestsquizzes"><em>Total Scores</em></a> screen just as they would any other assessment submission. However, automatic submissions display differently from manual or timer submissions as follows:</p>
 <ol>
 <li>When an automatic submission occurs, the <a href="content.hlp?docId=whatinformationisinatestsquizzesemailnotification">email notification sent to students and/or instructors</a> will contain <em>Notification for assessment auto submission</em>. The <em>Submitted Date</em> in the email notification indicates when the student last saved content in the assessment. The time stamp on the email that was sent will indicate when the actual submission occurred.</li>
-<li>On the <em><a href="content.hlp?docId=howdoiviewstatisticsaboutacompletedassessment">Total Scores</a></em> screen, automatic submissions are flagged with the text <em>AUTO-SUBMIT</em>. The time stamp that appears in the <em>Submit Date</em> column for automatic submissions indicates when the student last saved content in the assessment, NOT when it was actually submitted by the Automatic Submission feature.</li>
-<li>In the <em>Tests &amp; Quizzes</em> <em><a href="content.hlp?docId=whatisthetestsquizzeseventlog">Event Log</a></em>, the <em>Errors</em> column will indicate <em>No Errors (Auto-submit)</em>. The <em>Date Submitted</em> column will indicate when the actual submission occurred. The <em>Duration</em> column will indicate how much time elapsed between when the student began taking the assessment and when it was actually submitted; it does NOT indicate how much time the student actually spent taking the assessment.</li>
+<li>On the <a href="#go-to-tests-quizzes" target="_self"><em>Total Scores</em></a> screen, automatic submissions are flagged with the text <em>AUTO-SUBMIT</em>. The time stamp that appears in the <em>Submit Date</em> column for automatic submissions indicates when the student last saved content in the assessment, NOT when it was actually submitted by the Automatic Submission feature.</li>
+<li>In the <em>Tests &amp; Quizzes</em> <a href="content.hlp?docId=whatisthetestsquizzeseventlog"><em>Event Log</em></a>, the <em>Errors</em> column will indicate <em>No Errors (Auto-submit)</em>. The <em>Date Submitted</em> column will indicate when the actual submission occurred. The <em>Duration</em> column will indicate how much time elapsed between when the student began taking the assessment and when it was actually submitted; it does NOT indicate how much time the student actually spent taking the assessment.</li>
 </ol>
 <p>Below are examples displaying automatic submissions.</p>
 </div>
@@ -341,7 +344,11 @@
   </div>
 
 
-</div>
 </div></div>
+</div></div>
+
+      </div>
+    </div>
+  </div>
 </body>
 </html>

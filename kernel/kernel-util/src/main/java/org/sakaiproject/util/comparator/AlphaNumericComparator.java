@@ -21,13 +21,17 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Comparator;
 
 public class AlphaNumericComparator implements Comparator<String> {
-		Comparator stringComparator = Comparator
-				.comparing(s -> s.toString().replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
-				.thenComparingInt(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
-						Integer.parseInt(s.toString().replaceAll("\\D", "")) : 0);
+	private static Comparator stringComparator = Comparator
+				.comparing(s -> String.valueOf(s).replaceAll("\\d", ""), String.CASE_INSENSITIVE_ORDER)
+				.thenComparingLong(s -> StringUtils.isNumeric(s.toString().replaceAll("\\D", "")) ?
+						Long.parseLong(s.toString().replaceAll("\\D", "")) : 0);
 
 	@Override
 	public int compare(String o1, String o2) {
-		return Comparator.nullsFirst( stringComparator ).compare(o1, o2);
+		try {
+			return stringComparator.compare(o1, o2);
+		} catch (NumberFormatException nfe) {
+			return Comparator.comparing(String::valueOf).compare(o1, o2);
+		}
 	}
 }

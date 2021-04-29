@@ -29,32 +29,32 @@
 /* selector div */
 .pointerClass{
 	/*width:32px;*/
-	height:16px;
+	height: 16px;
 	background: url('/samigo-app/images/crosshair.png') no-repeat;
-	background-position:left bottom;;
-	padding-left:18px;
-	position:absolute;
-	display:none;
-	color: red;
-	text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+	background-position: left bottom;
+	padding-left: 18px;
+	position: absolute;
+	display: none;
+	color: var(--sakai-color-red);
+	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
 	font-size: 16px;
 }
 
 .pointerClass_selected{
 	/*width:32px;*/
-	height:16px;
+	height: 16px;
 	background: url('/samigo-app/images/crosshair.png') no-repeat;
-	background-position:left top;;
-	padding-left:18px;
-	position:absolute;
-	display:none;
-	color: red;
-	text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+	background-position: left top;
+	padding-left: 18px;
+	position: absolute;
+	display: none;
+	color: var(--sakai-color-red);
+	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
 	font-size: 16px;
 }
 
 .studentImageContainer{
-	position:relative;	
+	position:relative;
 	display:inline-block;
 	overflow-x: auto;
 	max-width: 85vw;
@@ -76,7 +76,6 @@ h4.imagemap_legend {
 	margin-bottom: 1em;
 }
 span.imagemap_legend {
-	color: #555;
-	font-weight: bold; 
-	font-family: Arial, Helvetica, sans-serif;
+	color: var(--sakai-text-color-2);
+	font-weight: bold;
 }

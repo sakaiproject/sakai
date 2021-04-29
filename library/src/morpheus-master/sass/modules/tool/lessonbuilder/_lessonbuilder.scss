@@ -81,11 +81,17 @@
 	}
 	
 	.sectionHeader {
+		border-radius: $button-radius $button-radius 0 0;
+
 		@media #{$phone} {
 		       clear: both;
 		       top: 10px;
 		}
 	}
+	.closedSectionHeader {
+		border-radius: $button-radius;
+	}
+	
 	/*
        Any changes shoud be checked to make sure they have enough
        contrast for accessiblity. These colors have been checked
@@ -96,203 +102,183 @@
 	.questionDiv .contentCol, .checklistDiv {
 		background-color: var(--sakai-active-color-1);
 	}
+	input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
+		@include sakai_secondary_button();
+		margin-top: $standard-space-4x;
+	}
 	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
 		background-color: var(--sakai-background-color-2);
 	}
-	.column a[href]{
-		color: #004860;
+	.checklist-checkbox-label {
+		vertical-align: baseline;
 	}
+
+	.column a[href]{
+		color: var(--link-color);
+	}
+	//legacy gray
 	.colgray, .colgray-trans {
-		background-color: #f0f0f0;
-		border-color: #222;
+		@extend .sakai-colorize--sakai-color-gray--lighter-6;
+		border: 1px solid var(--sakai-color-gray--lighter-5);
 	}
 	.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv, .colgray-trans .commentDiv, .colgray-trans .studentContentTable, .colgray-trans .questionDiv .contentCol {
-		background-color: #b8b8b8;
+		background-color: var(--sakai-color-gray--lighter-4);
 	}
 	.colgray a[href], .colgray-trans a[href]{
-		color:black;
+		color: var(--sakai-color-gray--darker-6);
 	}
+	//legacy red
 	.colred, .colred-trans {
-		background-color: #fff0f0;
-		border-color: #600;
-		color: #660000;
+		@extend .sakai-colorize--sakai-color-red--lighter-6;
+		border: 1px solid var(--sakai-color-red--lighter-5);
 	}
 	.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv, .colred-trans .commentDiv, .colred-trans .studentContentTable, .colred-trans .questionDiv .contentCol {
-		background-color: #ffb3b3;
+		background-color: var(--sakai-color-red--lighter-4);
 	}
 	.colred a[href], .colred h3.author, .colred-trans a[href], .colred-trans h3.author {
-		color: black;
+		color: var(--sakai-color-red--darker-6);
 	}
-
+	//legacy blue
 	.colblue, .colblue-trans {
-		background-color: #f4f4ff;
-		background-color: #e6f9ff;
-		border-color: #004;
-		color: #004;
+		@extend .sakai-colorize--sakai-color-blue--lighter-6;
+		border: 1px solid var(--sakai-color-blue--lighter-5);
 	}
 	.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv, .colblue-trans .commentDiv, .colblue-trans .studentContentTable, .colblue-trans .questionDiv .contentCol {
-		background-color: #b3d9ff;
-		background-color: #99e7ff;
+		background-color: var(--sakai-color-blue--lighter-4);
 	}
 	.colblue a[href], .colblue-trans a[href] {
-		color: black;
+		color: var(--sakai-color-blue--darker-6);
 	}
+	//legacy green
 	.colgreen, .colgreen-trans {
-		background-color: #f6fff6;
-		border-color: #030;
-		color: #030;
+		@extend .sakai-colorize--sakai-color-green--lighter-6;
+		border: 1px solid var(--sakai-color-green--lighter-5);
 	}
 	.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv, .colgreen-trans .commentDiv, .colgreen-trans .studentContentTable, .colgreen-trans .questionDiv .contentCol {
-		background-color: #9fc;
+		background-color: var(--sakai-color-green--lighter-4);
 	}
 	.colgreen a[href], .colgreen-trans a[href] {
-		color: black;
+		color: var(--sakai-color-green--darker-6);
 	}
+	//legacy yellow
 	.colyellow, .colyellow-trans {
-		background-color: #ffffe8;
-		border-color: #840;
-		color: #4b2600;
+		@extend .sakai-colorize--sakai-color-gold--lighter-6;
+		border: 1px solid var(--sakai-color-gold--lighter-5);
 	}
 	.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv, .colyellow-trans .commentDiv, .colyellow-trans .studentContentTable, .colyellow-trans .questionDiv .contentCol {
-		background-color:  #ffd480
+		background-color: var(--sakai-color-gold--lighter-4);
 	}
 	.colyellow a[href],.colyellow h3.author, .colyellow-trans a[href],.colyellow-trans h3.author {
-		color: black;
+		color: var(--sakai-color-gold--darker-6);
+	}
+	.usebutton,
+	input[type="submit"].question-submit,
+	.linkCell .addStudentContent,
+	input[type="submit"].setStudentZero {
+		@include sakai_secondary_button();
+		&:hover,
+		&:focus,
+		&:active {
+			background-color: var(--sakai-background-color-4);
+		}
 	}
 
-	.colngray, .colngray-trans {
-		background-color: #FFF;
-		color: #333;
-		border: 1px solid #ccc;
-	}
-	.colngray-header, .colngray-trans-header {
-		background-color: #606060;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colngray-header:hover, .collapsibleSectionHeader.colngray-trans-header:hover {
-		background-color: #303030;
+	
+	@mixin sakaiLessonsLayoutColorScheme($color, $lighterOrDarker, $name){
+	// Color scheme generation in Lessons Layouts
+	// Use any color previously defined via defineColorHSL
+	// @include sakaiLessonsLayoutColorScheme($color, $lighterOrDarker, $name)
+	// @param color
+	//      Type: string
+	//      expects the same value used to define a color palette in defineColorHSL
+	// @param lighterOrDarker
+	//      Type: string
+	//      expects a string either lighter or darker
+	// @param name
+	//      Type: string
+	//      expects a string which matches the classes the lessons tool will apply to the markup
+	// @returns a set of CSS selectors and rules
+	// Example usage 
+	//      @include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
+
+		$shade1: #{$color}--#{$lighterOrDarker}-4;
+		$shade2: #{$color}--#{$lighterOrDarker}-5;
+		$shade3: #{$color}--#{$lighterOrDarker}-3;
+		$shade4: #{$color}--#{$lighterOrDarker}-7;
+		@if $lighterOrDarker == 'darker' {
+			$shade1: #{$color}--#{$lighterOrDarker}-3;
+			$shade2: #{$color}--#{$lighterOrDarker}-4;
+			$shade3: #{$color}--#{$lighterOrDarker}-2;
+			$shade4: #{$color}--#{$lighterOrDarker}-6;
+		}
+		
+		.coln#{$name}, .coln#{$name}-trans {
+			background: var(--sakai-background-color-1);
+			border: 1px solid var($shade1);
+		}
+		.coln#{$name}-header, .coln#{$name}-trans-header {
+			@extend .sakai-colorize#{$shade2};
+			border: 1px solid var(#{$shade2});
+		}
+		.collapsibleSectionHeader.coln#{$name}-header:hover, .collapsibleSectionHeader.coln#{$name}-trans-header:hover {
+			@extend .sakai-colorize#{$shade1};
+			border-color: var(#{$shade1});
+		}
+		.collapsibleSectionHeader.coln#{$name}-header:active, .collapsibleSectionHeader.coln#{$name}-trans-header:active {
+			@extend .sakai-colorize#{$shade3};
+			border-color: var(#{$shade3});
+		}
+		.coln#{$name}-header + .section {
+			border: 1px solid var(#{$shade2});
+			border-top: none;
+		}
+		
+		.coln#{$name} {
+			.questionDiv .contentCol, .checklistDiv {
+				@extend .sakai-colorize#{$shade4};
+			}
+			.usebutton.n#{$name},
+			.usebutton.n#{$name}-trans,
+			input[type="submit"].question-submit,
+			.linkCell .addStudentContent,
+			input[type="submit"].setStudentZero {
+				@extend .sakai-colorize#{$shade2};
+				border: 1px solid var(#{$shade2});
+				&:hover,
+				&:focus {
+					@extend .sakai-colorize#{$shade1};
+					border: 1px solid var(#{$shade1});
+				}
+				&:active {
+					@extend .sakai-colorize#{$shade3};
+					border: 1px solid var(#{$shade3});
+				}
+			}
+			input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
+				margin-top: $standard-space-4x;
+			}
+		}
 	}
 
-	.colnblack, .colnblack-trans {
-		background-color: #FFF;
-		color: #333;
-		border: 1px solid #ccc;
-	}
-	.colnblack-header, .colnblack-trans-header {
-		background-color: #333;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colnblack-header:hover, .collapsibleSectionHeader.colnblack-trans-header:hover {
-		background-color: #191919;
-	}
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'darker', 'black');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-blue', 'lighter', 'blue');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-blue', 'darker', 'blue2');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-red', 'lighter', 'red');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-green', 'lighter', 'green');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-orange', 'lighter', 'orange');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-gold', 'lighter', 'gold');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-teal', 'lighter', 'teal');
+	@include sakaiLessonsLayoutColorScheme('--sakai-color-purple', 'lighter', 'purple');
 
-	.colnblue, .colnblue-trans {
-		background-color: #FFF;
-		color: #111;
-		border: 1px solid #ccc;
-	}
-	.colnblue-header, .colnblue-trans-header {
-		background-color: #1a5276;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colnblue-header:hover, .collapsibleSectionHeader.colnblue-trans-header:hover {
-		background-color: #0d293b;
-	}
+	@include defineColorHSL(--sakai-lessons-navy, 211, 21%, 33%);
+	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
+	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
 
-	.colnblue2, .colnblue2-trans {
-		background-color: #e8edf1;
-		color: #1a5276;
-		border: 1px solid #1a5276;
-	}
-	.colnblue2-header, .colnblue2-trans-header, .colnblue2 .forumSummaryHeaderDiv, .colnblue2-trans .forumSummaryHeaderDiv, .colnblue2 .announcementsHeaderDiv, .colnblue2-trans .announcementsHeaderDiv, .colnblue2 .fc-toolbar, .colnblue2-trans .fc-toolbar, .colnblue2 .questionDiv .contentCol, .colnblue2-trans .questionDiv .contentCol {
-		background-color: #1a5276;
-		color: #fff;
-		border: 1px solid #1a5276;
-	}
-	.collapsibleSectionHeader.colnblue2-header:hover, .collapsibleSectionHeader.colnblue2-trans-header:hover {
-		background-color: #0d293b;
-	}
-	.colnblue2 .forumSummaryHeaderDiv .forumSummaryLink, .colnblue2-trans .forumSummaryHeaderDiv .forumSummaryLink, .colnblue2 .announcementsHeaderDiv .announcementLink, .colnblue2-trans .announcementsHeaderDiv .announcementLink {
-		color: #fff;
-	}
+	@include defineColorHSL(--sakai-lessons-rudy, 5, 63%, 41%);
+	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-rudy', 'lighter', 'rudy' );
 
-	.colnred, .colnred-trans {
-		background-color: #FFF;
-		color: #333;
-		border: 1px solid #ccc;
-	}
-	.colnred-header, .colnred-trans-header {
-		background-color: #a93226;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colnred-header:hover, .collapsibleSectionHeader.colnred-trans-header:hover {
-		background-color: #541913;
-	}
-
-	.colnrudy, .colnrudy-trans {
-		background-color: #FFF;
-		color: #1a5276;
-		border: 1px solid #ccc;
-	}
-	.colnrudy-header, .colnrudy-trans-header {
-		background-color: #a93226;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colnrudy-header:hover, .collapsibleSectionHeader.colnrudy-trans-header:hover {
-		background-color: #541913;
-	}
-
-	.colnnavy, .colnnavy-trans {
-		background-color: #FFF;
-		color: #111;
-		border: 1px solid #ccc;
-	}
-	.colnnavy-header, .colnnavy-trans-header {
-		background-color: #2e4053;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colnnavy-header:hover, .collapsibleSectionHeader.colnnavy-trans-header:hover {
-		background-color: #172029;
-	}
-
-	.colnnavy2, .colnnavy2-trans {
-		background-color: #eaebed;
-		color: #2e4053;
-		border: 1px solid #576675;
-	}
-	.colnnavy2-header, .colnnavy2-trans-header, .colnnavy2 .forumSummaryHeaderDiv, .colnnavy2-trans .forumSummaryHeaderDiv, .colnnavy2 .announcementsHeaderDiv, .colnnavy2-trans .announcementsHeaderDiv,  .colnnavy2 .fc-toolbar, .colnnavy2-trans .fc-toolbar, .colnnavy2 .questionDiv .contentCol, .colnnavy2-trans .questionDiv .contentCol {
-		background-color: #2e4053;
-		color: #fff;
-		border: 1px solid #576675;
-	}
-	.collapsibleSectionHeader.colnnavy2-header:hover, .collapsibleSectionHeader.colnnavy2-trans-header:hover {
-		background-color: #172029;
-	}
-	.colnnavy2 .forumSummaryHeaderDiv .forumSummaryLink, .colnnavy2-trans .forumSummaryHeaderDiv .forumSummaryLink, .colnnavy2 .announcementsHeaderDiv .announcementLink, .colnnavy2-trans .announcementsHeaderDiv .announcementLink {
-		color: #fff;
-	}
-
-	.colngreen, .colngreen-trans {
-		background-color: #fff;
-		color: #111;
-		border: 1px solid #ccc;
-	}
-	.colngreen-header, .colngreen-trans-header {
-		background-color: #229954;
-		color: #fff;
-		border: 1px solid #ccc;
-	}
-	.collapsibleSectionHeader.colngreen-header:hover, .collapsibleSectionHeader.colngreen-trans-header:hover {
-		background-color: #114c2a;
-	}
-
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnrudy-trans, .colnnavy-trans, .colnnavy2-trans,
+	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnrudy-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;
 		box-shadow: none;
@@ -303,72 +289,19 @@
 		background: transparent;
 	}
 
-
-	/* !important is used a lot in this section in order to override the MANY sources of color changes from lessons */
-	.usebutton{
-		color: #333 !important;
-		background-color: #f6f6f6 !important;
-
-		&.ngray, &.ngray-trans{
-			background-color: #606060 !important;
-			color: #fff !important;
-		}
-
-		&.nblack, &.nblack-trans{
-			background-color: #333 !important;
-			color: #fff !important;
-		}
-
-		&.nblue, &.nblue-trans{
-			background-color: #1a5276 !important;
-			color: #fff !important;
-		}
-
-		&.nblue2, &.nblue2-trans{
-			background-color: #0d293b !important;
-			color: #fff !important;
-		}
-
-		&.nred, &.nred-trans{
-			background-color: #a93226 !important;
-			color: #fff !important;
-		}
-
-		/* even though this is technically the same as nblue, I have it separate in case we want to change it later */
-		&.nrudy, &.nrudy-trans{
-			background-color: #1a5276 !important;
-			color: #fff !important;
-		}
-
-		&.nnavy, &.nnavy-trans{
-			background-color: #2e4053 !important;
-			color: #fff !important;
-		}
-
-		&.nnavy2, &.nnavy2-trans{
-			background-color: #2e4053 !important;
-			color: #fff !important;
-		}
-
-		&.ngreen, &.ngreen-trans{
-			background-color: #229954 !important;
-			color: #fff !important;
-		}
-	}
-
 	/*these won't touch the dialog menus in lessons if they're in the namespace as dialogs are outside of any tool content on the page. */
 	#buttonColorLabel, #subpage-buttonColorLabel {
 		margin-left: 20px;
 
 		&.disabled {
-			color: #ccc;
+			color: var(--sakai-text-color-disabled);
 		}
 	}
 
 	#btncolor-selection, #subpage-btncolor-selection {
 		&.disabled {
 			cursor: not-allowed;
-			color: #ccc;
+			color: var(--sakai-text-color-disabled);
 		}
 	}
 
@@ -384,7 +317,7 @@
 
 	#accordion, #accordion2 {
 		.accordionBtn{
-			color: #333 !important; /*have to override Sakai button color*/
+			color: var(--sakai-text-color-1) !important; /*have to override Sakai button color*/
 			background-color: transparent;
 			border: none;
 			margin: 0px;
@@ -397,7 +330,7 @@
 			&:before {
 				font-family: "FontAwesome";
 				content: "\f0d7";
-				color: #333;
+				color: var(--sakai-text-color-1);
 				padding-right: 5px;
 			}
 
@@ -405,7 +338,7 @@
 				&:before {
 					font-family: "FontAwesome";
 					content: "\f0da";
-					color: #333;
+					color: var(--sakai-text-color-1);
 					padding-right: 5px;
 				}
 			}
@@ -416,7 +349,7 @@
 
 			&.displayPanel{
 				margin-top: 0px;
-				border-bottom: 1px solid #ddd;
+				border-bottom: 1px solid var(--sakai-border-color);
 			}
 		}
 
@@ -518,4 +451,3 @@ div#calendarEventDialog {
 		}
 	}
 }
-

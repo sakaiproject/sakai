@@ -172,7 +172,7 @@ label.disabled{
 input[type="checkbox"]{
 	@include border-radius(3px);
 	&:checked{
-		background-image: url("images/check.svg");
+		background-image: url(#{$skin-path}images/check.svg);
 		background-size: 12px;
 		background-color: var(--button-primary-background);
 		background-repeat: no-repeat;
@@ -192,7 +192,7 @@ select{
 }
 
 select.form-control {
-	background-image: url("images/icon-arrow-down.png");
+	background-image: url(#{$skin-path}images/icon-arrow-down.png);
 }
 
 .is-hidden{

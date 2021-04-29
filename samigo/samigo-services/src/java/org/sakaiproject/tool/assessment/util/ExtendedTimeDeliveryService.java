@@ -19,6 +19,7 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.util.*;
 
+import lombok.Getter;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -49,6 +50,9 @@ public class ExtendedTimeDeliveryService {
 	private Date dueDate;
 	private Date retractDate;
 
+	@Getter
+	private Long publishedAssessmentId;
+
 	/**
 	 * Creates an ExtendedTimeService object using the userId in the agentFacade as the current user
 	 * @param publishedAssessment a published assessment object
@@ -74,7 +78,8 @@ public class ExtendedTimeDeliveryService {
 		// Grab the site id from the publishedAssessment because the user may
 		// not be in a site
 		// if they're taking the test via url.
-		String pubId = publishedAssessment.getPublishedAssessmentId().toString();
+		publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
+		String pubId = publishedAssessmentId.toString();
 		siteId = publishedAssessmentService.getPublishedAssessmentSiteId(pubId);
 		PublishedAssessmentData pubData = publishedAssessmentService.getBasicInfoOfPublishedAssessment(pubId);
 
