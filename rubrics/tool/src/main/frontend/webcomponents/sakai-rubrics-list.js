@@ -107,7 +107,7 @@ export class SakaiRubricsList extends RubricsElement {
   cloneRubric(e) {
 
     SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
-      extraHeaders: {"x-copy-source": e.detail.id, "lang": portal.locale}
+      extraHeaders: {"x-copy-source": e.detail.id, "lang": this.locale}
     })
     .then(data => this.createRubricResponse(data));
   }
@@ -115,7 +115,7 @@ export class SakaiRubricsList extends RubricsElement {
   createNewRubric() {
 
     SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
-      extraHeaders: {"x-copy-source" :"default", "lang": portal.locale}
+      extraHeaders: {"x-copy-source" :"default", "lang": this.locale}
     })
     .then(data => this.createRubricResponse(data));
   }

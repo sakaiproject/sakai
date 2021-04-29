@@ -76,7 +76,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
-                  ${r.points.toLocaleString(portal.locale)} <sr-lang key="points">Points</sr-lang>
+                  ${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
                 <div class="add-criterion-item">
@@ -201,7 +201,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     $.ajax({
       url: "/rubrics-service/rest/ratings",
-      headers: {"Content-Type": "application/json" , "x-copy-source": "default", "authorization": this.token, "lang": portal.locale},
+      headers: {"Content-Type": "application/json" , "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
       method: "POST",
       data: "{}"
     })
@@ -258,7 +258,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     $.ajax({
       url: "/rubrics-service/rest/criterions/",
-      headers: {"x-copy-source": e.target.dataset.criterionId, "authorization": this.token, "lang": portal.locale},
+      headers: {"x-copy-source": e.target.dataset.criterionId, "authorization": this.token, "lang": this.locale},
       contentType: "application/json",
       method: "POST",
       data: "{}"
@@ -310,7 +310,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     $.ajax({
       url: "/rubrics-service/rest/criterions/",
-      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": portal.locale},
+      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
       method: "POST",
       data: "{}"
     })

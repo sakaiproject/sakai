@@ -54,7 +54,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
 
   copyToSite(e) {
 
-    var options = { extraHeaders: { "x-copy-source": e.detail, "lang": portal.locale  } };
+    var options = { extraHeaders: { "x-copy-source": e.detail, "lang": this.locale  } };
     SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, options)
       .then(data => this.dispatchEvent(new CustomEvent("copy-share-site")));
   }
