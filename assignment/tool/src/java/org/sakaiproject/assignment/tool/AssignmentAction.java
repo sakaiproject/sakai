@@ -1079,7 +1079,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
-    private static final String RUBRIC_STATE_DETAILS = "rbcs-state-details";
     private static final String RUBRIC_TOKEN = "rbcs-token";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private boolean nextUngraded = false;
@@ -11586,9 +11585,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-17606
         state.removeAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
-
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
-
     } // resetNewAssignment
 
     /**
@@ -11704,8 +11700,6 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE);
 
         state.removeAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-
-        state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
     } // resetNewAssignment

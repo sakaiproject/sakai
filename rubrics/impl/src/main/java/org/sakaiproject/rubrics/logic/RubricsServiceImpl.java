@@ -247,6 +247,29 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return token;
     }
 
+    public Optional<Rubric> getRubric(Long rubricId) throws Exception {
+
+        URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+        Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+        Traverson.TraversalBuilder builder = traverson.follow("rubrics");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(RubricsConstants.RBCS_TOOL)));
+        builder.withHeaders(headers);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("id", rubricId);
+
+        CollectionModel<EntityModel<Rubric>> rubricsModel = builder
+            .withTemplateParameters(parameters)
+            .toObject(new TypeReferences.CollectionModelType<EntityModel<Rubric>>() {});
+
+        Collection<EntityModel<Rubric>> models = rubricsModel.getContent();
+
+        return models.size() == 1 ? Optional.of(models.iterator().next().getContent()) : Optional.empty();
+    }
+
     public boolean hasAssociatedRubric(String tool, String id) {
         return hasAssociatedRubric(tool, id, getCurrentSiteId("hasAssociatedRubric"));
     }

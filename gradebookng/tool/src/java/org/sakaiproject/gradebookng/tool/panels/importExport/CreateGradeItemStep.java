@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
@@ -117,6 +118,7 @@ public class CreateGradeItemStep extends BasePanel {
 					// sync up the assignment data so we can present it for confirmation
 					processedGradeItem.setItemTitle(newAssignment.getName());
 					processedGradeItem.setItemPointValue(String.valueOf(newAssignment.getPoints()));
+					processedGradeItem.setRubricParameters(getRubricParameters(""));
 
 					// add to model
 					importWizardModel.getAssignmentsToCreate().put(processedGradeItem, newAssignment);
