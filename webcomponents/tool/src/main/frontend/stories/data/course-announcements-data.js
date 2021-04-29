@@ -23,6 +23,30 @@ export let announcementsData = `
     "subject":"gssdfsdf",
     "author":"Adrian Fish",
     "url":"http://localhost/portal/directtool/a3b05fbc-e2e1-4103-b94b-b9f17e402630?itemReference=/announcement/msg/1ab62f69-25e6-417c-9f58-2e29c9814d55/main/ddb0155b-5ea5-4248-b8c9-88610d106f27&sakai_action=doShowmetadata"
+  },
+  {
+    "id":"xslkllj",
+    "siteId":"1ab62f69-25e6-417c-9f58-2e29c9814d55",
+    "siteTitle":"Playpen",
+    "subject":"Cricket",
+    "author":"Adrian Fish",
+    "url":"http://localhost/portal/directtool/a3b05fbc-e2e1-4103-b94b-b9f17e402630?itemReference=/announcement/msg/1ab62f69-25e6-417c-9f58-2e29c9814d55/main/ddb0155b-5ea5-4248-b8c9-88610d106f27&sakai_action=doShowmetadata"
+  },
+  {
+    "id":"ddb0155b-5ea5-4248-b8c9-88610d106f27",
+    "siteId":"1ab62f69-25e6-417c-9f58-2e29c9814d55",
+    "siteTitle":"Playpen",
+    "subject":"Tennis",
+    "author":"Adrian Fish",
+    "url":"http://localhost/portal/directtool/a3b05fbc-e2e1-4103-b94b-b9f17e402630?itemReference=/announcement/msg/1ab62f69-25e6-417c-9f58-2e29c9814d55/main/ddb0155b-5ea5-4248-b8c9-88610d106f27&sakai_action=doShowmetadata"
+  },
+  {
+    "id":"ddb0155b-5ea5-4248-b8c9-88610d106f27",
+    "siteId":"1ab62f69-25e6-417c-9f58-2e29c9814d55",
+    "siteTitle":"Playpen",
+    "subject":"Football",
+    "author":"Adrian Fish",
+    "url":"http://localhost/portal/directtool/a3b05fbc-e2e1-4103-b94b-b9f17e402630?itemReference=/announcement/msg/1ab62f69-25e6-417c-9f58-2e29c9814d55/main/ddb0155b-5ea5-4248-b8c9-88610d106f27&sakai_action=doShowmetadata"
   }
 ]
 `;

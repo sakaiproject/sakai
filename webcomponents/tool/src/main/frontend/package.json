@@ -2,7 +2,7 @@
   "name": "webcomponents",
   "version": "1.0.0",
   "description": "Sakai Element",
-  "main": "sakai-element.js",
+  "main": "js/sakai-element.js",
   "scripts": {
     "build": "webpack --config conf/webpack.config.js -p",
     "buildcss": "webpack --config conf/css.config.js -p",
@@ -22,6 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "5.14.0",
     "@lion/calendar": "0.15.0",
     "@lion/dialog": "0.7.13",
+    "@lion/pagination": "^0.5.0",
     "@popperjs/core": "2.4.4",
     "@webcomponents/webcomponentsjs": "2.5.0",
     "cropperjs": "1.5.7",
@@ -31,7 +32,7 @@
     "sortablejs": "1.10.2"
   },
   "devDependencies": {
-    "@adrianfish/empathise": "0.1.9",
+    "@adrianfish/empathise": "^0.1.9",
     "@babel/core": "^7.10.5",
     "@ckeditor/ckeditor5-adapter-ckfinder": "20.0.0",
     "@ckeditor/ckeditor5-autoformat": "20.0.0",
