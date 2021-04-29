@@ -568,7 +568,7 @@ public class CCExport {
                     out.println("    <lomimscc:lom>");
                     out.println("      <lomimscc:general>");
                     out.println("        <lomimscc:title>");
-                    out.println("          <lomimscc:string language=\"en-US\">" + StringEscapeUtils.escapeXml11(title) + "</lomimscc:string>");
+                    out.println("          <lomimscc:string>" + StringEscapeUtils.escapeXml11(title) + "</lomimscc:string>");
                     out.println("        </lomimscc:title>");
                     out.println("      </lomimscc:general>");
                     out.println("    </lomimscc:lom>");
