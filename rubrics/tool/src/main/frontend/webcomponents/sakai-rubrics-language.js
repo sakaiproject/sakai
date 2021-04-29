@@ -21,7 +21,7 @@ export class SakaiRubricsLanguage extends RubricsElement {
   }
 
   static loadTranslations(getFromSessionCache) {
-    return loadProperties({ namespace: "rubrics", getFromSessionCache, lang: parent.portal.locale });
+    return loadProperties({ namespace: "rubrics", getFromSessionCache, lang: this.locale });
   }
 }
 

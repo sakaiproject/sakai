@@ -7,6 +7,8 @@ class RubricsElement extends SakaiElement {
 
     super();
 
+    this.locale = (window.top?.portal?.locale || window.top?.sakai?.locale?.userLocale || "en-US").replace("_", "-");
+
     this.rubricsUtils = rubricsUtils;
   }
 }
