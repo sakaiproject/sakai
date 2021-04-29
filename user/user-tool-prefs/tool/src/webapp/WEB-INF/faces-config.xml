@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<!DOCTYPE faces-config PUBLIC
-  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
-
-<faces-config>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        	        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+              version="2.3">
 	<application>
       <message-bundle>user-tool-prefs</message-bundle>
         <locale-config>
@@ -19,14 +19,24 @@
    <component>
       <component-type>HideDivision</component-type>
       <component-class>org.sakaiproject.user.jsf.HideDivisionComponent</component-class>
+   </component>
+    <!-- tool bar item -->
+    <component>
+        <component-type>ToolBarItem</component-type>
+        <component-class>org.sakaiproject.user.jsf.ToolBarItemComponent</component-class>
     </component>
     
-    <render-kit>
-    <renderer>
-      <component-family>HideDivision</component-family> 
-      <renderer-type>org.sakaiproject.HideDivision</renderer-type>
-      <renderer-class>org.sakaiproject.user.jsf.HideDivisionRenderer</renderer-class>
-    </renderer> 
+   <render-kit>
+        <renderer>
+            <component-family>HideDivision</component-family>
+            <renderer-type>org.sakaiproject.HideDivision</renderer-type>
+            <renderer-class>org.sakaiproject.user.jsf.HideDivisionRenderer</renderer-class>
+        </renderer>
+        <renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>org.sakaiproject.user.jsf.ToolBarItem</renderer-type>
+            <renderer-class>org.sakaiproject.user.jsf.ToolBarItemRenderer</renderer-class>
+        </renderer>
     </render-kit>
 
     <navigation-rule>

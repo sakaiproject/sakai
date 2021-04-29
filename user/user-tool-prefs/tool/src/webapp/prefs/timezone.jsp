@@ -3,14 +3,14 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%-- Core JSTL tag library --%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-    <sakai:stylesheet path="/css/prefs.css"/>
+    <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 		<h:form id="timezone_form">
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
@@ -25,7 +25,7 @@
 					<h1><h:outputText value="#{msgs.prefs_timezone_title}"/></h1>
 				</div>
 
-				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+				<h:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				<t:div rendered="#{UserPrefsTool.tzUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>
 				</t:div>

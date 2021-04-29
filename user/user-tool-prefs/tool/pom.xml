@@ -36,25 +36,25 @@
     </dependency>
     <!-- pull through the JSF tool dependencies -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool-sun</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-tool-sun</artifactId>
       <type>pom</type>
     </dependency>
     <!-- the "classic" sakai widgets. Note: requires Sun RI JSF -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-widgets-sun-depend</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-widgets-sun-depend</artifactId>
       <type>pom</type>
     </dependency>
     <!-- this is required for any Sakai JSF tool -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-tool</artifactId>
     </dependency>
     <!-- these (jsf-app and util-web) are options to get full Sakai integration -->
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-app</artifactId>
     </dependency>
     <dependency>
         <groupId>org.sakaiproject.portal</groupId>
@@ -75,9 +75,9 @@
       <artifactId>commons-beanutils</artifactId>
     </dependency>
     <dependency>
-      <groupId>taglibs</groupId>
-      <artifactId>standard</artifactId>
-      <version>1.1.2</version>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-shaded</artifactId>
+      <version>${sakai.weld.shaded.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

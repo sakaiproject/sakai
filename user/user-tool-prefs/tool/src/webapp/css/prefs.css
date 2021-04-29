@@ -329,3 +329,7 @@ select.multiLine {
     padding: 0;
     list-style: none;
 }
+
+.addRadioLabelPadding label {
+    padding-left: 4px;
+}

@@ -3,7 +3,7 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 <f:view>

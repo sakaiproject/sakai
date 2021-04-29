@@ -3,7 +3,7 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/prefs" prefix="prefs" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
@@ -12,7 +12,7 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-    <sakai:stylesheet path="/css/prefs.css"/>
+    <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 
 <f:verbatim>
@@ -39,7 +39,7 @@
 		<script type="text/javascript">
 			$(document).ready(function(){
 				fixImplicitLabeling();
-			})  
+			})
 		</script>
 
 			<c:set var="cTemplate" value = "noti" scope = "session" />
@@ -53,7 +53,7 @@
 					<h1><h:outputText value="#{msgs.prefs_noti_title}"/></h1>
 				</div>
 
-				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+				<h:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>
 				<p class="instruction"><h:outputText value="#{msgs.noti_inst_second}"/></p>
@@ -65,7 +65,7 @@
       			
       				<h:outputText value="#{decoItem.userNotificationPreferencesRegistration.sectionDescription}" styleClass="instruction indnt2" 
       				     rendered="#{not empty decoItem.userNotificationPreferencesRegistration.sectionDescription}"/>
-					<h:selectOneRadio value="#{decoItem.selectedOption}" layout="pageDirection" styleClass="indnt2">
+					<h:selectOneRadio value="#{decoItem.selectedOption}" layout="pageDirection" styleClass="indnt2 addRadioLabelPadding">
 		    			<f:selectItems value="#{decoItem.optionSelectItems}"/>
   					</h:selectOneRadio>
       				<f:subview id="siteOverrideSub" rendered="#{decoItem.userNotificationPreferencesRegistration.overrideBySite}">

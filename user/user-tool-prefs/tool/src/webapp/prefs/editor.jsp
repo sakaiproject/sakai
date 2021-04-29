@@ -3,14 +3,14 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%-- Core JSTL tag library --%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-  	<sakai:stylesheet path="/css/prefs.css"/>
+  	<link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 		<h:form id="ckeditor_form">
 
@@ -37,7 +37,7 @@
                         </t:div>
 
                         <p class="instruction"><h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/></p>
-                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" styleClass="addRadioLabelPadding">
                                                 <f:selectItem itemValue="auto" itemLabel="#{msgs.editor_auto}"/>
                                                 <f:selectItem itemValue="basic" itemLabel="#{msgs.editor_basic}"/>
                                                 <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>
