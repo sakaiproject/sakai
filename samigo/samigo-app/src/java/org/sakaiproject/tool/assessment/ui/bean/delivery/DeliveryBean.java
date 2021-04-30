@@ -1267,9 +1267,11 @@ public class DeliveryBean implements Serializable {
         getIpAddress();
       if (next != null && next.contains( "*" )) {
         next = next.substring(0, next.indexOf("*"));
+        if (thisIp.trim().startsWith(next.trim())) {
+        	return "takeAssessment";
+        }
       }
-      if (next == null || next.trim().equals("") ||
-          thisIp.trim().startsWith(next.trim())) {
+      if (next == null || next.trim().equals("") || next.trim().equals(thisIp.trim())) {
         // in post 2.1, clicking at Begin Assessment takes users to the 1st question.
         return "takeAssessment";
       }
