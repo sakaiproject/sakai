@@ -1,42 +1,42 @@
-/**
- * Copyright (c) 2015-2016 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015-2016 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import javax.validation.Validation;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Validator;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.cmprovider.data.CmEntityData;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.entitybroker.providers.model.CmEntityData;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Base class for course management entity providers. Handles validation, error handling, and logging.
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.api.Session;
  * @author Christopher Schauer
  */
 @Slf4j
-public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityProvider, AutoRegisterEntityProvider {
+public abstract class AbstractCmEntityProvider extends AbstractEntityProvider implements RESTful, CoreEntityProvider, AutoRegisterEntityProvider {
 
   /**
   * Create a new entity.
@@ -106,12 +106,6 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
   protected CourseManagementAdministration cmAdmin;
   public void setCmAdmin(CourseManagementAdministration admin) { cmAdmin = admin; }
 
-  protected DeveloperHelperService developerService;
-  public void setDeveloperHelperService(DeveloperHelperService service) { developerService = service; }
-
-  protected CmProviderHibernateService hibernateService;
-  public void setHibernateService(CmProviderHibernateService service) { hibernateService = service; }
-  
   protected AuthzGroupService authzGroupService;
   public void setAuthzGroupService(AuthzGroupService service) { authzGroupService = service; }
 
@@ -128,7 +122,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
 
   private Validator validator;
 
-  public void createValidator() {
+  public void init() {
     validator = Validation.buildDefaultValidatorFactory().getValidator();
   }
 
@@ -217,7 +211,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
   }
 
   protected void validateUser() {
-    if (!developerService.isUserAdmin(developerService.getCurrentUserReference()))
+    if (!developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()))
       throw new SecurityException("Current user doesn't have permission to access this resource.");
   }
 
@@ -229,11 +223,11 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
 
     if (constraintViolations.isEmpty()) return;
 
-    String errorMessage = "Invalid " + data.getClass().getSimpleName() + ":";
-    for (ConstraintViolation violation : constraintViolations) {
-      errorMessage += "\n" + violation.getPropertyPath() + " " + violation.getMessage();
+    StringBuilder errorMessage = new StringBuilder("Invalid " + data.getClass().getSimpleName() + ":");
+    for (ConstraintViolation<Object> violation : constraintViolations) {
+      errorMessage.append("\n").append(violation.getPropertyPath()).append(" ").append(violation.getMessage());
     }
 
-    throw new IllegalArgumentException(errorMessage);
+    throw new IllegalArgumentException(errorMessage.toString());
   }
 }

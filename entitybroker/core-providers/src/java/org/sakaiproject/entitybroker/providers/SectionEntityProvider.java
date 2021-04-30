@@ -1,27 +1,27 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.data.MembershipData;
-import org.sakaiproject.cmprovider.data.SectionData;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.MembershipData;
+import org.sakaiproject.entitybroker.providers.model.SectionData;
 
 /**
  * Provides a REST API for working with sections.
@@ -53,8 +53,7 @@ public class SectionEntityProvider extends AbstractContainerEntityProvider {
 
   /**
    * Create a new section. Wraps CourseManagementAdministration.createSection.
-   * @see CourseManagementAdministration#createSection
-   * @SectionData
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#createSection
    */
   public void create(Object entity) {
     SectionData data = (SectionData) entity;
@@ -71,7 +70,7 @@ public class SectionEntityProvider extends AbstractContainerEntityProvider {
 
   /**
    * Update a section. Wraps CourseManagementAdministration.updateSection.
-   * @see CourseManagementAdministration#updateSection
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#updateSection
    * @see SectionData
    */
   public void update(Object entity) {
@@ -92,7 +91,7 @@ public class SectionEntityProvider extends AbstractContainerEntityProvider {
 
   /**
    * Get a section by eid. Wraps CourseManagementService.getSection.
-   * @see CourseManagementService#getSection
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getSection
    */
   public Object get(String eid) {
     Section section = cmService.getSection(eid);
@@ -101,7 +100,7 @@ public class SectionEntityProvider extends AbstractContainerEntityProvider {
 
   /**
    * Delete a section by eid. Wraps CourseManagementAdministration.removeSection.
-   * @see CourseManagementAdministration#removeSection
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#removeSection
    */
   public void delete(String eid) {
     cmAdmin.removeSection(eid);

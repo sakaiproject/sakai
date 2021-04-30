@@ -31,9 +31,20 @@ public class EnrollmentSetCmImpl extends AbstractNamedCourseManagementObjectCmIm
 
 	private static final long serialVersionUID = 1L;
 
+	@lombok.Getter
+	@lombok.Setter
 	private String category;
+
+	@lombok.Getter
+	@lombok.Setter
 	private String defaultEnrollmentCredits;
+
+	@lombok.Getter
+	@lombok.Setter
 	private CourseOffering courseOffering;
+
+	@lombok.Getter
+	@lombok.Setter
 	private Set officialInstructors;
 	
 	public EnrollmentSetCmImpl () {}
@@ -46,36 +57,6 @@ public class EnrollmentSetCmImpl extends AbstractNamedCourseManagementObjectCmIm
 		this.category = category;
 		this.defaultEnrollmentCredits = defaultEnrollmentCredits;
 		this.courseOffering = courseOffering;
-		this.officialInstructors = officialInstructors;
-	}
-	
-	public String getCategory() {
-		return category;
-	}
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public CourseOffering getCourseOffering() {
-		return courseOffering;
-	}
-
-	public void setCourseOffering(CourseOffering courseOffering) {
-		this.courseOffering = courseOffering;
-	}
-
-	public String getDefaultEnrollmentCredits() {
-		return defaultEnrollmentCredits;
-	}
-
-	public void setDefaultEnrollmentCredits(String defaultEnrollmentCredits) {
-		this.defaultEnrollmentCredits = defaultEnrollmentCredits;
-	}
-
-	public Set getOfficialInstructors() {
-		return officialInstructors;
-	}
-	public void setOfficialInstructors(Set officialInstructors) {
 		this.officialInstructors = officialInstructors;
 	}
 	

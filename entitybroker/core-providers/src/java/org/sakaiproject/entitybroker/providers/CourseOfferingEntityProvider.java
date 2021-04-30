@@ -1,30 +1,30 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.cmprovider.data.CourseOfferingData;
-import org.sakaiproject.cmprovider.data.MembershipData;
-import org.sakaiproject.cmprovider.data.DateUtils;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.CourseOfferingData;
+import org.sakaiproject.entitybroker.providers.model.DateUtils;
+import org.sakaiproject.entitybroker.providers.model.MembershipData;
 
 /**
  * Provides a REST API for working with course offerings.
@@ -56,7 +56,7 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
 
   /**
    * Create a new course offering. Wraps CourseManagementAdministration.createCourseOffering.
-   * @see CourseManagementAdministration#createCourseOffering
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#createCourseOffering
    * @see CourseOfferingData
    */
   public void create(Object entity) {
@@ -77,7 +77,7 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
 
   /**
    * Update a course offering. Wraps CourseManagementAdministration.updateCourseOffering.
-   * @see CourseManagementAdministration#updateCourseOffering.
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#updateCourseOffering(CourseOffering)
    * @see CourseOfferingData
    */
   public void update(Object entity) {
@@ -91,7 +91,7 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
     updated.setStartDate(DateUtils.stringToDate(data.startDate));
     updated.setEndDate(DateUtils.stringToDate(data.endDate));
 
-    if (updated.getAcademicSession() == null || updated.getAcademicSession().getEid() != data.academicSession) {
+    if (updated.getAcademicSession() == null || updated.getAcademicSession().getEid().equals(data.academicSession)) {
       AcademicSession newSession = cmService.getAcademicSession(data.academicSession);
       updated.setAcademicSession(newSession);
     }
@@ -104,7 +104,7 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
 
   /**
    * Get a course offering. Wraps CourseManagementService.getCourseOffering.
-   * @see CourseManagementService#getCourseOffering
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getCourseOffering
    */
   public Object get(String eid) {
     CourseOffering course = cmService.getCourseOffering(eid);
@@ -113,7 +113,7 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
 
   /**
    * Delete a course offering. Wraps CourseManagementAdministration.removeCourseOffering
-   * @see CourseManagementAdministration#removeCourseOffering
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#removeCourseOffering
    */
   public void delete(String eid) {
     cmAdmin.removeCourseOffering(eid);

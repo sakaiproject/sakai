@@ -1,34 +1,34 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package org.sakaiproject.cmprovider;
+/*
+  Copyright (c) 2015 The Apereo Foundation
 
-import java.util.Arrays;
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */
+package org.sakaiproject.entitybroker.providers;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.cmprovider.data.AcademicSessionData;
-import org.sakaiproject.cmprovider.data.DateUtils;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.AcademicSessionData;
+import org.sakaiproject.entitybroker.providers.model.DateUtils;
 
 /**
  * Provides a REST API for working with academic sessions.
@@ -53,7 +53,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Get all academic sessions. Wraps CourseManagementService.getAcademicSessions.
-   * @see CourseManagementService#getAcademicSessions
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getAcademicSessions
    *
    * GET requests to /direct/cm-academic-session.json will be routed here.
    *
@@ -63,7 +63,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
    */
   public List getEntities(EntityReference ref, Search search) {
     validateUser();
-    List<AcademicSessionData> sessions = new ArrayList<AcademicSessionData>();
+    List<AcademicSessionData> sessions = new ArrayList<>();
     for (AcademicSession session : cmService.getAcademicSessions()) {
       sessions.add(new AcademicSessionData(session));
     }
@@ -72,7 +72,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Create a new academic session. Wraps CourseAdministration.createAcademicSession.
-   * @see CourseAdministration#createAcademicSession
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#createAcademicSession
    * @see AcademicSessionData
    */
   public void create(Object entity) {
@@ -90,7 +90,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Update an academic session. Wraps CourseManagementAdministration.updateAcademicSession.
-   * @see CourseManagementAdministration#updateAcademicSession
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#updateAcademicSession
    * @see AcademicSessionData
    */
   public void update(Object entity) {
@@ -109,7 +109,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Get an academic session by eid. Wraps CourseManagementService.getAcademicSession.
-   * @see CourseManagementService#getAcademicSession
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getAcademicSession
    */
   public Object get(String eid) {
     AcademicSession session = cmService.getAcademicSession(eid);
@@ -118,7 +118,7 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Delete an academic session by eid. Wraps CourseManagementAdministration.removeAcademicSession.
-   * @see CourseManagementAdministration#removeAcademicSession
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#removeAcademicSession
    */
   public void delete(String eid) {
     cmAdmin.removeAcademicSession(eid);

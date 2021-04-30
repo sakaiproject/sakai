@@ -1,19 +1,19 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider.data;
+package org.sakaiproject.entitybroker.providers.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 
 /**
  * Represents an enrollment set.
@@ -72,14 +72,14 @@ public class EnrollmentSetData implements CmEntityData {
    * Unfortunately have to reference the EnrollmentSetCmImpl class since the
    * interface doesn't have methods to access the course offering.
    */
-  public EnrollmentSetData(EnrollmentSetCmImpl set) {
+  public EnrollmentSetData(EnrollmentSet set) {
     eid = set.getEid();
     title = set.getTitle();
     description = set.getDescription();
     category = set.getCategory();
     defaultCredits = set.getDefaultEnrollmentCredits();
     if (set.getOfficialInstructors() != null) {
-      officialInstructors = new ArrayList<String>(set.getOfficialInstructors());
+      officialInstructors = new ArrayList<>(set.getOfficialInstructors());
     }
     courseOffering = set.getCourseOffering().getEid();
   }
