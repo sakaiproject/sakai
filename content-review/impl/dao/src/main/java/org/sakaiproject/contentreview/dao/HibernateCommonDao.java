@@ -62,7 +62,7 @@ public abstract class HibernateCommonDao<T> {
 	 */
 	public void delete(T t) {
 		Session session = sessionFactory.getCurrentSession();
-		session.delete(t);
+		session.delete(session.merge(t));
 	}
 
 	/**
@@ -71,6 +71,6 @@ public abstract class HibernateCommonDao<T> {
 	 */
 	public void delete(long id) {
 		Optional<T> t = get(id);
-		if (t.isPresent()) sessionFactory.getCurrentSession().delete(t.get());;
+		t.ifPresent(this::delete);
 	}
 }
