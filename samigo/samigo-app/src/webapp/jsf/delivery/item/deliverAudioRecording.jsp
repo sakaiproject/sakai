@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
           var questionId = $(elem).parent().find("input[name=questionId]").val();
           elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
           elem.dataset.featherlightPersist = true;
-          elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " #audio-stop:enabled').click();";
+          elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " .audio-stop:enabled').click();";
         }, 0);
       });
       initiatedFeatherlight = true;
