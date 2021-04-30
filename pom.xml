@@ -51,7 +51,6 @@
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
-                <module>cmprovider</module>
                 <module>common</module>
                 <module>commons</module>
                 <module>config</module>

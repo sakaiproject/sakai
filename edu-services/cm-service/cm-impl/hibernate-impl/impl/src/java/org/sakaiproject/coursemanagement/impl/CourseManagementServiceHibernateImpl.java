@@ -59,14 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
 
-	public void init() {
-		log.info("Initializing " + getClass().getName());
-	}
+	private static final ResourceLoader enrollmentsMessages = new ResourceLoader("enrollmentstatus");
 
-	public void destroy() {
-		log.info("Destroying " + getClass().getName());
-	}
-	
 	/**
 	 * A generic approach to finding objects by their eid.  This is "coding by convention",
 	 * since it expects the parameterized query to use "eid" as the single named parameter.
@@ -467,11 +461,17 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		}
 	}
 
+	public String getEnrollmentStatusDescription(String statusId) {
+		return enrollmentsMessages.getString(statusId, statusId);
+	}
+
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("enrolled", "Enrolled");
-		map.put("wait", "Waitlisted");
-		return map;
+		enrollmentsMessages.setContextLocale(locale);
+		return ((Set<Map.Entry>) enrollmentsMessages.entrySet()).stream()
+				.collect(Collectors.toMap(
+						entry -> String.valueOf(entry.getKey()),
+						entry -> String.valueOf(entry.getValue()),
+						(a, b) -> b));
 	}
 
 	public Map<String, String> getGradingSchemeDescriptions(Locale locale) {
