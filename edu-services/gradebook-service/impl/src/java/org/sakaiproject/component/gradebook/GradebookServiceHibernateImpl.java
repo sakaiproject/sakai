@@ -3204,18 +3204,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					Double calculatedGrade = gr.getPointsEarned()!=null ? gr.getPointsEarned() : gr.getAutoCalculatedGrade();
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
+					}
 
-						// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
-						// grade mapping
-						BigDecimal bd = new BigDecimal(calculatedGrade)
+					Double autoCalculatedGrade = gr.getAutoCalculatedGrade();
+					// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
+					// grade mapping
+					if (autoCalculatedGrade != null) {
+						cg.setAutoCalculatedGrade(autoCalculatedGrade.toString());
+
+						BigDecimal bd = new BigDecimal(autoCalculatedGrade)
 								.setScale(10, RoundingMode.HALF_UP)
 								.setScale(2, RoundingMode.HALF_UP);
-						calculatedGrade = bd.doubleValue();
+						autoCalculatedGrade = bd.doubleValue();
 					}
 
 					// mapped grade
-					final String mappedGrade = GradeMapping.getMappedGrade(sortedGradeMap, calculatedGrade);
-					log.debug("calculatedGrade: {} -> mappedGrade: {}", calculatedGrade, mappedGrade);
+					final String mappedGrade = GradeMapping.getMappedGrade(sortedGradeMap, autoCalculatedGrade);
+					log.debug("calculatedGrade: {} -> mappedGrade: {}", autoCalculatedGrade, mappedGrade);
 					cg.setMappedGrade(mappedGrade);
 
 					// points
@@ -3473,7 +3478,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		} else {
 			// if passed in grade override is same as existing grade override, nothing to do
-			if (StringUtils.equals(courseGradeRecord.getEnteredGrade(), gradeScale)) {
+			Double cGrade = convertInputGradeToPoints(gradebook.getGrade_type(), mapping, courseGradeRecord.getTotalPointsPossible(), grade);
+			if (courseGradeRecord.getPointsEarned() != null && cGrade != null && StringUtils.equals(courseGradeRecord.getPointsEarned().toString(), cGrade.toString())) {
 				return;
 			}
 		}

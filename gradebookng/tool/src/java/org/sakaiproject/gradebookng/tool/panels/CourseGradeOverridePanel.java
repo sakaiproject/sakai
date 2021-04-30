@@ -83,7 +83,8 @@ public class CourseGradeOverridePanel extends BasePanel {
 				currentUserRole,
 				courseGradeVisible,
 				false,
-				false);
+				false,
+				true);
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(
