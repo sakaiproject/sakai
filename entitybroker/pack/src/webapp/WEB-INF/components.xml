@@ -75,14 +75,11 @@
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-        abstract="true"
-        class="org.sakaiproject.entitybroker.util.AbstractEntityProvider">
-        <property name="entityProviderManager"
-            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-        <property name="developerHelperService"
-            ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+          class="org.sakaiproject.entitybroker.util.AbstractEntityProvider"
+          abstract="true">
+        <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
     </bean>
-
 
     <!-- Private beans -->
 

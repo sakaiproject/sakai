@@ -25,6 +25,8 @@ import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,15 +39,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -61,39 +56,40 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
-public class SampleDataLoader implements BeanFactoryAware {
-	protected static final int ACADEMIC_SESSION_YEAR;
-	protected static final String[] ACADEMIC_SESSION_EIDS = new String[4];
-	protected static final Date[] ACADEMIC_SESSION_START_DATES = new Date[4];
-	protected static final Date[] ACADEMIC_SESSION_END_DATES = new Date[4];
+public class SampleDataLoader {
+	private static final int ACADEMIC_SESSION_YEAR = ZonedDateTime.now().getYear();
+	private static final String[] ACADEMIC_SESSION_EIDS = new String[4];
+	private static final Date[] ACADEMIC_SESSION_START_DATES = new Date[4];
+	private static final Date[] ACADEMIC_SESSION_END_DATES = new Date[4];
+	private static final String CS = "SMPL";
+	private static final String CC1 = "SMPL101";
+	private static final String CC2 = "SMPL202";
+	private static final String CO1_PREFIX = CC1 + " ";
+	private static final String CO2_PREFIX = CC2 + " ";
+	private static final String ENROLLMENT_SET_SUFFIX = "es";
+	private static final int ENROLLMENT_SETS_PER_ACADEMIC_SESSION = 2;
+	private static final int ENROLLMENTS_PER_SET = 180;
+	private static final String[] AMPM = new DateFormatSymbols().getAmPmStrings();
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("hh:mma");
+	private static final DecimalFormat df = new DecimalFormat("0000");
 
-	protected static final String CS = "SMPL";
+	@Setter private CourseManagementAdministration cmAdmin;
+	@Setter private CourseManagementService cmService;
+	@Setter private TransactionTemplate transactionTemplate;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private boolean loadSampleData;
 
-	protected static final String CC1 = "SMPL101";
-	protected static final String CC2 = "SMPL202";
+	private int studentMemberCount;
 
-	protected static final String CO1_PREFIX = CC1 + " ";
-	protected static final String CO2_PREFIX = CC2 + " ";
-
-	protected static final String ENROLLMENT_SET_SUFFIX = "es";
-
-	protected static final int ENROLLMENT_SETS_PER_ACADEMIC_SESSION = 2;
-	protected static final int ENROLLMENTS_PER_SET = 180;
-
-	protected static final String[] AMPM;
-
-	protected static final SimpleDateFormat sdf()
-	{
-		return new SimpleDateFormat("hh:mma");
-	}
-	protected static DecimalFormat df;
-	static {
+	public SampleDataLoader() {
 		GregorianCalendar startCal = new GregorianCalendar();
 		GregorianCalendar endCal = new GregorianCalendar();
-		ACADEMIC_SESSION_YEAR = startCal.get(Calendar.YEAR);
-		
+
 		ACADEMIC_SESSION_EIDS[0] = "Winter " + ACADEMIC_SESSION_YEAR;
 		ACADEMIC_SESSION_EIDS[1] = "Spring " + ACADEMIC_SESSION_YEAR;
 		ACADEMIC_SESSION_EIDS[2] = "Summer " + ACADEMIC_SESSION_YEAR;
@@ -118,72 +114,23 @@ public class SampleDataLoader implements BeanFactoryAware {
 		endCal.set(ACADEMIC_SESSION_YEAR + 1, 0, 1);
 		ACADEMIC_SESSION_START_DATES[3] = startCal.getTime();
 		ACADEMIC_SESSION_END_DATES[3] = endCal.getTime();
-
-		AMPM = new DateFormatSymbols().getAmPmStrings();
-
-		df = new DecimalFormat("0000");
 	}
-
-	protected int studentMemberCount;
-
-	// Begin Dependency Injection //
-	protected CourseManagementAdministration cmAdmin;
-	public void setCmAdmin(CourseManagementAdministration cmAdmin) {
-		this.cmAdmin = cmAdmin;
-	}
-
-	protected CourseManagementService cmService;
-	public void setCmService(CourseManagementService cmService) {
-		this.cmService = cmService;
-	}
-
-	protected BeanFactory beanFactory;
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
-
-	protected AuthzGroupService authzGroupService;
-
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-
-	/** A flag for disabling the sample data load */
-	protected boolean loadSampleData;
-	public void setLoadSampleData(boolean loadSampleData) {
-		this.loadSampleData = loadSampleData;
-	}
-	// End Dependency Injection //
 
 	public void init() {
-		log.info("Initializing " + getClass().getName());
-		if(cmAdmin == null) {
-			return;
-		}
-		if(loadSampleData) {
+		log.info("start");
+		if (loadSampleData) {
 			loginToSakai();
-			PlatformTransactionManager tm = (PlatformTransactionManager)beanFactory.getBean("org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager");
-			DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-			def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-			TransactionStatus status = tm.getTransaction(def);
-			try {
-				load();
-			} catch (Exception e) {
-				log.error("Unable to load CM data: " + e);
-				tm.rollback(status);
-			} finally {
-				if(!status.isCompleted()) {
-					tm.commit(status);
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					load();
 				}
-			}
+			});
 			logoutFromSakai();
 		} else {
-			if(log.isInfoEnabled()) log.info("Skipped CM data load");
+			log.info("sample data load disabled");
 		}
-	}
-
-	public void destroy() {
-		log.info("Destroying " + getClass().getName());
+		log.info("end");
 	}
 
 	private void loginToSakai() {
@@ -209,13 +156,14 @@ public class SampleDataLoader implements BeanFactoryAware {
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGOUT, null, true));
 	}
 
-	public void load() throws Exception {
+	public void load() {
+		log.info("Start loading sample CM data");
 		// Don't do anything if we've got data already.  The existence of an
 		// AcademicSession for the first legacy term will be our indicator for existing
 		// data.
 		List<AcademicSession> existingAcademicSessions = cmService.getAcademicSessions();
 		if(existingAcademicSessions != null && ! existingAcademicSessions.isEmpty()) {
-			if(log.isInfoEnabled()) log.info("CM data exists, skipping data load.");
+			log.info("CM data exists, skipping data load.");
 			return;
 		}
 
@@ -430,13 +378,13 @@ public class SampleDataLoader implements BeanFactoryAware {
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount(1000));
 		}
 
-		if(log.isInfoEnabled()) log.info("Finished loading sample CM data");
+		log.info("Finished loading sample CM data");
 	}
 
 	protected Time getTime(String timeString) {
 		Date date = null;
 		try {
-			date = sdf().parse(timeString);
+			date = sdf.parse(timeString);
 		} catch (ParseException pe) {
 			log.error("Can not parse time " + timeString);
 			date = new Date();
