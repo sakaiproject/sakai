@@ -642,41 +642,41 @@ span.author_mcLabelText {
 	color: #000 !important;
 }
 
-#audio-recorder-header {
+.audio-recorder-header {
     text-align: center;
     border-bottom: 1px solid black;
     font-size: 1.1em;
     padding: 4px 0;
     margin-bottom: 8px;
 }
-#audio-recorder-container {
+.audio-recorder-container {
     padding: 0 8px;
 }
-#audio-popup-question {
+.audio-popup-question {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 12px;
 }
-#audio-recorder-intro div {
+.audio-recorder-intro div {
     padding-bottom: 12px;
 }
-#audio-visual-container {
+.audio-visual-container {
     width: 778px;
     padding: 2px;
     border: 1px solid black;
     background-color: #ccc;
 }
-#audio-analyzer {
+.audio-analyzer {
     height: 128px;
     width: 100%;
     background-color: black;
 }
-#playback-analyzer {
+.playback-analyzer {
     height: 128px;
     width: 100%;
     background-color: black;
 }
-#audio-timer-wrapper {
+.audio-timer-wrapper {
     width: auto;
     height: 60px;
     background-color: #333;
@@ -684,7 +684,7 @@ span.author_mcLabelText {
     position: relative;
     color: white;
 }
-#audio-scrubber {
+.audio-scrubber {
     width: 704px;
     height: 12px;
     border-radius: 4px;
@@ -694,7 +694,7 @@ span.author_mcLabelText {
     top: 30px;
     right: 50px;
 }
-#audio-timer {
+.audio-timer {
     position: absolute;
     top: 10px;
     left: 12px;
@@ -707,7 +707,7 @@ span.author_mcLabelText {
     font-size: 0.9em;
     z-index: 999;
 }
-#audio-timer:after, #audio-timer:before {
+.audio-timer:after, .audio-timer:before {
 	top: 100%;
 	border: solid transparent;
 	content: " ";
@@ -718,21 +718,21 @@ span.author_mcLabelText {
 	margin-top: 1px
 }
 
-#audio-timer:after {
-	border-color: rgba(133, 133, 133, 0);
+.audio-timer:after {
+	border-color: transparent;
 	border-top-color: #858585;
 	border-width: 4px;
 	left: 50%;
 	margin-left: -4px;
 }
-#audio-timer:before {
-	border-color: rgba(153, 153, 153, 0);
+.audio-timer:before {
+	border-color: transparent;
 	border-top-color: #999;
 	border-width: 5px;
 	left: 50%;
 	margin-left: -5px;
 }
-#audio-max-time {
+.audio-max-time {
     position: absolute;
     right: 8px; 
     top: 30px;
@@ -740,24 +740,24 @@ span.author_mcLabelText {
     text-align: right;
     font-size: 0.9em;
 }
-#audio-visual-container button {
+div.audio-visual-container button {
     height: 56px;
     width: 60px;
     padding-top: 32px;
     margin-top: 2px;
     color: black;
 }
-#audio-record {
+div.audio-controls button.audio-record, div.audio-controls button.audio-record:hover {
     background: transparent url(/library/image/record.png) no-repeat center 2px;
 }
-#audio-stop {
+div.audio-controls button.audio-stop, div.audio-controls button.audio-stop:hover {
     background: transparent url(/library/image/stop.png) no-repeat center 2px;
 }
-#audio-play {
+div.audio-controls button.audio-play, div.audio-controls button.audio-play:hover {
     background: transparent url(/library/image/play.png) no-repeat center 2px;
 }
-#audio-visual-container #audio-upload {
-    float: right;
+.audio-visual-container .audio-upload {
+    margin-left: 50px;
     width: 140px;
     border-radius: 5px;
     height: 40px;
@@ -765,7 +765,7 @@ span.author_mcLabelText {
     margin-top: 8px;
     vertical-align: top;
 }
-#audio-posting, #audio-finished, #audio-browser-plea {
+.audio-posting, .audio-finished, .audio-browser-plea {
     font-size: 28px;
     font-weight: bold;
     text-align: center;
@@ -775,10 +775,10 @@ span.author_mcLabelText {
 div.attempts-remaining {
     font-weight: bold;
 }
-#audio-mic-check {
+.audio-mic-check {
   padding: 8px 0;
 }
-#audio-last-attempt {
+.audio-last-attempt {
   font-style: italic;
   font-weight: normal;
   padding-left: 100px;
