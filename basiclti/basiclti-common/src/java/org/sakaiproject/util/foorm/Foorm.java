@@ -670,6 +670,8 @@ public class Foorm {
 			return formInputTextArea((String) value, field, label, required, rows, cols, loader);
 		if ("autodate".equals(type))
 			return "";
+		if ("date".equals(type))
+			return "";
 		if ("checkbox".equals(type)) {
 			return formInputCheckbox(value, field, label, required, loader);
 		}
@@ -719,6 +721,8 @@ public class Foorm {
 			if ("true".equals(hidden))
 				continue;
 			if ("autodate".equals(type))
+				continue;
+			if ("date".equals(type))
 				continue;
 
 			String choices = info.getProperty("choices", null);
@@ -973,6 +977,8 @@ public class Foorm {
 		if ("key".equals(type))
 			return ""; // Key will be handled by the caller
 		if ("autodate".equals(type))
+			return "";
+		if ("date".equals(type))
 			return "";
 		if ("integer".equals(type))
 			return formOutputInteger(getLongNull(value), field, label, loader);
@@ -1712,7 +1718,7 @@ public class Foorm {
 						"All model elements must include field name and type");
 			}
 			// always allow autodate fields
-			if ("autodate".equals(type))
+			if ("autodate".equals(type) || "date".equals(type))
 			{
 				ret.add(line);
 			}
@@ -1819,6 +1825,12 @@ public class Foorm {
 				schema = "TIMESTAMP NOT NULL";
 			} else {
 				schema = "DATETIME NOT NULL";
+			}
+		} else if ("date".equals(type)) {
+			if ("oracle".equals(vendor)) {
+				schema = "TIMESTAMP NULL";
+			} else {
+				schema = "DATETIME NULL";
 			}
 		} else if ("integer".equals(type)) {
 			if ("oracle".equals(vendor)) {
@@ -1937,6 +1949,7 @@ public class Foorm {
 			boolean shouldAlter = false;
 			if ("key".equals(type)) {
 				if ( ! NUMBER_TYPE.equals(sqlType) ) log.warn("{} must be Integer and Auto Increment", field);
+			} else if ("date".equals(type)) {
 			} else if ("autodate".equals(type)) {
 			} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 				if ( "oracle.sql.CLOB".equals(sqlType) || "oracle.jdbc.OracleClob".equals(sqlType) ) continue;  // CLOBS large enough :)
