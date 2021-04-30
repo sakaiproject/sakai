@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -25,7 +25,7 @@
 			<sakai:view_content>
 				<br/>
 	
-				<sakai:flat_list value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}">
+				<h:dataTable value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText style="height: 16px; width=72px" value="#{msgs.gradebook_titles}" />
@@ -65,7 +65,7 @@
 							<h:outputText value="#{msgs.gradebook_delete}" />
 						</h:commandLink>
 					</h:column>
-				</sakai:flat_list>
+				</h:dataTable>
 				
 
 			</sakai:viewContent>

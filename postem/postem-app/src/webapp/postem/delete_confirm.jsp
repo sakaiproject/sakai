@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -37,11 +37,11 @@
 			</table>
 
 			<sakai:button_bar>
-				<sakai:button_bar_item action="#{PostemTool.processDelete}"
+				<h:commandButton action="#{PostemTool.processDelete}"
 									   onclick="SPNR.disableControlsAndSpin(this, null);"
 									   value="#{msgs.bar_delete}"
 									   styleClass="active" />
-				<sakai:button_bar_item action="#{PostemTool.processCancelView}"
+				<h:commandButton action="#{PostemTool.processCancelView}"
 									   onclick="SPNR.disableControlsAndSpin(this, null);"
 									   value="#{msgs.cancel}" />
 			</sakai:button_bar>

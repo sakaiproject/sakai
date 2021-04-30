@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
 
 <%
@@ -60,7 +60,7 @@
             <div class="col-xs-4">
                     <sakai:button_bar>
                     <%-- (gsilver) cannot pass a needed title atribute to these next items --%>
-                        <sakai:button_bar_item
+                        <h:commandButton
                             id="choosefile"
                             action="#{PostemTool.processAddAttachRedirect}" 
                             value="#{msgs.gradebook_choosefile}"/>
@@ -72,7 +72,7 @@
 					<div class="form-group row">
 						<h:outputLabel for="release" value="#{msgs.gradebook_feedbackavail}" styleClass="form-group-label col-xs-2" />
 						<div class="col-xs-4">
-						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" />
+						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" style="margin-right: 5px;" />
 						  <h:outputLabel for="release" value="#{msgs.release}" />
 						</div>
 					</div>
@@ -81,13 +81,13 @@
 				<br />
 
 				<sakai:button_bar>
-          <sakai:button_bar_item
+          <h:commandButton
 			    	action="#{PostemTool.processCreate}"
 					value="#{msgs.bar_post}"
 					onclick="SPNR.disableControlsAndSpin(this, null);"
 					rendered="#{PostemTool.editable}"
 					styleClass="active" />
-			  	<sakai:button_bar_item
+			  	<h:commandButton
 			    	action="#{PostemTool.processCancelNew}"
 					value="#{msgs.cancel}"
 					onclick="SPNR.disableControlsAndSpin(this, null);"

@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -31,7 +31,7 @@
 				<h:outputText value="#{msgs.gradebook_lastmodified}"/>
 				<h:outputText value="#{PostemTool.currentGradebook.updatedDateTime}"/>
 				<br />
-				<sakai:flat_list styleClass="listHier lines" value="#{PostemTool.students}" var="student">
+				<h:dataTable styleClass="listHier lines" value="#{PostemTool.students}" var="student">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText style="padding-top: 0.6em;" value="#{msgs.username}" />
@@ -52,9 +52,9 @@
 						</f:facet>
 						<h:outputText style="padding-top: 0.6em;" value="#{student.checkDateTime}"/>
 					</h:column>
-				</sakai:flat_list>
+				</h:dataTable>
 				<sakai:button_bar>					
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PostemTool.processCancelView}"
 						value="#{msgs.back}" />
 				</sakai:button_bar>

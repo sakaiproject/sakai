@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -40,7 +40,7 @@
 	    	<h:outputText value="#{PostemTool.selectedStudentGrades}" escape="false" rendered="#{PostemTool.editable}"/>
 		  	
 				<sakai:button_bar>					
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PostemTool.processCancelView}"
 						value="#{msgs.back}" />
 				</sakai:button_bar>		  	
