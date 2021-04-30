@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,13 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
 
-	public void init() {
-		log.info("Initializing " + getClass().getName());
-	}
-
-	public void destroy() {
-		log.info("Destroying " + getClass().getName());
-	}
+	private static final ResourceLoader enrollmentsMessages = new ResourceLoader("enrollmentstatus");
 
 	/**
 	 * A generic approach to finding objects by their eid.  This is "coding by convention",
@@ -471,13 +464,16 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public String getEnrollmentStatusDescription(String statusId) {
-		return new ResourceLoader("enrollmentstatus").getString(statusId, statusId);
+		return enrollmentsMessages.getString(statusId, statusId);
 	}
 
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
-
-		ResourceLoader rl = new ResourceLoader("enrollmentstatus");
-		return ((Set<String>) rl.keySet()).stream().collect(Collectors.toMap(k -> k, k -> rl.getString(k, k)));
+		enrollmentsMessages.setContextLocale(locale);
+		return ((Set<Map.Entry>) enrollmentsMessages.entrySet()).stream()
+				.collect(Collectors.toMap(
+						entry -> String.valueOf(entry.getKey()),
+						entry -> String.valueOf(entry.getValue()),
+						(a, b) -> b));
 	}
 
 	public Map<String, String> getGradingSchemeDescriptions(Locale locale) {

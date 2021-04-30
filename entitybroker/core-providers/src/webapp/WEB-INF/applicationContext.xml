@@ -93,4 +93,47 @@
       <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
     </bean>
 
+    <bean id="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          abstract="true"
+          init-method="init">
+        <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+        <property name="cmAdmin" ref="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.entitybroker.providers.AcademicSessionEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.AcademicSessionEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CanonicalCourseEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CanonicalCourseEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CourseOfferingEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CourseOfferingEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CourseSetEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CourseSetEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.EnrollmentEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.EnrollmentEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.EnrollmentSetEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.EnrollmentSetEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.SectionEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SectionEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"/>
+
 </beans>

@@ -64,8 +64,7 @@
 			            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
 
             			<!-- The internal, hibernate-backed implementation -->
-						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl"
-							init-method="init" destroy-method="destroy">
+						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
 							<property name="sessionFactory">
 								<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 							</property>

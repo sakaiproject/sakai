@@ -1,26 +1,26 @@
-/**
- * Copyright (c) 2015 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright (c) 2015 The Apereo Foundation
+
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+              http://opensource.org/licenses/ecl2
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
-package org.sakaiproject.cmprovider;
+package org.sakaiproject.entitybroker.providers;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.data.SectionCategoryData;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.SectionCategoryData;
 
 /**
  * Provides a REST API for working with section categories.
@@ -44,7 +44,7 @@ public class SectionCategoryEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Get all section categories. Wraps CourseManagementService.getSectionCategories.
-   * @see CourseManagementService#getSectionCategories
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getSectionCategories
    *
    * GET requests to /direct/cm-section-category.json will be routed here.
    *
@@ -59,7 +59,7 @@ public class SectionCategoryEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Create a new section category. Wraps CourseManagementAdministration.addSectionCategory.
-   * @see CourseManagementAdministration#addSectionCategory
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementAdministration#addSectionCategory
    * @see SectionCategoryData
    */
   public void create(Object entity) {
@@ -77,7 +77,7 @@ public class SectionCategoryEntityProvider extends AbstractCmEntityProvider {
 
   /**
    * Get a section category by code. Wraps CourseManagementService.getSectionCategoryDescription.
-   * @see CourseManagementService#getSectionCategoryDescription
+   * @see org.sakaiproject.coursemanagement.api.CourseManagementService#getSectionCategoryDescription
    */
   public Object get(String eid) {
     String description = cmService.getSectionCategoryDescription(eid);
