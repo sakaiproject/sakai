@@ -29,7 +29,7 @@ import java.util.zip.DataFormatException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.myfaces.shared_impl.util.MessageUtils;
+import org.sakaiproject.util.ResourceLoader;
 
 public class CSV {
 
@@ -47,6 +47,9 @@ public class CSV {
 	public static final char TAB_DELIM = '\t';
 	
 	public static final int MAX_COL_LENGTH = 2000;
+
+	public static final String messageBundle = "org.sakaiproject.tool.postem.bundle.Messages";
+	private static final ResourceLoader msgs = new ResourceLoader(messageBundle);
 
 	// private boolean withHeaders = true;
 
@@ -277,11 +280,9 @@ public class CSV {
 			
 			if (!truncatingWarningDisplayed) {
 				truncatingWarningDisplayed = true;
-				FacesContext.getCurrentInstance().addMessage(
-						null,
-						MessageUtils.getMessage(FacesMessage.SEVERITY_INFO,
-								"data_truncated_warning", (new Object[] { new Integer(MAX_COL_LENGTH) }), FacesContext
-										.getCurrentInstance()));
+
+				String message = msgs.getFormattedMessage("data_truncated_warning", MAX_COL_LENGTH);
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(message));
 			}
 		}
 		

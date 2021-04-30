@@ -40,7 +40,6 @@ import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.myfaces.shared_impl.util.MessageUtils;
 
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
@@ -403,11 +402,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		this.userId = SessionManager.getCurrentSessionUserId();
@@ -432,11 +428,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			this.currentGradebook = null;
 			this.csv = null;
 			this.newTemplate = null;
@@ -496,11 +489,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			this.currentGradebook = null;
 			this.csv = null;
 			this.newTemplate = null;
@@ -822,11 +812,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
@@ -846,11 +833,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
@@ -869,11 +853,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		gradebookManager.deleteGradebook(currentGradebook);
@@ -894,11 +875,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
@@ -932,11 +910,8 @@ public class PostemTool {
 
 		} catch (PermissionException e) {
 			// logger.info(this + ".getEntries() in PostemTool " + e);
-			FacesContext.getCurrentInstance().addMessage(
-					null,
-					MessageUtils.getMessage(FacesMessage.SEVERITY_ERROR,
-							"error_permission", (new Object[] { e.toString() }), FacesContext
-									.getCurrentInstance()));
+			String message = msgs.getFormattedMessage("error_permission", e.toString());
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 			return "permission_error";
 		}
 		currentGradebook = (Gradebook) gradebookTable.getRowData();

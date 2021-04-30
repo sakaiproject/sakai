@@ -12,67 +12,19 @@
   <artifactId>sakai-postem-tool</artifactId>
   <packaging>war</packaging>
 
-    <!-- profiles added for WAS support -->
-    <profiles>
-        <profile>
-            <id>full</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                  <groupId>org.sakaiproject.jsf</groupId>
-                  <artifactId>myfaces-tool</artifactId>
-                  <type>pom</type>
-		  <exclusions>
-		    <!-- exclude this to avoid the collision btw RI and tomahawk -->
-		    <exclusion>
-		      <groupId>javax.faces</groupId>
-		      <artifactId>jsf-api</artifactId>
-		    </exclusion>
-		    <exclusion>
-		      <groupId>javax.faces</groupId>
-		      <artifactId>jsf-impl</artifactId>
-		    </exclusion>
-		  </exclusions>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <!-- exclude xerces xml parser apis for WAS -->
-            <id>was</id>
-            <dependencies>
-                <dependency>
-                  <groupId>org.sakaiproject.jsf</groupId>
-                  <artifactId>myfaces-tool</artifactId>
-                  <type>pom</type>
-		  <exclusions>
-		    <!-- exclude this to avoid the collision btw RI and tomahawk -->
-		    <exclusion>
-		      <groupId>javax.faces</groupId>
-		      <artifactId>jsf-api</artifactId>
-		    </exclusion>
-		    <exclusion>
-		      <groupId>javax.faces</groupId>
-		      <artifactId>jsf-impl</artifactId>
-		    </exclusion>
-		  </exclusions>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
   <dependencies>
-    <!-- postem requires and older version of myfaces -->
+      <dependency>
+          <groupId>org.sakaiproject.jsf2</groupId>
+          <artifactId>jsf2-tool</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.sakaiproject.jsf2</groupId>
+          <artifactId>jsf2-app</artifactId>
+      </dependency>
     <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-api</artifactId>
-      <version>1.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-impl</artifactId>
-      <version>1.1.10</version>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-widgets-sun-depend</artifactId>
+      <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -109,6 +61,15 @@
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>javax.servlet.jsp-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-shaded</artifactId>
+      <version>${sakai.weld.shaded.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
     </dependency>
   </dependencies>
   <build>

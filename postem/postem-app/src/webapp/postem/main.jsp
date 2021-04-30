@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -28,7 +28,7 @@
 			<%@ include file="/postem/postemMenu.jsp" %>
 			<sakai:view_content>
 				<h:outputText styleClass="sak-banner-info" value="#{msgs.no_gradebooks}" rendered="#{!PostemTool.gradebooksExist}" />
-				<sakai:flat_list rendered="#{PostemTool.gradebooksExist}" value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="table table-bordered table-striped">
+				<h:dataTable rendered="#{PostemTool.gradebooksExist}" value="#{PostemTool.gradebooks}" var="gradebook" binding="#{PostemTool.gradebookTable}" styleClass="table table-bordered table-striped">
 					<h:column>
 						<f:facet name="header">
 							<h:commandLink action="#{PostemTool.toggleTitleSort}" title="#{msgs.sort_title}">
@@ -113,7 +113,7 @@
 							<h:outputText value="#{msgs.template}"/>
 						</h:commandLink>
 					</h:column>
-				</sakai:flat_list>
+				</h:dataTable>
 			</sakai:view_content>
 
 		</h:form>

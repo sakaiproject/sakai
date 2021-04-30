@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <%
     response.setContentType("text/html; charset=UTF-8");
@@ -24,11 +24,11 @@
         <sakai:fileInput value="#{PostemTool.fileName}" target="#{PostemTool.targetFileName}"/>
 		  	
 				<sakai:button_bar>					
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PostemTool.processGradefileUpload}"
 						value="#{msgs.upload}"
 						styleClass="active" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PostemTool.processUploadCancel}"
 						value="#{msgs.cancel}" />
 				</sakai:button_bar>		  	
