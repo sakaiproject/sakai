@@ -30,8 +30,6 @@
      var totalSubmissions = <h:outputText value="#{delivery.totalSubmissions}"/>;
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
-     var submitButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
-     var selector = "input[value='" + submitButtonValue + "']";
      var newAttemptAutoSubmitWarning = "<h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last} " rendered="#{delivery.scoringType == 2}" />";
 
      $(document).ready(function(){
@@ -40,6 +38,8 @@
 	
 		//Turn off browser autocomplete on all forms
 		$("form").attr("autocomplete", "off");
+
+		var selector = $('#takeAssessmentForm\\:beginAssessment1');
 
 		// If instructor requires honor pledge, we check for it before allowing assessment to start
 		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
