@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE taglib
-  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
-  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
-
-<taglib>
+<taglib
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee web-jsptaglibrary_2_1.xsd"
+        xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        version="2.1">
 
   <tlib-version>1.0</tlib-version>
   <jsp-version>1.2</jsp-version>
@@ -165,5 +164,111 @@
     </attribute>
     
   </tag>
+
+    <tag>
+        <name>tool_bar_item</name>
+        <tag-class>org.sakaiproject.user.jsf.ToolBarItemTag</tag-class>
+        <body-content>empty</body-content>
+        <description>
+            Renders a Sakai style toolbar item (or button).  Parent should be a tool_bar tag.
+        </description>
+
+        <attribute>
+            <name>binding</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                The value binding expression linking this component to a property in a backing bean.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>id</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                The component identifier for this component. This value must be unique
+                within the closest parent component that is a naming container.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>_action</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>MethodBinding representing the application action to invoke when this
+                component is activated by the user. The expression must evaluate to a public method
+                that takes no parameters, and returns a String (the logical outcome) which is passed
+                to the NavigationHandler for this application.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>_value</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>The displayed label of the toolbar item.</description>
+        </attribute>
+
+        <attribute>
+            <name>disabled</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>boolean</type>
+            <description>If true, the toolbar item is disabled.  Clicking on the item does nothing.</description>
+        </attribute>
+
+        <attribute>
+            <name>immediate</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>boolean</type>
+            <description>Flag indicating that, if this component is activated by the user,
+                notifications should be delivered to interested listeners and actions immediately
+                (that is, during Apply Request Values phase) rather than waiting until Invoke Application phase.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>_rendered</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>
+                Flag indicating whether or not this component should be rendered
+                (during Render Response Phase), or processed on any subsequent
+                form submit.
+            </description>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                CSS style(s) to be applied when this component is rendered.
+            </description>
+        </attribute>
+        <attribute>
+            <name>styleClass</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Space-separated list of CSS style class(es) to be applied when
+                this element is rendered.  This value must be passed through
+                as the "class" attribute on generated markup.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>current</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>boolean</type>
+            <description>Flag indicating whether or not this component represents the current page</description>
+        </attribute>
+
+    </tag>
   
 </taglib>

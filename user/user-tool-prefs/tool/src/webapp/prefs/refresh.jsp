@@ -3,7 +3,7 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 
 <f:view>
@@ -24,7 +24,7 @@
 					<jsp:include page="prefUpdatedMsg.jsp"/>	
 				</t:div>
 				
-				<sakai:messages />
+				<h:messages />
 				
 				<br><br>
 				<h:outputText value="Automatic Refresh" style="font-size: 13px;font-weight: bold;font-family: verdana, arial, helvetica, sans-serif;"/>

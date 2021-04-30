@@ -24,7 +24,7 @@ package org.sakaiproject.user.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.webapp.UIComponentTag;
 
-import org.sakaiproject.jsf.util.TagUtil;
+import org.sakaiproject.jsf2.util.TagUtil;
 
 public class HideDivisionTag extends UIComponentTag
 {

@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.jsf2.util.JsfTool;
 
 public class PreferenceServlet extends JsfTool {
 

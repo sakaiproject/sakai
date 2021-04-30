@@ -3,14 +3,14 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%-- Core JSTL tag library --%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-  	<sakai:stylesheet path="/css/prefs.css"/>
+  	<link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 		<h:form id="hidden_sites_form">
 
@@ -39,7 +39,7 @@
                             <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
                             <t:div rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
                                 <h:outputText value="#{msgs.tabDisplay_prompt}" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
-                                <h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                                <h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" styleClass="addRadioLabelPadding">
                                     <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
                                     <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
                                 </h:selectOneRadio>
