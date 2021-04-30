@@ -3,21 +3,21 @@
 <%-- Core JSF tag library --%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <f:view>
 	<sakai:view_container title="Preferences">
 	<sakai:view_content>
 		<h:form id="prefs_form">
 
-				<sakai:messages />
+				<h:messages styleClass="alertMessage"/>
 
 				<sakai:instruction_message value="Modify these preferences." />
 				<h:outputText value="User: #{AdminPrefsTool.userId}"/>
 				<sakai:group_box title="Preferences">
 
 					<%-- the list of preferences --%>
-					<sakai:flat_list value="#{AdminPrefsTool.preferences}" var="pref">
+					<h:dataTable value="#{AdminPrefsTool.preferences}" var="pref" cellspacing="0" styleClass="listHier">
 						<h:column>
 							<f:facet name="header">
 								<h:outputText value="key"/>
@@ -42,18 +42,18 @@
 							</f:facet>
 							<h:selectBooleanCheckbox value="#{pref.list}"/>
 						</h:column>
-					</sakai:flat_list>
+					</h:dataTable>
 
 				</sakai:group_box>
 	
 					<sakai:button_bar>
-						<sakai:button_bar_item
+						<h:commandButton
 								action="#{AdminPrefsTool.processActionAdd}"
 								value="Add" />
-						<sakai:button_bar_item
+						<h:commandButton
 								action="#{AdminPrefsTool.processActionSave}"
 								value="Save" />
-						<sakai:button_bar_item
+						<h:commandButton
 								immediate="true"
 								action="#{AdminPrefsTool.processActionCancel}"
 								value="Cancel" />
