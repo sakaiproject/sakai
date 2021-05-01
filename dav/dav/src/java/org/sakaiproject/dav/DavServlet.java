@@ -127,7 +127,7 @@ import org.apache.tomcat.util.buf.UDecoder;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -349,10 +349,11 @@ public class DavServlet extends HttpServlet
 	private UserDirectoryService userDirectoryService;
 	private SiteService siteService;
 	private UserTimeService userTimeService;
+	private ServerConfigurationService serverConfigurationService;
 
         // can be called on id with or withing adjustid, since
         // the prefixes we check for are not adjusted
-        protected boolean prohibited(String id) {
+    protected boolean prohibited(String id) {
 	    if (id == null)
 		return false;
 	    if (id.startsWith("/attachment/") || id.equals("/attachment") ||
@@ -613,7 +614,7 @@ public class DavServlet extends HttpServlet
 	 * Array of file patterns we are not supposed to accept on PUT
 	 */
 	private String[] ignorePatterns = null;
-	
+
 	/**
 	 * Output cookies for DAV requests
 	 */
@@ -644,6 +645,8 @@ public class DavServlet extends HttpServlet
 		usageSessionService = ComponentManager.get(UsageSessionService.class);
 		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 		userTimeService = ComponentManager.get(UserTimeService.class);
+		siteService = ComponentManager.get(SiteService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -679,7 +682,7 @@ public class DavServlet extends HttpServlet
 		}
 
 		// load up the ignorePatterns from properties
-		ignorePatterns = ServerConfigurationService.getStrings("webdav.ignore");
+		ignorePatterns = serverConfigurationService.getStrings("webdav.ignore");
 		if (ignorePatterns != null)
 		{
 			String outVal = "";
@@ -703,9 +706,9 @@ public class DavServlet extends HttpServlet
 		}
 		
 		// Check cookie configuration
-		useCookies = ServerConfigurationService.getBoolean("webdav.cookies", false);
+		useCookies = serverConfigurationService.getBoolean("webdav.cookies", false);
 
-		nonDavUserAgent = ServerConfigurationService.getStrings("webdav.nonDavUserAgent");
+		nonDavUserAgent = serverConfigurationService.getStrings("webdav.nonDavUserAgent");
 		if (nonDavUserAgent == null) {
 		    nonDavUserAgent = new String[] {  "Mozilla", "Opera", "BlackBerry" };
 		}
@@ -1095,7 +1098,6 @@ public class DavServlet extends HttpServlet
 	 * @param res
 	 *        HttpServletResponse object back to the client
 	 */
-	@SuppressWarnings("unchecked")
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, java.io.IOException
 	{
 		SakaidavServletInfo info = newInfo(req);
@@ -1507,7 +1509,7 @@ public class DavServlet extends HttpServlet
 			return myDC;
 		}
 
-		@SuppressWarnings("unchecked")
+
 		public Iterator<ContentEntity> list(String id)
 		{
 			try
@@ -1757,7 +1759,7 @@ public class DavServlet extends HttpServlet
 			out = res.getWriter();
 			out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
 			out.println("<html><head>");
-			String webappRoot = ServerConfigurationService.getServerUrl();
+			String webappRoot = serverConfigurationService.getServerUrl();
 			out.println("<link href=\"" + webappRoot
 					+ "/css/default.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\" />");
 			out.println("<STYLE type=\"text/css\">");
@@ -2698,7 +2700,6 @@ public class DavServlet extends HttpServlet
 	 * @exception ServletException
 	 *            if a servlet-specified error occurs
 	 */
-	@SuppressWarnings("unchecked")
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 
@@ -2823,7 +2824,7 @@ public class DavServlet extends HttpServlet
 			}
 
 			if (contentHostingService.isAvailabilityEnabled()) {
-				boolean hidden = ServerConfigurationService.getBoolean("content.dav.upload.hidden", false);
+				boolean hidden = serverConfigurationService.getBoolean("content.dav.upload.hidden", false);
 				edit.setAvailability(hidden, null, null);
 			}
 			edit.setContentType(contentType);
