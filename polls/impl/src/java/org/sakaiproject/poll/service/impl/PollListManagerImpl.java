@@ -82,12 +82,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.warn("init(): ", t);
         }
 
-        externalLogic.registerFunction(PERMISSION_VOTE);
-        externalLogic.registerFunction(PERMISSION_ADD);
-        externalLogic.registerFunction(PERMISSION_DELETE_OWN);
-        externalLogic.registerFunction(PERMISSION_DELETE_ANY);
-        externalLogic.registerFunction(PERMISSION_EDIT_ANY);
-        externalLogic.registerFunction(PERMISSION_EDIT_OWN);
+        externalLogic.registerFunction(PERMISSION_VOTE, true);
+        externalLogic.registerFunction(PERMISSION_ADD, true);
+        externalLogic.registerFunction(PERMISSION_DELETE_OWN, true);
+        externalLogic.registerFunction(PERMISSION_DELETE_ANY, true);
+        externalLogic.registerFunction(PERMISSION_EDIT_ANY, true);
+        externalLogic.registerFunction(PERMISSION_EDIT_OWN, true);
         log.info(this + " init()");
     }
 

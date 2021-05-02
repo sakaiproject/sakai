@@ -213,8 +213,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 		
 	}
 
-	public void registerFunction(String function) {
-		functionManager.registerFunction(function);
+	public void registerFunction(String function, boolean userMutable) {
+		functionManager.registerFunction(function, userMutable);
 		
 	}
 

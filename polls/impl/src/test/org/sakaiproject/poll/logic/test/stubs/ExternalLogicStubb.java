@@ -119,7 +119,7 @@ public class ExternalLogicStubb implements ExternalLogic {
 		
 	}
 
-	public void registerFunction(String function) {
+	public void registerFunction(String function, boolean userMutable) {
 		// TODO Auto-generated method stub
 		
 	}
