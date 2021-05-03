@@ -42,6 +42,7 @@ class SakaiRubricAssociation extends RubricsElement {
       hideStudentPreview: { attribute: "hide-student-preview", type: String },
       rubrics: { type: Array },
       readOnly: { attribute: "read-only", type: Boolean },
+      itemHasEvaluations: { type: Boolean },
     };
   }
 
@@ -79,7 +80,12 @@ class SakaiRubricAssociation extends RubricsElement {
         <div class="rubrics-list">
 
           <div class="rubrics-selections">
-            <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
+            <select @change="${this.rubricSelected}"
+              name="rbcs-rubricslist"
+              class="form-control"
+              title="${this.itemHasEvaluations ? tr("item_has_evaluations") : tr("rubric_selector_label")}"
+              aria-label="${this.itemHasEvaluations ? tr("item_has_evaluations") : tr("rubric_selector_label")}"
+              ?disabled=${!this.isAssociated || this.readOnly || this.itemHasEvaluations}>
             ${this.rubrics.map(r => html`
               <option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title}</option>
             `)}
@@ -127,6 +133,19 @@ class SakaiRubricAssociation extends RubricsElement {
       if (this.association) {
         this.isAssociated = 1;
         this.selectedRubric = this.association.rubricId;
+
+        let evalsTestUrl = `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-ids?toolId=${this.toolId}`;
+        if (this.entityId) evalsTestUrl += `&itemId=${this.entityId}`;
+
+        $.ajax({
+          url: evalsTestUrl,
+          headers: {"authorization": this.token},
+          contentType: "application/json"
+        })
+        .done(data => {
+          this.itemHasEvaluations = data._embedded.evaluations.length > 0;
+        });
+
       } else {
         this.isAssociated = 0;
       }
