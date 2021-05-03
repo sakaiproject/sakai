@@ -122,8 +122,9 @@ public interface ExternalLogic {
 	/**
 	 * Register a function with the Sakai Function manager
 	 * @param function
+     * @param userMutable
 	 */
-	public void registerFunction(String function);
+	public void registerFunction(String function, boolean userMutable);
 	
 	/** 
 	 *  get the correct Timezone for the the current user
