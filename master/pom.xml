@@ -44,7 +44,7 @@
     <sakai.httpcore5.version>5.0.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.9.1</sakai.ignite.version>
     <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
-    <sakai.jackson.version>2.12.2</sakai.jackson.version>
+    <sakai.jackson.version>2.12.3</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2</sakai.stax2.version>
@@ -581,7 +581,7 @@
       <dependency>
         <groupId>com.fasterxml</groupId>
         <artifactId>classmate</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
