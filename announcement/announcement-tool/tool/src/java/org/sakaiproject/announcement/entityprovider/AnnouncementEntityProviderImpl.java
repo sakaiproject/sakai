@@ -232,12 +232,11 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		
 		boolean enableReorder = serverConfigurationService.getBoolean(AnnouncementAction.SAK_PROP_ANNC_REORDER, AnnouncementAction.SAK_PROP_ANNC_REORDER_DEFAULT);
 		final String sortCurrentOrder = enableReorder ? AnnouncementAction.SORT_MESSAGE_ORDER : AnnouncementAction.SORT_DATE;
-		ViewableFilter msgFilter = AnnouncementAction.SORT_MESSAGE_ORDER.equals(sortCurrentOrder) ? null : new ViewableFilter(null, t, numberOfAnnouncements);
 		
 		//for each channel
 		for (String channel : channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, msgFilter, announcementSortAsc, false));
+				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements), announcementSortAsc, false));
 			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel) announcementService.getChannelPublic(channel);
