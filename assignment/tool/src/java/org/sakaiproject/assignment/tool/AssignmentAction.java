@@ -11576,12 +11576,11 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(WITH_GRADES, withGradesConfig);
         if (withGradesConfig) {
             state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, SCORE_GRADE_TYPE.ordinal());
-            String defaultPointsConfig = serverConfigurationService.getString("assignment.points.default", "10");
-            try {
+            String defaultPointsConfig = serverConfigurationService.getString("assignment.points.default", "");
+            if (NumberUtils.isParsable(defaultPointsConfig)) {
                 float defaultPoints = NumberUtils.createFloat(defaultPointsConfig);
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, String.valueOf(defaultPoints));
-            } catch (NumberFormatException nfe) {
-                log.warn("Cannot set assignment default points, {}", nfe.toString());
+            } else {
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
             }
         } else {
