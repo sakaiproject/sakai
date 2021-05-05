@@ -1016,7 +1016,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
