@@ -3201,7 +3201,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 					// calculated grade
 					// may be null if no grade entries to calculate
-					Double calculatedGrade = gr.getPointsEarned()!=null ? gr.getPointsEarned() : gr.getAutoCalculatedGrade();
+					Double calculatedGrade = gr.getPointsEarned() != null ? gr.getPointsEarned() : gr.getAutoCalculatedGrade();
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
 					}
@@ -3224,7 +3224,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					cg.setMappedGrade(mappedGrade);
 
 					// points
-					cg.setPointsEarned(gr.getPointsEarned()!=null ? (gr.getPointsEarned()*gr.getTotalPointsPossible())/100 : gr.getCalculatedPointsEarned()); // synonymous with gradeRecord.getCalculatedPointsEarned()
+					cg.setPointsEarned(gr.getPointsEarned() != null ? (gr.getPointsEarned() * gr.getTotalPointsPossible()) / 100 : gr.getCalculatedPointsEarned()); // synonymous with gradeRecord.getCalculatedPointsEarned()
 					cg.setTotalPointsPossible(gr.getTotalPointsPossible());
 
 				}

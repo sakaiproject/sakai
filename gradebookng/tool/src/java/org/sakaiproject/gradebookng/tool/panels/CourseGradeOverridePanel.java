@@ -236,7 +236,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 	 * @param currentUserLocale the locale to format the grade with the right decimal separator
 	 * @return fully formatted string ready for display
 	 */
-	private String getGradeFromNumber(String newGrade, Map<String, Double> schema, Locale currentUserLocale) {
+	protected static String getGradeFromNumber(String newGrade, Map<String, Double> schema, Locale currentUserLocale) {
 		Double currentGradeValue = new Double(0.0);
 		Double maxValue = new Double(0.0);
 		try	{
@@ -269,7 +269,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 		}
 	}
 
-	private String getNumberFromGrade(String gradeScale, Map<String, Double> schema, Locale currentUserLocale) {
+	protected static String getNumberFromGrade(String gradeScale, Map<String, Double> schema, Locale currentUserLocale) {
 		Double newGrade = schema.get(gradeScale);
 		NumberFormat nf = NumberFormat.getInstance(currentUserLocale);
 		return nf.format(newGrade);
