@@ -322,3 +322,22 @@ table{
 		}
 	}
 }
+.tablesorter-default,
+.tablesorter-default th,
+.tablesorter-default thead td,
+.tablesorter-default td,
+.tablesorter-default tr.even>td {
+	background-color: var(--sakai-background-color-1);
+	color: var(--sakai-text-color-1);
+}
+.tablesorter-default tr.odd>td {
+	background-color: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+}
+.tablesorter-default tbody>tr.even:hover>td,
+.tablesorter-default tbody>tr.hover>td,
+.tablesorter-default tbody>tr.odd:hover>td,
+.tablesorter-default tbody>tr:hover>td {
+	background-color: var(--sakai-background-color-3);
+	color: var(--sakai-text-color-1);
+}
