@@ -524,7 +524,7 @@ public class PublishedAssessmentService extends AssessmentService{
    * @return the map of item id -> item for image map questions in this map
    */
   public Map<Long, ItemDataIfc> prepareImagQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
-      // CALCULATED_QUESTION
+      // IMAGEMAP
       Map<Long, ItemDataIfc> map = new HashMap<>();
       List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
       for (int i=0;i<sectionArray.size(); i++) {
@@ -539,7 +539,28 @@ public class PublishedAssessmentService extends AssessmentService{
       }
       return map;
   }
-  
+
+  /**
+   * ESSAY-SHORTANSWER_QUESTION
+   * @param publishedAssessment
+   * @return the map of item id -> item for essay-shortanswers questions in this map
+   */
+  public Map<Long, ItemDataIfc> prepareEssayShortAnswerItemHash(PublishedAssessmentIfc publishedAssessment){
+      // ESSAY-SHORTANSWER_QUESTION
+      Map<Long, ItemDataIfc> map = new HashMap<>();
+      List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
+      for (int i=0;i<sectionArray.size(); i++) {
+          SectionDataIfc section = sectionArray.get(i);
+          List<ItemDataIfc> itemArray = section.getItemArray();
+          for (int j=0;j<itemArray.size(); j++) {
+              ItemDataIfc item = itemArray.get(j);
+              if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) { // ESSAY-SHORTANSWER_QUESTION
+                  map.put(item.getItemId(), item);
+              }
+          }
+      }
+      return map;
+  }
   
   public Map<Long, ItemDataIfc> prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
     Map<Long, ItemDataIfc> map = new HashMap<>();

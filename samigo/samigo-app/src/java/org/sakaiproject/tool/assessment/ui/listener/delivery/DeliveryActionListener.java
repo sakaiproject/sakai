@@ -45,8 +45,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
-
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -118,6 +118,9 @@ public class DeliveryActionListener
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+  private final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+  private boolean studentRichText = serverConfigurationService.getBoolean("samigo.studentRichText", true);
+  private final FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
 
@@ -386,6 +389,11 @@ public class DeliveryActionListener
             	  log.debug("Get data from db otherwise");
                   // this returns a HashMap with (publishedItemId, itemGrading)
                   itemGradingHash = service.getLastItemGradingData(id, agent); //
+                  if (!itemGradingHash.isEmpty() && !studentRichText) {
+                	  itemGradingHash.entrySet().stream().map(entry ->
+                	  	((Map.Entry<Long, ArrayList>)entry).getValue()).flatMap(item ->
+            		  		((ArrayList)item).stream()).forEach(itemg ->((ItemGradingData)itemg).setAnswerText(StringEscapeUtils.unescapeHtml4(((ItemGradingData)itemg).getAnswerText())));
+                  }
                   log.debug("**** DeliveryActionListener #1");
 
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
@@ -427,7 +435,7 @@ public class DeliveryActionListener
                   eventLogData.setAssessmentId(Long.valueOf(id));
                   eventLogData.setProcessId(delivery.getAssessmentGradingId());
                   eventLogData.setStartDate(new Date());
-                  eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+                  eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
                   eventLogData.setUserEid(agentEid); 
                   String site_id = AgentFacade.getCurrentSiteId();
                   //take assessment via url
@@ -561,7 +569,7 @@ public class DeliveryActionListener
     		eventLogData.setAssessmentId(Long.valueOf(id));
     		eventLogData.setProcessId(delivery.getAssessmentGradingId());
     		eventLogData.setStartDate(new Date());
-    		eventLogData.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
+    		eventLogData.setTitle(formattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
     		eventLogData.setUserEid(agentEid); 
     		String site_id =AgentFacade.getCurrentSiteId();
     		//take assessment via url
@@ -1936,7 +1944,7 @@ public class DeliveryActionListener
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2091,7 +2099,7 @@ public class DeliveryActionListener
           {
         	  
             fbean.setItemGradingData(data);
-            fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
             if (answer.getText() == null)
             {
               answer.setText("");
@@ -2357,7 +2365,7 @@ public class DeliveryActionListener
                   if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
                   {
                       fbean.setItemGradingData(data);
-                      fbean.setResponse(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(data.getAnswerText()));
+                      fbean.setResponse(formattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
                       if (answer.getText() == null)
                       {
                           answer.setText("");

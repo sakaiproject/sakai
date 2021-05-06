@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -41,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -75,6 +78,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -99,6 +103,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 	private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
 	private final UserDirectoryService userDirectoryService = ComponentManager.get( UserDirectoryService.class );
+	private final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+	private boolean studentRichText = serverConfigurationService.getBoolean("samigo.studentRichText", true);
+	private final FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
 	/**
 	 * ACTION.
@@ -420,6 +427,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 			Map<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
 			Map<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
+			Map<Long, ItemDataIfc> essayShortAnwerQuestionMap = getEssayShortAnwerQuestionMap(publishedAssessment); // ESSAY_SHORTANSWER_QUESTION
 			Map<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
 			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition {}", (new Date()));
@@ -445,6 +453,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 				log.debug("Submitforgrading: newItemGradingSet.size = {}", adds.size());
 
 				HashSet<ItemGradingData> updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, calcQuestionMap,imagQuestionMap, emiMap, adata);
+				if (!studentRichText) {
+					updateItemGradingSet.stream()
+					.filter(igd -> essayShortAnwerQuestionMap.containsKey(igd.getPublishedItemId()))
+					.collect(Collectors.toMap(Function.identity(), igd -> formattedText.escapeHtml(igd.getAnswerText(), false)))
+					.forEach(ItemGradingData::setAnswerText);
+				}
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
@@ -507,6 +521,15 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 */
   	private Map<Long, ItemDataIfc> getImagQuestionMap(PublishedAssessmentIfc publishedAssessment){
 	    return (Map<Long, ItemDataIfc>) publishedAssesmentService.prepareImagQuestionItemHash(publishedAssessment);
+	}
+
+  	/**
+  	 * ESSAY-SHORTANSWER_QUESTION
+  	 * @param publishedAssessment
+  	 * @return map of essay-shortanswer items
+  	 */
+	private Map<Long, ItemDataIfc> getEssayShortAnwerQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    return (Map<Long, ItemDataIfc>) publishedAssesmentService.prepareEssayShortAnswerItemHash(publishedAssessment);
 	}
 
 	private Map<Long, ItemDataIfc> getEMIMap(PublishedAssessmentIfc publishedAssessment) {
