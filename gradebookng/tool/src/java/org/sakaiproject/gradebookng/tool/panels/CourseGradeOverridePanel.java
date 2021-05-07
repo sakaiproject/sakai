@@ -239,6 +239,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 	protected static String getGradeFromNumber(String newGrade, Map<String, Double> schema, Locale currentUserLocale) {
 		Double currentGradeValue = new Double(0.0);
 		Double maxValue = new Double(0.0);
+		String returnGrade = newGrade;
 		try	{
 			NumberFormat nf = NumberFormat.getInstance(currentUserLocale);
 			ParsePosition parsePosition = new ParsePosition(0);
@@ -256,13 +257,13 @@ public class CourseGradeOverridePanel extends BasePanel {
 					if (maxValue.compareTo(tempValue) < 0) maxValue=tempValue;
 					if ((dValue.compareTo(tempValue) > 0 ) && (tempValue.compareTo(currentGradeValue) >= 0 )) {
 						currentGradeValue = tempValue;
-						newGrade=entry.getKey();
+						returnGrade=entry.getKey();
 					}
 				}
 				if (dValue < 0) throw new NumberFormatException("Grade cannot be lower than 0.");
 				if (dValue.compareTo(maxValue) > 0 && dValue > 100) throw new NumberFormatException("Grade exceeds the maximum number allowed in current scale.");
 			}
-			return newGrade;
+			return returnGrade;
 		}
 		catch (NumberFormatException e) {
 			throw new NumberFormatException("Grade is not a number, neither a scale value.");

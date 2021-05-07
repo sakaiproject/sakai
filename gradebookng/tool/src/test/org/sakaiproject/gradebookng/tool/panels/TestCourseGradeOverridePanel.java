@@ -26,7 +26,7 @@ import org.sakaiproject.gradebookng.tool.panels.CourseGradeOverridePanel;
 
 public class TestCourseGradeOverridePanel {
 
-	Map<String, Double> schema;
+	private Map<String, Double> schema;
 
 	@Before
 	public void init() {
