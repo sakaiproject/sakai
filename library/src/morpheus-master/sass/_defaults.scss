@@ -265,7 +265,8 @@ $active-transition-active: box-shadow 100ms ease-in !default;
     --header-size: 50px;
 
     //Dashboard
-    --sakai-course-card-border-radius: $button-radius;
-    --sakai-title-bar-font-weight: $button-font-weight;
+    --sakai-course-card-border-radius: #{$button-radius};
+    --sakai-title-bar-font-weight: #{$button-font-weight};
+
     --sakai-font-family: #{$font-family};
 }
