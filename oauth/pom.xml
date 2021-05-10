@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <wicket.version>7.16.0</wicket.version>
+        <wicket.version>7.17.0</wicket.version>
     </properties>
 
     <dependencyManagement>
