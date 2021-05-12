@@ -1166,10 +1166,10 @@
 	}
 	function checkWebLinksForEnableSubmit()
 	{
-		var urls = document.querySelectorAll('*[id^="content_"]');
-		var names = document.querySelectorAll('*[id^="displayName_"]');
-		var submit = document.getElementById("saveChanges");
-		var invalid = false;
+		let urls = document.querySelectorAll('*[id^="content_"]');
+		let names = document.querySelectorAll('*[id^="displayName_"]');
+		let submit = document.getElementById("saveChanges");
+		let invalid = false;
 
 		for (let element of urls)
 		{
