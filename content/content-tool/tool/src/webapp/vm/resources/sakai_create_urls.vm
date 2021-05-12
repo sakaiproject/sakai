@@ -51,7 +51,7 @@
 					<input type="hidden" name="extension${DOT}$i" id="extension${DOT}$i" value=".URL" />
 					<div class="form-group">
 						<span class="reqStar">*</span>
-						<label for="displayName${DOT}$i">$tlang.getString("label.urls")</label>
+						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
 						<input type="text" name="displayName${DOT}$i" id="displayName${DOT}$i" class="form-control" maxlength="512"/>
 						#if($ezproxyPrefix)
@@ -60,7 +60,7 @@
 					</div>
 					<div class="form-group">
 						<span class="reqStar">*</span>
-						<label for="content${DOT}$i">$tlang.getString("label.website")</label>
+						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512"/>
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
