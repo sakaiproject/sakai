@@ -926,13 +926,23 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
     }
 
-    @AllArgsConstructor
+    @Getter
     public class DecoratedAttachment implements Comparable<Object> {
 
-        @Getter
         private String name;
-        @Getter
+        private String ref;
+        private long size;
+        private String type;
         private String url;
+
+        public DecoratedAttachment(ContentResource cr) {
+
+            this.url = cr.getUrl();
+            this.name = cr.getProperties().getPropertyFormatted(cr.getProperties().getNamePropDisplayName());
+            this.ref = cr.getReference();
+            this.type = cr.getContentType();
+            this.size = cr.getContentLength();
+        }
 
         public int compareTo(Object other) {
             return this.getUrl().compareTo(
@@ -1190,19 +1200,17 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
 
-            this.attachments = new ArrayList<>();
-            Set<String> attachment_list = a.getAttachments();
-            for (String attachment : attachment_list) {
-                Entity entity = (Entity) entityBroker.fetchEntity(attachment);
-                if (entity != null) {
-                    String url = entity.getUrl();
-                    String name = entity.getProperties().getPropertyFormatted(entity.getProperties().getNamePropDisplayName());
-                    DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
-                    this.attachments.add(decoratedAttachment);
-                } else {
-                    log.info("There was an attachment on assignment " + a.getId() + " that was invalid");
-                }
-            }
+            this.attachments = a.getAttachments().stream().map(att -> {
+
+                    String id = entityManager.newReference(att).getId();
+                    try {
+                        return new DecoratedAttachment(contentHostingService.getResource(id));
+                    } catch (Exception e) {
+                        log.info("There was an attachment on assignment " + a.getId() + " that was invalid");
+                        return null;
+                    }
+                }).collect(Collectors.toList());
+
             // Translate grade scale from its numeric value to its description.
             this.gradeScale = a.getTypeOfGrade().toString();
 
@@ -1267,7 +1275,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String submittedText;
         private Instant dateSubmitted;
         private Boolean submitted;
-        private Set<String> submittedAttachments;
+        private List<DecoratedAttachment> submittedAttachments;
         private List<SimpleSubmitter> submitters;
         private Boolean userSubmission;
         private Boolean late;
@@ -1277,7 +1285,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String feedbackComment;
         private String privateNotes;
         private String groupId;
-        private Set<String> feedbackAttachments;
+        private List<DecoratedAttachment> feedbackAttachments;
         private Map<String, String> properties = new HashMap<>();
         private Instant assignmentCloseTime;
 
@@ -1295,7 +1303,26 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 if (dateSubmitted != null) {
                     this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
                 }
-                this.submittedAttachments = as.getAttachments();
+
+                this.submittedAttachments = as.getAttachments().stream().map(ref -> {
+
+                        String id = entityManager.newReference(ref).getId();
+                        try {
+                            return new DecoratedAttachment(contentHostingService.getResource(id));
+                        } catch (Exception e) {
+                            log.info("There was an attachment on submission {} that was invalid", as.getId());
+                            return null;
+                        }
+                    }).collect(Collectors.toList());
+
+                SecurityAdvisor securityAdvisor = (String userId, String function, String reference) -> {
+
+                    if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                    } else {
+                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                    }
+                };
             }
             this.submitters
                 = as.getSubmitters().stream().map(ass -> {
@@ -1317,7 +1344,16 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.feedbackText = as.getFeedbackText();
             this.feedbackComment = as.getFeedbackComment();
             this.privateNotes = as.getPrivateNotes();
-            this.feedbackAttachments = as.getFeedbackAttachments();
+            this.feedbackAttachments = as.getFeedbackAttachments().stream().map(ref -> {
+
+                    String id = entityManager.newReference(ref).getId();
+                    try {
+                        return new DecoratedAttachment(contentHostingService.getResource(id));
+                    } catch (Exception e) {
+                        log.info("There was a feeback attachment on submission {} that was invalid", as.getId());
+                        return null;
+                    }
+                }).collect(Collectors.toList());
             this.graded = as.getGraded();
             this.properties = as.getProperties();
         }
