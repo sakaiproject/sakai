@@ -2,7 +2,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -37,19 +37,19 @@
       </div>
       <div class="indnt1">
           <p class="instruction"> 
-            <h:outputText value="#{msgs.options_directions1}" />
+            <h:outputText value="#{msgs.options_directions1} " />
  	          <h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
                   onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');">
 	          	   <h:outputText value="#{msgs.podcatcher}" />
 	          </h:outputLink>
-	          <h:outputText value="," />
+	          <h:outputText value=", " />
 
- 	        <h:outputText value="#{msgs.options_directions2}" />
+ 	        <h:outputText value="#{msgs.options_directions2} " />
  			<h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
                   onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');">
 	          	   <h:outputText value="#{msgs.podcatcher}" />
 	        </h:outputLink>
-	        <h:outputText value="," />
+	        <h:outputText value=", " />
 
  	        <h:outputText value="#{msgs.options_directions3}" />
           </p>
@@ -66,7 +66,7 @@
 
       <tr>
         <td class="indnt1">
-          <h:selectOneRadio value="#{podOptions.podOption}" layout="pageDirection">
+          <h:selectOneRadio value="#{podOptions.podOption}" layout="pageDirection" styleClass="addRadioLabelPadding">
             <f:selectItems value="#{podOptions.displayItems}" />
           </h:selectOneRadio>
         </td>
@@ -74,9 +74,9 @@
   </table>
   
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{podOptions.processOptionChange}" value="#{msgs.change_submit}"
+      <h:commandButton action="#{podOptions.processOptionChange}" value="#{msgs.change_submit}"
             accesskey="s" title="Save Podcast Display Options" styleClass="active"/>
-      <sakai:button_bar_item action="#{podOptions.processOptionCancel}" value="#{msgs.cancel}" 
+      <h:commandButton action="#{podOptions.processOptionCancel}" value="#{msgs.cancel}"
             accesskey="x" title="Cancel Podcast Display Options" />
     </sakai:button_bar>
   </h:form>
