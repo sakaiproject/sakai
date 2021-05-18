@@ -365,9 +365,8 @@ $Id$
   <h:panelGroup styleClass="form-inline" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
 
       <h:panelGroup styleClass="form-group" rendered="#{questionScores.typeId == '6'}" layout="block">
-        <h:outputText value="&nbsp;#{evaluationMessages.separator}&nbsp;&nbsp;" style="color: #999999;" escape="false"/>
-        <h:outputLink title="#{evaluationMessages.t_fileUpload}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
-            <h:graphicImage url="/images/DownloadButton12px.png"/>
+        <h:outputLink styleClass="btn btn-default" title="#{evaluationMessages.download_responses}"  value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+          <h:outputText value="#{evaluationMessages.download_responses}"/>
         </h:outputLink>
       </h:panelGroup>
       
@@ -432,8 +431,8 @@ $Id$
       <h:outputText value="&nbsp;#{evaluationMessages.separator}&nbsp;&nbsp;" style="color: #999999;" rendered="#{questionScores.typeId == '6'}" escape="false"/>
       <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>
         
-      <h:outputLink title="#{evaluationMessages.t_fileUpload}" rendered="#{questionScores.typeId == '6'}" value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
-		<h:graphicImage url="/images/DownloadButton12px.png"/>
+      <h:outputLink styleClass="btn btn-default" title="#{evaluationMessages.t_fileUpload}" rendered="#{questionScores.typeId == '6'}" value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+        <h:outputText value="#{evaluationMessages.download_responses}"/>
       </h:outputLink>   
       <h:outputText value="&nbsp;" rendered="#{questionScores.typeId != '6'}" escape="false"/>  
      
