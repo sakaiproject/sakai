@@ -216,7 +216,7 @@
 					</h:dataTable>
 
                     <h:outputLink id="addEmiAnswerOptionsLink" value="#" styleClass="iconAdd" rendered="#{author.isEditPendingAssessmentFlow}">
-						<h:outputLabel foraddEmiAnswerOptionsSelect value="#{authorMessages.add_more_options}" />
+						<h:outputLabel for="addEmiAnswerOptionsSelect" value="#{authorMessages.add_more_options}" />
 					</h:outputLink>
 					<h:selectOneMenu id="addEmiAnswerOptionsSelect" value="1" rendered="#{author.isEditPendingAssessmentFlow}">
 						<f:selectItem itemLabel="1" itemValue="1" />
@@ -341,7 +341,7 @@
 						onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=leadin#leadin','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 						onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=leadin#leadin','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 					<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
-				</h:outputLabel>
+				</h:outputLink>
 			</h3>
 			<!-- WYSIWYG -->
 			<h:panelGrid>
@@ -359,7 +359,7 @@
 							onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=items#items','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
 							onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=items#items','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
-					</h:outputLabel>
+					</h:outputLink>
 				</h3>
 				<f:verbatim>
 					<br />
