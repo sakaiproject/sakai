@@ -113,7 +113,7 @@
 		vertical-align: baseline;
 	}
 
-	.column a[href]{
+	.column a[href]:not(.usebutton) {
 		color: var(--link-color);
 	}
 	//legacy gray
@@ -271,14 +271,10 @@
 	@include sakaiLessonsLayoutColorScheme('--sakai-color-teal', 'lighter', 'teal');
 	@include sakaiLessonsLayoutColorScheme('--sakai-color-purple', 'lighter', 'purple');
 
-	@include defineColorHSL(--sakai-lessons-navy, 211, 21%, 33%);
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
 
-	@include defineColorHSL(--sakai-lessons-rudy, 5, 63%, 41%);
-	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-rudy', 'lighter', 'rudy' );
-
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnrudy-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
+	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-tran,
 	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
 		border-color: transparent;
 		box-shadow: none;
