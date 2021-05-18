@@ -676,7 +676,6 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 }
 
 .jsfFormTable td .shorttext .syllabusLabel{
-	width: 17em;
 	display: inline-block;
 }
 
