@@ -250,7 +250,7 @@
 						#end
                     </table>
 				#end
-                <div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
+                <div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;">
 					#if ($size==0)
 						#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
 						#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))

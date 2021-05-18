@@ -44,15 +44,15 @@
 	                </p>
 					
 					#if($client)
-						<div class="highlightPanel" style="width:30%;float:left;background:#ffe">
+						<div class="highlightPanel" style="width:30%;float:left;">
 							<p class="instruction">$tlang.getString("savecite.button.add_more")</p>
 							<button type="button" onclick="history.back();">${client.return_label}</button>
 						</div>
-						<div class="highlightPanel" style="width:30%;float:center;background:#ffe">
+						<div class="highlightPanel" style="width:30%;float:center;">
 							<p class="instruction">$tlang.getString("savecite.button.done")</p>
 							<button type="button" onclick="window.close();">${client.close_label}</button>
 						</div>
-						<div class="highlightPanel" style="width:30%;float:right;background:#ffe">
+						<div class="highlightPanel" style="width:30%;float:right;">
 							<p class="instruction">$tlang.getString("savecite.button.cancel")</p>
 							<button type="button" id="removeAllCitations">$tlang.getString("savecite.cancel")</button>
 						</div>
