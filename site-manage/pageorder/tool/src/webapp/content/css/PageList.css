@@ -1,5 +1,5 @@
 .headerAlignment {
-	text-align: center ! important;
+	text-align: center !important;
 }
 ul.not_sortabl
 {
@@ -23,7 +23,7 @@ ul.sortable li
 .fl-reorderer-avatar .tool-icon,
 ul.sortable li .tool-icon
 {
-	color: rgb(69, 69, 69);
+	color: var(--sakai-text-color-1);
 	padding-right: 4px;
 	line-height: 1em;
 	display: inline-block;
@@ -32,18 +32,18 @@ li.sortable_item
 {
 	margin: 5px 0;
 	padding: 5px 0 5px 5px;
-	border: 1px solid #cecece;
-	background-color: #f8f8f8;
+	border: 1px solid var(--sakai-border-color);
+	background-color: var(--sakai-background-color-2);
 }
 li.sortable_item:hover
 {
-	background-color: #f3f3f3;
+	background-color: var(--sakai-background-color-3);
 }
 li.sortable_item:before
 {
 	font-family: 'Glyphicons Halflings';
 	content: "\e236";
-	color: #DDD;
+	color: var(--sakai-text-color-2);
 	margin: 0 6px 0 2px;
 	font-size: 0.8em;
 }
@@ -52,29 +52,27 @@ li.editable_item
 	width: 100%;
 	margin: 2px;
 	padding: 4px;
-	border: 3px solid #43a7c8;
+	border: 3px solid var(--focus-outline-color);
 }
 li.sortable_active
 {
 	width: 100%;
 	margin: 2px;
 	padding: 4px;
-	border: 1px solid #666;
-	background-color: #ddd;
+	border: 1px solid var(--sakai-active-color-3);
+	background-color: var(--sakai-active-color-1);
 }
 li.sortable_hover
 {
 	width: 100%;
 	margin: 2px;
 	padding: 4px;
-	border: 1px solid #666;
-	opacity: .2;
-	filter: alpha(opacity=20);
+	background-color: var(--sakai-background-color-3);
 }
 .sort_helper
 {
 	list-style: none;
-	border: 1px dotted #ccc;
+	border: 1px dotted var(--sakai-border-color);
 }
 .item_control_box.dropdown
 {	
@@ -86,25 +84,26 @@ li.sortable_hover
 {
 	display: block;
 	padding: 5px 10px;
-	border-left: 1px solid transparent;
-	color: rgb(69, 69, 69);
+	border: 1px solid transparent;
+	color: var(--sakai-text-color-1);
 }
 .item_control_box.dropdown.open > a,
 .item_control_box.dropdown > a:hover
 {
-	background-color: #e4e4e4;
-	border-left-color: #bababa;
+	background-color: var(--button-hover-background);
+	border-color: var(--button-hover-border-color);
 }
 .item_control.del-link
 {
-	color: #ce1a00;
+	color: var(--errorBanner-color);
+	background: var(--errorBanner-bgcolor);
 }
 .item_flags_box
 {
 	float: right;
 	margin-right: 35px;
 	margin-top: 2px;
-	color: #aaaaaa;
+	color: var(--sakai-text-color-1);
 }
 .item_flags_box .glyphicon
 {
@@ -130,20 +129,23 @@ li.sortable_hover
 .option_list
 {
 	padding: 10px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--sakai-border-color);
 }
 #list-label
 {
 	padding: 10px;
 	display: none;
-	border: 1px solid #ccc;
-	background-color: #9F9;
+	border: 1px solid var(--successBanner-bordercolor);
+	background-color: var(--successBanner-bgcolor);
+	color: var(--successBanner-color);
 }
 #option-label
 {
 	padding: 10px;
-	border: 1px solid #ccc;
-	background-color: #99F;
+	border: 1px solid var(--infoBanner-bordercolor);
+	background-color: var(--inforBanner-bgcolor);
+	color: var(--infoBanner-color);
+
 }
 #page-list{
 	width: 100%;
@@ -156,7 +158,7 @@ li.sortable_hover
 }
 .fl-reorderer-avatar
 {
-	background-color: #ccc !important;
+	background-color: var(--sakai-background-color-4) !important;
 }
 .alertMessageContainer {
 	min-height: 60px;
@@ -165,7 +167,7 @@ li.sortable_hover
 {
 	margin-top: 10px;
 	padding: 10px;
-	border-top: 1px dotted #DDD;
+	border-top: 1px dotted var(--sakai-border-color);
 }
 .item_edit_box label
 {
