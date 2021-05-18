@@ -183,4 +183,5 @@ $theme-color-interval: 9 !default;
   @include defineColorHSL(--sakai-color-orange, 30, 93%, 44%);
   @include defineColorHSL(--sakai-color-purple, 240, 94%, 63%);
   @include defineColorHSL(--sakai-color-red, 357, 100%, 40%);
+  @include defineColorHSL(--sakai-lessons-navy, 211, 21%, 33%);
 }
