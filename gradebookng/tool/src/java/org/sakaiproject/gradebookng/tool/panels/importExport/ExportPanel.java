@@ -472,7 +472,7 @@ public class ExportPanel extends BasePanel {
 						line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
 					}
 					if (isCustomExport && this.includeCalculatedGrade) {
-						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
+						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getAutoCalculatedGrade()));
 					}
 					if (isCustomExport && this.includeCourseGrade) {
 						line.add(courseGrade.getMappedGrade());

@@ -847,7 +847,7 @@ public interface GradebookService {
 	 * @param studentUuid uuid of the student
 	 * @param grade the new course grade
 	 */
-	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade);
+	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade, String gradeScale);
 
 	/**
 	 * Updates the categorized order of an assignment

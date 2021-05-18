@@ -3201,25 +3201,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 					// calculated grade
 					// may be null if no grade entries to calculate
-					Double calculatedGrade = gr.getAutoCalculatedGrade();
+					Double calculatedGrade = gr.getPointsEarned() != null ? gr.getPointsEarned() : gr.getAutoCalculatedGrade();
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
+					}
 
-						// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
-						// grade mapping
-						BigDecimal bd = new BigDecimal(calculatedGrade)
+					Double autoCalculatedGrade = gr.getAutoCalculatedGrade();
+					// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
+					// grade mapping
+					if (autoCalculatedGrade != null) {
+						cg.setAutoCalculatedGrade(autoCalculatedGrade.toString());
+
+						BigDecimal bd = new BigDecimal(autoCalculatedGrade)
 								.setScale(10, RoundingMode.HALF_UP)
 								.setScale(2, RoundingMode.HALF_UP);
-						calculatedGrade = bd.doubleValue();
+						autoCalculatedGrade = bd.doubleValue();
 					}
 
 					// mapped grade
-					final String mappedGrade = GradeMapping.getMappedGrade(sortedGradeMap, calculatedGrade);
-					log.debug("calculatedGrade: {} -> mappedGrade: {}", calculatedGrade, mappedGrade);
+					final String mappedGrade = GradeMapping.getMappedGrade(sortedGradeMap, autoCalculatedGrade);
+					log.debug("calculatedGrade: {} -> mappedGrade: {}", autoCalculatedGrade, mappedGrade);
 					cg.setMappedGrade(mappedGrade);
 
 					// points
-					cg.setPointsEarned(gr.getPointsEarned()); // synonymous with gradeRecord.getCalculatedPointsEarned()
+					cg.setPointsEarned(gr.getPointsEarned() != null ? (gr.getPointsEarned() * gr.getTotalPointsPossible()) / 100 : gr.getCalculatedPointsEarned()); // synonymous with gradeRecord.getCalculatedPointsEarned()
 					cg.setTotalPointsPossible(gr.getTotalPointsPossible());
 
 				}
@@ -3436,7 +3441,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade) {
+	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade, final String gradeScale) {
 
 		// must be instructor type person
 		if (!currentUserHasEditPerm(gradebookUid)) {
@@ -3448,6 +3453,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Gradebook gradebook = getGradebook(gradebookUid);
 		if (gradebook == null) {
 			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
+		}
+
+		LetterGradePercentMapping mapping = null;
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+			mapping = getLetterGradePercentMapping(gradebook);
 		}
 
 		// get course grade for the student
@@ -3468,13 +3478,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		} else {
 			// if passed in grade override is same as existing grade override, nothing to do
-			if (StringUtils.equals(courseGradeRecord.getEnteredGrade(), grade)) {
+			Double cGrade = convertInputGradeToPoints(gradebook.getGrade_type(), mapping, courseGradeRecord.getTotalPointsPossible(), grade);
+			if (courseGradeRecord.getPointsEarned() != null && cGrade != null && StringUtils.equals(courseGradeRecord.getPointsEarned().toString(), cGrade.toString())) {
 				return;
 			}
 		}
 
 		// set the grade override
-		courseGradeRecord.setEnteredGrade(grade);
+		courseGradeRecord.setEnteredGrade(gradeScale);
+		final Double convertedGrade = convertInputGradeToPoints(gradebook.getGrade_type(), mapping, courseGradeRecord.getTotalPointsPossible(), grade);
+		courseGradeRecord.setPointsEarned(convertedGrade);
 		// record the last grade override date
 		courseGradeRecord.setDateRecorded(new Date());
 

@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.gradebookng.business;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,14 +45,18 @@ public class TestGradebookNgBusinessService {
 		double d = 89.4455D;
 		String s = "89.4455";
 
+		double de = 89.45;
+		NumberFormat nf = NumberFormat.getInstance(Locale.getDefault());
+		String roundedExcepted = nf.format(de);
+
 		String rounded = FormatHelper.formatGradeForDisplay(d);
-		Assert.assertEquals(rounded, "89.45");
+		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatGradeForDisplay(s);
-		Assert.assertEquals(rounded, "89.45");
+		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatStringAsPercentage(s);
-		Assert.assertEquals(rounded, "89.45%");
+		Assert.assertEquals(rounded, roundedExcepted+"%");
 	}
 	
 	@Test
@@ -57,14 +64,18 @@ public class TestGradebookNgBusinessService {
 		double d = 89.4449D;
 		String s = "89.4449";
 
+		double de = 89.44;
+		NumberFormat nf = NumberFormat.getInstance(Locale.getDefault());
+		String roundedExcepted = nf.format(de);
+
 		String rounded = FormatHelper.formatGradeForDisplay(d);
-		Assert.assertEquals(rounded, "89.44");
+		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatGradeForDisplay(s);
-		Assert.assertEquals(rounded, "89.44");
+		Assert.assertEquals(rounded, roundedExcepted);
 
 		rounded = FormatHelper.formatStringAsPercentage(s);
-		Assert.assertEquals(rounded, "89.44%");
+		Assert.assertEquals(rounded, roundedExcepted+"%");
 	}
 
 	@Test
@@ -81,4 +92,5 @@ public class TestGradebookNgBusinessService {
 		rounded = FormatHelper.formatStringAsPercentage(s);
 		Assert.assertEquals(rounded, "89%");
 	}
+
 }
