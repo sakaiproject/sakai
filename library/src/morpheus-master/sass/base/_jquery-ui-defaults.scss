@@ -268,12 +268,12 @@
     }
   
     .ui-state-default.ui-slider-handle {
-        background: var(--button-primary-background);
-        border: var(--button-primary-border-color);
+        background: var(--button-text-color);
+        border: var(--button-text-color);
     }
 
     .ui-widget.ui-slider {
-        border: 1px solid var(--sakai-background-color-3);
-        background: var(--sakai-background-color-3);
+        border: 1px solid var(--button-background);
+        background: var(--button-background);
     }
 }
