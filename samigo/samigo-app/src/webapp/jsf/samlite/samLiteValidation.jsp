@@ -98,13 +98,8 @@
 						<h:dataTable value="#{question.answers}" var="answer"
 							rendered="#{question.questionType == 10}">
 							<h:column>
-								<h:graphicImage id="image1" rendered="#{answer.correct}"
-									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
-								</h:graphicImage>
-								<h:graphicImage id="image2" rendered="#{!answer.correct}"
-									alt="#{samLiteMessages.not_correct}"
-									url="/images/unchecked.gif">
-								</h:graphicImage>
+								<h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+								<h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
 								<h:outputText value="#{answer.id}. #{answer.text}"
 									escape="false" />
 							</h:column>
@@ -112,13 +107,8 @@
 						<h:dataTable value="#{question.answers}" var="answer"
 							rendered="#{question.questionType == 15}">
 							<h:column>
-								<h:graphicImage id="image1" rendered="#{answer.correct}"
-									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
-								</h:graphicImage>
-								<h:graphicImage id="image2" rendered="#{!answer.correct}"
-									alt="#{samLiteMessages.not_correct}"
-									url="/images/unchecked.gif">
-								</h:graphicImage>
+								<h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+								<h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
 								<h:outputText value="#{answer.id}. #{answer.text}" />
 							</h:column>
 						</h:dataTable>
@@ -127,13 +117,8 @@
 						<h:dataTable value="#{question.answers}" var="answer"
 							rendered="#{question.questionType == 30}">
 							<h:column>
-								<h:graphicImage id="image1" rendered="#{answer.correct}"
-									alt="#{samLiteMessages.correct}" url="/images/checked.gif">
-								</h:graphicImage>
-								<h:graphicImage id="image2" rendered="#{!answer.correct}"
-									alt="#{samLiteMessages.not_correct}"
-									url="/images/unchecked.gif">
-								</h:graphicImage>
+								<h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+								<h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
 								<h:outputText value="#{answer.text}" />
 							</h:column>
 						</h:dataTable>
