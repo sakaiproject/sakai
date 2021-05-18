@@ -39,8 +39,8 @@ should be included in file importing DeliveryMessages
 
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
            && delivery.actionString!='gradeAssessment'}">
-	<samigo:wysiwyg rows="140" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">
-	    <f:validateLength maximum="32000"/>
+	<samigo:wysiwyg rows="140" value="#{question.responseText}" hasToggle="yes" maxCharCount="500000">
+	    <f:validateLength maximum="500000"/>
 	</samigo:wysiwyg>
 </h:panelGrid>
 

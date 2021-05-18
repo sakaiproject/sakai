@@ -66,7 +66,7 @@ public class SaCharCountListener implements ActionListener
 									int saCharCount = processedAnswerText.length();
 									String formattedCount = String.format("%,d\n",saCharCount);
 									item.setSaCharCount(formattedCount);
-									if (saCharCount > 32000) {
+									if (saCharCount > 500000) {
 										item.setIsInvalidSALengthInput(true);
 									}
 									else {

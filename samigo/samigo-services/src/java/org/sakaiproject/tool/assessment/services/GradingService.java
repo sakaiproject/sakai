@@ -1010,7 +1010,7 @@ public class GradingService
 
         if (itemType == 5 && itemGrading.getAnswerText() != null) {
         	String processedAnswerText = itemGrading.getAnswerText().replaceAll("\r", "").replaceAll("\n", "");
-        	if (processedAnswerText.length() > 32000) {
+        	if (processedAnswerText.length() > 500000) {
         		if (invalidSALengthList != null) {
         			invalidSALengthList.add(item.getItemId());
         		}

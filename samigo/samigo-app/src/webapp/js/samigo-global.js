@@ -34,7 +34,7 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id, max_char
 
 	config = ''
 	if (max_chars) {
-		config = {wordcount: {'maxCharCount' : 32000}}
+		config = {wordcount: {'maxCharCount' : 500000}}
 	}
 	sakai.editor.launch(textarea_id, config,'450','240');
 	//setMainFrameHeight(frame_id);
