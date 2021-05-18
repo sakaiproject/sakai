@@ -35,6 +35,7 @@
 		</subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGradeRecord" discriminator-value="2">
+			<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
 			<property name="enteredGrade" column="ENTERED_GRADE" type="string" not-null="false" />
 		</subclass>
 
