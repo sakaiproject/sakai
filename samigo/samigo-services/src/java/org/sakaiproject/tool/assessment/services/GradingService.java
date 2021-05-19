@@ -55,7 +55,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
-import org.mariuszgromada.math.mxparser.parsertokens.Operator;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;

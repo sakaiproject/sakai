@@ -86,7 +86,6 @@ public class SamigoExpressionParser
       }
       catch (NumberFormatException nfe) {
           String errorMessage = e != null ? e.getErrorMessage() : expr;
-          System.out.println(expr);
           throw new SamigoExpressionError(401, errorMessage);
       }
 
