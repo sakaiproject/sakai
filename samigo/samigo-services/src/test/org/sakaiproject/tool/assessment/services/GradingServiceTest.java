@@ -517,7 +517,7 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue(formula, 1);
         Assert.assertEquals("3628802.5", result);
 
-        // This is legacy from old, customer parser
+        // This is legacy from old, custom parser
         formula = "FACTORIAL(4)";
         result = gradingService.processFormulaIntoValue(formula, 1);
         Assert.assertEquals("24", result);
