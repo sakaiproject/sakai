@@ -35,6 +35,10 @@ public class SamigoExpressionParser
   public static String[] oldSamigoParserVars = {"SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ABS", "EXP", "SGN", "SQRT", "LOG10", "LN", "PI", "E", "SIGN", "LOG", "log"};
   public static String[] newSamigoParserVars = {"sin", "cos", "tan", "asin", "acos", "atan", "abs", "exp", "sgn", "sqrt", "log10", "ln", "pi", "e", "sgn",  "ln",  "ln"};
 
+  // Special case for factorial replacement
+  public static String OLD_FACTORIAL_PATTERN = "(?i)factorial\\((\\d+)\\)";
+  public static String NEW_FACTORIAL_PATTERN = "prod(i, 1, $1, i)";
+
   /**
    * finalructor.
    * Initializes all data with zeros and empty strings
@@ -69,6 +73,9 @@ public class SamigoExpressionParser
     	  expr = expr.replaceAll("\\b" + oldSamigoParserVars[i] + "\\b", newSamigoParserVars[i]);
       }
 
+      // Also look for the factorial pattern
+      expr = expr.replaceAll(OLD_FACTORIAL_PATTERN, NEW_FACTORIAL_PATTERN);
+
       ans = BigDecimal.valueOf(0.0);
 
       Expression e = null;
@@ -79,6 +86,7 @@ public class SamigoExpressionParser
       }
       catch (NumberFormatException nfe) {
           String errorMessage = e != null ? e.getErrorMessage() : expr;
+          System.out.println(expr);
           throw new SamigoExpressionError(401, errorMessage);
       }
 
