@@ -523,6 +523,13 @@ public class GradingServiceTest {
         Assert.assertEquals("24", result);
     }
 
+    @Test(expected = SamigoExpressionError.class)
+    public void testNegativeFactorial() throws Exception {
+        // Negative factorial is NaN
+        String formula = "10/5 - (-5!)";
+        String result = gradingService.processFormulaIntoValue(formula, 1);
+    }
+
     @Test
     public void testReplaceMappedVariablesWithNumbers() throws Exception {
         String input = null;
@@ -617,6 +624,16 @@ public class GradingServiceTest {
 
         formulaResult = gradingService.processFormulaIntoValue(result, 1);
         Assert.assertEquals("14", formulaResult);
+
+        // Test exponent
+        input = "{x}^{y}";
+        expected = "4^(-10)";
+
+        result = gradingService.replaceMappedVariablesWithNumbers(input, map);
+        Assert.assertEquals(expected, result);
+
+        formulaResult = gradingService.processFormulaIntoValue(result, 1);
+        Assert.assertEquals("9.5E-7", formulaResult);
     }
 
     @Test
