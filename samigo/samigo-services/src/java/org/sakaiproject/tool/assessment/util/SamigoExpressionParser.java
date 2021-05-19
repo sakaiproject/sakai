@@ -37,7 +37,7 @@ public class SamigoExpressionParser
 
   // Special case for factorial replacement
   public static String OLD_FACTORIAL_PATTERN = "(?i)factorial\\((\\d+)\\)";
-  public static String NEW_FACTORIAL_PATTERN = "prod(i, 1, $1, i)";
+  public static String NEW_FACTORIAL_PATTERN = "($1!)";
 
   /**
    * finalructor.
