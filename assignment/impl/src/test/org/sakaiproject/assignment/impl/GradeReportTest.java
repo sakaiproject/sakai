@@ -20,7 +20,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -30,12 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.impl.GradeSheetExporter;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -49,7 +46,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -102,6 +98,7 @@ public class GradeReportTest {
         assOne = new Assignment();
         assOne.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
         assOne.setScaleFactor(1);
+        assOne.setMaxGradePoint(10);
         assOne.setTitle("Assignment One");
         assOne.setDraft(false);
         assOne.setId("one");
@@ -111,6 +108,7 @@ public class GradeReportTest {
 
         assTwo = new Assignment();
         assTwo.setScaleFactor(1);
+        assTwo.setMaxGradePoint(10);
         assTwo.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);
         assTwo.setTitle("Assignment Two");
         assTwo.setDraft(false);
@@ -156,7 +154,8 @@ public class GradeReportTest {
 
         Assert.assertEquals("There should be 6 rows when there are no submissions.", 6, sheet.getPhysicalNumberOfRows());
 
-        Assert.assertEquals("There should be 8 columns in the header row, with two assignments", 8, sheet.getRow(5).getPhysicalNumberOfCells());
+        //Name,User Id,Assignment,Grade,Scale,Submitted,Late
+        Assert.assertEquals("There should be 7 columns in the header row, with two assignments", 7, sheet.getRow(5).getPhysicalNumberOfCells());
     }
 
     @Test
@@ -208,11 +207,12 @@ public class GradeReportTest {
 
         Sheet sheet = optionalWorkbook.get().getSheetAt(0);
 
-        Assert.assertEquals("There should be 7 rows when there is one submission.", 7, sheet.getPhysicalNumberOfRows());
+        Assert.assertEquals("There should be 8 rows when there is one submission.", 8, sheet.getPhysicalNumberOfRows());
 
         Row submissionRow = sheet.getRow(6);
 
-        Assert.assertEquals("There should be 8 columns in the submission row, with two assignments", 8, submissionRow.getPhysicalNumberOfCells());
+        //Name,User Id,Assignment,Grade,Scale,Submitted,Late
+        Assert.assertEquals("There should be 7 columns in the submission row, with two assignments", 7, submissionRow.getPhysicalNumberOfCells());
 
         Cell cell = submissionRow.getCell(0);
         Assert.assertEquals(userSortName, cell.getStringCellValue());
@@ -221,24 +221,27 @@ public class GradeReportTest {
         Assert.assertEquals(userDisplayId, cell.getStringCellValue());
 
         cell = submissionRow.getCell(2);
-        Assert.assertEquals(user1SubOne.getGrade(), cell.getStringCellValue());
+        Assert.assertEquals(assOne.getTitle(), cell.getStringCellValue());
 
         cell = submissionRow.getCell(3);
+        Assert.assertEquals(user1SubOne.getGrade(), cell.getStringCellValue());
+
+        cell = submissionRow.getCell(5);
         Assert.assertEquals(Date.from(user1SubOne.getDateSubmitted()), cell.getDateCellValue());
 
-        cell = submissionRow.getCell(4);
-        Assert.assertEquals(false, cell.getBooleanCellValue());
-
-        // This cell is for a no submission, so it should contain "No Submission"
-        cell = submissionRow.getCell(5);
-        Assert.assertEquals(noSub, cell.getStringCellValue());
-
-        // This cell is for a no submission, so it should be zero.
         cell = submissionRow.getCell(6);
-        Assert.assertEquals(0D, cell.getNumericCellValue(), 0D);
-
-        // This cell is for a no submission, so it should be false.
-        cell = submissionRow.getCell(7);
         Assert.assertEquals(false, cell.getBooleanCellValue());
+
+        submissionRow = sheet.getRow(7);
+
+        cell = submissionRow.getCell(0);
+        Assert.assertEquals(userSortName, cell.getStringCellValue());
+
+        cell = submissionRow.getCell(1);
+        Assert.assertEquals(userDisplayId, cell.getStringCellValue());
+
+        cell = submissionRow.getCell(2);
+        Assert.assertEquals(assTwo.getTitle(), cell.getStringCellValue());
+
     }
 }
