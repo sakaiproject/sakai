@@ -483,7 +483,6 @@ public class GradingServiceTest {
     public void testBadFunctionResultsInException() throws SamigoExpressionError {
         String formula = "[phil] * 3"; // mis-spelled the golden ratio formula [phi]
         gradingService.processFormulaIntoValue(formula, 1);
-
     }
 
     @Test
@@ -491,6 +490,31 @@ public class GradingServiceTest {
         String formula = "(185.9*1000*3.8/1200)/(1-1/(1+3.8/1200)^360)";
         String result = gradingService.processFormulaIntoValue(formula, 1);
         Assert.assertEquals("866.2", result);
+    }
+
+    @Test
+    public void testFactorial() throws Exception {
+        // This is the way a traditional mxParser factorial is written
+        String formula = "10/5-(5!)";
+        String result = gradingService.processFormulaIntoValue(formula, 1);
+        Assert.assertEquals("-118", result);
+
+        // This will replace the factorial with an iterated operator
+        formula = "10/5 + factorial(10) + 3/6";
+        result = gradingService.processFormulaIntoValue(formula, 1);
+        Assert.assertEquals("3628802.5", result);
+
+        // This is legacy from old, custom parser
+        formula = "FACTORIAL(4)";
+        result = gradingService.processFormulaIntoValue(formula, 1);
+        Assert.assertEquals("24", result);
+    }
+
+    @Test(expected = SamigoExpressionError.class)
+    public void testNegativeFactorial() throws Exception {
+        // Negative factorial is NaN
+        String formula = "10/5 - (-5!)";
+        String result = gradingService.processFormulaIntoValue(formula, 1);
     }
 
     @Test
@@ -534,6 +558,7 @@ public class GradingServiceTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(expected2, result);
 
+        // HTML test
         input = "<p> SAMPLE 1 for testing:<br /> {A} + {B} = {{answer1}}<br /> {B} + {C} = {{answer2}}<br /> {C} + {D} = {{answer3}}<br /> Total: [[{A} +   {B} + {C} + {D}]]</p>";
         expected = "<p> SAMPLE 1 for testing:<br /> 1 + 2 = {{answer1}}<br /> 2 + 3 = {{answer2}}<br /> 3 + 4 = {{answer3}}<br /> Total: [[1 +   2 + 3 + 4]]</p>";
         expected2 = "<p> SAMPLE 1 for testing:<br /> 1 + 2 = {{answer1}}<br /> 2 + 3 = {{answer2}}<br /> 3 + 4 = {{answer3}}<br /> Total: 10</p>";
@@ -549,7 +574,53 @@ public class GradingServiceTest {
         result = gradingService.replaceCalculationsWithValues(expected, 2);
         Assert.assertNotNull(result);
         Assert.assertEquals(expected2, result);
+    }
 
+    @Test
+    public void testNegativeReplacementValuesInQuestionText() throws SamigoExpressionError {
+
+        // Parentheses are sometimes needed to avoid confusion
+        String input = "{x} + {y}";
+        String expected = "4 + (-10)";
+        Map<String, String> map = new HashMap<String, String>() {{
+            put("x", "4");
+            put("y", "-10");
+        }};
+        String result = gradingService.replaceMappedVariablesWithNumbers(input, map);
+        Assert.assertEquals(expected, result);
+
+        String formulaResult = gradingService.processFormulaIntoValue(result, 1);
+        Assert.assertEquals("-6", formulaResult);
+
+        // Parentheses are sometimes needed to avoid confusion
+        input = "{x} - {y}";
+        expected = "4 - (-10)";
+
+        result = gradingService.replaceMappedVariablesWithNumbers(input, map);
+        Assert.assertEquals(expected, result);
+
+        formulaResult = gradingService.processFormulaIntoValue(result, 1);
+        Assert.assertEquals("14", formulaResult);
+
+        // No spaces but should have same result
+        input = "{x}-{y}";
+        expected = "4-(-10)";
+
+        result = gradingService.replaceMappedVariablesWithNumbers(input, map);
+        Assert.assertEquals(expected, result);
+
+        formulaResult = gradingService.processFormulaIntoValue(result, 1);
+        Assert.assertEquals("14", formulaResult);
+
+        // Test exponent
+        input = "{x}^{y}";
+        expected = "4^(-10)";
+
+        result = gradingService.replaceMappedVariablesWithNumbers(input, map);
+        Assert.assertEquals(expected, result);
+
+        formulaResult = gradingService.processFormulaIntoValue(result, 1);
+        Assert.assertEquals("9.5E-7", formulaResult);
     }
 
     @Test

@@ -55,6 +55,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
+import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -3172,6 +3173,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               String suffix = expression.substring(index + name.length());
 
               String replacementValue = value;
+
+              // If replacement is a negative number, wrap in parentheses to avoid confused operations
+              // For example, 3 {y} with -10 should be 3*-10= -30 not 3 -10 = -7
+              if (value.charAt(0) == '-' && Character.isDigit(value.charAt(1))) {
+                  replacementValue = ParserSymbol.LEFT_PARENTHESES_STR + value + ParserSymbol.RIGHT_PARENTHESES_STR;
+              }
+
               // if last character of prefix is a number or the edge of parenthesis, multiply by the variable
               // if x = 37, 5{x} -> 5*37
               // if x = 37 (5+2){x} -> (5+2)*37 (prefix is (5+2)
