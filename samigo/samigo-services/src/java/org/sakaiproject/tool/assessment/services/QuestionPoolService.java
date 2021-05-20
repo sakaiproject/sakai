@@ -31,6 +31,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -58,13 +59,9 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   /**
    * Get all pools from the back end.
    */
-  public List getAllPools()
+  public List<QuestionPoolData> getAllPools()
   {
-    List results = null;
-      results =
-        (List) PersistenceService.getInstance().
-           getQuestionPoolFacadeQueries().getAllPools();
-    return results;
+    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllPools();
   }
 
   /**

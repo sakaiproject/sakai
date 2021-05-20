@@ -87,8 +87,8 @@ public class QuestionPoolFacadeQueries
    * Get a list of all the pools in the site. Note that questions in each pool will not
    * be populated. We must keep this list updated.
    */
-  public List getAllPools() {
-    return getHibernateTemplate().find("from QuestionPoolData");
+  public List<QuestionPoolData> getAllPools() {
+    return (List<QuestionPoolData>) getHibernateTemplate().find("from QuestionPoolData");
   }
 
 

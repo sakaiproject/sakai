@@ -21,8 +21,8 @@ import com.google.common.collect.ForwardingList;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.facet.terms.InternalTermsFacet;
 
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.*;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
@@ -59,9 +59,9 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
         int i=0;
         for (SearchHit hit : highlightedResponse.getHits()) {
-            InternalTermsFacet facet = null;
+            Terms facet = null;
             if (searchIndexBuilder.getUseFacetting()){
-                facet = (InternalTermsFacet) highlightedResponse.getFacets().facet(facetName);
+                facet = highlightedResponse.getAggregations().get(facetName);
             }
             ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);
             result.setIndex(i++);

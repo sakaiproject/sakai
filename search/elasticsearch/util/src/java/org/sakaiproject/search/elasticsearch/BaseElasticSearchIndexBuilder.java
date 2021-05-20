@@ -16,17 +16,13 @@
 package org.sakaiproject.search.elasticsearch;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.index.query.FilterBuilders.missingFilter;
-import static org.elasticsearch.index.query.FilterBuilders.orFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -47,39 +43,45 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.elasticsearch.ElasticsearchParseException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
-import org.elasticsearch.action.admin.indices.status.IndexStatus;
-import org.elasticsearch.action.admin.indices.status.IndicesStatusRequest;
-import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Sets;
-import org.elasticsearch.common.lang3.ArrayUtils;
-import org.elasticsearch.common.lang3.tuple.ImmutablePair;
-import org.elasticsearch.common.lang3.tuple.Pair;
-import org.elasticsearch.common.settings.loader.JsonSettingsLoader;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentHelper;
+import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -132,7 +134,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     /**
      * ES Client, with access to any indexes in the cluster.
      */
-    protected Client client;
+    protected RestHighLevelClient client;
 
     /**
      * the ES indexname
@@ -273,7 +275,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, Client client) {
+    public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, RestHighLevelClient client) {
 
         if (!isEnabled()) {
             getLog().debug("ElasticSearch is not enabled. Skipping initialization of index builder ["
@@ -346,31 +348,32 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 getLog().error("Failed to load mapping config: " + ex.getMessage(), ex);
             }
         }
-        getLog().debug("ElasticSearch mapping will be configured as follows for index builder ["
-                + getName() + "]:" + mappingConfig);
+        getLog().debug("ElasticSearch mapping will be configured as follows for index builder [" + getName() + "]:" + mappingConfig);
         return mappingConfig;
     }
 
     protected Map<String,String> initializeElasticSearchIndexSettings(String injectedConfig) {
         String defaultConfig = injectedConfig;
-        if (org.apache.commons.lang3.StringUtils.isEmpty(injectedConfig)) {
+        if (StringUtils.isEmpty(injectedConfig)) {
             try {
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(getClass().getResourceAsStream(this.defaultIndexSettingsResource), writer, "UTF-8");
                 defaultConfig = writer.toString();
             } catch (Exception ex) {
-                getLog().error("Failed to load indexSettings config from ["+  this.defaultIndexSettingsResource
-                        + "] for index builder [" + getName() + "]", ex);
+                getLog().error("Failed to load indexSettings config from ["+ defaultIndexSettingsResource + "] for index builder [" + getName() + "]", ex);
             }
         }
 
-        JsonSettingsLoader loader = new JsonSettingsLoader();
-        Map<String, String> mergedConfig = null;
+        Map<String, String> mergedConfig;
 
         try {
-            mergedConfig = loader.load(defaultConfig);
-        } catch (IOException e) {
+            mergedConfig = XContentHelper.convertToMap(JsonXContent.jsonXContent, defaultConfig, false)
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, String::valueOf));
+        } catch (ElasticsearchParseException e) {
             getLog().error("Problem loading indexSettings for index builder [" + getName() + "]", e);
+            mergedConfig = new HashMap<>();
         }
 
         // Set these here so we don't have to do this string concatenation
@@ -394,8 +397,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         if (getLog().isDebugEnabled()) {
             for (Map.Entry<String,String> entry : mergedConfig.entrySet()) {
-                getLog().debug("Index property '" + entry.getKey() + "' set to: " + entry.getValue()
-                        + "' for index builder '" + getName() + "'");
+                getLog().debug("Index property '" + entry.getKey() + "' set to: " + entry.getValue() + "' for index builder '" + getName() + "'");
             }
         }
 
@@ -477,11 +479,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         SearchResponse response = findContentQueue();
 
-        SearchHit[] hits = response.getHits().hits();
-        List<NoContentException> noContentExceptions = new ArrayList();
+        SearchHit[] hits = response.getHits().getHits();
+        List<NoContentException> noContentExceptions = new ArrayList<>();
         getLog().debug(getPendingDocuments() + " pending docs for index builder [" + getName() + "]");
 
-        BulkRequestBuilder bulkRequest = newContentQueueBulkUpdateRequestBuilder();
+        BulkRequest bulkRequest = new BulkRequest();
 
         for (SearchHit hit : hits) {
 
@@ -493,7 +495,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 }
             } else {
                 executeBulkRequest(bulkRequest);
-                bulkRequest = newContentQueueBulkUpdateRequestBuilder();
+                bulkRequest = new BulkRequest();
             }
         }
 
@@ -518,7 +520,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     }
 
-    protected void processContentQueueEntry(SearchHit hit, BulkRequestBuilder bulkRequest) throws NoContentException {
+    protected void processContentQueueEntry(SearchHit hit, BulkRequest bulkRequest) throws NoContentException {
         String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE, hit);
         EntityContentProducer ecp = newEntityContentProducer(reference);
 
@@ -538,35 +540,36 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         }
     }
 
-    protected void executeBulkRequest(BulkRequestBuilder bulkRequest) {
-        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+    protected void executeBulkRequest(BulkRequest bulkRequest) {
+        BulkResponse bulkResponse = null;
+        try {
+            bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+        } catch (IOException ioe) {
+            getLog().warn("Error executing bulk operation, " + ioe);
+            return;
+        }
 
         getLog().info("Bulk request of batch size: " + bulkRequest.numberOfActions() + " took "
-                + bulkResponse.getTookInMillis() + " ms in index builder: " + getName());
+                + bulkResponse.getTook().getMillis() + " ms in index builder: " + getName());
 
         for (BulkItemResponse response : bulkResponse.getItems()) {
             if (response.getResponse() instanceof DeleteResponse) {
                 DeleteResponse deleteResponse = response.getResponse();
 
                 if (response.isFailed()) {
-                    getLog().error("Problem deleting doc: " + response.getId() + " in index builder: " + getName()
-                            + " error: " + response.getFailureMessage());
-                } else if (!deleteResponse.isFound()) {
-                    getLog().debug("ES could not find a doc with id: " + deleteResponse.getId()
-                            + " to delete in index builder: " + getName());
+                    getLog().error("Problem deleting doc: " + response.getId() + " in index builder: " + getName() + " error: " + response.getFailureMessage());
+                } else if (deleteResponse.status() == RestStatus.NOT_FOUND) {
+                    getLog().debug("ES could not find a doc with id: " + deleteResponse.getId() + " to delete in index builder: " + getName());
                 } else {
-                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder: "
-                            + getName());
+                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder: " + getName());
                 }
             } else if (response.getResponse() instanceof IndexResponse) {
                 IndexResponse indexResponse = response.getResponse();
 
                 if (response.isFailed()) {
-                    getLog().error("Problem updating content for doc: " + response.getId() + " in index builder: "
-                            + getName() + " error: " + response.getFailureMessage());
+                    getLog().error("Problem updating content for doc: " + response.getId() + " in index builder: " + getName() + " error: " + response.getFailureMessage());
                 } else {
-                    getLog().debug("ES indexed content for doc with id: " + indexResponse.getId()
-                            + " in index builder: " + getName());
+                    getLog().debug("ES indexed content for doc with id: " + indexResponse.getId() + " in index builder: " + getName());
                 }
             }
         }
@@ -579,41 +582,39 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         throw new NoContentException(hit.getId(), reference, null);
     }
 
-    protected BulkRequestBuilder newContentQueueBulkUpdateRequestBuilder() {
-        return client.prepareBulk();
-    }
-
     protected SearchResponse findContentQueue() {
-        SearchRequestBuilder searchRequestBuilder = prepareFindContentQueue();
-        return findContentQueueWithRequest(searchRequestBuilder);
+        SearchRequest searchRequest = prepareFindContentQueue();
+        return findContentQueueWithRequest(searchRequest);
     }
 
-    protected SearchRequestBuilder prepareFindContentQueue() {
-        SearchRequestBuilder searchRequestBuilder = newFindContentQueueRequestBuilder();
-        searchRequestBuilder = addFindContentQueueRequestParams(searchRequestBuilder);
-        searchRequestBuilder = completeFindContentQueueRequestBuilder(searchRequestBuilder);
-        return searchRequestBuilder;
+    protected SearchRequest prepareFindContentQueue() {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest = addFindContentQueueRequestParams(searchRequest);
+        searchRequest = completeFindContentQueueRequest(searchRequest);
+        return searchRequest;
     }
 
-    protected SearchRequestBuilder newFindContentQueueRequestBuilder() {
-        return client.prepareSearch(indexName);
+    protected SearchRequest addFindContentQueueRequestParams(SearchRequest searchRequest) {
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(matchAllQuery())
+                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .size(contentIndexBatchSize)
+                .storedFields(Arrays.asList(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID));
+        return searchRequest
+                .source(searchSourceBuilder)
+                .types(indexedDocumentType);
     }
 
-    protected SearchRequestBuilder addFindContentQueueRequestParams(SearchRequestBuilder searchRequestBuilder) {
-        return searchRequestBuilder
-                .setQuery(matchAllQuery())
-                .setTypes(indexedDocumentType)
-                .setPostFilter( orFilter(
-                        missingFilter(SearchService.FIELD_INDEXED),
-                        termFilter(SearchService.FIELD_INDEXED, false)))
-                .setSize(contentIndexBatchSize)
-                .addFields(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID);
-    }
+    protected abstract SearchRequest completeFindContentQueueRequest(SearchRequest searchRequest);
 
-    protected abstract SearchRequestBuilder completeFindContentQueueRequestBuilder(SearchRequestBuilder searchRequestBuilder);
-
-    protected SearchResponse findContentQueueWithRequest(SearchRequestBuilder searchRequestBuilder) {
-        return searchRequestBuilder.execute().actionGet();
+    protected SearchResponse findContentQueueWithRequest(SearchRequest searchRequest) {
+        try {
+            return client.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException ioe) {
+            getLog().warn("Search failure, " + ioe);
+            return null;
+        }
     }
 
     protected void deleteDocument(SearchHit searchHit) {
@@ -627,35 +628,34 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     protected void deleteDocumentWithParams(Map<String, Object> deleteParams) {
-        final DeleteRequestBuilder deleteRequestBuilder = prepareDeleteDocument(deleteParams);
-        final DeleteResponse deleteResponse = deleteDocumentWithRequest(deleteRequestBuilder);
-
-        if (getLog().isDebugEnabled()) {
-            if (!deleteResponse.isFound()) {
-                getLog().debug("Could not delete doc with by id: " + deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID)
-                        + " in index builder [" + getName() + "] because the document wasn't found");
-            } else {
-                getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder ["
-                        + getName() + "]");
+        final DeleteRequest deleteRequest = prepareDeleteDocument(deleteParams);
+        try {
+            DeleteResponse deleteResponse = deleteDocumentWithRequest(deleteRequest);
+            if (getLog().isDebugEnabled()) {
+                if (deleteResponse.status() == RestStatus.NOT_FOUND) {
+                    getLog().debug("Could not delete doc with by id: " + deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID) + " in index builder [" + getName() + "] because the document wasn't found");
+                } else {
+                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder [" + getName() + "]");
+                }
             }
+        } catch (IOException ioe) {
+            getLog().warn("Delete request failure, " + ioe);
         }
+
     }
 
-    protected DeleteRequestBuilder prepareDeleteDocument(Map<String, Object> deleteParams) {
-        DeleteRequestBuilder deleteRequestBuilder = newDeleteRequestBuilder(deleteParams);
-        deleteRequestBuilder = completeDeleteRequestBuilder(deleteRequestBuilder, deleteParams);
-        return deleteRequestBuilder;
+    protected DeleteRequest prepareDeleteDocument(Map<String, Object> deleteParams) {
+        return completeDeleteRequest(newDeleteRequest(deleteParams), deleteParams);
     }
 
-    protected abstract DeleteRequestBuilder completeDeleteRequestBuilder(DeleteRequestBuilder deleteRequestBuilder,
-                                                                         Map<String, Object> deleteParams);
+    protected abstract DeleteRequest completeDeleteRequest(DeleteRequest deleteRequest, Map<String, Object> deleteParams);
 
-    protected DeleteResponse deleteDocumentWithRequest(DeleteRequestBuilder deleteRequestBuilder) {
-        return deleteRequestBuilder.execute().actionGet();
+    protected DeleteResponse deleteDocumentWithRequest(DeleteRequest deleteRequest) throws IOException {
+        return client.delete(deleteRequest, RequestOptions.DEFAULT);
     }
 
-    private DeleteRequestBuilder newDeleteRequestBuilder(Map<String, Object> deleteParams) {
-        return client.prepareDelete(indexName, indexedDocumentType, (String)deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
+    private DeleteRequest newDeleteRequest(Map<String, Object> deleteParams) {
+        return new DeleteRequest(indexName, indexedDocumentType, (String)deleteParams.get(DELETE_RESOURCE_KEY_DOCUMENT_ID));
     }
 
     protected Map<String, Object> extractDeleteDocumentParams(SearchHit searchHit) {
@@ -684,9 +684,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * creates a new index if one does not exist
      */
     protected void assureIndex() {
-        IndicesExistsResponse response = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
-        if (!response.isExists()) {
-            createIndex();
+        GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
+        boolean indexExists = false;
+        try {
+            indexExists = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
+            if (!indexExists) {
+                createIndex();
+            }
+        } catch (IOException e) {
+            getLog().error("IO Error checking if index " + indexName + " exists in index builder [" + getName() + "]");
         }
     }
 
@@ -694,14 +700,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * creates a new index, does not check if the exist exists
      */
     protected void createIndex() {
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
+            createIndexRequest.settings(indexSettingsMerged);
+            // createIndexRequest.mapping(indexedDocumentType, mappingMerged);
         try {
-            CreateIndexResponse createResponse = client.admin().indices().create(new CreateIndexRequest(indexName)
-                    .settings(indexSettingsMerged).mapping(indexedDocumentType, mappingMerged)).actionGet();
-            if (!createResponse.isAcknowledged()) {
-                getLog().error("Index wasn't created for index builder [" + getName() + "], can't rebuild");
+            CreateIndexResponse createIndexResponse = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+            if (!createIndexResponse.isAcknowledged()) {
+                getLog().error("Index " + indexName + " wasn't created for index builder [" + getName() + "], can't rebuild");
             }
-        } catch (IndexAlreadyExistsException e) {
-            getLog().warn("Index already created for index builder [" + getName() + "]");
+        } catch (IOException e) {
+            getLog().error("IO Error creating index " + indexName + " index builder [" + getName() + "], can't rebuild");
         }
     }
 
@@ -710,13 +718,17 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * removes any existing index and creates a new one
      */
     protected void recreateIndex() {
-        IndicesExistsResponse response = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
-        if (response.isExists()) {
-            client.admin().indices().delete(new DeleteIndexRequest(indexName)).actionGet();
+        GetIndexRequest getIndexRequest = new GetIndexRequest(indexName);
+        try {
+            boolean indexExists = client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
+            if (indexExists) {
+                client.indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
+            }
+            // create index
+            createIndex();
+        } catch (IOException e) {
+            getLog().error("IO Error recreating index " + indexName + " index builder [" + getName() + "], can't recreate");
         }
-
-        // create index
-        createIndex();
     }
 
     /**
@@ -740,7 +752,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * refresh the index from the current stored state {@inheritDoc}
      */
     public void refreshIndex() {
-        RefreshResponse response = client.admin().indices().refresh(new RefreshRequest(indexName)).actionGet();
+        try {
+            client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
+        } catch (IOException ioe) {
+            getLog().error("IO Error refreshing index " + indexName + " index builder [" + getName() + "], " + ioe);
+        }
     }
 
     /**
@@ -749,27 +765,21 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * @param ecp
      * @return
      */
-    protected IndexRequestBuilder prepareIndex(String resourceName, EntityContentProducer ecp, boolean includeContent)
+    protected IndexRequest prepareIndex(String resourceName, EntityContentProducer ecp, boolean includeContent)
             throws IOException, NoContentException {
-        IndexRequestBuilder requestBuilder = newIndexRequestBuilder(resourceName, ecp, includeContent);
+        IndexRequest indexRequest = newIndexRequest(resourceName, ecp, includeContent);
         final XContentBuilder requestContentSource = buildIndexRequestContentSource(resourceName, ecp, includeContent);
-        requestBuilder = requestBuilder.setSource(requestContentSource);
-        return completeIndexRequestBuilder(requestBuilder, resourceName, ecp, includeContent);
+        indexRequest = indexRequest.source(requestContentSource);
+        return completeIndexRequest(indexRequest, resourceName, ecp, includeContent);
     }
 
-    protected IndexRequestBuilder newIndexRequestBuilder(String resourceName, EntityContentProducer ecp,
-                                                         boolean includeContent)
-            throws IOException {
-        return client.prepareIndex(indexName, indexedDocumentType, ecp.getId(resourceName));
+    protected IndexRequest newIndexRequest(String resourceName, EntityContentProducer ecp, boolean includeContent) {
+        return new IndexRequest(indexName, indexedDocumentType, ecp.getId(resourceName));
     }
 
-    protected abstract IndexRequestBuilder completeIndexRequestBuilder(IndexRequestBuilder requestBuilder,
-                                                    String resourceName, EntityContentProducer ecp,
-                                                    boolean includeContent)
-            throws IOException;
+    protected abstract IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent);
 
-    protected  XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp,
-                                                              boolean includeContent)
+    protected  XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp, boolean includeContent)
             throws NoContentException, IOException {
         XContentBuilder requestBuilder = newIndexRequestContentSourceBuilder(resourceName, ecp, includeContent);
         requestBuilder = addFields(requestBuilder, resourceName, ecp, includeContent);
@@ -834,14 +844,13 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     protected void prepareIndexAdd(String resourceName, EntityContentProducer ecp, boolean includeContent) throws NoContentException {
         try {
-            prepareIndex(resourceName, ecp, includeContent).execute().actionGet();
+            IndexRequest request = prepareIndex(resourceName, ecp, includeContent);
+            client.index(request, RequestOptions.DEFAULT);
         } catch (NoContentException e) {
             throw e;
-        } catch (Throwable t) {
-            getLog().error("Error: trying to register resource " + resourceName
-                    + " in index builder: " + getName(), t);
+        } catch (IOException ioe) {
+            getLog().error("Error: trying to register resource " + resourceName + " in index builder: " + getName() + ", " + ioe);
         }
-
     }
 
     /**
@@ -856,23 +865,24 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         } catch (NoContentException e) {
             deleteDocument(e);
         } catch (Exception e) {
-            getLog().error("Problem updating content indexing in index builder: " + getName()
-                    + " for entity: " + resourceName, e);
+            getLog().error("Problem updating content indexing in index builder: " + getName() + " for entity: " + resourceName, e);
         }
     }
 
     @Override
     public int getPendingDocuments() {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQuery()
+                .must(matchAllQuery())
+                .filter(boolQuery()
+                        .mustNot(existsQuery(SearchService.FIELD_INDEXED))
+                        .filter(termsQuery(SearchService.FIELD_INDEXED, false))));
+        CountRequest countRequest = new CountRequest(indexName).source(searchSourceBuilder);
         try {
-            CountResponse response = client.prepareCount(indexName)
-                    .setQuery(filteredQuery(matchAllQuery(), orFilter(
-                            missingFilter(SearchService.FIELD_INDEXED),
-                            termFilter(SearchService.FIELD_INDEXED, false))))
-                    .execute()
-                    .actionGet();
-            return (int) response.getCount();
-        } catch (Exception e) {
-            getLog().error("Problem getting pending docs for index builder [" + getName() + "]", e);
+            CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+            return (int) countResponse.getCount();
+        } catch (IOException ioe) {
+            getLog().error("Problem getting pending docs for index builder [" + getName() + "]", ioe);
         }
         return 0;
     }
@@ -1048,7 +1058,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             if (properties.containsKey(propertyName)) {
                 getLog().warn("Two properties had a really similar name and were merged. This shouldn't happen! " + propertyName);
                 getLog().debug("Merged values '" + properties.get(propertyName) + "' with '" + values);
-                values = new ArrayList<String>(values);
+                values = new ArrayList<>(values);
                 values.addAll(properties.get(propertyName));
             }
 
@@ -1062,19 +1072,22 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
 
-        final Pair<SearchRequestBuilder,QueryBuilder> searchBuilders = prepareSearchRequest(searchTerms, references, siteIds, start, end);
-        final SearchRequestBuilder searchRequestBuilder = searchBuilders.getLeft();
+        final Pair<SearchRequest, QueryBuilder> searchBuilders = prepareSearchRequest(searchTerms, references, siteIds, start, end);
+        final SearchRequest searchRequest = searchBuilders.getLeft();
         final QueryBuilder queryBuilder = searchBuilders.getRight();
 
-        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequestBuilder.toString());
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-        getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().format());
-
-        eventTrackingService.post(eventTrackingService.newEvent(SearchService.EVENT_SEARCH,
-                SearchService.EVENT_SEARCH_REF + queryBuilder.toString(), true,
-                NotificationService.PREF_IMMEDIATE));
-
-        return response;
+        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequest.toString());
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().getMillis());
+            eventTrackingService.post(eventTrackingService.newEvent(SearchService.EVENT_SEARCH,
+                    SearchService.EVENT_SEARCH_REF + queryBuilder.toString(), true,
+                    NotificationService.PREF_IMMEDIATE));
+            return response;
+        } catch (IOException ioe) {
+            getLog().debug("Error for search request from index builder [" + getName() + "], " + ioe);
+        }
+        return null;
     }
 
     @Override
@@ -1085,13 +1098,13 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     }
 
-    protected Pair<SearchRequestBuilder,QueryBuilder> prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    protected Pair<SearchRequest, QueryBuilder> prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
         // All this Pair<SearchRequestBuilder,QueryBuilder> business b/c:
         //    a) Legacy eventing in search() needs the QueryBuilder, not just the SearchRequestBuilder, and
         //    b) SiteId handling entails manipulation of both objects, so presumably completeSearchRequestBuilders()
         //       would as well
         //    c) There is no getQuery() on SearchRequestBuilder
-        Pair<SearchRequestBuilder,QueryBuilder> builders = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
+        Pair<SearchRequest, QueryBuilder> builders = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
         builders = addSearchCoreParams(builders, searchTerms, references, siteIds);
         builders = addSearchQuery(builders, searchTerms, references, siteIds);
         builders = pairOf(addSearchResultFields(builders.getLeft()), builders.getRight());
@@ -1100,31 +1113,31 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         return completeSearchRequestBuilders(builders, searchTerms, references, siteIds);
     }
 
-    protected Pair<SearchRequestBuilder,QueryBuilder> newSearchRequestAndQueryBuilders(String searchTerms,
-                                                                                       List<String> references,
-                                                                                       List<String> siteIds) {
-        return pairOf(client.prepareSearch(indexName), boolQuery());
+    protected Pair<SearchRequest, QueryBuilder> newSearchRequestAndQueryBuilders(String searchTerms,
+                                                                                 List<String> references,
+                                                                                 List<String> siteIds) {
+        return pairOf(new SearchRequest(indexName), boolQuery());
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchCoreParams(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                           String searchTerms, List<String> references,
-                                                                           List<String> siteIds) {
-        final SearchRequestBuilder searchRequestBuilder = builders.getLeft();
-        return pairOf(searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setTypes(indexedDocumentType),
-                builders.getRight());
+    protected Pair<SearchRequest, QueryBuilder> addSearchCoreParams(Pair<SearchRequest, QueryBuilder> builders,
+                                                                    String searchTerms, List<String> references,
+                                                                    List<String> siteIds) {
+        final SearchRequest searchRequest = builders.getLeft();
+        return pairOf(searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType), builders.getRight());
     }
 
-    protected Pair<SearchRequestBuilder,QueryBuilder> addSearchQuery(Pair<SearchRequestBuilder,QueryBuilder> builders,
+    protected Pair<SearchRequest, QueryBuilder> addSearchQuery(Pair<SearchRequest, QueryBuilder> builders,
                                                                      String searchTerms, List<String> references,
                                                                      List<String> siteIds) {
         builders = addSearchTerms(builders, searchTerms);
         builders = addSearchReferences(builders, references);
         builders = addSearchSiteIds(builders, siteIds);
-        return pairOf(builders.getLeft().setQuery(builders.getRight()), builders.getRight());
+        builders.getLeft().source().query(builders.getRight());
+        return pairOf(builders.getLeft(), builders.getRight());
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchTerms(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                      String searchTerms) {
+    protected Pair<SearchRequest, QueryBuilder> addSearchTerms(Pair<SearchRequest, QueryBuilder> builders,
+                                                               String searchTerms) {
         BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
 
         if (searchTerms.contains(":")) {
@@ -1142,40 +1155,41 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         return pairOf(builders.getLeft(), query);
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchReferences(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                           List<String> references) {
+    protected Pair<SearchRequest, QueryBuilder> addSearchReferences(Pair<SearchRequest, QueryBuilder> builders,
+                                                                    List<String> references) {
         BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
         if (references.size() > 0){
-            query = query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[references.size()])));
+            query = query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
         return pairOf(builders.getLeft(), query);
     }
 
-    protected abstract Pair<SearchRequestBuilder,QueryBuilder> addSearchSiteIds(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                                List<String> siteIds);
+    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSiteIds(Pair<SearchRequest, QueryBuilder> builders,
+                                                                          List<String> siteIds);
 
-    protected  SearchRequestBuilder addSearchResultFields(SearchRequestBuilder searchRequestBuilder) {
-        if (ArrayUtils.isEmpty(searchResultFieldNames)) {
-            return searchRequestBuilder;
+    protected  SearchRequest addSearchResultFields(SearchRequest searchRequest) {
+        if (!ArrayUtils.isEmpty(searchResultFieldNames)) {
+            searchRequest.source().storedFields(Arrays.asList(searchResultFieldNames));
         }
-        return searchRequestBuilder.addFields(searchResultFieldNames);
+        return searchRequest;
     }
 
-    protected SearchRequestBuilder addSearchPagination(SearchRequestBuilder searchRequestBuilder, int start, int end) {
-        return searchRequestBuilder.setFrom(start).setSize(end - start);
+    protected SearchRequest addSearchPagination(SearchRequest searchRequest, int start, int end) {
+        searchRequest.source().from(start).size(end - start);
+        return searchRequest;
     }
 
-    protected SearchRequestBuilder addSearchFacetting(SearchRequestBuilder searchRequestBuilder) {
-        if(useFacetting) {
-            return searchRequestBuilder.addFacet(termsFacet(facetName).field("contents.lowercase").size(facetTermSize));
+    protected SearchRequest addSearchFacetting(SearchRequest searchRequest) {
+        if (useFacetting) {
+            TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(facetName).field("contents.lowercase").size(facetTermSize);
+            searchRequest.source().aggregation(termsAggregationBuilder);
         }
-        return searchRequestBuilder;
+        return searchRequest;
     }
 
-    protected abstract Pair<SearchRequestBuilder,QueryBuilder> completeSearchRequestBuilders(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                                             String searchTerms,
-                                                                                             List<String> references,
-                                                                                             List<String> siteIds);
+    protected abstract Pair<SearchRequest, QueryBuilder> completeSearchRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
+                                                                                       String searchTerms, List<String> references,
+                                                                                       List<String> siteIds);
 
 
     @Override
@@ -1184,29 +1198,30 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             return new String[0];
         }
 
-        final Pair<SearchRequestBuilder,QueryBuilder> builders =
-                prepareSearchSuggestionsRequest(searchString, currentSite, allMySites);
+        final Pair<SearchRequest, QueryBuilder> builders = prepareSearchSuggestionsRequest(searchString, currentSite, allMySites);
 
-        final SearchRequestBuilder searchRequestBuilder = builders.getLeft();
+        final SearchRequest searchRequest = builders.getLeft();
 
-        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequestBuilder);
-
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-
-        getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().format());
+        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequest);
 
         List<String> suggestions = Lists.newArrayList();
-
-        for (SearchHit hit : response.getHits()) {
-            suggestions.add(getFieldFromSearchHit(suggestionMatchingFieldName, hit));
+        SearchResponse response = null;
+        try {
+            response = client.search(searchRequest, RequestOptions.DEFAULT);
+            for (SearchHit hit : response.getHits()) {
+                suggestions.add(getFieldFromSearchHit(suggestionMatchingFieldName, hit));
+            }
+        } catch (IOException ioe) {
+            getLog().error("Search request from index builder [" + getName() + "]: " + searchRequest + ", " + ioe);
         }
 
-        return suggestions.toArray(new String[suggestions.size()]);
+        getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().getStringRep());
+
+        return suggestions.toArray(new String[0]);
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> prepareSearchSuggestionsRequest(String searchString, String currentSite, boolean allMySites) {
-        Pair<SearchRequestBuilder,QueryBuilder> builders =
-                newSearchSuggestionsRequestAndQueryBuilders(searchString, currentSite, allMySites);
+    protected Pair<SearchRequest, QueryBuilder> prepareSearchSuggestionsRequest(String searchString, String currentSite, boolean allMySites) {
+        Pair<SearchRequest, QueryBuilder> builders = newSearchSuggestionsRequestAndQueryBuilders(searchString, currentSite, allMySites);
         builders = addSearchSuggestionsCoreParams(builders, searchString, currentSite, allMySites);
         builders = addSearchSuggestionsQuery(builders, searchString, currentSite, allMySites);
         builders = pairOf(addSearchSuggestionResultFields(builders.getLeft()), builders.getRight());
@@ -1214,53 +1229,72 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         return completeSearchSuggestionsRequestBuilders(builders, searchString, currentSite, allMySites);
     }
 
-    protected abstract Pair<SearchRequestBuilder,QueryBuilder> completeSearchSuggestionsRequestBuilders(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                                                        String searchString,
-                                                                                                        String currentSite,
-                                                                                                        boolean allMySites);
+    protected abstract Pair<SearchRequest, QueryBuilder> completeSearchSuggestionsRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
+                                                                                                  String searchString, String currentSite,
+                                                                                                  boolean allMySites);
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> newSearchSuggestionsRequestAndQueryBuilders(String searchString,
-                                                                                                   String currentSite,
-                                                                                                   boolean allMySites) {
-        return pairOf(client.prepareSearch(indexName), termQuery(suggestionMatchingFieldName, searchString));
+    protected Pair<SearchRequest, QueryBuilder> newSearchSuggestionsRequestAndQueryBuilders(String searchString, String currentSite, boolean allMySites) {
+
+        return pairOf(new SearchRequest(indexName), termQuery(suggestionMatchingFieldName, searchString));
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchSuggestionsCoreParams(Pair<SearchRequestBuilder, QueryBuilder> builders, String searchString, String currentSite, boolean allMySites) {
-        final SearchRequestBuilder searchRequestBuilder = builders.getLeft();
-        return pairOf(searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setTypes(indexedDocumentType),
-                builders.getRight());
+    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsCoreParams(Pair<SearchRequest, QueryBuilder> builders, String searchString, String currentSite, boolean allMySites) {
+        final SearchRequest searchRequest = builders.getLeft();
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
+        return pairOf(searchRequest, builders.getRight());
     }
 
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchSuggestionsQuery(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                                 String searchString,
-                                                                                 String currentSite,
-                                                                                 boolean allMySites) {
+    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsQuery(Pair<SearchRequest, QueryBuilder> builders,
+                                                                          String searchString, String currentSite,
+                                                                          boolean allMySites) {
         builders = addSearchSuggestionsTerms(builders, searchString);
         builders = addSearchSuggestionsSites(builders, currentSite, allMySites);
-        return pairOf(builders.getLeft().setQuery(builders.getRight()), builders.getRight());
+        SearchRequest searchRequest = builders.getLeft();
+        searchRequest.source().query(builders.getRight());
+        return pairOf(searchRequest, builders.getRight());
     }
 
-    protected abstract Pair<SearchRequestBuilder,QueryBuilder> addSearchSuggestionsTerms(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                                         String searchString);
+    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSuggestionsTerms(Pair<SearchRequest, QueryBuilder> builders, String searchString);
 
-    protected abstract Pair<SearchRequestBuilder, QueryBuilder> addSearchSuggestionsSites(Pair<SearchRequestBuilder, QueryBuilder> builders, String currentSite, boolean allMySites);
+    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSuggestionsSites(Pair<SearchRequest, QueryBuilder> builders, String currentSite, boolean allMySites);
 
-    protected SearchRequestBuilder addSearchSuggestionResultFields(SearchRequestBuilder searchRequestBuilder) {
-        if (ArrayUtils.isEmpty(suggestionResultFieldNames)) {
-            return searchRequestBuilder;
+    protected SearchRequest addSearchSuggestionResultFields(SearchRequest searchRequest) {
+        if (!ArrayUtils.isEmpty(suggestionResultFieldNames)) {
+            searchRequest.source().storedFields(Arrays.asList(suggestionResultFieldNames));
         }
-        return searchRequestBuilder.addFields(suggestionResultFieldNames);
+        return searchRequest;
     }
 
-    protected SearchRequestBuilder addSearchSuggestionsPagination(SearchRequestBuilder searchRequestBuilder) {
-        return searchRequestBuilder.setSize(maxNumberOfSuggestions);
+    protected SearchRequest addSearchSuggestionsPagination(SearchRequest searchRequest) {
+        searchRequest.source().size(maxNumberOfSuggestions);
+        return searchRequest;
     }
 
+    public List<String> getIndices() {
+        List<String> indices = new ArrayList<>();
+        GetIndexRequest request = new GetIndexRequest(indexName);
+        try {
+            GetIndexResponse response = client.indices().get(request, RequestOptions.DEFAULT);
+            indices.addAll(Arrays.asList(response.getIndices()));
+        } catch (IOException ioe) {
+            getLog().error("Could not retrieve indices, " + ioe);
+        }
+        return indices;
+    }
+
+    public ClusterIndexHealth getIndexHealth() {
+        ClusterHealthRequest request = new ClusterHealthRequest(indexName);
+        try {
+            ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
+            return response.getIndices().get(indexName);
+        } catch (IOException ioe) {
+            getLog().error("Could not retrieve health status for index " + indexName + ", " + ioe);
+        }
+        return null;
+    }
 
     public StringBuilder getStatus(StringBuilder into) {
         assureIndex();
-        IndicesStatusResponse response = client.admin().indices().status(new IndicesStatusRequest(indexName)).actionGet();
-        IndexStatus status = response.getIndices().get(indexName);
 
         long pendingDocs = getPendingDocuments();
 
@@ -1270,11 +1304,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         } else {
             into.append(" idle. ");
         }
-
-        into.append("Index Size: " + roundTwoDecimals(status.getStoreSize().getGbFrac()) + " GB" +
-                " Refresh Time: " + status.getRefreshStats().getTotalTimeInMillis() + "ms" +
-                " Flush Time: " + status.getFlushStats().getTotalTimeInMillis() + "ms" +
-                " Merge Time: " + status.getMergeStats().getTotalTimeInMillis() + "ms");
+        // These stats may not be available to the High Level Client until ES 7.5
+        // into.append("Index Size: " + roundTwoDecimals(status.getStoreSize().getGbFrac()) + " GB" +
+        //         " Refresh Time: " + status.getRefreshStats().getTotalTimeInMillis() + "ms" +
+        //         " Flush Time: " + status.getFlushStats().getTotalTimeInMillis() + "ms" +
+        //         " Merge Time: " + status.getMergeStats().getTotalTimeInMillis() + "ms");
 
         return into;
     }
@@ -1287,11 +1321,18 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public int getNDocs() {
         assureIndex();
-        CountResponse response = client.prepareCount(indexName)
-                .setQuery(filteredQuery(matchAllQuery(),termFilter(SearchService.FIELD_INDEXED, true)))
-                .execute()
-                .actionGet();
-        return (int) response.getCount();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQuery()
+                .must(matchAllQuery())
+                .filter(termsQuery(SearchService.FIELD_INDEXED, false)));
+        CountRequest countRequest = new CountRequest(indexName).source(searchSourceBuilder);
+        try {
+            CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+            return (int) countResponse.getCount();
+        } catch (IOException ioe) {
+            getLog().error("Problem getting docs for index builder [" + getName() + "]", ioe);
+        }
+        return 0;
     }
 
     @Override
@@ -1445,7 +1486,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public String getFieldFromSearchHit(String field, SearchHit hit) {
         if (hit != null && hit.getFields() != null && hit.getFields().get(field) != null) {
-            return hit.getFields().get(field).value();
+            return hit.getFields().get(field).getValue();
         }
         return null;
     }

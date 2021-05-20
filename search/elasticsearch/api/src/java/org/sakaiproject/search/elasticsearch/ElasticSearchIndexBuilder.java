@@ -17,6 +17,7 @@ package org.sakaiproject.search.elasticsearch;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchStatus;
@@ -31,7 +32,7 @@ import java.util.Map;
  */
 public interface ElasticSearchIndexBuilder extends SearchIndexBuilder {
 
-    void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, Client client);
+    void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, RestHighLevelClient client);
 
     Set<String> getTriggerFunctions();
 
