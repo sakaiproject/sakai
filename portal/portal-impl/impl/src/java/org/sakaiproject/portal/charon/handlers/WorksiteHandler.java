@@ -195,6 +195,7 @@ public class WorksiteHandler extends PageHandler
 					/* resetTools */"true".equalsIgnoreCase(ServerConfigurationService
 							.getString(Portal.CONFIG_AUTO_RESET)),
 					/* includeSummary */false);
+				//ANTOO 10
  				rcontext.put("sitePages", pageMap);
 			}
 

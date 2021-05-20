@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.createuser"
-			title="New Account"
+			title="New Account  ANTOOOO3"
 			description="Create a new user account.">
 
 		<configuration name="create-blurb" value="" />

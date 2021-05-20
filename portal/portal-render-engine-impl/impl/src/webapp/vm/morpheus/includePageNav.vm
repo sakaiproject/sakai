@@ -26,7 +26,7 @@
             #if ($subsite)
 			<div class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</div>
 			#else
-			<div class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</div>
+			<div class="Mrphs-toolsNav__menuitem--title">${page.pageTitle} ANTOO8</div>
 			#{end}
 			<div class="Mrphs-toolsNav__menuitem--status-block">
 				#if (${page.hidden} && !${page.locked})

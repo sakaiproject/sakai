@@ -138,7 +138,7 @@ USER.displayMessages = function (strongMsg, moderateMsg, weakMsg, failMsg, stren
     }
     else if (USER.passwordWeak) {
         strengthBarMeter.style.width = "33%";
-        strengthBarMeter.style.backgroundColor = "#900";
+        strengthBarMeter.style.backgroundColor = "#990000";
     }
     else {
         strengthBarMeter.style.width = "0%";
@@ -159,4 +159,19 @@ USER.hideAllElements = function (strongMsg, moderateMsg, weakMsg, failMsg, stren
     USER.display(strengthInfo, false);
     USER.display(strengthBar, false);
     USER.display(strengthBarMeter, false);
+};
+
+//Extra anto :
+USER.doFaceRec1 = function () {
+    debugger;
+    var faceRecButton = USER.get("eventSubmit_faceRecognition");
+    USER.showMess=true;
+
+    var hai1= USER.get("hai_copii");
+    USER.display(hai1,true);
+    faceRecButton.style.backgroundColor="#ff00ff";
+    faceRecButton.disabled = true;
+
+
+    //setMainFrameHeightNow(window.name);
 };

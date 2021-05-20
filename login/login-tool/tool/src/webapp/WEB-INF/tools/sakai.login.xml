@@ -8,7 +8,7 @@
 			description="A login tool.">
 
 		<configuration name="eid" value="user id: " />
-		<configuration name="pw" value="password: " />
+		<configuration name="pw" value="password: ANTOOO22 " />
 
 		<keyword name="login" />
 

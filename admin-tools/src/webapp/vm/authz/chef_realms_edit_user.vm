@@ -23,7 +23,7 @@
 			<p class="shorttext required">
 				#if(!$user)<span class="reqStar">*</span>#end
 				<label #if(!$user) for="eid" #end>
-					 $tlang.getString("realm.user.id")
+					 $tlang.getString("realm.user.id") + ANTOO12
 				</label>
 					#if(!$user)<input type="text" name="eid" id="eid" />#else$formattedText.escapeHtml($user.Eid)#end
 			</p>

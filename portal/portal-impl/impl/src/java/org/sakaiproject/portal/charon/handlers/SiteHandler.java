@@ -422,6 +422,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
+		//ANTO 11:
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page != null)
 		{

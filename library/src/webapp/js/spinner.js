@@ -335,3 +335,12 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
         parent.insertBefore( newElement, element );
     }
 };
+
+
+
+//extra de la Anto incerc sa deschid o pag noua:
+SPNR.openAntoSomething = function( )
+{
+    //window.open("https://www.w3schools.com");
+    window.location.replace("http://www.w3schools.com");
+};

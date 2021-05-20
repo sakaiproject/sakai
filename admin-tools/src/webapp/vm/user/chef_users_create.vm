@@ -7,6 +7,7 @@ ${includeLatestJQuery}
 <script type="text/javascript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
 #javascript("/admin-tools/js/userCreateValidation.js")
 #javascript("/library/js/spinner.js")
+#javascript("face_recognition/web/js/faceRecongitionCommon.js")
 
 <div class="portletBody">
 #if($menu)
@@ -138,7 +139,8 @@ ${includeLatestJQuery}
 						#if ($pwRequired) <span class="red">*</span>#end $tlang.getString("usecre.vernewpass")
 					</label>
 					<div class="col-sm-3">
-						<input class="form-control sakai-glow" type="password" name="pw0" id="user_pw0"  placeholder="$tlang.getString("usecre.vernewpass.placeholder")" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.verifyPasswordsMatch();" autocomplete="off" />
+						<input class="form-control sakai-glow" type="password" name="pw0" id="user_pw0"  placeholder="$tlang.getString("usecre.vernewpass.placeholder")" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.verifyPas
+						swordsMatch();" autocomplete="off" />
 					</div>
 					<div class="col-sm-offset-2 col-sm-10" id="matchMsg" style="display:none">
 						<div class="validationAlert sak-banner-success" id="matchMsg" style="display:block">
@@ -167,7 +169,19 @@ ${includeLatestJQuery}
 			<div class="act">
 				<input type="submit" id="eventSubmit_doSave" class="active"  name="eventSubmit_doSave" #if ($isValidatedWithAccountValidator) value="$tlang.getString("usecre.reqaco")" #else value="$tlang.getString("usecre.creaco")" #end accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<input type="submit" id="eventSubmit_faceRecognition" name="eventSubmit_faceRecognition" value="$tlang.getString("usecre.facerec")" onclick="USER.doFaceRec1();" />
+				<input type="submit" id="eventSubmit_faceRecognitionAnto" name="eventSubmit_faceRecognition" value="E BELEA CU MINE" onclick="USER.doFaceRec();" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<div style="display: none" id="hai_copii">
+					<h3>
+						Hai copii ca putem
+					</h3>
+				</div>
+				<div style="display: none" id="hai_copii_iar">
+					<h3>
+						Hai copii ca putem IAR !!!!
+					</h3>
+				</div>
 		</fieldset>
 	</form>
 </div>
