@@ -6,9 +6,11 @@ parent.location = "$returnUrl";
 </script>
 #else
 #if ( $forwardUrl ) 
-<script type="text/javascript"><!--
-location = "$forwardUrl";
-// -->
+<script type="text/javascript">
+// The CKEDITOR has a bit of code that collapses our enclosing frame down in Chrome SAK-45044 - so we put it back up right before we redirect
+try { window.frameElement.style.height= '450px'; } catch(e) { };
+setTimeout(function(){ location.href="$forwardUrl"} , 500);
+setMainFrameHeight = function () { console.log('setMainFrameHeight suppressed'); };
 </script>
 #else
 <h4>$tlang.getString("operation.complete")</h4>
