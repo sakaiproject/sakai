@@ -39,12 +39,17 @@
                 <h:panelGroup styleClass="col-md-8" layout="block">
                     <h:inputText id="newEntry-due_date" size="25" value="#{assessmentSettings.extendedTimeDueString}"/>
                     <h:outputText value=" #{assessmentSettingsMessages.has_time_limit} " />
+                    <h:outputText value="&#160;" escape="false" />
                     <h:selectOneMenu id="newEntry-hours" value="#{assessmentSettings.extendedTime.timeHours}" >
                         <f:selectItems value="#{assessmentSettings.hours}" />
                     </h:selectOneMenu>
+                    <h:outputText value="&#160;" escape="false" />
+                    <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
                     <h:selectOneMenu id="newEntry-mins" value="#{assessmentSettings.extendedTime.timeMinutes}" >
                         <f:selectItems value="#{assessmentSettings.mins}" />
                     </h:selectOneMenu>
+                    <h:outputText value="&#160;" escape="false" />
+                    <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
