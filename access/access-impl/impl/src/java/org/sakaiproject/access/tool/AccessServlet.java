@@ -22,6 +22,7 @@
 package org.sakaiproject.access.tool;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -34,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.VmServlet;
@@ -60,6 +62,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.api.EncryptionUtilityService;
 import org.sakaiproject.util.api.FormattedText;
 
 /**
@@ -75,6 +78,9 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class AccessServlet extends VmServlet
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("access");
 
@@ -107,7 +113,10 @@ public class AccessServlet extends VmServlet
 
 	/** Session attribute holding copyright-accepted references (a collection of Strings). */
 	protected static final String COPYRIGHT_ACCEPTED_REFS_ATTR = "Access.Copyright.Accepted";
-	
+
+	/** SAK-43696 Secure token parameter */
+	protected final String SECURE_FILE_TOKEN_PARAM = "securetoken";
+
 	protected BasicAuth basicAuth = null;
 
 	protected SecurityService securityService;
@@ -115,6 +124,7 @@ public class AccessServlet extends VmServlet
 	protected ActiveToolManager activeToolManager;
 	protected SessionManager sessionManager;
 	protected FormattedText formattedText;
+	protected EncryptionUtilityService encryptionUtilityService;
 
 	/** init thread - so we don't wait in the actual init() call */
 	public class AccessServletInit extends Thread
@@ -157,6 +167,7 @@ public class AccessServlet extends VmServlet
 		activeToolManager = ComponentManager.get(ActiveToolManager.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
 		formattedText = ComponentManager.get(FormattedText.class);
+		encryptionUtilityService = ComponentManager.get(EncryptionUtilityService.class);
 	}
 
 	/**
@@ -328,7 +339,7 @@ public class AccessServlet extends VmServlet
 		// pre-process the path
 		String origPath = path;
 		path = preProcessPath(path, req);
-
+		
 		// what is being requested?
 		Reference ref = entityManager.newReference(path);
 
@@ -345,6 +356,45 @@ public class AccessServlet extends VmServlet
 			// get the producer's HttpAccess helper, it might not support one
 			HttpAccess access = service.getHttpAccess();
 			if (access == null) throw new EntityNotDefinedException(ref.getReference());
+
+			/** SAK-43696 Content: Ability to consume resources using time based tokens. */
+			/*
+			 * Time based tokens can be generated from different tools, they only need to know the secret key string, retrievable from sakai.properties.
+			 * The secret key is used to decrypt the access limit date of the file.
+			 * If the current time is before the limit date of the file, we should provide access to the file no matter the permissions.
+			 */
+			String secureTokenParameter = req.getParameter(SECURE_FILE_TOKEN_PARAM);
+			// Check if the securetoken param has been sent from the client.
+			if (StringUtils.isNotBlank(secureTokenParameter)) {
+				try {
+					String decryptedToken = encryptionUtilityService.decrypt(secureTokenParameter);
+					LocalDateTime decryptedValue = LocalDateTime.parse(decryptedToken);
+					boolean isValidTimeToken = LocalDateTime.now().isBefore(decryptedValue);
+					// If the time-based token is correct and the file contains the secured property, serve the file.
+					if (isValidTimeToken) {
+						// get the properties - but use a security advisor to avoid needing end-user permission to the resource
+						SecurityAdvisor securityAdvisor = new SecurityAdvisor() {
+							public SecurityAdvice isAllowed(String userId, String function, String reference) {
+								return SecurityAdvice.ALLOWED;
+							}
+						};
+						try {
+							securityService.pushAdvisor(securityAdvisor);
+							ResourceProperties props = ref.getProperties();
+							if (props.get(ResourceProperties.PROP_SECURED) != null) {
+								access.handleAccess(req, res, ref, accepted);
+								return;
+							}
+						} catch (Exception e) {
+							log.error("Error serving a secured resource {}", e.getMessage());
+						} finally {
+							securityService.popAdvisor(securityAdvisor);
+						}
+					}
+				} catch (Exception e) {
+					// Do not reveal failed requests.
+				}
+			}
 
 			// let the helper do the work
 			access.handleAccess(req, res, ref, accepted);
@@ -614,4 +664,5 @@ public class AccessServlet extends VmServlet
 			return rv;
 		}
 	}
+
 }
