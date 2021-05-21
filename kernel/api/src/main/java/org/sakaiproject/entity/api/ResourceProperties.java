@@ -187,6 +187,9 @@ public interface ResourceProperties extends Serializable
 	 */
 	static final String PROP_DO_NOT_DUPLICATE = "SAKAI:do_not_duplicate";
 
+	/** Property name on a ContentEntity indicating if the item is secured and can be served using a token.*/
+	static final String PROP_SECURED = "SAKAI:secured";
+
 	/**
 	 * Property name on a Resource or Collection which will allow resources with
 	 * a text/html content type to be output with an inline content-disposition
