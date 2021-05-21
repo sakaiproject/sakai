@@ -105,6 +105,13 @@
   			td.bogus{
  				width: 17%;
  			}
+
+ 			&\:pvtmsgs_filter {
+ 				input[type=search] {
+ 					margin-left: $standard-space;
+ 					font-weight: normal;
+				}
+ 			}
  		}
  	}
  	
