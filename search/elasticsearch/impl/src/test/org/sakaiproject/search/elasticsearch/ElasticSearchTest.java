@@ -185,6 +185,9 @@ public class ElasticSearchTest {
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
+        when(serverConfigurationService.getString("elasticsearch.http.host", "localhost")).thenReturn("localhost");
+        when(serverConfigurationService.getInt("elasticsearch.http.port", 9200)).thenReturn(9200);
+
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         siteIds.add(siteId);
@@ -209,7 +212,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setPeriod(10);
         elasticSearchIndexBuilder.setContentIndexBatchSize(50);
         elasticSearchIndexBuilder.setBulkRequestSize(20);
-        elasticSearchIndexBuilder.setMapping("{\n" +
+        elasticSearchIndexBuilder.setMappingConfig("{\n" +
                 "    \"sakai_doc\": {\n" +
                 "        \"_source\": {\n" +
                 "            \"enabled\": false\n" +
@@ -272,7 +275,7 @@ public class ElasticSearchTest {
                 "        }\n" +
                 "    }\n" +
                 "}");
-        elasticSearchIndexBuilder.setIndexSettings("{\n" +
+        elasticSearchIndexBuilder.setIndexSettingsConfig("{\n" +
                 "    \"analysis\": {\n" +
                 "        \"filter\": {\n" +
                 "            \"substring\": {\n" +
@@ -284,7 +287,7 @@ public class ElasticSearchTest {
                 "        \"analyzer\": {\n" +
                 "            \"snowball\": {\n" +
                 "                \"type\": \"snowball\",\n" +
-                "                \"language\": \"English\"\n" +
+                "                \"language\": \"english\"\n" +
                 "            },\n" +
                 "            \"str_search_analyzer\": {\n" +
                 "                \"tokenizer\": \"keyword\",\n" +

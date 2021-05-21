@@ -25,6 +25,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -47,7 +48,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -71,10 +71,9 @@ import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.rest.RestStatus;
@@ -221,15 +220,15 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * more information on configuration that is available.  For example, if you want to change the analyzer config for
      * a particular field this is the place to do it.
      */
-    protected String mapping = null;
+    protected String mappingConfig = null;
 
     /**
-     * Combination of {@link #mapping}, its fallback read from {@link #defaultMappingResource}, and any overrides
+     * Combination of {@link #mappingConfig}, its fallback read from {@link #defaultMappingResource}, and any overrides
      * implemented in {@link #initializeElasticSearchMapping(String)}. (Currently there are no such overrides in that
      * method... just the fallback resource lookup. And historically the mapping config was stored exclusively in
-     * {@link #mapping}. This new {@code mappingMerged} field was added for symmetry with {@link #indexSettingsMerged}).
+     * {@link #mappingConfig}. This new {@code mappingMerged} field was added for symmetry with {@link #indexSettings}).
      */
-    protected String mappingMerged = null;
+    protected String mapping = null;
 
     protected String defaultIndexSettingsResource = "/org/sakaiproject/search/elastic/bundle/indexSettings.json";
 
@@ -241,14 +240,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      * See {@link <a href="http://www.elasticsearch.org/guide/reference/index-modules/">elasticsearch index modules</a>}
      * for more information on configuration that is available.
      */
-    protected String indexSettings = null;
+    protected String indexSettingsConfig = null;
 
-    /**
-     * Combination of {@link #indexSettings}, its fallback read from {@link #defaultIndexSettingsResource} and
-     * overrides read in from {@code ServerConfigurationService}. This is the operational set of index configs.
-     * {@link #indexSettings} is just preserved for reference.
-     */
-    protected Map<String, String> indexSettingsMerged = new HashMap();
+    protected Settings indexSettings;
 
     protected String indexedDocumentType = null;
 
@@ -279,7 +273,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         if (!isEnabled()) {
             getLog().debug("ElasticSearch is not enabled. Skipping initialization of index builder ["
-                    + getName() + "]. Set search.enable=true to change that.");
+                    + getName()
+                    + "]. Set search.enable=true to change that.");
             return;
         }
 
@@ -301,8 +296,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         requireConfiguration();
 
-        this.mappingMerged = initializeElasticSearchMapping(this.mapping);
-        this.indexSettingsMerged = initializeElasticSearchIndexSettings(this.indexSettings);
+        this.mapping = initializeElasticSearchMapping(this.mappingConfig);
+        this.indexSettings = initializeElasticSearchIndexSettings(this.indexSettingsConfig);
 
         beforeBackgroundSchedulerInitialization();
 
@@ -339,7 +334,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected String initializeElasticSearchMapping(String injectedConfig) {
         // if there is a value here its been overridden by injection, we will use the overridden configuration
         String mappingConfig = injectedConfig;
-        if (org.apache.commons.lang3.StringUtils.isEmpty(injectedConfig)) {
+        if (StringUtils.isEmpty(mappingConfig)) {
             try {
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(getClass().getResourceAsStream(this.defaultMappingResource), writer, "UTF-8");
@@ -348,60 +343,50 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                 getLog().error("Failed to load mapping config: " + ex.getMessage(), ex);
             }
         }
-        getLog().debug("ElasticSearch mapping will be configured as follows for index builder [" + getName() + "]:" + mappingConfig);
+        getLog().info("ElasticSearch mapping will be configured as follows for index builder [{}]:{}", getName(), mappingConfig);
         return mappingConfig;
     }
 
-    protected Map<String,String> initializeElasticSearchIndexSettings(String injectedConfig) {
-        String defaultConfig = injectedConfig;
-        if (StringUtils.isEmpty(injectedConfig)) {
-            try {
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(getClass().getResourceAsStream(this.defaultIndexSettingsResource), writer, "UTF-8");
-                defaultConfig = writer.toString();
-            } catch (Exception ex) {
-                getLog().error("Failed to load indexSettings config from ["+ defaultIndexSettingsResource + "] for index builder [" + getName() + "]", ex);
-            }
-        }
-
-        Map<String, String> mergedConfig;
-
+    protected Settings initializeElasticSearchIndexSettings(String injectedConfig) {
         try {
-            mergedConfig = XContentHelper.convertToMap(JsonXContent.jsonXContent, defaultConfig, false)
-                    .entrySet()
-                    .stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, String::valueOf));
-        } catch (ElasticsearchParseException e) {
-            getLog().error("Problem loading indexSettings for index builder [" + getName() + "]", e);
-            mergedConfig = new HashMap<>();
-        }
-
-        // Set these here so we don't have to do this string concatenation
-        // and comparison every time through the upcoming 'for' loop
-        final boolean IS_DEFAULT = SearchIndexBuilder.DEFAULT_INDEX_BUILDER_NAME.equals(getName());
-        final String DEFAULT_INDEX = ElasticSearchConstants.CONFIG_PROPERTY_PREFIX + "index.";
-        final String LOCAL_INDEX = String.format("%s%s%s.",ElasticSearchConstants.CONFIG_PROPERTY_PREFIX,"index_",getName(),".");
-
-        // load anything set into the ServerConfigurationService that starts with "elasticsearch.index."  this will
-        // override anything set in the indexSettings config
-        for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
-            String propertyName = configItem.getName();
-            if (IS_DEFAULT && (propertyName.startsWith(DEFAULT_INDEX))) {
-                propertyName = propertyName.replaceFirst(DEFAULT_INDEX, "index.");
-                mergedConfig.put(propertyName, (String) configItem.getValue());
-            } else if (propertyName.startsWith(LOCAL_INDEX)) {
-                propertyName = propertyName.replaceFirst(LOCAL_INDEX, "index.");
-                mergedConfig.put(propertyName, (String) configItem.getValue());
+            String resourceName;
+            InputStream inputStream;
+            if (StringUtils.isEmpty(injectedConfig)) {
+                inputStream = getClass().getResourceAsStream(this.defaultIndexSettingsResource);
+                resourceName = this.defaultIndexSettingsResource;
+            } else {
+                inputStream = IOUtils.toInputStream(injectedConfig, "UTF-8");
+                resourceName = "injectedConfig.json";
             }
-        }
+            Settings.Builder settingsBuilder = Settings.builder().loadFromStream(resourceName, inputStream, true);
 
-        if (getLog().isDebugEnabled()) {
-            for (Map.Entry<String,String> entry : mergedConfig.entrySet()) {
-                getLog().debug("Index property '" + entry.getKey() + "' set to: " + entry.getValue() + "' for index builder '" + getName() + "'");
+            // Set these here so we don't have to do this string concatenation
+            // and comparison every time through the upcoming 'for' loop
+            final boolean IS_DEFAULT = SearchIndexBuilder.DEFAULT_INDEX_BUILDER_NAME.equals(getName());
+            final String DEFAULT_INDEX = ElasticSearchConstants.CONFIG_PROPERTY_PREFIX + "index.";
+            final String LOCAL_INDEX = String.format("%s%s%s.", ElasticSearchConstants.CONFIG_PROPERTY_PREFIX, "index_", getName(), ".");
+
+            // load anything set into the ServerConfigurationService that starts with "elasticsearch.index."  this will
+            // override anything set in the indexSettings config
+            for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
+                String propertyName = configItem.getName();
+                if (IS_DEFAULT && (propertyName.startsWith(DEFAULT_INDEX))) {
+                    propertyName = propertyName.replaceFirst(DEFAULT_INDEX, "index.");
+                    settingsBuilder.put(propertyName, (String) configItem.getValue());
+                } else if (propertyName.startsWith(LOCAL_INDEX)) {
+                    propertyName = propertyName.replaceFirst(LOCAL_INDEX, "index.");
+                    settingsBuilder.put(propertyName, (String) configItem.getValue());
+                }
             }
-        }
 
-        return mergedConfig;
+            for (String key : settingsBuilder.keys()) {
+                getLog().info("Setting [{}={}] added to index builder '{}'", key, settingsBuilder.get(key), getName());
+            }
+            return settingsBuilder.build();
+        } catch (IOException ioe) {
+            getLog().error("Failed to load indexSettings config from [{}] for index builder [{}]", defaultIndexSettingsResource, getName(), ioe);
+        }
+        return null;
     }
 
     protected Timer initializeBackgroundScheduler() {
@@ -701,7 +686,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
      */
     protected void createIndex() {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
-            createIndexRequest.settings(indexSettingsMerged);
+            createIndexRequest.settings(indexSettings);
             // createIndexRequest.mapping(indexedDocumentType, mappingMerged);
         try {
             CreateIndexResponse createIndexResponse = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
@@ -1581,12 +1566,12 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         this.defaultIndexSettingsResource = defaultIndexSettingsResource;
     }
 
-    public void setMapping(String mapping) {
-        this.mapping = mapping;
+    public void setMappingConfig(String mappingConfig) {
+        this.mappingConfig = mappingConfig;
     }
 
-    public void setIndexSettings(String indexSettings) {
-        this.indexSettings = indexSettings;
+    public void setIndexSettingsConfig(String indexSettingsConfig) {
+        this.indexSettingsConfig = indexSettingsConfig;
     }
 
     public void setDefaultMappingResource(String defaultMappingResource) {

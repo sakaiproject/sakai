@@ -37,7 +37,6 @@ import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
@@ -61,7 +60,7 @@ public class ElasticSearchResult implements SearchResult {
     private String newUrl;
     private Terms facet;
     private ElasticSearchIndexBuilder searchIndexBuilder;
-    private static Analyzer analyzer = new StandardAnalyzer(StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+    private static Analyzer analyzer = new StandardAnalyzer();
     private String searchTerms;
 
     public ElasticSearchResult(SearchHit hit, Terms facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
