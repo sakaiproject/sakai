@@ -138,4 +138,21 @@
       }
     }
   }
+  .delete-confirm {
+    .modified {
+      color: var(--warnBanner-color);
+      background: var(--warnBanner-bgcolor);
+    }
+    .remove {
+        background: var(--errorBanner-bgcolor);
+        margin: -8px;
+        padding: 8px;
+        text-align: center;
+    }
+    .fa-times {
+      color: var(--errorBanner-color);
+      
+    }
+  }
+  
 }
