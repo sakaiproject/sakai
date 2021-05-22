@@ -30,7 +30,7 @@ $gray-lighter:           lighten($gray-base, 93.5%); // #eee
 //** Background color for `<body>`.
 // $body-bg:               #fff
 //** Global text color on `<body>`.
-// var(--sakai-text-color-1):            $gray-dark
+$text-color:            var(--sakai-text-color-1);
 
 //** Global textual link color.
 // $link-color:            $brand-primary
