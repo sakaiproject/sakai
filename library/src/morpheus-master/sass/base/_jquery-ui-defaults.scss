@@ -276,4 +276,13 @@
         border: 1px solid var(--sakai-background-color-3);
         background: var(--sakai-background-color-3);
     }
+    .ui-button .ui-icon {
+        background-image: url("/library/webjars/jquery-ui/1.12.1/images/ui-icons_444444_256x240.png");
+    }
+}
+
+.#{$namespace}html.sakaiUserTheme-dark {
+    .ui-button .ui-icon {
+        background-image: url("/library/webjars/jquery-ui/1.12.1/images/ui-icons_ffffff_256x240.png");
+    }
 }
