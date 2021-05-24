@@ -477,7 +477,6 @@ h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
 /*do an assignment that requires honor code check as a student*/
 .highlightPanel {
 	margin: 1em 0;
-	padding: .5em;
 }
 
 /*to isolate blocks of data in low threshhold situations*/
