@@ -78,13 +78,13 @@
             {{/if}}
 
             {{#if ../showVisits}}
-                {{#if ../../viewSiteVisits}}
+                {{#if ../viewSiteVisits}}
                 <div class="roster-card-label">{{tr 'total_visits'}}</div>
                 <div class="roster-card-value roster-total-visits">{{totalSiteVisits}}</div>
-                {{/if}}
-                {{#if formattedLastVisitTime}}
-                <div class="roster-card-label">{{tr 'last_visit'}}</div>
-                <div class="roster-card-value roster-last-visit">{{formattedLastVisitTime}}</div>
+                    {{#if formattedLastVisitTime}}
+                    <div class="roster-card-label">{{tr 'last_visit'}}</div>
+                    <div class="roster-card-value roster-last-visit">{{formattedLastVisitTime}}</div>
+                    {{/if}}
                 {{/if}}
             {{/if}}
 
