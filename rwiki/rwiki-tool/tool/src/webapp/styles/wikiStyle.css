@@ -53,7 +53,7 @@ ul.tabs li.tabHeadOff {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-	background-color: #eee
+    background-color: var(--sakai-background-color-2);
 }
 /* turn on tab header */
 ul.tabs li.tabHeadOn  {
@@ -67,7 +67,7 @@ ul.tabs li.tabHeadOn  {
 	border-left: 1px solid #ccc;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-	background-color: #fff
+    background-color: var(--sakai-background-color-1);
 }
 /* turn the tab content off */
 div.tabOff {
@@ -148,7 +148,7 @@ a.editToolBar:hover,a.editToolBar:active,a.previewToolBar:hover,a.previewToolBar
 a.anchorpoint { vertical-align: top }
 .publicview { padding: 10px 10px 10px 30px }
 /* head is the edit page headder */
-#rwiki_head{ background-color: #eee; height: 100%; overflow: hidden }
+#rwiki_head{ background-color: var(--sakai-background-color-2); height: 100%; overflow: hidden }
 /* surrounds the tabs */
 #rwiki_tabholder{
 	float: left;
@@ -156,7 +156,7 @@ a.anchorpoint { vertical-align: top }
 	height: 100%;
 	width: 60%
 }
-/* contains the on off switchers */	
+/* contains the on off switchers */
 #rwiki_sidebar_switcher{ padding-right: 4px }
 #rwiki_sidebar_switcher a{ padding-top: 4px }
 /* this causes the content area to expand to 100% */
@@ -164,7 +164,7 @@ a.anchorpoint { vertical-align: top }
 	float: left;
 	width: 80%;
 	padding: 5px 0px 2px 0;
-	background: #fff
+	background: var(--sakai-background-color-1);
 }
 .nosidebar{ float: none; padding: 5px 0 2px 0 }
 .nosidebar-head{ display: none }
@@ -187,7 +187,7 @@ a.anchorpoint { vertical-align: top }
 #restoreVersion, #restoreDate{ color: #777; background: transparent }
 #restoreDate{ width: 30em }
 #rwiki_content textarea:focus { border: 1px solid #777 }
-.rwiki_edit_wrapper{ background: #fff; height: 100%; overflow: hidden }
+.rwiki_edit_wrapper{ background: var(--sakai-background-color-1); height: 100%; overflow: hidden }
 /* you have to use padding to make it fit */
 #rwiki_sidebar {
 	width: 17%;
@@ -196,7 +196,8 @@ a.anchorpoint { vertical-align: top }
 	margin: 0;
 	padding: 5px;
 	margin: 5px;
-	background: #eee;
+	background: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px
 }
@@ -526,46 +527,66 @@ MOOT
 	-webkit-border-top-right-radius: 10px;
 	-moz-border-radius: 10px 10px 0 0;
 	padding: .5em;
-	background: #ddd
+	background: var(--sakai-background-color-2);
 }
-.rwikicomenttext{
+.rwikicomenttext {
 	-webkit-border-bottom-right-radius: 10px;
 	-webkit-border-bottom-left-radius: 10px;
 	-moz-border-radius: 0 0 10px 10px;
 	padding: 0 .5em;
 	width: auto;
-	background: #ddd;
+	background: var(--sakai-background-color-2);
 	padding: 0  10px  10px  10px
 }
-.rwikicomenttext p.paragraph{ margin: 0; padding: 0 }
-.commentsHeader{
+.rwikicomenttext p.paragraph {
+	background-color: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+	margin: 0;
+	padding: 0
+}
+.commentsHeader {
 	border-top: 2px solid #ccc;
 	overflow: hidden;
 	height: 100%;
-	padding-top: .3em
+	padding-top: .3em;
+	background-color: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
 }
 .commentsHeader:active{ outline: none }
 .commentsHeader h5{ margin: 0; padding: 0 }
-.commentsTitle{ font-size: 120%; padding: 3px 0 }
+.commentsTitle{
+	background-color: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+	font-size: 120%;
+	padding: 3px 0
+}
 .commentsTitle a:active, .commentsTitle a:focus{ outline: none }
 .commentsTitle a.toggleClosed{
 	padding-left: 1em;
-	background: #fff url(/library/image/sakai/expand.gif) left no-repeat
+	background: var(--sakai-background-color-2) url(/library/image/sakai/expand.gif) left no-repeat;
 }
 .commentsTitle a.toggleOpen{
 	padding-left: 1em;
-	background: #fff url(/library/image/sakai/collapse.gif) left no-repeat
+	background: var(--sakai-background-color-2) url(/library/image/sakai/collapse.gif) left no-repeat
 }
-.commentsToolBar{ padding: .3em 3em; font-size: .8em;line-height:2em;}
+.commentsToolBar{
+	background-color: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+	padding: .3em 3em;
+	font-size: .8em;
+	line-height:2em;}
 #createCommentLink{
 	background: url(/library/image/silk/comment_add.png) center left no-repeat;
 	padding:3em 1.6em;
 }
 
 .rwiki_comments { list-style: none; margin: 0; padding: 0 }
-.rwiki_comments .hidden .rwikicommenttop, .rwiki_comments .hidden .rwikicomenttext{background:#eee;color:#999}
+.rwiki_comments .hidden .rwikicommenttop, .rwiki_comments .hidden .rwikicomenttext{
+	background: var(--sakai-background-color-2);
+	color: var(--sakai-text-color-1);
+}
 .rwiki_comments .hidden .commentAuthor{ /*.commentHeader*/
-	color: #bbb 
+	color: var(--sakai-text-color-2);
 }
 
 .lastmodified { font-size: smaller; text-align: right; color: #555;padding:.5em 0}
@@ -612,7 +633,7 @@ added only to site index, could be added to other things*/
 	display:inline;
 	margin:1em 0;
 	padding:.2em;
-	background:#eee
+	background:var(--sakai-background-color-2);
 }
 
 .searchResultPager li{
@@ -630,14 +651,16 @@ added only to site index, could be added to other things*/
 }
 #selectList{
 	list-style:none;
-	margin:0;padding:0
+	margin: 0;
+	padding: 0;
 }
 #selectList li{
 	margin:.1em 0;padding:.3em 0;
 	width:80%;
 }
 .selectedSelected{
-	background: #def;
+	background: var(--sakai-background-color-2);
+	color:var(--sakai-text-color-1);
 }
 /*PART 2 - USER CREATED CONTENT STYLES*/
 
@@ -661,9 +684,9 @@ img {
 }
 img.left { display: block; left: 0px }
 img.right { display: block; right: 0px }
-img.center { 
-	margin-left:auto; 
-	margin-right:auto; 
+img.center {
+	margin-left:auto;
+	margin-right:auto;
 	display:block;
 }
 img.float-left {
@@ -756,7 +779,7 @@ h6 {
 .code {
 	margin: 4px 0 ;
 	padding: 5px;
-	background: #eee;
+	background: var(--sakai-background-color-2);
 	border: 1px solid #ccc;
 	font-family: courier, "courier new", monospace;
 	font-size: 1.1em;
@@ -795,7 +818,7 @@ h6 {
 	color: inherit;
 	font-weight: bold;
 	/* background-color: #DDEEFF; */
-	background: #eee;
+	background: var(--sakai-background-color-2);
 	color: inherit
 }
 .wiki-table .table-odd { }
