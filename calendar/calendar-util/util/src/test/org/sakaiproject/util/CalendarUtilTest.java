@@ -15,22 +15,20 @@
  */
 package org.sakaiproject.util;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import static org.junit.Assert.assertEquals;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import static org.junit.Assert.assertEquals;
 
 public class CalendarUtilTest {
 
@@ -46,28 +44,41 @@ public class CalendarUtilTest {
     @Test
     public void testLocalAMString() {
         // This is to test that the schedule tool works through GMT -> BST transitions
-        DateTimeZone zone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+       /* DateTimeZone zone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
         // This a day that the clocks go forward in London
         DateTime dateTime = new DateTime(2015, 3, 29, 3,0, zone);
         assertEquals("AM", CalendarUtil.getLocalAMString(dateTime));
+        DateTime dateTimePM = new DateTime(2015, 3, 29, 17,0, zone);
+        assertEquals("AM", CalendarUtil.getLocalAMString(dateTimePM));
+        */
+        
+       ZoneId zoneJ = TimeZone.getTimeZone("Europe/London").toZoneId();
+       TimeZone timeZone = TimeZone.getDefault(); 
+       Instant dateTimeJ = LocalDateTime.of(2015, 3, 29, 3,0).atZone(zoneJ).toInstant();
+       assertEquals("AM", CalendarUtil.getLocalAMString(dateTimeJ, timeZone.toZoneId()));
+       Instant ld = LocalDateTime.of(2015, 3, 29, 20, 0).toInstant(ZoneOffset.UTC);
+       assertEquals("AM", CalendarUtil.getLocalAMString(ld, timeZone.toZoneId()));
+       
+       //assertEquals("PM", CalendarUtil.getLocalPMString(dateTimeJ, timeZone.toZoneId()));
+       //assertEquals("PM", CalendarUtil.getLocalPMString(ld, timeZone.toZoneId()));
     }
 
     @Test
     public void testLocalPMString() {
         // This is to test that the schedule tool works through GMT -> BST transitions
-        DateTimeZone zone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+        ZoneId zone = TimeZone.getTimeZone("Europe/London").toZoneId();
         // This a day that the clocks go forward in London
-        DateTime dateTime = new DateTime(2015, 3, 29, 16,0, zone);
-        assertEquals("PM", CalendarUtil.getLocalPMString(dateTime));
+        Instant dateTime = LocalDateTime.of(2015, 3, 29, 16,0).atZone(zone).toInstant();
+        assertEquals("PM", CalendarUtil.getLocalPMString(dateTime, zone));
     }
 
     @Test
     public void testLocalPMStringStartOfDay() {
         // This is to test that the schedule tool works through GMT -> BST transitions
-        DateTimeZone zone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/London"));
+        ZoneId zone = TimeZone.getTimeZone("Europe/London").toZoneId();
         // This a day that the clocks go forward in London
-        DateTime dateTime = new DateTime(2015, 3, 29, 0, 0, zone);
-        assertEquals("PM", CalendarUtil.getLocalPMString(dateTime));
+        Instant dateTime = LocalDateTime.of(2015, 3, 29, 0, 0).atZone(zone).toInstant();
+        assertEquals("PM", CalendarUtil.getLocalPMString(dateTime, zone));
     }
 
     @Test
