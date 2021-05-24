@@ -220,6 +220,28 @@ public class GradingServiceTest {
         Assert.assertEquals("D", results.get(0));
     }
 
+    @Test(timeout = 5000)
+    public void testRegexBacktracking() {
+        List<String> results;
+        String text;
+
+        // Test backtracking with properly formatted text
+        text = "{A}+{B}*{C}={{D}} Hint: [[{B}*{C}]]+{A} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus consequat non enim eget dapibus. Etiam dictum nisi eget pharetra facilisis. Aliquam augue nisi, ornare at scelerisque sit amet, ornare sit amet justo. Proin egestas, nisi sit amet sagittis ullamcorper, ex felis interdum ipsum, sit amet scelerisque mauris erat id mauris. Aenean in mollis turpis. Sed dapibus massa quis iaculis pulvinar. Vestibulum mi enim, suscipit nec placerat ac, tincidunt lacinia neque. Sed et eleifend purus. Sed imperdiet neque arcu, ut porttitor elit ultrices ut. Praesent et risus enim. [[({B}*{C})+{A}]]";
+        results = gradingService.extractCalculations(text);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(2, results.size());
+        Assert.assertEquals("{B}*{C}", results.get(0));
+        Assert.assertEquals("({B}*{C})+{A}", results.get(1));
+
+        // Test backtracking with improperly formatted text i.e. missing ending to [[{B}*{C}+{A}
+        // This should return one result (success) or will timeout after 5 seconds (failure)
+        text = "{A}+{B}*{C}={{D}} Hint: [[{B}*{C}+{A} Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus consequat non enim eget dapibus. Etiam dictum nisi eget pharetra facilisis. Aliquam augue nisi, ornare at scelerisque sit amet, ornare sit amet justo. Proin egestas, nisi sit amet sagittis ullamcorper, ex felis interdum ipsum, sit amet scelerisque mauris erat id mauris. Aenean in mollis turpis. Sed dapibus massa quis iaculis pulvinar. Vestibulum mi enim, suscipit nec placerat ac, tincidunt lacinia neque. Sed et eleifend purus. Sed imperdiet neque arcu, ut porttitor elit ultrices ut. Praesent et risus enim. [[({B}*{C})+{A}]]";
+        results = gradingService.extractCalculations(text);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(1, results.size());
+        Assert.assertEquals("({B}*{C})+{A}", results.get(0));
+    }
+
     @Test
     public void testExtractInstructionSegments() {
         List<String> results = null;
