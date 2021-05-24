@@ -1,6 +1,6 @@
   <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
   <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-  <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+  <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
   <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -68,9 +68,9 @@
     <br />
 
     <sakai:button_bar>  <!-- Save Changes and Cancel buttons -->
-      <sakai:button_bar_item action="#{podfeedBean.processRevisePodcast}" value="#{msgs.change_submit}" 
+      <h:commandButton action="#{podfeedBean.processRevisePodcast}" value="#{msgs.change_submit}"
           accesskey="s" title="#{msgs.change_submit}" styleClass="active" />
-      <sakai:button_bar_item action="#{podfeedBean.processCancelPodfeedRevise}" value="#{msgs.cancel}" 
+      <h:commandButton action="#{podfeedBean.processCancelPodfeedRevise}" value="#{msgs.cancel}"
           accesskey="x" title="#{msgs.cancel}" />
     </sakai:button_bar>
 
