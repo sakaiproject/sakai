@@ -106,12 +106,12 @@
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
 					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count" tabindex="0">
-						<span style="display:none" class="grabHandle">
-							<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
-							<input type="hidden" size="3" id="holder$count"  value="$count"/>
-						</span>	
 						<span class="title col-md-4 col-sm-4 col-xs-12">
-							$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))
+							<span style="display:none" class="grabHandle">
+								<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
+								<input type="hidden" size="3" id="holder$count"  value="$count"/>
+							</span>	
+							<span>$formattedText.escapeHtml($validator.limit($ann_item.Header.subject, 45))</span>
 						</span>
 						<span class="author col-md-2 col-sm-2 col-xs-12">
 							$formattedText.escapeHtml($ann_item.Header.From.DisplayName)

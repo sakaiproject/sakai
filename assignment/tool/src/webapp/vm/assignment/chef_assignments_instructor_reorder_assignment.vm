@@ -86,15 +86,17 @@
 			#foreach($assignment in $assignments)
 
 			<li class="sortable row reorder-element" tabindex="0" id="listitem.orderable$count">
-				<span style="display:none" class="grabHandle">
-					<input type="text" size="3" value="$count" id="index$count"/>
-					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
-				</span>
 				<span class="col-md-6 col-sm-6 col-xs-12" title="$formattedText.escapeHtml($!assignment.Title)">
-					#if ($!assignment.Draft)
-						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
-					#end
-					$formattedText.escapeHtml($!assignment.Title)
+					<span style="display:none" class="grabHandle">
+						<input type="text" size="3" value="$count" id="index$count"/>
+						<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
+					</span>
+					<span>
+						#if ($!assignment.Draft)
+							<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
+						#end
+						$formattedText.escapeHtml($!assignment.Title)
+					</span>
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)

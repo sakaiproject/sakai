@@ -31,28 +31,31 @@
 }
 .pasystem-banner-alert,
 .pasystem-banner-alert.pasystem-banner-medium {
-  background-color: #f7e084;
+  background-color: var(--warnBanner-bgcolor);
+  color: var(--warnBanner-color);
 }
 .pasystem-banner-alert:before,
 .pasystem-banner-alert.pasystem-banner-medium:before {
   content: '\f071';
-  color: #a9860c;
+  color: var(--warnBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-high {
-  background-color: #f1d3d3;
+  background-color: var(--errorBanner-bgcolor);
+  color: var(--errorBanner-color); 
 }
 .pasystem-banner-alert.pasystem-banner-high:before {
   content: '\f06a';
-  color: #b30e0a;
+  color: var(--errorBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-timezone,
 .pasystem-banner-alert.pasystem-banner-low {
-  background-color: #c7e4f4;
+  background-color: var(--infoBanner-bgcolor);
+  color: var(--infoBanner-color);
 }
 .pasystem-banner-alert.pasystem-banner-timezone:before,
 .pasystem-banner-alert.pasystem-banner-low:before {
   content: '\f05a';
-  color: #144bae;
+  color: var(--infoBanner-color);
 }
 .pasystem-banner-alert .pasystem-banner-alert-close {
   position: absolute;
@@ -60,7 +63,6 @@
   right: 10px;
   text-decoration: none;
   margin-top: -10px;
-  color: #666;
 }
 .pasystem-banner-alert .pasystem-banner-alert-close:before {
   font-family: 'pasystem-icons';
@@ -141,7 +143,6 @@
     padding: 8px;
   }
 }
-
 .featherlight .featherlight-content {
     min-width: 450px;
     max-width: 782px;
