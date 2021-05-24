@@ -2108,7 +2108,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             AssignmentSubmission submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getId(), userId);
 
             if (submission != null) {
-                // check for allow resubmission or not first
+
+                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
+                    // before the assignment close date
+                    // and if no date then a submission was never never submitted
+                    // or if there is a submitted date and its a not submitted then it is considered a draft
+                    return true;
+                }
+
+                // check for allow resubmission or not
                 // return true if resubmission is allowed and current time is before resubmission close time
                 // get the resubmit settings from submission object first
                 String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
@@ -2129,13 +2137,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     } catch (NumberFormatException e) {
                         log.warn("allowResubmitNumString = {}, allowResubmitCloseTime = {}", allowResubmitNumString, allowResubmitCloseTime, e);
                     }
-                }
-
-                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
-                    // before the assignment close date
-                    // and if no date then a submission was never never submitted
-                    // or if there is a submitted date and its a not submitted then it is considered a draft
-                    return true;
                 }
             } else {
                 // there is no submission yet so only check if before assignment close date
