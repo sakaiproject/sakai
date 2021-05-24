@@ -622,7 +622,7 @@ $(document).ready(function(){
 				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
-				<div id="attachmentspanel" class="highlightPanel" style="background:#ffe">
+				<div id="attachmentspanel" class="highlightPanel">
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						#if ($submissionType == 5)
 							$tlang.getString("gen.att.single")
@@ -669,7 +669,7 @@ $(document).ready(function(){
 						</table>
 					#end
 					#if (($submissionType==2) || ($submissionType==3))
-						<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
+						<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;">
 							#if ($!deleted.equalsIgnoreCase("true")) 	 
 		    					##if the assignment has been deleted, disable the action button 	 
 		     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
@@ -707,8 +707,7 @@ $(document).ready(function(){
 											<td></td>
 											<td id="clonedHolder"></td>
 											<td></td>
-											<td></td>										
-											</tr>
+										</tr>
 									</table>	
 									
 								#end
