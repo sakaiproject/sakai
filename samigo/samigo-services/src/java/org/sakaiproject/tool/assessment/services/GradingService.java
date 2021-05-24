@@ -134,7 +134,7 @@ public class GradingService
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*?(\\[([^\\[\\]])*?\\])*?)*?)\\]\\]"); // non-greedy
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*+(\\[([^\\[\\]])*+\\])*+)*+)\\]\\]"); // possessive
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
   public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
   public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
