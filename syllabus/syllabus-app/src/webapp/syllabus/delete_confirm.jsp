@@ -11,12 +11,6 @@
 	<sakai:view_container title="#{msgs.title_list}">
 		<sakai:view_content>
 
-<style>
-	.modified { 
-	  color: red;
-	}
-</style>
-
 			<h:form>
 		  	<h3>
 					<h:outputText  value="#{msgs.delConfNotice}" />
@@ -24,7 +18,7 @@
 			<div class="sak-banner-warn">
 				<h:outputText  value="#{msgs.delConfAlert}" />
 			</div>
-				<h:dataTable value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="listHier lines nolines">
+				<h:dataTable value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="table table-bordered delete-confirm">
 					<h:column>
 						<f:facet name="header">                                   
 							<h:outputText  value="#{msgs.delConfHeaderItem}" />
@@ -81,7 +75,7 @@
 							<h:outputText  value="#{msgs.delConfHeaderRemove}" />
 						</f:facet>
 						<f:subview id="deleteImg" rendered="#{eachEntry.selected}">
-							<f:verbatim><span class="fa fa-times" onclick="$('.datInputStart').focus();"></span></f:verbatim>
+							<f:verbatim><div class="remove"><span class="fa fa-times" onclick="$('.datInputStart').focus();"></span></div></f:verbatim>
 						</f:subview>
 					</h:column>
 				</h:dataTable>
