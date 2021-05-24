@@ -437,4 +437,8 @@
 		margin-left: $standard-space;
 	}
 
+	.disabled.awesomplete {
+		background-color: transparent;
+		color: var(--sakai-text-color-disabled);
+	}
 }
