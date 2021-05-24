@@ -264,7 +264,7 @@
         #end
         #if ($submissionType == 4 && !$hasInline && $size == 0)
             ## if this is non-electronic submission
-            <p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
+            <p class="sak-banner-warn-inline">$tlang.getString("nonelec_instruction2")</p>
         #else
             #if($submissionType == 1 || $submissionType == 3)
                 #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
@@ -277,7 +277,7 @@
                     </div>
                 #else
                     ## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
-                    <p class="text-warning">$tlang.getString("gradingsub.nosubmittedtext")</p>
+                    <p class="sak-banner-warn-inline">$tlang.getString("gradingsub.nosubmittedtext")</p>
                 #end
             #end
             ## for returned submission, show the instructor comment as well
@@ -304,8 +304,8 @@
                 </h3>
             #end
             #if ($size == 0 && $attachAllowed)
-            ## only display in submission types taht are supposed to have attachments
-                <p class="text-warning">
+            ## only display in submission types that are supposed to have attachments
+                <p class="sak-banner-warn-inline">
                     #if ($submissionType == 5)
 					    $tlang.getString("gen.noattsubmitted.single")
 					#else
@@ -584,7 +584,7 @@
             #end
         #end
         #if ($size == 0)
-            <p class="text-warning">
+            <p class="sak-banner-warn-inline">
                 #if ($submissionType == 5)
                     $tlang.getString("gen.noatt.single")
                 #else

@@ -61,10 +61,10 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
     </small>
   </h1>
 
-  <div class="tier1">
+
     <div class="form_label">
       <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-      <p class="text-info">
+      <p class="">
         <h:outputText value="#{authorImportExport.choose_type_1}" escape="true" />
         <h:outputText value="&#160;" escape="false" />
         <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')" onkeypress="window.open('http://www.imsglobal.org/question/')">
@@ -82,15 +82,11 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
         <h:outputText value="#{authorImportExport.markup_text_note}" escape="true" />
 		<br />
       </p>
-      <p class="text-warning">
-        <h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" />
-        <ul class="text-warning">
-            <li><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" /></li>
-            <li><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" /></li>
-        </ul>
-      </p>
+      <p><h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.cp_message}"/></p>
     </div>
-    <br />
     <h:panelGroup layout="block">
      <h:outputText value="#{authorImportExport.choose_export_type}"/>
      <t:selectOneRadio id="exportType" layout="spread" value="1">
@@ -103,25 +99,18 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
      	<t:radio renderLogicalId="true" for="exportType" index="1" />
      	<t:radio renderLogicalId="true" for="exportType" index="2" />
      </h:panelGrid>
-     <!-- For formatting -->
-     <div class="text-warning">
-       <h:outputText value="#{authorImportExport.cp_message}"/>
-     </div>
-     <br/>
     </h:panelGroup>
-
-    <br/>
-    <br/>
+    <p class="act">
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       style="act" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
+       styleClass="active" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
        '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
        '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
-       style="act" action="author" immediate="true"/>
+       action="author" immediate="true"/>
+  </p>
 
-  </div>
  </h:form>
 </div>
  <!-- end content -->
