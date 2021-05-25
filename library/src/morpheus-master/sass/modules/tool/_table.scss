@@ -429,3 +429,8 @@ table{
 .#{$namespace}html .tablesorter-bootstrap i.tablesorter-icon {
 	display: none;
 }
+
+.#{$namespace}html table img[src*="sortascending.gif"],
+.#{$namespace}html table img[src*="sortdescending.gif"] {
+	filter: var(--sakai-image-invert);
+}
