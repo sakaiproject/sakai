@@ -45,6 +45,8 @@ import org.sakaiproject.util.Web;
  * Date: Nov 11, 2005
  * Time: 4:17:18 PM
  * To change this template use File | Settings | File Templates.
+ * @deprecated use {@link org.sakaiproject.jsf2.util.HelperAwareJsfTool}
+ * 
  */
 @Slf4j
 public class HelperAwareJsfTool extends JsfTool {

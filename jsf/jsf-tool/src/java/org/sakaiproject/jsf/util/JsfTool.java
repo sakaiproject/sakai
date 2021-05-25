@@ -47,6 +47,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  * 
  * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
+ * @deprecated use {@link org.sakaiproject.jsf2.util.JsfTool}
  */
 @Slf4j
 public class JsfTool extends HttpServlet
