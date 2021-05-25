@@ -1,22 +1,19 @@
-import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
+import { css, html } from "../assets/lit-element/lit-element.js";
 import {unsafeHTML} from '../assets/lit-html/directives/unsafe-html.js';
+import { SakaiPageableElement } from '../sakai-pageable-element.js';
 import '../sakai-icon.js';
 import moment from "../assets/moment/dist/moment.js";
-import { loadProperties } from "../sakai-i18n.js";
 import "../assets/@lion/dialog/lion-dialog.js";
 import "./sakai-tasks-create-task.js";
 import "../sakai-editor.js";
 
-export class SakaiTasks extends LitElement {
+export class SakaiTasks extends SakaiPageableElement {
 
   static get properties() {
 
     return {
-      tasks: { type: Array },
-      i18n: Object,
       taskBeingEdited: { type: Object},
       currentFilter: String,
-      userId: { attribute: "user-id", type: String },
     };
   }
 
@@ -24,32 +21,29 @@ export class SakaiTasks extends LitElement {
 
     super();
 
-    this.tasks = [];
+    this.showPager = true;
     this.currentFilter = "current";
-    loadProperties("tasks").then(r => this.i18n = r);
+    this.loadTranslations("tasks").then(r => this.i18n = r);
   }
 
-  set tasks(value) {
+  set data(value) {
 
-    const old = this._tasks;
-    this._tasks = value;
+    const old = this._data;
+    this._data = value;
 
     // Show highest priority tasks first
-    this._tasks.sort((t1 ,t2) => t2.priority - t1.priority);
+    this._data.sort((t1, t2) => t2.priority - t1.priority);
 
-    this._tasks.forEach(t => this.decorateTask(t));
-    this.requestUpdate("tasks", old);
+    this._data.forEach(t => this.decorateTask(t));
+
+    this.requestUpdate("data", old);
   }
 
-  get tasks() { return this._tasks; }
+  get data() { return this._data; }
 
-  set userId(value) {
-
-    this._userId = value;
-    this.loadData();
+  set siteId(value) {
+    this._siteId = value;
   }
-
-  get userId() { return this._userId; }
 
   decorateTask(t) {
 
@@ -62,10 +56,10 @@ export class SakaiTasks extends LitElement {
     return t;
   }
 
-  loadData() {
+  async loadAllData() {
 
     const url = "/api/tasks";
-    fetch(url)
+    return fetch(url)
       .then(r => {
 
         if (r.ok) {
@@ -76,7 +70,7 @@ export class SakaiTasks extends LitElement {
       })
       .then(data => {
 
-        this.tasks = data;
+        this.data = data;
         this.filter("current");
       })
       .catch (error => console.error(error));
@@ -86,21 +80,21 @@ export class SakaiTasks extends LitElement {
 
     switch (e.target.value) {
       case "due_latest_first":
-        this.tasks.sort((t1, t2) => t2.due - t1.due);
+        this.data.sort((t1, t2) => t2.due - t1.due);
         break;
       case "due_earliest_first":
-        this.tasks.sort((t1, t2) => t1.due - t2.due);
+        this.data.sort((t1, t2) => t1.due - t2.due);
         break;
       case "priority_lowest_first":
-        this.tasks.sort((t1 ,t2) => t1.priority - t2.priority);
+        this.data.sort((t1, t2) => t1.priority - t2.priority);
         break;
       case "priority_highest_first":
-        this.tasks.sort((t1 ,t2) => t2.priority - t1.priority);
+        this.data.sort((t1, t2) => t2.priority - t1.priority);
         break;
       default:
         break;
     }
-    this.requestUpdate();
+    this.repage();
   }
 
   filter(f) {
@@ -109,34 +103,34 @@ export class SakaiTasks extends LitElement {
 
     switch (f) {
       case "priority_5":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 5 ? true : false);
+        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 5 ? true : false);
         break;
       case "priority_4":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && t.priority === 4 ? true : false);
+        this.data.forEach(t => t.visible = !t.softDeleted && t.priority === 4 ? true : false);
         break;
       case "priority_3":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 3 ? true : false);
+        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 3 ? true : false);
         break;
       case "priority_2":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 2 ? true : false);
+        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 2 ? true : false);
         break;
       case "priority_1":
-        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 1 ? true : false);
+        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 1 ? true : false);
         break;
       case "overdue":
-        this.tasks.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now() ? true : false));
+        this.data.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now() ? true : false));
         break;
       case "trash":
-        this.tasks.forEach(t => t.visible = t.softDeleted);
+        this.data.forEach(t => t.visible = t.softDeleted);
         break;
       case "complete":
-        this.tasks.forEach(t => t.visible = t.complete);
+        this.data.forEach(t => t.visible = t.complete);
         break;
       default:
-        this.tasks.forEach(t => t.visible = !t.softDeleted && !t.complete);
+        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete);
         break;
     }
-    this.requestUpdate();
+    this.repage();
   }
 
   filterChanged(e) {
@@ -149,7 +143,7 @@ export class SakaiTasks extends LitElement {
 
   editTask(e) {
 
-    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
+    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
     this.shadowRoot.getElementById("add-edit-dialog").__toggle();
     this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
   }
@@ -170,8 +164,8 @@ export class SakaiTasks extends LitElement {
       .then(r => {
 
         if (r.ok) {
-          this.tasks.splice(this.tasks.findIndex(t => t.userTaskId == taskId), 1);
-          if (this.tasks.filter(t => t.softDeleted).length == 0) {
+          this.data.splice(this.data.findIndex(t => t.userTaskId == taskId), 1);
+          if (this.data.filter(t => t.softDeleted).length == 0) {
             this.filter("current");
           } else {
             this.requestUpdate();
@@ -181,13 +175,13 @@ export class SakaiTasks extends LitElement {
         }
       })
       .catch(error => {
-        console.error(error)
+        console.error(error);
       });
   }
 
   softDeleteTask(e) {
 
-    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
+    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     task.softDeleted = true;
     task.visible = false;
@@ -207,13 +201,13 @@ export class SakaiTasks extends LitElement {
         }
       })
       .catch(error => {
-        console.error(error)
+        console.error(error);
       });
   }
 
   restoreTask(e) {
 
-    const task = this.tasks.find(t => t.taskId == e.currentTarget.dataset.taskId);
+    const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
 
     task.softDeleted = false;
     task.visible = true;
@@ -227,7 +221,7 @@ export class SakaiTasks extends LitElement {
       .then(r => {
 
         if (r.ok) {
-          if (this.tasks.filter(t => t.softDeleted).length > 0) {
+          if (this.data.filter(t => t.softDeleted).length > 0) {
             this.filter("trash");
           } else {
             this.filter("current");
@@ -237,32 +231,32 @@ export class SakaiTasks extends LitElement {
         }
       })
       .catch(error => {
-        console.error(error)
+        console.error(error);
       });
-  }
-
-  shouldUpdate() {
-    return this.i18n;
   }
 
   taskCreated(e) {
 
-    const existingIndex = this.tasks.findIndex(t => t.taskId == e.detail.task.taskId);
+    const existingIndex = this.data.findIndex(t => t.taskId == e.detail.task.taskId);
 
     if (existingIndex === -1) {
-      this.tasks.push(this.decorateTask(e.detail.task));
+      this.data.push(this.decorateTask(e.detail.task));
     } else {
-      this.tasks.splice(existingIndex, 1, this.decorateTask(e.detail.task));
+      this.data.splice(existingIndex, 1, this.decorateTask(e.detail.task));
     }
 
     this.filter("current");
+    this.repage();
   }
 
-  render() {
+  shouldUpdate() {
+    return this.i18n && this.dataPage;
+  }
+
+  content() {
 
     return html`
 
-      <div id="container">
       <div id="add-block">
         <lion-dialog id="add-edit-dialog">
 
@@ -306,12 +300,12 @@ export class SakaiTasks extends LitElement {
           </select>
         </div>
       </div>
-      ${this.tasks.filter(t => t.visible).length > 0 ? html`
+      ${this.dataPage.filter(t => t.visible).length > 0 ? html`
         <div id="tasks">
           <div class="priority-block header">${this.i18n["priority"]}</div>
           <div class="task-block task-block-header header">${this.i18n["task"]}</div>
           <div class="link-block header">${this.i18n["options"]}</div>
-        ${this.tasks.filter(t => t.visible).map((t, i) => html`
+        ${this.dataPage.filter(t => t.visible).map((t, i) => html`
           <div class="priority-block priority_${t.priority} cell ${i % 2 === 0 ? "even" : "odd"}">
             <div tabindex="0" title="${this.i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this.i18n[`priority_${t.priority}_tooltip`]}">
               <sakai-icon size="small" type="priority">
@@ -324,7 +318,7 @@ export class SakaiTasks extends LitElement {
             ${t.notes ? html`
               <div class="task-text-toggle">
                 <a href="javascript:;"
-                    @click=${() => {t.textVisible = !t.textVisible; this.requestUpdate(); }}
+                    @click=${() => { t.textVisible = !t.textVisible; this.requestUpdate(); }}
                     title="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}"
                     arial-label="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}">
                   ${t.textVisible ? this.i18n["less"] : this.i18n["more"]}
@@ -389,130 +383,126 @@ export class SakaiTasks extends LitElement {
         </div>
       ` : html`<div>${this.i18n["no_tasks"]}</div>`
       }
-      </div>
     `;
   }
 
   static get styles() {
 
-    return css`
-
-      #container {
-        background-color: var(--sakai-dashboard-widget-bg-color, white);
-        padding: 8px;
-      }
-
-      #add-block {
-        text-align: right;
-        margin-top: 8px;
-        margin-bottom: 10px;
-      }
-        sakai-icon[type="add"] {
-          color: green;
-        }
-
-      #controls {
-        display: flex;
-        margin-bottom: 10px;
-      }
-        #filter {
-          flex: 1;
-        }
-        #sort {
-          flex: 2;
+    return [
+      ...super.styles,
+      css`
+        #add-block {
           text-align: right;
+          margin-top: 8px;
+          margin-bottom: 10px;
         }
-
-      #tasks {
-        display: grid;
-        grid-template-columns: 0fr 4fr 0fr;
-        grid-auto-rows: minmax(10px, auto);
-      }
-        #tasks > div:nth-child(-n+3) {
-          padding-bottom: 14px;
-        }
-        .header {
-          font-weight: bold;
-          padding: 0 5px 0 5px;
-        }
-        .cell {
-          padding: 8px;
-          font-size: var(--sakai-grades-title-font-size, 12px);
-        }
-        .even {
-          background-color: var(--sakai-table-even-color, #f4f4f4);
-        }
-
-        .priority-block {
-          flex: 1;
-          display: flex;
-          align-items: center;
-        }
-          .priority_5 {
-            color: red;
-          }
-          .priority_4 {
-            color: brown;
-          }
-          .priority_3 {
-            color: orange;
-          }
-          .priority_2 {
-            color: yellow;
-          }
-          .priority_1 {
+          sakai-icon[type="add"] {
             color: green;
           }
 
-        .task-block {
-          flex: 3 3 0px;
-        }
-          .site-title {
-            font-size: var(--sakai-task-site-title-font-size, 12px);
-            margin-bottom: 5px;
-          }
-          .description {
-            font-size: var(--sakai-task-site-title-font-size, 14px);
-            margin-bottom: 5px;
-          }
-          .due-date {
-            font-size: var(--sakai-task-site-title-font-size, 12px);
-          }
-          .due {
-            font-weight: var(--sakai-task-due-font-weight, bold);
-          }
-
-        .link-block {
+        #controls {
           display: flex;
-          align-items: center;
-          justify-content: flex-end;
-        }
-          .link-block div {
-            margin-right: 8px;
-          }
-
-        .task-text {
-          margin-left: 20px;
-        }
-
-        .task-text-toggle {
-          margin-top: 10px;
           margin-bottom: 10px;
         }
-          .edit {
-            margin-right: 8px;
+          #filter {
+            flex: 1;
+          }
+          #sort {
+            flex: 2;
+            text-align: right;
           }
 
-          .demo-box-placements {
+        #tasks {
+          display: grid;
+          grid-template-columns: 0fr 4fr 0fr;
+          grid-auto-rows: minmax(10px, auto);
+        }
+          #tasks > div:nth-child(-n+3) {
+            padding-bottom: 14px;
+          }
+          .header {
+            font-weight: bold;
+            padding: 0 5px 0 5px;
+          }
+          .cell {
+            padding: 8px;
+            font-size: var(--sakai-grades-title-font-size, 12px);
+          }
+          .even {
+            background-color: var(--sakai-table-even-color, #f4f4f4);
+          }
+
+          .priority-block {
+            flex: 1;
             display: flex;
-            flex-direction: column;
-            margin: 40px 0 0 200px;
+            align-items: center;
+          }
+            .priority_5 {
+              color: red;
+            }
+            .priority_4 {
+              color: brown;
+            }
+            .priority_3 {
+              color: orange;
+            }
+            .priority_2 {
+              color: yellow;
+            }
+            .priority_1 {
+              color: green;
+            }
+
+          .task-block {
+            flex: 3 3 0px;
+          }
+            .site-title {
+              font-size: var(--sakai-task-site-title-font-size, 12px);
+              margin-bottom: 5px;
+            }
+            .description {
+              font-size: var(--sakai-task-site-title-font-size, 14px);
+              margin-bottom: 5px;
+            }
+            .due-date {
+              font-size: var(--sakai-task-site-title-font-size, 12px);
+            }
+            .due {
+              font-weight: var(--sakai-task-due-font-weight, bold);
+            }
+
+          .link-block {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+          }
+            .link-block div {
+              margin-right: 8px;
+            }
+
+          .task-text {
+            margin-left: 20px;
           }
 
-          .demo-box-placements lion-tooltip {
-            margin: 20px;
+          .task-text-toggle {
+            margin-top: 10px;
+            margin-bottom: 10px;
           }
-    `;
+            .edit {
+              margin-right: 8px;
+            }
+
+            .demo-box-placements {
+              display: flex;
+              flex-direction: column;
+              margin: 40px 0 0 200px;
+            }
+
+            .demo-box-placements lion-tooltip {
+              margin: 20px;
+            }
+      `,
+    ];
   }
 }
 

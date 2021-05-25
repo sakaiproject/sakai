@@ -1,5 +1,4 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
-import '../sakai-icon.js';
 import { SakaiDashboardWidget } from './sakai-dashboard-widget.js';
 import { loadProperties } from "../sakai-i18n.js";
 import { sakaiWidgets } from "./sakai-widgets.js";
@@ -83,18 +82,19 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
   static get styles() {
 
-    return css`
-
-      ${SakaiDashboardWidget.styles}
-      .widget-option {
-        margin-left: 12px;
-      }
-      .widget-option a {
-        text-decoration: none;
-        color: var(--sakai-text-color-1);
-        font-size: 18px;
-      }
-    `;
+    return [
+      ...super.styles,
+      css`
+        .widget-option {
+          margin-left: 12px;
+        }
+        .widget-option a {
+          text-decoration: none;
+          color: black;
+          font-size: 18px;
+        }
+      `,
+    ];
   }
 }
 

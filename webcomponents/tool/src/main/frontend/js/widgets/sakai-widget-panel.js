@@ -61,7 +61,7 @@ export class SakaiWidgetPanel extends LitElement {
   }
 
   fireChanged() {
-    this.dispatchEvent(new CustomEvent("changed", { bubbles: true , detail: { layout: this.layout }}));
+    this.dispatchEvent(new CustomEvent("changed", { bubbles: true, detail: { layout: this.layout }}));
   }
 
   showWidgetPicker(e) {
