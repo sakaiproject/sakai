@@ -150,6 +150,15 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         };
     }
 
+    let siteId = "";
+    if (collectionId) {
+        if (collectionId.startsWith('/user/') && portal && portal.siteId) {
+            siteId = portal.siteId;
+        } else {
+            siteId = collectionId.split('/')[2];
+        }
+    }
+
     var ckconfig = {
 	//Some defaults for audio recorder
         audiorecorder : {
@@ -184,6 +193,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserBrowseUrl :      filebrowser.browseUrl,
         filebrowserImageBrowseUrl : filebrowser.imageBrowseUrl,
         filebrowserFlashBrowseUrl : filebrowser.flashBrowseUrl,
+
+        filebrowserUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
+        uploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
+        imageUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
 
         extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
 
@@ -328,7 +341,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //ckconfig.extraPlugins+="atd-ckeditor,";
         //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-        ckconfig.extraPlugins+="${ckeditor-extra-plugins}${ckeditor-a11y-extra-plugins}";
+        ckconfig.extraPlugins += "${ckeditor-extra-plugins}${ckeditor-a11y-extra-plugins}, uploadimage";
 
         // Load FontAwesome CSS in case a user wants to manually add FA markup
         ckconfig.contentsCss.push(webJars+'fontawesome/4.7.0/css/font-awesome.min.css');
