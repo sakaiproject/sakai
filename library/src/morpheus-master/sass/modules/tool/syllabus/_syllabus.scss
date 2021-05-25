@@ -155,14 +155,14 @@
     }
   }
 
-  .radioOption{
+  .radioOption {
     background: none repeat scroll 0 0 var(--sakai-background-color-2);
     border-radius: $button-radius;
-    padding: .5em;
+    padding: 0.5em;
     width: 35em;
   }
   
-  .radioOptionSelected{
+  .radioOptionSelected {
     background: none repeat scroll 0 0 var(--sakai-active-color-1);
   }
 }
