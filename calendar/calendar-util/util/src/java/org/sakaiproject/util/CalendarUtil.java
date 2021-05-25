@@ -24,22 +24,27 @@ package org.sakaiproject.util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.UserTimeService;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
 * <p>CalendarUtil is a bunch of utility methods added to a java Calendar object.</p>
@@ -75,6 +80,7 @@ public class CalendarUtil
 	Date dateDecember = null;
 	private Map<String, String> eventIconMap = new HashMap<String, String>();
 
+			
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 	public final static String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
 	/**
@@ -588,16 +594,21 @@ public class CalendarUtil
 	 * @return A String representing the morning for the current user.
 	 */
 	public static String getLocalAMString() {
-		return getLocalAMString(new DateTime());
+		return getLocalAMString(Instant.now(), getZoneId());
 	}
-
+	private static ZoneId getZoneId() {
+		TimeZone localZone = ComponentManager.get(UserTimeService.class).getLocalTimeZone();
+		return localZone.toZoneId();
+	}
 	// Used for tests
-	static String getLocalAMString(DateTime now) {
-		//we need an AM date
-		DateTime dt = now.withTimeAtStartOfDay();
+	@VisibleForTesting
+	static String getLocalAMString(Instant now, ZoneId zoneId) {
 		Locale locale = new ResourceLoader().getLocale();
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
-		return df.print(dt);
+		//we need an AM date
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
+		zdt = zdt.toLocalDate().atStartOfDay(zoneId);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("a").withLocale(locale);
+		return zdt.format(formatter);
 	}
 	
 	/**
@@ -605,16 +616,18 @@ public class CalendarUtil
 	 * @return A String representing the afternoon for the current user.
 	 */
 	public static String getLocalPMString() {
-		return getLocalPMString(new DateTime());
+		return getLocalPMString(Instant.now(), getZoneId());
 	}
 
 	// Used for tests
-	static String getLocalPMString(DateTime now) {
-		//we need an PM date
-		DateTime dt = now.withTimeAtStartOfDay().plusHours(14);
+	@VisibleForTesting
+	static String getLocalPMString(Instant now, ZoneId zoneId) {
 		Locale locale = new ResourceLoader().getLocale();
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
-		return df.print(dt);
+		//we need an PM date
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(now, zoneId);
+		zdt = zdt.toLocalDate().atStartOfDay(zoneId).plusHours(14);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("a").withLocale(locale);
+		return zdt.format(formatter);
 	}
 
 	// Non-static event type methods to get localized event names

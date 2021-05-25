@@ -57,14 +57,17 @@ properties that can be used to configure ignite.
 * `ignite.address` this nodes address
 
   _10.1.1.100_
-* `ignite.addresses` other nodes addresses and port ranges
+* `ignite.addresses` other nodes addresses and their discovery port ranges, careful not to use the
+  tcp communication port range.
 
-  _10.1.1.101:49009..49019,10.1.1.102:49009..49019_
-* `ignite.port` this is the starting port used to calculate the range. By default, it is 0 which
-  any value in the privileged port range will cause it to atu pick a port between 49152 and 65535. 
+  _10.1.1.101:49010..49019,10.1.1.102:49010..49019_
+* `ignite.port` this is the starting port used to calculate the range. By default, it is 0 and
+  any value in the privileged port range will cause it to pick a port between 49152 and 65535. 
   
   _49000_
-* `ignite.range` this is the number of ports that will be used when calculating the range.
+* `ignite.range` this is the number of ports that will be used when calculating the range. The range
+  is divided into 2 sections the first 10 ports are for tcp communication between needs and the last
+  10 ports are for discovery and are used by the config above ignite.addresses.
 
   _10_
 

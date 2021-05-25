@@ -40,8 +40,8 @@
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.14</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.0.3</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.0.3</sakai.httpcore5.version>
+    <sakai.httpclient5.version>5.1</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.1.1</sakai.httpcore5.version>
     <sakai.ignite.version>2.9.1</sakai.ignite.version>
     <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
     <sakai.jackson.version>2.12.3</sakai.jackson.version>
@@ -67,7 +67,7 @@
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.26</sakai.tika.version>
-    <sakai.tomcat.version>9.0.45</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.46</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -373,7 +373,7 @@
       <dependency>
         <groupId>javax</groupId>
         <artifactId>javaee-api</artifactId>
-        <version>8.0</version>
+        <version>8.0.1</version>
         <scope>provided</scope>
       </dependency>
       <!-- parser API inconsistancies -->
@@ -669,7 +669,7 @@
       <dependency>
         <groupId>javax.cache</groupId>
         <artifactId>cache-api</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1959,7 +1959,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.7.1</version>
+          <version>2.7.3</version>
           <scope>provided</scope>
       </dependency>
       <dependency>

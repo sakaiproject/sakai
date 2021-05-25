@@ -101,3 +101,6 @@ url {
   text-align: center;
 }
 
+.addRadioLabelPadding label {
+  padding-left: 4px;
+}

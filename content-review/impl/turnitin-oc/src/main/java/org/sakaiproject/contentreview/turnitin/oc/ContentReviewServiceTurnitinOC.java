@@ -1665,9 +1665,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	@Override
 	public String getEndUserLicenseAgreementLink(String userId) {
 		String url = null;
-		Map<String, Object> latestEula = getLatestEula();
+		Map<String, Object> latestEula = getLatestEula(getUserEulaLocale(userId));
 		if(latestEula != null && latestEula.containsKey("url")) {
-			url = latestEula.get("url").toString() + "?lang=" + getUserEulaLocale(userId);
+			url = latestEula.get("url").toString();
 		}
 		return url;
 	}
@@ -1697,10 +1697,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	private Map<String, Object> getLatestEula(){
+		return getLatestEula(null);
+	}
+	
+	private Map<String, Object> getLatestEula(String local){
+		String cacheKey = EULA_LATEST_KEY;
+		String localParam = "";
+		if(StringUtils.isNotEmpty(local)) {
+			cacheKey += "-" + local;
+			localParam = "?lang=" + local;
+		}
 		Map<String, Object> eula = null;
-		if(EULA_CACHE.containsKey(EULA_LATEST_KEY)) {
+		if(EULA_CACHE.containsKey(cacheKey)) {
 			//EULA is still cached, grab it:
-			Object cacheObj = EULA_CACHE.get(EULA_LATEST_KEY);
+			Object cacheObj = EULA_CACHE.get(cacheKey);
 			if(cacheObj != null && cacheObj instanceof Map && ((Map<String, Object>) cacheObj).containsKey("url")){
 				eula = ((Map<String, Object>) cacheObj);
 			}
@@ -1708,14 +1718,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		if(eula == null) {
 			//get Eula from API and cache it:
 			try {
-				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY, BASE_HEADERS, null, null);
+				Map<String, Object> response = makeHttpCall("GET", getNormalizedServiceUrl() + "eula/" + EULA_LATEST_KEY + localParam, BASE_HEADERS, null, null);
 				String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 				if(StringUtils.isNotEmpty(responseBody)) {
 					eula = new ObjectMapper().readValue(responseBody, Map.class);
 				}
 				if(eula != null && eula.containsKey("url")) {
 					//store in cache:
-					EULA_CACHE.put(EULA_LATEST_KEY, eula);
+					EULA_CACHE.put(cacheKey, eula);
 				}
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);

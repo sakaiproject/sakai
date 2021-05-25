@@ -55,6 +55,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
+import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -133,7 +134,7 @@ public class GradingService
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*?(\\[([^\\[\\]])*?\\])*?)*?)\\]\\]"); // non-greedy
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*+(\\[([^\\[\\]])*+\\])*+)*+)\\]\\]"); // possessive
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
   public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
   public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
@@ -3174,6 +3175,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               String suffix = expression.substring(index + name.length());
 
               String replacementValue = value;
+
+              // If replacement is a negative number, wrap in parentheses to avoid confused operations
+              // For example, 3 {y} with -10 should be 3*-10= -30 not 3 -10 = -7
+              if (value.charAt(0) == '-' && Character.isDigit(value.charAt(1))) {
+                  replacementValue = ParserSymbol.LEFT_PARENTHESES_STR + value + ParserSymbol.RIGHT_PARENTHESES_STR;
+              }
+
               // if last character of prefix is a number or the edge of parenthesis, multiply by the variable
               // if x = 37, 5{x} -> 5*37
               // if x = 37 (5+2){x} -> (5+2)*37 (prefix is (5+2)

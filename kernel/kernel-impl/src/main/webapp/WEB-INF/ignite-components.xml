@@ -27,37 +27,41 @@
         <property name="configuration" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration"/>
     </bean>
 
+    <!--
+    Default memory region and is assigned to the spring region.
+    Caches will be bound to this memory region by default unless another region is set in the cache's configuration.
+    -->
+    <bean id="org.sakaiproject.ignite.DataRegionConfiguration.SpringRegion"
+          class="org.apache.ignite.configuration.DataRegionConfiguration">
+        <property name="name" value="spring_region"/>
+        <property name="initialSize" value="#{10 * 1024 * 1024}"/>
+        <property name="maxSize" value="#{100 * 1024 * 1024}"/>
+        <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
+        <property name="persistenceEnabled" value="false"/>
+        <property name="metricsEnabled" value="true"/>
+    </bean>
+
+    <!--
+    Hibernate second level cache region
+    -->
+    <bean id="org.sakaiproject.ignite.DataRegionConfiguration.HibernateL2Region"
+          class="org.apache.ignite.configuration.DataRegionConfiguration">
+        <property name="name" value="hibernate_l2_region"/>
+        <property name="initialSize" value="#{300 * 1024 * 1024}"/>
+        <property name="maxSize" value="#{600 * 1024 * 1024}"/>
+        <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
+        <property name="persistenceEnabled" value="false"/>
+        <property name="metricsEnabled" value="true"/>
+    </bean>
+
     <bean id="org.sakaiproject.ignite.SakaiIgniteConfiguration"
           class="org.sakaiproject.ignite.IgniteConfigurationAdapter">
         <property name="dataStorageConfiguration">
             <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
-                <!--
-                Default memory region used by the spring. Any cache will be bound to this memory region
-                unless another region is set in the cache's configuration.
-                -->
-                <property name="defaultDataRegionConfiguration">
-                    <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
-                        <property name="name" value="spring_region"/>
-                        <property name="initialSize" value="#{10 * 1024 * 1024}"/>
-                        <property name="maxSize" value="#{100 * 1024 * 1024}"/>
-                        <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
-                        <property name="persistenceEnabled" value="false"/>
-                        <property name="metricsEnabled" value="false"/>
-                    </bean>
-                </property>
-                <!--
-                Hibernate second level cache region
-                -->
+                <property name="defaultDataRegionConfiguration" ref="org.sakaiproject.ignite.DataRegionConfiguration.SpringRegion"/>
                 <property name="dataRegionConfigurations">
                     <list>
-                        <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
-                            <property name="name" value="hibernate_l2_region"/>
-                            <property name="initialSize" value="#{300 * 1024 * 1024}"/>
-                            <property name="maxSize" value="#{600 * 1024 * 1024}"/>
-                            <property name="pageEvictionMode" value="RANDOM_2_LRU"/>
-                            <property name="persistenceEnabled" value="false"/>
-                            <property name="metricsEnabled" value="false"/>
-                        </bean>
+                        <ref bean="org.sakaiproject.ignite.DataRegionConfiguration.HibernateL2Region"/>
                     </list>
                 </property>
             </bean>
@@ -206,20 +210,28 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
-    <bean id="org.sakaiproject.ignite.cache.atomic" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+    <bean id="org.sakaiproject.ignite.cache.atomic"
+          class="org.apache.ignite.configuration.CacheConfiguration"
+          abstract="true">
         <property name="atomicityMode" value="ATOMIC"/>
         <property name="cacheMode" value="REPLICATED"/>
-        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
+        <property name="writeSynchronizationMode" value="FULL_ASYNC"/>
         <property name="dataRegionName" value="hibernate_l2_region"/>
         <property name="onheapCacheEnabled" value="false"/>
+        <property name="readFromBackup" value="true"/>
+        <property name="statisticsEnabled" value="true"/>
     </bean>
 
-    <bean id="org.sakaiproject.ignite.cache.transactional" class="org.apache.ignite.configuration.CacheConfiguration" abstract="true">
+    <bean id="org.sakaiproject.ignite.cache.transactional"
+          class="org.apache.ignite.configuration.CacheConfiguration"
+          abstract="true">
         <property name="atomicityMode" value="TRANSACTIONAL"/>
         <property name="cacheMode" value="REPLICATED"/>
-        <property name="writeSynchronizationMode" value="PRIMARY_SYNC"/>
+        <property name="writeSynchronizationMode" value="FULL_ASYNC"/>
         <property name="dataRegionName" value="hibernate_l2_region"/>
         <property name="onheapCacheEnabled" value="false"/>
+        <property name="readFromBackup" value="true"/>
+        <property name="statisticsEnabled" value="true"/>
     </bean>
 
 </beans>

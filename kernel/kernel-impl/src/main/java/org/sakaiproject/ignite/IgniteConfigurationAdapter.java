@@ -10,10 +10,13 @@ import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.configuration.TransactionConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
+import org.apache.ignite.transactions.TransactionConcurrency;
+import org.apache.ignite.transactions.TransactionIsolation;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -84,6 +87,11 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             } else {
                 igniteConfiguration.setClientMode(false);
             }
+
+            TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
+            transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
+            transactionConfiguration.setDefaultTxIsolation(TransactionIsolation.READ_COMMITTED);
+            igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
 
             igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
 

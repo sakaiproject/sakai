@@ -408,7 +408,7 @@ ASN.saveChanges = function(formName, textAreaId) {
 ASN.allowClick = function(object)
 {
     object.onclick='';
-    object.style.color='#000';
+    object.style.setProperty('color', '--link-active-color');
     var rv = linkFlag;
     // set the flag to be false
     linkFlag = false;

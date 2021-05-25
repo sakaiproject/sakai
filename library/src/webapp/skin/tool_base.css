@@ -477,7 +477,6 @@ h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
 /*do an assignment that requires honor code check as a student*/
 .highlightPanel {
 	margin: 1em 0;
-	padding: .5em;
 }
 
 /*to isolate blocks of data in low threshhold situations*/
@@ -676,7 +675,6 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 }
 
 .jsfFormTable td .shorttext .syllabusLabel{
-	width: 17em;
 	display: inline-block;
 }
 
@@ -807,7 +805,7 @@ blockquote p {
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 .ui-timepicker-div .ui_tpicker_unit_hide{ display: none; }
 
-.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input { background: none; color: inherit; border: none; outline: none; border-bottom: solid 1px var(--sakai-border-color); width: 95%; }
+.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input { background: none; border: none; outline: none; border-bottom: solid 1px var(--sakai-border-color); width: 95%; }
 .ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input:focus { border-bottom-color: var(--sakai-active-color-3); }
 
 .ui-timepicker-rtl{ direction: rtl; }

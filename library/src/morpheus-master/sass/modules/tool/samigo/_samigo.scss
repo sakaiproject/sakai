@@ -442,4 +442,8 @@
 		font-family: var(--sakai-font-family);
 	}
 
+	.disabled.awesomplete {
+		background-color: transparent;
+		color: var(--sakai-text-color-disabled);
+	}
 }
