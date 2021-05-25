@@ -38,12 +38,15 @@ function renderChart(gbChartData) {
 	var ctx = $('#'+chartId);
 	myChart = new Chart(ctx, {
 		type: chartType,
+
 		options: {
+
 			title: {
 				display: true,
 				text: chartTitle,
 				fontSize: 18,
-				fontStyle: 'bold'
+				fontStyle: 'bold',
+				fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
 			},
 			legend: {
 				display: false
@@ -54,21 +57,24 @@ function renderChart(gbChartData) {
 						beginAtZero:true,
 						fontStyle: 'bold',
 						autoSkip: true,
-						maxRotation: 0
+						maxRotation: 0,
+						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
 					},
 					scaleLabel: {
 						display: true,
 						labelString: xAxisLabel,
 						fontSize: 14,
 						fontFamily: 'Monospace',
-						fontStyle: 'bold'
-					}
+						fontStyle: 'bold',
+						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
+			}
 				}],
 				yAxes: [{
 					ticks: {
 						beginAtZero:true,
 						fontStyle: 'bold',
 						fontFamily: 'Monospace',
+						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
 						autoskip: true,
 						maxRotation: 0,
 						// Include a space to even out the plusses and minuses
@@ -80,7 +86,8 @@ function renderChart(gbChartData) {
 						display: true,
 						labelString: yAxisLabel,
 						fontSize: 14,
-						fontStyle: 'bold'
+						fontStyle: 'bold',
+						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
 					}
 				}]
 			},
