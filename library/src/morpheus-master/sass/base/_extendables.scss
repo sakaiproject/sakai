@@ -529,3 +529,29 @@ div.wicket-modal div.w_blue a.w_close {
 		@extend .fa-times;
 	}
 }
+
+.text-primary,
+.bg-primary {
+	color: var(--sakai-brand);
+	background-color: var(--sakai-background-color-1);
+}
+.text-success,
+.bg-success {
+	color: var(--successBanner-color);
+	background-color: var(--successBanner-bgcolor);
+}
+.text-info,
+.bg-info {
+	color: var(--infoBanner-color);
+	background-color: var(--infoBanner-bgcolor);
+}
+.text-warning,
+.bg-warning {
+	color: var(--warnBanner-color);
+	background-color: var(--warnBanner-bgcolor);
+}
+.text-danger,
+.bg-danger {
+	color: var(--errorBanner-color);
+	background-color: var(--errorBanner-bgcolor);
+}
