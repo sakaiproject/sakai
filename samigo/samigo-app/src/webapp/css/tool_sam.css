@@ -154,7 +154,8 @@ h4.samigo-category-subhead-2 {
 }
 
 .validate{
-	color:var(--sakai-color-red);
+	color: var(--errorBanner-color);
+	background-color: var(--errorBanner-bgcolor);
 }
 
 .toggle_link_container{
