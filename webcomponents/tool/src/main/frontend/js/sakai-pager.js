@@ -1,114 +1,105 @@
-import {SakaiElement} from "./sakai-element.js";
-import {html} from "./assets/lit-element/lit-element.js";
+import { css } from "./assets/lit-element/lit-element.js";
+import { loadProperties } from "./sakai-i18n.js";
+import { LionPagination } from "./assets/@lion/pagination/src/LionPagination.js"
 
-export class SakaiPager extends SakaiElement {
+export class SakaiPager extends LionPagination {
 
   constructor() {
 
     super();
 
-    this.loadTranslations("pager").then(t => this.i18n = t);
+    this.addEventListener("current-changed", (e) => {
+
+      e.stopPropagation();
+      this.dispatchEvent(new CustomEvent("page-selected", { detail: { page: this.current }, bubbles: true }));
+    });
+
+    loadProperties("pager").then(t => this.i18n = t);
   }
+
+  static get localizeNamespaces() {
+
+    return [{
+      'lion-pagination':
+      /** @param {string} locale */
+      locale => {
+        switch (locale) {
+          case 'bg-BG':
+            return import('./assets/@lion/pagination/translations/bg.js');
+
+          case 'cs-CZ':
+            return import('./assets/@lion/pagination/translations/cs.js');
+
+          case 'de-AT':
+          case 'de-DE':
+            return import('./assets/@lion/pagination/translations/de.js');
+
+          case 'en-AU':
+          case 'en-GB':
+          case 'en-PH':
+          case 'en-US':
+            return import('./assets/@lion/pagination/translations/en.js');
+
+          case 'es-ES':
+            return import('./assets/@lion/pagination/translations/es.js');
+
+          case 'fr-FR':
+          case 'fr-BE':
+            return import('./assets/@lion/pagination/translations/fr.js');
+
+          case 'hu-HU':
+            return import('./assets/@lion/pagination/translations/hu.js');
+
+          case 'it-IT':
+            return import('./assets/@lion/pagination/translations/it.js');
+
+          case 'nl-BE':
+          case 'nl-NL':
+            return import('./assets/@lion/pagination/translations/nl.js');
+
+          case 'pl-PL':
+            return import('./assets/@lion/pagination/translations/pl.js');
+
+          case 'ro-RO':
+            return import('./assets/@lion/pagination/translations/ro.js');
+
+          case 'ru-RU':
+            return import('./assets/@lion/pagination/translations/ru.js');
+
+          case 'sk-SK':
+            return import('./assets/@lion/pagination/translations/sk.js');
+
+          case 'uk-UA':
+            return import('./assets/@lion/pagination/translations/uk.js');
+
+          case 'zh-CN':
+            return import('./assets/@lion/pagination/translations/zh.js');
+
+          default:
+            return import('./assets/@lion/pagination/translations/en.js');
+        }
+      }
+    }, ...super.localizeNamespaces];
+  }
+
 
   static get properties() {
 
     return {
-      totalThings: { attribute: "total-things", type: Number },
-      pageSize: { attribute: "page-size", type:  Number },
-      numPages: Number,
-      currentPageNumbers: Array,
       i18n: Object,
     };
   }
 
-  set totalThings(newValue) {
+  static get styles() {
 
-    this._totalThings = newValue;
-    if (this.pageSize) {
-      this.numPages = this._totalThings / this.pageSize;
-      if (this.numPages < 1) this.numPages = 1;
-      this.initSetsOfPages();
-    }
-  }
-
-  get totalThings() { return this._totalThings; }
-
-  set pageSize(newValue) {
-
-    this._pageSize = newValue;
-    if (this.totalThings) {
-      this.numPages = this.totalThings / this._pageSize;
-      if (this.numPages < 1) this.numPages = 1;
-      this.initSetsOfPages();
-    }
-  }
-
-  get pageSize() { return this._pageSize; }
-
-  initSetsOfPages() {
-
-    const allPages = [...Array(this.numPages).keys()].map(i => i + 1);
-
-    this.setsOfPages = [];
-    if (this.numPages < 10) {
-      this.setsOfPages.push(allPages);
-    } else {
-      let i = 0;
-      while (i < allPages.length) {
-        if ((i + 10) < allPages.length) {
-          this.setsOfPages.push(allPages.slice(i, i + 10));
-        } else {
-          this.setsOfPages.push(allPages.slice(i));
-        }
-        i = i + 10;
-      }
-    }
-
-    this.currentPagesIndex = 0;
-
-    this.currentPageNumbers = this.setsOfPages[this.currentPagesIndex];
-
-    this.enablePrevious = this.enableNext = (this.setsOfPages.length > 1);
-  }
-
-  render() {
-
-    return html`
-      <div class="sakai-pager">
-        ${this.enablePrevious ? html`
-        <a href="javascript:;" class="pager-previous-link" @click=${this.showPreviousPageNumbers} title="${this.i18n["previous"]}">${this.i18n["previous"]}</a>
-        ` : html`
-        <span>${this.i18n["previous"]}</span>
-        `}
-        ${this.currentPageNumbers.map((i) => html`
-        <div class="pager-page-link">
-          <a href="javascript:;" data-page="${i}" @click=${this.pageClicked} title="${this.tr("page_tooltip", { page: i })}">${i}</a>
-        </div>
-        `)}
-        ${this.enableNext ? html`
-        <a href="javascript:;" class="pager-next-link" @click=${this.showNextPageNumbers} title="${this.i18n["next"]}">${this.i18n["next"]}</a>
-        ` : html`
-        <span>${this.i18n["next"]}</span>
-        `}
-      </div>
-    `;
-  }
-
-  showPreviousPageNumbers() {
-
-    this.currentPagesIndex = this.currentPagesIndex - 1;
-    this.currentPageNumbers = this.setsOfPages[this.currentPagesIndex];
-  }
-
-  pageClicked(e) {
-    this.dispatchEvent(new CustomEvent("page-clicked", {detail: {page: e.target.dataset.page}}));
-  }
-
-  showNextPageNumbers() {
-
-    this.currentPagesIndex = this.currentPagesIndex + 1;
-    this.currentPageNumbers = this.setsOfPages[this.currentPagesIndex];
+    return [
+      ...super.styles,
+      css`
+      `,
+    ];
   }
 }
 
-customElements.define("sakai-pager", SakaiPager);
+if (!customElements.get("sakai-pager")) {
+  customElements.define("sakai-pager", SakaiPager);
+}

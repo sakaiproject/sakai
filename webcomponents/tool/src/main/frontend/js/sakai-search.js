@@ -9,6 +9,8 @@ class SakaiSearch extends SakaiElement {
 
     super();
 
+    this.pageSize = 10;
+
     this.iconMapping = {
       "announcement": "icon-sakai--sakai-announcements",
       "assignments": "icon-sakai--sakai-assignment-grades",
@@ -46,7 +48,7 @@ class SakaiSearch extends SakaiElement {
     return {
       showField: Boolean,
       results: Array,
-      pageSize: { attribute: "page-size", type: Number },
+      pages: Number,
       i18n: Object,
     };
   }
@@ -95,11 +97,12 @@ class SakaiSearch extends SakaiElement {
             </a>
           </div>
           `)}
-          <sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
+          <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
         </div>
       ` : ""}
     `;
   }
+  //<sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
 
   toggleField() {
 
@@ -128,7 +131,7 @@ class SakaiSearch extends SakaiElement {
                 .catch (error => console.error("Failed to get search suggestions", error));
             },
             minLength: 2,
-            select: (e,ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
+            select: (e, ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
           });
         });
       }
@@ -151,11 +154,11 @@ class SakaiSearch extends SakaiElement {
 
   search(e) {
 
-    var keycode = e.keyCode ? e.keyCode : e.which;
+    const keycode = e.keyCode ? e.keyCode : e.which;
     if (keycode == "13" && e.target.value.length > 2) {
       sessionStorage.setItem("searchterms", e.target.value);
       fetch(`/direct/search/search.json?searchTerms=${e.target.value}`, {cache: "no-cache", credentials: "same-origin"})
-        .then(res => res.json() )
+        .then(res => res.json())
         .then(data => {
 
           this.results = data;
@@ -178,18 +181,21 @@ class SakaiSearch extends SakaiElement {
 
     this.setsOfResults = [];
 
-    if (results.length < this.pageSize) {
-      this.setsOfResults.push(results);
-    } else {
-      let i = 0;
-      while (i < results.length) {
-        if ((i + this.pageSize) < results.length) {
-          this.setsOfResults.push(results.slice(i, i + this.pageSize));
-        } else {
-          this.setsOfResults.push(results.slice(i));
+    if (results) {
+      if (results.length < this.pageSize) {
+        this.setsOfResults.push(results);
+      } else {
+        let i = 0;
+        while (i < results.length) {
+          if ((i + this.pageSize) < results.length) {
+            this.setsOfResults.push(results.slice(i, i + this.pageSize));
+          } else {
+            this.setsOfResults.push(results.slice(i));
+          }
+          i = i + this.pageSize;
         }
-        i = i + this.pageSize;
       }
+      this.pages = Math.ceil(results.length / this.pageSize);
     }
 
     this.currentPageIndex = 0;
@@ -199,13 +205,15 @@ class SakaiSearch extends SakaiElement {
     this.requestUpdate();
   }
 
-  pageClicked(e) {
+  pageSelected(e) {
 
-    this.currentPageIndex = parseInt(e.detail.page) - 1;
+    this.currentPageIndex = e.detail.page;
     this.currentPageOfResults = this.setsOfResults[this.currentPageIndex];
     this.requestUpdate();
     sessionStorage.setItem("currentpageindex", this.currentPageIndex);
   }
 }
 
-customElements.define("sakai-search", SakaiSearch);
+if (!customElements.get("sakai-search")) {
+  customElements.define("sakai-search", SakaiSearch);
+}
