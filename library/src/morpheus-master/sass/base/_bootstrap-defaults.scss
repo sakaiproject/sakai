@@ -623,9 +623,9 @@ $popover-title-bg:                   var(--sakai-popover-title-background);
 // $modal-title-line-height:     $line-height-base
 
 //** Background color of modal content area
-// $modal-content-bg:                             #fff
+$modal-content-bg:                             var(--sakai-background-color-1);
 //** Modal content border color
-// $modal-content-border-color:                   rgba(0,0,0,.2)
+$modal-content-border-color:                   var(--sakai-border-color);
 //** Modal content border color **for IE8**
 // $modal-content-fallback-border-color:          #999
 
@@ -634,9 +634,9 @@ $popover-title-bg:                   var(--sakai-popover-title-background);
 //** Modal backdrop opacity
 // $modal-backdrop-opacity:      .5
 //** Modal header border color
-// $modal-header-border-color:   #e5e5e5
+$modal-header-border-color:   var(--sakai-border-color);
 //** Modal footer border color
-// $modal-footer-border-color:   $modal-header-border-color
+$modal-footer-border-color:   $modal-header-border-color;
 
 // $modal-lg:                    900px
 // $modal-md:                    600px
@@ -848,8 +848,8 @@ $breadcrumb-active-color:       var(--sakai-text-color-3);
 //##
 
 // $close-font-weight:           bold
-// $close-color:                 #000
-// $close-text-shadow:           0 1px 0 #fff
+$close-color:                 var(--button-text-color);
+$close-text-shadow:           none;
 
 
 //== Code
