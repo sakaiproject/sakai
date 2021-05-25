@@ -322,6 +322,11 @@ table{
 		}
 	}
 }
+
+.tablesorter-default {
+	font: #{$font-size-base} $font-family;
+}
+
 .tablesorter-default,
 .tablesorter-default th,
 .tablesorter-default thead td,
@@ -330,14 +335,94 @@ table{
 	background-color: var(--sakai-background-color-1);
 	color: var(--sakai-text-color-1);
 }
-.tablesorter-default tr.odd>td {
+
+.tablesorter-default td,
+.tablesorter-default .tablesorter-filter-row td {
+	border-bottom: 1px solid var(--sakai-border-color);
+}
+
+.tablesorter-default th,
+.tablesorter-default thead td {
+	border-bottom: 2px solid var(--sakai-border-color);
+}
+
+.tablesorter-default .header,
+.tablesorter-default .tablesorter-header {
+	background-image: none;
+}
+
+.tablesorter-default thead .headerSortUp,
+.tablesorter-default thead .tablesorter-headerAsc,
+.tablesorter-default thead .tablesorter-headerSortUp
+.tablesorter-default thead .headerSortDown,
+.tablesorter-default thead .tablesorter-headerDesc,
+.tablesorter-default thead .tablesorter-headerSortDown,
+.tablesorter-default tfoot .tablesorter-headerAsc,
+.tablesorter-default tfoot .tablesorter-headerDesc,
+.tablesorter-default tfoot .tablesorter-headerSortDown,
+.tablesorter-default tfoot .tablesorter-headerSortUp {
+	border-bottom-color: var(--sakai-text-color-1);
+	background-image: none;
+}
+
+.tablesorter-default .header::before,
+.tablesorter-default .tablesorter-header::before,
+.tablesorter-default .headerSortUp::before,
+.tablesorter-default .tablesorter-headerAsc::before,
+.tablesorter-default .tablesorter-headerSortUp::before,
+.tablesorter-default .tablesorter-headerDesc::before,
+.tablesorter-default .tablesorter-headerSortDown::before,
+.tablesorter-default .tablesorter-headerSortUp::before {
+	@extend .fa;
+	@extend .fa-arrows-v;
+	float:right;
+}
+
+.tablesorter-default .headerSortUp::before,
+.tablesorter-default .tablesorter-headerAsc::before,
+.tablesorter-default .tablesorter-headerSortUp::before {
+	@extend .fa-caret-up;
+}
+
+.tablesorter-default .headerSortDown::before,
+.tablesorter-default .tablesorter-headerDesc::before,
+.tablesorter-default .tablesorter-headerSortDown::before {
+	@extend .fa-caret-down;
+}
+
+.tablesorter-default tr.odd>td,
+.tablesorter-default .tablesorter-filter-row,
+.tablesorter-default .tablesorter-filter-row td {
 	background-color: var(--sakai-background-color-2);
 	color: var(--sakai-text-color-1);
 }
+
 .tablesorter-default tbody>tr.even:hover>td,
 .tablesorter-default tbody>tr.hover>td,
 .tablesorter-default tbody>tr.odd:hover>td,
-.tablesorter-default tbody>tr:hover>td {
+.tablesorter-default tbody>tr:hover>td,
+.tablesorter-default tbody>tr:hover tbody td {
 	background-color: var(--sakai-background-color-3);
 	color: var(--sakai-text-color-1);
+}
+
+.tablesorter-default thead>tr:hover td {
+	background-color: var(--sakai-background-color-1);
+}
+
+.tablesorter-default tbody tbody td,
+.tablesorter-default thead tbody td {
+	border-bottom: none;
+}
+
+.tablesorter-default input.tablesorter-filter,
+.tablesorter-default select.tablesorter-filter {
+	background-color: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-border-color);
+	color: var(--sakai-text-color-1);
+}
+.tablesorter .tablesorter-errorRow td {
+	background-color: var(--warnBanner-bgcolor);
+	border-color: var(--warnBanner-bordercolor);
+	color: var(--warnBanner-color);
 }
