@@ -164,6 +164,10 @@
 	}
 }
 
+input::placeholder {
+	color: var(--sakai-text-color-1);
+}
+
 .select{
 	background-color: var(--sakai-background-color-1);
 	background-image: url(#{$skin-path}images/icon-arrow-down.png);
