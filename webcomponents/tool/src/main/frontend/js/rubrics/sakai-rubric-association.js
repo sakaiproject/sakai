@@ -53,6 +53,15 @@ class SakaiRubricAssociation extends RubricsElement {
     }
   }
 
+  toggleFineTunePoints(e) {
+
+    if (!e.target.checked) {
+      if (!confirm(this.i18n["adjust_scores_warning"])) {
+        e.preventDefault();
+      }
+    }
+  }
+
   shouldUpdate() {
     return this.i18n && this.rubrics && this.rubrics.length > 0;
   }
@@ -93,7 +102,13 @@ class SakaiRubricAssociation extends RubricsElement {
             <div class="rubric-options">
               <div class="checkbox">
                 <label>
-                  <input name="rbcs-config-fineTunePoints" type="checkbox" ?checked=${this.selectedConfigOptions["fineTunePoints"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
+                  <input
+                      name="rbcs-config-fineTunePoints"
+                      type="checkbox"
+                      @click=${this.toggleFineTunePoints}
+                      ?checked=${this.selectedConfigOptions["fineTunePoints"]}
+                      value="1"
+                      ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
                 </label>
               </div>
               <div class="checkbox">
