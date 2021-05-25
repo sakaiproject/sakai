@@ -456,7 +456,9 @@ div.wicket-modal .w_blue div.w_content
 .gb-summary-grade-score sakai-rubric-student-button {
     float: right;
 }
-
+.gb-summary-grade-panel .gb-summary-grade-stats.pull-right {
+  margin-left: 8px;
+}
 .gb-summary-grade-panel .gb-summary-grade-stats, .gb-summary-grade-panel .gb-summary-grade-stats:hover {
   text-decoration: none;
 }
