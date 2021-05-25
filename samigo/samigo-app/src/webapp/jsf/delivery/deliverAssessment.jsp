@@ -33,7 +33,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
-          <script>var portal = portal || { siteId: '#{delivery.siteId}' };</script>
+          <script>var portal = portal || { siteId: '<h:outputText value="#{delivery.siteId}" />' };</script>
           <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       <script src="/sakai-editor/editor-bootstrap.js"></script>
       <script src="/sakai-editor/editor.js"></script>
