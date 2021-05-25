@@ -982,7 +982,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					errored = errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "calendarEvents", toolTitle, idx));
 				}
 				else if (dueDate.isBefore(openDate)) {
-					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "calendarEvents", toolTitle, idx));
+					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.end.date"), "calendarEvents", toolTitle, idx));
 				}
 				if (errored) {
 					continue;
