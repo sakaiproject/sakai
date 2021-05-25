@@ -55,6 +55,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
           .header {
             font-weight: bold;
             padding: 0 5px 0 5px;
+            color: var(--sakai-grades-count-color, --sakai-text-color-1);
           }
           .assignment {
             padding: 8px;
