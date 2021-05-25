@@ -33,9 +33,9 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
         <h:column>
          <h:panelGroup rendered="#{answer.text !=null && answer.text!=''}">
-          <h:graphicImage id="image1" rendered="#{answer.isCorrect}" alt="#{authorMessages.correct}" url="/images/radiochecked.gif"/>
+          <h:panelGroup id="image1" rendered="#{answer.isCorrect}" styleClass="samigo-inline-radio fa fa-circle"></h:panelGroup>
          
-          <h:graphicImage id="image2" rendered="#{!answer.isCorrect}" alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif"/>
+          <h:panelGroup id="image2" rendered="#{!answer.isCorrect}" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
         
           <h:outputText escape="false" value="#{answer.label}. " />
           <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText"/>

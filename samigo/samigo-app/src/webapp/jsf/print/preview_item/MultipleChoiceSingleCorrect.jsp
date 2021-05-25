@@ -40,7 +40,7 @@ should be included in file importing DeliveryMessages
           <%-- inputBlock --%>
           <h:panelGroup rendered="#{answer.text !=null && answer.text!=''}" styleClass="inputBlock">
 		    <%-- Show answer text --%>
-		    <h:graphicImage id="image1" url="/images/radiounchecked.gif"/>
+          <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
 		    <h:outputText escape="false" value="#{answer.label}. " />
 			<h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText"/>
           </h:panelGroup>

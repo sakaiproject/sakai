@@ -73,7 +73,8 @@
 	}
 
 	.samigo-inline-radio {
-		label {
+		label,
+		&.fa {
 			margin-right: $standard-spacing;
 		}
 	}

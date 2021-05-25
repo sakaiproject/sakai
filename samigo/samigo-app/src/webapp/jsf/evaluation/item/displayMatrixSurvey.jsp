@@ -45,7 +45,7 @@ include file for displaying matrix choices question
                             <t:outputText value="#{question.columnChoices[colIndex]}" />
                     </f:facet>
                    <div style="text-align: center;">
-                 <h:graphicImage id="image2" alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif"/>
+                 <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
                  <f:verbatim><br /></f:verbatim>
            
                  </div>

@@ -33,9 +33,7 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-          <h:graphicImage id="image2"
-             alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif" >
-          </h:graphicImage>
+          <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
           <h:outputText escape="false" value="#{answer.text}" >
           	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" /> 
           </h:outputText>
