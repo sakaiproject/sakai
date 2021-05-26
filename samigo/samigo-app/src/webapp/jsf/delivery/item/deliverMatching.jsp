@@ -25,12 +25,16 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-  <h:outputText value="#{question.text}"  escape="false"/>
+  <h:outputText value="#{question.text}"  escape="false">
+    <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+  </h:outputText>
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
   <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.answers}" var="answer">
-    <h:outputText value="#{answer}" escape="false" styleClass="mcAnswerText" />
+    <h:outputText value="#{answer}" escape="false" styleClass="mcAnswerText">
+      <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+    </h:outputText>
   </t:dataList>
 
   <h:dataTable value="#{question.matchingArray}" var="matching">
@@ -57,7 +61,9 @@ should be included in file importing DeliveryMessages
      </t:selectOneMenu>
    </h:column>
    <h:column>
-     <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText" />
+     <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText">
+       <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+     </h:outputText>
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && 
 	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >

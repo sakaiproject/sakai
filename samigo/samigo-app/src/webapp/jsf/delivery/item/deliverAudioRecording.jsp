@@ -55,7 +55,9 @@ should be included in file importing DeliveryMessages
 <h:outputText escape="false" value="
 <input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au\"/>" />
 
-<h:outputText value="#{question.text} "  escape="false"/>
+<h:outputText value="#{question.text} "  escape="false">
+  <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+</h:outputText>
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 

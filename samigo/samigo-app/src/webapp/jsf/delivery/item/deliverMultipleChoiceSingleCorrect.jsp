@@ -37,7 +37,9 @@ should be included in file importing DeliveryMessages
 <h:outputText value="</script>" escape="false" />
 
 <h:outputText value="<fieldset>" escape="false"/>
-<h:outputText value="#{question.text}" escape="false"/>
+<h:outputText value="#{question.text}" escape="false">
+  <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+</h:outputText>
 
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
@@ -75,6 +77,7 @@ should be included in file importing DeliveryMessages
       </span>
       <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false">
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
       </h:outputText>
     </h:panelGroup>
 

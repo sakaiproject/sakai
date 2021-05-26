@@ -21,6 +21,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,12 +48,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.util.Precision;
-
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -99,6 +102,7 @@ import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.api.EncryptionUtilityService;
 
 /**
  * <p>Title: Samigo</p>
@@ -120,6 +124,8 @@ public class DeliveryActionListener
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+  private EncryptionUtilityService encryptionUtilityService = ComponentManager.get(EncryptionUtilityService.class);
+  private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
 
   /**
    * ACTION.
@@ -230,7 +236,7 @@ public class DeliveryActionListener
       boolean isFirstTimeBegin = false;
       StringBuffer eventRef; 
       Event event;
-      
+
       switch (action){
       case 2: // preview assessment
               setFeedbackMode(delivery);
@@ -509,6 +515,27 @@ public class DeliveryActionListener
               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
               log.debug("****Set begin time " + delivery.getBeginTime());
               log.debug("****Set elapsed time " + delivery.getTimeElapse());
+
+              // SAK-45537 - Generate a secure token valid only for this exam, site and session.
+              try {
+                  if (StringUtils.isBlank(delivery.getSecureToken())) {
+                      // Set token validity for the time limit of the exam, if there's no limit make it available for 2 hours.
+                      int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
+                      int tokenValiditySeconds = timeRemaining > 0 ? timeRemaining : 7200;
+                      log.debug("Generating secured token for attachments valid for {} seconds.....", tokenValiditySeconds);
+                      String localDateTime = LocalDateTime.now().plusSeconds(tokenValiditySeconds).toString();
+                      String sessionId = sessionManager.getCurrentSession().getId();
+                      String secureTokenString = sessionId+"|"+localDateTime;
+                      log.debug("Encrypting secured token {}", secureTokenString);
+                      String secureToken = URLEncoder.encode(encryptionUtilityService.encrypt(secureTokenString), StandardCharsets.UTF_8.name());
+                      log.debug("Encrypted token with value {}", secureToken);
+                      delivery.setSecureToken(secureToken);
+                  }
+
+              } catch (Exception ex) {
+                  log.warn("Cannot generate secured token for assessment {}: {}", delivery.getAssessmentId(), ex.getMessage());
+              }
+
               break;
 
       default: break;
