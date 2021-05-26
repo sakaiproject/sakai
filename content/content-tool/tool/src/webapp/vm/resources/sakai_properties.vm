@@ -536,6 +536,21 @@ button.btn.btn-default.multiselect-clear-filter{
 									</div>
 								</div>
 							#end
+							#if (!$item.isCollection())
+								<div class="row">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+										<label for="allowSecuredAccess${DOT}$i">
+											<input type="checkbox"
+												name="allowSecuredAccess${DOT}$i"
+												id="allowSecuredAccess${DOT}$i"
+												value="true"
+												#if($model.isAllowSecuredAccess()) checked="checked" #end
+											/>
+											$tlang.getString("access.secured")
+										</label>
+									</div>
+								</div>
+							#end
 						#end
 					</div>
 					
