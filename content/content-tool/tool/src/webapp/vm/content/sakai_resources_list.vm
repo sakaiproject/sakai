@@ -451,6 +451,9 @@
 							#if(!$item.isAvailable())
 								<span class="not-available fa fa-eye-slash" aria-hidden="true" title="$clang.getString('resource.is.hidden')"></span>
 							#end
+							#if (!$item.isCollection() && $item.isAllowSecuredAccess())
+								<span class="fa fa-lock" aria-hidden="true" title="$clang.getString('resource.is.secured.access')"></span>
+							#end
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())

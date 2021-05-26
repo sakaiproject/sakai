@@ -471,6 +471,8 @@ public class ListItem
 
 	protected Time lastChange = null;
 
+    private Boolean allowSecuredAccess;
+
 	private org.sakaiproject.content.api.ContentHostingService contentService;
 	
 	public String getConditionAssignmentPoints() {
@@ -737,7 +739,10 @@ public class ListItem
 			//does this object or its parent collection allow inlineHTML?
 			setAllowHtmlInline(isAllowInline(resource));
 			setAllowHtmlInlineInherited(isAllowInline(resource.getContainingCollection()));
-			
+
+            // Grant secured access to the resource.
+            setAllowSecuredAccess(isAllowSecured(resource));
+
 			String size = null;
 			String sizzle = null;
 			if(typeDef != null)
@@ -1653,6 +1658,10 @@ public class ListItem
 		{
 			this.captureOptionalPropertyValues(params, index);
 		}
+
+        // Get the secured parameter from the form for the resource.
+        captureAllowSecuredAccess(params, index);
+
 	}
 
 	protected void captureHtmlInline(ParameterParser params, String index) {
@@ -3528,7 +3537,10 @@ public class ListItem
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(props, edit);
 		setHtmlInlineOnEntity(props, edit);
-		
+
+        // Set the secured parameter value in the entity.
+        setAllowSecuredAccessOnEntity(props);
+
 		if(! isUrl() && ! isCollection() && this.mimetype != null)
 		{
 			setMimetypeOnEntity(edit, props);
@@ -4431,7 +4443,7 @@ public class ListItem
 	public void setAllowHtmlInline(boolean allowHtmlInline) {
 		this.allowHtmlInline = allowHtmlInline;
 	}
-	
+
 	/**
 	 * Specifies whether or not the item has inherited the "allowHtmlInline" property from its
 	 * parent collection.
@@ -4474,6 +4486,37 @@ public class ListItem
 		// This is used when asking if the styles of the service should be used.
 		return ServerConfigurationService.getString("ui.service", "Sakai");
 	}
-	
+
+    protected void captureAllowSecuredAccess(ParameterParser params, String index) {
+        Boolean allowSecuredAccess = params.getBoolean("allowSecuredAccess" + index);
+        log.debug("Allow secured access: {}", allowSecuredAccess);
+        this.allowSecuredAccess = allowSecuredAccess;
+    }
+
+    private boolean isAllowSecured(ContentEntity entity) {
+        try {
+            return entity != null ? entity.getProperties().getBooleanProperty(ResourceProperties.PROP_SECURED) : false;
+        } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
+            return false;
+        }
+    }
+
+    public boolean isAllowSecuredAccess() {
+        return this.allowSecuredAccess != null ? this.allowSecuredAccess : false;
+    }
+
+    public void setAllowSecuredAccess(boolean allowSecuredAccess) {
+        this.allowSecuredAccess = allowSecuredAccess;
+    }
+
+    private void setAllowSecuredAccessOnEntity(ResourcePropertiesEdit props)  {
+        log.debug("setAllowSecuredAccessOnEntity() with allowSecuredAccess {}.", allowSecuredAccess);
+        if (allowSecuredAccess != null && allowSecuredAccess) {
+            props.addProperty(ResourceProperties.PROP_SECURED, Boolean.TRUE.toString());
+        } else {
+            props.removeProperty(ResourceProperties.PROP_SECURED);
+        }
+    }
+
 }
 
