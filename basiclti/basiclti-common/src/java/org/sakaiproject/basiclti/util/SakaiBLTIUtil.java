@@ -1905,6 +1905,10 @@ public class SakaiBLTIUtil {
 				"data": "csrftoken:c7fbba78-7b75-46e3-9201-11e6d5f36f53"
 			*/
 
+			// Add post-launch call back claim
+			lj.origin = getOurServerUrl();
+			lj.postverify = getOurServerUrl() + LTI13_PATH + "postverify/" + signed_placement;
+
 			if ( deepLink ) {
 				SakaiDeepLink ci = new SakaiDeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
@@ -2004,9 +2008,11 @@ public class SakaiBLTIUtil {
 			}
 			html += "    </form>\n";
 
+
 			if ( ! dodebug ) {
 				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.imsglobal.lti.prelaunch\" }', '*');\n";
 				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
 				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
@@ -2018,6 +2024,9 @@ public class SakaiBLTIUtil {
 						+ "</p>\n<p>\n--- Encoded JWT:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(jws)
 						+ "</p>\n";
+				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.imsglobal.lti.prelaunch\" }', '*');\n";
+				html += "</script>\n";
 			}
 			String[] retval = {html, launch_url};
 			return retval;

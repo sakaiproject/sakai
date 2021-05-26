@@ -266,6 +266,13 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// /imsblis/lti13/postverify/{signed-placement}
+		if (parts.length == 5 && "postverify".equals(parts[3])) {
+			String signed_placement = parts[4];
+			handlePostVerify(signed_placement, request, response);
+			return;
+		}
+
 		// /imsblis/lti13/sakai_config
 		if (parts.length == 4 && "sakai_config".equals(parts[3])) {
 			handleSakaiConfig(request, response);
@@ -434,6 +441,86 @@ public class LTI13Servlet extends HttpServlet {
 				PrintWriter out = response.getWriter();
 
 				out.println(((JSONObject) js).toJSONString());
+			} catch (Exception e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+
+	// LTI PostVerify
+	protected void handlePostVerify(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null || sess.getUserId() == null ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		if (toolKey < 0 ) {
+			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
+			LTI13Util.return400(response, "Content / Tool mismatch");
+			return;
+		}
+
+		Map<String, Object> tool = ltiService.getToolDao(toolKey, site.getId());
+		if (tool == null) {
+			log.error("Could not load tool={}", toolKey);
+			LTI13Util.return400(response, "Missing tool");
+			return;
+		}
+
+		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
+		String platform_private = SakaiBLTIUtil.decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
+
+		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
+		Key publicKey = LTI13Util.string2PublicKey(platform_public);
+
+		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
+
+		String context_id = site.getId();
+
+		String user_id = sess.getUserId();
+		String subject = SakaiBLTIUtil.getSubject(user_id, context_id);
+
+		try {
+			try {
+				response.setContentType("application/jwt");
+				PrintWriter out = response.getWriter();
+				Long issued = new Long(System.currentTimeMillis() / 1000L);
+				String body =
+					"{\n" +
+					"\"iss\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+					"\"aud\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+					"\"exp\": \""+(issued+3600L)+"\",\n" +
+					"\"user_id\": \""+user_id+"\",\n" +
+					"\"context_id\": \""+context_id+"\",\n" +
+					"\"sub\": \""+subject+"\"\n" +
+					"}";
+
+				// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
+				String jws = Jwts.builder()
+					.setHeaderParam("kid", kid)
+					.setPayload(body)
+					.signWith(privateKey)
+					.compact();
+
+				out.println(jws);
+
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
