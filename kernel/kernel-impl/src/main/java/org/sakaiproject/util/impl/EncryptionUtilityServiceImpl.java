@@ -31,9 +31,7 @@ public class EncryptionUtilityServiceImpl implements EncryptionUtilityService {
         boolean useLetters = true;
         boolean useNumbers = true;
         String serverSecretKey = RandomStringUtils.random(keyLength, useLetters, useNumbers);
-        // TODO: This will be removed after completed the development of SAK-46696, never expose the server secret key.
-        // Having the serverSecretKey value allows us to generate valid tokens outside Sakai.
-        log.info("Server secret key has been set to {}", serverSecretKey);
+        log.info("Server secret key has been set, not exposing it for security reasons.");
         textEncryptor.setPassword(serverSecretKey);
     }
 

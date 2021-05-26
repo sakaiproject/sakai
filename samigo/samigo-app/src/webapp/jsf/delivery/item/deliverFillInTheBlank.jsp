@@ -35,7 +35,9 @@ should be included in file importing DeliveryMessages
 
 <samigo:dataLine value="#{question.fibArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText id="fib-question-text" styleClass="fib-question-text" value="#{answer.text} " escape="false" />
+      <h:outputText id="fib-question-text" styleClass="fib-question-text" value="#{answer.text} " escape="false">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+      </h:outputText>
       <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&

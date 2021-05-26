@@ -26,7 +26,9 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <f:verbatim><br /></f:verbatim>
-  <h:outputText value="#{question.text}"  escape="false"/>
+  <h:outputText value="#{question.text}"  escape="false">
+    <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+  </h:outputText>
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 

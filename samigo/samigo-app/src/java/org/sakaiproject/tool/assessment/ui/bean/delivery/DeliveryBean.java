@@ -370,7 +370,7 @@ public class DeliveryBean implements Serializable {
   private String javaScriptEnabledCheck;
 
   //cwent
-  @Setter
+  @Setter @Getter
   private String siteId;
 
   @Getter @Setter
@@ -482,6 +482,9 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private List attachmentList;
 
+  @Getter @Setter
+  private String secureToken;
+
   /**
    * Creates a new DeliveryBean object.
    */
@@ -590,6 +593,8 @@ public class DeliveryBean implements Serializable {
         sb.append(publishedAssessment.getPublishedAssessmentId()).append("\n");
         sb.append("         - Assessment Title       : ").append(publishedAssessment.getTitle()).append("\n");
         sb.append("         - Assessment Site ID     : ").append(publishedAssessment.getOwnerSiteId());
+        // Setting the siteId in the bean may help in contexts like taking the exam via URL or lessons.
+        this.setSiteId(publishedAssessment.getOwnerSiteId());
         BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
         //settings variable may be populated by populateBeanFromPub
         listener.populateBeanFromPub(this, publishedAssessment);

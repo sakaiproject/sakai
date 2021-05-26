@@ -247,7 +247,10 @@
             <groupId>org.sakaiproject.rubrics</groupId>
             <artifactId>rubrics-service-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
         <!--JSF 2.3 dependencies-->
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
