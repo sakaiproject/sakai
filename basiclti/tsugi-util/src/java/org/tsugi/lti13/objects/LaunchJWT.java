@@ -89,6 +89,12 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1p1")
 	public LTI11Transition lti11_transition;
 
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/origin")
+    public String origin;
+
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/postverify")
+    public String postverify;
+
 	// Constructor
 	public LaunchJWT() {
 		this.message_type = MESSAGE_TYPE_LAUNCH;
