@@ -93,6 +93,16 @@
     // Used on the body and main content containers
     --sakai-background-color-1: var(--sakai-greyblue--darker-6);
 
+    // Chat Toggle background color. 
+    // Suggested: Dark Grey
+    // Used on chat and presence toggle
+    --sakai-background-color-chat-1: var(--sakai-color-white);
+
+    // Chat Toggle text color. 
+    // Suggested: Dark Grey
+    // Used on chat and presence toggle
+    --sakai-text-color-chat-1: var(--sakai-color-gray--darker-5);
+
     // Default: A slightly lighter shade of --sakai-background-color-1
     // Used in hover effects of --sakai-background-color-1, alternating table rows
     --sakai-background-color-2: var(--sakai-greyblue--darker-5);
