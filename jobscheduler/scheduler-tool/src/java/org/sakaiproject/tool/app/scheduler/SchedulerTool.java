@@ -1472,7 +1472,7 @@ public class SchedulerTool
    }
 
     public List<SelectItem> getScheduledJobs() throws SchedulerException {
-        ArrayList<SelectItem> scheduledJobs = new ArrayList<SelectItem> ();
+        List<SelectItem> scheduledJobs = new ArrayList<>();
         List<String> groupNames = schedulerManager.getScheduler().getJobGroupNames();
         for (String groupName : groupNames) {       
             Set<JobKey> jobKeys = schedulerManager.getScheduler().getJobKeys(GroupMatcher.groupEquals(groupName));
@@ -1492,4 +1492,3 @@ public class SchedulerTool
     }
 
 }
-
