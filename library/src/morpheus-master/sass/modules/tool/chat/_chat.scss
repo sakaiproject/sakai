@@ -2,8 +2,7 @@
 // MODULES: Styles that are layout independent 
 //////////////////////////////
 @import "_chat_variables";
-.Mrphs-{
-	&sakai-chat{
+	.#{$namespace}sakai-chat{
 		.panel-chat {
 			padding: 0;
 			margin: 14px 0 0 0;
@@ -325,7 +324,7 @@
 			}
 		}
 	}
-	&footerApp{
+	.#{$namespace}footerApp{
 		&__presence, &__portalChat{
 		    background-color: $footerApp__chat__header__background;
 		    color: $footerApp__chat__header__color;
@@ -342,15 +341,13 @@
 		&__portalChat{
 		    width: 226px;
 		}
-		&--toggle{
+		&--toggle[href]{
 		    display: block;
 		    padding: 2px 0px 0px 0px;
-		    color: $footerApp__chat__background !important;
-		    text-decoration: none;
 		    height: 16px;
 		    font-weight: bold;
-		    &:hover, &:link, &:active {
-		    	color: $footerApp__chat__background;
+		    &:link, &:visited, &:hover, &:active {
+		    	color: $footerApp__chat__a__color;
 		    	text-decoration: none;
 		    }
 		}
@@ -362,7 +359,7 @@
 		    text-align: center;
 		    margin-right: auto;
 		    vertical-align: text-bottom;
-		    border: 1px solid transparent;
+		    border: 1px solid $footerApp__chat__a__color;
 		    margin-left: 5px;
 		    padding: 0;
 		    font-size: 0.8em;
@@ -396,7 +393,7 @@
 			&.icon-sakai-frown			{	@extend	.fa-frown-o}
 		  }
 	}
-	&presence {
+	.#{$namespace}presence {
 		&__area {
 		    background-color: var(--sakai-background-color-1);
 		    border: 1px solid var(--sakai-border-color);
@@ -445,7 +442,7 @@
 		    }
 		}
 	}
-	&portalChat{
+	.#{$namespace}portalChat{
 		    width: 225px;
 		    background-color: $footerApp__chat__background;
 		    position: fixed;
@@ -632,6 +629,7 @@
 					margin-left: 5px;
 					margin-top: 10px;
 					padding: 14px 2px 2px 2px;
+					color: var(--sakai-color-gray--darker-5);
 					&__left{
 						background: $footerApp__chat__message__left__background;
 						border: $footerApp__chat__message__left__border solid 1px;
@@ -711,7 +709,6 @@
     				margin-top: 3px;
 	    		}
 				&messageheader{
-				  color: var(--sakai-text-color-dimmed);
 				  position: absolute;
 				  right: 3px;
 				  top: 3px;
@@ -888,5 +885,4 @@
 					}
 				}
 			}
-	}
-}
+		}
