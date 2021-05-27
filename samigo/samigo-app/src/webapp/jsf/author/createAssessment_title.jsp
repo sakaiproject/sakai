@@ -41,6 +41,7 @@
         <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
         <script>includeWebjarLibrary('datatables');</script>
         <script src="/samigo-app/js/info.js"></script>
+        <script src="/library/js/spinner.js"></script>
 
 <%--        header--%>
         <div class="page-header">
@@ -87,7 +88,7 @@
                 </h:panelGroup>
 
                 <div class="form-group act">
-                    <h:commandButton id="createnew" styleClass="active" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
+                    <h:commandButton id="createnew" styleClass="active" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" onclick="SPNR.disableElementAndSpin(this.parentNode.id, this, true)">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                     </h:commandButton>
                 </div>
