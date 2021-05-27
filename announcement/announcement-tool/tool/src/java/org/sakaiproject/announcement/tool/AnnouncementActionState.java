@@ -343,8 +343,22 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 					setShowAllColumns(true);
 					setShowAnnouncementBody(true);
 
-					setNumberOfCharsPerAnnouncement(numberOfCharsPerAnnouncement);
-					setEnforceNumberOfCharsPerAnnouncement(false);
+					String varNameNumberChars = parameters.getString("changeChars");
+					if (varNameNumberChars.equals(rb.getString("custom.shofir")))
+					{
+						setNumberOfCharsPerAnnouncement(50);
+						setEnforceNumberOfCharsPerAnnouncement(true);
+					}
+					else if (varNameNumberChars.equals(rb.getString("custom.shofirtwo")))
+					{
+						setNumberOfCharsPerAnnouncement(100);
+						setEnforceNumberOfCharsPerAnnouncement(true);
+					}
+					else if (varNameNumberChars.equals(rb.getString("custom.shoall")))
+					{
+						setNumberOfCharsPerAnnouncement(numberOfCharsPerAnnouncement);
+						setEnforceNumberOfCharsPerAnnouncement(false);
+					}
 				}
 				else if (VarNameDisplaySelection.equals("list"))
 				{
