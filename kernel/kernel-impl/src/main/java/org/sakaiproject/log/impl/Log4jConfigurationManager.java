@@ -50,9 +50,6 @@ import org.sakaiproject.log.api.LogPermissionException;
 @Slf4j
 public abstract class Log4jConfigurationManager implements LogConfigurationManager {
 
-	protected abstract ServerConfigurationService serverConfigurationService();
-	protected abstract SecurityService securityService();
-
 	// Configuration: enable special log handling or not.
 	protected boolean enabled = true;
 
@@ -61,6 +58,9 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 
 	// Log4j logger context
 	private LoggerContext loggerContext;
+
+	protected abstract ServerConfigurationService serverConfigurationService();
+	protected abstract SecurityService securityService();
 
 	public void setEnabled(String enabled) {
 		this.enabled = Boolean.parseBoolean(enabled);
