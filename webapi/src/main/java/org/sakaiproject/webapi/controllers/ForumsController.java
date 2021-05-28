@@ -78,6 +78,8 @@ public class ForumsController extends AbstractSakaiApiController {
         try {
             Site site = siteService.getSite(item.getSiteId());
 
+            map.put("siteUrl", site.getUrl());
+
             ToolConfiguration tc = site.getToolForCommonId("sakai.forums");
             if (tc != null) {
                 String forumsUrl = "/portal/directtool/" + tc.getId();
