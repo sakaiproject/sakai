@@ -1,9 +1,9 @@
 package org.sakaiproject.ignite;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.configuration.CacheConfiguration;
@@ -112,13 +112,20 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
 
-            List<String> discoveryAddresses = new ArrayList<>();
+            Set<String> discoveryAddresses = new HashSet<>();
+            String localDiscoveryAddress;
             if (StringUtils.isNotBlank(address)) {
                 tcpCommunication.setLocalAddress(address);
                 tcpDiscovery.setLocalAddress(address);
-                discoveryAddresses.add(address + ":" + (port + range) + ".." + (port + range + range - 1));
+                localDiscoveryAddress = address;
             } else {
-                discoveryAddresses.add("127.0.0.1:" + (port + range) + ".." + (port + range + range - 1));
+                localDiscoveryAddress = "127.0.0.1";
+            }
+
+            if (range - 1 == 0) {
+                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range));
+            } else {
+                discoveryAddresses.add(localDiscoveryAddress + ":" + (port + range) + ".." + (port + range + range - 1));
             }
 
             tcpCommunication.setLocalPort(port);
