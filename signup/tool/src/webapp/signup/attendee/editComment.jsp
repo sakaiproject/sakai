@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -48,7 +48,7 @@
 					<h:outputText value="&nbsp;" escape="false"/>
 					
 					<h:outputText value="#{msgs.event_comment}" styleClass="titleText" escape="false"/>
-					<sakai:rich_text_area value="#{EditCommentSignupMBean.comment}" width="720" height="200" rows="5"  columns="80"/>
+					<sakai:inputRichText value="#{EditCommentSignupMBean.comment}" width="720" height="200" rows="5"  cols="80"/>
 				   	
 					<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 					<h:panelGrid columns="1" style="width:100%;margin:-3px 0 0 -3px;" rendered="#{EditMeetingSignupMBean.publishedSite}">

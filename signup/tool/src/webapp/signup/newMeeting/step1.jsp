@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 
@@ -136,10 +136,10 @@
                     <div class="col-md-10">
                         <!-- Displays all the locations in the dropdown -->
                         <h:selectOneMenu id="selectedLocation" value="#{NewSignupMeetingBean.selectedLocation}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}">
-                            <f:validator validatorId="Signup.EmptyStringValidator"/>
                             <f:selectItems value="#{NewSignupMeetingBean.allLocations}"/>
                         </h:selectOneMenu>
-                        <h:inputText id="customLocation" size="30" value="#{NewSignupMeetingBean.customLocation}" styleClass="editText form-control" style="display:none">  
+                        <h:inputText id="customLocation" size="30" value="#{NewSignupMeetingBean.customLocation}" styleClass="editText form-control" style="display:none">
+                            <f:converter converterId="Signup.StringTrimConverter"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         
@@ -165,8 +165,8 @@
                         <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}"  rendered="#{NewSignupMeetingBean.categoriesExist}">
                             <f:selectItems value="#{NewSignupMeetingBean.allCategories}"/>
                         </h:selectOneMenu>
-                        <h:inputText id="customCategory" size="30" value="#{NewSignupMeetingBean.customCategory}" style="display:none" styleClass="editText form-control">  
-                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+                        <h:inputText id="customCategory" size="30" value="#{NewSignupMeetingBean.customCategory}" style="display:none" styleClass="editText form-control">
+                            <f:converter converterId="Signup.StringTrimConverter"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         
@@ -188,7 +188,7 @@
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_description}" styleClass="col-md-2"  escape="false"/>
                     <div class="col-md-10">
-                        <sakai:rich_text_area value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" columns="80" />
+                        <sakai:inputRichText value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" cols="80" />
                     </div>
                 </div>
 
