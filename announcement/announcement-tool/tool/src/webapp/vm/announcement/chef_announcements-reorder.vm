@@ -119,14 +119,22 @@
 						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
 							$ann_item.Header.Date.toStringLocalFull()
 						</span>
-						#set ($ref = $entityManager.newReference($ann_item.Reference))
-						#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
+						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
+							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
+								$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
+							#end
+						</span>
+						<span  class="date col-md-2 col-sm-2 col-xs-12"> 
+							#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("modDate"))
+								$ann_item_props.getTimeProperty("modDate").toStringLocalFull()
+							#end
+						</span>
 						##For Re-ordering of Announcement Messages
 							<span style="display:none"> 
 								<input type="checkbox" id="check-$count" name="selectedMembers2" checked="checked" value="$ann_item.Reference"/>
 							</span>
 					</li>
-								#set($count = $count + 1)
+					#set($count = $count + 1)
 				#end
 		</ul>
 	<p class="act">
