@@ -37,6 +37,8 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.log.api.LogConfigurationManager;
@@ -101,7 +103,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 			String[] configs = serverConfigurationService().getStrings("log.config");
 			if (configs != null) {
 				for (String config : configs) {
-					String[] parts = StringUtils.split(config, ".");
+					String[] parts = StringUtils.split(config, ".", 2);
 					if ((parts != null) && (parts.length >= 2)) {
 						doSetLogLevel(parts[0], parts[1]);
 					} else {
@@ -124,67 +126,36 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	/**
 	 * Set the log level
 	 * 
-	 * @param level
+	 * @param levelName
 	 *        The log level string - one of OFF | TRACE | DEBUG | INFO | WARN | ERROR | FATAL | ALL
 	 * @param loggerName
 	 *        The logger name.
 	 */
-	protected boolean doSetLogLevel(String level, String loggerName) {
+	protected void doSetLogLevel(String levelName, String loggerName) {
+		Configuration configuration = loggerContext.getConfiguration();
 		Logger logger = loggerContext.getLogger(loggerName);
-		if (logger != null) {
-
-			switch (level) {
-				case "OFF":
-					logger.setLevel(Level.OFF);
-					log.info("OFF logging for: {}", loggerName);
-					break;
-				case "TRACE":
-					logger.setLevel(Level.TRACE);
-					log.info("TRACE logging for: {}", loggerName);
-					break;
-				case "DEBUG":
-					logger.setLevel(Level.DEBUG);
-					log.info("DEBUG logging for: {}", loggerName);
-					break;
-				case "INFO":
-					logger.setLevel(Level.INFO);
-					log.info("INFO logging for: {}", loggerName);
-					break;
-				case "WARN":
-					logger.setLevel(Level.WARN);
-					log.info("WARN logging for: {}", loggerName);
-					break;
-				case "ERROR":
-					logger.setLevel(Level.ERROR);
-					log.info("ERROR logging for: {}", loggerName);
-					break;
-				case "FATAL":
-					logger.setLevel(Level.FATAL);
-					log.info("FATAL logging for: {}", loggerName);
-					break;
-				case "ALL":
-					logger.setLevel(Level.ALL);
-					log.info("ALL logging for: {}", loggerName);
-					break;
-				default:
-					log.warn("invalid log level: ignoring: {}", level);
-					return false;
-			}
+		LoggerConfig config = configuration.getLoggerConfig(logger.getName());
+		Level level = Level.toLevel(levelName, Level.INFO);
+		if (config.getName().equals(logger.getName())) {
+			config.setLevel(level);
+			log.info("Logging for [{}] change to level {}", logger.getName(), level.toString());
 		} else {
-			log.warn("no logger found: ignoring: {}", loggerName);
-			return false;
+			LoggerConfig cfg = new LoggerConfig(logger.getName(), level, true);
+			cfg.setParent(config);
+			configuration.addLogger(logger.getName(), cfg);
+			log.info("Adding logging config for [{}] with level {}", logger.getName(), level.toString());
 		}
-
-		return true;
+		loggerContext.updateLoggers();
 	}
 
-	public boolean setLogLevel(String level, String loggerName) throws LogPermissionException {
+	@Override
+	public void setLogLevel(String level, String loggerName) throws LogPermissionException {
 		// check that this is a "super" user with the security service
 		if (!securityService().isSuperUser()) {
 			throw new LogPermissionException();
 		}
 
-		return doSetLogLevel(level, loggerName);
+		doSetLogLevel(level, loggerName);
 	}
 
 	/**
