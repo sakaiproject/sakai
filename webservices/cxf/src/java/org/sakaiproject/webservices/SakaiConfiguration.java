@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.log.api.LogPermissionException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.BasicConfigItem;
 import org.sakaiproject.util.Xml;
@@ -61,30 +62,19 @@ public class SakaiConfiguration extends AbstractWebService {
             @WebParam(name = "packageName", partName = "packageName") @QueryParam("packageName") String packageName,
             @WebParam(name = "level", partName = "level") @QueryParam("level") String level) {
         Session session = establishSession(sessionid);
+
         if (!securityService.isSuperUser()) {
             log.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
             throw new RuntimeException("NonSuperUser trying to collect configuration: " + session.getUserId());
         }
-        // Properties props = new Properties();
-        // try {
-        //
-        //     // ok, yes I know this is fragile and totally tomcat specific, but it works and avoids having to
-        //     // configure up a new version of the log4j file somehow.   For sure this will break in tomcat 6, as
-        //     // I think classloading is much different there.
-        //     // This finds the log4j file in kernel common:
-        //     // common/lib/sakai-kernel-common-x.x.x.jar!/log4j.properties
-        //
-        //     InputStream configStream = this.getClass().getClassLoader().getParent().getParent().getResourceAsStream("log4j.properties");
-        //     props.load(configStream);
-        //     configStream.close();
-        //     props.setProperty("log4j.logger." + packageName, level);
-        //     LogManager.resetConfiguration();
-        //     PropertyConfigurator.configure(props);
-        // } catch (Exception e) {
-        //     log.error(e.getMessage(), e);
-        // }
+        try {
+            logConfigurationManager.setLogLevel(level, packageName);
+        } catch (LogPermissionException e) {
+            log.warn("Could not change level for logger {}", packageName, e);
+            throw new RuntimeException("Could not change level for logger " + packageName, e);
+        }
 
-        return "feature not supported";
+        return "success";
     }
 
     @WebMethod
