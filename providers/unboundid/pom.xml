@@ -60,7 +60,7 @@
       <testResource>
         <directory>src/test-resources</directory>
         <includes>
-          <include>log4j.properties</include>
+          <include>log4j2.properties</include>
           <include>example.ldif</include>
         </includes>
       </testResource>

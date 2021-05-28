@@ -41,7 +41,7 @@
           <systemProperties>
             <property>
               <name>log4j.configuration</name>
-              <value>log4j.properties</value>
+              <value>log4j2.properties</value>
             </property>
           </systemProperties>
         </configuration>

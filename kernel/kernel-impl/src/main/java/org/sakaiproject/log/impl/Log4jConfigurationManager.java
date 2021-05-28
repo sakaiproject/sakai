@@ -60,7 +60,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	protected Map<String, Set<String>> ignore = new HashMap<>();
 
 	// Log4j logger context
-	LoggerContext loggerContext;
+	private LoggerContext loggerContext;
 
 	public void setEnabled(String enabled) {
 		this.enabled = Boolean.parseBoolean(enabled);
