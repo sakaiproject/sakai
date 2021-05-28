@@ -181,7 +181,7 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 }
 .instructionPanel,.controlsPanel {
     border:1px solid var(--sakai-border-color);
-    font-size:12px;
+    font-size:14px;
     background: var(--sakai-background-color-3);
     padding:5px;
     margin:5px 0
@@ -819,7 +819,6 @@ h3.section-label {
 /* also uses nextprev. this is specific for ShowItem */
 .returnheader a:link, .returnheader a:visited {
 	background-color: var(--errorBanner-bgcolor) !important;
-	color:var(--errorBanner-color) !important;
 }
 .returnheader a:hover, .returnheader  a:active {
 	background-color: var(--errorBanner-bgcolor) !important;
@@ -905,9 +904,6 @@ h3.author {
 	color: var(--warnBanner-color);
 	padding-left: 0.5em;
 	padding-right: 0.25em;
-}
-.returnwarning {
-	font-size: 110%
 }
 .nextprev .usebutton span {
 	font-size: inherit
@@ -1666,6 +1662,7 @@ font-size: 12px;
 }
 .itemTitle .title-instruction {
   margin-bottom:0px;
+  font-size: 14px;
 }
 
 .forumSummaryItem, .announcementSummaryItem{
