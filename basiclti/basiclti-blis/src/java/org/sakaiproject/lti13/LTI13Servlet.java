@@ -506,8 +506,6 @@ public class LTI13Servlet extends HttpServlet {
 		String subject = SakaiBLTIUtil.getSubject(user_id, context_id);
 
 		try {
-			response.setContentType(APPLICATION_JWT);
-			PrintWriter out = response.getWriter();
 			Long issued = new Long(System.currentTimeMillis() / 1000L);
 			String body =
 				"{\n" +
@@ -525,8 +523,6 @@ public class LTI13Servlet extends HttpServlet {
 				.setPayload(body)
 				.signWith(privateKey)
 				.compact();
-
-			out.println(jws);
 
 			// https://stackoverflow.com/questions/3324717/sending-http-post-request-in-java
 			byte [] bytes = jws.getBytes();

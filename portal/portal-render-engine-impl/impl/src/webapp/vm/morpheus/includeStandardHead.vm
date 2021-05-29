@@ -161,7 +161,7 @@ window.addEventListener('message', function (e) {
                     if ( console && console.log ) {
                         console.log( 'data', data );
                         // https://stackoverflow.com/questions/61548354/how-to-postmessage-into-iframe
-                        document.getElementById(event_id).contentWindow.postMessage(data, '*');
+                        document.getElementById(event_id).contentWindow.postMessage({subject:'org.imsglobal.lti.close'}, '*');
                     }
                 });
             } else {
