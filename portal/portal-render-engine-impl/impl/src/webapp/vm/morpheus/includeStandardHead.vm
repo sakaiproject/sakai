@@ -142,7 +142,6 @@ window.addEventListener('message', function (e) {
             if ( same_origin ) {
                 _Sakai_LTI_Iframes.push(event_id);
                 console.log('org.imsglobal.lti.prelaunch from same origin', origin, 'frame approved', event_id);
-                // console.log(_Sakai_LTI_Iframes);
             } else {
                 console.log('org.imsglobal.lti.prelaunch must come from same origin, not', origin);
             }
@@ -150,19 +149,16 @@ window.addEventListener('message', function (e) {
         case 'org.imsglobal.lti.postverify':
             if ( approved ) {
                 console.log('postverify from approved frame', event_id);
-                // var url = "http://localhost:8080/imsblis/lti13/postverify/aeed356b262ed0ec60268da72b5863eea7697f360e0c4cc66acc259840a47e59:::mercury:::content:16";
+                // TODO: Verify we like this URL - don't just AJAX anywhere
                 var url = message.postverify;
-                console.log('url', url);
                 ${d}PBJQ.ajax({
                     url: url,
                     cache: false,
                  })
                 .done(function( data ) {
-                    if ( console && console.log ) {
-                        console.log( 'data', data );
-                        // https://stackoverflow.com/questions/61548354/how-to-postmessage-into-iframe
-                        document.getElementById(event_id).contentWindow.postMessage({subject:'org.imsglobal.lti.close'}, '*');
-                    }
+                    // https://stackoverflow.com/questions/61548354/how-to-postmessage-into-iframe
+                    console.log('PostVerify complete - sending org.imsglobal.lti.close');
+                    document.getElementById(event_id).contentWindow.postMessage(JSON.stringify({subject:'org.imsglobal.lti.close'}), '*');
                 });
             } else {
                 console.log('org.imsglobal.lti.prelaunch must come from approved frame, not', origin);
