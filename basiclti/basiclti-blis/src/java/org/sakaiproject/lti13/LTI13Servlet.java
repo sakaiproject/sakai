@@ -21,6 +21,7 @@ import io.jsonwebtoken.Jws;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -117,6 +118,7 @@ public class LTI13Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
+	private static final String APPLICATION_JWT = "application/jwt";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
 	protected static LTIService ltiService = null;
 
@@ -452,6 +454,12 @@ public class LTI13Servlet extends HttpServlet {
 	// LTI PostVerify
 	protected void handlePostVerify(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
 
+		String callback = request.getParameter("callback");
+		if ( callback == null ) {
+			LTI13Util.return400(response, "Missing callback parameter");
+			return;
+		}
+
 		Session sess = SessionManager.getCurrentSession();
 		if ( sess == null || sess.getUserId() == null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -498,32 +506,42 @@ public class LTI13Servlet extends HttpServlet {
 		String subject = SakaiBLTIUtil.getSubject(user_id, context_id);
 
 		try {
-			try {
-				response.setContentType("application/jwt");
-				PrintWriter out = response.getWriter();
-				Long issued = new Long(System.currentTimeMillis() / 1000L);
-				String body =
-					"{\n" +
-					"\"iss\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
-					"\"aud\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
-					"\"exp\": \""+(issued+3600L)+"\",\n" +
-					"\"user_id\": \""+user_id+"\",\n" +
-					"\"context_id\": \""+context_id+"\",\n" +
-					"\"sub\": \""+subject+"\"\n" +
-					"}";
+			response.setContentType(APPLICATION_JWT);
+			PrintWriter out = response.getWriter();
+			Long issued = new Long(System.currentTimeMillis() / 1000L);
+			String body =
+				"{\n" +
+				"\"iss\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"aud\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"exp\": \""+(issued+3600L)+"\",\n" +
+				"\"user_id\": \""+user_id+"\",\n" +
+				"\"context_id\": \""+context_id+"\",\n" +
+				"\"sub\": \""+subject+"\"\n" +
+				"}";
 
-				// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
-				String jws = Jwts.builder()
-					.setHeaderParam("kid", kid)
-					.setPayload(body)
-					.signWith(privateKey)
-					.compact();
+			// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
+			String jws = Jwts.builder()
+				.setHeaderParam("kid", kid)
+				.setPayload(body)
+				.signWith(privateKey)
+				.compact();
 
-				out.println(jws);
+			out.println(jws);
 
-			} catch (Exception e) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
+			// https://stackoverflow.com/questions/3324717/sending-http-post-request-in-java
+			byte [] bytes = jws.getBytes();
+			java.net.URL url = new java.net.URL(callback);
+			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			con.setRequestMethod("POST");
+	        con.setDoOutput(true);
+			con.setFixedLengthStreamingMode(bytes.length);
+			con.setRequestProperty( "Content-Type", APPLICATION_JWT );
+	        con.connect();
+			OutputStream os = con.getOutputStream();
+			os.write(bytes);
+			os.flush();
+			os.close();
+
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
