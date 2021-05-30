@@ -209,7 +209,7 @@ public interface Time extends Cloneable, Comparable, Serializable
 	String getDisplay();
 	
 	  /**
-     * Converts this Time object to an {@link Instant}.
+     * Converts this Time object to an {@link java.time.Instant}.
      * <p>
      *
      * @return an instant representing the same point on the time-line as
