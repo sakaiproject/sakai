@@ -37,7 +37,7 @@ public interface TimeRange extends Cloneable
 	 *        The time to check for inclusion.
 	 * @return true if the time is in the range, false if not.
 	 */
-	boolean contains(Instant time);
+	boolean contains(Instant instant);
 	
 	/**
 	 * Check if this Time in my range.

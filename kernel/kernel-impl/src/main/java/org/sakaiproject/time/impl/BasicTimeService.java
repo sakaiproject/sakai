@@ -463,13 +463,7 @@ public class BasicTimeService implements TimeService
 		} // TimeRange
 
 
-		/**
-		 * is this time in my range?
-		 *
-		 * @param time:
-		 *        the time to check for inclusion
-		 * @return true if the time is in the range, false if not
-		 */
+		@Override
 		public boolean contains(Time time)
 		{
 			// assume in range, unless proven otherwise
@@ -496,14 +490,14 @@ public class BasicTimeService implements TimeService
 			return inRange;
 
 		} // contains
-
-		/**
-		 * do I overlap this other range at all?
-		 *
-		 * @param range:
-		 *        the time range to check for overlap
-		 * @return true if any time in range is in my range is in the other range, false if not
-		 */
+		
+		@Override
+		public boolean contains(Instant instant) {
+			Time time = newTime(instant.toEpochMilli());
+			return contains(time);
+		}
+		
+		@Override
 		public boolean overlaps(TimeRange range)
 		{
 			boolean overlaps = false;
@@ -986,11 +980,7 @@ public class BasicTimeService implements TimeService
 
 		} // isSingleTime
 
-		@Override
-		public boolean contains(Instant time) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+
 
 	} // class TimeRange
 
