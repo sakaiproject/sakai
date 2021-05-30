@@ -75,7 +75,8 @@ public class MyTimeRange implements TimeRange
     public MyTimeRange(BasicTimeService timeService, String str)
     {
         this.timeService = timeService;
-        parse(str);
+        parse(str, null, null);
+
     } // TimeRange
 
 
@@ -371,7 +372,7 @@ public class MyTimeRange implements TimeRange
      * @param latest
      *        the Time to use for 'latest'
      */
-    protected void parse(String str)
+    protected void parse(String str, Time earliest, Time latest)
     {
         try
         {
@@ -452,7 +453,7 @@ public class MyTimeRange implements TimeRange
                     // trouble!
                     default:
                     {
-                        throw new Exception();
+                        throw new Exception(next.charAt(0) + " invalid");
                     }
                     } // switch (next[0])
 
@@ -478,7 +479,7 @@ public class MyTimeRange implements TimeRange
                 // trouble!
                 default:
                 {
-                    throw new Exception();
+                    throw new Exception(">3 tokens");
                 }
                 } // switch (tokenCount)
 
@@ -494,7 +495,7 @@ public class MyTimeRange implements TimeRange
             {
                 if (m_endTime == null)
                 {
-                    throw new Exception();
+                    throw new Exception("=, * null");
                 }
                 m_startTime = timeService.newTime(m_endTime.getTime() - startMs);
             }
@@ -527,7 +528,7 @@ public class MyTimeRange implements TimeRange
         }
         catch (Exception e)
         {
-            log.warn("parse: exception parsing: {} : {}", str, e.toString());
+            log.warn("parse: exception parsing: " + str + " : " + e.toString());
 
             // set a now range, just to have something
             m_startTime = timeService.newTime();
