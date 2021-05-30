@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.time.api.Time;
@@ -80,17 +81,9 @@ public class BasicTimeService implements TimeService
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
-	private UserTimeService userTimeService;
+	@Setter private UserTimeService userTimeService;
+	@Setter private UserLocaleServiceImpl userLocaleService;
 
-	public void setUserTimeService(UserTimeService userTimeService) {
-		this.userTimeService = userTimeService;
-	}
-
-	private UserLocaleServiceImpl userLocaleService;
-
-	public void setUserLocaleService(UserLocaleServiceImpl userLocaleService) {
-		this.userLocaleService = userLocaleService;
-	}
 
 	// Can be injected for testing
 	private Clock clock = Clock.systemDefaultZone();
@@ -272,50 +265,52 @@ public class BasicTimeService implements TimeService
 	{
 		return new MyTimeBreakdown(year, month, day, hour, minute, second, millisecond);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(Time start, Time end, boolean startIncluded, boolean endIncluded)
 	{
 		return new MyTimeRange(start, end, startIncluded, endIncluded);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(String value)
 	{
 		return new MyTimeRange(value);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(Time startAndEnd)
 	{
-		return new MyTimeRange(startAndEnd);
+		return new MyTimeRange(startAndEnd, startAndEnd, true, true);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(long start, long duration)
 	{
 		return new MyTimeRange(start, duration);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public TimeRange newTimeRange(Time start, Time end)
 	{
-		return new MyTimeRange(start, end);
+		return new MyTimeRange(start, end, true, true);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
+	@Override
+	public TimeRange newTimeRange(Instant startAndEnd) {
+		return new MyTimeRange(startAndEnd, startAndEnd, true, true);
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end) {
+		return new MyTimeRange(start, end, true, true);
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end, boolean startIncluded, boolean endIncluded) {
+		return new MyTimeRange(start, end, startIncluded, endIncluded);
+	}
+
 	@Override
 	public TimeZone getLocalTimeZone()
 	{
@@ -401,6 +396,7 @@ public class BasicTimeService implements TimeService
 		 *        true if start is part of the range
 		 * @param endIncluded:
 		 *        true of end is part of the range
+		 * @deprecated
 		 */
 		public MyTimeRange(Time start, Time end, boolean startIncluded, boolean endIncluded)
 		{
@@ -417,8 +413,15 @@ public class BasicTimeService implements TimeService
 				m_startTime = m_endTime;
 				m_endTime = t;
 			}
-
 		} // TimeRange
+		
+		public MyTimeRange(Instant start, Instant end, boolean startIncluded, boolean endIncluded)
+		{
+			Time startTime = newTime(start.toEpochMilli());
+			Time endTime = newTime(end.toEpochMilli());
+			new MyTimeRange(startTime, endTime, startIncluded, endIncluded);
+			
+		}
 
 		/**
 		 * construct from a string, in our format
@@ -432,17 +435,6 @@ public class BasicTimeService implements TimeService
 
 		} // TimeRange
 
-		/**
-		 * construct from a single time
-		 *
-		 * @param startAndEnd:
-		 *        the single time value for the range
-		 */
-		public MyTimeRange(Time startAndEnd)
-		{
-			this(startAndEnd, startAndEnd, true, true);
-
-		} // TimeRange
 
 		/**
 		 * construct from a time long and a duration long in ms
@@ -470,19 +462,6 @@ public class BasicTimeService implements TimeService
 
 		} // TimeRange
 
-		/**
-		 * construct from a two times - inclusive
-		 *
-		 * @param start:
-		 *        the start time
-		 * @param end:
-		 *        the end time
-		 */
-		public MyTimeRange(Time start, Time end)
-		{
-			this(start, end, true, true);
-
-		} // TimeRange
 
 		/**
 		 * is this time in my range?
@@ -567,35 +546,32 @@ public class BasicTimeService implements TimeService
 
 		} // contains
 
-		/**
-		 * what is the first time range included?
-		 *
-		 * @return the first time actually in the range
-		 */
+		@Override
 		public Time firstTime()
 		{
 			return firstTime(1);
 
 		} // firstTime
 
-		/**
-		 * what is the last time range included?
-		 *
-		 * @return the last time actually in the range
-		 */
+		@Override
 		public Time lastTime()
 		{
 			return lastTime(1);
 
 		} // lastTime
+		
+		@Override
+		public Instant firstInstant() {
+			return firstTime(1).toInstant();
+		}
 
-		/**
-		 * what is the first time range included?
-		 *
-		 * @param fudge
-		 *        How many ms to advance if the first is not included.
-		 * @return the first time actually in the range
-		 */
+		@Override
+		public Instant lastInstant() {
+			return lastTime(1).toInstant();
+		}
+
+
+		@Override
 		public Time firstTime(long fudge)
 		{
 			// if the start is included, return this
@@ -611,13 +587,12 @@ public class BasicTimeService implements TimeService
 
 		} // firstTime
 
-		/**
-		 * what is the last time range included?
-		 *
-		 * @param fudge
-		 *        How many ms to decrease if the first is not included.
-		 * @return the last time actually in the range
-		 */
+		@Override
+		public Instant firstInstant(long fudge) {
+			return firstTime(fudge).toInstant();
+		}
+
+		@Override
 		public Time lastTime(long fudge)
 		{
 			// if the end is included, return this
@@ -632,6 +607,11 @@ public class BasicTimeService implements TimeService
 			return fudgeEndTime;
 
 		} // lastTime
+
+		@Override
+		public Instant lastInstant(long fudge) {
+			return lastTime(fudge).toInstant();
+		}
 
 		/**
 		 * format the range
@@ -1005,6 +985,12 @@ public class BasicTimeService implements TimeService
 			return (m_startTime.equals(m_endTime) && m_startIncluded && m_endIncluded);
 
 		} // isSingleTime
+
+		@Override
+		public boolean contains(Instant time) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 
 	} // class TimeRange
 
