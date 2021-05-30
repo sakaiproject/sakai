@@ -490,6 +490,24 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			@Override
+			public TimeRange newTimeRange(Instant startAndEnd) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public TimeRange newTimeRange(Instant start, Instant end) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public TimeRange newTimeRange(Instant start, Instant end, boolean startIncluded, boolean endIncluded) {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 		services = new HashMap<String,Object>();
 		services.put("sqlservice", sqlService);

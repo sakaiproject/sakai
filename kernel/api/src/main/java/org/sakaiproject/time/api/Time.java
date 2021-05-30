@@ -22,6 +22,7 @@
 package org.sakaiproject.time.api;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * <p>
@@ -206,4 +207,13 @@ public interface Time extends Cloneable, Comparable, Serializable
 	 * @return The time string in human readable format.
 	 */
 	String getDisplay();
+	
+	  /**
+     * Converts this Time object to an {@link Instant}.
+     * <p>
+     *
+     * @return an instant representing the same point on the time-line as
+     *  this Time object
+     */
+	Instant toInstant();
 }

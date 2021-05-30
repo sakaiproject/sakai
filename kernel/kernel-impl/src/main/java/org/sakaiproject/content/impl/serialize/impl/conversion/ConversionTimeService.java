@@ -244,4 +244,19 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	@Override
+	public TimeRange newTimeRange(Instant startAndEnd) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public TimeRange newTimeRange(Instant start, Instant end, boolean startIncluded, boolean endIncluded) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
 }

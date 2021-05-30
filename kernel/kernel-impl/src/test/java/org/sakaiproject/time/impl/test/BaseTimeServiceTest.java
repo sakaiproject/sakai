@@ -15,20 +15,14 @@
  */
 package org.sakaiproject.time.impl.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.time.impl.BasicTimeService;
 import org.sakaiproject.time.impl.MyTime;
-import org.sakaiproject.time.impl.BasicTimeService.MyTimeRange;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Charles Severance

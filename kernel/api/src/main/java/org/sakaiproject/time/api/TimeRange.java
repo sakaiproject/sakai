@@ -21,6 +21,8 @@
 
 package org.sakaiproject.time.api;
 
+import java.time.Instant;
+
 /**
  * <p>
  * TimeRange ...
@@ -34,6 +36,16 @@ public interface TimeRange extends Cloneable
 	 * @param time
 	 *        The time to check for inclusion.
 	 * @return true if the time is in the range, false if not.
+	 */
+	boolean contains(Instant time);
+	
+	/**
+	 * Check if this Time in my range.
+	 * 
+	 * @param time
+	 *        The time to check for inclusion.
+	 * @return true if the time is in the range, false if not.
+	 * @deprecated {@link #contains(Instant)}
 	 */
 	boolean contains(Time time);
 
@@ -59,15 +71,31 @@ public interface TimeRange extends Cloneable
 	 * Access the first Time of the range.
 	 * 
 	 * @return the first Time actually in the range.
+	 * @deprecated {@link #firstInstant()}
 	 */
 	Time firstTime();
+	
+	/**
+	 * Access the first Time of the range.
+	 * 
+	 * @return the first Time actually in the range.
+	 */
+	Instant firstInstant();
 
 	/**
 	 * Access the last Time in the range.
 	 * 
 	 * @return the last Time actually in the range.
+	 * @deprecated {@link #lastInstant()}
 	 */
 	Time lastTime();
+	
+	/**
+	 * Access the last Time in the range.
+	 * 
+	 * @return the last Time actually in the range.
+	 */
+	Instant lastInstant();
 
 	/**
 	 * Access the first Time of the range (fudged).
@@ -75,8 +103,18 @@ public interface TimeRange extends Cloneable
 	 * @param fudge
 	 *        How many ms to increase if the first is not included.
 	 * @return the first Time actually in the range (fudged).
+	 * @deprecated {@link #firstInstant(long)}
 	 */
 	Time firstTime(long fudge);
+	
+	/**
+	 * Access the first Time of the range (fudged).
+	 * 
+	 * @param fudge
+	 *        How many ms to increase if the first is not included.
+	 * @return the first Time actually in the range (fudged).
+	 */
+	Instant firstInstant(long fudge);
 
 	/**
 	 * Access the last Time of the range (fudged).
@@ -84,8 +122,18 @@ public interface TimeRange extends Cloneable
 	 * @param fudge
 	 *        How many ms to decrease if the last is not included.
 	 * @return the first Time actually in the range (fudged).
+	 * @deprecated {@link #lastInstant(long)}
 	 */
 	Time lastTime(long fudge);
+	
+	/**
+	 * Access the last Time of the range (fudged).
+	 * 
+	 * @param fudge
+	 *        How many ms to decrease if the last is not included.
+	 * @return the first Time actually in the range (fudged).
+	 */
+	Instant lastInstant(long fudge);
 
 	/**
 	 * Format the TimeRange - human readable.
