@@ -1245,6 +1245,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean subPageTitleIncluded = false;
 			boolean subPageTitleContinue = false;
 
+			boolean includeTwitterLibrary = false;
+
 			boolean forceButtonColor = false;
 			String color = null;
 			for (SimplePageItem i : itemList) {
@@ -3534,6 +3536,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
 						UIOutput.make(tableRow, "twitter-height", height);
 						UIOutput.make(tableRow, "twitterId", String.valueOf(i.getId()));
+						// Include Twitter javascript library
+						includeTwitterLibrary = true;
 					} else {
 						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
@@ -3602,6 +3606,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				}
 				} // else - is not a subpage
+			}
+			if (includeTwitterLibrary) {
+				UIOutput.make(tofill, "twitter-library");
 			}
 	}
 			
