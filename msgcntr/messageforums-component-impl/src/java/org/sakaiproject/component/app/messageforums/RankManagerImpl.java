@@ -227,7 +227,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         if (rank.getRankImage() != null) {
             removeImageAttachmentObject(rank.getRankImage());
         }
-        getHibernateTemplate().delete(rank);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(rank));
     }
 
     public void removeImageAttachmentObject(RankImage o) {
@@ -237,7 +237,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             log.warn("removeImageAttachmentObject invoked, but ranks are disabled");
             return;
         }
-        getHibernateTemplate().delete(o);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(o));
     }
 
     public void removeImageAttachToRank(final Rank rank, final RankImage imageAttach) {
