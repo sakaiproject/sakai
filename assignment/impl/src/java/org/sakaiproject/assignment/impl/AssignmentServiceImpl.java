@@ -4342,7 +4342,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return df.format(date);
     }
 
-    private String removeReferencePrefix(String referenceId) {
+    @Override
+    public String removeReferencePrefix(String referenceId) {
         if (referenceId.startsWith(REF_PREFIX)) {
             referenceId = referenceId.replaceFirst(REF_PREFIX, "");
         }
