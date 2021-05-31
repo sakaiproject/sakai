@@ -1,9 +1,9 @@
 package org.sakaiproject.time.impl;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.StringTokenizer;
 
-import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 
@@ -454,7 +454,7 @@ public class MyTimeRange implements TimeRange
                     // trouble!
                     default:
                     {
-                        throw new SakaiException(next.charAt(0) + " invalid");
+                        throw new DateTimeException(next.charAt(0) + " invalid");
                     }
                     } // switch (next[0])
 
@@ -480,7 +480,7 @@ public class MyTimeRange implements TimeRange
                 // trouble!
                 default:
                 {
-                    throw new SakaiException(">3 tokens");
+                    throw new DateTimeException(">3 tokens");
                 }
                 } // switch (tokenCount)
 
@@ -489,14 +489,14 @@ public class MyTimeRange implements TimeRange
             // if either start or end was in duration, adjust (but not both!)
             if ((startMs != -1) && (endMs != -1))
             {
-                throw new Exception("==");
+                throw new DateTimeException("==");
             }
 
             if (startMs != -1)
             {
                 if (m_endTime == null)
                 {
-                    throw new SakaiException("=, * null");
+                    throw new DateTimeException("=, * null");
                 }
                 m_startTime = timeService.newTime(m_endTime.getTime() - startMs);
             }
@@ -504,7 +504,7 @@ public class MyTimeRange implements TimeRange
             {
                 if (m_startTime == null)
                 {
-                    throw new SakaiException("=, ! null");
+                    throw new DateTimeException("=, ! null");
                 }
                 m_endTime = timeService.newTime(m_startTime.getTime() + endMs);
             }
