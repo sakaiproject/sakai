@@ -61,7 +61,7 @@ public class Task {
     @Column(name = "DESCRIPTION", length = 255, nullable = false)
     private String description;
 
-    @Column(name = "\"SYSTEM\"", nullable = false)
+    @Column(name = "TASK_SYSTEM", nullable = false)
     private Boolean system;
 
     @Column(name = "STARTS")
