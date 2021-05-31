@@ -1,5 +1,6 @@
 package org.sakaiproject.time.impl;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.StringTokenizer;
 
@@ -453,7 +454,7 @@ public class MyTimeRange implements TimeRange
                     // trouble!
                     default:
                     {
-                        throw new Exception(next.charAt(0) + " invalid");
+                        throw new DateTimeException(next.charAt(0) + " invalid");
                     }
                     } // switch (next[0])
 
@@ -479,7 +480,7 @@ public class MyTimeRange implements TimeRange
                 // trouble!
                 default:
                 {
-                    throw new Exception(">3 tokens");
+                    throw new DateTimeException(">3 tokens");
                 }
                 } // switch (tokenCount)
 
@@ -488,14 +489,14 @@ public class MyTimeRange implements TimeRange
             // if either start or end was in duration, adjust (but not both!)
             if ((startMs != -1) && (endMs != -1))
             {
-                throw new Exception("==");
+                throw new DateTimeException("==");
             }
 
             if (startMs != -1)
             {
                 if (m_endTime == null)
                 {
-                    throw new Exception("=, * null");
+                    throw new DateTimeException("=, * null");
                 }
                 m_startTime = timeService.newTime(m_endTime.getTime() - startMs);
             }
@@ -503,7 +504,7 @@ public class MyTimeRange implements TimeRange
             {
                 if (m_startTime == null)
                 {
-                    throw new Exception("=, ! null");
+                    throw new DateTimeException("=, ! null");
                 }
                 m_endTime = timeService.newTime(m_startTime.getTime() + endMs);
             }
@@ -528,7 +529,7 @@ public class MyTimeRange implements TimeRange
         }
         catch (Exception e)
         {
-            log.warn("parse: exception parsing: " + str + " : " + e.toString());
+            log.warn("parse: exception parsing: {}: {}", str, e.toString());
 
             // set a now range, just to have something
             m_startTime = timeService.newTime();

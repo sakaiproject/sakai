@@ -113,6 +113,12 @@ public class TimeRangeTest {
         // Junk
         timeRange = timeService.newTimeRange("junk");
         assertEquals(fixed.millis(), timeRange.firstTime().getTime());
+        //ISO
+        timeRange = timeService.newTimeRange("2021-05-31T09:09:45.492550Z-2021-05-31T09:09:45.492550Z");
+        assertEquals(fixed.millis(), timeRange.firstInstant().toEpochMilli());
+        timeRange = timeService.newTimeRange("2021-05-31T09:09:45.492550Z-2021");
+        assertEquals(fixed.millis(), timeRange.firstInstant().toEpochMilli());
+        
     }
 
     @Test
