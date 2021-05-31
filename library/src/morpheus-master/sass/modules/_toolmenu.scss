@@ -70,7 +70,6 @@ body.is-logged-out{
 						text-align: center;
 						border-radius: $tool-menu-item-collapsed-border-radius;
 						margin: $tool-menu-item-collapsed-margin; 
-						padding: $tool-menu-item-collapsed-padding;
 						&:hover, &:focus {
 							position: relative;
 							.#{$namespace}toolsNav__menuitem--title{
