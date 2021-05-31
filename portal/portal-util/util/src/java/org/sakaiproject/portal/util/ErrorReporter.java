@@ -404,9 +404,6 @@ public class ErrorReporter
 	public void report(HttpServletRequest req, HttpServletResponse res, 
 		Throwable t, boolean fullPage)
 	{
-		boolean showStackTrace = ComponentManager.get(SecurityService.class).isSuperUser() || 
-			ServerConfigurationService.getBoolean("portal.error.showdetail", false);
-		
 		String bugId = ComponentManager.get(IdManager.class).createUuid(); 
 				 
 		String headInclude = (String) req.getAttribute("sakai.html.head");
@@ -416,12 +413,15 @@ public class ErrorReporter
 		String time = userTimeService.shortPreciseLocalizedTimestamp(reportTime, rb.getLocale());
 		String usageSessionId = ComponentManager.get(UsageSessionService.class).getSessionId();
 		String userId = ComponentManager.get(SessionManager.class).getCurrentSessionUserId();
+		boolean isAuthenticated = userId != null && userId.length() > 0 && usageSessionId != null;
 		String requestDisplay = requestDisplay(req);
 		String placementDisplay = placementDisplay();
 		String problem = throwableDisplay(t);
 		String problemdigest = computeSha1(problem);
 		String postAddr = ServerConfigurationService.getPortalUrl() + "/error-report";
 		String requestURI = req.getRequestURI();
+		boolean showStackTrace = ComponentManager.get(SecurityService.class).isSuperUser() ||
+				(ServerConfigurationService.getBoolean("portal.error.showdetail", false) && isAuthenticated);
 		
 		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
@@ -441,9 +441,7 @@ public class ErrorReporter
 			res.addDateHeader("Expires", System.currentTimeMillis()
 					- (1000L * 60L * 60L * 24L * 365L));
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res
-					.addHeader("Cache-Control",
-							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Cache-Control", "no-store, max-age=0");
 			res.addHeader("Pragma", "no-cache");
 
 			PrintWriter out = null;
@@ -453,14 +451,10 @@ public class ErrorReporter
 				out = new PrintWriter(res.getOutputStream());
 			}
 
-			if ( fullPage ) 
-			{
-				out
-					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-				out
-					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-				if (headInclude != null)
-				{
+			if ( fullPage ) {
+				out.println("<!DOCTYPE html>");
+				out.println("<html>");
+				if (headInclude != null) {
 					out.println("<head>");
 					out.println(headInclude);
 					out.println("</head>");
@@ -471,57 +465,61 @@ public class ErrorReporter
 			out.println("<h3>" + rb.getString("bugreport.error") + "</h3>");
 			out.println("<p>" + rb.getString("bugreport.statement") + "<br /><br /></p>");
 
-			out.println("<h4>" + rb.getString("bugreport.sendtitle") + "</h4>");
-			out.println("<p>" + rb.getString("bugreport.sendinstructions") + "</p>");
+			if (isAuthenticated) {
+				out.println("<h4>" + rb.getString("bugreport.sendtitle") + "</h4>");
+				out.println("<p>" + rb.getString("bugreport.sendinstructions") + "</p>");
 
-			out.println("<form action=\"" + postAddr + "\" method=\"POST\">");
+				out.println("<form action=\"" + postAddr + "\" method=\"POST\">");
+			}
 			
 			if (showStackTrace) {
 				out.println("<input type=\"hidden\" name=\"problem\" value=\"");
 				out.println(formattedText.escapeHtml(problem, false));
 				out.println("\">");
 			}
-			
-			out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
-			out.println(formattedText.escapeHtml(requestDisplay, false));
-			out.println("\">");
-			out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
-			out.println(formattedText.escapeHtml(placementDisplay, false));
-			out.println("\">");
-			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\""
-					+ formattedText.escapeHtml(problemdigest, false) + "\">");
-			out.println("<input type=\"hidden\" name=\"session\" value=\""
-					+ formattedText.escapeHtml(usageSessionId, false) + "\">");
-			out.println("<input type=\"hidden\" name=\"bugid\" value=\""
-					+ formattedText.escapeHtml(bugId, false) + "\">");
-			out.println("<input type=\"hidden\" name=\"user\" value=\""
-					+ formattedText.escapeHtml(userId, false) + "\">");
-			out.println("<input type=\"hidden\" name=\"time\" value=\""
-					+ formattedText.escapeHtml(time, false) + "\">");
 
-			out
-					.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
-			out.println("<tbody>");
-			out.println("<tr>");
-			out
-					.println("<td><textarea rows=\"10\" cols=\"60\" name=\"comment\"></textarea></td>");
-			out.println("</tr>");
-			out.println("</tbody>");
-			out.println("</table>");
-			out.println("<div class=\"act\">");
-			out.println("<input type=\"submit\" value=\""
-					+ rb.getString("bugreport.sendsubmit") + "\">");
-			out.println("</div>");
-			out.println("</form><br />");
+			if (isAuthenticated) {
+				out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
+				out.println(formattedText.escapeHtml(requestDisplay, false));
+				out.println("\">");
+				out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
+				out.println(formattedText.escapeHtml(placementDisplay, false));
+				out.println("\">");
+				out.println("<input type=\"hidden\" name=\"problemdigest\" value=\""
+						+ formattedText.escapeHtml(problemdigest, false) + "\">");
+				out.println("<input type=\"hidden\" name=\"session\" value=\""
+						+ formattedText.escapeHtml(usageSessionId, false) + "\">");
+				out.println("<input type=\"hidden\" name=\"bugid\" value=\""
+						+ formattedText.escapeHtml(bugId, false) + "\">");
+				out.println("<input type=\"hidden\" name=\"user\" value=\""
+						+ formattedText.escapeHtml(userId, false) + "\">");
+				out.println("<input type=\"hidden\" name=\"time\" value=\""
+						+ formattedText.escapeHtml(time, false) + "\">");
 
-			out.println("<h4>" + rb.getString("bugreport.recoverytitle") + "</h4>");
-			out.println("<p>" + rb.getString("bugreport.recoveryinstructions") + "");
-			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1")
-					+ "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2")
-					+ "</li>");
-			out.println("<li>" + rb.getString("bugreport.recoveryinstructions3")
-					+ "</li></ul><br /><br /></p>");
+				out
+						.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
+				out.println("<tbody>");
+				out.println("<tr>");
+				out
+						.println("<td><textarea rows=\"10\" cols=\"60\" name=\"comment\"></textarea></td>");
+				out.println("</tr>");
+				out.println("</tbody>");
+				out.println("</table>");
+				out.println("<div class=\"act\">");
+				out.println("<input type=\"submit\" value=\""
+						+ rb.getString("bugreport.sendsubmit") + "\">");
+				out.println("</div>");
+				out.println("</form><br />");
+
+				out.println("<h4>" + rb.getString("bugreport.recoverytitle") + "</h4>");
+				out.println("<p>" + rb.getString("bugreport.recoveryinstructions") + "");
+				out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1")
+						+ "</li>");
+				out.println("<li>" + rb.getString("bugreport.recoveryinstructions2")
+						+ "</li>");
+				out.println("<li>" + rb.getString("bugreport.recoveryinstructions3")
+						+ "</li></ul><br /><br /></p>");
+			}
 
 			if (showStackTrace) {
 				out.println("<h4>" + rb.getString("bugreport.detailstitle") + "</h4>");
@@ -610,12 +608,6 @@ public class ErrorReporter
 					request.getContentType()).append("\n");
 			sb.append(rb.getString("bugreport.request.contextpath")).append(
 					request.getContextPath()).append("\n");
-			sb.append(rb.getString("bugreport.request.localaddr")).append(
-					request.getLocalAddr()).append("\n");
-			sb.append(rb.getString("bugreport.request.localname")).append(
-					request.getLocalName()).append("\n");
-			sb.append(rb.getString("bugreport.request.localport")).append(
-					request.getLocalPort()).append("\n");
 			sb.append(rb.getString("bugreport.request.method")).append(
 					request.getMethod()).append("\n");
 			sb.append(rb.getString("bugreport.request.pathinfo")).append(
@@ -774,16 +766,12 @@ public class ErrorReporter
 			res.addDateHeader("Expires", System.currentTimeMillis()
 					- (1000L * 60L * 60L * 24L * 365L));
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res
-					.addHeader("Cache-Control",
-							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Cache-Control", "no-store, max-age=0");
 			res.addHeader("Pragma", "no-cache");
 
 			PrintWriter out = res.getWriter();
-			out
-					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out
-					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out.println("<!DOCTYPE html>");
+			out.println("<html>");
 			if (headInclude != null)
 			{
 				out.println("<head>");
