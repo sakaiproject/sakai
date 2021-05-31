@@ -19,26 +19,35 @@
  */
 package org.sakaiproject.oauth.service;
 
-import org.joda.time.DateTime;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Random;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.oauth.advisor.CollectingPermissionsAdvisor;
 import org.sakaiproject.oauth.advisor.LimitedPermissionsAdvisor;
 import org.sakaiproject.oauth.dao.AccessorDao;
 import org.sakaiproject.oauth.dao.ConsumerDao;
 import org.sakaiproject.oauth.domain.Accessor;
 import org.sakaiproject.oauth.domain.Consumer;
-import org.sakaiproject.oauth.exception.*;
+import org.sakaiproject.oauth.exception.ExpiredAccessorException;
+import org.sakaiproject.oauth.exception.InvalidAccessorException;
+import org.sakaiproject.oauth.exception.InvalidConsumerException;
+import org.sakaiproject.oauth.exception.OAuthException;
+import org.sakaiproject.oauth.exception.RevokedAccessorException;
+import org.sakaiproject.site.api.SiteService;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Random;
+import lombok.Setter;
 
 /**
  * @author Colin Hebert
@@ -48,8 +57,8 @@ public class OAuthServiceImpl implements OAuthService {
     private AccessorDao accessorDao;
     private ConsumerDao consumerDao;
     private boolean keepOldAccessors;
-    private SiteService siteService;
-    private SecurityService securityService;
+    @Setter private SiteService siteService;
+    @Setter private SecurityService securityService;
 
     private static String generateToken(Accessor accessor) {
         // TODO Need a better way of generating tokens in the long run.
@@ -90,7 +99,7 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     private static boolean isStillValid(Accessor accessor) {
-        return accessor.getExpirationDate() == null || new DateTime(accessor.getExpirationDate()).isAfterNow();
+        return accessor.getExpirationDate() == null || accessor.getExpirationDate().toInstant().isAfter(Instant.now());
     }
 
     public void setAccessorDao(AccessorDao accessorDao) {
@@ -154,9 +163,9 @@ public class OAuthServiceImpl implements OAuthService {
         accessor.setConsumerId(consumer.getId());
         accessor.setType(Accessor.Type.REQUEST);
         accessor.setStatus(Accessor.Status.VALID);
-        accessor.setCreationDate(new DateTime().toDate());
+        accessor.setCreationDate(new Date());
         // A request accessor is valid for 15 minutes only
-        accessor.setExpirationDate(new DateTime().plusMinutes(15).toDate());
+        accessor.setExpirationDate(plusMinutes(15));
         accessor.setAccessorSecret(accessorSecret);
 
         if (callback != null)
@@ -173,13 +182,21 @@ public class OAuthServiceImpl implements OAuthService {
         return accessor;
     }
 
+    /**
+     * @param minute
+     * @return Date
+     */
+    private Date plusMinutes(int minute) {
+       return Date.from(LocalDateTime.now().plusMinutes(minute).toInstant(ZoneOffset.UTC));
+    }
+
     @Override
     public Accessor startAuthorisation(String accessorId) {
         Accessor accessor = getAccessor(accessorId, Accessor.Type.REQUEST);
         accessor.setVerifier(generateVerifier(accessor));
         accessor.setType(Accessor.Type.REQUEST_AUTHORISING);
         // The authorisation must be done in less than 15 minutes
-        accessor.setExpirationDate(new DateTime().plusMinutes(15).toDate());
+        accessor.setExpirationDate(plusMinutes(15));
         accessor = accessorDao.update(accessor);
         return accessor;
     }
@@ -195,7 +212,7 @@ public class OAuthServiceImpl implements OAuthService {
         accessor.setType(Accessor.Type.REQUEST_AUTHORISED);
         accessor.setUserId(userId);
         // An authorised request accessor is valid for one month only
-        accessor.setExpirationDate(new DateTime().plusMonths(1).toDate());
+        accessor.setExpirationDate(plusMinutes(1));
         accessor = accessorDao.update(accessor);
 
         generateUserSite(userId);
@@ -226,11 +243,11 @@ public class OAuthServiceImpl implements OAuthService {
         accessAccessor.setUserId(requestAccessor.getUserId());
         accessAccessor.setType(Accessor.Type.ACCESS);
         accessAccessor.setStatus(Accessor.Status.VALID);
-        accessAccessor.setCreationDate(new DateTime().toDate());
+        accessAccessor.setCreationDate(new Date());
 
         // An access accessor is valid based on the number of minutes given by the consumer
         if (consumer.getDefaultValidity() > 0)
-            accessAccessor.setExpirationDate(DateTime.now().plusMinutes(consumer.getDefaultValidity()).toDate());
+            accessAccessor.setExpirationDate(plusMinutes(consumer.getDefaultValidity()));
         accessAccessor.setToken(generateToken(accessAccessor));
         accessAccessor.setSecret(generateSecret(accessAccessor, consumer));
 
@@ -285,11 +302,5 @@ public class OAuthServiceImpl implements OAuthService {
             accessorDao.remove(accessor);
     }
 
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
 
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
 }
