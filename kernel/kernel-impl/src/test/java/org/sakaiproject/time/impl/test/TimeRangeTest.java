@@ -27,12 +27,17 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.impl.BasicTimeService;
 import org.sakaiproject.time.impl.UserLocaleServiceImpl;
 
+import com.sun.tools.sjavac.Log;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.junit.Assert.assertEquals;
 
+@Slf4j
 public class TimeRangeTest {
 
     private TimeService timeService;
@@ -69,6 +74,17 @@ public class TimeRangeTest {
         timeRange = timeService.newTimeRange(timeService.newTime(0), timeService.newTime(0), true, false);
         assertEquals("19700101000000000", timeRange.toString());
         timeRange = timeService.newTimeRange(timeService.newTime(0), timeService.newTime(0), false, false);
+        assertEquals("19700101000000000", timeRange.toString());
+        
+        //Instant
+        Instant epoch = Instant.EPOCH;
+        timeRange = timeService.newTimeRange(epoch, epoch, true, true);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, false, true);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, true, false);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, false, false);
         assertEquals("19700101000000000", timeRange.toString());
     }
 

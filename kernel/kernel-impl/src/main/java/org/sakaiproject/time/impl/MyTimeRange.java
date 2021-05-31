@@ -47,7 +47,6 @@ public class MyTimeRange implements TimeRange
         m_endTime = end;
         m_startIncluded = startIncluded;
         m_endIncluded = endIncluded;
-
         // start time must be <= end time
         if (m_startTime.getTime() > m_endTime.getTime())
         {
@@ -63,8 +62,19 @@ public class MyTimeRange implements TimeRange
         this.timeService = timeService;
         Time startTime = timeService.newTime(start.toEpochMilli());
         Time endTime = timeService.newTime(end.toEpochMilli());
-        new MyTimeRange(timeService, startTime, endTime, startIncluded, endIncluded);
-        
+
+        m_startTime = startTime;
+        m_endTime = endTime;
+        m_startIncluded = startIncluded;
+        m_endIncluded = endIncluded;
+        // start time must be <= end time
+        if (m_startTime.getTime() > m_endTime.getTime())
+        {
+            // reverse them to fix
+            Time t = m_startTime;
+            m_startTime = m_endTime;
+            m_endTime = t;
+        }
     }
 
     /**
