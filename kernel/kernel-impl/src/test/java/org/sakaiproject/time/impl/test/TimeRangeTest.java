@@ -15,6 +15,12 @@
  */
 package org.sakaiproject.time.impl.test;
 
+import static org.junit.Assert.assertEquals;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,15 +33,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.impl.BasicTimeService;
 import org.sakaiproject.time.impl.UserLocaleServiceImpl;
 
-import com.sun.tools.sjavac.Log;
-
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-
-import static org.junit.Assert.assertEquals;
 
 @Slf4j
 public class TimeRangeTest {
