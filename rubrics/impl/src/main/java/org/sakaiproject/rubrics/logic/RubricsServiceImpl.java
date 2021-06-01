@@ -124,6 +124,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private static final String JWT_CUSTOM_CLAIM_TOOL_ID = "toolId";
     private static final String JWT_CUSTOM_CLAIM_SESSION_ID = "sessionId";
     private static final String JWT_CUSTOM_CLAIM_ROLES = "roles";
+    private static final String JWT_CUSTOM_CLAIM_GROUPS = "groups";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_ID = "contextId";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_TYPE = "contextType";
 
@@ -234,6 +235,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     roles.add(RBCS_PERMISSIONS_EVALUEE);
                 }
                 jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_ROLES, roles.toArray(new String[]{}));
+
+                Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, "site.visit", null);
+                jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_GROUPS, groups.toArray(new String[]{}));
             }
             jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID, siteId);
             jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE, SITE_CONTEXT_TYPE);

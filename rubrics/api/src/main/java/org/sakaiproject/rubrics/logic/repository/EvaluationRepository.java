@@ -44,7 +44,10 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
         QUERY_CONTEXT_CONSTRAINT + ")";
 
     static final String EVALUEE_CONSTRAINT = "(1 = ?#{principal.isEvaluee() ? 1 : 0} and " +
-        "resource.evaluatedItemOwnerId = ?#{principal.userId} and status = ?#{ T(org.sakaiproject.rubrics.logic.model.EvaluationStatus).RETURNED })";
+        "(resource.evaluatedItemOwnerId = ?#{principal.userId} or " +
+            "(resource.evaluatedItemOwnerType = ?#{ T(org.sakaiproject.rubrics.logic.model.EvaluatedItemOwnerType).GROUP } and " +
+                "resource.evaluatedItemOwnerId in (?#{ principal.groups }))) and "  + 
+        "status = ?#{ T(org.sakaiproject.rubrics.logic.model.EvaluationStatus).RETURNED })";
 
     @Override
     @PreAuthorize("canRead(#id, 'Evaluation')")
