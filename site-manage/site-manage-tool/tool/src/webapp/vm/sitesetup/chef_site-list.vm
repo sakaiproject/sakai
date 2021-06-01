@@ -17,7 +17,7 @@
 </script>
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
-
+	#chef_flashnotif()
 	<div class="worksiteSetupContent">
 		#if($linkList)
 			<div class="navIntraToolLink viewNav">
@@ -324,6 +324,5 @@
 				</div>
 			</div>
 		#end
-		#chef_flashnotif()
 	</div>
 </div>

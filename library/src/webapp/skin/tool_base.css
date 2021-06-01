@@ -885,28 +885,3 @@ blockquote p {
 	opacity: 1;
 	border-color: var(--sakai-background-color-1);
 }
-
-
-/* css for duplicate site alert*/
-#flashNotif  a.flashNotifClose {
-    text-decoration: none;
-    font-size:120%;
-    position:absolute;
-    top:5px;
-    right:5px;
-}
-#flashNotif {
-    position: fixed;
-    top: 45px;
-    left: 30%;
-    right: 30%;
-    padding: 15px;
-    border: 1px solid var(--warnBanner-bordercolor);
-    background: var(--warnBanner-bgcolor);
-	color: var(--warnBanner-color);
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    box-shadow: var(--elevation-2dp);
-    vertical-align: middle;
-}
