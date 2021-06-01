@@ -78,7 +78,7 @@
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
 
-<div class="tier2">
+<div>
 <h:panelGrid columns="1" border="0">
     <!--  Due Message -->
     <h:panelGroup rendered="#{delivery.firstTimeTaking}">
