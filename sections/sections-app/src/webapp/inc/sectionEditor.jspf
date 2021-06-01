@@ -21,7 +21,7 @@
 						<h:inputText
 							id="titleInput"
 							required="true"
-							requiredMessage="#{msgs.sectionTitle.validator.notEmpty}"
+							requiredMessage="#{msgs.sectionTitle_validator_notEmpty}"
 							maxlength="99"
 							value="#{section.title}">
 							<f:validator validatorId="SectionTitleValidator"/>
