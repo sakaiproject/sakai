@@ -2,6 +2,7 @@ import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
 import '../sakai-icon.js';
 import '../sakai-options-menu.js';
 import { loadProperties } from "../sakai-i18n.js";
+import "../sakai-pager.js";
 
 export class SakaiDashboardWidget extends LitElement {
 
@@ -14,7 +15,6 @@ export class SakaiDashboardWidget extends LitElement {
       state: String,
       baseI18n: Object,
       i18n: Object,
-      data: { type: Array },
       editing: { type: Boolean },
     };
   }
@@ -22,31 +22,12 @@ export class SakaiDashboardWidget extends LitElement {
   constructor() {
 
     super();
-    this.data = [];
     this.title = "Widget";
     this.state = "view";
     this.editing = false;
     this.hasOptions = true;
     loadProperties("dashboard-widget").then(r => this.baseI18n = r);
   }
-
-  set siteId(value) {
-
-    this._siteId = value;
-    this.loadData();
-  }
-
-  get siteId() { return this._siteId; }
-
-  set userId(value) {
-
-    this._userId = value;
-    this.loadData();
-  }
-
-  get userId() { return this._userId; }
-
-  loadData() {}
 
   loadTranslations(options) {
 
@@ -140,6 +121,10 @@ export class SakaiDashboardWidget extends LitElement {
           ` : ""}
         </div>
         <div id="content">${this.content()}</div>
+        ${this.showPager ? html`
+        <sakai-pager count="${this.count}" current="1" @page-selected=${this.pageClicked}></sakai-pager>
+        ` : ""}
+
       </div>
     `;
   }
@@ -155,63 +140,61 @@ export class SakaiDashboardWidget extends LitElement {
 
   static get styles() {
 
-    return css`
+    return [
+      css`
 
-      :host {
-        width: 100%;
-      }
-
-      #topbar {
-        display: flex;
-        margin-top: 8px;
-        margin-bottom: 20px;
-      }
-
-      #container {
-        display: flex;
-        flex-flow: column;
-        height: 100%;
-        background-color: var(--sakai-dashboard-widget-bg-color, white);
-        border-radius: var(--sakai-course-card-border-radius, 4px);
-        border: solid;
-        border-width: var(--sakai-dashboard-widget-border-width, 1px);
-        border-color: var(--sakai-dashboard-widget-border-color, rgb(224,224,224));
-      }
-
-      #title-bar {
-        display: flex;
-        padding: 10px;
-        background-color: var(--sakai-title-bar-bg-color, rgb(244, 244, 244));
-        font-weight: var(--sakai-title-bar-font-weight, bold);
-      }
-
-        #title-bar sakai-icon[type="close"] {
-          color: var(--sakai-close-icon-color, red);
+        :host {
+          width: 100%;
         }
 
-        #title {
-          flex: 2;
-          margin-left: 12px;
-        }
-      #content {
-        padding: 10px;
-        flex-grow: 1;
-        border-radius: 0 0 var(--sakai-course-card-border-radius, 4px) var(--sakai-course-card-border-radius, 4px);
-      }
-
-      #widget-mover {
-        display: flex;
-      }
-        #widget-mover div {
-          padding: 5px;
-          flex: 1;
+        #topbar {
+          display: flex;
+          margin-top: 8px;
+          margin-bottom: 20px;
         }
 
-      a {
-        text-decoration: none;
-        color: var(--link-color);
-      }
-    `;
+        #container {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+          background-color: var(--sakai-dashboard-widget-bg-color, white);
+          border-radius: var(--sakai-course-card-border-radius, 4px);
+          border: solid;
+          border-width: var(--sakai-dashboard-widget-border-width, 1px);
+          border-color: var(--sakai-dashboard-widget-border-color, rgb(224,224,224));
+        }
+
+        #title-bar {
+          display: flex;
+          padding: 10px;
+          background-color: var(--sakai-title-bar-bg-color, rgb(244, 244, 244));
+          font-weight: var(--sakai-title-bar-font-weight, bold);
+        }
+
+          #title-bar sakai-icon[type="close"] {
+            color: var(--sakai-close-icon-color, red);
+          }
+
+          #title {
+            flex: 2;
+            margin-left: 12px;
+          }
+        #content {
+          padding: 10px;
+          padding-bottom: 0;
+          flex-grow: 1;
+          border-radius: 0 0 var(--sakai-course-card-border-radius, 4px) var(--sakai-course-card-border-radius, 4px);
+        }
+
+        #widget-mover {
+          display: flex;
+        }
+          #widget-mover div {
+            padding: 5px;
+            flex: 1;
+          }
+      `,
+    ];
   }
 }
 

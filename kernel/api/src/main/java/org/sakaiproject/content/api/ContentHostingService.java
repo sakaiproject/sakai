@@ -261,6 +261,12 @@ public interface ContentHostingService extends EntityProducer
 	public static final String PREVIEW = "PREVIEW";
 
 	/**
+	 * The default names for the direct-upload folders.
+	 */
+	public static final String DEFAULT_INSTRUCTOR_FOLDER = "instructor-uploads";
+	public static final String DEFAULT_STUDENT_FOLDER = "student-uploads";
+
+	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
    public String getUuid(String id);
@@ -2097,4 +2103,22 @@ public interface ContentHostingService extends EntityProducer
 	public String expandMacros(String url);
 
 	public Optional<String> getHtmlForRef(String ref);
+
+	/**
+	 * Get the name of the "instructor" upload folder name for direct-upload.
+	 * This is the folder for users that have addCollection permission in the
+	 * site.
+	 *
+	 * @return String - The name of the folder.
+	 */
+	public String getInstructorUploadFolderName();
+
+	/**
+	 * Get the name of the "student" upload folder name for direct-upload.
+	 * This is the folder for users that do not have addCollection permission
+	 * in the site.
+	 *
+	 * @return String - The name of the folder.
+	 */
+	public String getStudentUploadFolderName();
 }

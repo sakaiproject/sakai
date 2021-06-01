@@ -244,8 +244,6 @@ $(document).ready(function() {
 				<th id="actions">
 					$tlang.getString("gen.actions")
 				</th>
-				<th id="actionsspacer">
-				</th>	
 			</tr>
 			#set($itemcount = 0)
 			#set ($unit = "em")
@@ -364,9 +362,6 @@ $(document).ready(function() {
 							#end
 						#end
 					</td>
-					<td style="width:12em">
-						
-					</td>					
 				</tr>
 			#end ## foreach $item in $this_site
 			

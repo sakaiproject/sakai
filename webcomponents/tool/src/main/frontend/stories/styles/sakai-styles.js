@@ -18,11 +18,11 @@ html {
   --sakai-icon-alert-margin-left: 15px;
 
   /* CALENDAR */
-  --sakai-calendar-today-bg: yellow;
-  --sakai-calendar-today-fg: black;
-  --sakai-calendar-has-events-fg: white;
-  --sakai-calendar-has-events-bg: green;
-  --sakai-calendar-has-events-fg: white;
+  --sakai-calendar-today-background-color: yellow;
+  --sakai-calendar-today-color: black;
+  --sakai-calendar-has-events-color: white;
+  --sakai-calendar-has-events-background-color: green;
+  --sakai-calendar-has-events-color: white;
 
   /* COURSECARD */
   --sakai-course-card-width: 402px;

@@ -48,10 +48,6 @@
             <groupId>net.oauth.core</groupId>
             <artifactId>oauth</artifactId>
         </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

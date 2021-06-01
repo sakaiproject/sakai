@@ -177,8 +177,16 @@
     --errorBanner-bgcolor: var(--sakai-color-red--darker-6);
     --errorBanner-color: var(--sakai-color-red--lighter-4);
 
-    --sakai-hightlight-color: var(--sakai-color-red--lighter-6);
-
     --progress-bar-bg: var(--infoBanner-bgcolor);
     --footer-PoweredBy-bg: var(--sakai-color-gray--darker-1);
+    --sakai-hightlight-color: var(--sakai-color-red--lighter-6)
+
+    // Dashboard
+    --sakai-calendar-button-background-color: var(--sakai-background-color);
+    --sakai-calendar-button-color: var(--button-text-color);
+    --sakai-calendar-button-disabled-background-color: var(--button-disabled-background);
+    --sakai-calendar-today-background-color: yellow;
+    --sakai-calendar-today-color: black;
+    --sakai-calendar-has-events-color: white;
+    --sakai-calendar-has-events-background-color: green;
 }

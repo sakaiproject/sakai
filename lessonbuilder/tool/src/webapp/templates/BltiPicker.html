@@ -108,8 +108,8 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 
-		<div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
+		<div id="modal-iframe-div" style="display:none; overflow: hidden;" tabindex="-1" role="dialog">
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
 		</div>
 	</div>
 
@@ -129,8 +129,9 @@ function showIframe(title, doreload) {
 		open: function() {
 		    $("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
 		    $("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
-			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
-			$('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            // Note that width() gives the content width, taking into consideration the border, padding, etc.
+			$('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+			$('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
 			// https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
 			$(this).parent().focus();
 		},
@@ -146,33 +147,11 @@ function showIframe(title, doreload) {
 	$(window).resize(function() {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
 		$("#modal-iframe-div").dialog("option", "height", modalDialogHeight());
-		$('#sakai-basiclti-admin-iframe').attr('width', '100%');
-		$('#sakai-basiclti-admin-iframe').attr('height', '100%');
+        // Note that width() gives the content width, taking into consideration the border, padding, etc.
+		$('#sakai-basiclti-admin-iframe').attr('width', $("#modal-iframe-div").width());
+		$('#sakai-basiclti-admin-iframe').attr('height', $("#modal-iframe-div").height());
 	});
 }
-/* We don't need this - the within iframe content gets a scroll bar
-   and we are in a modal - so that is the best we can do.
-
-   Removed in SAK-42243
-
-// Make sure to be careful to use .style.height or .height depending on the iframe
-// tag you are working with.
-window.addEventListener('message', function(e) {
-	try {
-		var message = JSON.parse(e.data);
-		var idval = 'sakai-basiclti-admin-iframe';
-		if ( message.subject == 'lti.frameResize' ) {
-		var height = message.height;
-			document.getElementById(idval).style.height = height;
-			document.getElementById(idval).style.width = '100%';
-			console.debug('BltiPicker received lti.frameResize height='+height);
-		}
-	} catch (error) {
-		console.debug('BltiPicker lti.frameResize of '+idval+' failed height='+height);
-		console.debug(e.data);
-	}
-});
-*/
 
 // See if we are supposed to launch the shortcut link
 var shortcut_tag = document.getElementById('app-store-shortcut::blti-create::blti-create-link');

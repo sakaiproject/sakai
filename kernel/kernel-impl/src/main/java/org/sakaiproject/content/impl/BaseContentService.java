@@ -8362,6 +8362,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						}
 
 						ResourceProperties oProperties = oResource.getProperties();
+						if (StringUtils.equals((String)oProperties.get(ResourceProperties.PROP_DO_NOT_DUPLICATE), Boolean.TRUE.toString())) {
+							// This resource has been marked as do not duplicate. Skip it.
+							continue;
+						}
 						boolean isCollection = false;
 						try {
 							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
@@ -14513,6 +14517,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
     }
 
+	@Override
+	public String getInstructorUploadFolderName() {
+		return m_serverConfigurationService.getString("content.direct.upload.instructors", DEFAULT_INSTRUCTOR_FOLDER);
+	}
+
+	@Override
+	public String getStudentUploadFolderName() {
+		return m_serverConfigurationService.getString("content.direct.upload.students", DEFAULT_STUDENT_FOLDER);
+	}
 
 	private String getDisplayName(User userIn) {
 		User user = (userIn== null)?userDirectoryService.getCurrentUser():userIn ;

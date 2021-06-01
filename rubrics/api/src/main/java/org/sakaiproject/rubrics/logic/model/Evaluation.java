@@ -102,6 +102,10 @@ public class Evaluation implements Modifiable, Serializable {
     @Enumerated
     private EvaluationStatus status = EvaluationStatus.RETURNED;
 
+    @Enumerated
+    @Column(name = "evaluated_item_owner_type")
+    private EvaluatedItemOwnerType evaluatedItemOwnerType = EvaluatedItemOwnerType.USER;
+
     @Embedded
     private Metadata metadata;
 

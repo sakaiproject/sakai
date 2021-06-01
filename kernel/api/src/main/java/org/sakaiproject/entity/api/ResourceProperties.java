@@ -182,6 +182,11 @@ public interface ResourceProperties extends Serializable
 	/** Property name on a ContentEntity indicating if the item is hidden but it's content is public.*/
 	static final String PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT = "SAKAI:hidden_accessible_content";
 
+	/** Property name on a ContentEntity indicating that it should not be imported when duplicating
+	 *  a site or importing from a site.
+	 */
+	static final String PROP_DO_NOT_DUPLICATE = "SAKAI:do_not_duplicate";
+
 	/**
 	 * Property name on a Resource or Collection which will allow resources with
 	 * a text/html content type to be output with an inline content-disposition

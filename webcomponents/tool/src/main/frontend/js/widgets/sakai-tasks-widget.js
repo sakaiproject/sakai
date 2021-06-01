@@ -5,13 +5,6 @@ import '../tasks/sakai-tasks.js';
 
 export class SakaiTasksWidget extends SakaiDashboardWidget {
 
-  static get properties() {
-
-    return {
-      data: {type: Array},
-    };
-  }
-
   constructor() {
 
     super();

@@ -37,7 +37,9 @@ export class Submission {
       this.groupId = init.groupId;
 
       if (init.groupId) {
-        this.groupTitle = groups.find(g => g.id === init.groupId).title;
+        const group = groups.find(g => g.id === init.groupId);
+        this.groupTitle = group.title;
+        this.groupRef = group.reference;
         this.groupMembers = init.submitters.map(s => s.displayName).join(", ");
       }
 

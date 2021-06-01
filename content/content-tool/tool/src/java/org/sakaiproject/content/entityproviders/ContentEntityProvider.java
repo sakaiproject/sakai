@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.content.entityproviders;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,15 +36,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONObject;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.tool.ListItem;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -61,7 +69,14 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.model.EntityContent;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
@@ -99,6 +114,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	private SecurityService securityService;
 	private UserDirectoryService userDirectoryService;
 	private EntityManager entityManager;
+	private ServerConfigurationService serverConfigurationService;
+
+	private SecurityAdvisor allowedAdvisor = (userId1, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
 	@Override
 	public String getEntityPrefix() {
@@ -258,6 +276,127 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		}
 
 		return contentHostingService.getHtmlForRef(ref).orElse("");
+	}
+
+	/**
+	 *
+	 * Upload new file to a site. Puts into a folder based on current user permissions.
+	 * student-uploads -> folder for site members without write privileges, does not duplicate
+	 * instructor-uploads -> folder for site members with write privileges
+	 * Both folders are set to hidden with accessible content
+	 *
+	 */
+	@EntityCustomAction(action = "direct-upload", viewKey = EntityView.VIEW_NEW)
+	public String uploadFileToSite(EntityView view,  Map<String, Object> params) {
+		if (!serverConfigurationService.getBoolean("content.direct.upload.enabled", Boolean.TRUE)) {
+			throw new SecurityException("The direct-upload service is not enabled for your instance.");
+		}
+		User currentUser = userDirectoryService.getCurrentUser();
+		if (currentUser == null || StringUtils.isBlank(currentUser.getId())) {
+			throw new SecurityException("You must be logged in to use the direct-upload service.");
+		}
+		String context = (String) params.get("context");
+		String collectionId = contentHostingService.getSiteCollection(context);
+		String uploadFolderName = "";
+		if (contentHostingService.allowAddCollection(collectionId)) {
+			// If user has content.new permission add file to instructor folder
+			uploadFolderName = contentHostingService.getInstructorUploadFolderName();
+		} else if (contentHostingService.allowGetCollection(collectionId)) {
+			// If user has content.read permission add file to student folder
+			uploadFolderName = contentHostingService.getStudentUploadFolderName();
+		} else {
+			// If user does not have either permission in the collection throw a security exception
+			throw new SecurityException("You must have at least read access for resources in the site to use direct-upload.");
+		}
+		String errorMessage;
+		try {
+			ContentCollection uploadsFolder = getDirectUploadsFolder(collectionId, uploadFolderName);
+			if (uploadsFolder == null) {
+				errorMessage = "Unable to get uploads folder.";
+			} else {
+				DiskFileItem fileItem = (DiskFileItem) params.get("upload");
+				String[] fileNameParts = fileItem.getName().split("\\.(?=[^.]+$)");
+				String basename = StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName()) ? currentUser.getDisplayId() + "_" + fileNameParts[0] : fileNameParts[0];
+				securityService.pushAdvisor(allowedAdvisor);
+				ContentResourceEdit resourceEdit = contentHostingService.addResource(
+						uploadsFolder.getId(),
+						basename,
+						fileNameParts[1],
+						ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				resourceEdit.setContent(fileItem.getInputStream());
+				resourceEdit.setContentType(fileItem.getContentType());
+				resourceEdit.setContentLength(fileItem.getSize());
+				contentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);
+				JSONObject success = new JSONObject();
+				success.put("uploaded", 1);
+				success.put("fileName", fileItem.getName());
+				success.put("url", resourceEdit.getUrl());
+				return success.toJSONString();
+			}
+		} catch (TypeException | InconsistentException | IdInvalidException | IdUnusedException e) {
+			log.error("Exception when trying to get the direct upload folder for site {}.", context, e);
+			errorMessage = "Unable to get uploads folder.";
+		} catch (OverQuotaException e) {
+			log.error("Over quota exception for site " + context + ".", e);
+			errorMessage = "Resource quota exceeded.";
+		} catch (ServerOverloadException e) {
+			log.error("Server overload exception for site " + context + ".", e);
+			errorMessage = "Server is busy. Please try again.";
+		} catch (PermissionException e) {
+			log.error("Permission exception trying to direct upload.", e);
+			errorMessage = "You do not have permission to perform this action.";
+		} catch (IdLengthException e) {
+			log.error("Resource file name too long.", e);
+			errorMessage = "File name too long.";
+		} catch (IdUniquenessException e) {
+			log.error("Unable to find unique id.", e);
+			errorMessage = "A file with that name already exists.";
+		} catch (IOException e) {
+			log.error("IOException with direct upload.", e);
+			errorMessage = "An error occurred trying to upload the file.";
+		} finally {
+			securityService.popAdvisor(allowedAdvisor);
+		}
+		// There was an error.
+		JSONObject errorMsg = new JSONObject();
+		errorMsg.put("message", errorMessage);
+		JSONObject error = new JSONObject();
+		error.put("uploaded", 0);
+		error.put("error", errorMsg);
+		return error.toJSONString();
+	}
+
+	private ContentCollection getDirectUploadsFolder(final String collectionId, final String uploadFolderName) throws TypeException, InconsistentException, IdInvalidException {
+		ContentCollection returnCollection = null;
+		try {
+			securityService.pushAdvisor(allowedAdvisor);
+			returnCollection = contentHostingService.getCollection(collectionId + uploadFolderName + "/");
+		} catch (IdUnusedException e) {
+			// Folder doesn't exist so create it
+			try {
+				ContentCollectionEdit uploadsFolder = contentHostingService.addCollection(collectionId + uploadFolderName + "/");
+				ResourcePropertiesEdit props = uploadsFolder.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, uploadFolderName);
+				props.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+				if (StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName())) {
+					// Properties for student folder only
+					props.addProperty(ResourceProperties.PROP_CREATOR, developerHelperService.getCurrentUserId());
+					props.addProperty(ResourceProperties.PROP_MODIFIED_BY, developerHelperService.getCurrentUserId());
+					props.addProperty(ResourceProperties.PROP_DO_NOT_DUPLICATE, Boolean.TRUE.toString());
+				}
+				contentHostingService.commitCollection(uploadsFolder);
+				returnCollection = contentHostingService.getCollection(collectionId + uploadFolderName + "/");
+			} catch (IdUsedException | PermissionException | IdUnusedException ex) {
+				// This shouldn't be possible. Security advisor permits everything and we just
+				// found that the id for this collection was unused and created it.
+				log.warn("Id used or permission exception.", ex);
+			}
+		} catch (PermissionException pe) {
+			log.warn("Permission exception getting collection in direct upload.", pe);
+		} finally {
+			securityService.popAdvisor(allowedAdvisor);
+		}
+		return returnCollection;
 	}
 
 	/**
