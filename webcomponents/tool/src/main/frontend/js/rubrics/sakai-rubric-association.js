@@ -1,7 +1,6 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 
 class SakaiRubricAssociation extends RubricsElement {
 
@@ -9,7 +8,6 @@ class SakaiRubricAssociation extends RubricsElement {
 
     super();
 
-    this.configurationOptions = [];
     this.selectedConfigOptions = {};
 
     this.isAssociated = false;
@@ -22,17 +20,43 @@ class SakaiRubricAssociation extends RubricsElement {
 
     this.i18nPromise.then(r => this.initLightbox(newValue, r));
     this._token = "Bearer " + newValue;
+    if (this.toolId) {
+      this.getAssociation();
+    }
   }
 
   get token() { return this._token; }
 
+  set toolId(value) {
+
+    this._toolId = value;
+    if (this.token) {
+      this.getAssociation();
+    }
+  }
+
+  get toolId() { return this._toolId; }
+
+  set entityId(value) {
+
+    this._entityId = value;
+
+    if (this.token && this.toolId) {
+      this.getAssociation();
+    }
+  }
+
+  get entityId() { return this._entityId; }
+
   static get properties() {
 
     return {
+      association: { type: Object },
       token: String,
       isAssociated: Boolean,
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
+      selectedRubric: { type: String },
       dontAssociateLabel: { attribute: "dont-associate-label", type: String },
       associateLabel: { attribute: "associate-label", type: String },
       dontAssociateValue: { attribute: "dont-associate-value", type: Number },
@@ -44,14 +68,16 @@ class SakaiRubricAssociation extends RubricsElement {
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set association(value) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if (this.token && this.toolId) {
-      this.getAssociation();
-    }
+    this._association = value;
+    this.selectedRubric = value.rubricId;
+    this.selectedConfigOptions = value.parameters ? value.parameters : {};
+    this.isAssociated = true;
+    this.getRubrics();
   }
+
+  get association() { return this._association; }
 
   toggleFineTunePoints(e) {
 
@@ -74,7 +100,13 @@ class SakaiRubricAssociation extends RubricsElement {
         ${this.readOnly ? "" : html`
           <div class="radio">
             <label>
-              <input @click="${this.associate}" name="rbcs-associate" type="radio" .value="${this.dontAssociateValue}" ?checked=${!this.isAssociated} ?disabled=${this.readOnly}>${this.dontAssociateLabel}
+              <input
+                  @click="${this.associate}"
+                  name="rbcs-associate"
+                  type="radio"
+                  .value="${this.dontAssociateValue}"
+                  ?checked=${!this.isAssociated}
+                  ?disabled=${this.readOnly}>${this.dontAssociateLabel}
             </label>
           </div>
 
@@ -89,7 +121,7 @@ class SakaiRubricAssociation extends RubricsElement {
           <div class="rubrics-selections">
             <select @change="${this.rubricSelected}" name="rbcs-rubricslist" aria-label="${tr("rubric_selector_label")}" class="form-control" ?disabled=${!this.isAssociated || this.readOnly}>
             ${this.rubrics.map(r => html`
-              <option value="${r.id}" ?selected=${r.id === this.selectedRubric}>${r.title}</option>
+              <option value="${r.id}" ?selected=${r.id == this.selectedRubric}>${r.title}</option>
             `)}
             </select>
 
@@ -135,7 +167,8 @@ class SakaiRubricAssociation extends RubricsElement {
     })
     .done(data => {
 
-      var associations = data._embedded['rubric-associations'];
+      const associations = data._embedded['rubric-associations'];
+
       this.association = associations.length ? associations[0] : false;
       if (this.association) {
         this.isAssociated = 1;
@@ -145,7 +178,7 @@ class SakaiRubricAssociation extends RubricsElement {
       }
       this.getRubrics();
     })
-    .fail((jqXHR, textStatus, message) => { console.log(textStatus); console.log(message); });
+    .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });
   }
 
   getRubrics(data) {
@@ -156,7 +189,7 @@ class SakaiRubricAssociation extends RubricsElement {
       data: data || {}
     })
     .done(data => this.handleRubrics(data))
-    .fail((jqXHR, textStatus, message) => { console.log(textStatus); console.log(message); });
+    .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });
   }
 
   handleRubrics(data) {

@@ -602,6 +602,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
     private static final String GRADE_SUBMISSION_SHOW_STUDENT_DETAILS = "grade_showStudentDetails";
     private static final String GRADE_SUBMISSION_SUBMITTERS_NAMES = "grade_ssubmission_submitters_names";
+    private static final String RUBRIC_ASSOCIATION = "rubric_association";
     /**
      * ****************** instructor's export assignment *****************************
      */
@@ -3160,6 +3161,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // release grade notification option
         putReleaseResubmissionNotificationOptionIntoContext(state, context, a);
+
+        context.put(RUBRIC_ASSOCIATION, state.getAttribute(RUBRIC_ASSOCIATION));
 
         // the supplement information
         // model answers
@@ -6989,6 +6992,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) != null && validify) {
                     addAlert(state, rb.getString("addtogradebook.previouslyAssoc"));
                 }
+            }
+        }
+
+        String rubricId = params.getString(RubricsConstants.RBCS_LIST);
+        if (StringUtils.isNotBlank(rubricId)) {
+            Map<String, Object> rubricAssociationMap = new HashMap<>();
+            rubricAssociationMap.put("rubricId", rubricId);
+            Map<String, String> rubricAssociationParameters = new HashMap<>();
+            rubricAssociationParameters.put("fineTunePoints", params.getString("rbcs-config-fineTunePoints"));
+            rubricAssociationParameters.put("hideStudentPreview", params.getString("rbcs-config-hideStudentPreview"));
+            rubricAssociationMap.put("parameters", rubricAssociationParameters);
+            try {
+                state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(rubricAssociationMap));
+            } catch (Exception e) {
+                log.error("Failed to serialise rubrics parameters to JSON", e);
             }
         }
 
@@ -11765,6 +11783,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
         state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
+
+        state.removeAttribute(RUBRIC_ASSOCIATION);
     } // resetNewAssignment
 
     /**
