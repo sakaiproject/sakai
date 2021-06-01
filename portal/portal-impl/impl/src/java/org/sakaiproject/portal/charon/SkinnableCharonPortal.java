@@ -2041,7 +2041,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		sakaiThemesEnabled = ServerConfigurationService.getBoolean("portal.themes", true);
 		sakaiThemeSwitcherEnabled = ServerConfigurationService.getBoolean("portal.themes.switcher", false);
-		sakaiThemesAutoDetectDarkEnabled = ServerConfigurationService.getBoolean("portal.themes.autoDetectDark", false);
+		sakaiThemesAutoDetectDarkEnabled = ServerConfigurationService.getBoolean("portal.themes.autoDetectDark", true);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
