@@ -5094,6 +5094,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// this is a list of folder ids; sequence matters here
 		List<String> folderIds = new ArrayList<>();
 
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES))) {
+			// SAK-44760 regenerate dropbox folders before restoring
+			contentHostingService.createDropboxCollection();
+		}
+			
 		// this map holds folder id as the hash key, and folder attributes (e.g. depth, folder name, et al.) as the hashed value
 		Map<String, ResourcesBrowseItem> folderMap = new ConcurrentHashMap<>();
 		
