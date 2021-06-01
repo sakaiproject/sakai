@@ -506,7 +506,7 @@ public class UserPrefsTool
 		boolean show_tab_label_option = ServerConfigurationService.getBoolean("preference.show.tab.label.option", true);
 		setPrefShowTabLabelOption(show_tab_label_option);
 		
-		setPrefShowThemePreferences(ServerConfigurationService.getBoolean("portal.themes", false));
+		setPrefShowThemePreferences(ServerConfigurationService.getBoolean("portal.themes", true));
 
 		//To indicate that it is in the refresh mode
 		refreshMode=true;
