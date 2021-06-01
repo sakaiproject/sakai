@@ -16,6 +16,7 @@
 package org.sakaiproject.time.impl.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -27,10 +28,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.impl.BasicTimeService;
+import org.sakaiproject.time.impl.MyTime;
 import org.sakaiproject.time.impl.UserLocaleServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -141,6 +144,53 @@ public class TimeRangeTest {
         TimeRange swapped = timeService.newTimeRange("19700101010000000-19700101000000000");
         TimeRange correct = timeService.newTimeRange("19700101000000000-19700101010000000");
         assertEquals(correct, swapped);
+    }
+    
+    
+    //Instant
+    
+    @Test
+    public void testTimeRangeToStringStartInstant() {
+        Instant epoch = Instant.EPOCH;
+        TimeRange timeRange = timeService.newTimeRange(epoch, epoch, true, true);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, false, true);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, true, false);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch, false, false);
+        assertEquals("19700101000000000", timeRange.toString());
+    }
+    
+    @Test
+    public void testTimeRangeToStartInstant() {
+        Instant epoch = Instant.EPOCH;
+        TimeRange timeRange = timeService.newTimeRange(epoch);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch, epoch);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch.toEpochMilli(), 0);
+        assertEquals("19700101000000000", timeRange.toString());
+        timeRange = timeService.newTimeRange(epoch.toEpochMilli(), 100);
+        assertNotEquals("19700101000000000", timeRange.toString());
+        assertEquals("19700101000000000-19700101000000100", timeRange.toString());
+        
+        timeRange = timeService.newTimeRange(epoch, Instant.ofEpochSecond(100));
+        assertNotEquals("19700101000000000", timeRange.toString());
+        assertEquals("19700101000000000-19700101000140000", timeRange.toString());
+        
+    }
+    @Test
+    public void testTimeFudgeInstant() {
+        Instant ts = Instant.ofEpochMilli(100l);
+        Instant te = Instant.ofEpochMilli(142);
+
+        TimeRange tr1 = timeService.newTimeRange(ts, te, false, false);;
+        assertEquals(tr1.firstInstant(0).toEpochMilli(), 100l);
+        assertEquals(tr1.firstInstant(142).toEpochMilli(), 100l + 142);
+        
+        assertEquals(tr1.lastInstant(0).toEpochMilli(), 142);
+        assertEquals(tr1.lastInstant(142).toEpochMilli(), 0);
     }
 
 }
