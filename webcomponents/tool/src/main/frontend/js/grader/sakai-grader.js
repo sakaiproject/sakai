@@ -342,7 +342,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.submission.id}"
-                evaluated-item-owner-id="${this.submission.firstSubmitterId}"
+                evaluated-item-owner-id="${this.submission.groupRef || this.submission.firstSubmitterId}"
+                ?group=${this.submission.groupId}
                 @total-points-updated=${this.onTotalPointsUpdated}
                 @rubric-rating-changed=${this.onRubricRatingChanged}
                 @rubric-ratings-changed=${this.onRubricRatingsChanged}

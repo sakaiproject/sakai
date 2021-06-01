@@ -337,12 +337,16 @@
         </div>
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
-                ## grade-field-id="grade"
                 token="$!rbcs-token"
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
+                #if ($groupRef)
+                evaluated-item-owner-id="$groupRef"
+                group
+                #else
                 evaluated-item-owner-id="$submitterId"
+                #end
             ></sakai-rubric-grading>
         </div>
         </div>
