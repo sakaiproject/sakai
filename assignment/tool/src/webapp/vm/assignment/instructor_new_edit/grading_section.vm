@@ -59,9 +59,13 @@ This section contains the options for grading this assignment, including rubrics
 					dont-associate-value="0"
 					associate-label="$tlang.getString("associate.label")"
 					associate-value="1"
-					tool-id="sakai.assignment"
+					#if("$!rubric_association" != "")
+					association='$rubric_association'
+					#else
 					#if("$!assignment.Id" != "")
 					entity-id="$assignment.Id"
+					#end
+					tool-id="sakai.assignment"
 					#end
 					fine-tune-points="$tlang.getString("option.pointsoverride")"
 					hide-student-preview="$tlang.getString("option.studentpreview")"
