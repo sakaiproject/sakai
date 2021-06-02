@@ -15,8 +15,7 @@
     <bean id="org.sakaiproject.content.api.FileConversionService"
         class="org.sakaiproject.content.impl.FileConversionServiceImpl"
         destroy-method="destroy"
-        init-method="init"
-        lazy-init="true">
+        init-method="init">
     </bean>
 
     <bean id="fileConversionServiceHibernateMappings"
@@ -39,7 +38,6 @@
             init-method="init" destroy-method="destroy">
 
         <property name="fileSystemHandler">          <ref bean="org.sakaiproject.content.api.FileSystemHandler"/>            </property>
-        <property name="fileConversionService" ref="org.sakaiproject.content.api.FileConversionService" />
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
         <property name="functionManager">			<ref bean="org.sakaiproject.authz.api.FunctionManager"/>				</property>
         <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>

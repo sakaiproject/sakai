@@ -654,7 +654,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 props.addProperty(ResourceProperties.PROP_DESCRIPTION, item.getName());
                 ContentResource cr = contentHostingService.addAttachmentResource(item.getName(),
                     courseId, "Assignments", item.getContentType(), item.getInputStream(), props);
-
                 return entityManager.newReference(cr.getReference());
             } catch (Exception e) {
                 throw new EntityException("Error while storing attachments", "", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
