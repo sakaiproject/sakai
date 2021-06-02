@@ -28,12 +28,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.time.impl.BasicTimeService;
-import org.sakaiproject.time.impl.MyTime;
 import org.sakaiproject.time.impl.UserLocaleServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;

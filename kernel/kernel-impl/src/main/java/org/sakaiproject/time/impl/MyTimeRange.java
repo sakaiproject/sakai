@@ -86,7 +86,7 @@ public class MyTimeRange implements TimeRange
     public MyTimeRange(BasicTimeService timeService, String str)
     {
         this.timeService = timeService;
-        parse(str, null, null);
+        parse(str);
 
     } // TimeRange
 
@@ -377,16 +377,11 @@ public class MyTimeRange implements TimeRange
      * parse from a string - resolve fully earliest ('!') and latest ('*') and durations ('=')
      *
      * @param str
-     *        the string to parse
-     * @param earliest
-     *        Time to substitute for any 'earliest' values
-     * @param latest
-     *        the Time to use for 'latest'
+     *        the string to parse'
      */
-    protected void parse(String str, Time earliest, Time latest)
+    protected void parse(String str)
     {
-        try
-        {
+        try {
             // separate the string by '[]~-'
             // (we do want the delimiters as tokens, thus the true param)
             StringTokenizer tokenizer = new StringTokenizer(str, "[]~-", true);
@@ -397,40 +392,31 @@ public class MyTimeRange implements TimeRange
             m_startTime = null;
             m_endTime = null;
 
-            while (tokenizer.hasMoreTokens())
-            {
+            while (tokenizer.hasMoreTokens()) {
                 tokenCount++;
                 String next = tokenizer.nextToken();
 
-                switch (tokenCount)
+                switch (tokenCount) {
+                case 1: 
                 {
-                case 1:
-                {
-                    if (next.charAt(0) == '=')
-                    {
+                    if (next.charAt(0) == '=') {
                         // use the rest as a duration in ms
                         startMs = Long.parseLong(next.substring(1));
-                    }
-
-                    else
-                    {
+                    } else {
                         m_startTime = timeService.newTimeGmt(next);
                     }
-
                 }
                 break;
 
                 case 2:
                 {
                     // set the inclusions
-                    switch (next.charAt(0))
-                    {
+                    switch (next.charAt(0)) {
                     // start not included
                     case '[':
                     {
                         m_startIncluded = false;
                         m_endIncluded = true;
-
                     }
                     break;
 
@@ -439,7 +425,6 @@ public class MyTimeRange implements TimeRange
                     {
                         m_startIncluded = true;
                         m_endIncluded = false;
-
                     }
                     break;
 
@@ -473,14 +458,10 @@ public class MyTimeRange implements TimeRange
 
                 case 3:
                 {
-                    if (next.charAt(0) == '=')
-                    {
+                    if (next.charAt(0) == '=') {
                         // use the rest as a duration in ms
                         endMs = Long.parseLong(next.substring(1));
-                    }
-
-                    else
-                    {
+                    } else {
                         m_endTime = timeService.newTimeGmt(next);
                     }
 
@@ -497,31 +478,25 @@ public class MyTimeRange implements TimeRange
             } // while (tokenizer.hasMoreTokens())
 
             // if either start or end was in duration, adjust (but not both!)
-            if ((startMs != -1) && (endMs != -1))
-            {
+            if ((startMs != -1) && (endMs != -1)) {
                 throw new DateTimeException("==");
             }
 
-            if (startMs != -1)
-            {
+            if (startMs != -1) {
                 if (m_endTime == null)
                 {
                     throw new DateTimeException("=, * null");
                 }
                 m_startTime = timeService.newTime(m_endTime.getTime() - startMs);
-            }
-            else if (endMs != -1)
-            {
-                if (m_startTime == null)
-                {
+            } else if (endMs != -1) {
+                if (m_startTime == null) {
                     throw new DateTimeException("=, ! null");
                 }
                 m_endTime = timeService.newTime(m_startTime.getTime() + endMs);
             }
 
             // if there is only one token
-            if (tokenCount == 1)
-            {
+            if (tokenCount == 1) {
                 // end is start, both included
                 m_endTime = m_startTime;
                 m_startIncluded = true;
@@ -529,16 +504,13 @@ public class MyTimeRange implements TimeRange
             }
 
             // start time must be <= end time
-            if (m_startTime.getTime() > m_endTime.getTime())
-            {
+            if (m_startTime.getTime() > m_endTime.getTime()) {
                 // reverse them to fix
                 Time t = m_startTime;
                 m_startTime = m_endTime;
                 m_endTime = t;
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.warn("parse: exception parsing: {}: {}", str, e.toString());
 
             // set a now range, just to have something
