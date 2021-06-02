@@ -596,9 +596,9 @@ public class PDFAssessmentBean implements Serializable {
 				item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 
 			if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT))
-				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/unchecked.gif' /></td>");
+				contentBuffer.append("<td colspan='1'><span class='samigo-inline-radio fa fa-circle-o'></span></td>");
 			else
-				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
+				contentBuffer.append("<td colspan='1'><span class='samigo-inline-radio fa fa-circle-o'></span></td>");
 				
 			if (printSetting.getShowKeysFeedback()) {
 				contentBuffer.append("<td colspan='10'>");

@@ -98,7 +98,7 @@ blockquote {
 
 #quizWrapper {
   border: 1px solid #999999;
-  background-color: #ffffff;
+  background-color: none;
   margin: 25px;
   padding: 25px;
   font-size: 16px;
@@ -107,7 +107,7 @@ blockquote {
 t .navModeAction {
   padding: 5px;
   line-height: 2.5em;
-  background: #fff;
+  background: none;
   margin: 0 1.5em;
   border: 1px solid #999;
 }

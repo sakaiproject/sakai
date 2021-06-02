@@ -322,22 +322,115 @@ table{
 		}
 	}
 }
-.tablesorter-default,
-.tablesorter-default th,
-.tablesorter-default thead td,
-.tablesorter-default td,
-.tablesorter-default tr.even>td {
+
+.#{$namespace}html .tablesorter {
+	font: #{$font-size-base} $font-family;
+}
+
+.#{$namespace}html .tablesorter,
+.#{$namespace}html .tablesorter th,
+.#{$namespace}html .tablesorter thead td,
+.#{$namespace}html .tablesorter td,
+.#{$namespace}html .tablesorter tr.even>td {
 	background-color: var(--sakai-background-color-1);
 	color: var(--sakai-text-color-1);
 }
-.tablesorter-default tr.odd>td {
+
+.#{$namespace}html .tablesorter td,
+.#{$namespace}html .tablesorter .tablesorter-filter-row td {
+	border-bottom: 1px solid var(--sakai-border-color);
+}
+
+.#{$namespace}html .tablesorter th,
+.#{$namespace}html .tablesorter thead td {
+	border-bottom: 2px solid var(--sakai-border-color);
+}
+
+.#{$namespace}html .tablesorter .header,
+.#{$namespace}html .tablesorter .tablesorter-header {
+	background-image: none;
+}
+
+.#{$namespace}html .tablesorter thead .headerSortUp,
+.#{$namespace}html .tablesorter thead .tablesorter-headerAsc,
+.#{$namespace}html .tablesorter thead .tablesorter-headerSortUp
+.#{$namespace}html .tablesorter thead .headerSortDown,
+.#{$namespace}html .tablesorter thead .tablesorter-headerDesc,
+.#{$namespace}html .tablesorter thead .tablesorter-headerSortDown,
+.#{$namespace}html .tablesorter tfoot .tablesorter-headerAsc,
+.#{$namespace}html .tablesorter tfoot .tablesorter-headerDesc,
+.#{$namespace}html .tablesorter tfoot .tablesorter-headerSortDown,
+.#{$namespace}html .tablesorter tfoot .tablesorter-headerSortUp {
+	border-bottom-color: var(--sakai-text-color-1);
+	background-image: none;
+}
+
+.#{$namespace}html .tablesorter .header::before,
+.#{$namespace}html .tablesorter .tablesorter-header::before,
+.#{$namespace}html .tablesorter .headerSortUp::before,
+.#{$namespace}html .tablesorter .tablesorter-headerAsc::before,
+.#{$namespace}html .tablesorter .tablesorter-headerSortUp::before,
+.#{$namespace}html .tablesorter .tablesorter-headerDesc::before,
+.#{$namespace}html .tablesorter .tablesorter-headerSortDown::before,
+.#{$namespace}html .tablesorter .tablesorter-headerSortUp::before {
+	@extend .fa;
+	@extend .fa-arrows-v;
+	float:right;
+}
+
+.#{$namespace}html .tablesorter .headerSortUp::before,
+.#{$namespace}html .tablesorter .tablesorter-headerAsc::before,
+.#{$namespace}html .tablesorter .tablesorter-headerSortUp::before {
+	@extend .fa-caret-up;
+}
+
+.#{$namespace}html .tablesorter .headerSortDown::before,
+.#{$namespace}html .tablesorter .tablesorter-headerDesc::before,
+.#{$namespace}html .tablesorter .tablesorter-headerSortDown::before {
+	@extend .fa-caret-down;
+}
+
+.#{$namespace}html .tablesorter tr.odd>td,
+.#{$namespace}html .tablesorter .tablesorter-filter-row,
+.#{$namespace}html .tablesorter .tablesorter-filter-row td {
 	background-color: var(--sakai-background-color-2);
 	color: var(--sakai-text-color-1);
 }
-.tablesorter-default tbody>tr.even:hover>td,
-.tablesorter-default tbody>tr.hover>td,
-.tablesorter-default tbody>tr.odd:hover>td,
-.tablesorter-default tbody>tr:hover>td {
+
+.#{$namespace}html .tablesorter tbody>tr.even:hover>td,
+.#{$namespace}html .tablesorter tbody>tr.hover>td,
+.#{$namespace}html .tablesorter tbody>tr.odd:hover>td,
+.#{$namespace}html .tablesorter tbody>tr:hover>td,
+.#{$namespace}html .tablesorter tbody>tr:hover tbody td {
 	background-color: var(--sakai-background-color-3);
 	color: var(--sakai-text-color-1);
+}
+
+.#{$namespace}html .tablesorter thead>tr:hover td {
+	background-color: var(--sakai-background-color-1);
+}
+
+.#{$namespace}html .tablesorter tbody tbody td,
+.#{$namespace}html .tablesorter thead tbody td {
+	border-bottom: none;
+}
+
+.#{$namespace}html .tablesorter input .tablesorter-filter,
+.#{$namespace}html .tablesorter select .tablesorter-filter {
+	background-color: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-border-color);
+	color: var(--sakai-text-color-1);
+}
+.#{$namespace}html .tablesorter .tablesorter-errorRow td {
+	background-color: var(--warnBanner-bgcolor);
+	border-color: var(--warnBanner-bordercolor);
+	color: var(--warnBanner-color);
+}
+.#{$namespace}html .tablesorter-bootstrap i.tablesorter-icon {
+	display: none;
+}
+
+.#{$namespace}html table img[src*="sortascending.gif"],
+.#{$namespace}html table img[src*="sortdescending.gif"] {
+	filter: var(--sakai-image-invert);
 }
