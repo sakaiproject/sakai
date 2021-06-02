@@ -126,7 +126,8 @@ $Id$
 	 window.onload=function(){
      var dataSet=#{histogramScores.histogramChartOptions};
      $('#chartdiv').height(($('.panel-stats').height() - 89)+'px');
-		var plot1=$.jqplot('chartdiv',dataSet,{
+     let cssStyles = getComputedStyle(document.firstElementChild);
+     var plot1=$.jqplot('chartdiv',dataSet,{
 			seriesDefaults:{
 			  shadow:false,
 			  pointLabels:{
@@ -140,8 +141,8 @@ $Id$
 			    labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
 			    label:'#{evaluationMessages.num_students}',
 	                    labelOptions:{
-                              fontFamily:'Helvetica',
-                              fontSize: '14pt'
+                              fontSize: '14pt',
+                              textColor: cssStyles.getPropertyValue('--sakai-text-color-1')
                             }
 			  },
 			  xaxis:{
@@ -149,8 +150,8 @@ $Id$
 			    label:'#{evaluationMessages.num_points}',
 			    renderer:$.jqplot.CategoryAxisRenderer,
 	                    labelOptions:{
-                              fontFamily:'Helvetica',
-                              fontSize: '14pt'
+                              fontSize: '14pt',
+                              textColor: cssStyles.getPropertyValue('--sakai-text-color-1')
                             }
 			  }
 			}
