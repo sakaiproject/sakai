@@ -36,6 +36,11 @@
 	}
 	
 	##{$namespace}footer--poweredBy {
+		a {
+			background-color: var(--footer-PoweredBy-bg);
+			padding: $standard-space;
+		}
+
 		li:last-child {
 			padding-right: 0;	// padding already provided by container
 		}
