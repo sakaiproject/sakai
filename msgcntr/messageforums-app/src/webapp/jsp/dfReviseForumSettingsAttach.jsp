@@ -142,7 +142,7 @@
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>	
 						<h:outputText  value="#{msgs.cdfm_forum_title}" />
 					</h:outputLabel>
-					<h:inputText size="50" id="forum_title"  maxlength="250" value="#{ForumTool.selectedForum.forum.title}">
+					<h:inputText size="50" id="forum_title"  maxlength="250" value="#{ForumTool.selectedForum.forum.title}" validatorMessage="#{msgs.forums_revise_title_validation}">
 						<f:validateLength minimum="1" maximum="255"/>
 					</h:inputText>
 				</h:panelGroup>
