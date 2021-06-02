@@ -138,6 +138,7 @@ public interface PreferencesService extends EntityProducer
 
 	/**
 	 * Get user's preferred locale (or the default locale if not set)
+	 * if userId is blank return Locale.getDefault
 	 * @param userId
 	 * @return
 	 */

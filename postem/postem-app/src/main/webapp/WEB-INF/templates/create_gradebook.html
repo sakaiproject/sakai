@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head">
+</head>
+
+<body>
+    <div th:replace="fragments/common :: jQuery" />
+    <div class="portletBody">
+        <div id="menu" th:include="fragments/menus :: main (add)" />
+        <div class="page-header">
+            <h1 th:text="#{create_update}" /></h1>
+        </div>
+
+        <div class="sak-banner-error" id="uploading-failed" style="display:none"></div>
+
+        <div class="sak-banner-error"
+            th:if="${errorMessage != null && errorMessage !=''}"
+            th:text="#{${errorMessage}}">
+        </div>
+
+        <div class="sak-banner-error" th:if="${literalErrorMessage != null}">
+            <div th:text="${literalErrorMessage}"></div>
+        </div>
+        <!-- upload max size -->
+        <input type="hidden" th:value="${uploadMax}" id="uploadMax">
+
+        <div class="instruction">
+            <strong th:text="#{feedback_instructions}" /></strong><br />
+            <div
+                th:utext="#{feedback_first} + '<br/>'+ #{feedback_second}  + '<br/>'+  #{feedback_third}"></div>
+        </div>
+
+        <br/>
+        <div class="form-group">
+            <div id="dragDropWrapper">
+                <label for="gradeBookFeedBackFile" class="form-control-label"
+                    th:text="#{feedback_title}">Feedback File</label>
+                <span th:text="${fileReference}"></span>
+                <form id="dropzoneForm" th:action="@{/uploadFile}" class="dropzone"
+                    method="post" enctype="multipart/form-data">
+                    <div class="dz-default dz-message">
+                        <button type="button" th:text="#{gradebook_choosefile}"></button>
+                    </div>
+                </form>
+                <br />
+            </div>
+        </div>
+
+        <form th:action="@{/create_gradebook}" name="addContentForm"
+            id="addContentForm" method="post" th:object="${gradebookForm}">
+            <div class="form-group row">
+                <div class="col-sm-2">
+                    <label for="gradeBookTitle" class="form-control-label"
+                        th:text="#{gradebook_title}">Title</label>
+                </div>
+                <div class="col-sm-4">
+                    <input name="gradeBookTitle" type="text" id="title"
+                        th:field="*{title}" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-2">
+                    <label for="gradeBookFeedBackAvail" class="form-control-label"
+                        th:text="#{gradebook_feedbackavail}">Feedback Availability</label>
+                </div>
+                <div class="col-sm-4">
+                    <input type="checkbox" name="gradeBookFeedBackAvail" id="released"
+                        th:field="*{released}" /> <label for="gradeBookFeedBackAvail"
+                        class="form-control-label" th:text="#{release}">Release
+                        feedback to participants?</label>
+                </div>
+                <input type="hidden" th:field="*{gradebookUpdate}" id="gradebookUpdate">
+                <input type="hidden" th:field="*{id}" id="id">
+            </div>
+
+            <div class="act">
+                <input accesskey="x" type="submit" class="active"
+                    id="gradebook-continue-button" th:value="#{bar_post}">
+                <input accesskey="x" type="button" th:onclick="cancelAction()" id="gradebook-cancel-button"
+                    class="btn btn-default" th:value="#{cancel}">
+            </div>
+        </form>
+    </div>
+    <script src="/library/js/postem-dropzone.js"></script>
+</body>
+</html>

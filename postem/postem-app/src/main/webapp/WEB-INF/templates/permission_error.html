@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+    <div th:replace="fragments/common :: jQuery" />
+    <div class="portletBody">
+        <div class="sak-banner-error">
+            <span th:text="#{perm_error}" />
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="main (current)">
+        <ul class="navIntraTool" role="menu">
+            <li role="menuitem">
+                <span th:class="${current}=='index' ? 'current'">
+                    <span  th:if="${current}=='index'" th:text="#{bar_main}">Postem</span>
+                    <a th:unless="${current}=='index'" href="#" th:href="@{/index}" th:text="#{bar_main}">Postem</a>
+                </span>
+            </li>
+            <li role="menuitem" th:if="${ visible == 'true'}">
+                <span th:class="${current}=='add' ? 'current'">
+                    <span th:if="${current}=='add'" th:text="#{bar_new}">Add</span>
+                    <a th:unless="${current}=='add'" href="#" th:href="@{/add}" th:text="#{bar_new}">Add</a>
+                </span>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

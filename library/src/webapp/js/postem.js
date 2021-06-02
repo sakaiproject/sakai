@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: $
+ * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2008 The Sakai Foundation
+ * Copyright (c) 2021 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,20 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.postem.data;
+function cancelVerify () {
+    window.location.assign("add");
+}
 
-public class Pair {
+function cancelAction () {
+    window.location.assign("../");
+}
 
-    private Object first;
+function processDelete (id) {
+    window.location.assign("../processDelete/"+id);
+}
 
-    private Object second;
-
-    public Pair(Object first, Object second) {
-        this.first = first;
-        this.second = second;
-    }
-
-    public Object getFirst() {
-        return first;
-    }
-
-    public Object getSecond() {
-        return second;
-    }
+function showStudent () {
+    const selectedParticipant = document.getElementById('selectedParticipant').value;
+    document.getElementById('student-view-form').action = document.getElementById('student-view-form').action+'/'+selectedParticipant;
+    document.getElementById('student-view-form').submit();
 }

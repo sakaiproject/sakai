@@ -31,212 +31,212 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
+
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
 
-public class StudentGradesImpl implements StudentGrades, Comparable,
-		Serializable {
-	protected Gradebook gradebook;
+public class StudentGradesImpl implements StudentGrades, Comparable, Serializable {
 
-	protected String username;
+    protected Gradebook gradebook;
 
-	protected List grades = new ArrayList();
+    protected String username;
 
-	protected DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm");
+    protected List grades = new ArrayList();
 
-	protected Timestamp lastChecked;
+    protected DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm");
 
-	protected Long id;
+    protected Timestamp lastChecked;
 
-	protected Integer lockId;
+    protected Long id;
 
-	public StudentGradesImpl() {
+    protected Integer lockId;
 
-	}
+    public StudentGradesImpl() {
 
-	public StudentGradesImpl(String username, List grades) {
-	    // ensure the usernames are trimmed and lowercase
-		this.username = username.trim().toLowerCase();
-		this.grades = grades;
-	}
+    }
 
-	public Integer getLockId() {
-		return lockId;
-	}
+    public StudentGradesImpl(String username, List grades) {
+        // ensure the usernames are trimmed and lowercase
+        this.username = username.trim().toLowerCase();
+        this.grades = grades;
+    }
 
-	public void setLockId(Integer lockId) {
-		this.lockId = lockId;
-	}
+    public Integer getLockId() {
+        return lockId;
+    }
 
-	public Gradebook getGradebook() {
-		return gradebook;
-	}
+    public void setLockId(Integer lockId) {
+        this.lockId = lockId;
+    }
 
-	public void setGradebook(Gradebook gradebook) {
-		this.gradebook = gradebook;
-	}
+    public Gradebook getGradebook() {
+        return gradebook;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public void setGradebook(Gradebook gradebook) {
+        this.gradebook = gradebook;
+    }
 
-	public void setUsername(String username) {
-		this.username = username.trim();
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public List getGrades() {
-		return grades;
-	}
+    public void setUsername(String username) {
+        this.username = username.trim();
+    }
 
-	public void setGrades(List grades) {
-		this.grades = grades;
-	}
+    public List getGrades() {
+        return grades;
+    }
 
-	public String getCheckDateTime() {
-		if (lastChecked == null) {
-			return "never";
-		}
-		return dateFormat.format((Date) lastChecked);
-	}
+    public void setGrades(List grades) {
+        this.grades = grades;
+    }
 
-	public Timestamp getLastChecked() {
-		return lastChecked;
-	}
+    public String getCheckDateTime() {
+        if (lastChecked == null) {
+            return "never";
+        }
+        return dateFormat.format((Date) lastChecked);
+    }
 
-	public void setLastChecked(Timestamp lastChecked) {
-		this.lastChecked = lastChecked;
-	}
+    public Timestamp getLastChecked() {
+        return lastChecked;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setLastChecked(Timestamp lastChecked) {
+        this.lastChecked = lastChecked;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public int compareTo(Object other) {
-		if (this == other)
-			return 0;
-		final StudentGrades that = (StudentGrades) other;
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-		return this.getUsername().compareTo(that.getUsername());
-	}
+    public int compareTo(Object other) {
+        if (this == other)
+            return 0;
+        final StudentGrades that = (StudentGrades) other;
 
-	public boolean equals(Object other) {
-		if (this == other)
-			return true;
-		if (!(other instanceof StudentGrades))
-			return false;
-		final StudentGrades that = (StudentGrades) other;
+        return this.getUsername().compareTo(that.getUsername());
+    }
 
-		return this.getUsername().equals(that.getUsername());
-	}
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+        if (!(other instanceof StudentGrades))
+            return false;
+        final StudentGrades that = (StudentGrades) other;
 
-	public int hashCode() {
-		return getUsername().hashCode();
-	}
+        return this.getUsername().equals(that.getUsername());
+    }
 
-	public boolean getReadAfterUpdate() {
-		if (lastChecked == null) {
-			return false;
-		}
-		return getLastChecked().after(gradebook.getLastUpdated());
-	}
+    public int hashCode() {
+        return getUsername().hashCode();
+    }
 
-	/**
-	 * Formats the grades for display, independently of the JSF display. If a
-	 * {@link Template} exists for the parent gradebook, that template's
-	 * fillGrades method is used. Otherwise, the grades are formatted into a plain
-	 * old table.
-	 * <p>
-	 * This is a bad method for including display code within it; however, I do
-	 * this for a simple reason: we're already including display code at this
-	 * level via the template.
-	 * <p>
-	 * The prettier eventual solution will be to inject a default template via the
-	 * controller, or possibly in the manager class (using a defaultTemplate
-	 * property). This works for the quick and dirty now.
-	 */
-	public String formatGrades() {
-		if (gradebook.getTemplate() == null) {
+    public boolean getReadAfterUpdate() {
+        if (lastChecked == null) {
+            return false;
+        }
+        return getLastChecked().after(gradebook.getLastUpdated());
+    }
 
-			List h2 = new ArrayList(gradebook.getHeadings());
+    /**
+     * Formats the grades for display, independently of the JSF display. If a
+     * {@link Template} exists for the parent gradebook, that template's
+     * fillGrades method is used. Otherwise, the grades are formatted into a plain
+     * old table.
+     * <p>
+     * This is a bad method for including display code within it; however, I do
+     * this for a simple reason: we're already including display code at this
+     * level via the template.
+     * <p>
+     * The prettier eventual solution will be to inject a default template via the
+     * controller, or possibly in the manager class (using a defaultTemplate
+     * property). This works for the quick and dirty now.
+     */
+    public String formatGrades() {
+        if (gradebook.getTemplate() == null) {
 
-			StringBuilder gradeBuffer = new StringBuilder();
-			gradeBuffer.append("<table class=\"itemSummary\">");
+            List h2 = new ArrayList(gradebook.getHeadings());
 
-			if (h2.size() != 0) {
-				gradeBuffer.append("<tr><th scope=\"row\">" + StringEscapeUtils.escapeHtml4(h2.get(0).toString()) + "</th><td>");
-				h2.remove(0);
-				gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
-				gradeBuffer.append("</td></tr>");
-				Iterator ii = h2.iterator();
-				Iterator jj = grades.iterator();
+            StringBuilder gradeBuffer = new StringBuilder();
+            gradeBuffer.append("<table class=\"itemSummary\">");
 
-				while (ii.hasNext()) {
-					gradeBuffer.append("<tr><th scope=\"row\">");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) ii.next()));
-					gradeBuffer.append("</th><td>");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
-					gradeBuffer.append("</td></tr>");
-				}
-			} else {
-				gradeBuffer.append("<tr><td>");
-				gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
-				gradeBuffer.append("</td></tr>");
-				Iterator jj = grades.iterator();
-				while (jj.hasNext()) {
-					gradeBuffer.append("<tr><td>");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
-					gradeBuffer.append("</td></tr>");
-				}
-			}
-			gradeBuffer.append("</table>");
-			return gradeBuffer.toString();
-		} else {
-			return gradebook.getTemplate().fillGrades(this);
-		}
-	}
+            if (h2.size() != 0) {
+                gradeBuffer.append("<tr><th scope=\"row\">" + StringEscapeUtils.escapeHtml4(h2.get(0).toString()) + "</th><td>");
+                h2.remove(0);
+                gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
+                gradeBuffer.append("</td></tr>");
+                Iterator ii = h2.iterator();
+                Iterator jj = grades.iterator();
 
-	public String getGradesRow() {
-		StringBuilder gradeBuffer = new StringBuilder();
-		// gradeBuffer.append("<table><tr>");
-		int totalWidth = 0;
+                while (ii.hasNext()) {
+                    gradeBuffer.append("<tr><th scope=\"row\">");
+                    gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) ii.next()));
+                    gradeBuffer.append("</th><td>");
+                    gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
+                    gradeBuffer.append("</td></tr>");
+                }
+            } else {
+                gradeBuffer.append("<tr><td>");
+                gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
+                gradeBuffer.append("</td></tr>");
+                Iterator jj = grades.iterator();
+                while (jj.hasNext()) {
+                    gradeBuffer.append("<tr><td>");
+                    gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
+                    gradeBuffer.append("</td></tr>");
+                }
+            }
+            gradeBuffer.append("</table>");
+            return gradeBuffer.toString();
+        } else {
+            return gradebook.getTemplate().fillGrades(this);
+        }
+    }
 
-		Iterator jj = grades.iterator();
-		int ii = 0;
-		while (jj.hasNext()) {
-			String current = (String) jj.next();
-			String width = gradebook.getProperWidth(ii);
-			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
-			totalWidth += iwidth;
-			/*gradeBuffer.append("<td width='");
-			gradeBuffer.append(width);
-			gradeBuffer.append("' style='min-width: ");
-			gradeBuffer.append(width);
-			gradeBuffer.append("; width: ");
-			gradeBuffer.append(width);
-			gradeBuffer.append(";' >");*/
-			gradeBuffer.append("<td style=\"padding:0.6em;\">");
-			gradeBuffer.append(StringEscapeUtils.escapeHtml4(current));
-			gradeBuffer.append("</td>");
-			ii++;
-		}
-		/*StringBuilder newBuffer = new StringBuilder();
-		newBuffer.append("<table width='");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px' style='min-width: ");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px; width: ");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px;' ><tr>");
-		newBuffer.append(gradeBuffer);
+    public String getGradesRow() {
+        StringBuilder gradeBuffer = new StringBuilder();
+        // gradeBuffer.append("<table><tr>");
+        int totalWidth = 0;
 
-		newBuffer.append("</tr></table>");
-		newBuffer.append("</tr>");*/
-		return gradeBuffer.toString();
-	}
+        Iterator jj = grades.iterator();
+        int ii = 0;
+        while (jj.hasNext()) {
+            String current = (String) jj.next();
+            String width = gradebook.getProperWidth(ii);
+            int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
+            totalWidth += iwidth;
+            /*gradeBuffer.append("<td width='");
+            gradeBuffer.append(width);
+            gradeBuffer.append("' style='min-width: ");
+            gradeBuffer.append(width);
+            gradeBuffer.append("; width: ");
+            gradeBuffer.append(width);
+            gradeBuffer.append(";' >");*/
+            gradeBuffer.append("<td style=\"padding:0.6em;\">");
+            gradeBuffer.append(StringEscapeUtils.escapeHtml4(current));
+            gradeBuffer.append("</td>");
+            ii++;
+        }
+        /*StringBuilder newBuffer = new StringBuilder();
+        newBuffer.append("<table width='");
+        newBuffer.append(totalWidth);
+        newBuffer.append("px' style='min-width: ");
+        newBuffer.append(totalWidth);
+        newBuffer.append("px; width: ");
+        newBuffer.append(totalWidth);
+        newBuffer.append("px;' ><tr>");
+        newBuffer.append(gradeBuffer);
 
+        newBuffer.append("</tr></table>");
+        newBuffer.append("</tr>");*/
+        return gradeBuffer.toString();
+    }
 }

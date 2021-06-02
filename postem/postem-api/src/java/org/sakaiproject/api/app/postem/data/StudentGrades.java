@@ -25,32 +25,31 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface StudentGrades {
-	public Gradebook getGradebook();
+    public Gradebook getGradebook();
 
-	public void setGradebook(Gradebook gradebook);
+    public void setGradebook(Gradebook gradebook);
 
-	public String getUsername();
+    public String getUsername();
 
-	public void setUsername(String username);
+    public void setUsername(String username);
 
-	public List getGrades();
+    public List getGrades();
 
-	public void setGrades(List grades);
+    public void setGrades(List grades);
 
-	public String getCheckDateTime();
+    public String getCheckDateTime();
 
-	public Timestamp getLastChecked();
+    public Timestamp getLastChecked();
 
-	public void setLastChecked(Timestamp lastChecked);
+    public void setLastChecked(Timestamp lastChecked);
 
-	public Long getId();
+    public Long getId();
 
-	public void setId(Long id);
+    public void setId(Long id);
 
-	public boolean getReadAfterUpdate();
+    public boolean getReadAfterUpdate();
 
-	public String formatGrades();
+    public String formatGrades();
 
-	public String getGradesRow();
-
+    public String getGradesRow();
 }
