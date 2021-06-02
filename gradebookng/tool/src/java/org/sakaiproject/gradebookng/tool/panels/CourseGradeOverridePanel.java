@@ -85,7 +85,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 				false,
 				false,
 				true,
-                this.businessService.getIsCalculatedGrade());
+                this.businessService.getShowCalculatedGrade());
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(

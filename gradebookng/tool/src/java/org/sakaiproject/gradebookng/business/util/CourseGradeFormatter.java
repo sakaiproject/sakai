@@ -39,7 +39,7 @@ public class CourseGradeFormatter {
 	private final boolean showPoints;
 	private final boolean showOverride;
 	private final boolean isCalculatedLetter;
-	private final boolean isCalculatedGrade;
+	private final boolean showCalculatedGrade;
 
 	/**
 	 * Constructor to initialise the data
@@ -58,7 +58,7 @@ public class CourseGradeFormatter {
 			final boolean showPoints,
 			final boolean showOverride,
 			final boolean isCalculatedLetter,
-			final boolean isCalculatedGrade) {
+			final boolean showCalculatedGrade) {
 
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
@@ -66,7 +66,7 @@ public class CourseGradeFormatter {
 		this.showPoints = showPoints;
 		this.showOverride = showOverride;
 		this.isCalculatedLetter = isCalculatedLetter;
-		this.isCalculatedGrade = isCalculatedGrade;
+		this.showCalculatedGrade = showCalculatedGrade;
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class CourseGradeFormatter {
 
 		// percentage
 		// not shown in final grade mode
-		if(this.isCalculatedLetter || this.isCalculatedGrade) {
+		if(this.isCalculatedLetter || this.showCalculatedGrade) {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getAutoCalculatedGrade());
 		} else {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());

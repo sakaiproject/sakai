@@ -95,7 +95,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 				gradebook.isCoursePointsDisplayed(),
 				true,
 				false,
-                this.businessService.getIsCalculatedGrade());
+                this.businessService.getShowCalculatedGrade());
 
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException

@@ -152,7 +152,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 uiSettings.getShowPoints(),
                 true,
                 false,
-                this.businessService.getIsCalculatedGrade());
+                this.businessService.getShowCalculatedGrade());
         if (studentCourseGrade != null)
             return courseGradeFormatter.format(studentCourseGrade);
         else
