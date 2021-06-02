@@ -674,8 +674,8 @@ public class ListItem
 			//SAK-21955
 			//Prevent concurrent mode failures in admin Resource tool when clicking on resources that are too large.  Similar to 'isTooBig' but defined in properties
 			//To enable add the property sakai.content.resourceLimit=<int> to sakai.properties where int is the limit of an accessible resource folder
-			String siteId = getSiteContext(refstr);
-			if(this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT != 0 && siteId != null && ("!admin".equals(siteId) || SiteService.getUserSiteId("admin").contains(siteId)) && (collection_size > this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT))
+
+			if (refstr.split(Entity.SEPARATOR).length <= 3 && this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT != 0 && (collection_size > this.EXPANDABLE_FOLDER_NAV_SIZE_LIMIT))
 			{
 				setIsTooBigNav(true);
 			}
