@@ -132,18 +132,6 @@
 		    }
 		}
 	</script>
-	<style>
-		.radioOption{
-			background: none repeat scroll 0 0 #EEEEEE;
-			border-radius: 5px 5px 5px 5px;
-			padding: .5em;
-			width: 35em;
-		}
-		
-		.radioOptionSelected{
-			background: none repeat scroll 0 0 #CCCCCC;
-		}
-	</style>
 			<h:form id="syllabusEdit">
 				<%@ include file="mainMenu.jsp" %>
 				<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />

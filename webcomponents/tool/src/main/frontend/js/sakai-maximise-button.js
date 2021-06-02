@@ -1,6 +1,7 @@
 import {SakaiElement} from "./sakai-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import "/webcomponents/fa-icon.js";
+import {html} from "./assets/lit-element/lit-element.js";
+import "./fa-icon.js";
+import './sakai-icon.js';
 
 class SakaiMaximiseButton extends SakaiElement {
 
@@ -29,11 +30,11 @@ class SakaiMaximiseButton extends SakaiElement {
       ${this.fullScreen ?
       html`
           <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["normal_view"]}" aria-label="${this.i18n["normal_view"]}" @click=${this.minimise}>
-            <fa-icon i-class="fas compress-arrows-alt" path-prefix="/webcomponents/assets" />
+            <sakai-icon type="fs-compress" size="small"></sakai-icon>
           </a>`
       : html`
           <a class="Mrphs-toolTitleNav__link" href="javascript;" title="${this.i18n["fullscreen_view"]}" aria-label="${this.i18n["fullscreen_view"]}" @click=${this.maximise}>
-            <fa-icon i-class="fas expand-arrows-alt" path-prefix="/webcomponents/assets" />
+            <sakai-icon type="fs-expand" size="small"></sakai-icon>
           </a>`
       }
     `;

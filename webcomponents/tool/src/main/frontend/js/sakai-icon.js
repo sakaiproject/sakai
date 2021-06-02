@@ -2,7 +2,7 @@ import { html, css, LitElement } from './assets/lit-element/lit-element.js';
 import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
 import { faStar, faEllipsisV, faBell, faTimes, faTimesCircle, faCheckSquare, faComments, faBook, faFile, faFileAlt,
           faGripVertical, faMinus, faPlus, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync,
-          faTrash, faTrashRestore, faEdit, faArrowDown, faArrowLeft, faArrowRight, faArrowUp }
+          faTrash, faTrashRestore, faEdit, faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faCompressArrowsAlt, faExpandArrowsAlt }
   from './assets/@fortawesome/free-solid-svg-icons/index.es.js';
 
 export class SakaiIcon extends LitElement {
@@ -93,6 +93,8 @@ library.add(faArrowLeft); // Left
 library.add(faArrowRight); // Right
 library.add(faSync); // Refresh
 library.add(faMinus); // Refresh
+library.add(faCompressArrowsAlt); //unfullscreen
+library.add(faExpandArrowsAlt); //fullscreen
 
 SakaiIcon.lookups = new Map();
 SakaiIcon.lookups.set("favourite", faStar);
@@ -121,6 +123,8 @@ SakaiIcon.lookups.set("left", faArrowLeft);
 SakaiIcon.lookups.set("right", faArrowRight);
 SakaiIcon.lookups.set("refresh", faSync);
 SakaiIcon.lookups.set("minus", faMinus);
+SakaiIcon.lookups.set("fs-expand", faExpandArrowsAlt);
+SakaiIcon.lookups.set("fs-compress", faCompressArrowsAlt);
 
 if (!customElements.get("sakai-icon")) {
   customElements.define("sakai-icon", SakaiIcon);

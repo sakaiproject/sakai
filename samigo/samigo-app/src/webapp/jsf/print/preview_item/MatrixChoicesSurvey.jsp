@@ -53,7 +53,7 @@
                             <t:outputText value="#{question.itemData.columnChoices[colIndex]}" />
                     </f:facet>
                      <div style="text-align: center;">
-                 <h:graphicImage id="image2" alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif"/>
+                  <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o"></h:panelGroup>
                  </div>
                 </t:columns>
             </t:dataTable>

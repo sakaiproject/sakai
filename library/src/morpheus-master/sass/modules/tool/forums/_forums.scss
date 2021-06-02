@@ -101,6 +101,7 @@
 				margin: 0 0.2em 0 0;
 				@include transform( rotate(0deg) );
 				@include transition( all 0.15s linear );
+				filter: var(--sakai-image-invert);
 			}
 			&.opened{
 				img{

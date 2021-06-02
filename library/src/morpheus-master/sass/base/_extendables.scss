@@ -164,6 +164,10 @@
 	}
 }
 
+input::placeholder {
+	color: var(--sakai-text-color-1);
+}
+
 .select{
 	background-color: var(--sakai-background-color-1);
 	background-image: url(#{$skin-path}images/icon-arrow-down.png);
@@ -192,7 +196,7 @@
 	
 	&[disabled="disabled"],&[disabled],&[disabled="true"] {
 		opacity: 0.7;
-		background-color: var(--sakai-background-color-4);
+		background-color: var(--sakai-background-color-1);
 		color: var(--sakai-text-color-disabled);
 		cursor: not-allowed;
 	}
@@ -514,4 +518,48 @@ label.panelGridLabel{
 	font-weight: 200;
 	display: block;
 	margin-top: 1.4rem;
+}
+
+div.wicket-modal div.w_blue a.w_close {
+	background-image: none;
+	right: 0;
+	margin: 0 $standard-space-4x 0 0;
+	padding: $standard-space-4x;
+	font-size: 1.5em;
+	overflow: visible;
+
+	&::before {
+		@extend .fa;
+		@extend .fa-times;
+	}
+}
+
+.text-primary,
+.bg-primary {
+	color: var(--sakai-brand);
+	background-color: var(--sakai-background-color-1);
+}
+.text-success,
+.bg-success {
+	color: var(--successBanner-color);
+	background-color: var(--successBanner-bgcolor);
+}
+.text-info,
+.bg-info {
+	color: var(--infoBanner-color);
+	background-color: var(--infoBanner-bgcolor);
+}
+.text-warning,
+.bg-warning {
+	color: var(--warnBanner-color);
+	background-color: var(--warnBanner-bgcolor);
+}
+.text-danger,
+.bg-danger {
+	color: var(--errorBanner-color);
+	background-color: var(--errorBanner-bgcolor);
+}
+
+.close {
+	opacity: 1;
 }

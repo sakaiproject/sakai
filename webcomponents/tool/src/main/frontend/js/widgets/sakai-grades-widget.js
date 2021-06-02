@@ -140,7 +140,8 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
           .new-count {
             font-size: var(--sakai-grades-count-font-size, 10px);
             font-weight: bold;
-            color: #262626;
+            padding: 0 5px 0 5px;
+            color: var(--sakai-grades-count-color, --sakai-text-color-1);
           }
           .title {
             font-size: var(--sakai-grades-title-font-size, 12px);
