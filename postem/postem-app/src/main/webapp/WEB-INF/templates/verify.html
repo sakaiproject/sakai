@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head" />
+<body>
+    <div th:replace="fragments/common :: jQuery" />
+    <div class="portletBody">
+        <div id="menu" th:include="fragments/menus :: main (index)" />
+        <div class="page-header">
+            <h1 th:text="#{title_verify}"></h1>
+        </div>
+        <br/>
+        <ul>
+            <li><span th:text="#{has_headers}"></span></li>
+            <li><span th:text="${has_students}"></span></li>
+        </ul>
+        <p>
+            <span th:text="#{just_uploaded}"></span>
+        </p>
+        <br/>
+        <p>
+            <span th:text="#{first_record}"></span>
+        </p>
+        <span th:text="#{if_not_correct}"></span>
+
+        <hr/>
+
+        <table th:if="${currentGradebook != null}" class="table-condensed">
+            <tr>
+                <th>Student</th>
+                <td></td>
+                <td th:text="${currentGradebook.firstUploadedUsername}"></td>
+            </tr>
+            <tr th:each="heading, iterStats : ${currentGradebook.headings}">
+                <span th:if="!${iterStats.first}">
+                    <th th:text=" ${heading}"></th>
+                    <td></td>
+                    <td th:text="${studentGrades.grades[iterStats.index-1]}"></td>
+                </span>
+            </tr>
+        </table>
+
+        <form th:action="@{/create_gradebook_ok}" name="addContentForm" id="addContentForm" method="post" th:object="${gradebookForm}">
+            <div class="act">
+                <input accesskey="x" type="submit" class="active" id="gradebook-continue-button" th:value="#{bar_post}">
+                <input accesskey="x" type="button" th:onclick="cancelVerify()" id="gradebook-cancel-button" class="btn btn-default" th:value="#{cancel}">
+            </div>
+        </form>
+    </div>
+</body>
+</html>

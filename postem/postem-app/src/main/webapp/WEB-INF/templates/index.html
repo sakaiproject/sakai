@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head"/>
+<body>
+    <div th:replace="fragments/common :: jQuery" />
+    <div class="portletBody">
+        <div id="menu" th:include="fragments/menus :: main (index)" />
+        <div class="sak-banner-info" th:if="${gradebooksList== null or gradebooksList.isEmpty()}" th:text="#{no_gradebooks}">There are currently no items at this location.</div>
+        <table id="groupTable" class="table table-striped table-bordered table-hover" th:if="${gradebooksList != null and !gradebooksList.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>
+                        <a th:href="@{/title/{ascendingTitle}(ascendingTitle = ${ascendingTitle})}" th:text="#{gradebook_titles}" th:title="#{sort_title}"></a>
+                        <img th:if="${sortedByTitle == 'true' && ascendingTitle == 'true'}" th:src="@{~/library/image/sakai/sortascending.gif}" th:title="#{sort_title_asc}"/>
+                        <img th:if="${sortedByTitle == 'true' && ascendingTitle == 'false'}" th:src="@{~/library/image/sakai/sortdescending.gif}" th:title="#{sort_title_desc}"/>
+                    </th>
+                    <th th:if="${ visible == 'true'}">
+                        <a th:href="@{/creator/{ascendingCreator}(ascendingCreator = ${ascendingCreator})}" th:text="#{gradebook_creators}" th:title="#{sort_creator}"></a>
+                        <img th:if="${sortedByCreator == 'true' && ascendingCreator == 'true'}" th:src="@{~/library/image/sakai/sortascending.gif}" th:title="#{sort_creator_asc}"/>
+                        <img th:if="${sortedByCreator == 'true' && ascendingCreator == 'false'}" th:src="@{~/library/image/sakai/sortdescending.gif}" th:title="#{sort_creator_asc}"/>
+                    </th>
+                    <th th:if="${ visible == 'true'}">
+                        <a th:href="@{/modifiedBy/{ascendingModifiedBy}(ascendingModifiedBy = ${ascendingModifiedBy})}" th:text="#{gradebook_lastmodifiedby}"  th:title="#{sort_mod_by}"></a>
+                        <img th:if="${sortedByModifiedBy == 'true' && ascendingModifiedBy == 'true'}" th:src="@{~/library/image/sakai/sortascending.gif}" th:title="#{sort_mod_by_asc}"/>
+                        <img th:if="${sortedByModifiedBy == 'true' && ascendingModifiedBy == 'false'}" th:src="@{~/library/image/sakai/sortdescending.gif}" th:title="#{sort_mod_by_asc}"/>
+                    </th>
+                    <th>
+                        <a th:href="@{/lastModified/{ascendingLastMod}(ascendingLastMod = ${ascendingLastMod})}" th:text="#{gradebook_lastmodified}" th:title="#{sort_mod_date}"></a>
+                        <img th:if="${sortedByLastModified == 'true' && ascendingLastMod == 'true'}" th:src="@{~/library/image/sakai/sortascending.gif}" th:title="#{sort_mod_date_asc}"/>
+                        <img th:if="${sortedByLastModified == 'true' && ascendingLastMod == 'false'}" th:src="@{~/library/image/sakai/sortdescending.gif}" th:title="#{sort_mod_date_asc}"/>
+                    </th>
+                    <th th:if="${ visible == 'true'}">
+                        <a th:href="@{/released/{ascendingReleased}(ascendingReleased = ${ascendingReleased})}" th:text="#{released}" th:title="#{sort_released}"></a>
+                        <img th:if="${sortedByReleased == 'true' && ascendingReleased == 'true'}" th:src="@{~/library/image/sakai/sortascending.gif}" th:title="#{sort_released_asc}"/>
+                        <img th:if="${sortedByReleased == 'true' && ascendingReleased == 'false'}" th:src="@{~/library/image/sakai/sortdescending.gif}" th:title="#{sort_released_asc}"/>
+                    </th>
+                    <th th:if="${ visible == 'true'}"></th>
+                    <th th:if="${ visible == 'true'}"></th>
+                    <th th:if="${ visible == 'true'}"></th>
+                    <th th:if="${ visible == 'true'}"></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="gradebook : ${gradebooksList}">
+                    <td th:text="${gradebook?.title}"></td>
+                    <td th:if="${ visible == 'true'}" th:text="${gradebook?.creatorEid}"></td>
+                    <td th:if="${ visible == 'true'}" th:text="${gradebook?.lastUpdaterEid}"></td>
+                    <td th:text="${gradebook?.updatedDateTime}"></td>
+                    <div th:if="${ visible == 'true'}">
+                        <td th:if="${gradebook?.release}" th:text="#{yes}"></td>
+                        <td th:if="${!gradebook?.release}" th:text="#{no}"></td>
+                    </div>
+                    <td th:if="${ visible == 'true'}">
+                        <a th:href="@{/gradebook_view/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{gradebook_view}"></a>
+                    </td>
+                    <td th:if="${ visible == 'false'}">
+                        <a th:href="@{/student_grades_view/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{gradebook_view}"></a>
+                    </td>
+                    <td th:if="${ visible == 'true'}">
+                        <a th:href="@{/student_view/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{gradebook_preview}"></a>
+                    </td>
+                    <td th:if="${ visible == 'true'}">
+                        <a th:href="@{/gradebook_update/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{gradebook_update}"></a>
+                    </td>
+                    <td th:if="${ visible == 'true'}">
+                        <a th:href="@{/delete_confirm/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{gradebook_delete}"></a>
+                    </td>
+                    <td th:if="${ visible == 'true'}">
+                        <a th:href="@{/process_csv_download/{gradebookId}(gradebookId = ${gradebook?.id})}" th:text="#{csv_download}"></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

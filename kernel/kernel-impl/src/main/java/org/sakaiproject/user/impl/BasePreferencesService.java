@@ -25,6 +25,7 @@ import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -440,10 +441,14 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 
 	/**
 	 ** Get user's preferred locale (or null if not set)
+	 ** if userId is blank return Locale.getDefault
 	 ***/
 	public Locale getLocale(String userId)
 	{
 		Locale loc = null;
+		if (StringUtils.isBlank(userId)) {
+			return Locale.getDefault();
+		}
 		Preferences prefs = getPreferences(userId);
 		ResourceProperties locProps = prefs.getProperties(LOCALE_PREFERENCE_KEY);
 		String localeString = locProps.getProperty(Preferences.FIELD_LOCALE);

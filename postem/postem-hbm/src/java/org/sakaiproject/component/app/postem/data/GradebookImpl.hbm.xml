@@ -1,71 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sakaiproject.component.app.postem.data">
+    <class name="org.sakaiproject.component.app.postem.data.GradebookImpl" table="SAKAI_POSTEM_GRADEBOOK" optimistic-lock="version">
+        <id name="id" type="long">
+            <column name="id" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">POSTEM_GRADEBOOK_S</param>
+            </generator>
+        </id>
 
-<class name="org.sakaiproject.component.app.postem.data.GradebookImpl" table="SAKAI_POSTEM_GRADEBOOK" optimistic-lock="version">
+        <version name="lockId" />
 
-		<id name="id" type="long">
-			<column name="id" not-null="true" length="19" />
-			<generator class="native">
-				<param name="sequence">POSTEM_GRADEBOOK_S</param>
-			</generator>
-		</id>
+        <property name="title" type="string">
+            <column name="title" unique-key="uniqueGradebook" length="255" not-null="true" index="POSTEM_GB_TITLE_I" />
+        </property>
 
-		<version name="lockId" />
+        <property name="context" type="string">
+            <column name="context" unique-key="uniqueGradebook" length="36" not-null="true" index="POSTEM_GB_CONTEXT_I" />
+        </property>
 
-		<property name="title" type="string">
-			<column name="title" unique-key="uniqueGradebook" length="255" not-null="true" index="POSTEM_GB_TITLE_I" />
-		</property>
+        <property name="creator" type="string">
+            <column name="creator" length="36" not-null="true" />
+        </property>
 
-		<property name="context" type="string">
-			<column name="context" unique-key="uniqueGradebook" length="36" not-null="true" index="POSTEM_GB_CONTEXT_I" />
-		</property>
+        <property name="created" type="timestamp">
+            <column name="created" not-null="true" />
+        </property>
 
+        <property name="lastUpdater" type="string">
+            <column name="last_updater" length="36" not-null="true" />
+        </property>
 
-		<property name="creator" type="string">
-			<column name="creator" length="36" not-null="true" />
-		</property>
+        <property name="lastUpdated" type="timestamp">
+            <column name="last_updated" not-null="true" />
+        </property>
 
-		<property name="created" type="timestamp">
-			<column name="created" not-null="true" />
-		</property>
+        <property name="released" type="boolean">
+            <column name="released" not-null="true" />
+        </property>
 
-		<property name="lastUpdater" type="string">
-			<column name="last_updater" length="36" not-null="true" />
-		</property>
-
-		<property name="lastUpdated" type="timestamp">
-			<column name="last_updated" not-null="true" />
-		</property>
-
-		<property name="released" type="boolean">
-			<column name="released" not-null="true" />
-		</property>
-
-		<property name="releaseStatistics" type="boolean">
-			<column name="stats" not-null="true" />
-		</property>
+        <property name="releaseStatistics" type="boolean">
+            <column name="stats" not-null="true" />
+        </property>
 
         <property name="fileReference" type="string" length="255">
             <column name="file_reference" not-null="false" />
         </property>
 
-		<component name="template" class="org.sakaiproject.component.app.postem.data.TemplateImpl">
-			<property name="templateCode" type="string" length="4000" column="template" />
-		</component>
+        <component name="template" class="org.sakaiproject.component.app.postem.data.TemplateImpl">
+            <property name="templateCode" type="string" length="4000" column="template" />
+        </component>
 
-		<set name="students" lazy="true" cascade="all" order-by="username asc" inverse="true">
-			<key column="surrogate_key" />
-			<one-to-many class="org.sakaiproject.component.app.postem.data.StudentGradesImpl" />
-		</set>
+        <set name="students" lazy="true" cascade="all" order-by="username asc" inverse="true">
+            <key column="surrogate_key" />
+            <one-to-many class="org.sakaiproject.component.app.postem.data.StudentGradesImpl" />
+        </set>
 
-		<list name="headings" lazy="true" cascade="all" table="SAKAI_POSTEM_HEADINGS">
-			<key column="gradebook_id" />
-			<index column="location" />
-			<element type="string" column="heading" not-null="true" length="500" />
-		</list>
-
-
-	</class>
-
+        <list name="headings" lazy="true" cascade="all" table="SAKAI_POSTEM_HEADINGS">
+            <key column="gradebook_id" />
+            <index column="location" />
+            <element type="string" column="heading" not-null="true" length="500" />
+        </list>
+    </class>
 </hibernate-mapping>
