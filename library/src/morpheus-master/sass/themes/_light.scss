@@ -506,13 +506,14 @@
     --sakai-close-icon-color: var(--errorBanner-color);
     --sakai-table-even-color: var(--sakai-background-color-2);
     --sakai-separator-color: var(--sakai-border-color);
-    --sakai-calendar-button-background-color: #FFFFFF;
+    --sakai-calendar-button-bg-color: var(--button-background);
     --sakai-calendar-button-color: var(--button-text-color);
-    --sakai-calendar-button-disabled-background-color: var(--button-disabled-background);
-    --sakai-calendar-today-background-color: yellow;
-    --sakai-calendar-today-color: black;
-    --sakai-calendar-has-events-color: white;
-    --sakai-calendar-has-events-background-color: green;
+    --sakai-calendar-button-disabled-color: var(--button-disabled-text-color);
+    --sakai-calendar-button-disabled-bg-color: var(--button-disabled-background);
+    --sakai-calendar-today-bg-color: var(--sakai-primary-color-1);
+    --sakai-calendar-today-fg-color: var(--sakai-text-color-inverted);
+    --sakai-calendar-has-events-bg-color: var(--sakai-color-green--darker-4);
+    --sakai-calendar-has-events-fg-color: var(--sakai-text-color-inverted);
 
     --sakai-user-status-online: var(--sakai-color-green--lighter-2);
 
@@ -521,6 +522,7 @@
     --sakai-hightlight-color: var(--errorBanner-color);
 
     --progress-bar-bg: var(--infoBanner-bordercolor);
+
 }
 
 // Tables

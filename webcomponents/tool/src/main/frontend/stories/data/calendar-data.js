@@ -1,4 +1,3 @@
-const day = 24 * 60 * 60 * 1000;
 export var calendarData = `
 [
   {
@@ -12,7 +11,7 @@ export var calendarData = `
     "tool":"assignments",
     "type":"Activity",
     "assignmentId":"",
-    "start": ${Date.now() - day},
+    "start":1605560400000,
     "duration":3600000,
     "attachments":[],
     "recurrence":{
@@ -35,7 +34,6 @@ export var calendarData = `
     "type":"Deadline",
     "assignmentId":"fa7eb892-5812-492e-9a03-3f0feb4aabfe",
     "start":1606156200000,
-    "start": ${Date.now() + (2 * day)},
     "duration":0,
     "attachments":[],
     "recurrence": {
@@ -57,7 +55,7 @@ export var calendarData = `
     "tool":"assignments",
     "type":"Activity",
     "assignmentId":"",
-    "start": ${Date.now() - (35 * day)},
+    "start":1606309200000,
     "duration":3600000,
     "attachments":[],
     "recurrence":{
