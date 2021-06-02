@@ -80,6 +80,8 @@ public class FileConversionServiceImpl implements FileConversionService {
             queueIntervalMinutes = serverConfigurationService.getInt("fileconversion.queueintervalminutes", 1);
             pause = serverConfigurationService.getInt("fileconversion.pausemillis", 1000);
         }
+
+        startIfEnabled();
     }
 
     public void startIfEnabled() {

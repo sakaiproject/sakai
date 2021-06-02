@@ -109,7 +109,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.content.api.FileConversionService;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -298,9 +297,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
-
-	@Setter
-	private FileConversionService fileConversionService;
 
 	/**
 	 * Use a timer for repeating actions
@@ -945,8 +941,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
  			virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
 			virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
-
-			fileConversionService.startIfEnabled();
 		}
 		catch (Exception t)
 		{
@@ -4045,10 +4039,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// and add the resource
 		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
-		if (fileConversionService.canConvert(type)) {
-			fileConversionService.convert(id);
-		}
-
 		return resource;
 	} // addAttachmentResource
 
@@ -4141,10 +4131,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		// and add the resource
 		ContentResource resource = addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
-
-		if (fileConversionService.canConvert(type)) {
-			fileConversionService.convert(id);
-		}
 
 		return resource;
 	} // addAttachmentResource

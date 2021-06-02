@@ -174,6 +174,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.api.FileConversionService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -1112,6 +1113,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private ContentTypeImageService contentTypeImageService;
     private EntityManager entityManager;
     private EventTrackingService eventTrackingService;
+    private FileConversionService fileConversionService;
     private FormattedText formattedText;
     private GradebookService gradebookService;
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
@@ -1147,6 +1149,7 @@ public class AssignmentAction extends PagedResourceActionII {
         contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
         entityManager = ComponentManager.get(EntityManager.class);
         eventTrackingService = ComponentManager.get(EventTrackingService.class);
+        fileConversionService = ComponentManager.get(FileConversionService.class);
         formattedText = ComponentManager.get(FormattedText.class);
         gradebookExternalAssessmentService = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -14004,6 +14007,12 @@ public class AssignmentAction extends PagedResourceActionII {
                         // of further permissions
                         securityService.pushAdvisor(sa);
                         ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
+
+                        if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION)) {
+                            if (fileConversionService.canConvert(attachment.getContentType())) {
+                                fileConversionService.convert(attachment.getId());
+                            }
+                        }
 
                         Site s = null;
                         try {
