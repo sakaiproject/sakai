@@ -183,7 +183,7 @@ public class TimeRangeTest {
         Instant ts = Instant.ofEpochMilli(100l);
         Instant te = Instant.ofEpochMilli(142);
 
-        TimeRange tr1 = timeService.newTimeRange(ts, te, false, false);;
+        TimeRange tr1 = timeService.newTimeRange(ts, te, false, false);
         assertEquals(tr1.firstInstant(0).toEpochMilli(), 100l);
         assertEquals(tr1.firstInstant(142).toEpochMilli(), 100l + 142);
         

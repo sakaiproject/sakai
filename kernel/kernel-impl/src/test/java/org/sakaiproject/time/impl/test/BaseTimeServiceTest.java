@@ -100,7 +100,7 @@ public class BaseTimeServiceTest {
 		Time ts = new MyTime(service, 100l);
 		Time te = new MyTime(service, 142);
 
-		TimeRange tr1 = service.newTimeRange(ts, te, false, false);;
+		TimeRange tr1 = service.newTimeRange(ts, te, false, false);
 		assertEquals(tr1.firstTime(0).getTime(), 100l);
 		assertEquals(tr1.firstTime(142).getTime(), 100l + 142);
 		
