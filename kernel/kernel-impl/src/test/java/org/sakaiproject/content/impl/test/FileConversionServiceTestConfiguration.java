@@ -114,7 +114,7 @@ public class FileConversionServiceTestConfiguration {
     public ServerConfigurationService serverConfigurationService() {
 
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
-        when(scs.getBoolean("fileconversion.enabled", false)).thenReturn(true);
+        when(scs.getBoolean("fileconversion.submit.enabled", false)).thenReturn(true);
         when(scs.getStringList("fileconversion.fromtypes", FileConversionService.DEFAULT_TYPES)).thenReturn(FileConversionService.DEFAULT_TYPES);
         when(scs.getString("fileconversion.converterurl", "http://localhost:9980")).thenReturn("http://localhost:9980");
         when(scs.getInt("fileconversion.workerthreads", 5)).thenReturn(5);

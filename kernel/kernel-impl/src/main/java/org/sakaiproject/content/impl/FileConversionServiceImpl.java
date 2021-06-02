@@ -60,7 +60,8 @@ public class FileConversionServiceImpl implements FileConversionService {
     @Autowired private ServerConfigurationService serverConfigurationService;
 
     private String converterBaseUrl;
-    private boolean enabled;
+    private boolean conversionEnabled;
+    private boolean submitEnabled;
     private List<String> fromTypes;
     private ScheduledExecutorService master;
     private int pause;
@@ -69,12 +70,16 @@ public class FileConversionServiceImpl implements FileConversionService {
 
     public void init() {
 
-        enabled = serverConfigurationService.getBoolean("fileconversion.enabled", false);
+        submitEnabled = serverConfigurationService.getBoolean("fileconversion.submit.enabled", false);
 
-        if (enabled) {
+        if (submitEnabled) {
             fromTypes = serverConfigurationService.getStringList("fileconversion.fromtypes", DEFAULT_TYPES);
-            converterBaseUrl = serverConfigurationService.getString("fileconversion.converterurl", "http://localhost:9980");
+        }
 
+        conversionEnabled = serverConfigurationService.getBoolean("fileconversion.conversion.enabled", false);
+
+        if (conversionEnabled) {
+            converterBaseUrl = serverConfigurationService.getString("fileconversion.converterurl", "http://localhost:9980");
             workers = Executors.newFixedThreadPool(serverConfigurationService.getInt("fileconversion.workerthreads", 5));
             master = Executors.newScheduledThreadPool(1);
             queueIntervalMinutes = serverConfigurationService.getInt("fileconversion.queueintervalminutes", 1);
@@ -88,8 +93,8 @@ public class FileConversionServiceImpl implements FileConversionService {
 
         log.debug("startIfEnabled()");
 
-        if (!enabled) {
-            log.debug("Not enabled in Sakai properties. Not starting.");
+        if (!conversionEnabled) {
+            log.debug("Conversion not enabled in Sakai properties. Not starting.");
             return;
         }
 
@@ -192,18 +197,18 @@ public class FileConversionServiceImpl implements FileConversionService {
     }
 
     public boolean canConvert(String fromType) {
-        return enabled && fromTypes.contains(fromType);
+        return submitEnabled && fromTypes.contains(fromType);
     }
 
     @Transactional
-    public void convert(String ref) {
+    public void submit(String ref) {
 
-        if (!enabled) {
-            log.debug("Not enabled in Sakai properties. Not converting {}.", ref);
+        if (!submitEnabled) {
+            log.debug("Submit not enabled in Sakai properties. Not submitting {}.", ref);
             return;
         }
 
-        log.debug("convert({})", ref);
+        log.debug("submit({})", ref);
 
         FileConversionQueueItem newItem = new FileConversionQueueItem();
         newItem.setReference(ref);
