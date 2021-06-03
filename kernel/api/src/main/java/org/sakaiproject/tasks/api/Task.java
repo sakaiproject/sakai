@@ -32,6 +32,8 @@ import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
@@ -43,7 +45,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "TASKS", indexes = {
         @Index(name = "IDX_TASKS_REF_TYPE", columnList = "REFERENCE")
 })
-public class Task {
+public class Task implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
