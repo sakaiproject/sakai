@@ -9,5 +9,7 @@
     <!-- Sample configuration for SAML with ADFS IdP -->
     <!-- import resource="xlogin-context.saml.adfs-prod.xml" / -->
 
+    <!-- Sample configuration for CAS authentication -->
+    <!-- import resource="xlogin-context.cas3.xml" / -->
 </beans>
 
