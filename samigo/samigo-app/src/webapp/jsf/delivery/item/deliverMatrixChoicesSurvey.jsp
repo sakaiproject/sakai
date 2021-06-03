@@ -90,9 +90,16 @@ should be included in file importing DeliveryMessages
 </h:panelGrid>
 <h:inputHidden value="#{question.forceRanking}" id="forceRanking"/>
 </div>
+
+  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanAndSaveRadioButton}" onclick="saveTime(); serializeImagePoints();" 
+	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')}">
+	<f:param name="radioId" value="#{question.itemData.itemId}" />
+  </h:commandLink>
   
   <h:panelGroup rendered="#{question.itemData.hasRationale}" >
-    <f:verbatim><br /></f:verbatim>
+    <f:verbatim><br /><br /></f:verbatim>
     <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
     <f:verbatim><br /></f:verbatim>
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
@@ -102,13 +109,6 @@ should be included in file importing DeliveryMessages
         rendered="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
-
-  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanAndSaveRadioButton}" onclick="saveTime(); serializeImagePoints();" 
-	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
-                || delivery.actionString=='takeAssessment'
-                || delivery.actionString=='takeAssessmentViaUrl')}">
-	<f:param name="radioId" value="#{question.itemData.itemId}" />
-</h:commandLink>
 
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
