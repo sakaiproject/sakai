@@ -25,23 +25,38 @@ command:
 
         docker run -d -p 9980:9980 -e "extra_params=--o:ssl.enable=false" libreoffice/online:master
 
-Details on the environment variables you can supply can be found at
-https://hub.docker.com/r/libreoffice/online/.
+    Details on the environment variables you can supply can be found at
+    https://hub.docker.com/r/libreoffice/online/.
 
-Now you will have a LIbreOffice Online server running in a Docker container and listening on port
-9980. On linux you can verify this with this command:
+    Now you will have a LIbreOffice Online server running in a Docker container and listening on port
+    9980\. On linux you can verify this with this command:
 
         netstat -nlp | grep 9980.
 
-4. In your sakai.properties or local.properties, add this property: **fileconversion.enabled=true**
+3. In your sakai.properties or local.properties, add these properties:
 
-5. Restart Tomcat. The file conversion service in Sakai should now talk to your dockerised
-LibreOffice Online server. This is currently setup to work with attachments in Sakai. Try this out
-in the Assignments tool by submitting a large powerpoint file. Within a few minutes that file
-should be available as a PDF and you'll be able to view it in the browser from the new grader.
+        fileconversion.submit.enabled=true
+        fileconversion.conversion.enabled=true
 
-You can configure the Libre Office server's url with this property: **fileconversion.converterurl**.
-OOTB, it defaults to http://localhost:9980.
+    The first one, fileconversion.submit.enabled, allows the submitting of new jobs. You'd typically
+    have this set to true on all of your Sakai nodes so that users on each can submit their attachments
+    for conversion.
+
+    The second, fileconversion.conversion.enabled, turns on the actual conversion job, the code that
+    sends the attachment to LibreOffice for conversion. This should only be turned on on *one* of your
+    Sakai nodes. Otherwise, you'll get race conditions on the shared state in the
+    FILE\_CONVERSION\_QUEUE table.
+
+4. Restart Tomcat. The file conversion service in Sakai should now talk to your dockerised
+    LibreOffice Online server. This is currently setup to work with attachments in Sakai. Try this out
+    in the Assignments tool by submitting a large powerpoint file. Within a few minutes that file
+    should be available as a PDF and you'll be able to view it in the browser from the new grader.
+
+    You can configure the Libre Office server's url with this property: 
+
+        fileconversion.converterurl
+
+    OOTB, it defaults to http://localhost:9980.
 
 ### Performance
 

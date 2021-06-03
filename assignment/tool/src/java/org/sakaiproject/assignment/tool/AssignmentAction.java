@@ -14084,7 +14084,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION)) {
                             if (fileConversionService.canConvert(attachment.getContentType())) {
-                                fileConversionService.convert(attachment.getId());
+                                fileConversionService.submit(attachment.getId());
                             }
                         }
 
