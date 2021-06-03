@@ -591,6 +591,7 @@
 			removeTree(propertiesDiv);
 			fileInputDiv.removeChild(propertiesDiv);
 		}
+		checkWebLinksForEnableSubmit();
 		updateCloseLinks();
 		resizeFrame('grow');
 		return false;
