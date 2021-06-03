@@ -121,7 +121,7 @@
 			<h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 			<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 		</div>
-		<h:messages errorClass="messageAlert" infoClass="success" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<h:messages errorClass="sak-banner-error" infoClass="sak-banner-success" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 		<h:panelGrid styleClass="jsfFormTable" columns="1"  columnClasses="shorttext">
 			<h:panelGroup>
@@ -129,7 +129,7 @@
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 					<h:outputText value="#{msgs.cdfm_topic_title}" />
 				</h:outputLabel>	 
-				<h:inputText size="50" id="topic_title"  maxlength="250" value="#{ForumTool.selectedTopic.topic.title}">
+				<h:inputText size="50" id="topic_title"  maxlength="250" value="#{ForumTool.selectedTopic.topic.title}" validatorMessage="#{msgs.topics_revise_title_validation}">
 					<f:validateLength minimum="1" maximum="255"/>
 				</h:inputText>
 			</h:panelGroup>	
