@@ -18,15 +18,14 @@ package org.sakaiproject.springframework.data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Projections;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
 import org.sakaiproject.springframework.data.Repository;
 
 import java.io.Serializable;
@@ -34,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transactional(readOnly = true)
-public abstract class SpringCrudRepositoryImpl<T, ID extends Serializable> implements SpringCrudRepository<T, ID> {
+public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, ID extends Serializable> implements SpringCrudRepository<T, ID> {
 
     @Getter
     private final Class<T> domainClass;
@@ -61,14 +60,13 @@ public abstract class SpringCrudRepositoryImpl<T, ID extends Serializable> imple
     public <S extends T> S save(S entity) {
 
         Session session = sessionFactory.getCurrentSession();
-        S mergedEntity = null;
-        try {
-            mergedEntity = (S) session.merge(entity);
-            return mergedEntity;
-        } catch (TransientObjectException toe) {
 
+        final boolean isNew = entity.getId() == null;
+        if (isNew) {
             session.persist(entity);
             return entity;
+        } else {
+            return (S) session.merge(entity);
         }
     }
 

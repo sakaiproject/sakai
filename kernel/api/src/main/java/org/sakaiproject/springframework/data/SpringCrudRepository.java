@@ -21,7 +21,7 @@ import java.io.Serializable;
  * This is modeled after Spring's CrudRepository. The idea here is using this api will
  * make for an easier migration to spring-data in the future.
  */
-public interface SpringCrudRepository<T, ID extends Serializable> extends Repository<T, ID> {
+public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extends Serializable> extends Repository<T, ID> {
 
     /**
      * Returns the number of entities available.

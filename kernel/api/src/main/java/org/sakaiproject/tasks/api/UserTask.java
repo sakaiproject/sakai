@@ -23,6 +23,8 @@ package org.sakaiproject.tasks.api;
 
 import javax.persistence.*;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -32,7 +34,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "USER_TASKS", indexes = {
     @Index(name = "IDX_USER_TASK", columnList = "USER_ID, TASK_ID")
 })
-public class UserTask {
+public class UserTask implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
