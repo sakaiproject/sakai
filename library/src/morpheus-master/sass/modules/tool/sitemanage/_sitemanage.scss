@@ -563,24 +563,10 @@
     width: 100%;
   }
   #flashNotif .newSiteAlertActions {
-    float: right;
-    margin-right: 10px;
+    display: inline-block;
+    margin: 0 $standard-spacing;
     a {
-      padding: 3px 6px;
-      background: var(--sakai-background-color-3);
-      text-decoration: none !important;
-      margin: 0 0 0 5px;
-      border: 1px solid var(--sakai-background-color-4) !important;
-      @include border-radius( 3px );
-      //Instead of the line below you could use @include box-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
-      box-shadow: var(--elevation-2dp) !important;
-      color: var(--sakai-text-color-2) !important;
-      font-size: 11px !important;
-      font-weight: bold !important;
-      height: 24px !important;
-      margin-left: 0 !important;
-      margin-right: 3px;
-      //Instead of the line below you could use @include text-shadow($shadow-1, $shadow-2, $shadow-3, $shadow-4, $shadow-5, $shadow-6, $shadow-7, $shadow-8, $shadow-9, $shadow-10)
+        @include sakai-secondary-button();
     }
   }
   input#btnSearch {

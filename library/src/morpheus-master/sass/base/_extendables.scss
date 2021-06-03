@@ -92,7 +92,7 @@
 	.dismiss {
 		@if $isInline == false {
 			position: absolute;
-			top: $standard-spacing;			// space between icon and top edge of banner
+			top: calc(50% - 10px);			// vertically-align the icon with half its height
 			right: $standard-spacing;		// space between icon and right edge of banner
 		} @else {
 			margin-left: $standard-space;	// space between icon and end of message text

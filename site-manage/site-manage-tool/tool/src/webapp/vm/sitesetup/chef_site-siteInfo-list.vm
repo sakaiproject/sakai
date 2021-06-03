@@ -33,6 +33,7 @@
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 	#end
+	#chef_flashnotif()
 	#if($importQueued)
 		<div class="sak-banner-info">
 			#if($importQueuedNoEmail)
@@ -457,5 +458,4 @@
 			$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
 		</div>
 	#end
-	#chef_flashnotif()
 </div>

@@ -3,11 +3,4 @@
 	.course-section{
 		max-width: 500px;
 	}
-
-	@media #{$phone}{
-		#flashNotif{
-			width: 95%;
-			left: 2.5%;
-		}
-	}
 }
