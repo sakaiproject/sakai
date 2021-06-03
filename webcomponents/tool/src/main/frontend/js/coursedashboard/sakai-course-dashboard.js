@@ -234,7 +234,7 @@ export class SakaiCourseDashboard extends LitElement {
       ${this.titleBlock()}
       <div id="course-dashboard-l1-overview-and-widgets-block">
         <div id="course-dashboard-l1-overview-block">
-          <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview}" ?editing=${this.editing}>
+          ${this.renderOverview()}
         </div>
         <div id="course-dashboard-l1-widgets">
           ${this.widgetPanel(1)}
@@ -252,7 +252,7 @@ export class SakaiCourseDashboard extends LitElement {
           <sakai-course-header site="${JSON.stringify(this.data)}" @image-edited=${this.imageEdited} ?editing=${this.editing}></sakai-course-header>
         </div>
         <div id="course-dashboard-l2-course-overview">
-          <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview}" ?editing=${this.editing}>
+          ${this.renderOverview()}
         </div>
       </div>
       <div id="course-dashboard-l2-widgets">
@@ -268,12 +268,18 @@ export class SakaiCourseDashboard extends LitElement {
       ${this.titleBlock()}
       <div id="course-dashboard-l3-overview-and-widgets-block">
         <div id="course-dashboard-l3-overview-block">
-          <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview}" ?editing=${this.editing}>
+          ${this.renderOverview()}
         </div>
         <div id="course-dashboard-l3-widgets">
           ${this.widgetPanel(2)}
         </div>
       </div>
+    `;
+  }
+
+  renderOverview() {
+    return html`
+      <sakai-course-overview @changed=${this.overviewChanged} overview="${this.data.overview || ''}" ?editing=${this.editing}>
     `;
   }
 
