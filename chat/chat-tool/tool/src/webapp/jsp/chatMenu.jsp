@@ -33,7 +33,7 @@
     <li role='menuitem'>
       <h:panelGroup id="chatManageLink" rendered="#{ChatTool.canManageTool}">
         <h:commandLink action="#{ChatTool.processActionListRooms}" immediate="true">
-          <h:outputText value="#{msgs.manage_tool}" />
+          <h:outputText value="#{msgs.room_list_title}" />
         </h:commandLink>
       </h:panelGroup>
     </li>
