@@ -114,10 +114,9 @@
  *# ------------------------------------------------------------------
 #macro (chef_flashnotif)
 	#if($flashNotif)
-		<div id="flashNotif" >
+		<div id="flashNotif" class="sak-banner-success">
 			<span class="flashNotifMessage">$flashNotif</span>
-			<a href="#" onclick = "event.preventDefault();$('#flashNotif').hide();" class="flashNotifClose" title=$flashNotifCloseTitle>&times;
-			<span class="skip">$flashNotifCloseTitle</span></a>
+			<a href="#" onclick = "event.preventDefault();$('#flashNotif').hide();" class="dismiss" title=$flashNotifCloseTitle><span class="skip">$flashNotifCloseTitle</span></a>
 		</div>
 	#end
 #end
