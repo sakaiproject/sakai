@@ -172,8 +172,10 @@
           });
           
           var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-          lockdownAnonyGrading(releaseToVal);
-          lockdownGradebook(releaseToVal);
+          if (releaseToVal == 'Anonymous Users') {
+              lockdownAnonyGrading(releaseToVal);
+              lockdownGradebook(releaseToVal);
+          }
           showHideReleaseGroups();
           initTimedCheckBox();
           checkUncheckTimeBox();
