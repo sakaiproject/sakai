@@ -499,6 +499,14 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("if(1>3, 5, 2)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("2", result);
+
+        // E
+        result = gradingService.processFormulaIntoValue("(1.44e-34) * (1.44E15)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.07E-19", result);
+        result = gradingService.processFormulaIntoValue("(5e-49) * (6E28)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3E-20", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
