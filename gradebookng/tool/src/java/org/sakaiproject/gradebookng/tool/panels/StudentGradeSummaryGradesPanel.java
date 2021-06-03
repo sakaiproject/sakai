@@ -101,7 +101,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				gradebook.isCourseGradeDisplayed(),
 				gradebook.isCoursePointsDisplayed(),
 				true,
-				false);
+				false,
+                this.businessService.getShowCalculatedGrade());
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
