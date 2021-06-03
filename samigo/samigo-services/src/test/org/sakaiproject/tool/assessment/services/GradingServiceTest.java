@@ -512,6 +512,14 @@ public class GradingServiceTest {
         result = gradingService.processFormulaIntoValue("1.5*((6^2*tan(rad(90-50))+4*6)*80)/27", 0);
         Assert.assertNotNull(result);
         Assert.assertEquals("241", result);
+
+        // E
+        result = gradingService.processFormulaIntoValue("(1.44e-34) * (1.44E15)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("2.07E-19", result);
+        result = gradingService.processFormulaIntoValue("(5e-49) * (6E28)", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("3E-20", result);
     }
 
     @Test(expected = SamigoExpressionError.class)
