@@ -3,9 +3,10 @@ package org.sakaiproject.elfinder.controller.executors;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
+import java.awt.color.ICC_Profile;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,19 +21,29 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 
 import cn.bluejoe.elfinder.controller.executor.AbstractCommandExecutor;
 import cn.bluejoe.elfinder.controller.executor.CommandExecutor;
 import cn.bluejoe.elfinder.controller.executor.FsItemEx;
 import cn.bluejoe.elfinder.service.FsService;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SakaiTmbCommandExecutor extends AbstractCommandExecutor implements CommandExecutor {
 
     public static final long MAX_TMB_SIZE_BYTES = 20971520;
     public static final long MAX_IMG_BYTES_TO_LOAD = 104857600;
+
+    static {
+        // https://bugs.openjdk.java.net/browse/JDK-6986863
+        // Fixed in JDK 17
+        ICC_Profile.getInstance(ColorSpace.CS_sRGB).getData();
+        ICC_Profile.getInstance(ColorSpace.CS_PYCC).getData();
+        ICC_Profile.getInstance(ColorSpace.CS_GRAY).getData();
+        ICC_Profile.getInstance(ColorSpace.CS_CIEXYZ).getData();
+        ICC_Profile.getInstance(ColorSpace.CS_LINEAR_RGB).getData();
+    }
 
     @Override
     public void execute(FsService fsService, HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) throws Exception {
@@ -93,9 +104,7 @@ public class SakaiTmbCommandExecutor extends AbstractCommandExecutor implements 
             ImageIO.write(scaledImage, "png", out);
 
             originalImage.flush();
-            originalImage = null;
             scaledImage.flush();
-            scaledImage = null;
 
             return out;
         }
