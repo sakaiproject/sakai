@@ -165,6 +165,8 @@ public class DashboardController extends AbstractSakaiApiController {
             if (motdMessages.size() > 0) {
                 bean.setMotd(motdMessages.get(motdMessages.size() - 1).getBody());
             }
+        } catch (IdUnusedException idue) {
+            log.debug("No MOTD set.");
         } catch (Exception e) {
             log.warn("Failed to set the MOTD for {}", userId, e);
         }

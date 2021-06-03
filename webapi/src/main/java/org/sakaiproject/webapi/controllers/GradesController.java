@@ -13,6 +13,8 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -95,7 +97,10 @@ public class GradesController extends AbstractSakaiApiController {
                         double total = 0;
                         for (GradeDefinition gd : grades) {
                             if (gd.getGradeEntryType() == GradebookService.GRADE_TYPE_POINTS) {
-                                total += Double.parseDouble(gd.getGrade());
+                                String grade = gd.getGrade();
+                                if (!StringUtils.isBlank(grade)) {
+                                    total += Double.parseDouble(grade);
+                                }
                             }
                         }
 
