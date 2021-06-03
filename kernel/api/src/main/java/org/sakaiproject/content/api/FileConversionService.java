@@ -46,7 +46,7 @@ public interface FileConversionService {
      *
      * @param The content ref we want to convert
      */
-    void convert(String ref);
+    void submit(String ref);
 
     /**
      * Start the queue processing threads. If the service isn't enabled, nothing will happen.

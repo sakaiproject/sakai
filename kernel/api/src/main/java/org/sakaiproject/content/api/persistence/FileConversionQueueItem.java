@@ -38,7 +38,6 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "FILE_CONVERSION_QUEUE", indexes = {
-        @Index(name = "IDX_FCI_REF_TYPE", columnList = "REFERENCE"),
         @Index(name = "IDX_FCI_STATUS", columnList = "STATUS")
 })
 public class FileConversionQueueItem {
