@@ -29,6 +29,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -41,7 +43,7 @@ import lombok.EqualsAndHashCode;
         @Index(name = "IDX_FCI_REF_TYPE", columnList = "REFERENCE"),
         @Index(name = "IDX_FCI_STATUS", columnList = "STATUS")
 })
-public class FileConversionQueueItem {
+public class FileConversionQueueItem implements PersistableEntity<Long> {
 
     @Id
     @Column(name = "ID")
