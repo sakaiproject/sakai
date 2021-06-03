@@ -55,6 +55,9 @@ public abstract class BasePanel extends Panel {
 	protected static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
 	protected static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = Boolean.TRUE;
 
+	protected static final String SAK_PROP_ALLOW_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
+	protected static final Boolean SAK_PROP_ALLOW_COMPARE_GRADES_DEFAULT = Boolean.FALSE;
+
 	public BasePanel(final String id) {
 		super(id);
 	}

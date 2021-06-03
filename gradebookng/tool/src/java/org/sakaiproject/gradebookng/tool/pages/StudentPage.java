@@ -73,6 +73,7 @@ public class StudentPage extends BasePage {
 
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades-comparison.css%s", version)));
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css%s", version)));
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-print.css%s", version), "print"));
 		response.render(

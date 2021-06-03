@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -52,7 +53,7 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GradeSummaryTablePanel extends BasePanel {
+public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorAware {
 
 	private static final long serialVersionUID = 1L;
 
@@ -95,6 +96,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
 		addOrReplace(assignmentStatsWindow);
+
+		final ModalWindow compareGradesWindow = new ModalWindow("compareGradesWindow");
+		addOrReplace(compareGradesWindow);
 
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
@@ -269,6 +273,33 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 						assignmentItem.add(assignmentStatsLink);
 
+						final GbAjaxLink compareLink = new GbAjaxLink("compareLink") {
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								assignment.getId();
+								compareGradesWindow.setContent(
+										new StudentCompareGradesPanel(
+												compareGradesWindow.getContentId(),
+												Model.of(assignment),
+												compareGradesWindow
+										)
+								);
+								compareGradesWindow.show(target);
+							}
+							
+							@Override
+							public boolean isVisible() {
+								return GradeSummaryTablePanel.
+										this.
+										serverConfigService.
+										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
+										getSettings().isAllowStudentsToCompareGrades() &&
+										// Inlcuding all assigments that doesn't count if this property is set
+										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted());
+							}
+						};
+						assignmentItem.add(compareLink);
+
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
@@ -296,7 +327,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 								.add(new AttributeModifier("class",
 										"gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment)))
 								.setVisible(assignment.isExternallyMaintained()));
-
+						flags.setVisible(
+								assignment.isExtraCredit() ||
+								!assignment.isCounted() ||
+								!assignment.isReleased() ||
+								excused ||
+								assignment.isExternallyMaintained()
+						);
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new WebMarkupContainer("weight")
@@ -422,6 +459,11 @@ public class GradeSummaryTablePanel extends BasePanel {
 		}
 
 		return pair;
+	}
+
+	@Override
+	public String getAjaxIndicatorMarkupId() {
+		return "loading-grade-summary";
 	}
 
 	public void renderHead(final IHeaderResponse response) {

@@ -113,5 +113,34 @@ public class Gradebook implements Serializable {
 	@Getter
 	@Setter
 	private boolean courseGradeStatsDisplayed;
+    
+	@Getter
+	@Setter
+	private boolean allowStudentsToCompareGrades;
+    
+	@Getter
+	@Setter
+	private boolean comparingDisplayGrades;
+    
+	@Getter
+	@Setter
+	private boolean comparingDisplayStudentNames;
+    
+	@Getter
+	@Setter
+	private boolean comparingDisplayStudentSurnames;
+    
+	@Getter
+	@Setter
+	private boolean comparingDisplayTeacherComments;
+    
+	@Getter
+	@Setter
+	private boolean comparingIncludeAllGrades;
+    
+	@Getter
+	@Setter
+	private boolean comparingRandomizeDisplayedData;
+    
 
 }

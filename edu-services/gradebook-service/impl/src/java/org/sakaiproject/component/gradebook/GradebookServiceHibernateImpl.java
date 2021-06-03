@@ -448,6 +448,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setAssignmentStatsDisplayed(gradebook.isAssignmentStatsDisplayed());
 		rval.setCourseGradeStatsDisplayed(gradebook.isCourseGradeStatsDisplayed());
 
+		// add in compare grades with classmates settings
+		rval.setAllowStudentsToCompareGrades(gradebook.isAllowStudentsToCompareGrades());
+		rval.setComparingDisplayGrades(gradebook.isComparingDisplayGrades());
+		rval.setComparingDisplayStudentNames(gradebook.isComparingDisplayStudentNames());
+		rval.setComparingDisplayStudentSurnames(gradebook.isComparingDisplayStudentSurnames());
+		rval.setComparingDisplayTeacherComments(gradebook.isComparingDisplayTeacherComments());
+		rval.setComparingIncludeAllGrades(gradebook.isComparingIncludeAllGrades());
+		rval.setComparingRandomizeDisplayedData(gradebook.isComparingRandomizeDisplayedData());
+
 		return rval;
 	}
 
@@ -465,6 +474,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setCourseGradeStatsDisplayed(gradebookInformation.isCourseGradeStatsDisplayed());
 		gradebook.setAssignmentsDisplayed(gradebookInformation.isDisplayReleasedGradeItemsToStudents());
 		gradebook.setCourseGradeDisplayed(gradebookInformation.isCourseGradeDisplayed());
+		gradebook.setAllowStudentsToCompareGrades(gradebookInformation.isAllowStudentsToCompareGrades());
+		gradebook.setComparingDisplayGrades(gradebookInformation.isComparingDisplayGrades());
+		gradebook.setComparingDisplayStudentNames(gradebookInformation.isComparingDisplayStudentNames());
+		gradebook.setComparingDisplayStudentSurnames(gradebookInformation.isComparingDisplayStudentSurnames());
+		gradebook.setComparingDisplayTeacherComments(gradebookInformation.isComparingDisplayTeacherComments());
+		gradebook.setComparingIncludeAllGrades(gradebookInformation.isComparingIncludeAllGrades());
+		gradebook.setComparingRandomizeDisplayedData(gradebookInformation.isComparingRandomizeDisplayedData());
 		gradebook.setCourseLetterGradeDisplayed(gradebookInformation.isCourseLetterGradeDisplayed());
 		gradebook.setCoursePointsDisplayed(gradebookInformation.isCoursePointsDisplayed());
 		gradebook.setCourseAverageDisplayed(gradebookInformation.isCourseAverageDisplayed());
@@ -3301,6 +3317,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// set stats display settings
 		gradebook.setAssignmentStatsDisplayed(gbInfo.isAssignmentStatsDisplayed());
 		gradebook.setCourseGradeStatsDisplayed(gbInfo.isCourseGradeStatsDisplayed());
+
+		// set allow students to compare grades
+		gradebook.setAllowStudentsToCompareGrades(gbInfo.isAllowStudentsToCompareGrades());
+		gradebook.setComparingDisplayGrades(gbInfo.isComparingDisplayGrades());
+		gradebook.setComparingDisplayStudentNames(gbInfo.isComparingDisplayStudentNames());
+		gradebook.setComparingDisplayStudentSurnames(gbInfo.isComparingDisplayStudentSurnames());
+		gradebook.setComparingDisplayTeacherComments(gbInfo.isComparingDisplayTeacherComments());
+		gradebook.setComparingIncludeAllGrades(gbInfo.isComparingIncludeAllGrades());
+		gradebook.setComparingRandomizeDisplayedData(gbInfo.isComparingRandomizeDisplayedData());
 
 		final List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 

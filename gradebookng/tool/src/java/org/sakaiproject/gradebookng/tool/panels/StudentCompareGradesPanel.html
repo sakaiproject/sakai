@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+    <wicket:panel>
+        <div id="studentGradesComparison-ModalContent">
+            <div class="studentGradesComparison-Header">
+                <span>
+                    <wicket:message key="comparegrades.modal.subtitle.label" />
+                </span>
+                <span wicket:id="gradeItemLabel">
+                    Item name
+                </span>
+            </div>
+            <div class="studentGradesComparison-TableContainer">
+                <table class="table table-bordered table-condensed table-hover">
+                    <thead>
+                        <th wicket:id="studentNameHeaderLabel">
+                            Student Name
+                        </th>
+                        <th wicket:id="teacherCommentHeaderLabel">
+                            Teacher comments
+                        </th>
+                        <th wicket:id="gradeHeaderLabel">
+                            Grade
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr wicket:id="gradeItemRows">
+                            <td wicket:id="studentNameLabel">
+                                Student name value
+                            </td>
+                            <td wicket:id="teacherCommentLabel">
+                                Teacher comment value
+                            </td>
+                            <td wicket:id="gradeLabel" class="text-center">
+                                Grade value
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            
+            var $table = $(".studentGradesComparison-TableContainer table");
+
+            $table.tablesorter({
+              theme : "bootstrap",
+              widthFixed: true,
+              headerTemplate : '{content} {icon}',
+              widgets : [ "uitheme" ],
+              sortReset   : true,
+              textExtraction: function(node) {
+                var $node = $(node);
+                return $(node).text().trim();
+              },
+              cssInfoBlock: "gb-summary-category-tbody"
+            });
+        </script>
+
+	</wicket:panel>
+</body>
+</html>
