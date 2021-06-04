@@ -130,6 +130,9 @@
 .sak-banner-warn {
 	@include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, false);
 }
+.sak-banner-red-warn {
+	@include sakai-banner(var(--errorBanner-bordercolor), var(--errorBanner-bgcolor), var(--errorBanner-color), $warnBanner-icon, false);
+}
 .sak-banner-warn-inline {
 	@include sakai-banner(var(--warnBanner-bordercolor), var(--warnBanner-bgcolor), var(--warnBanner-color), $warnBanner-icon, true);
 }
