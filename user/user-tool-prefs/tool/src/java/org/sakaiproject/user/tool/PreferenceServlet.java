@@ -43,8 +43,8 @@ public class PreferenceServlet extends JsfTool {
 
 	protected String defaultValue()
 	{
-		String defaultPreference="prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title";
-		String Notification="prefs_noti_title", Timezone="prefs_timezone_title", Language="prefs_lang_title", Hidden="prefs_hidden_title";
+		String defaultPreference="prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_editor_title";
+		String Notification="prefs_noti_title", Timezone="prefs_timezone_title", Language="prefs_lang_title", Hidden="prefs_hidden_title", Editor="prefs_editor_title";
 		String tabOrder=ServerConfigurationService.getString("preference.pages",defaultPreference);
 		String[] tablist=tabOrder.split(",");
 		String defaultPage=null;
@@ -52,7 +52,8 @@ public class PreferenceServlet extends JsfTool {
 		if(tablist[0].equals(Notification)) defaultPage="noti";
 		else if(tablist[0].equals(Timezone)) defaultPage="timezone";
 		else if(tablist[0].equals(Language)) defaultPage="locale";
-		else if(tablist[0].equals(Hidden))defaultPage="hidden";
+		else if(tablist[0].equals(Hidden)) defaultPage="hidden";
+		else if(tablist[0].equals(Editor)) defaultPage="editor";
 
 		return defaultPage;
 	}
