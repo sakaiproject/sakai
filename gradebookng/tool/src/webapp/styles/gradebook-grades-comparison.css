@@ -1,0 +1,49 @@
+/* **************************************************************** *
+ *                      Gradebook Grade comparison styles           *
+ * **************************************************************** */
+ 
+#studentGradesComparison-ModalContent .studentGradesComparison-Header {
+  margin: 0 0 15px 3px;
+}
+
+#studentGradesComparison-ModalContent .studentGradesComparison-Header span {
+  color: var(--sakai-primary-color-1);
+  font-weight: 600;
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
+  margin-right: 8px;
+}
+
+#settingsGradeRelease .checkbox {
+  margin-bottom: 12px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .compare-grades-link {
+  float: right;
+  margin-right: 10px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .gb-summary-grade-flags + .compare-grades-link {
+  margin-right: -6px !important;
+}
+
+
+#loading-grade-summary{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ffffffa8;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+#loading-grade-summary img{
+  height: 20px;
+  width: 20px;
+  margin: auto;
+}

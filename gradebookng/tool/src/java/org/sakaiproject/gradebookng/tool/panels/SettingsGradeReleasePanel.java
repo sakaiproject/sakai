@@ -52,7 +52,9 @@ public class SettingsGradeReleasePanel extends BasePanel {
 	AjaxCheckBox percentage;
 
 	WebMarkupContainer displayCourseGradeContainer;
+	WebMarkupContainer allowStudentsToCompareGradesContainer;
 	WebMarkupContainer courseGradeType;
+	WebMarkupContainer allowStudentsToCompareGradesOptionsContainer;
 
 	public SettingsGradeReleasePanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -146,6 +148,125 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		};
 		displayCourseGrade.setOutputMarkupPlaceholderTag(true);
 		displayCourseGradeContainer.add(displayCourseGrade);
+
+		// display allow students to compare grades container
+		this.allowStudentsToCompareGradesContainer = new WebMarkupContainer("allowStudentsToCompareGradesContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return serverConfigService.getBoolean(SAK_PROP_ALLOW_COMPARE_GRADES, SAK_PROP_ALLOW_COMPARE_GRADES_DEFAULT);
+			}
+
+		};
+		this.allowStudentsToCompareGradesContainer.setOutputMarkupPlaceholderTag(true);
+		settingsGradeReleasePanel.add(this.allowStudentsToCompareGradesContainer);
+		
+		// display allow students to compare grades
+		final AjaxCheckBox allowStudentsToCompareGrades = new AjaxCheckBox("allowStudentsToCompareGrades",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.allowStudentsToCompareGrades")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				target.add(SettingsGradeReleasePanel.this.allowStudentsToCompareGradesOptionsContainer);
+			}
+		};
+		allowStudentsToCompareGrades.setOutputMarkupPlaceholderTag(true);
+		allowStudentsToCompareGradesContainer.add(allowStudentsToCompareGrades);
+		
+		
+		// allow students to compare grades container
+		this.allowStudentsToCompareGradesOptionsContainer = new WebMarkupContainer("allowStudentsToCompareGradesOptionsContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return allowStudentsToCompareGrades.getModelObject();
+			}
+
+		};
+		this.allowStudentsToCompareGradesOptionsContainer.setOutputMarkupPlaceholderTag(true);
+		settingsGradeReleasePanel.add(this.allowStudentsToCompareGradesOptionsContainer);
+
+
+		// display grades when comparing grades with classmates
+		final AjaxCheckBox comparingDisplayGrades = new AjaxCheckBox("comparingDisplayGrades",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayGrades")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingDisplayGrades.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingDisplayGrades);
+
+		// display student names when comparing grades with classmates
+		final AjaxCheckBox comparingDisplayStudentNames = new AjaxCheckBox("comparingDisplayStudentNames",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayStudentNames")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingDisplayStudentNames.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingDisplayStudentNames);
+
+		// display student surnames when comparing grades with classmates
+		final AjaxCheckBox comparingDisplayStudentSurnames = new AjaxCheckBox("comparingDisplayStudentSurnames",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayStudentSurnames")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingDisplayStudentSurnames.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingDisplayStudentSurnames);
+
+		final AjaxCheckBox comparingDisplayTeacherComments = new AjaxCheckBox("comparingDisplayTeacherComments",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayTeacherComments")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingDisplayTeacherComments.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingDisplayTeacherComments);
+
+		// include grades that doesn't count when comparing grades with classmates
+		final AjaxCheckBox comparingIncludeAllGrades = new AjaxCheckBox("comparingIncludeAllGrades",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingIncludeAllGrades")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingIncludeAllGrades.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingIncludeAllGrades);
+
+		// randomize diplayed data order when comparing grades with classmates
+		final AjaxCheckBox comparingRandomizeDisplayedData = new AjaxCheckBox("comparingRandomizeDisplayedData",
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingRandomizeDisplayedData")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		comparingRandomizeDisplayedData.setOutputMarkupId(true);
+		allowStudentsToCompareGradesOptionsContainer.add(comparingRandomizeDisplayedData);
+
 
 		// course grade type container
 		this.courseGradeType = new WebMarkupContainer("courseGradeType") {

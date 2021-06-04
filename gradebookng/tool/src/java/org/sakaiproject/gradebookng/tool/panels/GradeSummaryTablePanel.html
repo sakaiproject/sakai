@@ -52,6 +52,9 @@
 								<span wicket:id="isExcused" class="gb-flag-excused"></span>
 								<span wicket:id="isExternal"></span>
 							</span>
+							<a class="compare-grades-link" href="javascript:void(0);" wicket:message="title:studentsummary.gradebookitem.compare.title" wicket:id="compareLink">
+								<wicket:message key="studentsummary.gradebookitem.compare"/>
+							</a>
 						</th>
 						<td class="gb-summary-grade-score" wicket:id="gradeScore">
 							<span class="gb-summary-grade-score-raw" wicket:id="grade" wicket:message="aria-label:studentsummary.gradebookitem.score"></span>
@@ -72,6 +75,10 @@
 		</table>
 	</wicket:enclosure>
 	<div wicket:id="assignmentStatsWindow"></div>
+	<div wicket:id="compareGradesWindow"></div>
+	<div id="loading-grade-summary" style="display:none">
+		<img src="/library/image/sakai/spinner.gif" alt="loading" />
+	</div>
 </wicket:panel>
 
 </body>

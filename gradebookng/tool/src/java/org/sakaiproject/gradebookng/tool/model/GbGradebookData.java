@@ -396,6 +396,13 @@ public class GbGradebookData {
 		result.put("isStudentOrderedByFirstName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
 		result.put("isGroupedByCategory", this.uiSettings.isGroupedByCategory());
 		result.put("isCourseGradeReleased", this.settings.isCourseGradeDisplayed());
+		result.put("isAllowStudentsToCompareGrades", this.settings.isAllowStudentsToCompareGrades());
+		result.put("isComparingDisplayGrades", this.settings.isComparingDisplayGrades());
+		result.put("isComparingDisplayStudentNames", this.settings.isComparingDisplayGrades());
+		result.put("isComparingDisplayStudentSurnames", this.settings.isComparingDisplayGrades());
+		result.put("isComparingDisplayTeacherComments", this.settings.isComparingDisplayGrades());
+		result.put("isComparingIncludeAllGrades", this.settings.isComparingIncludeAllGrades());
+		result.put("isComparingRandomizeDisplayedData", this.settings.isComparingRandomizeDisplayedData());
 		result.put("showPoints", this.uiSettings.getShowPoints());
 		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);

@@ -188,6 +188,9 @@ public class GradebookNgBusinessService {
 	public static final String ICON_SAKAI = "icon-sakai--";
 	public static final String ALL = "all";
 
+	private static final String SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES = "gradebookng.allowStudentsToCompareGradesWithClassmates";
+	private static final Boolean SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES_DEFAULT = false;
+
 	/**
 	 * Get a list of all users in the current site that can have grades
 	 *
@@ -1072,6 +1075,26 @@ public class GradebookNgBusinessService {
 		stopwatch.timeWithContext("buildGradeMatrixForImportExport", "sortGradeMatrix", stopwatch.getTime());
 
 		return items;
+	}
+
+	public List<GbStudentGradeInfo> buildMatrixForGradeComparison(Assignment assignment){
+		// Only return the list if the feature is activated
+		boolean serverPropertyOn = serverConfigService.getConfig(
+				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
+				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES_DEFAULT
+		);
+		if (!serverPropertyOn) {
+			return new ArrayList<>();
+		}
+
+		// Add advisor to retrieve the grades as student
+		SecurityAdvisor advisor = null;
+		try {
+			advisor = addSecurityAdvisor();
+			return buildGradeMatrix(Collections.singletonList(assignment));
+		} finally {
+			removeSecurityAdvisor(advisor);
+		}
 	}
 
 	private Map<String, List<String>> getUserSections(String siteId) {

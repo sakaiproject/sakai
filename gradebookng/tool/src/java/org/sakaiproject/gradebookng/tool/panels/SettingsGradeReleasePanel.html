@@ -68,6 +68,51 @@
 					<span class="bg-info" wicket:id="preview">X+ 99%</span>
 				</div>
 				
+				<div class="checkbox" wicket:id="allowStudentsToCompareGradesContainer">
+					<label>
+						<input wicket:id="allowStudentsToCompareGrades" type="checkbox" />
+						<wicket:message key="settingspage.allowcomparegrades.label" />
+					</label>
+				</div>
+				<div class="form-group" wicket:id="allowStudentsToCompareGradesOptionsContainer">
+					<div class="col-sm-offset-1 col-sm-20 grade-comparison">
+						<div class="checkbox grade-comparison-options">
+							<span>
+								<wicket:message key="settingspage.allowcomparegrades.display.label" />
+							</span>
+							<label>
+								<input wicket:id="comparingDisplayGrades" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.display.grades.label" /></span>
+							</label>
+							<label>
+								<input wicket:id="comparingDisplayStudentNames" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.display.names.label" /></span>
+							</label>
+							<label>
+								<input wicket:id="comparingDisplayStudentSurnames" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.display.surnames.label" /></span>
+							</label>
+							<label>
+								<input wicket:id="comparingDisplayTeacherComments" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.display.comments.label" /></span>
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="comparingIncludeAllGrades" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.include-grades-dont-count.label" /></span>
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="comparingRandomizeDisplayedData" type="checkbox" />
+								<span><wicket:message key="settingspage.allowcomparegrades.randomize-grades.label" /></span>
+							</label>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

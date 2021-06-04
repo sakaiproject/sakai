@@ -90,4 +90,40 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean courseGradeStatsDisplayed;
 
+
+	/**
+	 * Are students allowed to compare grades with classmates?
+	 */
+	private boolean allowStudentsToCompareGrades;
+
+	/**
+	 * Are grades displayed when comparing grades with classmates?
+	 */
+	private boolean comparingDisplayGrades;
+
+	/**
+	 * Are student names displayed when comparing grades with classmates?
+	 */
+	private boolean comparingDisplayStudentNames;
+
+	/**
+	 * Are student surnames displayed when comparing grades with classmates?
+	 */
+	private boolean comparingDisplayStudentSurnames;
+
+	/**
+	 * Are teacher comments displayed when comparing grades with classmates?
+	 */
+	private boolean comparingDisplayTeacherComments;
+  
+	/**
+	 * Include grades that doesn't count when comparing grades with classmates?
+	 */
+	private boolean comparingIncludeAllGrades;
+
+	/**
+	 * Randomize displayed data order when comparing grades with classmates?
+	 */
+	private boolean comparingRandomizeDisplayedData;
+
 }
