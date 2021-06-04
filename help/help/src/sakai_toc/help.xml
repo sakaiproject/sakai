@@ -1773,11 +1773,11 @@
         <ref bean="contactUsUserGuide"/>
         <ref bean="courseandProjectSitesUserGuide"/>
         <ref bean="dashboardUserGuide"/>
+        <ref bean="discussionsUserGuide"/>
         <ref bean="dropBoxUserGuide"/>
         <ref bean="emailUserGuide"/>
         <ref bean="emailArchiveUserGuide"/>
         <ref bean="externalToolLTIUserGuide"/>
-        <ref bean="discussionsUserGuide"/>
         <ref bean="gradebookUserGuide"/>
         <ref bean="homeUserGuide"/>
         <ref bean="lessonsUserGuide"/>
@@ -2615,6 +2615,7 @@
     </property>
     <property name="resources">
       <list>
+        <ref bean="whatistheCommonstool"/>
         <ref bean="howdoIsetpermissionsinCommons"/>
         <ref bean="howdoIcreateapostinCommons"/>
         <ref bean="howdoIcommentreplytoapostinCommons"/>
@@ -2623,6 +2624,20 @@
         <ref bean="howdoIeditacommentreplyinCommons"/>
         <ref bean="howdoIdeleteacommentreplyinCommons"/>
       </list>
+    </property>
+  </bean>
+  <bean id="whatistheCommonstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheCommonstool</value>
+    </property>
+    <property name="name">
+      <value>What is the Commons tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_commonsUserGuide/whatistheCommonstool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.commons</value>
     </property>
   </bean>
   <bean id="howdoIsetpermissionsinCommons" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2634,9 +2649,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_commonsUserGuide/howdoIsetpermissionsinCommons.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.commons</value>
     </property>
   </bean>
   <bean id="howdoIcreateapostinCommons" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2859,7 +2871,7 @@
         <ref bean="whatinformationisdisplayedontheHomeDashboard"/>
         <ref bean="whatinformationisdisplayedontheSiteDashboard"/>
         <ref bean="howdoIedittheSiteDashboard"/>
-        <ref bean="howdoIedittheHomeDashboardcopied"/>
+        <ref bean="howdoIedittheHomeDashboard"/>
       </list>
     </property>
   </bean>
@@ -2910,15 +2922,207 @@
       <value>/sakai_screensteps_dashboardUserGuide/howdoIedittheSiteDashboard.html</value>
     </property>
   </bean>
-  <bean id="howdoIedittheHomeDashboardcopied" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIedittheHomeDashboard" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIedittheHomeDashboardcopied</value>
+      <value>howdoIedittheHomeDashboard</value>
     </property>
     <property name="name">
       <value>How do I edit the Home Dashboard?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_dashboardUserGuide/howdoIedittheHomeDashboardcopied.html</value>
+      <value>/sakai_screensteps_dashboardUserGuide/howdoIedittheHomeDashboard.html</value>
+    </property>
+  </bean>
+  <bean id="discussionsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Discussions</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatistheDiscussionstool"/>
+        <ref bean="howdoIcreateanewdiscussion"/>
+        <ref bean="howdoIaddanewtopic"/>
+        <ref bean="howdoIorganizediscussionsandtopics"/>
+        <ref bean="howdoIposttoadiscussiontopic"/>
+        <ref bean="howdoIreplytoadiscussionspostieconversation"/>
+        <ref bean="howdoIemailadiscussionpostauthor"/>
+        <ref bean="howdoIdeleteadiscussionpostieconversation"/>
+        <ref bean="howdoImoderateatopic"/>
+        <ref bean="howdoIgradediscussionforums"/>
+        <ref bean="howdoImoveathreadtoadifferenttopic"/>
+        <ref bean="howdoIdeleteatopic"/>
+        <ref bean="howdoIdeleteadiscussion"/>
+        <ref bean="howdoImodifydiscussiontemplatesettings"/>
+        <ref bean="howdoIwatchorsubscribetoDiscussions"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatistheDiscussionstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheDiscussionstool</value>
+    </property>
+    <property name="name">
+      <value>What is the Discussions tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.discussions</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateanewdiscussion</value>
+    </property>
+    <property name="name">
+      <value>How do I create a new discussion?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIcreateanewdiscussion.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddanewtopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddanewtopic</value>
+    </property>
+    <property name="name">
+      <value>How do I add a new topic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIaddanewtopic.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIorganizediscussionsandtopics" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIorganizediscussionsandtopics</value>
+    </property>
+    <property name="name">
+      <value>How do I organize discussions and topics?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIorganizediscussionsandtopics.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIposttoadiscussiontopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIposttoadiscussiontopic</value>
+    </property>
+    <property name="name">
+      <value>How do I post to a discussion topic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIposttoadiscussiontopic.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIreplytoadiscussionspostieconversation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIreplytoadiscussionspostieconversation</value>
+    </property>
+    <property name="name">
+      <value>How do I reply to a discussions post (i.e., conversation)?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIreplytoadiscussionspostieconversation.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIemailadiscussionpostauthor" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIemailadiscussionpostauthor</value>
+    </property>
+    <property name="name">
+      <value>How do I email a discussion post author?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIemailadiscussionpostauthor.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteadiscussionpostieconversation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteadiscussionpostieconversation</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a discussion post (i.e., conversation)?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteadiscussionpostieconversation.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImoderateatopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImoderateatopic</value>
+    </property>
+    <property name="name">
+      <value>How do I moderate a topic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoImoderateatopic.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIgradediscussionforums" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIgradediscussionforums</value>
+    </property>
+    <property name="name">
+      <value>How do I grade discussion forums?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIgradediscussionforums.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImoveathreadtoadifferenttopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImoveathreadtoadifferenttopic</value>
+    </property>
+    <property name="name">
+      <value>How do I move a thread to a different topic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoImoveathreadtoadifferenttopic.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteatopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteatopic</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a topic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteatopic.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIdeleteadiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeleteadiscussion</value>
+    </property>
+    <property name="name">
+      <value>How do I delete a discussion?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteadiscussion.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImodifydiscussiontemplatesettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImodifydiscussiontemplatesettings</value>
+    </property>
+    <property name="name">
+      <value>How do I modify discussion template settings?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoImodifydiscussiontemplatesettings.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIwatchorsubscribetoDiscussions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIwatchorsubscribetoDiscussions</value>
+    </property>
+    <property name="name">
+      <value>How do I watch or subscribe to Discussions?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_discussionsUserGuide/howdoIwatchorsubscribetoDiscussions.html</value>
     </property>
   </bean>
   <bean id="dropBoxUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3159,198 +3363,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_externalToolLTIUserGuide/howdoIconfiguretheExternalToolLTIsettings.html</value>
-    </property>
-  </bean>
-  <bean id="discussionsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Discussions</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatistheDiscussionstool"/>
-        <ref bean="howdoIcreateanewdiscussion"/>
-        <ref bean="howdoIaddanewtopic"/>
-        <ref bean="howdoIorganizediscussionsandtopics"/>
-        <ref bean="howdoIposttoadiscussiontopic"/>
-        <ref bean="howdoIreplytoadiscussionspostieconversation"/>
-        <ref bean="howdoIemailadiscussionpostauthor"/>
-        <ref bean="howdoIdeleteadiscussionpostieconversation"/>
-        <ref bean="howdoImoderateatopic"/>
-        <ref bean="howdoIgradediscussionforums"/>
-        <ref bean="howdoImoveathreadtoadifferenttopic"/>
-        <ref bean="howdoIdeleteatopic"/>
-        <ref bean="howdoIdeleteadiscussion"/>
-        <ref bean="howdoImodifydiscussiontemplatesettings"/>
-        <ref bean="howdoIwatchorsubscribetoDiscussions"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatistheDiscussionstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatistheDiscussionstool</value>
-    </property>
-    <property name="name">
-      <value>What is the Discussions tool?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.discussions</value>
-    </property>
-  </bean>
-  <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIcreateanewdiscussion</value>
-    </property>
-    <property name="name">
-      <value>How do I create a new discussion?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIcreateanewdiscussion.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIaddanewtopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIaddanewtopic</value>
-    </property>
-    <property name="name">
-      <value>How do I add a new topic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIaddanewtopic.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIorganizediscussionsandtopics" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIorganizediscussionsandtopics</value>
-    </property>
-    <property name="name">
-      <value>How do I organize discussions and topics?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIorganizediscussionsandtopics.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIposttoadiscussiontopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIposttoadiscussiontopic</value>
-    </property>
-    <property name="name">
-      <value>How do I post to a discussion topic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIposttoadiscussiontopic.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIreplytoadiscussionspostieconversation" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIreplytoadiscussionspostieconversation</value>
-    </property>
-    <property name="name">
-      <value>How do I reply to a discussions post (i.e., conversation)?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIreplytoadiscussionspostieconversation.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIemailadiscussionpostauthor" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIemailadiscussionpostauthor</value>
-    </property>
-    <property name="name">
-      <value>How do I email a discussion post author?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIemailadiscussionpostauthor.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIdeleteadiscussionpostieconversation" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIdeleteadiscussionpostieconversation</value>
-    </property>
-    <property name="name">
-      <value>How do I delete a discussion post (i.e., conversation)?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteadiscussionpostieconversation.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImoderateatopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImoderateatopic</value>
-    </property>
-    <property name="name">
-      <value>How do I moderate a topic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoImoderateatopic.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIgradediscussionforums" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIgradediscussionforums</value>
-    </property>
-    <property name="name">
-      <value>How do I grade discussion forums?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIgradediscussionforums.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImoveathreadtoadifferenttopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImoveathreadtoadifferenttopic</value>
-    </property>
-    <property name="name">
-      <value>How do I move a thread to a different topic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoImoveathreadtoadifferenttopic.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIdeleteatopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIdeleteatopic</value>
-    </property>
-    <property name="name">
-      <value>How do I delete a topic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteatopic.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIdeleteadiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIdeleteadiscussion</value>
-    </property>
-    <property name="name">
-      <value>How do I delete a discussion?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIdeleteadiscussion.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImodifydiscussiontemplatesettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImodifydiscussiontemplatesettings</value>
-    </property>
-    <property name="name">
-      <value>How do I modify discussion template settings?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoImodifydiscussiontemplatesettings.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIwatchorsubscribetoDiscussions" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIwatchorsubscribetoDiscussions</value>
-    </property>
-    <property name="name">
-      <value>How do I watch or subscribe to Discussions?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_discussionsUserGuide/howdoIwatchorsubscribetoDiscussions.html</value>
     </property>
   </bean>
   <bean id="gradebookUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3639,11 +3651,14 @@
         <ref bean="whatisSiteNavigation"/>
         <ref bean="whatistheHomeToolMenu"/>
         <ref bean="whatistheHomeMessageoftheDay"/>
+        <ref bean="whatistheHomeCalendar"/>
         <ref bean="whatistheHomeInformationDisplay"/>
         <ref bean="whataretheHomeRecentAnnouncements"/>
         <ref bean="whataretheHomeMessageCenterNotifications"/>
         <ref bean="whatisMembership"/>
         <ref bean="howdoIviewandeditmyaccountdetails"/>
+        <ref bean="whatisWorksiteSetup"/>
+        <ref bean="whatisthePreferencestool"/>
         <ref bean="whataretheResourcesinHome"/>
       </list>
     </property>
@@ -3689,13 +3704,27 @@
       <value>whatistheHomeMessageoftheDay</value>
     </property>
     <property name="name">
-      <value>What is the Home Message of the Day?</value>
+      <value>What is the Home Message of the Day? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/whatistheHomeMessageoftheDay.html</value>
     </property>
     <property name="defaultForTool">
       <value>sakai.motd</value>
+    </property>
+  </bean>
+  <bean id="whatistheHomeCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheHomeCalendar</value>
+    </property>
+    <property name="name">
+      <value>What is the Home Calendar?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/whatistheHomeCalendar.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.summary.calendar</value>
     </property>
   </bean>
   <bean id="whatistheHomeInformationDisplay" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3760,6 +3789,20 @@
     </property>
     <property name="defaultForTool">
       <value>sakai.singleuser</value>
+    </property>
+  </bean>
+  <bean id="whatisthePreferencestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisthePreferencestool</value>
+    </property>
+    <property name="name">
+      <value>What is the Preferences tool?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_homeUserGuide/whatisthePreferencestool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.preferences</value>
     </property>
   </bean>
   <bean id="whataretheResourcesinHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4324,7 +4367,7 @@
       <value>whatistheMessagestool</value>
     </property>
     <property name="name">
-      <value>What is the Messages tool?</value>
+      <value>What is the Messages tool? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_messagesUserGuide/whatistheMessagestool.html</value>
@@ -4404,7 +4447,7 @@
       <value>howdoImodifythesettingsforMessages</value>
     </property>
     <property name="name">
-      <value>How do I modify the settings for Messages?</value>
+      <value>How do I modify the settings for Messages? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_messagesUserGuide/howdoImodifythesettingsforMessages.html</value>
@@ -4415,7 +4458,7 @@
       <value>howdoIdeterminewhositeparticipantscansendamessageto</value>
     </property>
     <property name="name">
-      <value>How do I determine who site participants can send a message to?</value>
+      <value>How do I determine who site participants can send a message to? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_messagesUserGuide/howdoIdeterminewhositeparticipantscansendamessageto.html</value>
