@@ -16,7 +16,7 @@
 
 	<property name="itemId" type="string" not-null="true" />
 	<property name="groupId" type="string" length="99" not-null="true" />
-	<property name="groups" type="materialized_clob" />
+	<property name="groups" column="item_groups" type="materialized_clob" />
 	<property name="siteId" type="string" length="99" />
    </class>
 </hibernate-mapping>

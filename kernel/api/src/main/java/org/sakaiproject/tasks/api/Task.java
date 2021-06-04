@@ -63,7 +63,7 @@ public class Task implements PersistableEntity<Long> {
     @Column(name = "DESCRIPTION", length = 255, nullable = false)
     private String description;
 
-    @Column(name = "\"SYSTEM\"", nullable = false)
+    @Column(name = "SYSTEM_TASK", nullable = false)
     private Boolean system;
 
     @Column(name = "STARTS")
