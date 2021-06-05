@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.BulkPermission;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -95,6 +94,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         log.info("init()");
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
         membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
+        forumManager.setUiPermissionsManager(this);
     }
 
     @Override
@@ -684,7 +684,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false));
     }
 
-    private void clearMembershipsFromCacheForArea(Area area) {
+    public void clearMembershipsFromCacheForArea(Area area) {
         if (area == null || area.getId() == null) return;
         String areaId = area.getId().toString();
         String areaCacheKey = "area_" + areaId;
