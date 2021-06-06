@@ -89,7 +89,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -126,7 +125,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private MemoryService memoryService;
   private Cache<String, Set<String>> allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
-  private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
   @Setter private UIPermissionsManager uiPermissionsManager;
@@ -153,10 +151,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void setLearningResourceStoreService(LearningResourceStoreService service) {
 	learningResourceStoreService = service;
-  }
-
-  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-	this.threadLocalManager = threadLocalManager;
   }
 
   public void setToolManager(ToolManager toolManager) {
@@ -1180,9 +1174,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     } else if (object instanceof Area) {
       area = (Area) object;
     }
-
-    Optional<Long> id = area != null ? Optional.ofNullable(area.getId()) : Optional.empty();
-    id.ifPresent(i -> threadLocalManager.set("msgcntr_clear_permission_set#" + i, Boolean.TRUE));
     uiPermissionsManager.clearMembershipsFromCacheForArea(area);
   }
 
