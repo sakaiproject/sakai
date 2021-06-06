@@ -7,7 +7,7 @@
     "build": "webpack --config conf/webpack.config.js -p",
     "buildcss": "webpack --config conf/css.config.js -p",
     "empathise": "empathise install",
-    "storybook": "npm install --force && empathise install --assets-directory=js/assets && start-storybook -p 6006",
+    "storybook": "npm install --force && empathise install --assets-directory=js/assets && start-storybook -p 6006 -s ./storybook-resources",
     "build-storybook": "build-storybook",
     "test-setup": "npm install && empathise install --assets-directory=js/assets",
     "test": "karma start",
