@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,8 +88,6 @@ import org.sakaiproject.exception.*;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
@@ -1481,32 +1480,32 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		boolean hidden = params.getBoolean("hidden");
 		boolean useReleaseDate = params.getBoolean("use_start_date");
 		DateFormat df = DateFormat.getDateTimeInstance();
-		Time releaseDate = null;
+		Instant releaseDate = null;
 		if(useReleaseDate) {
 			String releaseDateStr = params.getString(PROP_RELEASE_DATE);
 			if(releaseDateStr != null) {
 				try {
-					releaseDate = TimeService.newTime(df.parse(releaseDateStr).getTime());
+					releaseDate = df.parse(releaseDateStr).toInstant();
 				} catch (ParseException e) {
 					log.warn("ParseException in captureAvailability() {}", e);
 				}
 			}
 		}
-		Time retractDate = null;
+		Instant retractDate = null;
 		boolean useRetractDate = params.getBoolean("use_end_date");
 		if(useRetractDate) {
 			String retractDateStr = params.getString(PROP_RETRACT_DATE);
 			if(retractDateStr != null) {
 				try {
-					retractDate = TimeService.newTime(df.parse(retractDateStr).getTime());
+					retractDate = df.parse(retractDateStr).toInstant();
 				} catch (ParseException e) {
 					log.warn("ParseException in captureAvailability() {}", e);
 				}
 			}
 		}
 		boolean oldHidden = edit.isHidden();
-		Time oldReleaseDate = edit.getReleaseDate();
-		Time oldRetractDate = edit.getRetractDate();
+		Instant oldReleaseDate = edit.getReleaseInstant();
+		Instant oldRetractDate = edit.getRetractInstant();
 		boolean changesFound = false;
 		if(oldHidden != hidden) {
 			results.put(PROP_IS_HIDDEN, Boolean.toString(hidden));
@@ -1518,7 +1517,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			if(releaseDate == null) {
 				results.put(PROP_RELEASE_DATE_STR, df.format(new Date()));
 			} else {
-				results.put(PROP_RELEASE_DATE_STR, df.format(new Date(releaseDate.getTime())));
+				results.put(PROP_RELEASE_DATE_STR, df.format(Date.from(releaseDate)));
 			}
 			results.put(PROP_RELEASE_DATE, releaseDate);
 			results.put(PROP_USE_RELEASE_DATE, useReleaseDate);
@@ -1530,13 +1529,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			if(retractDate == null) {
 				results.put(PROP_RETRACT_DATE_STR, df.format(new Date(System.currentTimeMillis() + ONE_WEEK)));
 			} else {
-				results.put(PROP_RETRACT_DATE_STR, df.format(new Date(retractDate.getTime() )));
+				results.put(PROP_RETRACT_DATE_STR, df.format(Date.from(retractDate)));
 			}
 			results.put(PROP_RETRACT_DATE, retractDate);
 			changesFound = true;
 		}
 		if(changesFound) {
-			edit.setAvailability(hidden, releaseDate, retractDate);
+			edit.setAvailabilityInstant(hidden, releaseDate, retractDate);
 		}
 	}
 	
