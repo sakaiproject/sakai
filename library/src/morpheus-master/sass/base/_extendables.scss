@@ -179,7 +179,7 @@ input::placeholder {
 	color: var(--sakai-text-color-1);
 	font-family: $font-family;
 	font-size: #{$default-font-size - 1};
-	padding: 0.3em 2.2em 0.3em 0.5em;
+	padding: 0.3em 2.2em 0.3em 0.5em !important;
 	text-align: left;
 	max-width: 100%;
 	@include appearance(none);
