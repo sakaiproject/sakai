@@ -123,7 +123,6 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
      </bean>
@@ -301,7 +300,6 @@
                 <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
                 <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
                 <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-                <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
                 <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
             </bean>

@@ -225,4 +225,6 @@ public interface UIPermissionsManager
   BulkPermission getBulkPermissions(DiscussionTopic topic, DiscussionForum forum);
 
   BulkPermission getBulkPermissions(DiscussionForum forum);
+
+  void clearMembershipsFromCacheForArea(Area area);
 }

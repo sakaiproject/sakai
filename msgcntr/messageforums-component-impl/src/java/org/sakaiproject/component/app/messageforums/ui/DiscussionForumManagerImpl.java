@@ -39,6 +39,7 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -62,6 +63,7 @@ import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams.TopicEvent;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -87,7 +89,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -96,6 +97,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -123,9 +125,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private MemoryService memoryService;
   private Cache<String, Set<String>> allowedFunctionsCache;
   private EventTrackingService eventTrackingService;
-  private ThreadLocalManager threadLocalManager;
   private ToolManager toolManager;
   private LearningResourceStoreService learningResourceStoreService;
+  @Setter private UIPermissionsManager uiPermissionsManager;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
@@ -149,10 +151,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void setLearningResourceStoreService(LearningResourceStoreService service) {
 	learningResourceStoreService = service;
-  }
-
-  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-	this.threadLocalManager = threadLocalManager;
   }
 
   public void setToolManager(ToolManager toolManager) {
@@ -1060,7 +1058,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public DiscussionForum createForum()
   {
     log.debug("createForum()");
-    return forumManager.createDiscussionForum();
+    DiscussionForum forum = forumManager.createDiscussionForum();
+    flagAreaCacheForClearing(forum);
+    return forum;
   }
 
   /*
@@ -1075,6 +1075,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       log.debug("setForumManager(DiscussionForum" + forum + ")");
     }
     forumManager.deleteDiscussionForum(forum);
+    flagAreaCacheForClearing(forum);
   }
 
   /*
@@ -1093,7 +1094,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       log.debug("Attempt to create topic with out forum");
       return null;
     }
-    return forumManager.createDiscussionForumTopic(forum);
+    DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
+    flagAreaCacheForClearing(forum);
+    return topic;
   }
 
   /*
@@ -1153,11 +1156,25 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forumReturn.setSortIndex(0);
       area.addDiscussionForum(forumReturn);
       areaManager.saveArea(area, currentUser);
+      flagAreaCacheForClearing(area);
     }
-    // set flag to true since permissions could have changed.  This will force a clearing and resetting
-    // of the permissions cache for this area.
-    threadLocalManager.set("msgcntr_clear_permission_set#" + forumReturn.getArea().getId(), Boolean.TRUE);
     return forumReturn;
+  }
+
+  private void flagAreaCacheForClearing(Object object) {
+    Area area = null;
+    if (object instanceof Topic) {
+      Topic topic = (Topic) object;
+      if (topic.getBaseForum() != null) area = topic.getBaseForum().getArea();
+      if (topic.getOpenForum() != null) area = topic.getOpenForum().getArea();
+      if (topic.getPrivateForum() != null) area = topic.getPrivateForum().getArea();
+    } else if (object instanceof BaseForum) {
+      BaseForum forum = (BaseForum) object;
+      area = forum.getArea();
+    } else if (object instanceof Area) {
+      area = (Area) object;
+    }
+    uiPermissionsManager.clearMembershipsFromCacheForArea(area);
   }
 
   @Override
@@ -1205,6 +1222,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forum = forumManager.saveDiscussionForum(forum, forum.getDraft(), false, currentUser); // event already logged by saveDiscussionForumTopic()
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
+    flagAreaCacheForClearing(forum);
 
     if (params != null)
     {
@@ -1227,6 +1245,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       log.debug("deleteTopic(DiscussionTopic " + topic + ")");
     }
     forumManager.deleteDiscussionForumTopic(topic);
+    flagAreaCacheForClearing(topic);
   }
 
   /*
