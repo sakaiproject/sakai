@@ -484,6 +484,7 @@ public class LessonsAccess {
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
 	    simplePageBean.setUserTimeService(userTimeService);
+	    simplePageBean.setUserDirectoryService(userDirectoryService);
 	    simplePageBean.init();
 	}
 
