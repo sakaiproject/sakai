@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
@@ -66,6 +64,9 @@ import com.rometools.rome.feed.rss.Item;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.WireFeedOutput;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public class BasicPodfeedService implements PodfeedService {
@@ -94,9 +95,6 @@ public class BasicPodfeedService implements PodfeedService {
 	/** Used to get the copyright statement if stored in Podcasts folder */
 	private final String PODFEED_COPYRIGHT = "feed_copyright";
 	
-	/** Used to pull generator value from sakai.properties file */
-	private final String FEED_GENERATOR_STRING = "podfeed_generator";
-	
 	/** Used to pull generator value from Podcasts folder */
 	private final String PODFEED_GENERATOR = "feed_generator";
 
@@ -111,38 +109,10 @@ public class BasicPodfeedService implements PodfeedService {
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
-	private PodcastService podcastService;
-	private PodcastPermissionsService podcastPermissionsService;
-	private SecurityService securityService;
-	private SiteService siteService;
-
-	/**
-	 * @param securityService
-	 *            The securityService to set.
-	 */
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	/**
-	 * @param podcastService
-	 *            The podcastService to set.
-	 */
-	public void setPodcastService(PodcastService podcastService) {
-		this.podcastService = podcastService;
-	}
-
-	/**
-	 * @param siteService
-	 *            The siteService to set.
-	 */
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	public void setPodcastPermissionsService(PodcastPermissionsService podcastPermissionsService) {
-		this.podcastPermissionsService = podcastPermissionsService;
-	}
+	@Setter private PodcastService podcastService;
+	@Setter private PodcastPermissionsService podcastPermissionsService;
+	@Setter private SecurityService securityService;
+	@Setter private SiteService siteService;
 
 	public void init() {
 		checkSet(podcastService, "podcastService");
@@ -539,7 +509,7 @@ public class BasicPodfeedService implements PodfeedService {
 
 		// pull global information for the feed into a Map so
 		// can be passed all at once
-		Map feedInfo = new HashMap();
+		Map feedInfo = new HashMap<>();
 		
 		feedInfo.put("title", getPodfeedTitle(siteId));
 		feedInfo.put("desc", getPodfeedDescription(siteId));
@@ -579,7 +549,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 */
 	private List populatePodcastArray(String siteId) {
 		List podEntries = null;
-		List entries = new ArrayList();
+		List entries = new ArrayList<>();
 
 		try {
 			enablePodfeedSecurityAdvisor();
@@ -627,14 +597,14 @@ public class BasicPodfeedService implements PodfeedService {
 				Date publishDate = null;
 				Date compareDate = null;
 				try {
-					if (podcastResource.getReleaseDate() != null) {
-						compareDate = new Date(podcastResource.getReleaseDate().getTime());
-						publishDate = podcastService.getGMTdate(podcastResource.getReleaseDate().getTime());
+					if (podcastResource.getReleaseInstant() != null) {
+						compareDate = Date.from(podcastResource.getReleaseInstant());
+						publishDate = podcastService.getGMTdate(podcastResource.getReleaseInstant().toEpochMilli());
 					}
 					else {
 						// need to put in GMT for the feed
-						compareDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
-						publishDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+						compareDate = podcastProperties.getDateProperty(PodcastService.DISPLAY_DATE);
+						publishDate = podcastService.getGMTdate(podcastProperties.getDateProperty(PodcastService.DISPLAY_DATE).getTime());
 					}
 				} 
 				catch (Exception e) {
@@ -646,7 +616,7 @@ public class BasicPodfeedService implements PodfeedService {
 				// if getting the date generates an error, skip this podcast.
 				if (publishDate != null && ! hiddenInUI(podcastResource, compareDate)) {
 					try {
-						Map podcastMap = new HashMap();
+						Map podcastMap = new HashMap<>();
 						podcastMap.put("date", publishDate);
 						podcastMap.put("title", podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 						
