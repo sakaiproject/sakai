@@ -851,6 +851,12 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- JCL (commons-logging) is declared here as provided, it is important to
            know that this jar is never deployed. The contrary would be to remove this
            declaration and find every transitive dependency and exclude jcl.
