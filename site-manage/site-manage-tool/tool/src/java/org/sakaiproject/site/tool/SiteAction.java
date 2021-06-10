@@ -11930,7 +11930,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(
 					homeSelected));
 
-			if (!ltiSelectedTools.isEmpty())
+			if (!ltiSelectedTools.isEmpty() || !existingLtiIds.isEmpty())
 			{
 				// add in existing lti tools where visibility is stealth
 				existingLtiIds.keySet().stream()
