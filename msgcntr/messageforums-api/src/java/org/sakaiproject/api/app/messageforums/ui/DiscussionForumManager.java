@@ -666,4 +666,6 @@ public interface DiscussionForumManager
    * @return the LRS statement, or empty if student not found or LRS service not available
    */
   public Optional<LRS_Statement> getStatementForGrade(String studentUid, String forumTitle, double score);
+
+  void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager);
 }

@@ -911,7 +911,7 @@ public class DiscussionForumTool {
     }
     
     setObjectPermissions(template.getArea());
-    areaManager.saveArea(template.getArea());    
+    areaManager.saveArea(template.getArea());
     return gotoMain();
   }
 
@@ -1937,22 +1937,10 @@ public class DiscussionForumTool {
 
         topic = forumManager.saveTopic(topic, draft);
 
-	//anytime a forum settings change, we should update synoptic info for forums
-        //since permissions could have changed.
-        if(!isNew){
-        	if(beforeChangeHM != null){
-        		if(permissionsUpdated){
-                    // set flag to true since permissions could have changed.  This will force a clearing and resetting
-                    // of the permissions cache for this area.
-                    threadLocalManager.set("msgcntr_clear_permission_set#" + topic.getBaseForum().getArea().getId(), Boolean.TRUE);
-                }
-        		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-        	}
-        }        
-        //forumManager
-        //    .saveTopicControlPermissions(topic, topicControlPermissions);
-        //forumManager
-        //    .saveTopicMessagePermissions(topic, topicMessagePermissions);
+    	//anytime a forum settings change, we should update synoptic info for forums
+        if (!isNew && beforeChangeHM != null) {
+            updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        }
       }
     }
     return gotoMain();
@@ -6622,25 +6610,25 @@ public class DiscussionForumTool {
   }
   
   public void setObjectPermissions(Object target){
-  	Area area = null;
-  	DiscussionForum forum = null;
-  	DiscussionTopic topic = null;
-
-  	Set<DBMembershipItem> oldMembershipItemSet = null;
-  	Set<DBMembershipItem> membershipItemSet = new HashSet<>();
-
-    if (target instanceof DiscussionForum){
-    	forum = ((DiscussionForum) target);
-    	oldMembershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
-    } else if (target instanceof Area){
-    	area = ((Area) target);
-    	oldMembershipItemSet = uiPermissionsManager.getAreaItemsSet(area);
-    } else if (target instanceof Topic){
-    	topic = ((DiscussionTopic) target);
-    	oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
-    }
-
     if (permissions != null) {
+      Area area = null;
+      DiscussionForum forum = null;
+      DiscussionTopic topic = null;
+
+      Set<DBMembershipItem> oldMembershipItemSet = null;
+      Set<DBMembershipItem> membershipItemSet = new HashSet<>();
+
+      if (target instanceof DiscussionForum){
+          forum = ((DiscussionForum) target);
+          oldMembershipItemSet = uiPermissionsManager.getForumItemsSet(forum);
+      } else if (target instanceof Area){
+          area = ((Area) target);
+          oldMembershipItemSet = uiPermissionsManager.getAreaItemsSet(area);
+      } else if (target instanceof Topic){
+          topic = ((DiscussionTopic) target);
+          oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet(topic);
+      }
+
       for (PermissionBean permBean : permissions) {
         //for group awareness
         //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
@@ -6669,9 +6657,6 @@ public class DiscussionForumTool {
         membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(t));
       }
       permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
-      if (area != null) {
-        threadLocalManager.set("msgcntr_clear_permission_set#" + area.getId(), Boolean.TRUE);
-      }
     }
     siteMembers = null;
   }

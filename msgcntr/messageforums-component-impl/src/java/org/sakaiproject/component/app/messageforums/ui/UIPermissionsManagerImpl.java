@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.BulkPermission;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -48,7 +47,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -84,7 +82,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
     @Setter private SiteService siteService;
-    @Setter private ThreadLocalManager threadLocalManager;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
 
@@ -95,6 +92,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         log.info("init()");
         userGroupMembershipCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
         membershipItemCache = memoryService.getCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.membershipItemCache");
+        forumManager.setUiPermissionsManager(this);
     }
 
     @Override
@@ -684,19 +682,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false));
     }
 
-    private void clearMembershipsFromCacheForArea(Area area) {
+    public void clearMembershipsFromCacheForArea(Area area) {
         if (area == null || area.getId() == null) return;
         String areaId = area.getId().toString();
-        String areaCacheKey = "area_" + areaId;
-        String forumCacheKey = "forum_" + areaId;
-        String topicCacheKey = "topic_" + areaId;
-        Object obj = threadLocalManager.get("msgcntr_clear_permission_set#" + areaId);
-        if (obj instanceof Boolean && (Boolean) obj) {
-            membershipItemCache.remove(areaCacheKey);
-            membershipItemCache.remove(forumCacheKey);
-            membershipItemCache.remove(topicCacheKey);
-            threadLocalManager.set("msgcntr_clear_permission_set#" + areaId, Boolean.FALSE);
-        }
+        membershipItemCache.remove("area_" + areaId);
+        membershipItemCache.remove("forum_" + areaId);
+        membershipItemCache.remove("topic_" + areaId);
     }
 
     private Set<DBMembershipItem> getTopicMemberships(Area area) {
