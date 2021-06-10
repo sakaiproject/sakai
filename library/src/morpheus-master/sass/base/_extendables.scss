@@ -64,12 +64,12 @@
 	@if $isInline {
 		display: inline-block;
 		margin: 0;
-		padding: 0 $standard-space;
+		padding: 0 $standard-space 0 calc(#{$standard-spacing} * 2 + 18px); // making room on either side of the icon plus the width of the icon;
 	} @else {
 		display: block;
 		clear: both;
 		margin: $standard-spacing 0;
-		padding: $standard-spacing;
+		padding: $standard-spacing $standard-spacing $standard-spacing calc(#{$standard-spacing} * 2 + 18px); // making room on either side of the icon plus the width of the icon;
 	}
 	border-left: calc( #{$standard-spacing} / 2) solid $bordercolor;
 	background-color: $bgcolor;
@@ -81,6 +81,9 @@
 		@extend .fa;
 		@extend .fa-fw;		// fixed width icons
 		@extend #{$icon};	// icon passed in through mixin's parameter
+		position: absolute;
+		top: calc(50% - 7px); 	// half the height of the icon
+		left: $standard-spacing;
 		margin-right: $standard-space;	// space between icon and message text
 		color: $color;
 	}
@@ -112,6 +115,11 @@
 	a[href] {
 		color: $color;
 		text-decoration: underline;
+	}
+
+	// remove end spacing from any paragraphs at the end of the banner
+	p:last-child {
+		margin-bottom: 0;
 	}
 }
 
