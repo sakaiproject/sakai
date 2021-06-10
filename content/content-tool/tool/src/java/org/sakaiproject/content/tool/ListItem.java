@@ -138,7 +138,7 @@ public class ListItem
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_WEEK = 7L * ONE_DAY;
 	
-	public static final int EXPANDABLE_FOLDER_NAV_SIZE_LIMIT = ServerConfigurationService.getInt("sakai.content.resourceLimit", 0);  //SAK-21955
+	public static final int EXPANDABLE_FOLDER_NAV_SIZE_LIMIT = ServerConfigurationService.getInt("sakai.content.resourceLimit", 5000);  //SAK-21955
 
 	/**
 	 * Services
