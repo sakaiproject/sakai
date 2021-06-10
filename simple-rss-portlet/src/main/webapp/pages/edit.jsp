@@ -49,7 +49,8 @@
 		
 		<c:if test="${!portletTitleIsLocked}">
 			<p><fmt:message key="config.portlet.title" /></p>
-			<input type="text" name="portletTitle" value="${portletTitle}" size="30"/>
+			<input type="text" name="portletTitle" value="${portletTitle}" size="20" maxlength="20"/>
+			<span class="instruction"> (Maximum length 20 char.)</span>
 		</c:if>
 		
 		<p><fmt:message key="config.portlet.maxitems" /></p>
