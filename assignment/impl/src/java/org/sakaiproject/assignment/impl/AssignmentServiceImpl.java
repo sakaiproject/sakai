@@ -1350,7 +1350,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
 
         String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-        if (!allowUpdateSubmission(reference)) {
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
+
+        // TODO these permissions checks should coincide with the changes that are being made for the submission
+        if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
