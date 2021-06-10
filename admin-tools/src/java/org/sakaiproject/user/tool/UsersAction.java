@@ -407,11 +407,10 @@ public class UsersAction extends PagedResourceActionII
 		}
 
 		// add the paging commands
-		//addListPagingMenus(bar, state);
 		int pageSize = Integer.valueOf(state.getAttribute(STATE_PAGESIZE).toString()).intValue();
-		int currentPageNubmer = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
-		int startNumber = pageSize * (currentPageNubmer - 1) + 1;
-		int endNumber = pageSize * currentPageNubmer;
+		int currentPageNumber = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
+		int startNumber = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
+		int endNumber = pageSize * currentPageNumber;
 
 		int totalNumber = 0;
 		Object[] params;
