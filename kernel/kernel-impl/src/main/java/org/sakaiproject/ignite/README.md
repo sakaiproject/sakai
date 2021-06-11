@@ -67,7 +67,10 @@ properties that can be used to configure ignite.
 * `ignite.range` this is the number of ports that will be used when calculating the range.
 
   _10_
+* `ignite.tcpMessageQueueLimit` sets message queue limit for incoming and outgoing messages.
+  This would only need to be changed if there is a slow node in the cluster.
 
+  _1024_
 
 ## Cache Data Regions
 Sakai configures 2 data regions one for use with spring and the other as a hibernate
