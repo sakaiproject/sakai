@@ -176,6 +176,10 @@ assignment.useContentReview=true
 # turnitin.oc.roles.administrator.may_save_report_changes=true
 # turnitin.oc.roles.undefined.may_save_report_changes=false
 
+# contentreview.submission.eula.required=true/false
+# If true and if the provider requires a EULA, then the EULA must be accpeted before a user can submit
+# to an assignment. Otherwise, if set to false, a user can submit to an assignment without accepting the EULA.
+# Default: false
 
 # Please make sure the property 'version.sakai' is set correctly
 ```
