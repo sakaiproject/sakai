@@ -12,6 +12,8 @@ import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
+import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
+import org.apache.ignite.spi.collision.fifoqueue.FifoQueueCollisionSpi;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
@@ -35,6 +37,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_RANGE = "ignite.range";
     public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
     public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
+    public static final String IGNITE_TCP_MESSAGE_QUEUE_LIMIT = "ignite.tcpMessageQueueLimit";
 
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
     private static Boolean configured = Boolean.FALSE;
@@ -68,6 +71,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             mode = serverConfigurationService.getString(IGNITE_MODE, "server");
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
+            int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
 
             // disable banner
             System.setProperty("IGNITE_NO_ASCII", "true");
@@ -79,6 +83,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             configurePort();
 
             igniteConfiguration.setIgniteHome(home);
+            igniteConfiguration.setWorkDirectory(home + File.separator + "work");
             igniteConfiguration.setConsistentId(node);
             igniteConfiguration.setIgniteInstanceName(name);
 
@@ -87,6 +92,9 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             } else {
                 igniteConfiguration.setClientMode(false);
             }
+
+            igniteConfiguration.setCollisionSpi(new FifoQueueCollisionSpi());
+            igniteConfiguration.setCheckpointSpi(new CacheCheckpointSpi());
 
             TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
             transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
@@ -101,7 +109,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
 
-            //User configuration for metrics update freqency
+            // configuration for metrics update frequency
             igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
 
             igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
@@ -111,6 +119,8 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
+
+            tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
 
             Set<String> discoveryAddresses = new HashSet<>();
             String localDiscoveryAddress;
