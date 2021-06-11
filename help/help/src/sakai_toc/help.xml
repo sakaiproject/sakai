@@ -5707,6 +5707,7 @@
       <list>
         <ref bean="whatareRubrics"/>
         <ref bean="howdoIaddarubrictomysite"/>
+        <ref bean="howdoIcreateaweightedrubric"/>
         <ref bean="howdoIeditarubric"/>
         <ref bean="howdoIcopyarubric"/>
         <ref bean="howdoIdeletearubric"/>
@@ -5748,6 +5749,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_rubricsUserGuide/howdoIaddarubrictomysite.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreateaweightedrubric" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreateaweightedrubric</value>
+    </property>
+    <property name="name">
+      <value>How do I create a weighted rubric?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_rubricsUserGuide/howdoIcreateaweightedrubric.html</value>
     </property>
   </bean>
   <bean id="howdoIeditarubric" class="org.sakaiproject.component.app.help.model.ResourceBean">
