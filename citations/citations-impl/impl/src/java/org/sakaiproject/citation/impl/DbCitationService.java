@@ -25,22 +25,31 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.sakaiproject.citation.api.Citation;
+import org.sakaiproject.citation.api.CitationCollection;
+import org.sakaiproject.citation.api.CitationCollectionOrder;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.api.Schema.Field;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.citation.api.*;
-import org.sakaiproject.citation.api.Schema.Field;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 
 /**
  *
