@@ -24,27 +24,33 @@ package org.sakaiproject.citation.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 
 /**
  *
  */
 @Slf4j
+@Accessors(prefix = "m_" )
 public class DbCitationService extends BaseCitationService
 {
+	@Setter private TimeService m_timeService;
+	@Setter private ThreadLocalManager m_threadLocalManager;
 	/**
 	 * 
 	 */
@@ -119,7 +125,7 @@ public class DbCitationService extends BaseCitationService
 
 		public Schema getSchema(String schemaId)
 		{
-			BasicSchema schema 	= (BasicSchema) ThreadLocalManager.get(schemaId);
+			BasicSchema schema 	= (BasicSchema) m_threadLocalManager.get(schemaId);
 
 			if(schema == null)
 			{
@@ -135,7 +141,7 @@ public class DbCitationService extends BaseCitationService
 
 		public List getSchemas()
 		{
-			List schemas = (List) ThreadLocalManager.get("DbCitationStorage.getSchemas");
+			List schemas = (List) m_threadLocalManager.get("DbCitationStorage.getSchemas");
 
 			if(schemas == null)
 			{
@@ -157,7 +163,7 @@ public class DbCitationService extends BaseCitationService
 
 		public List listSchemas()
 		{
-			List schemaIds 	= (List) ThreadLocalManager.get("DbCitationStorage.listSchemas");
+			List schemaIds 	= (List) m_threadLocalManager.get("DbCitationStorage.listSchemas");
 
 			if(schemaIds == null)
 			{
@@ -417,7 +423,7 @@ public class DbCitationService extends BaseCitationService
 
 		private void updateCitationCollectionUpdateDate(String citationCollectionId) {
 			String updateStatement = "UPDATE " + m_collectionTableName + " SET PROPERTY_VALUE = ? WHERE COLLECTION_ID= ? AND PROPERTY_NAME = ? ";
-			long mostRecentUpdate = TimeService.newTime().getTime();
+			long mostRecentUpdate = Instant.now().toEpochMilli();
 			Object[] updateFields = new Object[3];
 			updateFields[0] = Long.toString(mostRecentUpdate);
 			updateFields[1] = citationCollectionId;
@@ -771,7 +777,7 @@ public class DbCitationService extends BaseCitationService
 				ok = m_sqlService.dbWrite(orderStatement, orderFields);
 			}
 			
-			long mostRecentUpdate = TimeService.newTime().getTime();
+			long mostRecentUpdate = Instant.now().toEpochMilli();
 			fields[1] = PROP_MOST_RECENT_UPDATE;
 			fields[2] = Long.toString(mostRecentUpdate);
 			ok = m_sqlService.dbWrite(statement, fields);
@@ -870,7 +876,7 @@ public class DbCitationService extends BaseCitationService
 
 		    	if(citation instanceof BasicCitation && ((BasicCitation) citation).isTemporary())
 		    	{
-		    		((BasicCitation) citation).m_id = IdManager.createUuid();
+		    		((BasicCitation) citation).m_id = m_idManager.createUuid();
 		    		((BasicCitation) citation).m_temporary = false;
 		    		((BasicCitation) citation).m_serialNumber = null;
 		    	}
@@ -878,7 +884,7 @@ public class DbCitationService extends BaseCitationService
 				commitCitation(citation);
 			}
 
-			edit.m_mostRecentUpdate = TimeService.newTime().getTime();
+			edit.m_mostRecentUpdate = Instant.now().toEpochMilli();
 			fields[1] = PROP_MOST_RECENT_UPDATE;
 			fields[2] = Long.toString(edit.m_mostRecentUpdate);
 			ok = m_sqlService.dbWrite(statement, fields);
@@ -1368,7 +1374,7 @@ public class DbCitationService extends BaseCitationService
 		 */
 		protected Schema retrieveSchema(String schemaId)
 		{
-			BasicSchema schema = (BasicSchema) ThreadLocalManager.get(schemaId);
+			BasicSchema schema = (BasicSchema) m_threadLocalManager.get(schemaId);
 			if(schema == null)
 			{
 				String statement = "select SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_schemaTableName + " where (SCHEMA_ID = ?)";
@@ -1411,7 +1417,7 @@ public class DbCitationService extends BaseCitationService
 						}
 					}
 					schema.sortFields();
-					ThreadLocalManager.set(schema.getIdentifier(), new BasicSchema(schema));
+					m_threadLocalManager.set(schema.getIdentifier(), new BasicSchema(schema));
 				}
 
 			}
@@ -1521,7 +1527,7 @@ public class DbCitationService extends BaseCitationService
 			}
 			else if(Time.class.getName().equalsIgnoreCase(valueType))
 			{
-				field.setDefaultValue(TimeService.newTime(new Integer(defaultValue).longValue()));
+				field.setDefaultValue(m_timeService.newTime(new Integer(defaultValue).longValue()));
 			}
 			// PROP_HAS_RIS_IDENTIFIER RIS identifier
 			String risIdentifier = (String) values.remove(PROP_HAS_RIS_IDENTIFIER);
@@ -1538,14 +1544,14 @@ public class DbCitationService extends BaseCitationService
 		 */
 		protected List retrieveSchemaList()
 		{
-			List schemaIds = (List) ThreadLocalManager.get("DbCitationStorage.listSchemas");
+			List schemaIds = (List) m_threadLocalManager.get("DbCitationStorage.listSchemas");
 			if(schemaIds == null)
 			{
 				String statement = "select distinct SCHEMA_ID from " + m_schemaTableName + " order by SCHEMA_ID";
 
 				schemaIds = m_sqlService.dbRead(statement, null, null);
 
-				ThreadLocalManager.set("DbCitationStorage.listSchemas", schemaIds);
+				m_threadLocalManager.set("DbCitationStorage.listSchemas", schemaIds);
 			}
 
 			return new Vector(schemaIds);
@@ -1556,7 +1562,7 @@ public class DbCitationService extends BaseCitationService
 		 */
 		protected List retrieveSchemas()
 		{
-			List schemas = (List) ThreadLocalManager.get("DbCitationStorage.getSchemas");
+			List schemas = (List) m_threadLocalManager.get("DbCitationStorage.getSchemas");
 			if(schemas == null)
 			{
 				String statement = "select SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_schemaTableName + " order by SCHEMA_ID";
@@ -1596,7 +1602,7 @@ public class DbCitationService extends BaseCitationService
 					BasicSchema sch = (BasicSchema) schemaIt.next();
 					sch.sortFields();
 				}
-				ThreadLocalManager.set("DbCitationStorage.getSchemas", schemas);
+				m_threadLocalManager.set("DbCitationStorage.getSchemas", schemas);
 			}
 
 			List rv = new Vector();

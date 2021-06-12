@@ -3,150 +3,128 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- ConfigurationService bean handles institution-specific configuration 
-		for the Citations Helper -->
-	<bean id="org.sakaiproject.citation.api.ConfigurationService"
-		class="org.sakaiproject.citation.impl.BaseConfigurationService"
-		init-method="init" destroy-method="destroy">
+    <!-- ConfigurationService bean handles institution-specific configuration 
+        for the Citations Helper -->
+    <bean id="org.sakaiproject.citation.api.ConfigurationService"
+        class="org.sakaiproject.citation.impl.BaseConfigurationService"
+        init-method="init" destroy-method="destroy">
 
-		<property name="adminSiteName">
-			<value>citationsAdmin</value>
-		</property>
-		<property name="configFolder">
-			<value>config</value>
-		</property>
-		<property name="configXmlCache">
-			<value>config.xml</value>
-		</property>
-		<property name="databaseXmlCache">
-			<value>database.xml</value>
-		</property>
+        <property name="adminSiteName">
+            <value>citationsAdmin</value>
+        </property>
+        <property name="configFolder">
+            <value>config</value>
+        </property>
+        <property name="configXmlCache">
+            <value>config.xml</value>
+        </property>
+        <property name="databaseXmlCache">
+            <value>database.xml</value>
+        </property>
 
-		<!-- enable/disable entire helper -->
-		<property name="citationsEnabledByDefault">
-			<value>true</value>
-		</property>
-		<property name="allowSiteBySiteOverride">
-			<value>true</value>
-		</property>
+        <!-- enable/disable entire helper -->
+        <property name="citationsEnabledByDefault">
+            <value>true</value>
+        </property>
+        <property name="allowSiteBySiteOverride">
+            <value>true</value>
+        </property>
 
-		<!-- enable/disable helper features -->
-		<property name="googleSearchEnabled">
-			<value>false</value>
-		</property>
-		<property name="librarySearchEnabled">
-			<value>true</value>
-		</property>
+        <!-- enable/disable helper features -->
+        <property name="googleSearchEnabled">
+            <value>false</value>
+        </property>
+        <property name="librarySearchEnabled">
+            <value>true</value>
+        </property>
 
-		<!-- configuration XML file location -->
-		<property name="databaseXml">
-			<value>categories.xml</value>
-		</property>
-		<property name="siteConfigXml">
-			<value>config.xml</value>
-		</property>
+        <!-- configuration XML file location -->
+        <property name="databaseXml">
+            <value>categories.xml</value>
+        </property>
+        <property name="siteConfigXml">
+            <value>config.xml</value>
+        </property>
 
-		<!-- metasearch engine parameters -->
-		<property name="metasearchUsername">
-			<value></value>
-		</property>
-		<property name="metasearchPassword">
-			<value></value>
-		</property>
-		<property name="metasearchBaseUrl">
-			<value></value>
-		</property>
+        <!-- metasearch engine parameters -->
+        <property name="metasearchUsername">
+            <value></value>
+        </property>
+        <property name="metasearchPassword">
+            <value></value>
+        </property>
+        <property name="metasearchBaseUrl">
+            <value></value>
+        </property>
 
-		<!-- which osid impl package to use for Sirsi SingleSearch: edu.indiana.lib.osid.base.repository.http 
-			for Ex Libris MetaLib: org.sakaibrary.osid.repository.xserver -->
-		<property name="osidImpl">
-			<value></value>
-		</property>
+        <!-- which osid impl package to use for Sirsi SingleSearch: edu.indiana.lib.osid.base.repository.http 
+            for Ex Libris MetaLib: org.sakaibrary.osid.repository.xserver -->
+        <property name="osidImpl">
+            <value></value>
+        </property>
 
-		<!-- openURL parameters -->
-		<property name="openUrlLabel">
-			<value>Get It!</value>
-		</property>
-		<property name="openUrlResolverAddress">
-			<value>http://worldcatlibraries.org/registry/gateway</value>
-		</property>
+        <!-- openURL parameters -->
+        <property name="openUrlLabel">
+            <value>Get It!</value>
+        </property>
+        <property name="openUrlResolverAddress">
+            <value>http://worldcatlibraries.org/registry/gateway</value>
+        </property>
 
-		<!-- google scholar parameters -->
-		<property name="googleBaseUrl">
-			<value>http://scholar.google.com/schhp</value>
-		</property>
-		<property name="sakaiServerKey">
-			<value>default</value>
-		</property>
+        <!-- google scholar parameters -->
+        <property name="googleBaseUrl">
+            <value>http://scholar.google.com/schhp</value>
+        </property>
+        <property name="sakaiServerKey">
+            <value>default</value>
+        </property>
 
-		<!-- site-specific config/authentication/authorization implementation -->
-		<property name="osidConfig">
-			<value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value>
-		</property>
+        <!-- site-specific config/authentication/authorization implementation -->
+        <property name="osidConfig">
+            <value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value>
+        </property>
 
-		<!-- other config services -->
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager" />
-		</property>
-		<property name="serverConfigurationService">
-			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		</property>
-	</bean>
+        <!-- other config services -->
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    </bean>
 
-	<bean id="org.sakaiproject.citation.api.CitationService" class="org.sakaiproject.citation.impl.DbCitationService"
-		init-method="init" destroy-method="destroy">
+    <bean id="org.sakaiproject.citation.api.CitationService" class="org.sakaiproject.citation.impl.DbCitationService"
+        init-method="init" destroy-method="destroy">
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="configurationService" ref="org.sakaiproject.citation.api.ConfigurationService" />
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+        <property name="openURLService" ref="org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl" />
+        <property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry" />
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="autoDdl">
+            <value>${auto.ddl}</value>
+        </property>
+        <property name="attemptToMatchSchema">
+            <value>true</value>
+        </property>
+    </bean>
 
-		<property name="sqlService">
-			<ref bean="org.sakaiproject.db.api.SqlService" />
-		</property>
-		<property name="entityManager">
-			<ref bean="org.sakaiproject.entity.api.EntityManager" />
-		</property>
-		<property name="contentHostingService">
-			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
-		</property>
-		<property name="serverConfigurationService">
-			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		</property>
-		<property name="configurationService">
-			<ref bean="org.sakaiproject.citation.api.ConfigurationService" />
-		</property>
-		<property name="idManager">
-			<ref bean="org.sakaiproject.id.api.IdManager" />
-		</property>
-		<property name="openURLService">
-			<ref bean="org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl" />
-		</property>
-		<property name="autoDdl">
-			<value>${auto.ddl}</value>
-		</property>
-		<property name="attemptToMatchSchema">
-			<value>true</value>
-		</property>
-		<property name="resourceTypeRegistry">
-			<ref bean="org.sakaiproject.content.api.ResourceTypeRegistry" />
-		</property>
-	</bean>
+    <bean id="org.sakaiproject.citation.api.CitationValidator" class="org.sakaiproject.citation.impl.NestedCitationValidator"/>
 
-	<bean id="org.sakaiproject.citation.api.CitationValidator" class="org.sakaiproject.citation.impl.NestedCitationValidator"/>
+    <bean id="org.sakaiproject.citation.api.SearchManager" class="org.sakaiproject.citation.impl.BaseSearchManager"
+        init-method="init" destroy-method="destroy">
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="configurationService" ref="org.sakaiproject.citation.api.ConfigurationService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="citationService" ref="org.sakaiproject.citation.api.CitationService"/>
+    </bean>
 
-	<bean id="org.sakaiproject.citation.api.SearchManager" class="org.sakaiproject.citation.impl.BaseSearchManager"
-		init-method="init" destroy-method="destroy">
-
-		<property name="memoryService">
-			<ref bean="org.sakaiproject.memory.api.MemoryService" />
-		</property>
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager" />
-		</property>
-		<property name="configurationService">
-			<ref bean="org.sakaiproject.citation.api.ConfigurationService" />
-		</property>
-		<property name="serverConfigurationService">
-			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		</property>
-
-
-	</bean>
-
-</beans>	
+</beans>
