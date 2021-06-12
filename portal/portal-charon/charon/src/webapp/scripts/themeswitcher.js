@@ -60,7 +60,7 @@ function sakaiThemeSwitcher(){
     }
 
     function setDarkThemeSwitcherToggle(onOff) {
-        darkThemeSwitcher.setAttribute("aria-checked", onOff);
+        darkThemeSwitcher && darkThemeSwitcher.setAttribute("aria-checked", onOff);
     }
 
     function setPortalThemeUserPref(theme) {
@@ -72,7 +72,7 @@ function sakaiThemeSwitcher(){
 
     function toggleDarkTheme() {
         // toggle the dark theme switch to the opposite state
-        darkThemeSwitcher.getAttribute("aria-checked") === "false" ? enableDarkTheme() : enableLightTheme();
+        darkThemeSwitcher && darkThemeSwitcher.getAttribute("aria-checked") === "false" ? enableDarkTheme() : enableLightTheme();
     }
 
     function enableDarkTheme() {
