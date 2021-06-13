@@ -69,7 +69,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Allows some basic functions on email archive. Due to limitations of
@@ -320,8 +320,8 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
 		for (Reference attachment : attachments) {
 			DecoratedAttachment da = new DecoratedAttachment();
-			da.setId(Validator.escapeHtml(attachment.getId()));
-			da.setName(Validator
+			da.setId(formattedText.escapeHtml(attachment.getId()));
+			da.setName(formattedText
 					.escapeHtml(attachment.getProperties()
 							.getPropertyFormatted(
 									attachment.getProperties()
@@ -814,5 +814,8 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private ToolManager toolManager;
+	
+	@Setter
+	private FormattedText formattedText;
 
 }
