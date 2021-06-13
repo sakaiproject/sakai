@@ -29,14 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -63,13 +56,17 @@ import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Allows some basic functions on email archive. Due to limitations of
@@ -88,6 +85,30 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 	private static ResourceLoader rb = new ResourceLoader("email");
 	public static int DEFAULT_NUM_MAILMESSAGES = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;
+	
+	@Setter
+	private EntityManager entityManager;
+
+	@Setter
+	private SecurityService securityService;
+
+	@Setter
+	private SessionManager sessionManager;
+
+	@Setter
+	private SiteService siteService;
+
+	@Setter
+	private MailArchiveService mailArchiveService;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private ToolManager toolManager;
+	
+	@Setter
+	private FormattedText formattedText;
 
 	/**
 	 * Prefix for this provider
@@ -790,32 +811,5 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		}
 
 	}
-
-	@Setter
-	private EntityManager entityManager;
-
-	@Setter
-	private SecurityService securityService;
-
-	@Setter
-	private SessionManager sessionManager;
-
-	@Setter
-	private SiteService siteService;
-
-	@Setter
-	private MailArchiveService mailArchiveService;
-
-	@Setter
-	private UserDirectoryService userDirectoryService;
-
-	@Setter
-	private TimeService timeService;
-
-	@Setter
-	private ToolManager toolManager;
-	
-	@Setter
-	private FormattedText formattedText;
 
 }
