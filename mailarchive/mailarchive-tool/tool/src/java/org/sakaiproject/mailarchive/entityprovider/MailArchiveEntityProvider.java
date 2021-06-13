@@ -305,7 +305,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		da.setSubject(a.getMailArchiveHeader().getSubject());
 		da.setBody(a.getBody());
 		da.setCreatedByDisplayName(a.getHeader().getFrom().getDisplayName());
-		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
+		da.setCreatedOn(Date.from(a.getHeader().getInstant()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
 		da.setHeaders(a.getMailArchiveHeader().getMailHeaders());
@@ -392,8 +392,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		List<DecoratedAttachment> attachmentUrls = decorateAttachments(attachments);
 
 		DecoratedMailArchiveMessage.setAttachments(attachmentUrls);
-		DecoratedMailArchiveMessage.setCreatedOn(new Date(header.getDate()
-				.getTime()));
+		DecoratedMailArchiveMessage.setCreatedOn(Date.from(header.getInstant()));
 		DecoratedMailArchiveMessage.setCreatedByDisplayName(header.getFrom()
 				.getDisplayName());
 		DecoratedMailArchiveMessage.setSiteId(siteId);
