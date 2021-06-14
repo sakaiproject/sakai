@@ -128,10 +128,10 @@
 		// jsf now renders a row with empty td elements even when there is no data
 		var cellData = document.getElementById("meeting:currentSiteGroups").tBodies[0].rows[0].cells[0].innerHTML;
 		if (cellData != "") {
-            for(var i=0; i<size; i++){
-                var groupId = groupIdPrefix+i+groupIdSuffix;
-                document.getElementById(groupId).disabled=!enable;
-            }
+			for(var i=0; i<size; i++){
+				var groupId = groupIdPrefix+i+groupIdSuffix;
+				document.getElementById(groupId).disabled=!enable;
+			}
 		}
 	}
 	
@@ -143,12 +143,12 @@
 		var numberOfSites = document.getElementById(siteId).tBodies[0].rows.length;
 
 		// jsf now renders a row with empty td elements even when there is no data
-        var cellData = document.getElementById(siteId).tBodies[0].rows[0].cells[0].innerHTML;
-        if (cellData != "") {
-            for(var i=0; i<numberOfSites; i++){
-                var siteId = sitePrefix + i + siteSuffix;
-                enableOtherGroupsSelection(sitePrefix + i, !document.getElementById(siteId).checked);
-            }
+		var cellData = document.getElementById(siteId).tBodies[0].rows[0].cells[0].innerHTML;
+		if (cellData != "") {
+			for(var i=0; i<numberOfSites; i++){
+				var siteId = sitePrefix + i + siteSuffix;
+				enableOtherGroupsSelection(sitePrefix + i, !document.getElementById(siteId).checked);
+			}
 		}
 	}
 	
@@ -159,12 +159,12 @@
 		var size = document.getElementById(prefixId+":userGroups").tBodies[0].rows.length;
 
 		// jsf now renders a row with empty td elements even when there is no data
-        var cellData = document.getElementById(prefixId+":userGroups").tBodies[0].rows[0].cells[0].innerHTML;
-        if (cellData != "") {
-            for(var i=0; i<size; i++){
-                var groupId = groupIdPrefix+i+groupIdSuffix;
-                document.getElementById(groupId).disabled=!enable;
-            }
+		var cellData = document.getElementById(prefixId+":userGroups").tBodies[0].rows[0].cells[0].innerHTML;
+		if (cellData != "") {
+			for(var i=0; i<size; i++){
+				var groupId = groupIdPrefix+i+groupIdSuffix;
+				document.getElementById(groupId).disabled=!enable;
+			}
 		}
 	}
 	
