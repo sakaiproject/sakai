@@ -114,9 +114,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-	  <groupId>com.thoughtworks.xstream</groupId>
-	  <artifactId>xstream</artifactId>
-	  <version>1.4.11.1</version>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.4.17</version>
     </dependency>
     <dependency>
       <groupId>backport-util-concurrent</groupId>
