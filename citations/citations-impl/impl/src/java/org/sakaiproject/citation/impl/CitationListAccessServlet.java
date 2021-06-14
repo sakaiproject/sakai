@@ -65,7 +65,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * 
@@ -300,6 +300,7 @@ public class CitationListAccessServlet implements HttpAccess
 	protected void handleViewRequest(HttpServletRequest req, HttpServletResponse res, Reference ref) 
 			throws EntityPermissionException, EntityAccessOverloadException, EntityNotDefinedException
 	{
+        FormattedText formattedText = ComponentManager.get(FormattedText.class);
         try
         {
         	// We get the resource as this checks permissions and throws exceptions if the user doesn't have access
@@ -333,7 +334,7 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 					+ "<title>"
 					+ rb.getString("list.title") + ": "
-					+ Validator.escapeHtml(title)
+					+ formattedText.escapeHtml(title)
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/library/skin/" + ServerConfigurationService.getString("skin.default") + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
@@ -364,7 +365,7 @@ public class CitationListAccessServlet implements HttpAccess
 		out.println("\t<div style=\"width: 100%; height: 90px; line-height: 90px; background-color:" +
 					ServerConfigurationService.getString("official.institution.background.colour") +"; \">" +
 					"<div class=\"banner\"><h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
-					Validator.escapeHtml(title) + "</h1></div> " +
+					formattedText.escapeHtml(title) + "</h1></div> " +
 					"<div class=\"bannerLinks\">"  +
 					(!isPrintView ? "<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>"  : "") +
 					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "</div>");
@@ -452,6 +453,7 @@ public class CitationListAccessServlet implements HttpAccess
 			out.println("\t\t\t\tborder=\"0\" height=\"13\" width=\"13\" />" );
 			out.println("\t\t\t</td>");
 
+			FormattedText formattedText = ComponentManager.get(FormattedText.class);
 			// preferred URL?
 			String href = null;
 			try {
@@ -462,12 +464,12 @@ public class CitationListAccessServlet implements HttpAccess
 			}
 
 			out.println("\t\t<td headers=\"details\">");
-			out.println("\t\t\t<div class=\"detailsDiv\"><div style=\"padding:5px;\"><div class=\"imgDiv\" style=\"padding-right:5px;\"><a href=\"" + Validator.escapeHtml(href)
+			out.println("\t\t\t<div class=\"detailsDiv\"><div style=\"padding:5px;\"><div class=\"imgDiv\" style=\"padding-right:5px;\"><a href=\"" + formattedText.escapeHtml(href)
 					+ "\"><img src=\"/sakai-citations-tool/image/sakai/book-placeholder.png\" data-isbn=\"" + citation.getCitationProperty("isnIdentifier")
-					+ "\" class=\"googleBookCover\"></a></div><div style=\"float:left;\"><div><a href=\"" + Validator.escapeHtml(href) + "\" target=\"_blank\">"
-					+ Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE, true ) ) + "</a></div>");
-			out.println("\t\t\t\t<div class=\"creatorDiv\">" + Validator.escapeHtml( citation.getCreator() )  + "</div>");
-			out.println("\t\t\t\t<div class=\"sourceDiv\">" + Validator.escapeHtml( citation.getSource() )  + "</div>");
+					+ "\" class=\"googleBookCover\"></a></div><div style=\"float:left;\"><div><a href=\"" + formattedText.escapeHtml(href) + "\" target=\"_blank\">"
+					+ formattedText.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE, true ) ) + "</a></div>");
+			out.println("\t\t\t\t<div class=\"creatorDiv\">" + formattedText.escapeHtml( citation.getCreator() )  + "</div>");
+			out.println("\t\t\t\t<div class=\"sourceDiv\">" + formattedText.escapeHtml( citation.getSource() )  + "</div>");
 
 			out.println("\t\t\t<div><table class=\"listHier lines nolines\" cellpadding=\"0\" cellspacing=\"0\">");
 
@@ -500,11 +502,11 @@ public class CitationListAccessServlet implements HttpAccess
 									if(first)
 									{
 										String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
-										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
+										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
 									}
 									else
 									{
-										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>\n");
+										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>\n");
 									}
 								}
 								first = false;
@@ -520,7 +522,7 @@ public class CitationListAccessServlet implements HttpAccess
 							// don't want to repeat titles
 							if( !Schema.TITLE.equals(field.getIdentifier()) )
 							{
-								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
+								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
 							}
 
 						}
@@ -545,13 +547,13 @@ public class CitationListAccessServlet implements HttpAccess
 						String urlLabel = null;
 						try {
 							urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
-									citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
+									citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : formattedText.escapeHtml(citation.getCustomUrlLabel(urlId));
 						} catch (IdUnusedException e) {
 							log.error(e.getMessage(), e);
 						}
 
 						try {
-							out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
+							out.println("\t\t\t\t<a href=\"" + formattedText.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
 						} catch (IdUnusedException e) {
 							log.error(e.getMessage(), e);
 						}
@@ -609,11 +611,11 @@ public class CitationListAccessServlet implements HttpAccess
 									if(first)
 									{
 										String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
-										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
+										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
 									}
 									else
 									{
-										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>\n");
+										out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>\n");
 									}
 								}
 								first = false;
@@ -630,7 +632,7 @@ public class CitationListAccessServlet implements HttpAccess
 							// don't want to repeat titles
 							if( !Schema.TITLE.equals(field.getIdentifier()) )
 							{
-								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
+								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + ":</strong></td>\n\t\t\t\t\t<td>" + formattedText.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
 							}
 						}
 					}
