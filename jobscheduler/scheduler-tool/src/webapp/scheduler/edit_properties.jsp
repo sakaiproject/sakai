@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 
@@ -47,10 +47,10 @@
                     </sakai:panel_edit>
                 </sakai:group_box>
                 <sakai:button_bar>
-                    <sakai:button_bar_item
+                    <h:commandButton
                         action="#{schedulerTool.processSetProperties}"
                         value="#{msgs.bar_post}" />
-                    <sakai:button_bar_item immediate="true"
+                    <h:commandButton immediate="true"
                         action="jobs"
                         value="#{msgs.cancel}" />
                 </sakai:button_bar>

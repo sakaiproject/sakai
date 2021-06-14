@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 <f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
@@ -12,10 +12,10 @@
 				<h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 			</div>
   	  <sakai:tool_bar>
-		   <sakai:tool_bar_item
+		   <h:commandLink
 		        action="#{schedulerTool.processRefreshJobs}"
 			      value="#{msgs.bar_jobs}"/>
-		   <sakai:tool_bar_item
+		   <h:commandLink
 		     action="main"
 			   value="#{msgs.bar_event_log}"/>
 	  

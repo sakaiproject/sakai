@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 <f:view>
@@ -9,13 +9,13 @@
     	<h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 	    <h:form>
   	    <sakai:tool_bar>
- 			    <sakai:tool_bar_item
+ 			    <h:commandLink
 		        action="#{schedulerTool.eventPager.processSelect}"
 			      value="#{schedulerTool.eventPager.isViewAllSelected ? msgs.select_today : msgs.select_all}"/>
-		      <sakai:tool_bar_item
+		      <h:commandLink
 		        action="#{schedulerTool.processRefreshJobs}"
 			      value="#{msgs.bar_jobs}"/>		   
-			  <sakai:tool_bar_item
+			  <h:commandLink
 		     	action="runningJobs"
 			   	value="#{msgs.running_jobs}"/>
      	  </sakai:tool_bar>
