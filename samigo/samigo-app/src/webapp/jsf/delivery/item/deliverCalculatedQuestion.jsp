@@ -49,7 +49,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>      
       <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
         <h:outputLabel styleClass="sr-only" for="calcq" value="#{deliveryMessages.calcq_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.calcq_sr_answer_label_part2}" />
-        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="calcq" />
+        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="calcq" styleClass="calculatedQuestionInput" />
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
          value="#{answer.response}"/>
@@ -95,3 +95,47 @@ should be included in file importing DeliveryMessages
       escape="false" />
   </h:panelGroup>
 </h:panelGroup>
+
+<script>
+  includeWebjarLibrary('mathjs');
+  var calcqFormatError = '<h:outputText value="#{deliveryMessages.calcq_invalid_characters_error}" escape="false"/>';
+  
+  $( document ).ready(function() {
+  
+    $('.calculatedQuestionInput').each( function() {
+      $(this).attr('data-toggle', 'popover'); 
+      $(this).attr('data-content', calcqFormatError);
+      $(this).attr('data-trigger', 'focus');
+    });
+  
+    $('#takeAssessmentForm').submit(function() {
+      $('.calculatedQuestionInput').each(function() {
+        //If a part or an exam is submitted, validate all the FIN inputs and alert about the invalid ones to prevent a response loss.
+        validateCalculatedQuestionInput(this);
+      });
+    });
+  
+    $('.calculatedQuestionInput').popover({
+      trigger: 'focus'
+    });
+  
+    $('.calculatedQuestionInput').change( function() {
+      validateCalculatedQuestionInput(this);
+    });
+  
+    $('.calculatedQuestionInput').keyup( throttle(function(){
+      // Do not validate on key up when the user is inserting a scientific notation or a real with sign.
+      if (this.value !== '' && 
+          (this.value.includes('+') ||
+          this.value.includes('-') ||
+          this.value.includes('e') ||
+          this.value.includes('E'))
+      ) {
+          return;
+      }
+      validateCalculatedQuestionInput(this);
+    }));
+  
+  });
+  </script>
+  

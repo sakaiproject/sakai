@@ -41,6 +41,38 @@ var validateFinInput = function(input) {
   return true;
 }
 
+// same as validateFinInput but don't accept complex numbers
+var validateCalculatedQuestionInput = function(input) {
+  if (!input.value) {
+    //Empty inputs are accepted.
+    return true;
+  }
+  //Replace the comma decimal separator as point.
+  var rawInput = input.value.replace(/,/g, '.');
+  //Replace all the whitespaces.
+  rawInput = rawInput.replace(/\s/g,'');
+  input.value = rawInput;
+
+  var isValidInput = true;
+  var numericInputValue = rawInput;
+    // If not complex, lets check if is numeric.
+    try {
+      //Simple as that, try to add 0.0 to a numeric value.
+      const numericNumber = math.add(numericInputValue, 0.0); 
+    } catch(error) {
+      console.debug('The inserted value is not numeric, please review the syntax. eg: 1.5 , 9, -4, -3.1415');
+      isValidInput = false;
+    }
+
+  if (!isValidInput) {
+    input.value = '';
+    alert(finFormatError);
+    return false;
+  }
+
+  return true;
+}
+
 function throttle(f, delay) {
   var timer = null;
   return function() {
