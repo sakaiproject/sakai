@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 
@@ -10,17 +10,17 @@
   	  <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
   	  <sakai:tool_bar_message value="#{msgs.edit_trigger_for_job} #{schedulerTool.selectedJobDetailWrapper.jobDetail.name}"/>
   	  <sakai:tool_bar>
-		   <sakai:tool_bar_item
+		   <h:commandLink
 		     action="create_trigger"
 			   value="#{msgs.bar_create_trigger}" />
-		   <sakai:tool_bar_item
+		   <h:commandLink
   		   rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}"
 		     action="#{schedulerTool.processRefreshFilteredTriggers}"
 			   value="#{msgs.bar_delete_triggers}" />
-		   <sakai:tool_bar_item
+		   <h:commandLink
 		     action="#{schedulerTool.processPrepRunJobNow}"
 			   value="#{msgs.bar_run_job_now}"  />
-			 <sakai:tool_bar_item 
+			 <h:commandLink
 		     action="#{schedulerTool.processRefreshJobs}"
 			   value="#{msgs.bar_return_jobs}" />
    	  </sakai:tool_bar>
@@ -29,7 +29,7 @@
   	    <h:dataTable rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" value="#{schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" var="wrapper" styleClass="table table-hover table-striped table-bordered">
   	      <h:column>
     	      <f:facet name="header">    	      
-    	        <h:commandButton alt="SelectAll" image="/scheduler-tool/images/checkbox.gif" action="#{schedulerTool.processSelectAllTriggers}"/>    	        
+    	        <h:commandButton alt="SelectAll" image="images/checkbox.gif" action="#{schedulerTool.processSelectAllTriggers}"/>
     	      </f:facet>
     	      <h:selectBooleanCheckbox value="#{wrapper.isSelected}"/>
     	    </h:column>

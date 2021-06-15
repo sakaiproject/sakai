@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 
@@ -19,10 +19,10 @@
     	    </h:column>  	      
         </h:dataTable>        
    		  <sakai:button_bar>
-  				<sakai:button_bar_item
+  				<h:commandButton
 						action="#{schedulerTool.processDeleteJobs}"
 						value="#{msgs.ok}" />					
-					<sakai:button_bar_item
+					<h:commandButton
 					  rendered="#{!empty schedulerTool.filteredJobDetailWrapperList}"
 						action="jobs"
 						value="#{msgs.cancel}" />

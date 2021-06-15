@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
 
@@ -56,11 +56,11 @@
         </sakai:panel_titled>
 
         <sakai:button_bar>
-            <sakai:button_bar_item
+            <h:commandButton
                 id="submitButton"
                 action="#{schedulerTool.processSetFilters}"
                 value="#{msgs.setFilters}" />
-            <sakai:button_bar_item
+            <h:commandButton
                 action="#{schedulerTool.processClearFilters}"
                 value="#{msgs.clearFilters}" />
         </sakai:button_bar>
