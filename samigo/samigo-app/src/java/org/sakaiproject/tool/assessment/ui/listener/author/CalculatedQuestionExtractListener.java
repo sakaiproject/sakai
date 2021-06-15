@@ -249,6 +249,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     static List<String> createCalculationsFromInstructions(CalculatedQuestionBean calculatedQuestionBean, String instructions, GradingService service) {
         List<String> errors = new ArrayList<String>();
         calculatedQuestionBean.clearCalculations(); // reset the current set and extract a new one
+        if (instructions.indexOf(GradingService.CALCULATION_AUX_OPEN) != -1 || instructions.indexOf(GradingService.CALCULATION_AUX_CLOSE) != -1) {
+            errors.add(getErrorMessage("calc_question_simple_instructions_step_4"));
+        }
         List<String> calculations = service.extractCalculations(instructions);
         if (!calculations.isEmpty()) {
             for (String calculation : calculations) {
