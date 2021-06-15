@@ -51,7 +51,7 @@
               $("input[name='itemForm\\:customMarker']").change(function () {
                   markerRadio();
               });
-              $("#itemForm\\:newmarkers").change(function () {
+              $("#newmarkers").change(function () {
                   checkMarkers();
               });
           });
@@ -77,19 +77,47 @@
           }
 
           function checkMarkers() {
-              const markerPair = $("#itemForm\\:newmarkers").val();
-                if (markerPair.match(/[\"\'.,&<>\ |*]/)) {
+              var markerPair = $("#itemForm\\:newmarkers").val();
+              if (markerPair != '{}') {
+                  $("#customMarkerSettings").show();
+              }
+              const markerEl = document.getElementById('itemForm:newmarkers');
+              const pool_badmarkers_error_3 = <h:outputText value="'#{authorMessages.pool_badmarkers_error_3}'" escape="false"/>;
+              const pool_badmarkers_error_2 = <h:outputText value="'#{authorMessages.pool_badmarkers_error_2}'" escape="false"/>;
+              const pool_badmarkers_error_1 = <h:outputText value="'#{authorMessages.pool_badmarkers_error_1}'" escape="false"/>;
+
+              if (markerPair.match(/[\"\'.,&<>\ |*]/)) {
+                  setError(markerEl, pool_badmarkers_error_3);
                   return;
               }
               if (markerPair.charAt(0) == markerPair.charAt(1)) {
+                  setError(markerEl, pool_badmarkers_error_2);
                   return;
               }
               if (markerPair.length == 1 || markerPair.length > 2) {
+                  setError(markerEl, pool_badmarkers_error_1);
                   return;
               }
               $("#defining_answers").html(defining_answers.replace(/{/g, safe_tags(markerPair.charAt(0))).replace(/}/g, safe_tags(markerPair.charAt(1))));
               $("#mutually_exclusive").html(mutually_exclusive.replace(/{/g, safe_tags(markerPair.charAt(0))).replace(/}/g, safe_tags(markerPair.charAt(1))));
+
+              removeError(markerEl);
           }
+
+          function setError(el, msg) {
+              el.parentNode.querySelector('#validationForbiddenCharacters').innerHTML = "Error:";
+              el.parentNode.classList.remove('has-success');
+              el.parentNode.classList.add('has-error');
+              el.parentNode.querySelector('label').innerHTML = msg;
+          }
+
+          function removeError (el) {
+              el.parentNode.querySelector('#validationForbiddenCharacters').innerHTML = "";
+              el.parentNode.classList.remove('has-error');
+              el.parentNode.classList.add('has-success');
+              el.parentNode.querySelector('label').innerHTML = "";
+          }
+
         </script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -189,13 +217,17 @@
     <div class="form-group row" id="customMarkerSettings" style="display: none;">
         <h:outputLabel value="#{authorMessages.fib_label_custom_markers}" styleClass="col-md-4 col-lg-2 form-control-label" />
         <div class="col-md-6">
-            <h:inputText id="newmarkers" style="width: 50px;" value="#{itemauthor.currentItem.markersPair}"
-                required="false" styleClass="form-control" maxlength="2">
-          <f:validateLength maximum="2" minimum="2" />
-        </h:inputText>
-        <h:outputText value="#{authorMessages.fib_note_4}<br />" escape="false" />
-        <h:message for="newmarkers" styleClass="validate" />
-      </div>
+            <div class="form-group">
+                <h:inputText id="newmarkers" style="width: 50px;" value="#{itemauthor.currentItem.markersPair}"
+	                required="false" styleClass="form-control" maxlength="2" onchange="checkMarkers()">
+                	<f:validateLength maximum="2" minimum="2" />
+                	<!--<p:passThroughAttribute name="aria-describedby" value="validationForbiddenCharacters" />-->
+                </h:inputText>
+                <label for="newmarkers" id="validationForbiddenCharacters" class="help-block" escape="false"></label>
+            </div>
+            <h:outputText value="#{authorMessages.fib_note_4}<br />" escape="false" />
+            <h:message for="newmarkers" styleClass="validate" />
+        </div>
     </div>
 
     <%-- 2 QUESTION TEXT --%> 
