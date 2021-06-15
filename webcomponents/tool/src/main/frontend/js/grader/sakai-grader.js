@@ -800,9 +800,19 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   validateGradeInput(e) {
 
+    var i18nDecimalPattern = "";
+    /*global portal*/
+    if (this.getDecimalSeparator(portal.locale) === ".") {
+      i18nDecimalPattern = "[\d.]";
+    }
+    else {
+      i18nDecimalPattern = "[\d,]";
+    }
+    var rgxp = new RegExp(i18nDecimalPattern);
+
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
-    } else if (!e.key.match(/[\d.,]/)) {
+    } else if (!e.key.match(rgxp)) {
       e.preventDefault();
       return false;
     } else {
@@ -817,6 +827,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       }
     }
   }
+  
+  getDecimalSeparator(locale) {
+    const numberWithDecimalSeparator = 1.1;
+
+    return numberWithDecimalSeparator
+        .toLocaleString(locale)
+        .substring(1, 2);
+  }
+
 
   gradeSelected(e) {
 
