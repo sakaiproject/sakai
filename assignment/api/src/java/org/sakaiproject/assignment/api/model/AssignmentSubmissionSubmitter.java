@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.assignment.api.model;
 
+import java.util.Comparator;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -58,7 +60,13 @@ import lombok.ToString;
 @ToString(exclude = {"submission"})
 @EqualsAndHashCode(of = {"submission", "submitter"})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AssignmentSubmissionSubmitter {
+public class AssignmentSubmissionSubmitter implements Comparable<AssignmentSubmissionSubmitter> {
+
+    public static final Comparator<AssignmentSubmissionSubmitter> compareBySubmission = Comparator
+            .comparing(AssignmentSubmissionSubmitter::getSubmission, Comparator.nullsFirst(Comparator.naturalOrder()));
+
+    public static final Comparator<AssignmentSubmissionSubmitter> compareBySubmitter = Comparator
+            .comparing(AssignmentSubmissionSubmitter::getSubmitter);
 
     @Id
     @Column(name = "ID")
@@ -83,4 +91,9 @@ public class AssignmentSubmissionSubmitter {
     @Lob
     @Column(name = "FEEDBACK", length = 65535)
     private String feedback;
+
+    @Override
+    public int compareTo(AssignmentSubmissionSubmitter other) {
+        return compareBySubmission.thenComparing(compareBySubmitter).compare(this, other);
+    }
 }

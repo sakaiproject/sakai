@@ -22,10 +22,11 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Comparator;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -43,23 +44,23 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.SortNatural;
 import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * AssignmentSubmission represents a student submission for an assignment.
@@ -73,7 +74,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @ToString(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AssignmentSubmission {
+public class AssignmentSubmission implements Comparable<AssignmentSubmission> {
+
+    private static final Comparator<AssignmentSubmission> compareById = Comparator
+            .comparing(AssignmentSubmission::getId, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     @Id
     @Column(name = "SUBMISSION_ID", length = 36, nullable = false)
@@ -90,7 +94,8 @@ public class AssignmentSubmission {
     @OneToMany(mappedBy = "submission", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     @JsonManagedReference
-    private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
+    @SortNatural
+    private SortedSet<AssignmentSubmissionSubmitter> submitters = new TreeSet<>();
 
     //private List submissionLog;
 
@@ -115,14 +120,16 @@ public class AssignmentSubmission {
     @Column(name = "ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(columnList = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
-    private Set<String> attachments = new HashSet<>();
+    @SortNatural
+    private SortedSet<String> attachments = new TreeSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(columnList = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
-    private Set<String> feedbackAttachments = new HashSet<>();
+    @SortNatural
+    private SortedSet<String> feedbackAttachments = new TreeSet<>();
 
     @Lob
     @Column(name = "TEXT", length = 65535)
@@ -180,5 +187,11 @@ public class AssignmentSubmission {
     @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
-    private Map<String, String> properties = new HashMap<>();
+    @SortNatural
+    private SortedMap<String, String> properties = new TreeMap<>();
+
+    @Override
+    public int compareTo(AssignmentSubmission other) {
+        return compareById.compare(this, other);
+    }
 }

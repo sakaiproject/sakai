@@ -17,9 +17,9 @@ package org.sakaiproject.assignment.api.persistence;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -58,10 +58,10 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     AssignmentSubmission newSubmission(String assignmentId,
                        Optional<String> groupId,
-                       Optional<Set<AssignmentSubmissionSubmitter>> submitters,
-                       Optional<Set<String>> feedbackAttachments,
-                       Optional<Set<String>> submittedAttachments,
-                       Optional<Map<String, String>> properties);
+                       Optional<SortedSet<AssignmentSubmissionSubmitter>> submitters,
+                       Optional<SortedSet<String>> feedbackAttachments,
+                       Optional<SortedSet<String>> submittedAttachments,
+                       Optional<SortedMap<String, String>> properties);
 
     AssignmentSubmission findSubmissionForUser(String assignmentId, String userId);
 

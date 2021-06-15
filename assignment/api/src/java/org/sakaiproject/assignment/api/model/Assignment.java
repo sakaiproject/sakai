@@ -22,10 +22,11 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -42,20 +43,21 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.SortNatural;
 import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
@@ -174,7 +176,8 @@ public class Assignment {
 
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<AssignmentSubmission> submissions = new HashSet<>();
+    @SortNatural
+    private SortedSet<AssignmentSubmission> submissions = new TreeSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
@@ -182,21 +185,24 @@ public class Assignment {
     @Column(name = "VALUE", length = 4000)
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
-    private Map<String, String> properties = new HashMap<>();
+    @SortNatural
+    private SortedMap<String, String> properties = new TreeMap<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"), indexes = @Index(columnList = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     @Column(name = "GROUP_ID")
-    private Set<String> groups = new HashSet<>();
+    @SortNatural
+    private SortedSet<String> groups = new TreeSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"), indexes = @Index(columnList = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     @Column(name = "ATTACHMENT", length = 1024)
-    private Set<String> attachments = new HashSet<>();
+    @SortNatural
+    private SortedSet<String> attachments = new TreeSet<>();
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "ACCESS_TYPE", nullable = false)

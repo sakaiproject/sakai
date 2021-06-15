@@ -19,9 +19,9 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
@@ -159,7 +159,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
+    public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<SortedSet<AssignmentSubmissionSubmitter>> submitters, Optional<SortedSet<String>> feedbackAttachments, Optional<SortedSet<String>> submittedAttachments, Optional<SortedMap<String, String>> properties) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment != null) {
             Session session = sessionFactory.getCurrentSession();

@@ -51,8 +51,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -861,19 +865,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 	                }
                 }
                 else {
-	                assignmentFromXml.setSubmissions(new HashSet<>());
+	                assignmentFromXml.setSubmissions(new TreeSet<>());
                 }
             } else {
                 // here it is importing the assignment only
                 assignmentFromXml.setDraft(true);
-                assignmentFromXml.setAttachments(new HashSet<>());
-                assignmentFromXml.setGroups(new HashSet<>());
+                assignmentFromXml.setAttachments(new TreeSet<>());
+                assignmentFromXml.setGroups(new TreeSet<>());
                 assignmentFromXml.setTypeOfAccess(SITE);
-                Map<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
+                SortedMap<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
                         .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, TreeMap::new));
                 assignmentFromXml.setProperties(properties);
-                assignmentFromXml.setSubmissions(new HashSet<>());
+                assignmentFromXml.setSubmissions(new TreeSet<>());
             }
             assignmentRepository.newAssignment(assignmentFromXml);
             String result = "merging assignment " + assignmentFromXml.getId() + " with " + assignmentFromXml.getSubmissions().size() + " submissions.";
@@ -917,7 +921,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setIsGroup(existingAssignment.getIsGroup());
                 assignment.setAllowPeerAssessment(existingAssignment.getAllowPeerAssessment());
                 if (!existingAssignment.getGroups().isEmpty()) {
-                	assignment.setGroups(new HashSet<>(existingAssignment.getGroups()));
+                	assignment.setGroups(new TreeSet<>(existingAssignment.getGroups()));
                 	assignment.setTypeOfAccess(GROUP);
                 }
 
@@ -1178,7 +1182,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return null;
             }
 
-            Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
+            SortedSet<AssignmentSubmissionSubmitter> submissionSubmitters = new TreeSet<>();
             List<String> submitterIds = new ArrayList<>();
             Optional<String> groupId = Optional.empty();
             if (site != null) {

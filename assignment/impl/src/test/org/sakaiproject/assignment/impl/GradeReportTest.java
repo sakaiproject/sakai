@@ -192,6 +192,7 @@ public class GradeReportTest {
         assOneSubmissions.add(user1SubOne);
 
         AssignmentSubmissionSubmitter user1Submitter = new AssignmentSubmissionSubmitter();
+        user1Submitter.setSubmission(user1SubOne);
         user1Submitter.setSubmitter("u1");
         user1SubOne.getSubmitters().add(user1Submitter);
 

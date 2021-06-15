@@ -98,6 +98,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -8972,7 +8973,7 @@ public class AssignmentAction extends PagedResourceActionII {
             } else if (Assignment.Access.GROUP.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.GROUP);
                 Set<String> previousGroupRefs = new HashSet<>(a.getGroups());
-                Set<String> currentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+                SortedSet<String> currentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toCollection(TreeSet::new));
 
                 // if groups have changed
                 if (!previousGroupRefs.equals(currentGroupRefs)) {

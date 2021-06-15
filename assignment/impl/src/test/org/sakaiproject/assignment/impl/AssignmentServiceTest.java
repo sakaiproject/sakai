@@ -35,11 +35,10 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,7 +46,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -103,7 +105,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.github.javafaker.Faker;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -608,7 +609,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(now.plus(Duration.ofDays(1)));
         assignment.setDropDeadDate(now.plus(Duration.ofDays(2)));
         assignment.setCloseDate(now.plus(Duration.ofDays(3)));
-        Map<String, String> properties = assignment.getProperties();
+        SortedMap<String, String> properties = assignment.getProperties();
         IntStream.range(0, 10).forEach(i -> properties.put("PROP_NAME_" + i, "PROP_VALUE_" + i));
         AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.forEach(p -> properties.put(p, p + "_VALUE"));
         assignment.setProperties(properties);
@@ -1090,10 +1091,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         AssignmentSubmission duplicateSubmission = new AssignmentSubmission();
         BeanUtils.copyProperties(submission, duplicateSubmission);
         duplicateSubmission.setId(null);
-        duplicateSubmission.setProperties(new HashMap<>());
-        duplicateSubmission.setAttachments(new HashSet<>());
-        duplicateSubmission.setFeedbackAttachments(new HashSet<>());
-        duplicateSubmission.setSubmitters(new HashSet<>());
+        duplicateSubmission.setProperties(new TreeMap<>());
+        duplicateSubmission.setAttachments(new TreeSet<>());
+        duplicateSubmission.setFeedbackAttachments(new TreeSet<>());
+        duplicateSubmission.setSubmitters(new TreeSet<>());
         submission.getSubmitters().forEach(s -> {
             AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
             BeanUtils.copyProperties(s, submitter);
