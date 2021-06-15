@@ -572,7 +572,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * the hide assignment flag in the view assignment page *
      */
     private static final String VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG = "view_assignment_hide_assignment_flag";
-
+    /**
+     * the warning for content review requiring EULA
+     */
+    private static final String CONTENT_REVIEW_EULA_REQUIRED_ALERTED = "content_review_eula_required_alerted";
     /* ************** view assignment ***************************************** */
     /**
      * the hide student view flag in the view assignment page *
@@ -6212,8 +6215,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 if (StringUtils.isNotEmpty(params.getString(SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT))) {
+                	boolean requireEulaForSubmission = serverConfigurationService.getBoolean("contentreview.submission.eula.required", false);
                     if (!Boolean.valueOf(eulaAgreementYes)) {
-                        addAlert(state, rb.getFormattedMessage("youarenot21", contentReviewService.getServiceName()));
+                    	//if the user hasn't seen the EULA alert or the EULA is required to submit the assignment, then show the user the alert
+                    	if (state.getAttribute(CONTENT_REVIEW_EULA_REQUIRED_ALERTED) == null
+                    			|| requireEulaForSubmission) {
+                    		addAlert(state, rb.getFormattedMessage("youarenot21", contentReviewService.getServiceName()));
+                    		state.setAttribute(CONTENT_REVIEW_EULA_REQUIRED_ALERTED, true);
+                    	}
+                    } else {
+                    	state.removeAttribute(CONTENT_REVIEW_EULA_REQUIRED_ALERTED);
                     }
                     state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
                 }
@@ -11417,6 +11428,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
         state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
         state.removeAttribute(PREVIEW_SUBMISSION_TEXT);
+        state.removeAttribute(CONTENT_REVIEW_EULA_REQUIRED_ALERTED);
     } // resetViewSubmission
 
     /**

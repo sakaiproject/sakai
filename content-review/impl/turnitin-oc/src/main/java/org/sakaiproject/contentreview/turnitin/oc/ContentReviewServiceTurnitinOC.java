@@ -955,17 +955,15 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			Instant eulaTimestamp = getUserEULATimestamp(eulaUserId);
 			String eulaVersion = getUserEULAVersion(eulaUserId);
 			if(eulaTimestamp == null || StringUtils.isEmpty(eulaVersion)) {
-				//best effort to make sure the user has a EULA acceptance timestamp, but if not
-				//add a warning in the logs and continue so that the report will still generate
-				eulaTimestamp = Instant.now();
-				eulaVersion = getEndUserLicenseAgreementVersion();
+				//EULA wasn't accepted by this user, add a warning in the logs
 				log.warn("EULA not found for user: " + eulaUserId + ", contentId: " + item.getId());
+			} else {
+				Map<String, Object> eula = new HashMap<>();
+				eula.put("accepted_timestamp", eulaTimestamp.toString());
+				eula.put("language", getUserEulaLocale(eulaUserId));
+				eula.put("version", eulaVersion);
+				data.put("eula", eula);
 			}
-			Map<String, Object> eula = new HashMap<>();
-			eula.put("accepted_timestamp", eulaTimestamp.toString());
-			eula.put("language", getUserEulaLocale(eulaUserId));
-			eula.put("version", eulaVersion);
-			data.put("eula", eula);
 			Map<String, Object> metadata = new HashMap<>();
 			if(assignment != null) {				
 				Map<String, Object> group = new HashMap<>();
@@ -1040,7 +1038,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			} else {
 				log.error("getSubmissionId response code: " + responseCode + ", " + responseMessage + ", "
 						+ responseJSON);
-				setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.unsuccessful.response", responseMessage, responseCode));
+				setLastError(item, doc-> {
+					if (responseCode == 451) {
+						return createFormattedMessageXML(doc, "submission.error.unsuccessful.response.eula");
+					} else {
+						return createFormattedMessageXML(doc, "submission.error.unsuccessful.response", responseMessage, responseCode);
+					}
+				});
 			}
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
