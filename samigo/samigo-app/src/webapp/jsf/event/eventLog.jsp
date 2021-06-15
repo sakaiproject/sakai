@@ -11,6 +11,7 @@
         var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
       </script>
       <script src="/samigo-app/js/eventInfo.js"></script>
+      <%@ include file="/js/delivery.js" %>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">
 
@@ -47,17 +48,17 @@
      </h:selectOneMenu>
    </div>
    <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
-      <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
-      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off"
-         onfocus="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"
-         onclick="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"/>
+      <h:outputLabel value="#{eventLogMessages.search}"/>
+      <h:outputText value="&#160;" escape="false" />
+      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" style="width: 200px; height: 33px;" autocomplete="off"
+         onkeypress="return submitOnEnter(event, 'eventLogId:search');"/>
       <h:outputText value="&#160;" escape="false" />
       <h:commandButton value="#{eventLogMessages.search}" type="submit" id="search" accesskey="#{eventLogMessages.a_search}">
-         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
       </h:commandButton>
       <h:commandButton value="#{eventLogMessages.clear}" type="submit" id="clear" accesskey="#{eventLogMessages.a_clear}">
-         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-      </h:commandButton>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+      </h:commandButton> 
    </div>
  </div>
 
