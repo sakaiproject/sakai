@@ -29,14 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -63,13 +56,17 @@ import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Allows some basic functions on email archive. Due to limitations of
@@ -88,6 +85,30 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 	private static ResourceLoader rb = new ResourceLoader("email");
 	public static int DEFAULT_NUM_MAILMESSAGES = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;
+	
+	@Setter
+	private EntityManager entityManager;
+
+	@Setter
+	private SecurityService securityService;
+
+	@Setter
+	private SessionManager sessionManager;
+
+	@Setter
+	private SiteService siteService;
+
+	@Setter
+	private MailArchiveService mailArchiveService;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private ToolManager toolManager;
+	
+	@Setter
+	private FormattedText formattedText;
 
 	/**
 	 * Prefix for this provider
@@ -284,7 +305,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		da.setSubject(a.getMailArchiveHeader().getSubject());
 		da.setBody(a.getBody());
 		da.setCreatedByDisplayName(a.getHeader().getFrom().getDisplayName());
-		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
+		da.setCreatedOn(Date.from(a.getHeader().getInstant()));
 		da.setSiteId(siteId);
 		da.setSiteTitle(siteTitle);
 		da.setHeaders(a.getMailArchiveHeader().getMailHeaders());
@@ -320,8 +341,8 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
 		for (Reference attachment : attachments) {
 			DecoratedAttachment da = new DecoratedAttachment();
-			da.setId(Validator.escapeHtml(attachment.getId()));
-			da.setName(Validator
+			da.setId(formattedText.escapeHtml(attachment.getId()));
+			da.setName(formattedText
 					.escapeHtml(attachment.getProperties()
 							.getPropertyFormatted(
 									attachment.getProperties()
@@ -371,8 +392,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		List<DecoratedAttachment> attachmentUrls = decorateAttachments(attachments);
 
 		DecoratedMailArchiveMessage.setAttachments(attachmentUrls);
-		DecoratedMailArchiveMessage.setCreatedOn(new Date(header.getDate()
-				.getTime()));
+		DecoratedMailArchiveMessage.setCreatedOn(Date.from(header.getInstant()));
 		DecoratedMailArchiveMessage.setCreatedByDisplayName(header.getFrom()
 				.getDisplayName());
 		DecoratedMailArchiveMessage.setSiteId(siteId);
@@ -790,29 +810,5 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 		}
 
 	}
-
-	@Setter
-	private EntityManager entityManager;
-
-	@Setter
-	private SecurityService securityService;
-
-	@Setter
-	private SessionManager sessionManager;
-
-	@Setter
-	private SiteService siteService;
-
-	@Setter
-	private MailArchiveService mailArchiveService;
-
-	@Setter
-	private UserDirectoryService userDirectoryService;
-
-	@Setter
-	private TimeService timeService;
-
-	@Setter
-	private ToolManager toolManager;
 
 }
