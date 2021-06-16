@@ -95,7 +95,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -156,7 +155,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
@@ -164,12 +165,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -177,6 +178,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -191,7 +193,6 @@ public class DavServlet extends HttpServlet
 	private static final long serialVersionUID = 1L;
 
 	protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.dav.bundle.Messages");
-	// -------------------------------------------------------------- Constants
 
 	private static final String METHOD_HEAD = "HEAD";
 
@@ -285,8 +286,6 @@ public class DavServlet extends HttpServlet
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
 
-	// ----------------------------------------------------- Instance Variables
-
 	/**
 	 * Repository of the locks put on single resources.
 	 * <p>
@@ -341,15 +340,17 @@ public class DavServlet extends HttpServlet
 	 */
 	private String[] nonDavUserAgent = null;
 
-	private ContentHostingService contentHostingService;private CitationService citationService;
+	@Setter private ContentHostingService contentHostingService;
+	private CitationService citationService;
 	private EntityManager entityManager;
 	private AliasService aliasService;
 	private AuthenticationManager authenticationManager;
 	private UsageSessionService usageSessionService;
-	private UserDirectoryService userDirectoryService;
+	@Setter private UserDirectoryService userDirectoryService;
 	private SiteService siteService;
 	private UserTimeService userTimeService;
 	private ServerConfigurationService serverConfigurationService;
+	private FormattedText formattedText;
 
         // can be called on id with or withing adjustid, since
         // the prefixes we check for are not adjusted
@@ -569,84 +570,22 @@ public class DavServlet extends HttpServlet
 		return formats;
 	}
 
-	// ----------------------------------------------------- Instance Variables
-
-	/**
-	 * Repository of the locks put on single resources.
-	 * <p>
-	 * Key : path <br>
-	 * Value : LockInfo
-	 */
-	private Hashtable<String,LockInfo> resourceLocks = new Hashtable<String,LockInfo>();
-
-	/**
-	 * Repository of the lock-null resources.
-	 * <p>
-	 * Key : path of the collection containing the lock-null resource<br>
-	 * Value : Vector of lock-null resource which are members of the collection. Each element of the Vector is the path associated with the lock-null resource.
-	 */
-	private Hashtable<String,Vector<String>> lockNullResources = new Hashtable<String,Vector<String>>();
-
-	/**
-	 * Vector of the heritable locks.
-	 * <p>
-	 * Key : path <br>
-	 * Value : LockInfo
-	 */
-	private Vector<LockInfo> collectionLocks = new Vector<LockInfo>();
-
-	/**
-	 * Secret information used to generate reasonably secure lock ids.
-	 */
-	private String secret = "catalina";
-
-	/**
-	 * Don't show directories starting with "protected" to non-owner This defaults off because it requires corresponding changes in AccessServlet, which currently aren't present.
-	 */
-	private boolean doProtected = false;
-
-	/**
-	 * MD5 message digest provider.
-	 */
-	protected static MessageDigest md5Helper;
-
-	/**
-	 * Array of file patterns we are not supposed to accept on PUT
-	 */
-	private String[] ignorePatterns = null;
-
-	/**
-	 * Output cookies for DAV requests
-	 */
-	private boolean useCookies = false;
-
-	/**
-	 * Non Dav Browsers
-	 */
-	private String[] nonDavUserAgent = null;
-
-	@Setter private ContentHostingService contentHostingService;
-
-
-	@Setter private UserDirectoryService userDirectoryService;
-
-	// --------------------------------------------------------- Public Methods
-
 	/**
 	 * Initialize this servlet.
 	 */
 	public void init() throws ServletException
 	{
+		aliasService = ComponentManager.get(AliasService.class);
+		authenticationManager = ComponentManager.get(AuthenticationManager.class);
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 		citationService = ComponentManager.get(CitationService.class);
 		entityManager = ComponentManager.get(EntityManager.class);
-		aliasService = ComponentManager.get(AliasService.class);
-		authenticationManager = ComponentManager.get(AuthenticationManager.class);
+		formattedText = ComponentManager.get(FormattedText.class);
+		siteService = ComponentManager.get(SiteService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		usageSessionService = ComponentManager.get(UsageSessionService.class);
 		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 		userTimeService = ComponentManager.get(UserTimeService.class);
-		siteService = ComponentManager.get(SiteService.class);
-		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -1807,7 +1746,7 @@ public class DavServlet extends HttpServlet
 						}
 					}
 					// note that we put back the trailing /
-					out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "/\">" + Validator.escapeHtml(xss)
+					out.println("<tr><td><a href=\"" + formattedText.escapeUrl(xss) + "/\">" + formattedText.escapeHtml(xss)
 							+ "</a></td><td><b>" + rb.getString("folder") + "</b>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>");
 				}
 				else
@@ -1821,13 +1760,13 @@ public class DavServlet extends HttpServlet
 						Instant modTime = properties.getInstantProperty(ResourceProperties.PROP_MODIFIED_DATE);
 						String modifiedTime =  userTimeService.shortLocalizedTimestamp(modTime, rb.getLocale());
 						String filetype = nextres.getContentType();
-						out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "\">" + Validator.escapeHtml(xss)
+						out.println("<tr><td><a href=\"" + formattedText.escapeUrl(xss) + "\">" + formattedText.escapeHtml(xss)
 								+ "</a></td><td>" + filesize + "</td><td>" + createdBy + "</td><td>" + filetype + "</td><td>"
 								+ modifiedTime + "</td></tr>");
 					}
 					catch (Throwable ignore)
 					{
-						out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "\">" + Validator.escapeHtml(xss)
+						out.println("<tr><td><a href=\"" + formattedText.escapeUrl(xss) + "\">" + formattedText.escapeHtml(xss)
 								+ "</a></td><td>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>");
 
 					}
