@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.taggable.api.Link;
 
 /**
  * The TaggingManager provides access to available

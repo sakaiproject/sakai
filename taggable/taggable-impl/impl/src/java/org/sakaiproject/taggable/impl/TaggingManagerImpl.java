@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.exception.PermissionException;
@@ -41,7 +43,7 @@ import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 @Slf4j
 public class TaggingManagerImpl implements TaggingManager {
@@ -50,7 +52,8 @@ public class TaggingManagerImpl implements TaggingManager {
 
 	protected List<TaggingProvider> taggingProviders = new ArrayList<TaggingProvider>();
 	
-	private LinkManager linkManager;
+	@Setter @Getter private LinkManager linkManager;
+	@Setter private UserDirectoryService userDirectoryService;
 
 	public void init() {
 		log.info("init()");
@@ -234,17 +237,9 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	protected User getUser() {
-		return UserDirectoryService.getCurrentUser();
+		return userDirectoryService.getCurrentUser();
 	}
 
-	public LinkManager getLinkManager()
-	{
-		return linkManager;
-	}
 
-	public void setLinkManager(LinkManager linkManager)
-	{
-		this.linkManager = linkManager;
-	}
 	
 }
