@@ -11833,7 +11833,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 
 		// related to LTI Tool selection
-		Map<String, Map<String, Object>> existingLtiIds = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST):null;
+		Map<String, Map<String, Object>> existingLtiIds = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST):new HashMap();
 		HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_LIST);
 		HashMap<String, Map<String, Object>> ltiSelectedTools = new HashMap<String, Map<String, Object>> ();
 		
@@ -11865,7 +11865,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 					// Decide if any LTI tools need a configuration dialog
 					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
-					if (existingLtiIds == null)
+					if (existingLtiIds.isEmpty())
 					{
 						ltiToolNeedsConfig = true;
 					}
