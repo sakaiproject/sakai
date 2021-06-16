@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.jsf.util.LocaleUtil;
+import org.sakaiproject.jsf2.util.LocaleUtil;
 
 /**
  * render response
