@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -34,7 +34,7 @@ import org.sakaiproject.taggable.api.TagList;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TagColumn;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 public class TagImpl implements Tag
 {
@@ -65,16 +65,16 @@ public class TagImpl implements Tag
 
 	protected String getField(String column) {
 		String field;
-		Reference ref = EntityManager.newReference(link.getTagCriteriaRef());
+		Reference ref = ComponentManager.get(EntityManager.class).newReference(link.getTagCriteriaRef());
 		Entity entity = ref.getEntity();
 		
 		if (entity == null) return null;
-		
+		FormattedText formattedText = ComponentManager.get(FormattedText.class);
 		if (TagList.WORKSITE.equals(column)) {
 			try
 			{
 				Site site = siteService.getSite(ref.getContext());
-				field = Validator.escapeHtml(site.getTitle());
+				field = formattedText.escapeHtml(site.getTitle());
 			}
 			catch (IdUnusedException e)
 			{
@@ -85,7 +85,7 @@ public class TagImpl implements Tag
 		} else if (TagList.PARENT.equals(column)) {
 			//field = link.getTagCriteria().getParentTitle();
 			//field = ">>>>PARENT TITLE SHOULD GO HERE<<<<";
-			field = Validator.escapeHtml((String)entity.getProperties().get(TagList.PARENT));
+			field = formattedText.escapeHtml((String)entity.getProperties().get(TagList.PARENT));
 		} else if (TagList.CRITERIA.equals(column)) {
 			//field = link.getTagCriteria().getTitle();
 			//field = ">>>>CRITERIA SHOULD GO HERE<<<<";
@@ -95,22 +95,22 @@ public class TagImpl implements Tag
 				
 				field = (String)entity.getProperties().get(TagList.THICKBOX_INCLUDE);
 				field +="<a href=\"" + url + "\" class=\"thickbox\">";
-				field += Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
+				field += formattedText.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
 				field += "</a>";
 			}
 			else
-				field = Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
+				field = formattedText.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
 			
 		} else if (TagList.RUBRIC.equals(column)) {
-			field = Validator.escapeHtml(link.getRubric());
+			field = formattedText.escapeHtml(link.getRubric());
 		} else if (TagList.RATIONALE.equals(column)) {
-			field = Validator.escapeHtml(link.getRationale());
+			field = formattedText.escapeHtml(link.getRationale());
 		} else if (TagList.VISIBLE.equals(column)) {
-			field = Validator.escapeHtml(String.valueOf(link.isVisible()));
+			field = formattedText.escapeHtml(String.valueOf(link.isVisible()));
 		} else if (TagList.EXPORTABLE.equals(column)) {
-			field = Validator.escapeHtml(String.valueOf(link.isExportable()));
+			field = formattedText.escapeHtml(String.valueOf(link.isExportable()));
 		} else {
-			field = Validator.escapeHtml(TagListImpl.NA);
+			field = formattedText.escapeHtml(TagListImpl.NA);
 		}
 		return field;
 	}
