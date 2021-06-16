@@ -182,6 +182,7 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 /**
@@ -11943,7 +11944,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(
 					homeSelected));
 
-			if (!ltiSelectedTools.isEmpty() || !existingLtiIds.isEmpty())
+			if (!ltiSelectedTools.isEmpty() || MapUtils.isNotEmpty(existingLtiIds))
 			{
 				// add in existing lti tools where visibility is stealth
 				existingLtiIds.keySet().stream()
