@@ -41,10 +41,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
@@ -52,6 +50,7 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -76,7 +75,6 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -103,12 +101,13 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -1470,24 +1469,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         int retryCount = persistenceHelper.getRetryCount();
         while (retryCount > 0) {
             try {
-                getHibernateTemplate().deleteAll(c);
+                c.stream().filter(Objects::nonNull).map(getHibernateTemplate()::merge).forEach(getHibernateTemplate()::delete);
                 retryCount = 0;
             } catch (Exception e) {
-                try {
-                    getHibernateTemplate().deleteAll(mergeAll(c));
-                    retryCount = 0;
-                } catch (Exception ex) {
-                    log.warn("problem inserting assessmentGrading: " + ex.getMessage());
-                    retryCount = persistenceHelper.retryDeadlock(ex, retryCount);
-                }
+                log.warn("problem inserting assessmentGrading: {}", e.toString());
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
-    }
-
-    private Collection mergeAll(Collection entities) {
-        List merged = new ArrayList();
-        entities.forEach(ent->merged.add(getHibernateTemplate().merge(ent)));
-        return merged;
     }
 
     public void saveOrUpdateAll(Collection<ItemGradingData> c) {
