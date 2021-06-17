@@ -59,7 +59,7 @@
     <h2 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
     <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
 	#if(${sitePages.pageNavIconUrl} != "")
-        <img src="${sitePages.pageNavIconUrl}" alt="" class="img_site_toolmenu">
+        <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
 	#end
 
 	<div id="toolSubsitesContainer">
