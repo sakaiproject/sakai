@@ -72,9 +72,9 @@
 		
 		<property name="comparingDisplayStudentSurnames" column="COMPARING_DISPLAY_SURNAMES" type="boolean" not-null="true"/>
 		
-		<property name="comparingDisplayTeacherComments" column="COMPARING_DISPLAY_TEACHERCOMMENTS" type="boolean" not-null="true"/>
+		<property name="comparingDisplayTeacherComments" column="COMPARING_DISPLAY_COMMENTS" type="boolean" not-null="true"/>
 		
-		<property name="comparingIncludeAllGrades" column="COMPARING_DISPLAY_ALLGRADEITEMS" type="boolean" not-null="true"/>
+		<property name="comparingIncludeAllGrades" column="COMPARING_DISPLAY_ALLITEMS" type="boolean" not-null="true"/>
 		
 		<property name="comparingRandomizeDisplayedData" column="COMPARING_RANDOMIZEDATA" type="boolean" not-null="true"/>
 		
