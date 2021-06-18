@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,14 +37,13 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 public class ItemGradingData implements java.io.Serializable {
 
   private static final long serialVersionUID = 7526471155622776147L;
 
   private String agentId;
   private String answerText;
-  @EqualsAndHashCode.Include
   private Long assessmentGradingId;
   private Integer attemptsRemaining;
   private Double autoScore;
@@ -50,16 +51,14 @@ public class ItemGradingData implements java.io.Serializable {
   private String gradedBy;
   private Date gradedDate;
   private Boolean isCorrect;
+  @EqualsAndHashCode.Exclude
   private Set<ItemGradingAttachment> itemGradingAttachmentSet = new HashSet<>();
-  @EqualsAndHashCode.Include
   private Long itemGradingId;
   private String lastDuration;
   private List<MediaData> mediaArray;
   private Double overrideScore;
   private Long publishedAnswerId;
-  @EqualsAndHashCode.Include
   private Long publishedItemId;
-  @EqualsAndHashCode.Include
   private Long publishedItemTextId;
   private String rationale;
   private Boolean review;
