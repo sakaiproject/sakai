@@ -1,4 +1,4 @@
-#Sakai Web Components
+# Sakai Web Components
 
 This project hosts a set of cross cutting web components, in use across several Sakai tools. The
 project can build Storybook to help with rapid prototyping, uses Karma, Jasmine and fetch-mock
@@ -7,7 +7,7 @@ for unit testing, and eslint for ... linting. We use the most excellent microfra
 and lit-element in turn used lit-html as its rendering system. This gives use just enough binding
 and highly performant dom updates.
 
-##Storybook
+## Storybook
 
 To run Storybook and browse the components, the ones that have stories at least, first install Node
 and NPM onto your machine from (here)[https://nodejs.org/en/download/]. Then:
@@ -15,7 +15,7 @@ and NPM onto your machine from (here)[https://nodejs.org/en/download/]. Then:
     cd SAKAI_SRC/webcomponents/tool/src/main/frontend
     npm run storybook
 
-##Testing
+## Testing
 
 You should test your components. When you create a new component in the js tree, create a test in
 the test tree. Take a look at the others in there to get an idea. Tests run in headless Chrome,
@@ -33,7 +33,7 @@ Now you can rerun your tests a lot quicker with just:
 
 The tool's maven build does that for you, runs test-setup then test.
 
-#Creating a new component
+# Creating a new component
 
 *All paths will be from SAKAI\_SRC/webcomponents/tool/src/main/frontend, for brevity.*
 
