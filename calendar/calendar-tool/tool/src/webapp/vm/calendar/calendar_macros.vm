@@ -10,7 +10,7 @@
 			<label for="view">$tlang.getString("view.view")</label>
 			<span class="skip">$tlang.getString("view.listnavselect")</span>
 			<select name="view" id="view" size="1" onchange="document.viewForm.submit();">
-				#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+				#foreach ($view in ["$tlang.getString('java.bycalendar')", "$tlang.getString('java.listeve')"])
 					#if ($selectedView.equals($view))
 						<option value="$view" selected="selected" >$view</option>
 					#else
