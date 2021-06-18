@@ -4027,10 +4027,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		SecurityAdvisor yesMan = (String arg0, String arg1, String agr2) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 		securityService.pushAdvisor(yesMan);
 		try {
-			AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(sakaiId, simplePageBean);		
+			TimeZone tz = userTimeService.getLocalTimeZone();
+			df.setTimeZone(tz);
+
+			AssignmentEntity assignment = (AssignmentEntity) assignmentEntity.getEntity(sakaiId, simplePageBean);
 			linkText += " " + messageLocator.getMessage("simplepage.assignment.open_close_date", 
-					new Object[] {df.format(assignment.getOpenDate()), df.format(assignment.getDueDate())});
-		} catch (Exception ex) {}
+					new Object[] {
+							df.format(assignment.getOpenDate()),
+							assignment.isHiddenDueDate() ? "-" : df.format(assignment.getDueDate())
+			});
+		} catch (Exception ex) {
+			log.debug("getLinkText date exception", ex);
+		}
 		finally {
 			securityService.popAdvisor(yesMan);
 		}
