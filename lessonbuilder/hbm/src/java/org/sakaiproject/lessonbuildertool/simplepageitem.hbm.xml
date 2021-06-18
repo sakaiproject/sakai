@@ -33,7 +33,7 @@
 	<property name="subrequirement" type="boolean" />
 	<property name="requirementText" type="string" length="20" />
 	<property name="sameWindow" type="boolean" />
-	<property name="groups" type="materialized_clob" />
+	<property name="groups" column="item_groups" type="materialized_clob" />
 	<property name="anonymous" type="boolean" />
 	<property name="showComments" type="boolean" />
 	<property name="forcedCommentsAnonymous" type="boolean" />
