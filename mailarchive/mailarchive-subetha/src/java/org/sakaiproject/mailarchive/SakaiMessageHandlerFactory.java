@@ -137,14 +137,14 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
         Objects.requireNonNull(sessionManager, "SessionManager must be set");
 
         if (serverConfigurationService.getBoolean("smtp.enabled", false)) {
-            server = new SMTPServer(this);
-
-            server.setHostName(serverConfigurationService.getServerName());
-            server.setPort(serverConfigurationService.getInt("smtp.port", 25));
-            server.setSoftwareName("SubEthaSMTP - Sakai (" + serverConfigurationService.getString("sakai.version", "unknown") +
-                    ")");
-            // We don't support smtp.dns.1 and smtp.dns.2
-            server.setMaxConnections(100);
+            server = SMTPServer
+            	.port(serverConfigurationService.getInt("smtp.port", 25))
+            	.hostName(serverConfigurationService.getServerName())
+            	.softwareName("SubEthaSMTP - Sakai (" + serverConfigurationService.getString("sakai.version", "unknown") + ")")
+            	// We don't support smtp.dns.1 and smtp.dns.2
+            	.maxConnections(100)
+            	.messageHandlerFactory(this)
+            	.build();
             server.start();
         }
     }
@@ -222,7 +222,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
             }
 
             @Override
-            public void data(InputStream data) throws RejectException, IOException {
+            public String data(InputStream data) throws RejectException, IOException {
                 // Want to buffer a little bit in memory and then write it all out to disk if it's large.
                 // TODO Switch to buffer that will switch to a file later on if the input is too big.
                 // BufferedInputStream smallBuffer = new BufferedInputStream(data, 65535);
@@ -246,7 +246,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         List<Reference> attachments = entityManager.newReferenceList();
                         parseParts(null, msg, StringUtils.EMPTY, bodyBuf, bodyContentType, attachments, -1);
                         synopticMsgcntrManager.sendPrivateMessageDesktop(currentMessage, msg, bodyBuf, attachments, this.from);
-                        return;
+                        return "Ok";
                     }
                     
                     // Date can be null, need to fallback to better replacement
@@ -298,7 +298,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         try {
                             MailArchiveChannel channel = recipient.channel;
                             // Should be redundant as we shouldn't ever have null channels.
-                            if (channel == null) return;
+                            if (channel == null) return "Error: null Channel";
 
                             // prepare the message
                             StringBuilder bodyBuf[] = new StringBuilder[2];
@@ -389,6 +389,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // clear out any current current bindings
                     threadLocalManager.clear();
                 }
+                return "Ok";
             }
 
             /**
