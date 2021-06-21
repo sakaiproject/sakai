@@ -400,7 +400,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	 * @param secureDeliveryPlugin the path to the plugin JAR file
 	 */
 	private void handlePlugin( String secureDeliveryPlugin ) {
-
+	
 		try
 		{
 			// This is a built-in integration with no additional JAR file
