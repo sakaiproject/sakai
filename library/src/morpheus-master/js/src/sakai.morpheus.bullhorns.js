@@ -1,19 +1,11 @@
 (function ($) {
 
   //Fail if dependencies aren't available
-  if ((typeof qtip !== 'object' && typeof moment !== 'object' && typeof portal !== 'object') || typeof moment === 'undefined') {
+  if (typeof qtip !== 'object' && typeof portal !== 'object') {
     return;
   }
 
-  moment.locale(portal.locale);
-
   portal.bullhorn = $('#Mrphs-bullhorn');
-
-  var formatDate = function (instant) {
-
-    var m = moment.unix(instant.epochSecond);
-    return m.format('L LT');
-  };
 
   portal.wrapNoAlertsString = function (noAlertsString) {
     return '<div id="portal-bullhorn-no-alerts">' + noAlertsString + '</div>';
@@ -93,9 +85,10 @@
     return map;
   };
 
-  var getBunchedHeader = function (tool, startDate, faClass, i18n) {
+  var getBunchedHeader = function (bunch, faClass, i18n) {
 
-    const formattedStartDate = formatDate({epochSecond: startDate});
+    const startDate = bunch.latest;
+    const tool = bunch.type;
 
     var toolName =  i18n.announcementsTool;   
     if ("assignments" === tool) {
@@ -114,7 +107,7 @@
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#${tool}-${startDate}-panel"
                             aria-expanded="true" aria-controls="${tool}-${startDate}-panel">
               <div class="portal-bullhorn-icon fa fa-stack"><i class="fa fa-circle fa-stack-2x"></i><i class="fa ${faClass} fa-stack-1x fa-inverse"></i></div>
-              <div class="portal-bullhorn-bunch-title">${toolName} ${i18n.alertsFrom} ${formattedStartDate}</div>
+              <div class="portal-bullhorn-bunch-title">${toolName} ${i18n.alertsFrom} ${bunch.bunchDate}</div>
             </button>
         </div>
         <div id="${tool}-${startDate}-panel" class="collapse" aria-labelledby="${tool}-${startDate}-header" data-parent="#academic-alerts">
@@ -122,14 +115,12 @@
       `;
   };
 
-  var getAlertMarkup = function(alert, message, faClass, i18n, social) {
+  const getAlertMarkup = function(alert, message, faClass, i18n, social) {
 
-    const formattedDate = formatDate(alert.eventDate);
+    const header = `<div id="portal-bullhorn-alert-${alert.id}" class="portal-bullhorn-alert">`;
 
-    var header = `<div id="portal-bullhorn-alert-${alert.id}" class="portal-bullhorn-alert">`;
-
-    var footer = `
-          <div class="portal-bullhorn-time">${formattedDate}</div>
+    const footer = `
+          <div class="portal-bullhorn-time">${alert.formattedEventDate}</div>
         </div>
         <div class="portal-bullhorn-clear">
           <a href="javascript:;" onclick="portal.clearBullhornAlert('${alert.id}','${i18n.noAlerts}');" title="${i18n.clear}">
@@ -182,9 +173,7 @@
       social = true;
     }
 
-    var formattedStartDate = formatDate({epochSecond: bunch.latest});
-
-    markup = getBunchedHeader(bunch.type, bunch.latest, faClass, i18n);
+    markup = getBunchedHeader(bunch, faClass, i18n);
 
     bunch.alerts.forEach(alert => {
 
@@ -244,7 +233,9 @@
             createBunches(portal.bullhornAlerts, "profile").forEach(alerts => allBunches.push({ type: "profile", alerts: alerts }));
 
             allBunches.forEach(b => {
-              b.latest = b.alerts.reduce((acc, a) => { return (a.eventDate.epochSecond > acc) ? a.eventDate.epochSecond : acc; }, 0);
+              b.alerts.sort((first, second) => first.eventDate.epochSecond - second.eventDate.epochSecond);
+              b.latest = b.alerts[0].eventDate.epochSecond;
+              b.bunchDate = b.alerts[0].formattedEventDate;
             });
 
             allBunches.sort((a,b) => { return b.latest - a.latest; });

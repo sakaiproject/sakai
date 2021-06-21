@@ -45,6 +45,7 @@ import org.sakaiproject.messaging.api.BullhornData;
 import org.sakaiproject.messaging.api.BullhornHandler;
 import org.sakaiproject.messaging.api.BullhornAlert;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -82,6 +83,8 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     private SiteService siteService;
     @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
+    @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+    UserTimeService userTimeService;
 
     private IgniteMessaging messaging;
 
@@ -228,6 +231,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
         try {
             User fromUser = userDirectoryService.getUser(alert.getFromUser());
             alert.setFromDisplayName(fromUser.getDisplayName());
+            alert.setFormattedEventDate(userTimeService.dateTimeFormat(alert.getEventDate(), null, null));
             if (StringUtils.isNotBlank(alert.getSiteId())) {
                 alert.setSiteTitle(siteService.getSite(alert.getSiteId()).getTitle());
             }
