@@ -28,8 +28,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 @Slf4j
 public class SecureDeliveryFacadeQueries extends HibernateDaoSupport implements SecureDeliveryFacadeQueriesAPI {
