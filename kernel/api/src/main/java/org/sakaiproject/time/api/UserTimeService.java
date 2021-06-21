@@ -17,6 +17,7 @@ package org.sakaiproject.time.api;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -78,13 +79,27 @@ public interface UserTimeService {
     public String dayOfWeekFormat(Date date, Locale locale, int format);
 
     /**
-     * Gets the date/time formatter with the given formatting style in the user's locale and preferred timezone.
+     * Gets the date/time formatter with the given formatting style in the supplied locale and
+     * preferred timezone.
+     *
      * @param date
      * @param locale
      * @param format use java.text.DateFormat.SHORT, MEDIUM, LONG, or FULL
      * @return
      */
     public String  dateTimeFormat(Date date, Locale locale, int format);
+
+    /**
+     * Gets the date/time formatter with the given formatting style in the current user's locale
+     * and preferred timezone. If you pass null for dateStyle or timeStyle, you'll get MEDIUM
+     * and SHORT respectively
+     *
+     * @param date
+     * @param dateStyle use FormatSyle.SHORT, MEDIUM, LONG, or FULL
+     * @param timeStyle use FormatStyle.SHORT, MEDIUM, LONG, or FULL
+     * @return
+     */
+    public String dateTimeFormat(Instant date, FormatStyle dateStyle, FormatStyle timeStyle);
     
     /**
      * Formats a point in time, in the given time zone, for display to the user in a concise way that still presents all relevant information
