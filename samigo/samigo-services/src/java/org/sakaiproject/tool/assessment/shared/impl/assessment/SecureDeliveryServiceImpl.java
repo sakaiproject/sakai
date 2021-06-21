@@ -143,7 +143,6 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 		return secureDeliveryModules.get( moduleId ) != null;
 	}
 
-
 	/**
 	 * @return A set of RegisteredSecureDeliveryModuleIfc entries with the module name internationalized 
 	 * for the given locale. 
@@ -269,8 +268,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			return "";
 		
 		try {
-			String tmep = module.getHTMLFragment(assessment, request, phase, status, locale );
-			return tmep;
+			return module.getHTMLFragment(assessment, request, phase, status, locale );
 		}
 		catch ( Exception e ) {
 			
@@ -402,6 +400,7 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	 * @param secureDeliveryPlugin the path to the plugin JAR file
 	 */
 	private void handlePlugin( String secureDeliveryPlugin ) {
+
 		try
 		{
 			// This is a built-in integration with no additional JAR file
@@ -449,5 +448,4 @@ public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 			log.error( "Unable to load secure delivery plugin " + secureDeliveryPlugin, e );
 		}
 	}
-
 }
