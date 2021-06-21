@@ -21,6 +21,7 @@
 		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 
 	<bean
