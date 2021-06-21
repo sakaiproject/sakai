@@ -303,7 +303,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 								.setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
 
 						final Label dueDate = new Label("dueDate",
-								FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
+								GradeSummaryTablePanel.this.businessService.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
 						dueDate.add(new AttributeModifier("data-sort-key",
 								assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);

@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.business;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -107,6 +108,7 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -182,6 +184,9 @@ public class GradebookNgBusinessService {
 	
 	@Setter
 	private FormattedText formattedText;
+
+	@Setter
+	private UserTimeService userTimeService;
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -3022,5 +3027,29 @@ public class GradebookNgBusinessService {
 	}
 	public boolean getShowCalculatedGrade() {
 		return  this.serverConfigService.getBoolean("gradebook.coursegrade.showCalculatedGrade", true) ;
+	}
+
+	/**
+	 * Get the date and time formatted via the UserTimeService
+	 * @param dateGraded
+	 * @return
+	 */
+	public String formatDateTime(Date dateTime) {
+		return userTimeService.dateTimeFormat(dateTime, getUserPreferredLocale(), DateFormat.SHORT);
+	}
+
+
+	/**
+	 * Get the date formatted by the UserTimeService
+	 * @param date
+	 * @param ifNull string to return if date is null
+	 * @return
+	 */
+	public String formatDate(Date date, final String ifNull) {
+		if (date == null) {
+			return ifNull;
+		}
+
+		return userTimeService.dateFormat(date, getUserPreferredLocale(), DateFormat.SHORT);
 	}
 }
