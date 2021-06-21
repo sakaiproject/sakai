@@ -23,7 +23,6 @@ package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
 import java.time.Instant;
-import java.time.format.FormatStyle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
