@@ -49,6 +49,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.Instant;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
@@ -147,32 +148,19 @@ public class GradingService
   /**
    * Get all scores for a published assessment from the back end.
    */
-  public List getTotalScores(String publishedId, String which)
+  public List<AssessmentGradingData> getTotalScores(String publishedId, String which)
   {
-    List results = null;
-    try {
-      results =
-        new ArrayList(PersistenceService.getInstance().
-           getAssessmentGradingFacadeQueries().getTotalScores(publishedId,
-             which));
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-    }
-    return results;
+    return getTotalScores(publishedId, which, true);
   }
   
-  public List getTotalScores(String publishedId, String which, boolean getSubmittedOnly)
+  public List<AssessmentGradingData> getTotalScores(String publishedId, String which, boolean getSubmittedOnly)
   {
-    List results = null;
     try {
-      results =
-        new ArrayList(PersistenceService.getInstance().
-           getAssessmentGradingFacadeQueries().getTotalScores(publishedId,
-             which, getSubmittedOnly));
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().getTotalScores(NumberUtils.createLong(publishedId), which, getSubmittedOnly);
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.warn("Could not retrieve total scores for published assessment {}", publishedId, e);
     }
-    return results;
+    return Collections.emptyList();
   }
   
  /**

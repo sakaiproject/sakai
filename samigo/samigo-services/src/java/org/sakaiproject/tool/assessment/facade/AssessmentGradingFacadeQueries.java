@@ -41,6 +41,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -147,20 +148,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         this.persistenceHelper = persistenceHelper;
     }
 
-    /**
-     * @param publishedId
-     * @param which
-     * @return
-     */
-    public List<AssessmentGradingData> getTotalScores(final String publishedId, String which) {
-        return getTotalScores(publishedId, which, true);
-    }
-
-    public List<AssessmentGradingData> getTotalScores(final String publishedId, String which, final boolean getSubmittedOnly) {
+    public List<AssessmentGradingData> getTotalScores(final Long publishedId, final String which, final boolean getSubmittedOnly) {
+        if (publishedId == null) return Collections.emptyList();
         try {
             final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
                 Criteria q = session.createCriteria(AssessmentGradingData.class)
-                        .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
+                        .add(Restrictions.eq("publishedAssessmentId", publishedId))
                         .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
                         .addOrder(Order.asc("agentId"))
                         .addOrder(Order.desc("finalScore"))
@@ -179,8 +172,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 return q.list();
             };
             List<AssessmentGradingData> list = getHibernateTemplate().execute(hcb);
-            Map<Long, List<AssessmentGradingAttachment>> attachmentMap = getAssessmentGradingAttachmentMap(Long.valueOf(
-                    publishedId));
+            Map<Long, List<AssessmentGradingAttachment>> attachmentMap = getAssessmentGradingAttachmentMap(publishedId);
             for (AssessmentGradingData data : list) {
                 if (attachmentMap.get(data.getAssessmentGradingId()) != null) {
                     data.setAssessmentGradingAttachmentList(attachmentMap.get(data.getAssessmentGradingId()));
@@ -193,7 +185,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
                 final HibernateCallback<List<AssessmentGradingData>> hcb2 = session -> {
                     Criteria q = session.createCriteria(AssessmentGradingData.class)
-                            .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
+                            .add(Restrictions.eq("publishedAssessmentId", publishedId))
                             .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
                             .addOrder(Order.asc("agentId"))
                             .addOrder(Order.desc("submittedDate"));
@@ -264,12 +256,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public Map<Long, List<ItemGradingData>> getItemScores(Long publishedId, final Long itemId, String which) {
-        List scores = getTotalScores(publishedId.toString(), which);
+        List scores = getTotalScores(publishedId, which, true);
         return getItemScores(itemId, scores, false);
     }
 
     public Map<Long, List<ItemGradingData>> getItemScores(Long publishedId, final Long itemId, String which, boolean loadItemGradingAttachment) {
-        List scores = getTotalScores(publishedId.toString(), which);
+        List scores = getTotalScores(publishedId, which, true);
         return getItemScores(itemId, scores, loadItemGradingAttachment);
     }
 
