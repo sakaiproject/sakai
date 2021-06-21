@@ -23,6 +23,7 @@ package org.sakaiproject.content.impl.serialize.impl.test;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -257,6 +258,10 @@ public class MockTimeService implements TimeService
 	@Override
 	public String dateTimeFormat(Date date, Locale locale, int format) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String dateTimeFormat(Instant date, FormatStyle dateStyle, FormatStyle timeStyle) {
 		return null;
 	}
 

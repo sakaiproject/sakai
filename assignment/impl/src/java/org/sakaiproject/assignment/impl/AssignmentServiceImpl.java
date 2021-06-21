@@ -1658,7 +1658,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         Instant submitTime = submission.getDateSubmitted();
         AssignmentConstants.SubmissionStatus subStatus = getSubmissionCannonicalStatus(submission);
-        return getFormattedStatus(subStatus, getUsersLocalDateTimeString(submitTime));
+        return getFormattedStatus(subStatus, userTimeService.dateTimeFormat(submitTime, null, null));
     }
 
     private String getFormattedStatus(AssignmentConstants.SubmissionStatus subStatus, String submittedTime) {
@@ -4323,18 +4323,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getUsersLocalDateTimeString(Instant date) {
-        return getUsersLocalDateTimeString(date, FormatStyle.MEDIUM, FormatStyle.SHORT);
-    }
-
-    public String getUsersLocalDateTimeString(Instant date, FormatStyle dateStyle, FormatStyle timeStyle) {
-        if (date == null) return "";
-        if (dateStyle == null) { dateStyle = FormatStyle.MEDIUM; }
-        if (timeStyle == null) { timeStyle = FormatStyle.SHORT; }
-        ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle)
-                                                .withZone(zone)
-                                                .withLocale(resourceLoader.getLocale());
-        return df.format(date);
+        return userTimeService.dateTimeFormat(date, null, null);
     }
 
     private String removeReferencePrefix(String referenceId) {

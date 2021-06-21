@@ -18,7 +18,7 @@ export class Submission {
       this.hasRubricEvaluation = init.hasRubricEvaluation;
 
       if (init.dateSubmitted) {
-        this.submittedTime = moment.unix(init.dateSubmitted.epochSecond).format("M/D/YYYY @ H:mm");
+        this.submittedTime = init.dateSubmitted;
         this.submittedText = init.submittedText;
       } else if (init.draft && init.visible) {
         this.submittedTime = i18n["draft_not_submitted"];

@@ -16,13 +16,11 @@
 package org.sakaiproject.assignment.entityproviders;
 
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +30,6 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.fileupload.FileItem;
 
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -71,6 +68,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -100,6 +98,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private GradebookExternalAssessmentService gradebookExternalService;
     private ServerConfigurationService serverConfigurationService;
     private UserDirectoryService userDirectoryService;
+    private UserTimeService userTimeService;
 
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
@@ -1275,7 +1274,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String id;
         private String gradableId;
         private String submittedText;
-        private Instant dateSubmitted;
+        private String dateSubmitted;
         private Boolean submitted;
         private List<DecoratedAttachment> submittedAttachments;
         private Map<String, DecoratedAttachment> previewableAttachments = new HashMap<>();
@@ -1311,10 +1310,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (this.submitted || (this.draft && this.visible)) {
                 this.submittedText = as.getSubmittedText();
                 if (this.submitted) {
-                    this.dateSubmitted = as.getDateSubmitted();
+                    this.dateSubmitted
+                        = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
                 }
                 if (dateSubmitted != null) {
-                    this.late = dateSubmitted.compareTo(as.getAssignment().getDueDate()) > 0;
+                    this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;
                 }
 
                 this.submittedAttachments = as.getAttachments().stream().map(ref -> {
