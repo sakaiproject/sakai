@@ -2080,23 +2080,22 @@ public class DeliveryBean implements Serializable {
       return "timeExpired";
     }
 
-    // TODO: special case for Proctorio
+    // Check 10: see if SecureDelivery is okay with this
+    log.debug("check10-SecureDelivery");
     if (isViaUrlLogin) {
         SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
         if ( secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
-     
-      	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-      	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-      		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-      		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-      		  setBlockDelivery( PhaseStatus.FAILURE == status );
-      		  setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale()));
-      		  if ( PhaseStatus.FAILURE == status ) {
-      			  return "secureDeliveryError";
+            String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+            if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+                PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+                setBlockDelivery( PhaseStatus.FAILURE == status );
+                setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, locale));
+                if ( PhaseStatus.FAILURE == status ) {
+                    return "secureDeliveryError";
                 }
-      	  }    	  
+            }          
         }
-    	
     }
 
     return "safeToProceed";
