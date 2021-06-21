@@ -117,7 +117,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 	 */
 	private String formatLogEntry(final GbGradeLog gradeLog) {
 
-		final String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
+		final String logDate = this.businessService.formatDateTime(gradeLog.getDateGraded());
 		final String grade = gradeLog.getGrade();
 
 		final GbUser grader = CourseGradeOverrideLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());

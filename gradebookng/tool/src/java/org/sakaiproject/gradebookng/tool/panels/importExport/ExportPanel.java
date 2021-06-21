@@ -484,7 +484,7 @@ public class ExportPanel extends BasePanel {
 						if (courseGrade.getDateRecorded() == null) {
 							line.add(null);
 						} else {
-							line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+							line.add(this.businessService.formatDateTime(courseGrade.getDateRecorded()));
 						}
 					}
 
