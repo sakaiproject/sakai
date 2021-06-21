@@ -1,25 +1,15 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.crypto.Mac;
-import javax.servlet.http.HttpServletRequest;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -30,7 +20,6 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -48,9 +37,15 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.util.UriUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import javax.crypto.Mac;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Configuration
 @Slf4j
@@ -324,16 +319,12 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 
 			String encodedKey = null;
 			String encodedValue = null;
-			try {
-				String decodedKey = UriUtils.decode(key, ENCODING);
-				encodedKey = UriUtils.encode(decodedKey, ENCODING);
-				
-				String decodedValue = UriUtils.decode(value, ENCODING);
-				encodedValue = UriUtils.encode(decodedValue, ENCODING);
-			} catch (UnsupportedEncodingException e) {
-				log.warn("Could not encode", e);
-			}
-			
+			String decodedKey = UriUtils.decode(key, ENCODING);
+			encodedKey = UriUtils.encode(decodedKey, ENCODING);
+
+			String decodedValue = UriUtils.decode(value, ENCODING);
+			encodedValue = UriUtils.encode(decodedValue, ENCODING);
+
 			normalizedString.append("&").append(encodedKey != null ? encodedKey : key).append("=").append(encodedValue != null ? encodedValue : value);
 		}
 
