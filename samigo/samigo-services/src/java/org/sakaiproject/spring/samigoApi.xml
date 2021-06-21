@@ -75,12 +75,4 @@
     init-method="init">
   </bean>
   <bean id="ldbSecurityModule" class="org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio" />
-  <!--
-  <bean id="ldbSecurityModule" 
-          class="org.sakaiproject.tool.assessment.services.assessment.SecureDeliveryProctorio">
-       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-       <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-       <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-  </bean>
-  -->
 </beans>
