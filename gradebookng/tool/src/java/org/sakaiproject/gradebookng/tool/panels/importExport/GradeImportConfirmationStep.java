@@ -391,7 +391,7 @@ public class GradeImportConfirmationStep extends BasePanel {
 				final Assignment assignment = item.getModelObject();
 
 				String extraCredit = assignment.isExtraCredit() ? yes : no;
-				String dueDate = FormatHelper.formatDate(assignment.getDueDate(), "");
+				String dueDate = GradeImportConfirmationStep.this.businessService.formatDate(assignment.getDueDate(), "");
 				String releaseToStudents = assignment.isReleased() ? yes : no;
 				String includeInCourseGrades = assignment.isCounted() ? yes : no;
 
