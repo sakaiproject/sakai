@@ -7,7 +7,7 @@
 </jsp:useBean>
 <f:view>
   <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-  	<h:form id="dfStatisticsForm">
+  	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 				<!-- discussionForum/statistics/dfStatisticsDisplayInThread.jsp -->
   	    <script>includeLatestJQuery("msgcntr");</script>
        	<script src="/messageforums-tool/js/sak-10625.js"></script>
@@ -29,7 +29,7 @@
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
-		<h:panelGroup layout="block" styleClass="breadCrumb" rendered="#{ForumTool.instructor}"><h3>
+        <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
 		<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      	rendered="#{ForumTool.messagesandForums}" />
 		<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
@@ -63,7 +63,7 @@
 		<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 		<h:outputText value=" / "/>
 		<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
-		</h3></h:panelGroup>
+		<f:verbatim></h3></div></f:verbatim>
 
 		<h:panelGroup id="forumsAction">
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
