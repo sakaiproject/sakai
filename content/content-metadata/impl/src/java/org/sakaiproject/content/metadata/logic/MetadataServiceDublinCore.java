@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sakaiproject.content.metadata.logic.MetadataService;
 import org.sakaiproject.content.metadata.model.GroupMetadataType;
 import org.sakaiproject.content.metadata.model.MetadataType;
 import org.sakaiproject.content.metadata.model.StringMetadataType;

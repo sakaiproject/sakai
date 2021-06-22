@@ -24,11 +24,6 @@ package org.sakaiproject.content.metadata.model;
 import java.util.Collections;
 import java.util.Map;
 
-import org.sakaiproject.content.metadata.model.MetadataConverter;
-import org.sakaiproject.content.metadata.model.MetadataRenderer;
-import org.sakaiproject.content.metadata.model.MetadataType;
-import org.sakaiproject.content.metadata.model.MetadataValidator;
-
 /**
  * @author Colin Hebert
  */

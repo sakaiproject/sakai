@@ -28,10 +28,6 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.sakaiproject.content.metadata.model.MetadataConverter;
-import org.sakaiproject.content.metadata.model.MetadataRenderer;
-import org.sakaiproject.content.metadata.model.MetadataType;
-import org.sakaiproject.content.metadata.model.MetadataValidator;
 
 /**
  * This allows you to group metadata items into a set.

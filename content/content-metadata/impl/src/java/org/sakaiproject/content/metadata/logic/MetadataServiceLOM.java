@@ -26,8 +26,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.sakaiproject.content.metadata.logic.MetadataService;
-import org.sakaiproject.content.metadata.model.*;
+import org.sakaiproject.content.metadata.model.DurationMetadataType;
+import org.sakaiproject.content.metadata.model.EnumMetadataType;
+import org.sakaiproject.content.metadata.model.GroupMetadataType;
+import org.sakaiproject.content.metadata.model.MetadataType;
+import org.sakaiproject.content.metadata.model.StringMetadataType;
 
 /**
  * @author Matthew Buckett
