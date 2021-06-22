@@ -800,15 +800,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   validateGradeInput(e) {
 
-    var i18nDecimalPattern = "";
-    /*global portal*/
-    if (this.getDecimalSeparator(portal.locale) === ".") {
-      i18nDecimalPattern = "[\d.]";
-    }
-    else {
-      i18nDecimalPattern = "[\d,]";
-    }
-    var rgxp = new RegExp(i18nDecimalPattern);
+    const decimalSeparator = (1.1).toLocaleString(portal.locale).substring(1, 2);
+    const rgxp = new RegExp(`[\\d${decimalSeparator}]`);
 
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
@@ -828,15 +821,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
   
-  getDecimalSeparator(locale) {
-    const numberWithDecimalSeparator = 1.1;
-
-    return numberWithDecimalSeparator
-        .toLocaleString(locale)
-        .substring(1, 2);
-  }
-
-
   gradeSelected(e) {
 
     if (this.gradeScale === "CHECK_GRADE_TYPE") {
