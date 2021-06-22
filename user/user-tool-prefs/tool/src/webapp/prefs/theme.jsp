@@ -19,7 +19,7 @@
 			<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 			<script type="text/javascript" src="/library/js/spinner.js"></script>
 			<script type="text/javascript">
-				$(document).ready(function(){
+				$PBJQ(document).ready(function(){
 					fixImplicitLabeling();
 				})
 			</script>

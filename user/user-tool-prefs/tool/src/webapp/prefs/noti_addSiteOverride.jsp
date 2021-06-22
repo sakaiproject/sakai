@@ -9,9 +9,9 @@
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
 	<sakai:view_content>
-<f:verbatim>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+<f:verbatim>
+<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js"> </script>
 </f:verbatim>
 	
 		<h:form id="site_list_form">
