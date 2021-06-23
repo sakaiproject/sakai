@@ -42,7 +42,7 @@
           } else throw new Error("Network error while fetching calendar data");
         })
         .then(responseData => {
-          let events = [];
+          const events = [];
           responseData.calendar_collection.forEach(event => {
             // Every Sakai Calendar event has to be mapped with a full calendar event.
             const startTime = event.firstTime.time;
