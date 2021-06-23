@@ -576,12 +576,11 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	Map agentResultsByAssessmentGradingIdMap = new HashMap();
 
-	SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-	String moduleId = null;
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    String moduleId = null;
     if ( secureDelivery.isSecureDeliveryAvaliable() ) {
         moduleId = p.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
     }
-
 
     while (iter.hasNext())
     {
