@@ -986,3 +986,16 @@ $(document).ready(() => {
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
 });
+
+// SAK-43911 (grab_cursor for reordering items)
+ASN.grabbing = function (selectedItem) {
+    li = $(selectedItem);
+    $(li).removeClass("grab_cursor");
+    $(li).addClass("grabbing_cursor");
+}
+
+ASN.grab = function (selectedItem) {
+    li = $(selectedItem);
+    $(li).removeClass("grabbing_cursor");
+    $(li).addClass("grab_cursor");
+}
