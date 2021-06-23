@@ -23,14 +23,15 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -544,11 +545,11 @@ public class AgentResults
     }
     
     public void setAlternativeInstructorReviewUrl(String url) {
-    	this.alternativeInstructorReviewUrl = url;
+        this.alternativeInstructorReviewUrl = url;
     }
 
     public String getAlternativeInstructorReviewUrl() {
-    	return alternativeInstructorReviewUrl;
+        return alternativeInstructorReviewUrl;
     }
 
 }
