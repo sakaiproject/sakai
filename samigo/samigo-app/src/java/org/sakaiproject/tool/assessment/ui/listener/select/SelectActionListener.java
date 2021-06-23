@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -138,7 +139,7 @@ public class SelectActionListener implements ActionListener {
     }
     
     // filter out the one that the given user do not have right to access
-    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList,  h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
+    List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
     
     // 1c. prepare delivery bean
     List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
@@ -429,7 +430,6 @@ public class SelectActionListener implements ActionListener {
     // If secure delivery modules are installed, then insert their html fragments      
     select.setSecureDeliveryHTMLFragments( "" );
     SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
     if ( secureDelivery.isSecureDeliveryAvaliable() ) {
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
@@ -437,9 +437,9 @@ public class SelectActionListener implements ActionListener {
         for (DeliveryBeanie db : takeablePublishedList) {
             // We have to refetch the published assessment because the hash above doesn't have the metadata
             PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessment(db.getAssessmentId());
-            final String moduleId = paf.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+            final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
-            db.setAlternativeDeliveryUrl( secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()) );
+            db.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()));
         }
     }
 
