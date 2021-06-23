@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.tool.assessment.shared.api.assessment;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 
