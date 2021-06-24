@@ -210,6 +210,11 @@ public class FileConversionServiceImpl implements FileConversionService {
 
         log.debug("submit({})", ref);
 
+        if (repository.findByReference(ref).size() > 0) {
+            log.debug("{} has already been queued for conversion.", ref);
+            return;
+        }
+
         FileConversionQueueItem newItem = new FileConversionQueueItem();
         newItem.setReference(ref);
         newItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
