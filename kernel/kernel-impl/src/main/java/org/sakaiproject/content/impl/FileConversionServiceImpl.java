@@ -103,6 +103,7 @@ public class FileConversionServiceImpl implements FileConversionService {
 
             if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)
                     || ContentHostingService.AUTH_RESOURCE_ADD.equals(function)
+                    || ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)
                     || ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function)) {
                 return SecurityAdvisor.SecurityAdvice.ALLOWED;
             } else {
