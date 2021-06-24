@@ -63,12 +63,6 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>wavesurfer.js</artifactId>
-			<version>3.3.1</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor</artifactId>
 			<version>${ckeditor.version}</version>

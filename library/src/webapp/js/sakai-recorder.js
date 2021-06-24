@@ -5,6 +5,13 @@
 
     SakaiRecorder.prototype = {
         init: function(extraOptions) {
+            var animationId = null;
+            var canvasWidth, canvasHeight;
+
+            // These vars are for the canvas audio analysis
+            var timeToNextPlot = 0;
+            var barToPlot = 1;
+            var secondsPerBar = 100;
             var recordingStopped = false;
             var recordingStarted = false;
 
@@ -19,8 +26,7 @@
                 audio_context: null,
                 recorder: null,
                 input: null,
-                micWaveForm: null,
-                playbackWaveForm: null,
+                analyserContext: null,
                 analyserNode: null,
                 ckEditor: extraOptions.ckEditor,
                 localeLanguage: extraOptions.localeLanguage,
@@ -121,9 +127,34 @@
                 });
 
             } else {
+                var hasFlashSupport = swfobject.hasFlashPlayerVersion("9.0.18");
+                if (!hasFlashSupport) {
                     this.$audioRecordingPopup.find('#audio-visual-container').hide();
                     this.$audioRecordingPopup.find('#audio-browser-plea').show(); // Please upgrade your browser!!
                     this.hideMicCheckButton();
+                }
+                else {
+                    var flash = this.$audioRecordingPopup.find('#flashrecarea');
+                    this.$audioRecordingPopup.find(flash).show();
+                    $.jRecorder({
+                        swf_path : '/library/js/recorder/jRecorder.swf',
+                        host : _self.vars.postUrl,
+                        swf_object_path : '/library/js/swfobject',
+                        //These are in the main body right now because flash couldn't call them
+                        callback_started_recording: function() {
+                            _self.startTimer();
+                        },
+                        // I wish this callback worked better but in my testing, it returns high levels no matter my volume
+                        // callback_activityLevel:     function(level) { plotLevels(level); }, 
+                        callback_finished_sending: function(response) {
+                            _self.finishAndClose(true, response);
+                        },
+                        callback_hide_the_flash: function() {
+                            _self.hideMicCheckButton();
+                            _self.enableRecording();
+                        }
+                    });
+                }
             }
             this.$audioRecordingPopup.find('#audio-popup-question-number').text(this.vars.questionNumber);
             this.$audioRecordingPopup.find('#audio-popup-question-total').text(this.vars.questionTotal);
@@ -217,28 +248,64 @@
             }
         },
 
-        setupWaveform: function() {
+        audioAnalyzer: function(time) {
+            // We are resetting the state of the audio visualization if a user is doing another attempt
+            if (time == 0) {
+                console.log('Resetting analyzer canvas');
+                this.vars.analyserContext = false;
+                timeToNextPlot = 0;
+                barToPlot = 1;
+            }
 
-              this.vars.micWaveForm = WaveSurfer.create({
-                container     : '#audio-analyzer',
-                plugins       : [ WaveSurfer.microphone.create() ]
-              });
+            if (!this.vars.analyserContext) {
+                var canvas = this.$audioRecordingPopup.find('#audio-analyzer')[0];
+                this.$audioRecordingPopup.find(canvas).show();
+                canvasWidth = canvas.width;
+                canvasHeight = canvas.height;
+                secondsPerBar = Math.floor ( (this.vars.maxSeconds*1000) / canvasWidth );
+                this.vars.analyserContext = canvas.getContext('2d');
 
-              this.vars.playbackWaveForm = WaveSurfer.create({
-                container     : '#playback-analyzer',
-                backend       : 'MediaElement',
-                mediaType     : 'audio',
-                mediaControls : false,
-                waveColor     : 'green'
-              });
+                // make the background black
+                this.vars.analyserContext.fillStyle = "black";
+                this.vars.analyserContext.fillRect ( 0, 0, canvasWidth, canvasHeight);
+
+                // draw a horizontal line down the middle
+                this.vars.analyserContext.fillStyle = "blue";
+                this.vars.analyserContext.fillRect ( 0, Math.floor(canvasHeight/2)-2, canvasWidth, 2)
+
+                // the waveform will be white
+                this.vars.analyserContext.fillStyle = "white";
+            }
+
+            {
+                // Only plot a bar in the waveform when enough time has passed
+                if (time > timeToNextPlot) {
+                    var freqByteData = new Uint8Array(this.vars.analyzerNode.frequencyBinCount);
+                    this.vars.analyzerNode.getByteFrequencyData(freqByteData);
+
+                    // compute an average volume
+                    var values = 0;
+                    for (var i = 0; i < freqByteData.length; i++) {
+                        values += freqByteData[i];
+                    }
+                    average = values / freqByteData.length;
+
+                    this.vars.analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*1) );
+                    this.vars.analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*-1) );
+
+                    barToPlot = barToPlot + 1;
+                    timeToNextPlot = time + secondsPerBar;
+                }
+            }
+
+            var _self = this;
+            if (!recordingStopped) animationId = window.requestAnimationFrame(function(time) {
+                _self.audioAnalyzer(time);
+            });
         },
-        
+
         enableRecording: function(stream) {
             var _self = this;
-
-            if (_self.vars.micWaveForm == null) {
-              _self.setupWaveform();
-            }
 
             // enable the mic check and record buttons
             this.$audioRecordingPopup.find('#mic-check').prop('disabled','').fadeTo('slow', 1.0);
@@ -277,6 +344,9 @@
 
                 this.vars.recorder = new Recorder(this.vars.input);
                 console.log('Recorder initialized.');
+
+                // initialize the audio analysis
+                this.audioAnalyzer(0);
             }
         },
 
@@ -336,6 +406,12 @@
             //Try to stop/reload previous recording
             if (this.vars.userMediaSupport) {
                 this.$audioRecordingPopup.find('#audio-html5')[0].load();
+            } else {
+                //If this fails it's just because jRecorder hasn't started and they tried to close the window
+                try {
+                    $.jRecorder.stopPreview();
+                }
+                catch (err) {}
             }
 
             // disable Save and Submit on parent page
@@ -350,6 +426,9 @@
             if (this.vars.userMediaSupport) {
                 this.vars.recorder && this.vars.recorder.record();
                 this.startTimer();
+            } else {
+                // wait for the callback from the SWF before starting timer
+                $.jRecorder.record(this.vars.maxSeconds);
             }
 
             // disable the record and play button, enable the stop button
@@ -358,11 +437,6 @@
             this.$audioRecordingPopup.find('#audio-upload').prop('disabled','disabled').fadeTo('slow', 0.5);
             this.$audioRecordingPopup.find('#audio-play').prop('disabled', 'disabled').fadeTo('slow', 0.5);
             console.log('Recording...');
-
-            // Start the waveform rendering of microphone input
-            this.$audioRecordingPopup.find('#playback-analyzer').hide();
-            this.$audioRecordingPopup.find('#audio-analyzer').show();
-            this.vars.micWaveForm.microphone.start();
         },
 
         stopRecording: function(button) {
@@ -370,6 +444,11 @@
 
             if (this.vars.userMediaSupport) {
                 this.vars.recorder && this.vars.recorder.stop();
+            } else {
+                //If this fails it's just because jRecorder hasn't started and they tried to close the window
+                try {
+                    $.jRecorder.stop();
+                } catch (err) {}
             }
 
             //Disconnect the stream
@@ -388,10 +467,8 @@
             this.$audioRecordingPopup.find('#audio-stop').prop('disabled','disabled').fadeTo('slow', 0.5);
             this.$audioRecordingPopup.find('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
             this.$audioRecordingPopup.find('#audio-upload').prop('disabled','').fadeTo('slow', 1.0);
+            //button.previousElementSibling.disabled = false;
             console.log('Stopped recording.');
-
-            // Stop the waveform of mic
-            this.vars.micWaveForm.microphone.stop();
 
             // see if a user has attempts remaining
             this.vars.attemptsRemaining--;
@@ -436,6 +513,14 @@
                     console.log('Blob size: ' + blob.size + ';type=' + blob.type);
                     _self.uploadBlob(url,blob);
                 });
+            } else {
+                // add params before POSTing audio to server
+                $.jRecorder.addParameter('agent', this.vars.agentId);
+                $.jRecorder.addParameter('suffix', 'wav');
+                $.jRecorder.addParameter('lastDuration', duration);
+                $.jRecorder.addParameter('attempts', this.vars.attemptsRemaining);
+                $.jRecorder.addParameter('Command','QuickUploadAttachment');
+                $.jRecorder.sendData();
             }
         },
 
@@ -563,26 +648,55 @@
 
             this.vars.recorder && this.vars.recorder.exportWAV(function(blob) {
                 var url = URL.createObjectURL(blob);
+                //var li = document.createElement('li');
+                // var au = document.createElement('audio');
                 var au = _self.$audioRecordingPopup.find('#audio-html5')[0];
+
                 au.src = url;
+                // li.appendChild(au);
+                //this.$audioRecordingPopup.find('#audio-debug-log').append(li);
             });
         },
 
         playRecording: function(button) {
-            if (this.vars.playbackWaveForm == null) {
-              this.setupWaveform();
+            //Try to stop/reload previous recording
+            if (this.vars.userMediaSupport) {
+                this.$audioRecordingPopup.find('#audio-html5')[0].load();
+            } else {
+                //If this fails it's just because jRecorder hasn't started and they tried to close the window
+                try {
+                    $.jRecorder.stopPreview();
+                } catch (err) {}
             }
 
-            this.$audioRecordingPopup.find('#audio-analyzer').hide();
-            this.$audioRecordingPopup.find('#playback-analyzer').show();
-            this.vars.playbackWaveForm.load( this.$audioRecordingPopup.find('#audio-html5')[0] );
-            //Try to stop/reload previous recording
-            //this.$audioRecordingPopup.find('#audio-html5')[0].load();
-            this.$audioRecordingPopup.find('#audio-html5')[0].play();
+            if (this.vars.userMediaSupport) {
+                    this.$audioRecordingPopup.find('#audio-html5')[0].play();
+            } else {
+                try {
+                    $.jRecorder.startPreview();
+                } catch (err) {}
+            }
 
             // Start the playback timer
             this.playbackTimer(timeTaken);
         },
 
+        drawBuffer: function(width, height, context, data) {
+            var step = Math.ceil( data.length / width );
+            var amp = height / 2;
+            context.fillStyle = "silver";
+            for(var i=0; i < width; i++){
+                var min = 1.0;
+                var max = -1.0;
+                for (j=0; j<step; j++) {
+                    var datum = data[(i*step)+j];
+                    if (datum < min)
+                        min = datum;
+                    if (datum > max)
+                        max = datum;
+                }
+                context.fillRect(i,(1+min)*amp,1,Math.max(1,(max-min)*amp));
+            }
+        }
     }
 })();

@@ -52,9 +52,9 @@
 
 <f:verbatim>
 <div id="audio-browser-plea" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_browser_plea}" /><f:verbatim></div>
+<div id="flashrecarea"> </div>
 <div id="audio-visual-container">
-  <div id="audio-analyzer"></div>
-  <div id="playback-analyzer" style="display:none"></div>
+  <canvas id="audio-analyzer"></canvas>
 
   <div id="audio-controls">
     <div id="audio-statusbar" style="display:none"> </div>

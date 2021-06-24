@@ -25,11 +25,12 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-<script src="/library/webjars/wavesurfer.js/3.3.1/dist/wavesurfer.min.js"></script>
-<script src="/library/webjars/wavesurfer.js/3.3.1/dist/plugin/wavesurfer.microphone.min.js"></script>
-<script src="/library/js/recorder/recorder.js"></script>
-<script src="/library/js/sakai-recorder.js"></script>
-<script>includeWebjarLibrary('featherlight');</script>
+<script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
+<script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
+<script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
+<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
+<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
+<script type="text/javascript">includeWebjarLibrary('featherlight');</script>
 <script>
   $(document).ready(function() {
     if (typeof initiatedFeatherlight === "undefined") {

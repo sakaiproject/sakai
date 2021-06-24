@@ -74,8 +74,12 @@
 }
 
 #audio-analyzer {
-  height: 128px;
+  height: 100px;
   width: 500px;
+  -webkit-border-radius: 0.33em;
+  -moz-border-radius: 0.33em;
+  -ms-border-radius: 0.33em;
+  -o-border-radius: 0.33em;
   border-radius: 0.33em;
   margin: 20px auto;
   background-color: #333;
