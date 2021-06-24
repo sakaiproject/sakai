@@ -45,12 +45,12 @@
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-tool</artifactId>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-tool</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-app</artifactId>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-app</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.portal</groupId>
@@ -58,29 +58,9 @@
         </dependency>
         <!-- remove the default api/imp 1.1_02 version from JSF prject with new 1.2 version  -->
         <dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-widgets-sun-depend</artifactId>
-            <exclusions>
-	            <exclusion>
-	                    <groupId>javax.faces</groupId>
-	                    <artifactId>jsf-api</artifactId>
-	             </exclusion>
-	             <exclusion>
-	                    <groupId>javax.faces</groupId>
-	                    <artifactId>jsf-impl</artifactId>
-	             </exclusion>
-	        </exclusions>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-widgets-sun-depend</artifactId>
             <type>pom</type>
-        </dependency>
-        <dependency>
-            	<groupId>javax.faces</groupId>
-            	<artifactId>jsf-api</artifactId>
-            	<version>1.2_15-06</version>
-        </dependency>
-        <dependency>
-            	<groupId>javax.faces</groupId>
-            	<artifactId>jsf-impl</artifactId>
-               <version>1.2_15-06</version>
         </dependency>
 		<!-- end of JSF related version issue -->
 		
@@ -105,7 +85,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.myfaces.tomahawk</groupId>
-            <artifactId>tomahawk</artifactId>
+            <artifactId>tomahawk21</artifactId>
+            <version>1.1.14</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -150,6 +131,11 @@
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-shaded</artifactId>
+            <version>${sakai.weld.shaded.version}</version>
         </dependency>
         <!-- test dependencies -->
         <dependency>

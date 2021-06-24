@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 <f:view>
@@ -178,7 +178,7 @@
 								<f:selectItems value="#{EditMeetingSignupMBean.allLocations}"/>
 							</h:selectOneMenu>
 							<h:inputText id="customLocation" size="35" value="#{EditMeetingSignupMBean.customLocation}" style="display:none" styleClass="editText">  
-								<f:validator validatorId="Signup.EmptyStringValidator"/>
+								<f:converter converterId="Signup.StringTrimConverter"/>
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')">
@@ -204,7 +204,7 @@
 								<f:selectItems value="#{EditMeetingSignupMBean.allCategories}"/>
 							</h:selectOneMenu>
 							<h:inputText id="customCategory" size="35" value="#{EditMeetingSignupMBean.customCategory}" style="display:none" styleClass="editText">  
-								<f:validator validatorId="Signup.EmptyStringValidator"/>
+								<f:converter converterId="Signup.StringTrimConverter"/>
 								<f:validateLength maximum="255" />
 							</h:inputText>
 
@@ -225,7 +225,7 @@
 					<div class="form-group row">
 						<h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12" escape="false"/>
 					</div>
-					<sakai:rich_text_area value="#{EditMeetingSignupMBean.signupMeeting.description}" rows="5"  />
+					<sakai:inputRichText value="#{EditMeetingSignupMBean.signupMeeting.description}" rows="5"  />
 					
 					<%-- Attachments --%>
 					<div>
