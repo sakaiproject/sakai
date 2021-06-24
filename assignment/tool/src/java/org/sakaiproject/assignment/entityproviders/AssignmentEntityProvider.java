@@ -492,6 +492,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 try {
                     return new SimpleSubmission(as, simpleAssignment, activeSubmitters);
                 } catch (Exception e) {
+                    log.error("Exception while creating SimpleSubmission", e);
                     // This can happen if there are no submitters.
                     return null;
                 }
@@ -667,7 +668,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put("siteId", (String) params.get("siteId"));
 
         submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
-
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1313,7 +1313,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     this.dateSubmitted
                         = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
                 }
-                if (dateSubmitted != null) {
+                if (as.getDateSubmitted() != null) {
                     this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;
                 }
 
