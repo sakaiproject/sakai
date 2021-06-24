@@ -66,6 +66,7 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
 
     public enum Status {
         NOT_STARTED,
-        IN_PROGRESS
+        INVALID,
+        IN_PROGRESS;
     }
 }
