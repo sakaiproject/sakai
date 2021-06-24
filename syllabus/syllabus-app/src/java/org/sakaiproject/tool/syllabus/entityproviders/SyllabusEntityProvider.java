@@ -326,6 +326,7 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 								} else {
 									if (StringUtils.isNotEmpty(cleanedText)) {
 										data.setAsset(cleanedText);
+										syllabusManager.saveSyllabus(data);
 									}
 								}
 							}
