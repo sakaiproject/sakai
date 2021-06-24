@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FileConversionService;
+import org.sakaiproject.content.api.persistence.FileConversionServiceRepository;
 import org.sakaiproject.content.impl.test.FileConversionServiceTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,6 +42,9 @@ public class FileConversionServiceTest extends AbstractTransactionalJUnit4Spring
     @Autowired
     private FileConversionService fileConversionService;
 
+    @Autowired
+    private FileConversionServiceRepository repository;
+
     @Test
     public void testCanConvert() {
 
@@ -50,5 +54,18 @@ public class FileConversionServiceTest extends AbstractTransactionalJUnit4Spring
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.ODP_MIMETYPE), "ODP is one of the default convertable types");
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPT_MIMETYPE), "PPT is one of the default convertable types");
         Assert.isTrue(fileConversionService.canConvert(ContentHostingService.PPTX_MIMETYPE), "PPTX is one of the default convertable types");
+    }
+
+    @Test
+    public void noMultipleSubmits() {
+
+        String ref = "xyz";
+        Assert.isTrue(repository.findByReference(ref).size() == 0);
+        fileConversionService.submit(ref);
+        Assert.isTrue(repository.findByReference(ref).size() == 1);
+        fileConversionService.submit(ref);
+        Assert.isTrue(repository.findByReference(ref).size() == 1);
+        fileConversionService.submit(ref);
+        Assert.isTrue(repository.findByReference(ref).size() == 1);
     }
 }
