@@ -40,8 +40,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "FILE_CONVERSION_QUEUE", indexes = {
-        @Index(name = "IDX_FCI_STATUS", columnList = "STATUS"),
-        @Index(name = "IDX_FCI_REFERENCE", columnList = "REFERENCE")
+        @Index(name = "IDX_FCI_STATUS", columnList = "STATUS")
 })
 public class FileConversionQueueItem implements PersistableEntity<Long> {
 
@@ -51,7 +50,7 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "REFERENCE", length = 255, nullable = false)
+    @Column(name = "REFERENCE", length = 255, nullable = false, unique = true)
     private String reference;
 
     @Enumerated(EnumType.STRING)
