@@ -74,6 +74,9 @@ Sakai's load though.
 3. **fileconversion.workerthreads**: Again, more a Sakai property. The conversion service uses a
 thread pool and this defaults to 5 workers.
 
+4. **fileconversion.maxattempts**: Defaults to 5 attempts to send a doc to the server before stopping.
+You may want to set this higher when testing, debugging, or if you have a very unreliable Libre setup.
+
 ### Supported File Types
 
 Out of the box, the conversion service supports these file extensions:

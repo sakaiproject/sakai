@@ -49,8 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Resource;
-
 @Slf4j
 @Setter
 public class FileConversionServiceImpl implements FileConversionService {
@@ -67,6 +65,7 @@ public class FileConversionServiceImpl implements FileConversionService {
     private ScheduledExecutorService master;
     private int pause;
     private int queueIntervalMinutes;
+    private int maxAttemptsAllowed;
     private ExecutorService workers;
 
     public void init() {
@@ -85,6 +84,7 @@ public class FileConversionServiceImpl implements FileConversionService {
             master = Executors.newScheduledThreadPool(1);
             queueIntervalMinutes = serverConfigurationService.getInt("fileconversion.queueintervalminutes", 1);
             pause = serverConfigurationService.getInt("fileconversion.pausemillis", 1000);
+            maxAttemptsAllowed = serverConfigurationService.getInt("fileconversion.maxattempts", 5);
         }
 
         startIfEnabled();
@@ -161,8 +161,12 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                                 repository.deleteById(inProgressItem.getId());
                             } catch (Exception e) {
-
-                                inProgressItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                // Too many attempts. Do not try again.
+                                if (inProgressItem.getAttempts() > maxAttemptsAllowed) {
+                                    inProgressItem.setStatus(FileConversionQueueItem.Status.INVALID);
+                                } else {
+                                    inProgressItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                }
                                 repository.save(inProgressItem);
                                 log.error("Call to conversion service failed", e);
                             } finally {
