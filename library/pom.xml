@@ -222,11 +222,11 @@
             <version>4.0.12</version>
             <scope>runtime</scope>
         </dependency>
-		<!--Used in Lessons, embed calendar item -->
+		<!--Used in Lessons, embed calendar item. New Calendar UI. -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>fullcalendar</artifactId>
-			<version>4.3.1</version>
+			<version>5.8.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->

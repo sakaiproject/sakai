@@ -6,10 +6,9 @@ $(function(){
     if ($elements.length > 0) {
         $elements.each(function() {
             var calendar = new FullCalendar.Calendar(this, {
-                plugins: ['interaction', 'dayGrid', 'timeGrid'],
-                defaultView: 'dayGridMonth',
+                initialView: 'dayGridMonth',
                 displayEventTime: false,
-                header: {
+                headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'

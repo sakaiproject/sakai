@@ -1,0 +1,24 @@
+<div class="portletBody">
+  #if($menu)#toolbar($menu)#end
+  <div class="page-header">
+    <h1>$tlang.getString("tool_title")</h1>
+    <div class="sakai-sideHeading">
+      <a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
+    </div>
+  </div>
+  #if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
+  <div class="sakai-table-toolBar">
+    <div class="sakai-table-filterContainer">
+      #calendarView()
+    </div>
+  </div>
+  ## Calendar DIV where the full calendar will be rendered
+  <div id="calendarDiv"></div>
+  ## include the Legend:
+  #calendarLegend()
+</div>
+
+<link href="/library/webjars/fullcalendar/5.8.0/main.min.css" rel="stylesheet" />
+<script src="/library/webjars/fullcalendar/5.8.0/main.min.js"></script>
+<script src="/library/webjars/fullcalendar/5.8.0/locales-all.min.js"></script>
+<script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
