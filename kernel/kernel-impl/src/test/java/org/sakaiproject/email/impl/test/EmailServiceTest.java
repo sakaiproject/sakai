@@ -123,8 +123,7 @@ public class EmailServiceTest
 
 		if (ALLOW_TRANSPORT) {
 			log.debug("Starting internal mail server...");
-			wiser = new Wiser();
-			wiser.setPort(PORT);
+			wiser =  Wiser.port(PORT);
 			wiser.start();
 			log.debug("Internal mail server started.");
 		}
