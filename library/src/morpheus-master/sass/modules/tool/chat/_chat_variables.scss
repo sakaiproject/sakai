@@ -8,11 +8,11 @@ $footerApp__chat__color: 		 		var(--sakai-text-color-1);
 $footerApp__chat__color-lighter: 		 		var(--sakai-text-color-disabled);
 $footerApp__chat__background: 	 		var(--tool-background-color);
 
-$footerApp__chat__a__color: 	 		var(--sakai-primary-color-1);
-$footerApp__chat__a--hover__color: 		var(--sakai-primary-color-2);
+$footerApp__chat__a__color: 	 		var(--button-primary-text-color);
+$footerApp__chat__a--hover__color: 		var(--button-primary-hover-text-color);
 
-$footerApp__chat__header__color: 	  	var(--sakai-text-color-1);
-$footerApp__chat__header__background: 	var(--sakai-background-color-1);
+$footerApp__chat__header__color: 	  	var(--button-primary-text-color);
+$footerApp__chat__header__background: 	var(--button-primary-background);
 
 $footerApp__chat__message__left__background: 	var(--sakai-color-green--lighter-7);
 $footerApp__chat__message__left__border: 		var(--sakai-color-green--lighter-5); 
