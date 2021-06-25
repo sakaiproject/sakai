@@ -295,7 +295,10 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
 										getSettings().isAllowStudentsToCompareGrades() &&
 										// Inlcuding all assigments that doesn't count if this property is set
-										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted());
+										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted())
+										&&
+										// Only show this to students because this panel is also accesible for instructors
+										GradeSummaryTablePanel.this.getUserRole() == GbRole.STUDENT;
 							}
 						};
 						assignmentItem.add(compareLink);
