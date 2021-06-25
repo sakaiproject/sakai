@@ -24,9 +24,10 @@ package org.sakaiproject.citation.cover;
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
 import org.sakaiproject.component.cover.ComponentManager;
 
-/*
+/**
  * Static covers for ConfigurationService API methods; adheres to
  * the ConfigurationService API interface definition
+ * @deprecated
  */
 public class ConfigurationService
 {

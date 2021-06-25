@@ -2203,7 +2203,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			collectionTitle = (String)state.getAttribute( STATE_COLLECTION_TITLE );
 		}
 		else if( !collectionTitle.trim().equals("") ) {
-			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
+			context.put( "collectionTitle", formattedText.escapeHtml(collectionTitle));
 		}
 
 		CitationCollection collection = getCitationCollection(state, true);
