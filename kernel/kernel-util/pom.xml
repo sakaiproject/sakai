@@ -6,7 +6,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>21-SNAPSHOT</version><!-- KernelVersion -->
+        <version>21.1</version><!-- KernelVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
 
