@@ -473,16 +473,10 @@
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 								   $!service.getAssignmentStatus($assignment.Id)
 								#else
-									#if ($!submission)
-										$!service.getSubmissionStatus($submission.Id)
-										#if ($submission.Submitted)
-											#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
-												<span class="highlight">$tlang.getString("gen.late2")</span>
-											#end
-										#end
-									#else
-										$tlang.getString("gen.notsta")
+									#if ($submission)
+										#set ($submissionId = $submission.Id)
 									#end
+									<span class="highlight">$!service.getSubmissionStatus($!submissionId)</span>
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">

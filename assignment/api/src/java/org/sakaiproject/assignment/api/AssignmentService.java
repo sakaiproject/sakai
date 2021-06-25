@@ -491,7 +491,7 @@ public interface AssignmentService extends EntityProducer {
      * @param submissionId
      * @return
      */
-    public AssignmentConstants.SubmissionStatus getSubmissionCannonicalStatus(AssignmentSubmission s);
+    AssignmentConstants.SubmissionStatus getSubmissionCanonicalStatus(AssignmentSubmission submission, boolean canGrade);
 
     /**
      * @param submissionId

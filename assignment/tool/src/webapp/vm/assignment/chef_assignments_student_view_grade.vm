@@ -40,13 +40,10 @@
         #if ($!assignment.IsGroup)
             <span> - $tlang.getString("gen.groupassignment") </span>
         #end
-        #if ($submission.Returned)
-            <span class="highlight"> - $tlang.getString("gen.returned")</span>
-        #elseif (!$submission.Submitted)
-            <span class="highlight"> - $!service.getSubmissionStatus($!submission.Id) </span>
-        #elseif (!$!nonElectronicType && $!submission.UserSubmission)
-            <span class="highlight"> - $tlang.getString("gen.subm4")</span>
+        #if ($submission)
+            #set($submissionId = $submission.Id)
         #end
+        <span class="highlight"> - $!service.getSubmissionStatus($!submissionId)</span>
     </h3>
     #if (!$!nonElectronicType)
         #progressBar($!service.getProgressBarStatus($!submission))

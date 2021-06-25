@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -141,6 +142,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("fail")).thenReturn("Fail");
         when(resourceLoader.getString("gen.checked")).thenReturn("Checked");
         when(resourceLoader.getString("assignment.copy")).thenReturn("Copy");
+        when(resourceLoader.getString("listsub.nosub")).thenReturn("No Submission");
+        when(resourceLoader.getString("gen.notsta")).thenReturn("Not Started");
         ((AssignmentServiceImpl) assignmentService).setResourceLoader(resourceLoader);
         when(userTimeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
@@ -644,6 +647,302 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
+    public void submissionCanonicalStatus() {
+        String context = UUID.randomUUID().toString();
+        String assignmentId = UUID.randomUUID().toString();
+        String submissionId = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+
+        Instant now = Instant.now();
+        Instant oneDayAgo = now.minus(1, ChronoUnit.DAYS);
+        Instant tenDaysAgo = now.minus(10, ChronoUnit.DAYS);
+
+        // submission not exists = NO_SUBMISSION
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.NO_SUBMISSION, assignmentService.getSubmissionCanonicalStatus(null, true));
+        // submission not exists = NOT_STARTED
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.NOT_STARTED, assignmentService.getSubmissionCanonicalStatus(null, false));
+
+        Assignment assignment = new Assignment();
+        assignment.setId(assignmentId);
+        assignment.setContext(context);
+        AssignmentSubmission submission = new AssignmentSubmission();
+        submission.setId(submissionId);
+        submission.setUserSubmission(true);
+        submission.setSubmittedText("Some Text");
+        AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+        submitter.setId(1L);
+        submitter.setSubmitter(submitterId);
+        submitter.setSubmittee(true);
+
+        submitter.setSubmission(submission);
+        submission.setAssignment(assignment);
+        submission.getSubmitters().add(submitter);
+        assignment.getSubmissions().add(submission);
+
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission not Graded | DateSubmitted after DueDate = LATE
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        assignment.setDueDate(submission.getDateSubmitted().minus(6, ChronoUnit.HOURS));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.LATE, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission not Graded | DateSubmitted before DueDate = RESUBMITTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        assignment.setDueDate(submission.getDateSubmitted().plus(3, ChronoUnit.DAYS));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
+        submission.setGraded(true);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned not exists = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade exists = GRADED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade("1000");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted exists | submission not Returned | User can't Grade = SUBMITTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        submission.setGrade(null);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission not Returned | submission not Graded | User can Grade = UNGRADED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        submission.setGrade(null);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted not exists | submission is Returned = RETURNED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(true);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        submission.setGrade(null);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Grade exists = GRADED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade("1000");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission is Graded | User can Grade | Grade not exists = COMMENTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission not Graded | User can't Grade | Assignment is HonorPledge | Submission is HonorPledge = HONOR_ACCEPTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        submission.setGrade(null);
+        submission.setHonorPledge(true);
+        assignment.setDueDate(null);
+        assignment.setHonorPledge(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission Graded | User can't Grade | Assignment is HonorPledge | Submission is HonorPledge = HONOR_ACCEPTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        submission.setHonorPledge(true);
+        assignment.setDueDate(null);
+        assignment.setHonorPledge(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission not Graded | User can Grade = NO_SUBMISSION
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(false);
+        submission.setGrade(null);
+        submission.setHonorPledge(false);
+        assignment.setDueDate(null);
+        assignment.setHonorPledge(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.NO_SUBMISSION, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission is Submitted | DateSubmitted not exists | submission not Returned | submission Graded | User can't Grade | Assignment is HonorPledge | Submission not HonorPledge = NOT_STARTED
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(null);
+        submission.setReturned(false);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        submission.setHonorPledge(false);
+        assignment.setDueDate(null);
+        assignment.setHonorPledge(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.NOT_STARTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission Graded | submission Returned | DateModified exists | DateReturned exists | DateModified after DateReturned plus 10 seconds | User can't Grade = IN_PROGRESS
+        submission.setSubmitted(false);
+        submission.setReturned(true);
+        submission.setDateReturned(oneDayAgo);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        submission.setDateModified(now.minus(12, ChronoUnit.HOURS));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission Graded | submission Returned | DateModified not exists = RETURNED
+        submission.setSubmitted(false);
+        submission.setReturned(true);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        submission.setDateModified(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission Graded | submission Returned | DateReturned not exists = RETURNED
+        submission.setSubmitted(false);
+        submission.setReturned(true);
+        submission.setDateReturned(null);
+        submission.setGraded(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission Graded | submission Returned | DateModified before DateReturned plus 10 seconds = RETURNED
+        submission.setSubmitted(false);
+        submission.setReturned(true);
+        submission.setDateReturned(now.minus(1, ChronoUnit.DAYS));
+        submission.setGraded(true);
+        submission.setDateModified(now.minus(2, ChronoUnit.DAYS));
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission Graded | submission Returned | User can Grade = RETURNED
+        submission.setSubmitted(false);
+        submission.setReturned(true);
+        submission.setGraded(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Grade exists = GRADED
+        submission.setSubmitted(false);
+        submission.setReturned(false);
+        submission.setGraded(true);
+        submission.setGrade("1000");
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.GRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission not Submitted | submission Graded | submission not Returned | User can Grade | Grade not exists = COMMENTED
+        submission.setSubmitted(false);
+        submission.setReturned(false);
+        submission.setGraded(true);
+        submission.setGrade(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.COMMENTED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission not Submitted | submission Graded | submission not Returned | User can't Grade = IN_PROGRESS
+        submission.setSubmitted(false);
+        submission.setReturned(false);
+        submission.setGraded(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission not Graded | User can Grade = UNGRADED
+        submission.setSubmitted(false);
+        submission.setReturned(false);
+        submission.setGraded(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
+
+        // submission not Submitted | submission not Graded | DateCreated equals DateModified | Assignment is HonorPledge | Submission is HonorPledge = HONOR_ACCEPTED
+        submission.setSubmitted(false);
+        submission.setGraded(false);
+        submission.setHonorPledge(true);
+        submission.setDateCreated(tenDaysAgo);
+        submission.setDateModified(tenDaysAgo);
+        assignment.setHonorPledge(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission not Graded | DateCreated not equals DateModified = IN_PROGRESS
+        submission.setSubmitted(false);
+        submission.setGraded(false);
+        submission.setHonorPledge(true);
+        submission.setDateCreated(tenDaysAgo);
+        submission.setDateModified(oneDayAgo);
+        assignment.setHonorPledge(true);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission not Graded | Assignment not HonorPledge = IN_PROGRESS
+        submission.setSubmitted(false);
+        submission.setGraded(false);
+        assignment.setHonorPledge(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission not Submitted | submission not Graded | Submission not HonorPledge = IN_PROGRESS
+        submission.setSubmitted(false);
+        submission.setGraded(false);
+        submission.setHonorPledge(false);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
+    }
+
+    @Test
     public void submissionStatus() {
         // gen.resub         = Re-submitted
         // gen.late2         = - late
@@ -660,18 +959,30 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
+
+        // test for non existent submission
+        String status = assignmentService.getSubmissionStatus("SUBMISSION_DOESNT_EXIST");
+        Assert.assertEquals("Not Started", status);
+
         try {
             AssignmentSubmission submission = createNewSubmission(context, submitterId);
             when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
                                         AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
-            String status = assignmentService.getSubmissionStatus(submission.getId());
-            Assert.assertEquals("Draft - In progress", status);
-            AssignmentConstants.SubmissionStatus subStatus = assignmentService.getSubmissionCannonicalStatus(submission);
+            status = assignmentService.getSubmissionStatus(submission.getId());
+            Assert.assertEquals("In progress", status);
+            AssignmentConstants.SubmissionStatus subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, subStatus);
             Assert.assertFalse(submission.getSubmitted());
 
+            // A grader should see additional info before about the status
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+            status = assignmentService.getSubmissionStatus(submission.getId());
+            Assert.assertEquals("Ungraded - In progress", status);
+
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(false);
             submission.setSubmitted(true);
             submission.setUserSubmission(true);
             submission.setDateSubmitted(Instant.now());
@@ -679,12 +990,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             assignmentService.updateSubmission(submission);
             status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()), status);
-            subStatus = assignmentService.getSubmissionCannonicalStatus(submission);
+            subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 
             Map<String,Boolean> statuses = assignmentService.getProgressBarStatus(submission);
             Map<String,Boolean> statusesAux = new LinkedHashMap<>();
-            statusesAux.put("Draft - In progress", true);
+            statusesAux.put("In progress", true);
             statusesAux.put("Submitted ", true);
             statusesAux.put("Returned", false);
             Assert.assertEquals(statuses, statusesAux);

@@ -404,6 +404,7 @@ function printView(url) {
 					#end
 					#if ($!submission)## && $submission.submitted)
 						## SAK-17606
+						#set($submissionId = $submission.Id)
 						#set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
 
 						<tr>
@@ -420,13 +421,6 @@ function printView(url) {
 							</td>
 							<td headers="studentname">
 								#if ($taggable)
-									#if (!$!submission.submitted)
-										#set($submittedText = $!submission.submittedText)
-										#set($submittedAttachments = $submission.Attachments)
-										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
-										#end
-									#end
-									
 									#if ($value_CheckAnonymousGrading)
 										$anonymousSubmissionId
 									#else
@@ -468,13 +462,6 @@ function printView(url) {
 								#else
 									#if(!$disableGrade)
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
-											#if (!$!submission.submitted)
-												#set($submittedText = $!submission.submittedText)
-												#set($submittedAttachments = $submission.Attachments)
-												#if ($submittedText && !$submittedText.isEmpty() || $!submittedAttachments.size() > 0 )
-												#end
-											#end
-											
 											#if ($value_CheckAnonymousGrading)
 												$anonymousSubmissionId
 											#else
@@ -515,11 +502,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								#if ($!submission && $submission.submitted)
-									$!service.getSubmissionStatus($submission.Id)
-								#elseif (!$!submission.submitted)
-										$tlang.getString("listsub.nosub")
-								#end
+								$!service.getSubmissionStatus($!submissionId)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>
