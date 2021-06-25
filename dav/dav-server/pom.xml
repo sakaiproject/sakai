@@ -4,7 +4,7 @@
     <parent>
         <artifactId>dav-base</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>21.1</version>
+        <version>21-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>sakai-dav-server</name>
