@@ -11,6 +11,19 @@
   font-weight: 600;
 }
 
+#studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row {
+  background-color: var(--sakai-active-color-1);
+}
+
+#studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row td {
+  font-weight: bold;
+  background: none;
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options input[disabled] {
+  background-color: var(--sakai-text-color-disabled);
+}
+
 #settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
   margin-right: 8px;
 }

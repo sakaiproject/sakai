@@ -15,22 +15,19 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.Collections;
+import com.google.gson.Gson;
 import java.util.List;
 
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.business.model.GbGradeComparisonItem;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.user.api.User;
 
@@ -39,10 +36,17 @@ public class StudentCompareGradesPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private final ModalWindow window;
+    final List<GbGradeComparisonItem> data;
 
     public StudentCompareGradesPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
         super(id, model);
         this.window = window;
+        this.data = StudentCompareGradesPanel.this.businessService
+                    .buildMatrixForGradeComparison(
+                            model.getObject(),
+                            GradingType.valueOf(getGradebook().getGrade_type()),
+                            getSettings()
+                    );
     }
 
     @Override
@@ -50,11 +54,7 @@ public class StudentCompareGradesPanel extends BasePanel {
         super.onInitialize();
             final Assignment assignment = ((Model<Assignment>) getDefaultModel()).getObject();
 
-            final GradingType gradingType = GradingType.valueOf(getGradebook().getGrade_type());
-
             User currentUser = this.businessService.getCurrentUser();
-            final List<GbStudentGradeInfo> gradeInfo = this.businessService
-                    .buildMatrixForGradeComparison(assignment);
 
             StudentCompareGradesPanel.this.window.setTitle(
                     new StringResourceModel("comparegrades.modal.title.student.name", null, new Object[] { currentUser.getDisplayName() })
@@ -62,14 +62,6 @@ public class StudentCompareGradesPanel extends BasePanel {
 
             Label gradeItemLabel = new Label("gradeItemLabel", assignment.getName());
             add(gradeItemLabel);
-
-            if(getSettings().isComparingRandomizeDisplayedData()){
-                Collections.shuffle(gradeInfo);
-            }
-            boolean isComparingAndDisplayingFullName = getSettings()
-                                    .isComparingDisplayStudentNames() && 
-                           getSettings()
-                                   .isComparingDisplayStudentSurnames();
 
             boolean isComparingOrDisplayingFullName = getSettings()
                                     .isComparingDisplayStudentNames() || 
@@ -94,67 +86,20 @@ public class StudentCompareGradesPanel extends BasePanel {
             };
             add(teacherCommentHeaderLabel);
 
-            Label gradeHeaderLabel = new Label("gradeHeaderLabel" ,new ResourceModel("comparegrades.modal.table.header.grade")){
-                @Override
-                public boolean isVisible() {
-                    return getSettings().isComparingDisplayGrades();
-                }
-
-            };
+            Label gradeHeaderLabel = new Label("gradeHeaderLabel" ,new ResourceModel("comparegrades.modal.table.header.grade"));
             add(gradeHeaderLabel);
 
-            // Table rows
-
-            ListView<GbStudentGradeInfo> gradeItemsTable = new ListView<GbStudentGradeInfo>("gradeItemRows", Model.ofList(gradeInfo)){
-            @Override
-            protected void populateItem(ListItem<GbStudentGradeInfo> li) {
-                GbStudentGradeInfo auxItem = li.getModelObject();
-                GbGradeInfo gradeInfo = auxItem.getGrades()
-                        .values()
-                        .stream()
-                        .findFirst()
-                        .orElseGet(() -> {
-                            GradeDefinition auxGd = new GradeDefinition();
-                            auxGd.setGrade("");
-                            return new GbGradeInfo(auxGd);
-                        });
-
-                String studentDisplayName = String.format(
-                        "%s%s%s", 
-                        getSettings().isComparingDisplayStudentNames() ? auxItem.getStudentFirstName() : "",
-                        isComparingAndDisplayingFullName ? " " : "",
-                        getSettings().isComparingDisplayStudentSurnames()? auxItem.getStudentLastName() : ""
-                );
-                
-                Label studentNameLabel = new Label("studentNameLabel", studentDisplayName){
-                    @Override
-                    public boolean isVisible() {
-                        return isComparingOrDisplayingFullName;
-                    }
-                };
-                li.add(studentNameLabel);
-                
-                Label teacherCommentLabel = new Label("teacherCommentLabel", gradeInfo.getGradeComment()){
-                    @Override
-                    public boolean isVisible() {
-                        return getSettings().isComparingDisplayTeacherComments();
-                    }
-                };
-                li.add(teacherCommentLabel);
-                Label gradeLabel = new Label("gradeLabel", FormatHelper.formatGrade(gradeInfo.getGrade()) + (
-                            GradingType.PERCENTAGE.equals(gradingType) ? "%" : ""
-                        )
-                ){
-                    @Override
-                    public boolean isVisible() {
-                        return getSettings().isComparingDisplayGrades();
-                    }
-                };
-                li.add(gradeLabel);
-            }};
-
-            add(gradeItemsTable);
-
     }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        Gson gson = new Gson();
+
+        String dataJson = gson.toJson(data);
+
+        response.render(JavaScriptHeaderItem.forScript("window.GbComparisonData = "+dataJson+";", null));
+    }
+
 
 }

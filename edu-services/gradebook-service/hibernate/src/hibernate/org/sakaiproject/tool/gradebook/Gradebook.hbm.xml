@@ -66,8 +66,6 @@
 		
 		<property name="allowStudentsToCompareGrades" column="ALLOW_COMPARE_GRADES" type="boolean" not-null="true"/>
 		
-		<property name="comparingDisplayGrades" column="COMPARING_DISPLAY_GRADES" type="boolean" not-null="true"/>
-		
 		<property name="comparingDisplayStudentNames" column="COMPARING_DISPLAY_FIRSTNAMES" type="boolean" not-null="true"/>
 		
 		<property name="comparingDisplayStudentSurnames" column="COMPARING_DISPLAY_SURNAMES" type="boolean" not-null="true"/>

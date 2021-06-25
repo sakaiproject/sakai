@@ -450,7 +450,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// add in compare grades with classmates settings
 		rval.setAllowStudentsToCompareGrades(gradebook.isAllowStudentsToCompareGrades());
-		rval.setComparingDisplayGrades(gradebook.isComparingDisplayGrades());
 		rval.setComparingDisplayStudentNames(gradebook.isComparingDisplayStudentNames());
 		rval.setComparingDisplayStudentSurnames(gradebook.isComparingDisplayStudentSurnames());
 		rval.setComparingDisplayTeacherComments(gradebook.isComparingDisplayTeacherComments());
@@ -475,7 +474,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setAssignmentsDisplayed(gradebookInformation.isDisplayReleasedGradeItemsToStudents());
 		gradebook.setCourseGradeDisplayed(gradebookInformation.isCourseGradeDisplayed());
 		gradebook.setAllowStudentsToCompareGrades(gradebookInformation.isAllowStudentsToCompareGrades());
-		gradebook.setComparingDisplayGrades(gradebookInformation.isComparingDisplayGrades());
 		gradebook.setComparingDisplayStudentNames(gradebookInformation.isComparingDisplayStudentNames());
 		gradebook.setComparingDisplayStudentSurnames(gradebookInformation.isComparingDisplayStudentSurnames());
 		gradebook.setComparingDisplayTeacherComments(gradebookInformation.isComparingDisplayTeacherComments());
@@ -3320,7 +3318,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// set allow students to compare grades
 		gradebook.setAllowStudentsToCompareGrades(gbInfo.isAllowStudentsToCompareGrades());
-		gradebook.setComparingDisplayGrades(gbInfo.isComparingDisplayGrades());
 		gradebook.setComparingDisplayStudentNames(gbInfo.isComparingDisplayStudentNames());
 		gradebook.setComparingDisplayStudentSurnames(gbInfo.isComparingDisplayStudentSurnames());
 		gradebook.setComparingDisplayTeacherComments(gbInfo.isComparingDisplayTeacherComments());

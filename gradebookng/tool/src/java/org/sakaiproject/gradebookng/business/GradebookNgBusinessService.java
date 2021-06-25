@@ -61,6 +61,7 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.gradebookng.business.model.*;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
@@ -71,14 +72,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
-import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
-import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.gradebookng.business.model.GbGradeLog;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
-import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -1082,7 +1075,7 @@ public class GradebookNgBusinessService {
 		return items;
 	}
 
-	public List<GbStudentGradeInfo> buildMatrixForGradeComparison(Assignment assignment){
+	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(Assignment assignment, GradingType gradingType, GradebookInformation settings){
 		// Only return the list if the feature is activated
 		boolean serverPropertyOn = serverConfigService.getConfig(
 				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
@@ -1091,12 +1084,50 @@ public class GradebookNgBusinessService {
 		if (!serverPropertyOn) {
 			return new ArrayList<>();
 		}
+		
+		List<GbGradeComparisonItem> data;
+		
+		String userEid = getCurrentUser().getEid();
+		
+		boolean isComparingAndDisplayingFullName = settings
+						.isComparingDisplayStudentNames() &&
+				settings
+						.isComparingDisplayStudentSurnames();
+
+		boolean isComparingOrDisplayingFullName = settings
+								.isComparingDisplayStudentNames() ||
+						settings
+								.isComparingDisplayStudentSurnames();
 
 		// Add advisor to retrieve the grades as student
 		SecurityAdvisor advisor = null;
 		try {
 			advisor = addSecurityAdvisor();
-			return buildGradeMatrix(Collections.singletonList(assignment));
+			data = buildGradeMatrix(Collections.singletonList(assignment))
+					.stream().map(GbGradeComparisonItem::new)
+					.map(el -> {
+						if(isComparingOrDisplayingFullName){
+							String studentDisplayName = String.format(
+								"%s%s%s",
+								settings.isComparingDisplayStudentNames() ? el.getStudentFirstName() : "",
+								isComparingAndDisplayingFullName ? " " : "",
+								settings.isComparingDisplayStudentSurnames()? el.getStudentLastName() : ""
+							);
+							el.setStudentDisplayName(studentDisplayName);
+						}
+						el.setIsCurrentUser(userEid.equals(el.getEid()));
+						
+						el.setGrade(FormatHelper.formatGrade(el.getGrade()) + (
+							GradingType.PERCENTAGE.equals(gradingType) ? "%" : ""
+						));
+						return el;
+					})
+					.collect(Collectors.toList());
+			
+			if(settings.isComparingRandomizeDisplayedData()){
+				Collections.shuffle(data);
+			}
+			return data;
 		} finally {
 			removeSecurityAdvisor(advisor);
 		}
