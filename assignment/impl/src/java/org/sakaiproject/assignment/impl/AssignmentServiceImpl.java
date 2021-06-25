@@ -32,10 +32,8 @@ import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,6 +70,7 @@ import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
 import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -1587,19 +1586,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public AssignmentSubmission getSubmission(String submissionId) throws PermissionException {
-        AssignmentSubmission submission = assignmentRepository.findSubmission(submissionId);
-        if (submission != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            if (allowGetSubmission(reference)) {
-                return submission;
-            } else {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+        if (StringUtils.isNotBlank(submissionId)) {
+            AssignmentSubmission submission = assignmentRepository.findSubmission(submissionId);
+            if (submission != null) {
+                String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                if (allowGetSubmission(reference)) {
+                    return submission;
+                } else {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+                }
             }
-        } else {
-            // submission not found
-            log.debug("Submission ID does not exist {}", submissionId);
         }
-
+        log.debug("Submission ID does not exist {}", submissionId);
         return null;
     }
 
@@ -1672,99 +1670,168 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getSubmissionStatus(String submissionId) {
-        String status = "";
-        AssignmentSubmission submission;
+        AssignmentSubmission submission = null;
+        SubmissionStatus submissionStatus;
+        String submitTime = "";
+        boolean canGrade = false;
+
         try {
             submission = getSubmission(submissionId);
+
+            if (submission != null) {
+                Assignment assignment = submission.getAssignment();
+                String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                canGrade = allowGradeSubmission(assignmentReference);
+
+                if (submission.getDateSubmitted() != null) {
+                    submitTime = userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null);
+                }
+            }
         } catch (PermissionException e) {
-            log.warn("Could not get submission with id {}, {}", submissionId, e.getMessage());
-            return status;
+            log.debug("Could not get submission with id {}, {}", submissionId, e.toString());
         }
 
-        Instant submitTime = submission.getDateSubmitted();
-        AssignmentConstants.SubmissionStatus subStatus = getSubmissionCannonicalStatus(submission);
-        return getFormattedStatus(subStatus, userTimeService.dateTimeFormat(submitTime, null, null));
+        submissionStatus = getSubmissionCanonicalStatus(submission, canGrade);
+        String i18nStatus = getFormattedStatus(submissionStatus, submitTime);
+
+        // if this is a grader and there is no NO_SUBMISSION add on the submitters status for added clarity
+        if (canGrade && (SubmissionStatus.NO_SUBMISSION.equals(submissionStatus) || SubmissionStatus.UNGRADED.equals(submissionStatus))) {
+            SubmissionStatus submitterStatus = getSubmittersCanonicalSubmissionStatus(submission);
+            return i18nStatus + " - " +  getFormattedStatus(submitterStatus, submitTime);
+        }
+
+        return i18nStatus;
     }
 
-    private String getFormattedStatus(AssignmentConstants.SubmissionStatus subStatus, String submittedTime) {
-        String status = "";
-        if(subStatus == AssignmentConstants.SubmissionStatus.RESUBMITTED) {
-            status = resourceLoader.getString("gen.resub");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.LATE) {
-            status = resourceLoader.getString("gen.resub") + " " + submittedTime + resourceLoader.getString("gen.late2");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.SUBMITTED) {
-            status = resourceLoader.getString("gen.subm4") + " " + submittedTime;
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.RETURNED) {
-            status = resourceLoader.getString("gen.returned");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.UNGRADED) {
-            status = resourceLoader.getString("ungra");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.NO_SUBMISSION) {
-            status = resourceLoader.getString("listsub.nosub");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.NOT_STARTED) {
-            status = resourceLoader.getString("gen.notsta");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.IN_PROGRESS) {
-            status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.COMMENTED) {
-            status = resourceLoader.getString("gen.commented");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.GRADED) {
-            status = resourceLoader.getString("grad3");
-        } else if(subStatus == AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED) {
-            status = resourceLoader.getString("gen.hpsta");
+    private String getFormattedStatus(SubmissionStatus status, String submittedTime) {
+        switch (status) {
+            case RESUBMITTED:
+                return resourceLoader.getString("gen.resub");
+            case LATE:
+                return resourceLoader.getString("gen.resub") + " " + submittedTime + resourceLoader.getString("gen.late2");
+            case SUBMITTED:
+                return resourceLoader.getString("gen.subm4") + " " + submittedTime;
+            case RETURNED:
+                return resourceLoader.getString("gen.returned");
+            case UNGRADED:
+                return resourceLoader.getString("ungra");
+            case NO_SUBMISSION:
+                return resourceLoader.getString("listsub.nosub");
+            case NOT_STARTED:
+                return resourceLoader.getString("gen.notsta");
+            case IN_PROGRESS:
+                return resourceLoader.getString("gen.inpro");
+            case COMMENTED:
+                return resourceLoader.getString("gen.commented");
+            case GRADED:
+                return resourceLoader.getString("grad3");
+            case HONOR_ACCEPTED:
+                return resourceLoader.getString("gen.hpsta");
+            default:
+                return "Undefined Status";
         }
-        return status;
     }
 
     @Override
-    public AssignmentConstants.SubmissionStatus getSubmissionCannonicalStatus(AssignmentSubmission submission) {
-        AssignmentConstants.SubmissionStatus status = null;
-        Assignment assignment = submission.getAssignment();
-        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
+    public SubmissionStatus getSubmissionCanonicalStatus(AssignmentSubmission submission, boolean canGrade) {
+        SubmissionStatus status;
+        if (canGrade) {
+            status = getGradersCanonicalSubmissionStatus(submission);
+        } else {
+            status = getSubmittersCanonicalSubmissionStatus(submission);
+        }
+
+        log.debug("getSubmissionCanonicalStatus for submission {} : {}", submission, status);
+        return status;
+    }
+
+    private AssignmentConstants.SubmissionStatus getGradersCanonicalSubmissionStatus(AssignmentSubmission submission) {
+        if (submission == null) return SubmissionStatus.NO_SUBMISSION;
 
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
-        Instant lastModTime = submission.getDateModified();
-        if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
+
+        // States matching a person who can grade a submission
+        if (submission.getSubmitted()) {
             if (submitTime != null) {
                 if (submission.getReturned()) {
                     if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
-                            status = AssignmentConstants.SubmissionStatus.RESUBMITTED;
-                            if (submitTime.isAfter(assignment.getDueDate())) {
-                                status = AssignmentConstants.SubmissionStatus.LATE;
+                            if (submitTime.isAfter(submission.getAssignment().getDueDate())) {
+                                return SubmissionStatus.LATE;
+                            } else {
+                                return SubmissionStatus.RESUBMITTED;
                             }
-                        } else
-                            status = AssignmentConstants.SubmissionStatus.RETURNED;
-                    } else
-                        status = AssignmentConstants.SubmissionStatus.RETURNED;
-                } else if (submission.getGraded() && allowGrade) {
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
-                } else {
-                    if (allowGrade) {
-                        // ungraded submission
-                        status = AssignmentConstants.SubmissionStatus.UNGRADED;
+                        } else {
+                            return SubmissionStatus.RETURNED;
+                        }
                     } else {
-                        status = AssignmentConstants.SubmissionStatus.SUBMITTED;
+                        return SubmissionStatus.RETURNED;
                     }
+                } else if (submission.getGraded()) {
+                    return StringUtils.isNotBlank(submission.getGrade()) ? SubmissionStatus.GRADED : SubmissionStatus.COMMENTED;
+                } else {
+                    return SubmissionStatus.UNGRADED;
                 }
             } else {
                 if (submission.getReturned()) {
-                    // instructor can return grading to non-submitted user
-                    status = AssignmentConstants.SubmissionStatus.RETURNED;
-                } else if (submission.getGraded() && allowGrade) {
-                    // instructor can grade non-submitted ones
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
+                    return SubmissionStatus.RETURNED;
+                } else if (submission.getGraded()) {
+                    return StringUtils.isNotBlank(submission.getGrade()) ? SubmissionStatus.GRADED : SubmissionStatus.COMMENTED;
                 } else {
-                    if (allowGrade) {
-                        // show "no submission" to graders
-                        status = AssignmentConstants.SubmissionStatus.NO_SUBMISSION;
-                    } else {
-                        if (assignment.getHonorPledge() && submission.getHonorPledge()) {
-                            status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
+                    return SubmissionStatus.NO_SUBMISSION;
+                }
+            }
+        } else {
+            if (submission.getGraded()) {
+                if (submission.getReturned()) {
+                    // not submitted submmission has been graded and returned
+                    return SubmissionStatus.RETURNED;
+                } else {
+                    // grade saved but not release yet, show this to graders
+                    return StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
+                }
+            } else {
+                return SubmissionStatus.UNGRADED;
+            }
+        }
+    }
+
+    private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {
+        if (submission == null) return SubmissionStatus.NOT_STARTED;
+
+        Instant submitTime = submission.getDateSubmitted();
+        Instant returnTime = submission.getDateReturned();
+        Instant lastModTime = submission.getDateModified();
+
+        // States matching a person that submits a submission
+        if (submission.getSubmitted()) {
+            if (submitTime != null) {
+                if (submission.getReturned()) {
+                    if (returnTime != null && returnTime.isBefore(submitTime)) {
+                        if (!submission.getGraded()) {
+                            if (submitTime.isAfter(submission.getAssignment().getDueDate())) {
+                                return SubmissionStatus.LATE;
+                            } else {
+                                return SubmissionStatus.RESUBMITTED;
+                            }
                         } else {
-                            // show "not started" to students
-                            status = AssignmentConstants.SubmissionStatus.NOT_STARTED;
+                            return SubmissionStatus.RETURNED;
                         }
+                    } else {
+                        return SubmissionStatus.RETURNED;
+                    }
+                } else {
+                    return SubmissionStatus.SUBMITTED;
+                }
+            } else {
+                if (submission.getReturned()) {
+                    return SubmissionStatus.RETURNED;
+                } else {
+                    if (submission.getAssignment().getHonorPledge() && submission.getHonorPledge()) {
+                        return SubmissionStatus.HONOR_ACCEPTED;
+                    } else {
+                        return SubmissionStatus.NOT_STARTED;
                     }
                 }
             }
@@ -1772,36 +1839,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission.getGraded()) {
                 if (submission.getReturned()) {
                     // modified time is after returned time + 10 seconds
-                    if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
+                    if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10))) {
                         // working on a returned submission now
-                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
+                        return SubmissionStatus.IN_PROGRESS;
                     } else {
                         // not submitted submmission has been graded and returned
-                        status = AssignmentConstants.SubmissionStatus.RETURNED;
+                        return SubmissionStatus.RETURNED;
                     }
-                } else if (allowGrade) {
-                    // grade saved but not release yet, show this to graders
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     // submission saved, not submitted.
-                    status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
+                    return SubmissionStatus.IN_PROGRESS;
                 }
             } else {
-                if (allowGrade)
-                    status = AssignmentConstants.SubmissionStatus.UNGRADED;
-                else {
-                    // TODO add a submission state of draft so we can eliminate the date check here
-                    if (assignment.getHonorPledge() && submission.getHonorPledge() && submission.getDateCreated().equals(submission.getDateModified())) {
-                        status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
-                    } else {
-                        // submission saved, not submitted,
-                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
-                    }
+                if (submission.getAssignment().getHonorPledge() && submission.getHonorPledge() && submission.getDateCreated().equals(submission.getDateModified())) {
+                    return SubmissionStatus.HONOR_ACCEPTED;
+                } else {
+                    // submission saved, not submitted,
+                    return SubmissionStatus.IN_PROGRESS;
                 }
             }
         }
-        log.debug("getSubmissionCannonicalStatus for submission {} : {}", submission.getId(), status);
-        return status;
     }
 
     public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission) {//currently this is only for student

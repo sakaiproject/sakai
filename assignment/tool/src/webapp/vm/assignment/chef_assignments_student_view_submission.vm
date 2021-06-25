@@ -61,16 +61,9 @@ $(document).ready(function(){
 			#else
 			<h3>
 				$formattedText.escapeHtml($assignment.Title)
-				#if(!$submitted)
-                    <span class="highlight">
-						 - $!service.getSubmissionStatus($!submission.Id)
-					</span>
-				#end
-				#if ($dateReturned && $dateSubmitted && $dateReturned.isAfter($dateSubmitted))
-					<span class="highlight">
-						 - $tlang.getString("resubmit")
-					</span>
-				#end	
+				<span class="highlight">
+					 - $!service.getSubmissionStatus($submission.Id)
+				</span>
 			</h3>
 			#end
 			#if ($returned)
