@@ -106,7 +106,7 @@ public class RemoveFriend extends Panel {
 				if(!friend) {
 					text.setDefaultModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
-					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
 					target.add(this);
 					return;
@@ -124,7 +124,7 @@ public class RemoveFriend extends Panel {
 				} else {
 					text.setDefaultModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
-					this.add(new AttributeModifier("class", true, new Model("disabled")));
+					this.add(new AttributeModifier("class", new Model("disabled")));
 					target.add(text);
 					target.add(this);
 					return;
@@ -133,7 +133,7 @@ public class RemoveFriend extends Panel {
             }
 		};
 		//submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", true, new StringResourceModel("accessibility.connection.remove", null, new Object[]{ friendName } )));
+		submitButton.add(new AttributeModifier("title", new StringResourceModel("accessibility.connection.remove", null, new Object[]{ friendName } )));
 		form.add(submitButton);
 		
         

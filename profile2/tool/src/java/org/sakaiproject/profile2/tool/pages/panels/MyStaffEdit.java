@@ -253,7 +253,7 @@ public class MyStaffEdit extends Panel {
 					//target.prependJavascript(js);
 					
 					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.academic.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("save-failed-error")));	
+					formFeedback.add(new AttributeModifier("class", new Model<String>("save-failed-error")));	
 					target.add(formFeedback);
 				}
             }

@@ -155,10 +155,10 @@ public class ProfileStatusRenderer extends Panel {
 		
 		//output
 		add(new Label("message", status.getMessage())
-			.add(new AttributeModifier("class", true, new Model<String>(msgClass)))
+			.add(new AttributeModifier("class", new Model<String>(msgClass)))
 		);
 		add(new Label("date", status.getDateFormatted())
-			.add(new AttributeModifier("class", true, new Model<String>(dateClass)))
+			.add(new AttributeModifier("class", new Model<String>(dateClass)))
 		);
 	
 	}	

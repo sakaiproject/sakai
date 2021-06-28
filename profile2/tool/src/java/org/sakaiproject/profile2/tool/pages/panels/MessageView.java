@@ -210,13 +210,13 @@ public class MessageView extends Panel {
 				
 				//highlight if new, then mark it as read
 				if(!messageOwner && !participant.isRead()) {
-					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
+					item.add(new AttributeAppender("class", new Model<String>("unread-message"), " "));
 					messagingLogic.toggleMessageRead(participant, true);
 					
 					//set param for first unread message in the thread
 					if(!lastUnreadSet) {
 						lastUnreadSet=true;
-						item.add(new AttributeModifier("rel", true, new Model<String>("lastUnread")));
+						item.add(new AttributeModifier("rel", new Model<String>("lastUnread")));
 					}
 					
 				}
@@ -289,7 +289,7 @@ public class MessageView extends Panel {
 				if(!replyField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
 				target.add(formFeedback);
 			}
 		};

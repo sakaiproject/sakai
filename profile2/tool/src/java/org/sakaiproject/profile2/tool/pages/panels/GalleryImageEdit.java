@@ -193,7 +193,7 @@ public class GalleryImageEdit extends Panel {
 					// user alert
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.gallery.remove.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class", 
 							new Model("alertMessage")));
 
 					target.add(formFeedback);
@@ -308,7 +308,7 @@ public class GalleryImageEdit extends Panel {
 					// user alert
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.gallery.setprofile.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class",
 							new Model("alertMessage")));
 
 					target.add(formFeedback);

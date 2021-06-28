@@ -124,7 +124,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.myProfileLink.add(new Label("myProfileLabel", new ResourceModel("link.my.profile")));
-		this.myProfileLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.profile.tooltip")));
+		this.myProfileLink.add(new AttributeModifier("title", new ResourceModel("link.my.profile.tooltip")));
 
 		if (!this.sakaiProxy.isMenuEnabledGlobally()) {
 			this.myProfileLink.setVisible(false);
@@ -155,7 +155,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
-		this.myPicturesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.pictures.tooltip")));
+		this.myPicturesLink.add(new AttributeModifier("title", new ResourceModel("link.my.pictures.tooltip")));
 
 		if (!this.sakaiProxy.isProfileGalleryEnabledGlobally()) {
 			this.myPicturesLink.setVisible(false);
@@ -173,7 +173,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.myFriendsLink.add(new Label("myFriendsLabel", new ResourceModel("link.my.friends")));
-		this.myFriendsLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.friends.tooltip")));
+		this.myFriendsLink.add(new AttributeModifier("title", new ResourceModel("link.my.friends.tooltip")));
 
 		// get count of new connection requests
 		final int newRequestsCount = this.connectionsLogic.getConnectionRequestsForUserCount(currentUserUuid);
@@ -200,7 +200,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.myMessagesLink.add(new Label("myMessagesLabel", new ResourceModel("link.my.messages")));
-		this.myMessagesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.messages.tooltip")));
+		this.myMessagesLink.add(new AttributeModifier("title", new ResourceModel("link.my.messages.tooltip")));
 
 		// get count of new messages grouped by thread
 		final int newMessagesCount = this.messagingLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
@@ -226,7 +226,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.myPrivacyLink.add(new Label("myPrivacyLabel", new ResourceModel("link.my.privacy")));
-		this.myPrivacyLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.privacy.tooltip")));
+		this.myPrivacyLink.add(new AttributeModifier("title", new ResourceModel("link.my.privacy.tooltip")));
 
 		if (!this.sakaiProxy.isPrivacyEnabledGlobally()) {
 			this.myPrivacyLink.setVisible(false);
@@ -244,7 +244,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.searchLink.add(new Label("searchLabel", new ResourceModel("link.my.search")));
-		this.searchLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.search.tooltip")));
+		this.searchLink.add(new AttributeModifier("title", new ResourceModel("link.my.search.tooltip")));
 
 		if (!this.sakaiProxy.isSearchEnabledGlobally()) {
 			this.searchLink.setVisible(false);
@@ -262,7 +262,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		this.preferencesLink.add(new Label("preferencesLabel", new ResourceModel("link.my.preferences")));
-		this.preferencesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.preferences.tooltip")));
+		this.preferencesLink.add(new AttributeModifier("title", new ResourceModel("link.my.preferences.tooltip")));
 
 		if (!this.sakaiProxy.isPreferenceEnabledGlobally()) {
 			this.preferencesLink.setVisible(false);
@@ -272,7 +272,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// rss link
 		/*
 		 * ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG)); Link rssLink = new Link("rssLink") { public
-		 * void onClick() { } }; rssLink.add(icon); rssLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.rss")));
+		 * void onClick() { } }; rssLink.add(icon); rssLink.add(new AttributeModifier("title", new ResourceModel("link.title.rss")));
 		 * icon.setVisible(true); add(rssLink);
 		 */
 

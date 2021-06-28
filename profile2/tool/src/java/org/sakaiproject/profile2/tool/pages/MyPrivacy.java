@@ -395,14 +395,14 @@ public class MyPrivacy extends BasePage {
 				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
 					formFeedback.setDefaultModel(new ResourceModel("success.privacy.save.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
+					formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userUuid, true);
 
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
 				}
 				
 				//resize iframe

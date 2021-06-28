@@ -151,7 +151,7 @@ public class MyWallPanel extends Panel {
 				if (myWallPost.getValue().equals("")) {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.empty"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class", 
 							new Model<String>("alertMessage")));
 					target.add(formFeedback);
 					return;
@@ -160,7 +160,7 @@ public class MyWallPanel extends Panel {
 				if (false == save(form, userUuid)) {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class", 
 							new Model<String>("alertMessage")));
 					target.add(formFeedback);
 				} else {

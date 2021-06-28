@@ -138,12 +138,12 @@ public class MySearch extends BasePage {
 		Radio<String> searchTypeRadioName = new Radio<String>("searchTypeName", new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
 		searchTypeRadioName.setMarkupId("searchtypenameinput");
         searchTypeRadioName.setOutputMarkupId(true);
-		searchTypeRadioName.add(new AttributeModifier("title", true, new ResourceModel("text.search.byname.tooltip")));
+		searchTypeRadioName.add(new AttributeModifier("title", new ResourceModel("text.search.byname.tooltip")));
 		searchTypeRadioGroup.add(searchTypeRadioName);
 		Radio<String> searchTypeRadioInterest = new Radio<String>("searchTypeInterest", new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
 		searchTypeRadioInterest.setMarkupId("searchtypeinterestinput");
         searchTypeRadioInterest.setOutputMarkupId(true);
-		searchTypeRadioInterest.add(new AttributeModifier("title", true, new ResourceModel("text.search.byinterest.tooltip")));
+		searchTypeRadioInterest.add(new AttributeModifier("title", new ResourceModel("text.search.byinterest.tooltip")));
 		searchTypeRadioGroup.add(searchTypeRadioInterest);
 		searchTypeRadioGroup.add(new Label("searchTypeNameLabel", new ResourceModel("text.search.byname.label")));
 		searchTypeRadioGroup.add(new Label("searchTypeInterestLabel", new ResourceModel("text.search.byinterest.label")));
@@ -372,7 +372,7 @@ public class MySearch extends BasePage {
 								public void onClose(AjaxRequestTarget target){
 					            	if(friendActionModel.isRequested()) { 
 					            		connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-										add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
+										add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 					            		setEnabled(false);
 					            		target.add(c1);
 					            	}
@@ -381,7 +381,7 @@ public class MySearch extends BasePage {
 							//in preparation for the window being closed, update the text. this will only
 							//be put into effect if its a successful model update from the window close
 					    	//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-							//this.add(new AttributeModifier("class", true, new Model("instruction")));
+							//this.add(new AttributeModifier("class", new Model("instruction")));
 							//this.setEnabled(false);
 							//friendActionModel.setUpdateThisComponentOnSuccess(this);
 							
@@ -396,19 +396,19 @@ public class MySearch extends BasePage {
 					//setup 'add connection' link
 					if(StringUtils.equals(userUuid, currentUserUuid)) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.self"));
-						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction profile")));
+						connectionLink.add(new AttributeModifier("class", new Model<String>("instruction profile")));
 						connectionLink.setEnabled(false);
 					} else if(friend) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-confirmed")));
+						connectionLink.add(new AttributeModifier("class", new Model<String>("instruction connection-confirmed")));
 						connectionLink.setEnabled(false);
 					} else if (connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
+						connectionLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 						connectionLink.setEnabled(false);					
 					} else if (connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
+						connectionLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 						connectionLink.setEnabled(false);
 					} else {
 						connectionLabel.setDefaultModel(new ResourceModel("link.friend.add"));

@@ -211,7 +211,7 @@ public class MyBusinessEdit extends Panel {
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class",
 							new Model<String>("save-failed-error")));
 					target.add(formFeedback);
 				}

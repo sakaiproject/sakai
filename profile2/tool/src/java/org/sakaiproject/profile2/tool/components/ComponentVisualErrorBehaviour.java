@@ -85,7 +85,7 @@ public class ComponentVisualErrorBehaviour extends AjaxFormComponentUpdatingBeha
         FormComponent formComponent = getFormComponent();
 
         if(formComponent.isValid() == valid){
-            formComponent.add(new AttributeModifier("class", true, new Model("formInputField " + cssClass)));
+            formComponent.add(new AttributeModifier("class", new Model("formInputField " + cssClass)));
             ajaxRequestTarget.add(formComponent);
         }
 

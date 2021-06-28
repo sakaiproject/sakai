@@ -252,9 +252,9 @@ public class ConfirmedFriends extends Panel {
 					}
 				};
 				//ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));
-				removeConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.remove", null, new Object[]{ displayName } )));
+				removeConnectionLink.add(new AttributeModifier("alt", new StringResourceModel("accessibility.connection.remove", null, new Object[]{ displayName } )));
 				//removeConnectionLink.add(removeConnectionIcon);
-				removeConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
+				removeConnectionLink.add(new AttributeModifier("title", new ResourceModel("link.title.removefriend")));
 				removeConnectionLink.add(new Label("removeConnectionLabel", new ResourceModel("button.friend.remove")).setOutputMarkupId(true));
 				c1.add(removeConnectionLink);
 				item.add(c1);

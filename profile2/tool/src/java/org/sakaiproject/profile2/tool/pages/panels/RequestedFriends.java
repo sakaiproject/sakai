@@ -196,8 +196,8 @@ public class RequestedFriends extends Panel {
 				};
 				//ContextImage confirmConnectionIcon = new ContextImage("confirmConnectionIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
 				//confirmConnectionLink.add(confirmConnectionIcon);
-				confirmConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
-				confirmConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ displayName } )));
+				confirmConnectionLink.add(new AttributeModifier("title", new ResourceModel("link.title.confirmfriend")));
+				confirmConnectionLink.add(new AttributeModifier("alt", new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ displayName } )));
 				confirmConnectionLink.add(new Label("confirmConnectionLabel", new ResourceModel("link.friend.confirm")).setOutputMarkupId(true));
 				c1.add(confirmConnectionLink);
 				item.add(c1);
@@ -245,8 +245,8 @@ public class RequestedFriends extends Panel {
 				};
 				//ContextImage ignoreConnectionIcon = new ContextImage("ignoreConnectionIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
 				//ignoreConnectionLink.add(ignoreConnectionIcon);
-				ignoreConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
-				ignoreConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ displayName } )));
+				ignoreConnectionLink.add(new AttributeModifier("title", new ResourceModel("link.title.ignorefriend")));
+				ignoreConnectionLink.add(new AttributeModifier("alt", new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ displayName } )));
 				ignoreConnectionLink.add(new Label("ignoreConnectionLabel", new ResourceModel("link.friend.ignore")).setOutputMarkupId(true));
 				c2.add(ignoreConnectionLink);
 				item.add(c2);
