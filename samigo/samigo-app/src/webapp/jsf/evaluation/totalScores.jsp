@@ -276,7 +276,10 @@ $(document).ready(function(){
        <h:outputText value="\"></a>" escape="false" />
 
        <h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true" >
-         <h:outputText value="X" rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" />
+           <h:panelGroup rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}">
+	     <span class="fa fa-trash" aria-hidden="true"></span>
+	     <span class="sr-only"><h:outputText value="#{commonMessages.delete}" /></span>
+	   </h:panelGroup>
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
