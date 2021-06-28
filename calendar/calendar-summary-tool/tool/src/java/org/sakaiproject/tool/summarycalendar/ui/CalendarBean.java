@@ -141,7 +141,8 @@ public class CalendarBean {
 	private transient ToolManager					M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient PreferencesService			M_ps					= (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
 	private transient SessionManager				M_sm					= (SessionManager) ComponentManager.get(SessionManager.class.getName());
-	
+
+	private static final String DEFAULT_MONTH_DATEFORMAT = "MMMM yyyy";
 
 	// ######################################################################################
 	// Main methods
@@ -708,7 +709,7 @@ public class CalendarBean {
 	}
 
 	public String getCaption() {
-		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("viewm.date_format"), msgs.getLocale());
+		SimpleDateFormat formatter = new SimpleDateFormat(DEFAULT_MONTH_DATEFORMAT, msgs.getLocale());
 		formatter.setTimeZone(getCurrentUserTimezone());
 		return formatter.format(getViewingDate());
 	}
