@@ -80,7 +80,7 @@ public class AdministratePage extends BasePage{
 				
 				//display a "saved" message
 				formFeedback.setDefaultModel(new ResourceModel("success.addDaMyworkspace"));
-				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+				formFeedback.add(new AttributeModifier("class", new Model("success")));
 				target.add(formFeedback);
 				
 				target.appendJavaScript("hideFeedbackTimer('" + formFeedbackId + "');");

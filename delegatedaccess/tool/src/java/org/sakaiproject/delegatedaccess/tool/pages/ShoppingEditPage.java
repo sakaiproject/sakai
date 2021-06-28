@@ -24,12 +24,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -54,7 +50,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
@@ -64,6 +61,8 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDate;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is the page to edit the shopping period information used by shopping period admins
@@ -158,10 +157,10 @@ public class ShoppingEditPage extends BaseTreePage{
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
@@ -193,10 +192,10 @@ public class ShoppingEditPage extends BaseTreePage{
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
@@ -339,18 +338,18 @@ public class ShoppingEditPage extends BaseTreePage{
 
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback.add(new AttributeModifier("class", new Model("success")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("success.save"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback2.add(new AttributeModifier("class", new Model("success")));
 					target.add(formFeedback2);
 				}catch (Exception e) {
 					log.error(e.getMessage(), e);
 					formFeedback.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 				}
 				//call a js function to hide the message in 5 seconds

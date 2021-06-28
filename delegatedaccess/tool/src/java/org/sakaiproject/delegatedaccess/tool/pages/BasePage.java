@@ -100,10 +100,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		if(shoppingPeriodTool){
 			accessPageLink.add(new Label("firstLinkLabel",new ResourceModel("link.first.shopping")).setRenderBodyOnly(true));
-			accessPageLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip.shopping")));
+			accessPageLink.add(new AttributeModifier("title",  new ResourceModel("link.first.tooltip.shopping")));
 		}else{
 			accessPageLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
-			accessPageLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
+			accessPageLink.add(new AttributeModifier("title", new ResourceModel("link.first.tooltip")));
 		}
 		add(accessPageLink);
 
@@ -118,7 +118,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		shoppingAdminLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
-		shoppingAdminLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
+		shoppingAdminLink.add(new AttributeModifier("title", new ResourceModel("link.second.tooltip")));
 		add(shoppingAdminLink);
 		
 		//shopping stats link
@@ -133,7 +133,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		shoppingStatsLink.add(new Label("shoppingStatsLinkLabel",new ResourceModel("link.shoppingStats")).setRenderBodyOnly(true));
-		shoppingStatsLink.add(new AttributeModifier("title", true, new ResourceModel("link.shoppingStats.tooltip")));
+		shoppingStatsLink.add(new AttributeModifier("title", new ResourceModel("link.shoppingStats.tooltip")));
 		add(shoppingStatsLink);
 
 		//search users link
@@ -145,7 +145,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		searchUsersLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
-		searchUsersLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
+		searchUsersLink.add(new AttributeModifier("title", new ResourceModel("link.third.tooltip")));
 		add(searchUsersLink);
 		
 		//search access link
@@ -157,7 +157,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		searchAccessLink.add(new Label("searchAccessLinkLabel",new ResourceModel("searchAccessLinkLabel")).setRenderBodyOnly(true));
-		searchAccessLink.add(new AttributeModifier("title", true, new ResourceModel("searchAccessLinkLabel.tooltip")));
+		searchAccessLink.add(new AttributeModifier("title", new ResourceModel("searchAccessLinkLabel.tooltip")));
 		add(searchAccessLink);
 		
 		//administrate link
@@ -169,7 +169,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		administrateLink.add(new Label("administrateLinkLabel",new ResourceModel("link.administrate")).setRenderBodyOnly(true));
-		administrateLink.add(new AttributeModifier("title", true, new ResourceModel("link.administrate.tooltip")));
+		administrateLink.add(new AttributeModifier("title", new ResourceModel("link.administrate.tooltip")));
 		add(administrateLink);
 
 		// Add a FeedbackPanel for displaying our messages

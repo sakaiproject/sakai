@@ -106,10 +106,10 @@ public class ShoppingEditBulkPage extends BasePage{
 				
 				if(errorMessage != null && !"".equals(errorMessage.getObject().toString())){
 					formFeedback.setDefaultModel(errorMessage);
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(errorMessage);
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 
 					//call a js function to hide the message in 5 seconds
@@ -189,10 +189,10 @@ public class ShoppingEditBulkPage extends BasePage{
 
 				if(errorMessage != null && !"".equals(errorMessage.getObject().toString())){
 					formFeedback.setDefaultModel(errorMessage);
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(errorMessage);
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 
 					//call a js function to hide the message in 5 seconds
@@ -405,10 +405,10 @@ public class ShoppingEditBulkPage extends BasePage{
 					setResponsePage(new ShoppingEditPage());
 				}else{
 					formFeedback.setDefaultModel(errorMessage);
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(errorMessage);
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", new Model("alertMessage")));
 					target.add(formFeedback2);
 
 					//call a js function to hide the message in 5 seconds

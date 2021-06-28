@@ -157,7 +157,7 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		currentLink.add(new Label("currentLinkLabel",new ResourceModel("link.current")).setRenderBodyOnly(true));
-		currentLink.add(new AttributeModifier("title", true, new ResourceModel("link.current.tooltip")));
+		currentLink.add(new AttributeModifier("title", new ResourceModel("link.current.tooltip")));
 		add(currentLink);
 		
 		if(currentStatisticsFlag){
@@ -175,7 +175,7 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		allLink.add(new Label("allLinkLabel",new ResourceModel("link.all")).setRenderBodyOnly(true));
-		allLink.add(new AttributeModifier("title", true, new ResourceModel("link.all.tooltip")));
+		allLink.add(new AttributeModifier("title", new ResourceModel("link.all.tooltip")));
 		add(allLink);
 		if(!currentStatisticsFlag){
 			disableLink(allLink);

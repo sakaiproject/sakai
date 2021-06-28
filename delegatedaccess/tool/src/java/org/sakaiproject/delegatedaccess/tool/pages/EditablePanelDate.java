@@ -20,7 +20,6 @@ import java.util.Date;
 
 import javax.swing.tree.TreeNode;
 
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.ComponentTag;
