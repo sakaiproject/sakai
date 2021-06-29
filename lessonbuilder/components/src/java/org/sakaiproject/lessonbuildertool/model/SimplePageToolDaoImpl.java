@@ -1859,7 +1859,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				" log.complete AS completed," +
 				" i.required," +
 				" i.prerequisite," +
-				" i.groups" +
+				" i.item_groups" +
 				" FROM lesson_builder_pages p" +
 				" INNER JOIN SAKAI_SITE_TOOL s" +
 				"   ON p.toolId = s.page_id" +
