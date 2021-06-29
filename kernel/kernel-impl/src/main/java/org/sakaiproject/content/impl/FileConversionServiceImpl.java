@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Resource;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -43,7 +45,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +60,8 @@ public class FileConversionServiceImpl implements FileConversionService {
 
     @Autowired private ContentHostingService contentHostingService;
     @Autowired private FileConversionServiceRepository repository;
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
 
@@ -130,12 +138,21 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                         workers.submit(() -> {
 
-                            log.debug("Setting item with ref {} to IN_PROGRESS ...", ref);
-                            item.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
-                            item.setAttempts(item.getAttempts() + 1);
-                            item.setLastAttemptStarted(Instant.now());
+                            // This should update the item to IN_PROGRESS and flush the change so
+                            // that other workers can see it. This is the mutex, in effect.
+                            (new TransactionTemplate(transactionManager)).execute(new TransactionCallbackWithoutResult() {
 
-                            FileConversionQueueItem inProgressItem = repository.save(item);
+                                @Override
+                                protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                                    log.debug("Setting item with ref {} to IN_PROGRESS ...", ref);
+                                    FileConversionQueueItem inProgressItem = repository.findById(item.getId());
+                                    inProgressItem.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
+                                    inProgressItem.setAttempts(inProgressItem.getAttempts() + 1);
+                                    inProgressItem.setLastAttemptStarted(Instant.now());
+                                    repository.save(inProgressItem);
+                                }
+                            });
 
                             try {
                                 String sourceFileName = ref.substring(ref.lastIndexOf("/") + 1);
@@ -163,15 +180,24 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                                 log.debug("Deleting item with ref {}. It's been successfully converted.", ref);
 
-                                repository.deleteById(inProgressItem.getId());
+                                // We just want to hard delete it here. No need to requery.
+                                repository.deleteById(item.getId());
                             } catch (Exception e) {
-                                // Too many attempts. Do not try again.
-                                if (inProgressItem.getAttempts() > maxAttemptsAllowed) {
-                                    inProgressItem.setStatus(FileConversionQueueItem.Status.INVALID);
-                                } else {
-                                    inProgressItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
-                                }
-                                repository.save(inProgressItem);
+                                (new TransactionTemplate(transactionManager)).execute(new TransactionCallbackWithoutResult() {
+
+                                    @Override
+                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                                        FileConversionQueueItem failedItem = repository.findById(item.getId());
+                                        if (failedItem.getAttempts() > maxAttemptsAllowed) {
+                                            // Too many attempts. Do not try again.
+                                            failedItem.setStatus(FileConversionQueueItem.Status.FAILED);
+                                        } else {
+                                            failedItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                        }
+                                        repository.save(failedItem);
+                                    }
+                                });
                                 log.error("Call to conversion service failed", e);
                             } finally {
                                 securityService.popAdvisor(securityAdvisor);
