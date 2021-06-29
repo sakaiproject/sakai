@@ -54,8 +54,18 @@ function printView(url) {
 			#if(!$disableGrade)
 				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
+					<div class="form-group">
+						<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
 					##for non-point-based grading, choose the default grade from drop-down
+						<div>
+							<label class="textPanelFooter">
+								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")
+							</label>
+							<label class="textPanelFooter">
+								<input type="checkbox" checked="checked" name="notSubmit" value="true"/>$tlang.getString("defaultGrade.notSubmit")<br/>
+							</label>
+						</div>
+					</div>
 					#if ($!gradeType != 3)
 						<select id="defaultGrade_1" name="defaultGrade" size="1" >
 							<option value="">$tlang.getString("non.submission.grade.select")</option>
