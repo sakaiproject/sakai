@@ -15,35 +15,56 @@
             <div class="studentGradesComparison-TableContainer">
                 <table class="table table-bordered table-condensed table-hover">
                     <thead>
-                        <th wicket:id="studentNameHeaderLabel">
+                        <th wicket:id="studentNameHeaderLabel" class="gb-comparing-student-name-header">
                             Student Name
                         </th>
-                        <th wicket:id="teacherCommentHeaderLabel">
+                        <th wicket:id="teacherCommentHeaderLabel" class="gb-comparing-comments-header">
                             Teacher comments
                         </th>
-                        <th wicket:id="gradeHeaderLabel">
+                        <th wicket:id="gradeHeaderLabel" class="gb-comparing-grades-header">
                             Grade
                         </th>
                     </thead>
                     <tbody>
-                        <tr wicket:id="gradeItemRows">
-                            <td wicket:id="studentNameLabel">
-                                Student name value
-                            </td>
-                            <td wicket:id="teacherCommentLabel">
-                                Teacher comment value
-                            </td>
-                            <td wicket:id="gradeLabel" class="text-center">
-                                Grade value
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <script>
-            
+            function generateTable(data){
+              let tableHeaders = document.querySelector(".studentGradesComparison-TableContainer > table thead");
+              let tableBody = document.querySelector(".studentGradesComparison-TableContainer > table tbody");
+              data.forEach(function(rowData) {
+                let row = document.createElement('tr');
+                
+                if(rowData.isCurrentUser){
+                    row.className = 'comparing-current-user-row';
+                }
+                
+                if(tableHeaders.querySelector(".gb-comparing-student-name-header")){
+                  let studentCell = document.createElement('td');
+                  let text = rowData.studentDisplayName || '\u200b';
+                  studentCell.appendChild(document.createTextNode(text.replace('&#39;',"'")));
+                  row.appendChild(studentCell);
+                }
+                
+                if(tableHeaders.querySelector(".gb-comparing-comments-header")){
+                  let commentCell = document.createElement('td');
+                  let text = rowData.teacherComment || '\u200b';
+                  commentCell.appendChild(document.createTextNode(text));
+                  row.appendChild(commentCell);
+                }
+                
+                let gradeCell = document.createElement('td');
+                let gradeText = rowData.grade || '\u200b';
+                gradeCell.appendChild(document.createTextNode(gradeText));
+                row.appendChild(gradeCell);
+                tableBody.appendChild(row);
+              });
+            }
+            generateTable(window.GbComparisonData);
+
             var $table = $(".studentGradesComparison-TableContainer table");
 
             $table.tablesorter({

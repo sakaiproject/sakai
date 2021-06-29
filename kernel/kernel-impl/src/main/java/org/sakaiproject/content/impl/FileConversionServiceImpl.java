@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -110,6 +111,7 @@ public class FileConversionServiceImpl implements FileConversionService {
 
             if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)
                     || ContentHostingService.AUTH_RESOURCE_ADD.equals(function)
+                    || ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)
                     || ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function)) {
                 return SecurityAdvisor.SecurityAdvice.ALLOWED;
             } else {
@@ -155,26 +157,20 @@ public class FileConversionServiceImpl implements FileConversionService {
                             });
 
                             try {
-                                String sourceFileName = ref.substring(ref.lastIndexOf("/") + 1);
-                                log.debug("Source Filename: {}", sourceFileName);
-                                String convertedFileName = "";
-                                if (sourceFileName.contains(".")) {
-                                    convertedFileName = sourceFileName.split("\\.")[0] + ".pdf";
-                                } else {
-                                    convertedFileName = sourceFileName + ".pdf";
-                                }
+                                String convertedFileName = FilenameUtils.getBaseName(ref) + ".pdf";
+                                String fullPath = FilenameUtils.getPath(ref);
+                                String[] splitPath = fullPath.split("/");
+                                String siteId = splitPath[1];
+                                log.debug("Converted file id: {}, site id: {} ", convertedFileName, siteId);
 
                                 byte[] convertedFileBytes = LoolFileConverter.convert(converterBaseUrl, source.streamContent());
 
-                                String previewId = ref.substring(0, ref.lastIndexOf("/")) + convertedFileName;
-
-                                log.debug("Converted file id: {}", previewId);
                                 ResourcePropertiesEdit properties = contentHostingService.newResourceProperties();
                                 properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, convertedFileName);
 
                                 securityService.pushAdvisor(securityAdvisor);
                                 ContentResource previewResource
-                                        = contentHostingService.addAttachmentResource(convertedFileName, "application/pdf", convertedFileBytes, properties);
+                                        = contentHostingService.addAttachmentResource(convertedFileName, siteId, ContentHostingService.PREVIEW, ContentHostingService.PDF_MIMETYPE, convertedFileBytes, properties);
 
                                 contentHostingService.addProperty(ref, ContentHostingService.PREVIEW, previewResource.getId());
 
@@ -239,6 +235,11 @@ public class FileConversionServiceImpl implements FileConversionService {
         }
 
         log.debug("submit({})", ref);
+
+        if (repository.findByReference(ref).size() > 0) {
+            log.debug("{} has already been queued for conversion.", ref);
+            return;
+        }
 
         FileConversionQueueItem newItem = new FileConversionQueueItem();
         newItem.setReference(ref);

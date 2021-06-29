@@ -17,9 +17,15 @@ public class FileConversionServiceRepositoryImpl extends SpringCrudRepositoryImp
     public List<FileConversionQueueItem> findByStatus(FileConversionQueueItem.Status status) {
 
         Session session = sessionFactory.getCurrentSession();
-        List<FileConversionQueueItem> items
-            = session.createCriteria(FileConversionQueueItem.class)
+        return session.createCriteria(FileConversionQueueItem.class)
                 .add(Restrictions.eq("status", status)).list();
-        return items;
+    }
+
+    @Transactional
+    public List<FileConversionQueueItem> findByReference(String reference) {
+
+        Session session = sessionFactory.getCurrentSession();
+        return session.createCriteria(FileConversionQueueItem.class)
+                .add(Restrictions.eq("reference", reference)).list();
     }
 }

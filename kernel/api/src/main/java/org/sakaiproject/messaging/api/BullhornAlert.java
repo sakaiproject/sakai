@@ -80,5 +80,8 @@ public class BullhornAlert {
     private String fromDisplayName;
 
     @Transient
+    private String formattedEventDate;
+
+    @Transient
     private String siteTitle;
 }

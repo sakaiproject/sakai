@@ -96,10 +96,6 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean allowStudentsToCompareGrades;
 
-	/**
-	 * Are grades displayed when comparing grades with classmates?
-	 */
-	private boolean comparingDisplayGrades;
 
 	/**
 	 * Are student names displayed when comparing grades with classmates?

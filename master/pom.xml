@@ -22,7 +22,7 @@
   <properties>
     <sakai.version>22-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
-    <sakai.commons-io.version>2.9.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.10.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
@@ -68,7 +68,7 @@
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.26</sakai.tika.version>
-    <sakai.tomcat.version>9.0.46</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.48</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -558,7 +558,7 @@
       <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
-        <version>2.3</version>
+        <version>2.4.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1281,7 +1281,7 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.24</version>
+        <version>1.29</version>
         <scope>provided</scope>
       </dependency>
       <!-- Sakai apis -->

@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -445,6 +446,11 @@ public class DbCalendarServiceSerializationTest extends TestCase
 
 			@Override
 			public String dateTimeFormat(Date date, Locale locale, int df) {
+				return null;
+			}
+
+			@Override
+			public String dateTimeFormat(Instant instant, FormatStyle dateStyle, FormatStyle timeStyle) {
 				return null;
 			}
 

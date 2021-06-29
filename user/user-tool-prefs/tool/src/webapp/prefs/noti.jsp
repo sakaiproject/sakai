@@ -15,10 +15,9 @@
     <link rel="stylesheet" href="/sakai-user-tool-prefs/css/prefs.css" type="text/css" />
 	<sakai:view_content>
 
-<f:verbatim>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+<f:verbatim>
 	<script type="text/javascript">
-	<!--
 		function removeOverride(cur) {
 			//set to true
 			cur.nextSibling.value=true;
@@ -27,8 +26,6 @@
 			cur.parentNode.parentNode.style.display="none";
 			return false;
 		}
-			//-->
-
 	</script>
 </f:verbatim>
 	
@@ -37,7 +34,7 @@
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<script type="text/javascript">
-			$(document).ready(function(){
+			$PBJQ(document).ready(function(){
 				fixImplicitLabeling();
 			})
 		</script>

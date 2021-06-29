@@ -7,4 +7,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface FileConversionServiceRepository extends SpringCrudRepository<FileConversionQueueItem, Long> {
 
     List<FileConversionQueueItem> findByStatus(FileConversionQueueItem.Status status);
+    List<FileConversionQueueItem> findByReference(String reference);
 }

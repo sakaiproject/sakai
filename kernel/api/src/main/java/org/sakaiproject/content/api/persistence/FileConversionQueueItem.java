@@ -50,7 +50,7 @@ public class FileConversionQueueItem implements PersistableEntity<Long> {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "REFERENCE", length = 255, nullable = false)
+    @Column(name = "REFERENCE", length = 255, nullable = false, unique = true)
     private String reference;
 
     @Enumerated(EnumType.STRING)

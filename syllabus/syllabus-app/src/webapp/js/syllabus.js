@@ -363,9 +363,6 @@ function doAddItemButtonClick( msgs, published )
 	}
 	else
 	{
-		// Fetch the content from the new wysiwyg
-		$("#newContentTextAreaWysiwyg").val($('#newContentDiv').find('iframe').contents().find('body').html()).change();
-
 		// ID doesn't exist since we're adding a new one
 		var id = "0";
 		params = 
@@ -374,7 +371,7 @@ function doAddItemButtonClick( msgs, published )
 			"title": title,
 			"siteId": $("#siteId").val(),
 			"published": published,
-			"content": $("#newContentTextAreaWysiwyg").val()
+			"content": CKEDITOR.instances.newContentTextAreaWysiwyg.getData()
 		};
 
 		postAjax( id, params, msgs );

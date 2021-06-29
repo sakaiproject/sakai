@@ -1442,6 +1442,8 @@ $.datepicker._getPreferredSakaiDatetime = function () {
     let osTzOffset = (new Date()).getTimezoneOffset();
     return moment(parseInt(portal.serverTimeMillis))
       .add(portal.user.offsetFromServerMillis, 'ms')
+	  //Add in the number of ms since this page was loaded
+	  .add(Date.now() - this._initTime, 'ms')
       .add(osTzOffset, 'm')
       .toDate();
   } else {
@@ -1872,6 +1874,8 @@ $.datepicker._gotoToday = function (id) {
          }
 
          init();
+         // Save the time in ms this was created
+         $.datepicker._initTime = Date.now();
 	};
 
 	// A really lightweight plugin wrapper around the constructor, 

@@ -29,8 +29,8 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.jsf</groupId>
-      <artifactId>jsf-tool-sun</artifactId>
+      <groupId>org.sakaiproject.jsf2</groupId>
+      <artifactId>jsf2-tool-sun</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>
@@ -57,6 +57,11 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 		</dependency>
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-shaded</artifactId>
+      <version>${sakai.weld.shaded.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

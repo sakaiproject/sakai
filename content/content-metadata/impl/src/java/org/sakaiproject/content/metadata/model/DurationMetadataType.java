@@ -21,15 +21,11 @@
 
 package org.sakaiproject.content.metadata.model;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.sakaiproject.content.metadata.model.MetadataConverter;
-import org.sakaiproject.content.metadata.model.MetadataRenderer;
-import org.sakaiproject.content.metadata.model.MetadataType;
-import org.sakaiproject.content.metadata.model.MetadataValidator;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * This supports the duration metadata type which was introduced for LOM support.

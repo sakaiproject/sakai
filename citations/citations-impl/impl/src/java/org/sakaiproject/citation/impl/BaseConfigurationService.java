@@ -21,8 +21,6 @@
 
 package org.sakaiproject.citation.impl;
 
-import com.thoughtworks.xstream.XStream;
-
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -48,17 +46,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import edu.indiana.lib.twinpeaks.util.DomException;
-
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.citation.api.SiteOsidConfiguration;
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
@@ -66,10 +55,10 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -82,11 +71,24 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.thoughtworks.xstream.XStream;
+
+import edu.indiana.lib.twinpeaks.util.DomException;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  */
 @Slf4j
+@Accessors(prefix = "m_" )
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
   /**
@@ -147,9 +149,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
 
   // other config services -->
-  protected SessionManager m_sessionManager;
-  protected ServerConfigurationService m_serverConfigurationService;
-
+  @Setter @Getter protected SessionManager m_sessionManager;
+  @Setter @Getter protected ServerConfigurationService m_serverConfigurationService;
+  @Setter private SecurityService m_securityService;
+  @Setter private EntityManager m_entityManager;
+  @Setter private EventTrackingService m_eventTrackingService;
+  
   private TreeSet<String> m_categories;
   private TreeSet<String> m_configs;
 
@@ -939,7 +944,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   {
     log.info("init()");
 
-    EventTrackingService.addObserver(this);
+    m_eventTrackingService.addObserver(this);
 
     SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
     ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
@@ -1007,8 +1012,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 		finally {
 			if(pushed != null) {
 				boolean found = false;
-				while(SecurityService.hasAdvisors() && ! found) {
-					SecurityAdvisor popped = SecurityService.popAdvisor();
+				while(m_securityService.hasAdvisors() && ! found) {
+					SecurityAdvisor popped = m_securityService.popAdvisor();
 					found = pushed == popped;
 				}
 			}
@@ -1207,37 +1212,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     m_siteConfigXml = siteConfigXml;
   }
 
-  /**
-   * @return the serverConfigurationService
-   */
-  public ServerConfigurationService getServerConfigurationService()
-  {
-    return m_serverConfigurationService;
-  }
 
-  /**
-   * @param serverConfigurationService the serverConfigurationService to set
-   */
-  public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
-  {
-    m_serverConfigurationService = serverConfigurationService;
-  }
-
-  /**
-   * @param sessionManager the SessionManager to save
-   */
-  public void setSessionManager(SessionManager sessionManager)
-  {
-    m_sessionManager = sessionManager;
-  }
-
-  /**
-   * @return the SessionManager
-   */
-  public SessionManager getSessionManager()
-  {
-    return m_sessionManager;
-  }
 
   /**
    * @return the site specific "OSID configuration" package name
@@ -1553,7 +1528,7 @@ public Collection<String> getAllCategoryXml()
    */
   protected void updateConfig(String configFileRef)
   {
-    Reference ref = EntityManager.newReference(configFileRef);
+    Reference ref = m_entityManager.newReference(configFileRef);
     
     SecurityAdvisor pushed = null;
     if (ref != null)
@@ -1592,8 +1567,8 @@ public Collection<String> getAllCategoryXml()
       } finally {
     	  if(pushed != null) {
     		  boolean found = false;
-    		  while(SecurityService.hasAdvisors() && ! found) {
-    			  SecurityAdvisor popped = SecurityService.popAdvisor();
+    		  while(m_securityService.hasAdvisors() && ! found) {
+    			  SecurityAdvisor popped = m_securityService.popAdvisor();
     			  found = popped == pushed;
     		  }
     	  }
@@ -1628,7 +1603,7 @@ public Collection<String> getAllCategoryXml()
     	{
         String referenceName = configFolderRef + resourceName;
 
-        Reference reference = EntityManager.newReference(referenceName);
+        Reference reference = m_entityManager.newReference(referenceName);
     		if (reference == null) return false;
 
     		pushed = enableSecurityAdvisor();
@@ -1648,8 +1623,8 @@ public Collection<String> getAllCategoryXml()
     finally {
     	  if(pushed != null) {
     		  boolean found = false;
-    		  while(SecurityService.hasAdvisors() && ! found) {
-    			  SecurityAdvisor popped = SecurityService.popAdvisor();
+    		  while(m_securityService.hasAdvisors() && ! found) {
+    			  SecurityAdvisor popped = m_securityService.popAdvisor();
     			  found = popped == pushed;
     		  }
     	  }
@@ -1672,7 +1647,7 @@ public Collection<String> getAllCategoryXml()
       };
 	// put in a security advisor so we can create citationAdmin site without need
     // of further permissions
-    SecurityService.pushAdvisor(advisor );
+    m_securityService.pushAdvisor(advisor );
     return advisor;
   }
 

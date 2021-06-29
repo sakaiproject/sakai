@@ -54,8 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.jsf.util.HelperAwareJsfTool;
-import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;

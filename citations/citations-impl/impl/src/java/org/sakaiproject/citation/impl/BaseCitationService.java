@@ -23,42 +23,58 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.osid.repository.Asset;
 import org.osid.repository.Part;
 import org.osid.repository.PartIterator;
 import org.osid.repository.Record;
 import org.osid.repository.RecordIterator;
 import org.osid.repository.RepositoryException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import org.sakaiproject.citation.api.*;
+import org.sakaiproject.citation.api.ActiveSearch;
+import org.sakaiproject.citation.api.Citation;
+import org.sakaiproject.citation.api.CitationCollection;
+import org.sakaiproject.citation.api.CitationCollectionOrder;
+import org.sakaiproject.citation.api.CitationIterator;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.api.ConfigurationService;
+import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.impl.openurl.ContextObject;
 import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceAction;
-import org.sakaiproject.content.util.BasicSiteSelectableResourceType;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.content.util.BasicResourceType;
+import org.sakaiproject.content.util.BasicSiteSelectableResourceType;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -73,18 +89,63 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  *
  */
 @Slf4j
+@Accessors(prefix = "m_" )
 public abstract class BaseCitationService implements CitationService
 {
 	protected boolean attemptToMatchSchema = false;
+	
+	/** Dependency: CitationsConfigurationService. */
+	@Setter protected ConfigurationService m_configurationService;
+	
+
+
+	/** Dependency: ServerConfigurationService. */
+	@Setter protected ServerConfigurationService m_serverConfigurationService;
+	@Setter private SessionManager m_sessionManager;
+
+	/**
+	 * Dependency: ContentHostingService.
+	 * This is used for permission checking and the entity methods.
+	 */
+
+	@Setter protected ContentHostingService m_contentHostingService;
+
+	/** Dependency: EntityManager. */
+	@Setter protected EntityManager m_entityManager;
+
+	/** Depenedency: IdManager */
+	@Setter protected IdManager m_idManager;
+
+	/** Dependency: OpenURLServiceImpl */
+	@Setter protected OpenURLServiceImpl m_openURLService;
+
+	protected String m_defaultSchema;
+
+	/** A Storage object for persistent storage. */
+	protected Storage m_storage = null;
+
+	protected String m_relativeAccessPoint;
+
+
+	/**
+	 * Dependency: the ResourceTypeRegistry
+	 */
+	@Setter @Getter protected ResourceTypeRegistry m_resourceTypeRegistry;
 
 	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
 	static
@@ -200,7 +261,7 @@ public abstract class BaseCitationService implements CitationService
 			 *                                              or title-link
 			 */
 			String preferredUrl = null;
-			String preferred = m_configService.getSiteConfigUsePreferredUrls();
+			String preferred = m_configurationService.getSiteConfigUsePreferredUrls();
 
 			boolean usePreferredUrlAsTitle = preferred.equals("title-link");
 			boolean usePreferredUrls = !preferred.equals("false");
@@ -1048,7 +1109,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String getUrlPrefix()
 		{
-      return m_configService.getSiteConfigPreferredUrlPrefix();
+      return m_configurationService.getSiteConfigPreferredUrlPrefix();
 		}
 
 		/**
@@ -1207,7 +1268,7 @@ public abstract class BaseCitationService implements CitationService
 			}
 
       // SAK-16886 Honor parameters "hard coded" at the end of the resolver URL
-			String resolverUrl    = m_configService.getSiteConfigOpenUrlResolverAddress();
+			String resolverUrl    = m_configurationService.getSiteConfigOpenUrlResolverAddress();
 			String firstDelimiter = (resolverUrl.indexOf("?") != -1) ? "&" : "?";
 			String openUrlParams  = getOpenurlParameters();
 
@@ -3253,7 +3314,7 @@ public abstract class BaseCitationService implements CitationService
 				}
 			}
 
-			this.m_mostRecentUpdate = TimeService.newTime().getTime();
+			this.m_mostRecentUpdate = Instant.now().toEpochMilli();
 
 		}
 
@@ -4133,62 +4194,6 @@ public abstract class BaseCitationService implements CitationService
 
 	}
 
-	/** Dependency: CitationsConfigurationService. */
-	protected ConfigurationService m_configService = null;
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
-
-	/**
-	 * Dependency: ContentHostingService.
-	 * This is used for permission checking and the entity methods.
-	 */
-
-	protected ContentHostingService m_contentHostingService = null;
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
-
-	/** Depenedency: IdManager */
-	protected IdManager m_idManager = null;
-
-	/** Dependency: OpenURLServiceImpl */
-	protected OpenURLServiceImpl m_openURLService;
-
-	protected String m_defaultSchema;
-
-	/** A Storage object for persistent storage. */
-	protected Storage m_storage = null;
-
-	protected String m_relativeAccessPoint;
-
-
-	/**
-	 * Dependency: the ResourceTypeRegistry
-	 */
-	protected ResourceTypeRegistry m_resourceTypeRegistry;
-
-	/**
-	 * Dependency: inject the ResourceTypeRegistry
-	 * @param registry
-	 */
-	public void setResourceTypeRegistry(ResourceTypeRegistry registry)
-	{
-		m_resourceTypeRegistry = registry;
-	}
-
-	public void setOpenURLService(OpenURLServiceImpl openURLServiceImpl)
-	{
-		m_openURLService = openURLServiceImpl;
-	}
-
-	/**
-	 * @return the ResourceTypeRegistry
-	 */
-	public ResourceTypeRegistry getResourceTypeRegistry()
-	{
-		return m_resourceTypeRegistry;
-	}
 
 	public static final String PROP_TEMPORARY_CITATION_LIST = "citations.temporary_citation_list";
 
@@ -4228,8 +4233,7 @@ public abstract class BaseCitationService implements CitationService
 				String temp_res = props.getProperty(CitationService.PROP_TEMPORARY_CITATION_LIST);
 				String creator = props.getProperty(ResourceProperties.PROP_CREATOR);
 				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
-	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
-				String currentUser = sessionManager.getCurrentSessionUserId();
+				String currentUser = m_sessionManager.getCurrentSessionUserId();
 
 				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
 			}
@@ -4260,8 +4264,7 @@ public abstract class BaseCitationService implements CitationService
 				String temp_res = props.getProperty(CitationService.PROP_TEMPORARY_CITATION_LIST);
 				String creator = props.getProperty(ResourceProperties.PROP_CREATOR);
 				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
-	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
-				String currentUser = sessionManager.getCurrentSessionUserId();
+				String currentUser = m_sessionManager.getCurrentSessionUserId();
 
 				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
 			}
@@ -4737,8 +4740,8 @@ public abstract class BaseCitationService implements CitationService
 		// register as an entity producer
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
-		if(m_configService.isCitationsEnabledByDefault() ||
-				m_configService.isAllowSiteBySiteOverride() )
+		if(m_configurationService.isCitationsEnabledByDefault() ||
+				m_configurationService.isAllowSiteBySiteOverride() )
 		{
 			registerResourceType();
 		}
@@ -4811,7 +4814,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
-	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
+	    typedef.setEnabledByDefault(m_configurationService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
 
@@ -5511,10 +5514,6 @@ public abstract class BaseCitationService implements CitationService
 		this.m_storage.saveCitationCollectionOrder(citationCollectionOrder);
 	}
 
-	public void setIdManager(IdManager idManager)
-	{
-		m_idManager = idManager;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -5618,49 +5617,8 @@ public abstract class BaseCitationService implements CitationService
 	{
 		this.m_storage.removeLocation(collectionId, locationId);
 	}
-	/**
-	 * Dependency: ConfigurationService.
-	 *
-	 * @param service
-	 *            The ConfigurationService.
-	 */
-	public void setConfigurationService(ConfigurationService service)
-	{
-		m_configService = service;
-	}
 
-	/**
-	 * Dependency: ContentHostingService.
-	 *
-	 * @param service
-	 *            The ContentHostingService.
-	 */
-	public void setContentHostingService(ContentHostingService service)
-	{
-		m_contentHostingService = service;
-	}
 
-	/**
-	 * Dependency: EntityManager.
-	 *
-	 * @param service
-	 *            The EntityManager.
-	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
-	/**
-	 * Dependency: ServerConfigurationService.
-	 *
-	 * @param service
-	 *            The ServerConfigurationService.
-	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -5732,10 +5690,9 @@ public abstract class BaseCitationService implements CitationService
      */
     public void copyCitationCollection(Reference reference)
     {
-        ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 		try
 		{
-			ContentResourceEdit edit = contentService.editResource(reference.getId());
+			ContentResourceEdit edit = m_contentHostingService.editResource(reference.getId());
 			String collectionId = new String(edit.getContent());
 			CitationCollection oldCollection = getUnnestedCitationCollection(collectionId);
 			BasicCitationCollection newCollection = new BasicCitationCollection();
@@ -5744,7 +5701,7 @@ public abstract class BaseCitationService implements CitationService
 			edit.setContent(newCollection.getId().getBytes());
 			// When duplicating/copying a citations list notifications shouldn't be sent so that 
 			// this follow the behaviour of the standard resource types in Sakai.
-			contentService.commitResource(edit, NotificationService.NOTI_NONE);
+			m_contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 		}
 		catch(IdUnusedException e)
 		{

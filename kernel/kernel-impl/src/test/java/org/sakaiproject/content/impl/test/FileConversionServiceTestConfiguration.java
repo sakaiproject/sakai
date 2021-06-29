@@ -142,7 +142,6 @@ public class FileConversionServiceTestConfiguration {
 
         FileConversionServiceRepositoryImpl repository = new FileConversionServiceRepositoryImpl();
         repository.setSessionFactory(sessionFactory);
-
         return repository;
     }
 

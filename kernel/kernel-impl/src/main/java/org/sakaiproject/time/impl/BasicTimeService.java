@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -1036,6 +1037,11 @@ public class BasicTimeService implements TimeService
 	@Override
 	public String dateTimeFormat(Date date, Locale locale, int df) {
 		return userTimeService.dateTimeFormat(date, locale, df);
+	}
+
+	@Override
+	public String dateTimeFormat(Instant date, FormatStyle dateStyle, FormatStyle timeStyle) {
+		return userTimeService.dateTimeFormat(date, dateStyle, timeStyle);
 	}
 
 	@Override

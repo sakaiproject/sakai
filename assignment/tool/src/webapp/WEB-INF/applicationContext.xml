@@ -32,6 +32,7 @@
 		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 	
 </beans>

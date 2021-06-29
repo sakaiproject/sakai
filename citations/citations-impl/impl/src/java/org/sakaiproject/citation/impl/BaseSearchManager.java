@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -42,11 +43,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.osid.OsidContext;
 import org.osid.OsidException;
@@ -60,22 +59,9 @@ import org.osid.shared.ObjectIterator;
 import org.osid.shared.SharedException;
 import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import edu.indiana.lib.twinpeaks.util.SessionContext;
-
 import org.sakaibrary.xserver.session.MetasearchSessionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.citation.util.api.CQLSearchQuery;
-import org.sakaiproject.citation.util.api.OsidConfigurationException;
-import org.sakaiproject.citation.util.api.SearchCancelException;
-import org.sakaiproject.citation.util.api.SearchQuery;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
@@ -85,24 +71,35 @@ import org.sakaiproject.citation.api.SearchCategory;
 import org.sakaiproject.citation.api.SearchDatabase;
 import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.SearchManager;
-import org.sakaiproject.citation.cover.CitationService;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.util.api.CQLSearchQuery;
+import org.sakaiproject.citation.util.api.OsidConfigurationException;
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
+import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+import edu.indiana.lib.twinpeaks.util.SessionContext;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -206,7 +203,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        this.m_index = new Hashtable();
 	        m_duplicateCheck = new TreeSet();
 	        m_duplicateCheckEnabled = true;
-	        m_savedResults = CitationService.getTemporaryCollection();
+	        m_savedResults = citationService.getTemporaryCollection();
 	        m_newSearch = true;
 	        m_firstPage = true;
 	        m_lastPage = false;
@@ -226,7 +223,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        this.m_index = new Hashtable();
 	        m_duplicateCheck = new TreeSet();
 	        m_duplicateCheckEnabled = true;
-	        m_savedResults = CitationService.getTemporaryCollection();
+	        m_savedResults = citationService.getTemporaryCollection();
 	        m_newSearch = true;
 	        m_firstPage = true;
 	        m_lastPage = false;
@@ -1878,7 +1875,12 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	protected String databaseHierarchyResourceRef;
 
-	private MemoryService memoryService;
+	@Setter private MemoryService memoryService;
+	@Setter private SecurityService securityService;
+	@Setter private ContentHostingService contentHostingService;
+	@Setter private EntityManager entityManager;
+	@Setter private EventTrackingService eventTrackingService;
+	@Setter private CitationService citationService;
 
 	private Cache sessionContextCache;
 
@@ -1912,7 +1914,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		CitationCollection citations = search.getSearchResults();
 		if(citations == null)
 		{
-			citations = CitationService.getTemporaryCollection();
+			citations = citationService.getTemporaryCollection();
 			((BasicSearch) search).setSearchResults(citations);
 		}
 
@@ -1932,7 +1934,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				{
 					Asset asset = assetIterator.nextAsset();
 
-					Citation citation = CitationService.getTemporaryCitation(asset);
+					Citation citation = citationService.getTemporaryCitation(asset);
 
 					String dupCheckCriteria = citation.hasPreferredUrl()
 					                          ? citation.getPrimaryUrl()
@@ -2174,7 +2176,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    	CitationCollection citations = search.getSearchResults();
 	    	if(citations == null)
 	    	{
-	    		citations = CitationService.getTemporaryCollection();
+	    		citations = citationService.getTemporaryCollection();
 	    		((BasicSearch) search).setSearchResults(citations);
 	    	}
 
@@ -2195,7 +2197,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    			{
 	    				Asset asset = assetIterator.nextAsset();
 
-	    				Citation citation = CitationService.getTemporaryCitation(asset);
+	    				Citation citation = citationService.getTemporaryCitation(asset);
 
     					String dupCheckCriteria = citation.hasPreferredUrl()
 		    		  	                          ? citation.getPrimaryUrl()
@@ -2481,9 +2483,9 @@ public class BaseSearchManager implements SearchManager, Observer
 
 		log.info("BaseSearchManager.init()");
 
-		EventTrackingService.addObserver(this);
+		eventTrackingService.addObserver(this);
 
-		long seed = TimeService.newTime().getTime();
+		long seed = Instant.now().toEpochMilli();
 		m_generator = new Random(seed);
 		setupTypes();
 
@@ -2709,7 +2711,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		};
 		// put in a security advisor so we can create citationAdmin site without need
 		// of further permissions
-		SecurityService.pushAdvisor(advisor);
+		securityService.pushAdvisor(advisor);
 		return advisor;
 	}
 
@@ -2745,7 +2747,7 @@ public class BaseSearchManager implements SearchManager, Observer
                                                       TypeException
   {
 	String content = null;
-    Reference reference = EntityManager.newReference(resourceReference);
+    Reference reference = entityManager.newReference(resourceReference);
 	if (reference == null)
 	{
 	  return null;
@@ -2753,7 +2755,7 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	SecurityAdvisor pushed = enableSecurityAdvisor();
 	try {
-		ContentResource resource = ContentHostingService.getResource(reference.getId());
+		ContentResource resource = contentHostingService.getResource(reference.getId());
 		if(resource != null) {
 			content = getResourceContent(resource);
 		}
@@ -2762,8 +2764,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	} finally {
 		if(pushed != null) {
 			boolean found = false;
-			while(SecurityService.hasAdvisors() && ! found) {
-				SecurityAdvisor popped = SecurityService.popAdvisor();
+			while(securityService.hasAdvisors() && ! found) {
+				SecurityAdvisor popped = securityService.popAdvisor();
 				found = popped == pushed;
 			}
 		}
@@ -2790,11 +2792,5 @@ public class BaseSearchManager implements SearchManager, Observer
 		return memoryService;
 	}
 
-	/**
-	 * @param memoryService the memoryService to set
-	 */
-	public void setMemoryService(MemoryService memoryService)
-	{
-		this.memoryService = memoryService;
-	}
+
 }

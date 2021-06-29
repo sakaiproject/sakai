@@ -190,19 +190,6 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		settingsGradeReleasePanel.add(this.allowStudentsToCompareGradesOptionsContainer);
 
 
-		// display grades when comparing grades with classmates
-		final AjaxCheckBox comparingDisplayGrades = new AjaxCheckBox("comparingDisplayGrades",
-				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayGrades")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-				// nothing required
-			}
-		};
-		comparingDisplayGrades.setOutputMarkupId(true);
-		allowStudentsToCompareGradesOptionsContainer.add(comparingDisplayGrades);
-
 		// display student names when comparing grades with classmates
 		final AjaxCheckBox comparingDisplayStudentNames = new AjaxCheckBox("comparingDisplayStudentNames",
 				new PropertyModel<Boolean>(this.model, "gradebookInformation.comparingDisplayStudentNames")) {

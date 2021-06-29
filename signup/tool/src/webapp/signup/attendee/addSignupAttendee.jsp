@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -70,7 +70,7 @@
 				   	
 				  <h:outputText id="commentSetting_1" style="display:none" value="&nbsp;" escape="false"/>
 				  <h:panelGroup id="commentSetting_2" style="display:none">		   
-				  		<sakai:rich_text_area value="#{AttendeeSignupMBean.timeslotWrapper.newAttendee.comments}" height="200" rows="5"  columns="70"/>
+				  		<sakai:inputRichText value="#{AttendeeSignupMBean.timeslotWrapper.newAttendee.comments}" height="200" rows="5"  cols="70"/>
 				  </h:panelGroup>	
 				</h:panelGrid>
 				

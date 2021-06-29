@@ -14,16 +14,14 @@
     </property>
   </bean>
   
-	<bean id="org.sakaiproject.taggable.api.TaggingManager"
-	      class="org.sakaiproject.taggable.impl.TaggingManagerImpl"
-	      init-method="init">
-	      
-		<property name="linkManager">
-	      <ref bean="org.sakaiproject.taggable.api.LinkManager" />
-	    </property>
+    <bean id="org.sakaiproject.taggable.api.TaggingManager"
+          class="org.sakaiproject.taggable.impl.TaggingManagerImpl"
+          init-method="init">
+          <property name="linkManager" ref="org.sakaiproject.taggable.api.LinkManager" />
+          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
-	      
-	<bean id="org.sakaiproject.taggable.api.LinkManager"
+          
+    <bean id="org.sakaiproject.taggable.api.LinkManager"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager">
       <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />

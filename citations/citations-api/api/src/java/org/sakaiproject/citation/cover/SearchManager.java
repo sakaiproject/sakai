@@ -18,6 +18,10 @@ package org.sakaiproject.citation.cover;
 import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.component.cover.ComponentManager;
 
+/**
+ * @deprecated
+ *
+ */
 public class SearchManager
 {
 	private static org.sakaiproject.citation.api.SearchManager m_instance;

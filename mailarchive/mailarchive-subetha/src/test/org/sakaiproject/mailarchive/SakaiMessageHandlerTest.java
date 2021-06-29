@@ -344,7 +344,7 @@ public class SakaiMessageHandlerTest {
      */
     public SmartClient createClient() throws IOException {
         SMTPServer server = messageHandlerFactory.getServer();
-        return new SmartClient("localhost", server.getPort(), "test");
+        return SmartClient.createAndConnect("localhost", server.getPortAllocated(), "test");
     }
 
     public void writeData(SmartClient client, String resource) throws IOException {

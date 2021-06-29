@@ -87,17 +87,15 @@
 
               if (enabled) {
 			$('#assessmentSettingsAction\\:linear_access_warning').hide();
-			$('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled").parent().removeClass("placeholder");
+			$('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
 			QuesFormatRadios.forEach( function(v, i, a) {
-                      		$('label[for="' + v + '"]').removeClass("placeholder");
                       		$("#" + v).removeAttr("disabled");
                   	});
               } else {
 			$('#assessmentSettingsAction\\:linear_access_warning').show();
-			$('#assessmentSettingsAction\\:markForReview1').attr("disabled", true).prop("checked", false).parent().addClass("placeholder");
+			$('#assessmentSettingsAction\\:markForReview1').attr("disabled", true).prop("checked", false);
 			QuesFormatRadios.forEach( function(v, i, a) {
                       		$('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                      		$('label[for="' + v + '"]').addClass("placeholder");
                       		$("#" + v).attr("disabled", true);
                   	});
               }

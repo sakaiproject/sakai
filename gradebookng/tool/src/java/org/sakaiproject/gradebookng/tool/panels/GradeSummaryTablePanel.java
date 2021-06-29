@@ -295,7 +295,10 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
 										getSettings().isAllowStudentsToCompareGrades() &&
 										// Inlcuding all assigments that doesn't count if this property is set
-										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted());
+										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted())
+										&&
+										// Only show this to students because this panel is also accesible for instructors
+										GradeSummaryTablePanel.this.getUserRole() == GbRole.STUDENT;
 							}
 						};
 						assignmentItem.add(compareLink);
@@ -340,7 +343,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								.setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
 
 						final Label dueDate = new Label("dueDate",
-								FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
+								GradeSummaryTablePanel.this.businessService.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
 						dueDate.add(new AttributeModifier("data-sort-key",
 								assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);

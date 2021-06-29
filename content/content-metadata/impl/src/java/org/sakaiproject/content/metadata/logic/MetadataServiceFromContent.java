@@ -26,18 +26,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.metadata.logic.MetadataService;
 import org.sakaiproject.content.metadata.model.MetadataType;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Colin Hebert
