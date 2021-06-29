@@ -12786,6 +12786,8 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String grade = StringUtils.trimToNull(params.getString(DEFAULT_GRADE));
+        boolean checkNotGrade = params.getBoolean("notGrade");
+        boolean checkNotSubmit = params.getBoolean("notSubmit");
         if (grade == null) {
             addAlert(state, rb.getString("plespethe2"));
         }
@@ -12843,16 +12845,17 @@ public class AssignmentAction extends PagedResourceActionII {
                     String sGrade = StringUtils.trimToNull(submission.getGrade());
                     if (sGrade == null || !submission.getGraded()) {
                         // update the grades for those existing non-submissions
-                        if (sGrade == null) {
+                        if ((checkNotGrade && sGrade == null) || (checkNotSubmit && submission.getDateSubmitted() == null)) {
                             submission.setGrade(grade);
                             submission.setSubmitted(true);
-                        }
-                        submission.setGraded(true);
-                        submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
-                        try {
-                            assignmentService.updateSubmission(submission);
-                        } catch (PermissionException e) {
-                            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+	                        submission.setGraded(true);
+	                        submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
+	                        try {
+	                            assignmentService.updateSubmission(submission);
+	                        } catch (PermissionException e) {
+	                            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+	                        }
+
                         }
                     }
                 }
