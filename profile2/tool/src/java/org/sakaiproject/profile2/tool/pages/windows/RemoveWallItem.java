@@ -108,10 +108,10 @@ public class RemoveWallItem extends Panel {
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			accessibilityLabel = new AttributeModifier(
-					"title", true, new StringResourceModel("accessibility.wall.remove.other", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.other", null, new Object[]{ } ));
 		} else {
 			accessibilityLabel = new AttributeModifier(
-					"title", true, new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
+					"title", new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
 		}
 		submitButton.add(accessibilityLabel);
 		form.add(submitButton);

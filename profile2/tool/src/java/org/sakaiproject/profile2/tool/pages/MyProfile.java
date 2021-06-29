@@ -347,22 +347,22 @@ public class MyProfile extends BasePage {
 			//setup link/label and windows
 			if(friend) {
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-confirmed")));
+	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-confirmed")));
 				addFriendLink.setEnabled(false);
 			} else if (friendRequestToThisPerson) {
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
+	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 				addFriendLink.setEnabled(false);
 			} else if (friendRequestFromThisPerson) {
 				//TODO (confirm pending friend request link)
 				//could be done by setting the content off the addFriendWindow.
 				//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
 				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction connection-request")));
+	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction connection-request")));
 				addFriendLink.setEnabled(false);
 			}  else {
 				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
-	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("connection-add")));
+	    		addFriendLink.add(new AttributeModifier("class", new Model<String>("connection-add")));
 				addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserUuid, userUuid)); 
 			}
 			
@@ -376,7 +376,7 @@ public class MyProfile extends BasePage {
 	            	if(friendActionModel.isRequested()) { 
 	            		//friend was successfully requested, update label and link
 	            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-	            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+	            		addFriendLink.add(new AttributeModifier("class", new Model<String>("instruction")));
 	            		addFriendLink.setEnabled(false);
 	            		target.add(addFriendLink);
 	            	}
@@ -406,11 +406,11 @@ public class MyProfile extends BasePage {
 	    				setLocked(!locked);
 	    				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
 	    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-	    				add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+	    				add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
 	    				if(isLocked()){
-	    					add(new AttributeModifier("class", true, new Model<String>("locked")));
+	    					add(new AttributeModifier("class", new Model<String>("locked")));
 	    				} else {
-	    					add(new AttributeModifier("class", true, new Model<String>("unlocked")));
+	    					add(new AttributeModifier("class", new Model<String>("unlocked")));
 	    				}
 	    				target.add(this);
 	    			}
@@ -419,16 +419,16 @@ public class MyProfile extends BasePage {
 			
 			//set init icon for locked
 			if(isLocked()){
-				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("locked")));
+				lockProfileLink.add(new AttributeModifier("class", new Model<String>("locked")));
 			} else {
-				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("unlocked")));
+				lockProfileLink.add(new AttributeModifier("class", new Model<String>("unlocked")));
 			}
 			
 			lockProfileLink.add(lockProfileLabel);
 					
 			//setup link/label and windows with special property based on locked status
 			lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-			lockProfileLink.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+			lockProfileLink.add(new AttributeModifier("title", new ResourceModel("text.profile.locked." + isLocked())));
 			
 			lockProfileContainer.add(lockProfileLink);
 			
@@ -477,11 +477,11 @@ public class MyProfile extends BasePage {
 				WebMarkupContainer link = super.newLink(linkId, index);
 				
 				if (ProfileConstants.TAB_INDEX_PROFILE == index) {
-					link.add(new AttributeModifier("title", true,
+					link.add(new AttributeModifier("title",
 							new ResourceModel("link.tab.profile.tooltip")));
 					
 				} else if (ProfileConstants.TAB_INDEX_WALL == index) {
-					link.add(new AttributeModifier("title", true,
+					link.add(new AttributeModifier("title",
 							new ResourceModel("link.tab.wall.tooltip")));	
 				}
 				return link;

@@ -149,7 +149,7 @@ public class WallItemPanel extends Panel {
 		};
 
 		removeItemLink.add(new Label("removeWallItemLabel", new ResourceModel("link.wall.item.remove")));
-		removeItemLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.wall.remove")));
+		removeItemLink.add(new AttributeModifier("title", new ResourceModel("link.title.wall.remove")));
 
 		// not visible when viewing another user's wall
 		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
@@ -179,7 +179,7 @@ public class WallItemPanel extends Panel {
 		};
 
 		commentItemLink.add(new Label("commentWallItemLabel", new ResourceModel("link.wall.item.comment")));
-		commentItemLink.add(new AttributeModifier("title", true, new StringResourceModel("link.title.wall.comment", null, new Object[] { sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) })));
+		commentItemLink.add(new AttributeModifier("title", new StringResourceModel("link.title.wall.comment", null, new Object[] { sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) })));
 		
 		add(commentItemLink);
 		

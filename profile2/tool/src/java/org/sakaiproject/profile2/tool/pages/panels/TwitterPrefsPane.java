@@ -199,7 +199,7 @@ public class TwitterPrefsPane extends Panel {
 		
 		ContextImage twitterAuthRemoveIcon = new ContextImage("twitterAuthRemoveIcon",new Model<String>(ProfileConstants.CROSS_IMG));
 		twitterAuthRemoveLink.add(twitterAuthRemoveIcon);
-		twitterAuthRemoveLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.unlinktwitter")));
+		twitterAuthRemoveLink.add(new AttributeModifier("title", new ResourceModel("link.title.unlinktwitter")));
 		frag.add(twitterAuthRemoveLink);
 		
 		frag.setOutputMarkupId(true);

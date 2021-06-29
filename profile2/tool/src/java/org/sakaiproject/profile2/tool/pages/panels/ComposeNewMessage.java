@@ -140,7 +140,7 @@ public class ComposeNewMessage extends Panel {
 		toField = autocompleteField.getSearchTextField();
 		toField.setMarkupId("messagerecipientinput");
 		toField.setOutputMarkupId(true);
-		toField.add(new AttributeModifier("class", true, new Model<String>("formInputField")));
+		toField.add(new AttributeModifier("class", new Model<String>("formInputField")));
 		toField.setRequired(true);
 		form.add(autocompleteField);
 		
@@ -178,7 +178,7 @@ public class ComposeNewMessage extends Panel {
 					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
+					formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
 					
 					//target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
 					target.appendJavaScript("setMainFrameHeight(window.name);");
@@ -197,7 +197,7 @@ public class ComposeNewMessage extends Panel {
 				} else {
 					//error
 					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
 				}
 				
 				formFeedback.setVisible(true);
@@ -214,7 +214,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
 
 				target.add(formFeedback);
 			}
@@ -249,7 +249,7 @@ public class ComposeNewMessage extends Panel {
 		protected void onEvent(AjaxRequestTarget target) {
 			if(StringUtils.isBlank(toField.getValue())) {
         		formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
-        		formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+        		formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));
         	} else {
         		formFeedback.setVisible(false);
         	}

@@ -88,7 +88,7 @@ public class WallItemPostCommentPanel extends Panel {
 					formFeedback.setVisible(true);
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.empty"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class",
 							new Model<String>("alertMessage")));
 					target.add(formFeedback);
 					return;
@@ -108,7 +108,7 @@ public class WallItemPostCommentPanel extends Panel {
 					formFeedback.setVisible(true);
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
+					formFeedback.add(new AttributeModifier("class", 
 							new Model<String>("alertMessage")));
 					target.add(formFeedback);
 					return;
@@ -127,7 +127,7 @@ public class WallItemPostCommentPanel extends Panel {
 		//submitButton.add(new FocusOnLoadBehaviour());
 		
 		AttributeModifier accessibilityLabel = new AttributeModifier(
-					"title", true, new StringResourceModel("accessibility.wall.comment", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+					"title", new StringResourceModel("accessibility.wall.comment", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
 		
 		submitButton.add(accessibilityLabel);
 		form.add(submitButton);

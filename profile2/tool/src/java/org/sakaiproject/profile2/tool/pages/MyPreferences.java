@@ -453,19 +453,19 @@ public class MyPreferences extends BasePage{
 				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
 				
 				formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
+				formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
 				
 				//save
 				if(preferencesLogic.savePreferencesRecord(profilePreferences)) {
 					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
+					formFeedback.add(new AttributeModifier("class", new Model<String>("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userUuid, true);
 					
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel("error.preferences.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", new Model<String>("alertMessage")));	
 				}
 				
 				//resize iframe
