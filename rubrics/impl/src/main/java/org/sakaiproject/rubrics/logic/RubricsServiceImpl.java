@@ -274,11 +274,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", rubricId);
 
-        CollectionModel<EntityModel<Rubric>> rubricsModel = builder
+        Resources<Resource<Rubric>> rubricsModel = builder
             .withTemplateParameters(parameters)
-            .toObject(new TypeReferences.CollectionModelType<EntityModel<Rubric>>() {});
+            .toObject(new TypeReferences.ResourcesType<Resource<Rubric>>() {});
 
-        Collection<EntityModel<Rubric>> models = rubricsModel.getContent();
+        Collection<Resource<Rubric>> models = rubricsModel.getContent();
 
         return models.size() == 1 ? Optional.of(models.iterator().next().getContent()) : Optional.empty();
     }
