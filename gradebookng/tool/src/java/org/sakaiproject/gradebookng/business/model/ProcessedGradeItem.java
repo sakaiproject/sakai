@@ -18,7 +18,6 @@ package org.sakaiproject.gradebookng.business.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -141,5 +140,5 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 
 	@Getter
 	@Setter
-	private Map<String, String> rubricParameters;
+	private Double assignmentPoints;
 }

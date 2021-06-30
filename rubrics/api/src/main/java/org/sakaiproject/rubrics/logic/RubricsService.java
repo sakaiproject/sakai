@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 
 /**
@@ -36,8 +35,6 @@ import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 public interface RubricsService {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
-
-    Optional<Rubric> getRubric(Long rubricId) throws Exception;
 
     boolean hasAssociatedRubric(String toolId, String associatedToolItemId);
 
