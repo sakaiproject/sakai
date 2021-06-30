@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head th:replace="fragments/common :: head"/>
+    <head>
+        <title th:text="#{modifyemail.page.title}">Modify Email Template</title>
+    </head>
+
+    <body>
+        <div class="portletBody container-fluid">
+            <div th:if="${emailTemplate.id == null}" id="menu" th:include="fragments/menus :: main (new)" />
+            <div th:unless="${emailTemplate.id == null}"id="menu" th:include="fragments/menus :: main (edit)" />
+            <div class="page-header">
+                <h1 th:if="${emailTemplate.id == null}" th:text="#{modifyemail.new.template.header}"/>
+                <h1 th:unless="${emailTemplate.id == null}" th:text="#{modifyemail.modify.template.header(${emailTemplate.key},${emailTemplate.locale})}"/>
+            </div>
+
+            <form id="emailTemplateForm" name="emailTemplateForm" method="post" >
+                <p th:text="#{modifyemail.modify.text.instructions}" class="text-info">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
+                <div th:utext="#{email.templates.field.names}" class="sak-banner-info">
+                    ${EvalTitle} - the title of this evaluation <br/>
+                    ${EvalStartDate} - the start date of this evaluation <br/>
+                    ${EvalDueDate} - the due date of this evaluation <br/>
+                    ${EvalResultsDate} - the view results date of this evaluation <br/>
+                    ${EvalGroupTitle} - the title to the site/course/group/evalGroup which this evaluation is assigned to for this user <br/>
+                    ${HelpdeskEmail} - the email address for the helpdesk (or the support contact) <br/>
+                    ${URLtoAddItems} - the direct URL for evaluatees to add items to evals assigned from above <br/>
+                    ${URLtoTakeEval} - the direct URL for evaluators to take this evaluation <br/>
+                    ${URLtoViewResults} - the direct URL to view results for this evaluation <br/>
+                    ${URLtoSystem} - the main URL to the system this is running in <br/>
+                    ${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
+                    ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation <br/>
+                </div>
+                <div  id="error-banner"  class="sak-banner-error hidden" >
+                    <span th:text="#{errors.instruction}" />
+                    <ul id="error-list">
+                    </ul>
+                </div>
+
+                <div class="form-container">
+                    <div class="form-group row form-required" id="etsEmailSubject">
+                        <label class="col-md-12" th:text="#{modifyemail.template.subject}" for="emailSubject">Subject:</label>
+                        <div class="col-md-6">
+                            <input class="form-control" th:value="${emailTemplate.subject}" required type="text" id="emailSubject" size="80" maxlength="250"  />
+                        </div>
+                    </div>
+                    <div class="form-group row" id="etsEmailFrom">
+                        <label class="col-md-12" th:text="#{modifyemail.template.from}" for="emailFrom">From:</label>
+                        <div class="col-md-6">
+                            <input class="form-control" th:value="${emailTemplate.from}" type="text" id="emailFrom" size="80" maxlength="250"  />
+                        </div>
+                    </div>
+                    <div class="form-group row form-required" id="etsEmailKey">
+                        <label class="col-md-12" th:text="#{modifyemail.template.key}" for="emailKey">key:</label>
+                        <div class="col-md-6">
+                            <input class="form-control" th:value="${emailTemplate.key}" required type="text" id="emailKey" size="80" maxlength="250"  />
+                        </div>
+                    </div>
+                    <div class="form-group row" id="etsEmailLocale">
+                        <label class="col-md-12" th:text="#{modifyemail.template.locale}" for="emailLocale">locale:</label>
+                        <div class="col-md-6">
+                            <input class="form-control" th:value="${emailTemplate.locale}" type="text" id="email:Locale" size="80" maxlength="250"  />
+                        </div>
+                    </div>
+                    <div class="form-group row form-required" id="etsEmailMessage">
+                        <label class="col-md-12" th:text="#{textInput}" for="emailMessage">Plain text</label>
+                        <div class="col-md-6">
+                            <textarea class="form-control" th:field="${emailTemplate.message}" th:value="${emailTemplate.message}" required rows="10" cols="100" name="emailMessage" id="emailMessage" >
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row" id="etsEmailHtml">
+                        <label class="col-md-12" th:text="#{htmlInput}" for="emailHtmlMessage">Html text</label>
+                        <div class="col-md-6">
+                            <textarea class="form-control" th:value="${emailTemplate.htmlMessage}" th:field="${emailTemplate.htmlMessage}" rows="10" cols="100" >
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="act">
+                    <button id="saveButton" th:text="#{modifyemail.save.changes.link}" name="saveEmailTemplate" type="submit"  accesskey="s" class="active" disabled></button>
+                </p>	
+
+            </form>
+        </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+
+            document.getElementById('emailTemplateForm').addEventListener('input', function (e) {
+                document.getElementById("saveButton").disabled = false;
+            });
+            document.getElementById('emailTemplateForm').addEventListener('submit', function (e) { document.getElementById("saveButton").disabled = false;
+                e.preventDefault();
+                var data = {
+                    "subject": document.getElementById("emailSubject").value,
+                    "from": document.getElementById("emailFrom").value,
+                    "key": document.getElementById("emailKey").value,
+                    "locale": document.getElementById("email:Locale").value,
+                    "message": document.getElementById("emailMessage").value,
+                    "htmlMessage": document.getElementById("htmlMessage").value
+
+                };
+                let saveButton = document.getElementById("saveButton");
+                saveButton.disabled = true;
+                saveButton.classList.add("spinButton");
+                var emailTemplateId = /*[[${emailTemplate.id}]]*/;
+                var url = /*[[@{'/new/formsubmit'}]]*/;
+                if (emailTemplateId != null) {
+                    url = /*[[@{'/edit/' + ${emailTemplate.id} + '/formsubmit'}]]*/;
+                }
+                fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    method: "POST"
+
+                }).then(function (response) {
+                    document.getElementById("saveButton").classList.remove("spinButton");
+
+                    if (!response.ok) {
+                        throw response;
+                    }
+
+                    return response.json().then(function (response) {
+                        var redirectUrl = /*[[@{'/index'}]]*/;
+                        if(data.locale === "")data.locale = 'default';
+                        redirectUrl += "/true/" + data.key + "/" + data.locale;
+                        window.location.href = redirectUrl;
+                    });
+
+                }).catch(function (response) {
+                    var errorContainer = document.getElementById('error-banner');
+                    var errorList = document.getElementById('error-list');
+                    //   if (response.status == 'ERROR') {
+                    return response.json().then(function (response) {
+                        errorList.innerHTML = "";
+                        var errors = response.errors
+                        errorContainer.classList.remove("hidden");
+                        for (error in errors) {
+                            var li = document.createElement('li');
+                            li.textContent = errors[error];
+                            errorList.appendChild(li);
+                        }
+                        errorContainer.scrollIntoView({behavior: "smooth"});
+                    });
+                });
+            });
+            /*]]>*/
+        </script>
+    </body>
+</html>

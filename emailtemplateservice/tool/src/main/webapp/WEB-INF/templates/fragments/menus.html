@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="main (current)">
+            <ul class="navIntraTool">
+                <li role="presentation">
+                    <span th:if="${current}=='list'" th:text="#{mainview.list}" class="current">Template List</span>
+                    <span th:unless="${current}=='list'"><a th:href="@{/index}" th:text="#{mainview.list}">Template List</a></span>
+                </li>
+                <li role="presentation" th:switch="${current}">
+                    <span th:case="'edit'" th:text="#{modifyemail.menu.edit}" class="current">Edit template</span>
+                    <span th:case="'new'" th:text="#{mainview.new}" class="current">New template</span>
+                    <span th:case="*"><a href="#" th:href="@{/new}" th:text="#{mainview.new}"></a></span>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

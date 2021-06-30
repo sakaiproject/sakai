@@ -1,0 +1,17 @@
+.#{$namespace}sakai-emailtemplateservice {
+    .sak-banner-error {
+        scroll-margin-top: ( $banner-height + $standard-space );
+    }
+
+    .form-required {
+        label {
+            &::after {
+                content: "*";
+                color: var(--errorBanner-color);
+                position: relative;
+                top: 3px;
+                margin-left: 3px;
+            }
+        }
+    }
+}
