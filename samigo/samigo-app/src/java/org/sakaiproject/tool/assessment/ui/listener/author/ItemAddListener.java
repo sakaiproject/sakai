@@ -1150,19 +1150,14 @@ public class ItemAddListener
 
  /** 
   * Helper method to get a list of ValidAnswers for a matching question from a MatchItemBeanList
+  *	Create a list of valid answers to loop through.  Ignore answers that are distractors
+  *	or are controlled by another MatchItemBean
   * @param matchItemBeanList 
   **/
  private List<MatchItemBean> getValidMIBAnswersList (List<MatchItemBean> matchItemBeanList) {
-	  // Create a list of valid answers to loop through.  Ignore answers that are distractors
-	  // or are controlled by another MatchItemBean
-	  List<MatchItemBean> validAnswers = new ArrayList<MatchItemBean>();
-	  Iterator<MatchItemBean>validAnswerIter = matchItemBeanList.iterator();
-	  for (MatchItemBean validAnswer: matchItemBeanList) {
-		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(validAnswer.getControllingSequence())) {
-			  validAnswers.add(validAnswer);
-		  }
-	  }
-	  return validAnswers;
+	  return matchItemBeanList.stream()
+			  .filter(answer -> MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(answer.getControllingSequence()))
+			  .collect(Collectors.toList());
  }
 
 /**
