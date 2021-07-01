@@ -27,7 +27,7 @@ import org.apache.wicket.validation.ValidationError;
  * 
  * <p>For instance, the following are valid Australian formats for the same number: <br />
  *   
- *  1. +61 2 1234 5678 (abbreviated international number)<br />
+ *   1. +61 2 1234 5678 (abbreviated international number)<br />
  *   2. 0011 61 2 1234 5678 (full international number) <br />
  *   3. 02 1234 5678 (expanded area code) <br />
  *   4. (02) 1234 5678 (expanded area code) <br />
