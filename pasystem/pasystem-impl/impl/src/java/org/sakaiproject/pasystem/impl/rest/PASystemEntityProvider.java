@@ -161,12 +161,19 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
 
         String timezoneFromUser = (String) params.get("timezone");
 
-        if (timezoneFromUser != null && checker.timezoneMismatch(timezoneFromUser)) {
+        if (timezoneFromUser != null) {
+          if (checker.timezoneMismatch(timezoneFromUser)) {
             result.put("status", "MISMATCH");
             result.put("setTimezoneUrl", checker.getTimezoneToolUrlForUser());
             result.put("prefsTimezone", checker.formatTimezoneFromProfile());
             result.put("reportedTimezone", checker.formatReportedTimezone(timezoneFromUser));
-        }
+          } else {
+            result.put("status", "OK");
+            result.put("setTimezoneUrl", checker.getTimezoneToolUrlForUser());
+            result.put("prefsTimezone", checker.formatTimezoneFromProfile());
+            result.put("reportedTimezone", checker.formatReportedTimezone(timezoneFromUser));
+          }
+        } 
 
         return result.toJSONString();
     }
