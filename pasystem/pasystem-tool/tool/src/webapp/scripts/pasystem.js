@@ -232,7 +232,7 @@ PASystemTimezoneChecker.prototype.checkTimezone = function() {
         if (data.status == 'MISMATCH' && data.setTimezoneUrl) {
           // Add banner for Timezone check message
           pasystem.banners.addBannerAlert("tz", self.getTimezoneBannerContent(data), true, "timezone");
-        } else {
+        } else if (data.status == 'OK' && data.setTimezoneUrl) {
           self.doNotCheckAgainForAWhile();
         }
       }
