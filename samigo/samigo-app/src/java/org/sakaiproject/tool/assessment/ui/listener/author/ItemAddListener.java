@@ -1186,6 +1186,18 @@ public class ItemAddListener
 	  }
   }
 
+ /** 
+  * Helper method to get a list of ValidAnswers for a matching question from a MatchItemBeanList
+  *	Create a list of valid answers to loop through.  Ignore answers that are distractors
+  *	or are controlled by another MatchItemBean
+  * @param matchItemBeanList 
+  **/
+ private List<MatchItemBean> getValidMIBAnswersList (List<MatchItemBean> matchItemBeanList) {
+	  return matchItemBeanList.stream()
+			  .filter(answer -> MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(answer.getControllingSequence()))
+			  .collect(Collectors.toList());
+ }
+
 /**
  * for the current choice, loop through all answers and add unique matches to the list of valid matches for the choice. 
  * @param choicebean current choice
@@ -1195,17 +1207,7 @@ public class ItemAddListener
  * @return
  */
   private ItemText selectAnswers(MatchItemBean choicebean, List<MatchItemBean> matchItemBeanList, ItemFacade item, ItemBean bean) {
-	  
-	  // Create a list of valid answers to loop through.  Ignore answers that are distractors
-	  // or are controlled by another MatchItemBean
-	  List<MatchItemBean> validAnswers = new ArrayList<MatchItemBean>();
-	  Iterator<MatchItemBean>validAnswerIter = matchItemBeanList.iterator();
-	  while (validAnswerIter.hasNext()) {
-		  MatchItemBean validAnswer = validAnswerIter.next();
-		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(validAnswer.getControllingSequence())) {
-			  validAnswers.add(validAnswer);
-		  }
-	  }
+	  List<MatchItemBean> validAnswers = getValidMIBAnswersList(matchItemBeanList);
 	  
 	  ItemText choicetext = new ItemText();
 	  choicetext.setItem(item.getData()); // all set to the same
@@ -2166,6 +2168,7 @@ public class ItemAddListener
 		Map<Long, ItemTextIfc> itemTextMap = textSet.stream().collect(Collectors.toMap(ItemTextIfc::getSequence, Function.identity()));
 
 		List<MatchItemBean> matchItemBeanList = bean.getMatchItemBeanList();
+		List<MatchItemBean> validAnswersList = getValidMIBAnswersList(matchItemBeanList);
 
 		for (MatchItemBean choiceBean : matchItemBeanList) {
 			Long choiceSequence = choiceBean.getSequence();
@@ -2192,17 +2195,17 @@ public class ItemAddListener
 				textSet.add(itemText);
 			}
 
-			for (MatchItemBean matchItemBean : matchItemBeanList) {
-				Long matchSequence = matchItemBean.getSequence();
+			for (MatchItemBean validAnswer : validAnswersList) {
+				Long matchSequence = validAnswer.getSequence();
 				if (answerMap.get(matchSequence) == null) {
 					// new - add it in
 					AnswerIfc answer;
-					if (matchItemBean.getSequence().equals(choiceBean.getSequence())) {
+					if (validAnswer.getSequence().equals(choiceBean.getSequence())) {
 						answer = new PublishedAnswer(
 								itemText,
-								stripPtags(matchItemBean.getMatch()),
-								matchItemBean.getSequence(),
-								AnswerBean.getChoiceLabels()[matchItemBean.getSequence().intValue() - 1],
+								stripPtags(validAnswer.getMatch()),
+								validAnswer.getSequence(),
+								AnswerBean.getChoiceLabels()[validAnswer.getSequence().intValue() - 1],
 								Boolean.TRUE,
 								null,
 								bean.getItemScore(),
@@ -2211,9 +2214,9 @@ public class ItemAddListener
 					} else {
 						answer = new PublishedAnswer(
 								itemText,
-								stripPtags(matchItemBean.getMatch()),
-								matchItemBean.getSequence(),
-								AnswerBean.getChoiceLabels()[matchItemBean.getSequence().intValue() - 1],
+								stripPtags(validAnswer.getMatch()),
+								validAnswer.getSequence(),
+								AnswerBean.getChoiceLabels()[validAnswer.getSequence().intValue() - 1],
 								Boolean.FALSE,
 								null,
 								bean.getItemScore(),
@@ -2223,15 +2226,15 @@ public class ItemAddListener
 
 					// record answers for all combination of pairs
 					Set<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
-					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(matchItemBean.getCorrMatchFeedback())));
-					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(matchItemBean.getIncorrMatchFeedback())));
+					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(validAnswer.getCorrMatchFeedback())));
+					answerFeedbackSet.add(new PublishedAnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(validAnswer.getIncorrMatchFeedback())));
 					answer.setAnswerFeedbackSet(answerFeedbackSet);
 					answerSet.add(answer);
 
 				} else {
 					AnswerIfc answer = answerMap.get(matchSequence);
 					answer.setScore(bean.getItemScore());
-					String oneAnswer = stripPtags(matchItemBean.getMatch());
+					String oneAnswer = stripPtags(validAnswer.getMatch());
 					String oneLabel = AnswerBean.getChoiceLabels()[matchSequence.intValue() - 1];
 					log.debug("oneAnswer = {}, oneLabel = {}", oneAnswer, oneLabel);
 					answer.setText(oneAnswer);
@@ -2243,9 +2246,9 @@ public class ItemAddListener
 					}
 					for (AnswerFeedbackIfc answerFeedback : answer.getAnswerFeedbackSet()) {
 						if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
-							answerFeedback.setText(stripPtags(matchItemBean.getCorrMatchFeedback()));
+							answerFeedback.setText(stripPtags(validAnswer.getCorrMatchFeedback()));
 						} else if (answerFeedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
-							answerFeedback.setText(stripPtags(matchItemBean.getIncorrMatchFeedback()));
+							answerFeedback.setText(stripPtags(validAnswer.getIncorrMatchFeedback()));
 						}
 					}
 				}
