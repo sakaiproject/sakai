@@ -42,7 +42,7 @@ public class ConnectionsGrid extends Panel {
     private static final long serialVersionUID = 1L;
     private int cols = 4;
 
-    public ConnectionsGrid(final String id, final IModel<List<? extends WidgetPage.GridPerson>> iModel, int cols) {
+    public ConnectionsGrid(final String id, final IModel<List<WidgetPage.GridPerson>> iModel, int cols) {
         super(id, iModel);
         this.cols = cols;
         }
