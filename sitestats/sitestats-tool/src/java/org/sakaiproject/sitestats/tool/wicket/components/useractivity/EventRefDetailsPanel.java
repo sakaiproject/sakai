@@ -36,6 +36,8 @@ import org.sakaiproject.sitestats.tool.wicket.models.LoadableEventRefDetailsMode
  */
 public class EventRefDetailsPanel extends GenericPanel<ResolvedEventData>
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor
 	 * @param id wicket id

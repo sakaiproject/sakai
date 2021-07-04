@@ -27,6 +27,8 @@ import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
  */
 public class NotAuthorizedPage extends BasePage {
 
+	private static final long serialVersionUID = 1L;
+
 	public NotAuthorizedPage() {
 		add(new CSSFeedbackPanel("messages"));
 		

@@ -24,7 +24,7 @@ import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class ReportDefModel extends LoadableDetachableModel {
-	private static final long		serialVersionUID	= 1L;
+	private static final long serialVersionUID = 1L;
 
 	private long					id;
 	private String 					siteId;

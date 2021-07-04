@@ -30,7 +30,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
  * @author Nuno Fernandes
  */
 public class ImageWithLink extends Panel {
-	private static final long		serialVersionUID	= 1L;
+	private static final long serialVersionUID	= 1L;
 
 	public ImageWithLink(String id) {
 		this(id, null, null, null, null);
@@ -44,7 +44,7 @@ public class ImageWithLink extends Panel {
 		if(exists) {
 			add( new ExternalImage("image", imgUrl).setVisible(imgUrl != null) );
 			lnk = new ExternalLink("link", lnkUrl, lnkLabel);
-			lnk.add(new AttributeModifier("target", true, new Model(lnkTarget)));
+			lnk.add(new AttributeModifier("target", new Model(lnkTarget)));
 		}else{
 			StringBuilder b = new StringBuilder();
 			b.append(lnkLabel);

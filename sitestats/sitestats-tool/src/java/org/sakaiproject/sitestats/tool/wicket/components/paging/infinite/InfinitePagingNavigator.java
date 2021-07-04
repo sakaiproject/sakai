@@ -34,6 +34,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.dropdown.SakaiSpinningS
  */
 public class InfinitePagingNavigator extends Panel
 {
+	private static final long serialVersionUID = 1L;
 	private final InfinitePagingDataTable table;
 	private final String pageSizeSelection;
 	private final Form<?> form;

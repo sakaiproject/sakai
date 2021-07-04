@@ -26,6 +26,9 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
  */
 public abstract class SakaiSpinningSelectOnChangeBehavior extends AjaxFormComponentUpdatingBehavior
 {
+
+	private static final long serialVersionUID = 1L;
+
 	public SakaiSpinningSelectOnChangeBehavior()
 	{
 		super("onchange");

@@ -36,7 +36,9 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
 
 public class StudentVisitsWidget extends Panel {
-    private List<WidgetMiniStat> widgetMiniStats = null;
+
+	private static final long serialVersionUID = 1L;
+	private List<WidgetMiniStat> widgetMiniStats = null;
 
     public StudentVisitsWidget(String id, List<WidgetMiniStat> widgetMiniStats) {
         super(id);

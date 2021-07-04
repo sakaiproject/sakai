@@ -34,6 +34,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.InfiniteDataPro
  */
 public class AbstractInfinitePagingDataGridView<T> extends InfinitePagingDataViewBase<T>
 {
+	private static final long serialVersionUID = 1L;
 	private static final String CELL_REPEATER_ID = "cells";
 	private static final String CELL_ITEM_ID = "cell";
 

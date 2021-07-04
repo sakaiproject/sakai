@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.form.Form;
  */
 public class SakaiAjaxButton extends AjaxButton
 {
+	private static final long serialVersionUID = 1L;
 	protected boolean willRenderOnClick = false;
 
 	public SakaiAjaxButton(String id) {

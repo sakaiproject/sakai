@@ -31,6 +31,8 @@ import org.sakaiproject.sitestats.tool.wicket.util.Comparators;
  */
 public class LoadableDisplayUserListModel extends LoadableDetachableModel<List<DisplayUser>>
 {
+
+	private static final long serialVersionUID = 1L;
 	private final String siteId;
 
 	/**

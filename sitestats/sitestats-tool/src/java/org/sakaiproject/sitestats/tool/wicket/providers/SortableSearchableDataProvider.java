@@ -24,6 +24,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 
 public class SortableSearchableDataProvider extends SortableDataProvider{
+	private static final long serialVersionUID = 1L;
 	private String searchKeyword = null;
 
 	@Override

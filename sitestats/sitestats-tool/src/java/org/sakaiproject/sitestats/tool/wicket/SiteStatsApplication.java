@@ -125,7 +125,6 @@ public class SiteStatsApplication extends WebApplication {
 		setRootRequestMapper(cryptoMapper);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Class getHomePage() {
 		return OverviewPage.class;
 	}

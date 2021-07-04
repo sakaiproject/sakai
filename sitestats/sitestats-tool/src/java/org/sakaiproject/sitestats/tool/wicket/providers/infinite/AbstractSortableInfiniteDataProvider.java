@@ -28,6 +28,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
  */
 public abstract class AbstractSortableInfiniteDataProvider<T, S> implements SortableInfiniteDataProvider<T, S>
 {
+	private static final long serialVersionUID = 1L;
 	private final SingleSortState<S> state = new SingleSortState<>();
 
 	@Override

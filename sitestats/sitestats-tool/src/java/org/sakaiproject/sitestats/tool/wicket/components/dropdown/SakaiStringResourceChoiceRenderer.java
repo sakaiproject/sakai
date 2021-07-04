@@ -25,6 +25,7 @@ import org.apache.wicket.model.StringResourceModel;
  */
 public class SakaiStringResourceChoiceRenderer implements IChoiceRenderer<String>
 {
+	private static final long serialVersionUID = 1L;
 	private final String msgKey;
 	private final Component component;
 

@@ -45,6 +45,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
  */
 public class InfinitePagingDataTableHeadersToolbar<S> extends InfinitePagingDataTableToolbar
 {
+	private static final long serialVersionUID = 1L;
 	private static final String TOOLBAR_JS = StatsManager.SITESTATS_WEBAPP + "/script/infinitepagingdatatableheaderstoolbar.js";
 
 	public <T> InfinitePagingDataTableHeadersToolbar(final InfinitePagingDataTable<T, S> table, final ISortStateLocator<S> stateLocator)

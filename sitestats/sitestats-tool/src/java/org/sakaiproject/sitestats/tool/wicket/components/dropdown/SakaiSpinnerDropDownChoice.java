@@ -31,6 +31,7 @@ import org.apache.wicket.model.IModel;
  */
 public class SakaiSpinnerDropDownChoice<T> extends GenericPanel<T>
 {
+	private static final long serialVersionUID = 1L;
 	public final DropDownChoice<T> select;
 
 	/**
