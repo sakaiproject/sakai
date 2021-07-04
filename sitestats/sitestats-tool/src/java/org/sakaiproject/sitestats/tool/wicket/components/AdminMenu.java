@@ -47,7 +47,6 @@ public class AdminMenu extends Panel {
 	/**
 	 * Render Sakai Menu
 	 */
-	@SuppressWarnings("unchecked")
 	private void renderBody() {
 		// site id
 		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();

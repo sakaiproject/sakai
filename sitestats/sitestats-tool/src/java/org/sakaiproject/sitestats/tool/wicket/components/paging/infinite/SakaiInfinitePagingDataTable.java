@@ -27,6 +27,8 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.SortableInfinit
  */
 public class SakaiInfinitePagingDataTable<T, S> extends InfinitePagingDataTable<T, S>
 {
+	private static final long serialVersionUID = 1L;
+
 	public SakaiInfinitePagingDataTable(final String id, final List<? extends IColumn<T, S>> columns, final SortableInfiniteDataProvider<T, S> dataProvider,
 		final int rowsPerPage)
 	{

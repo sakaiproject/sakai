@@ -25,10 +25,12 @@ import org.apache.wicket.model.IModel;
 
 public class SelectOptionsGroup extends Border {
 
+	private static final long serialVersionUID = 1L;
+
 	public SelectOptionsGroup(String id, IModel model) {
 		super(id);
 		WebMarkupContainer optgroup = new WebMarkupContainer("optgroup");
-		optgroup.add(new AttributeModifier("label", true, model));
+		optgroup.add(new AttributeModifier("label", model));
 		add(optgroup);
 		optgroup.add(getBodyContainer());
 	}

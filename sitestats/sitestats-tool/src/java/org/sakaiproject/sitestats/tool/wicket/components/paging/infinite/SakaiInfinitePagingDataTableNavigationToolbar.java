@@ -30,6 +30,8 @@ import org.apache.wicket.model.StringResourceModel;
  */
 public class SakaiInfinitePagingDataTableNavigationToolbar extends InfinitePagingDataTableToolbar
 {
+	private static final long serialVersionUID = 1L;
+
 	public SakaiInfinitePagingDataTableNavigationToolbar(final InfinitePagingDataTable<?, ?> table)
 	{
 		super(null, table);

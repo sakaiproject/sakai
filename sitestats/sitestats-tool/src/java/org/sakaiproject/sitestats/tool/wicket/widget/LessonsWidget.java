@@ -22,26 +22,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.LessonBuilderStat;
-import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
-import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LessonsWidget extends Panel {

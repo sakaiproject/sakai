@@ -26,6 +26,8 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.InfiniteDataPro
  */
 public class InfinitePagingDataGridView<T> extends AbstractInfinitePagingDataGridView<T>
 {
+	private static final long serialVersionUID = 1L;
+
 	public InfinitePagingDataGridView(final String id, final List<? extends ICellPopulator<T>> populators, final InfiniteDataProvider<T> dataProvider)
 	{
 		super(id, populators, dataProvider);

@@ -20,21 +20,19 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.devutils.debugbar.DebugBar;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.head.filter.HeaderResponseContainer;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.head.StringHeaderItem;
-import org.apache.wicket.devutils.debugbar.DebugBar;
-
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.util.ResourceLoader;
 

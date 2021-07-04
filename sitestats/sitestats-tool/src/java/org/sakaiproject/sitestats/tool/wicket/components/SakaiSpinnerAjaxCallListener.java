@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.tool.wicket.components;
  */
 public class SakaiSpinnerAjaxCallListener extends AbstractSakaiSpinnerAjaxCallListener
 {
+	private static final long serialVersionUID = 1L;
 	private static final String SPIN = "$('#%s').addClass('" + SPINNER_CLASS + "');";
 	private static final String STOP = "$('#%s').removeClass('" + SPINNER_CLASS + "');";
 	private static final String DISABLE_AND_SPIN = DISABLED + SPIN;

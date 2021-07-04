@@ -32,8 +32,8 @@ public class CSSFeedbackPanel extends FeedbackPanel {
 		super(id);
 		WebMarkupContainer feedbackul = (WebMarkupContainer) get("feedbackul");
 		if(feedbackul != null){
-			feedbackul.add(new AttributeModifier("class", true, new Model() {
-				private static final long	serialVersionUID	= 1L;
+			feedbackul.add(new AttributeModifier("class", new Model() {
+				private static final long serialVersionUID = 1L;
 				public Serializable getObject() {
 					if(anyErrorMessage()){
 						return "alertMessage";
@@ -44,7 +44,7 @@ public class CSSFeedbackPanel extends FeedbackPanel {
 					}
 				}
 			}));
-			feedbackul.add(new AttributeModifier("style", true, new Model("list-style-type:none")));
+			feedbackul.add(new AttributeModifier("style", new Model("list-style-type:none")));
 		}
 	}
 }

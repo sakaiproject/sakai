@@ -47,7 +47,6 @@ public class SiteStatsAdminApplication extends SiteStatsApplication {
 		setRootRequestMapper(cryptoMapper);
 	}
 
-	@SuppressWarnings("unchecked")
 	public Class getHomePage() {
 		return AdminPage.class;
 	}

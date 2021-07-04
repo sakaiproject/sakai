@@ -18,7 +18,6 @@ package org.sakaiproject.sitestats.tool.wicket.components.useractivity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -27,7 +26,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
@@ -42,6 +40,8 @@ import org.sakaiproject.sitestats.tool.wicket.providers.UserTrackingDataProvider
  */
 public class UserTrackingResultsPanel extends Panel
 {
+	private static final long serialVersionUID = 1L;
+
 	private final UserTrackingDataProvider provider;
 
 	private String siteID;

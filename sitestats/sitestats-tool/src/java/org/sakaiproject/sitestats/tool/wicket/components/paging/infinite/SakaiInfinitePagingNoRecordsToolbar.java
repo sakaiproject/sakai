@@ -27,6 +27,8 @@ import org.apache.wicket.model.ResourceModel;
  */
 public class SakaiInfinitePagingNoRecordsToolbar extends InfinitePagingDataTableToolbar
 {
+	private static final long serialVersionUID = 1L;
+
 	public SakaiInfinitePagingNoRecordsToolbar(final InfinitePagingDataTable<?, ?> table)
 	{
 		super(null, table);
