@@ -7842,7 +7842,25 @@ public class DiscussionForumTool {
 		String oldExtendedDescription = oldForum.getExtendedDescription();
 		if (oldExtendedDescription == null) oldExtendedDescription = "";
 		forum.setExtendedDescription(oldExtendedDescription);
-        forum.setTitle(oldTitle);
+		forum.setTitle(oldTitle);
+
+		Set<DBMembershipItem> forumMembershipItemSet = uiPermissionsManager.getForumItemsSet(oldForum);
+		Set<DBMembershipItem> membershipItemSet = new HashSet<>();
+
+		if (forumMembershipItemSet != null && !forumMembershipItemSet.isEmpty() ) {
+			for (DBMembershipItem oldItem : forumMembershipItemSet) {
+				DBMembershipItem itemCopy = getMembershipItemCopy(oldItem);
+				if (itemCopy != null) {
+					DBMembershipItem newItem = permissionLevelManager.saveDBMembershipItem(itemCopy);
+					membershipItemSet.add(newItem);
+				}
+			}
+
+			// This will bond the new permission items to the topic with surrogate key
+			forum.setMembershipItemSet(membershipItemSet);
+			DiscussionForum finalNewForum = forum;
+			membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setForum(finalNewForum));
+		}
 
 		List fromForumAttach = oldForum.getAttachments();
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
