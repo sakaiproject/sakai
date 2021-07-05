@@ -7719,7 +7719,8 @@ public class DiscussionForumTool {
 
 	// Get/set the topic's permissions
 
-	Set topicMembershipItemSet = uiPermissionsManager.getTopicItemsSet(fromTopic);
+	Set<DBMembershipItem> topicMembershipItemSet = uiPermissionsManager.getTopicItemsSet(fromTopic);
+	Set<DBMembershipItem> membershipItemSet = new HashSet<>();
 
 	if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() ) { //&& allowedPermNames != null && !allowedPermNames.isEmpty()
 		log.debug("About to assign topicMembershipItemSet's iterator");
@@ -7728,12 +7729,17 @@ public class DiscussionForumTool {
 			log.debug("About to get a member of membershipIter");
 			DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
 				log.debug("About to getMembershipItemCopy()");
-				DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-				if (newItem != null) {
-					newItem = permissionLevelManager.saveDBMembershipItem(newItem);
-					newTopic.addMembershipItem(newItem);
+				DBMembershipItem itemCopy = getMembershipItemCopy(oldItem);
+				if (itemCopy != null) {
+					DBMembershipItem newItem = permissionLevelManager.saveDBMembershipItem(itemCopy);
+					membershipItemSet.add(newItem);
 				}
 		}
+
+		// This will bond the new permission items to the topic with surrogate key
+		newTopic.setMembershipItemSet(membershipItemSet);
+		DiscussionTopic finalNewTopic = newTopic;
+		membershipItemSet.forEach(i -> ((DBMembershipItemImpl) i).setTopic(finalNewTopic));
 	}
 	// Add the attachments
 	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
