@@ -15,20 +15,17 @@
  */
 package org.sakaiproject.sitemembers.ui;
 
-import java.util.Arrays;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -37,20 +34,20 @@ import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitemembers.SiteRole;
+import org.sakaiproject.sitemembers.ui.components.ConnectionsGrid;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.sitemembers.SiteRole;
-import org.sakaiproject.sitemembers.ui.components.ConnectionsGrid;
-import org.sakaiproject.authz.cover.FunctionManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,7 +86,8 @@ public class WidgetPage extends WebPage {
      * Class that contains a single site member (just the part needed)
      */
     public static class GridPerson implements Serializable{
-        public String uuid;
+		private static final long serialVersionUID = 1L;
+		public String uuid;
         public String displayName;
         public String role;
         public int onlineStatus;

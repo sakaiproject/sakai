@@ -43,7 +43,7 @@ public class ConnectionsGrid extends Panel {
     private int cols = 4;
     private String prefix = "";
 
-    public ConnectionsGrid(final String id, final IModel<List<? extends WidgetPage.GridPerson>> iModel, int cols, boolean isCourse) {
+    public ConnectionsGrid(final String id, final IModel<List<WidgetPage.GridPerson>> iModel, int cols, boolean isCourse) {
         super(id, iModel);
         this.cols = cols;
         if(isCourse) {
