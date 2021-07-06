@@ -103,13 +103,16 @@ $(document).ready(function(){
 			## TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
 			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
 			## SINGLE_ATTACHMENT_SUBMISSION = 5
+			## VIDEO_SUBMISSION = 7
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
 					 $tlang.getString("stuviewsubm.asshasnot")
 				#elseif (($submissionType==2) || ($submissionType==5))
 				 	$tlang.getString("stuviewsubm.assattonly")
-				#elseif ($submissionType==5)
+				#elseif ($submissionType == 6)
                     $tlang.getString("stuviewsubm.externaltool")
+				#elseif ($submissionType == 7)
+					<div class="sak-banner-warn">$tlang.getString("stuviewsubm.video")</div>
 				#end
 				#if($assignment.AllowPeerAssessment)
 					<div class="highlight">
@@ -779,6 +782,10 @@ $(document).ready(function(){
 					</div>
 
 				</div>
+           #elseif ($submissionType == 7)
+               #parse ("/vm/assignment/assignments_display_video_submission.vm")
+               <br>
+               #parse ("/vm/assignment/assignments_record_video_submission.vm")
 			#else
 				## this is where we show any previous attachments when the submission type doesn't allow them
 				#if ($size != 0)
@@ -902,8 +909,8 @@ $(document).ready(function(){
 									disabled="disabled"
 								#end
 							/>
-					## for single file upload case, no need for preview or save draft
-					#if ($submissionType!=5)
+					## for single file upload case and video submission, no need for preview or save draft
+					#if ($submissionType != 5 && $submissionType != 7)
 							<input class="disableme" type="button" name="preview" accesskey="v" id="preview" value="$tlang.getString("gen.pre")"
 								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'preview', null, null ); return false;" />
 							<input class="disableme" type="button" name="save" accesskey="d" id="save" value="$tlang.getString("gen.savdra")"

@@ -272,17 +272,23 @@
 			<artifactId>awesomplete</artifactId>
 			<version>1.1.5</version>
 		</dependency>
-		<!--Used in Profile, record name pronunciation -->
+		<!--Used in Profile and Assignments -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>recordrtc</artifactId>
-			<version>5.5.8</version>
+			<version>5.6.2</version>
 		</dependency>
-		<!--Used in Profile, record name pronunciation -->
+		<!--Used in Profile and Assignments -->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>webrtc-adapter</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
+		</dependency>
+		<!--Used in Profile and Assignments -->
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>video.js</artifactId>
+			<version>7.14.0</version>
 		</dependency>
 		<!--Used in Tests&Quizzes, validation of fill in numeric questions -->
 		<dependency>

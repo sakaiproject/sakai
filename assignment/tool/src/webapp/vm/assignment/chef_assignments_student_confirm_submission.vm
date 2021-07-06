@@ -124,6 +124,8 @@
         </div>
     #end
 
+    #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
     #attachmentFragment($submissionAttachmentReferences.keySet() $submissionAttachmentReferences $!decoratedUrlMap true)
 
 	#if($!submissionConfirmOptions.size() > 0)
