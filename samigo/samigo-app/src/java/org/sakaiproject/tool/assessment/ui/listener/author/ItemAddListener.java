@@ -244,6 +244,7 @@ public class ItemAddListener
     	int markerError = isErrorMarkersFIB();
     	if (markerError > 0) {
     		err =ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "pool_badmarkers_error_" + markerError);
+    		err = err.replaceAll("\\\\", "");
     		context.addMessage(null, new FacesMessage(err));
     		item.setOutcome("fillInBlackItem");
     		item.setPoolOutcome("fillInBlackItem");
