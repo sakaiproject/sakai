@@ -33,8 +33,8 @@ import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -604,8 +604,8 @@ public class MyProfile extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.render(JavaScriptHeaderItem.forUrl("/library/webjars/recordrtc/5.5.8/RecordRTC.js"));
-		response.render(JavaScriptHeaderItem.forUrl("/library/webjars/webrtc-adapter/7.5.0/out/adapter.js"));
+		response.render(StringHeaderItem.forString("<script>includeWebjarLibrary('recordrtc');</script>"));
+		response.render(StringHeaderItem.forString("<script>includeWebjarLibrary('webrtc-adapter');</script>"));
 	}
 
 	private boolean locked;

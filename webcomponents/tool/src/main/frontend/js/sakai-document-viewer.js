@@ -108,6 +108,8 @@ class SakaiDocumentViewer extends SakaiElement {
       this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.9#/access${ref}" width="100%" height="${this.height}" />`;
     } else if (type.includes("image/")) {
       this.documentMarkup = `<img src="/access/${ref}" />`;
+    } else if (type.includes("video/")) {
+      this.documentMarkup = `<video controls playsinline><source src='/access/${ref}' type='${type}'></video>`;
     } else {
       this.withBorders = true;
       const contentIndex = ref.indexOf("\/content\/");

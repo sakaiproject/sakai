@@ -818,13 +818,25 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/locales-all.min.js');
 			cssReferences.push('/main.min.css');
 			break;
+		case 'recordrtc':
+			libraryVersion = "5.6.2";
+			jsReferences.push('/RecordRTC.js');
+			break;
+		case 'webrtc-adapter':
+			libraryVersion = "8.0.0";
+			jsReferences.push('/out/adapter.js');
+			break;
+		case 'video.js':
+			libraryVersion = "7.14.0";
+			jsReferences.push('/dist/video.min.js');
+			cssReferences.push('/dist/video-js.css');
+			break;
 		default:
 			if (library.endsWith(".js")) {
 				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
 			} else if (library.endsWith(".css")) {
 				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
 			}
-			break;
 	}
 
 	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion}`);

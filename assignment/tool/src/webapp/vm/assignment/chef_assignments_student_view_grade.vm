@@ -233,6 +233,8 @@
             #end
         #end
 
+        #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
         ## Submission Attachments
         #set ($attachments = $submission.Attachments)
         #if ($attachments)

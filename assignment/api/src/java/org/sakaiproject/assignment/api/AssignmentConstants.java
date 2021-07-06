@@ -147,6 +147,8 @@ public final class AssignmentConstants {
     public static final String ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP = "singleatt";
     public static final String ASSN_SUBMISSION_TYPE_EXTERNAL_TOOL = "externaltool";
     public static final String ASSN_SUBMISSION_TYPE_UNKNOWN_PROP = "submission.type.unknown";
+    public static final String ASSN_SUBMISSION_TYPE_VIDEO_PROP = "video";
+
     /**
      * Ungraded grade type string
      */

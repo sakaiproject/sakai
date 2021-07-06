@@ -81,6 +81,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -6272,8 +6273,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (typeOfSubmission == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION || typeOfSubmission == Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION) {
                     text = null;
                 }
-                // get attachment input and generate alert message according to assignment submission type
-                checkSubmissionTextAttachmentInput(data, state, a, text);
+
+                if (typeOfSubmission == Assignment.SubmissionType.VIDEO_SUBMISSION) {
+                     // Get the video from the current attachments or get the video from the form post.
+                     List<Reference> v = post ? (List<Reference>) state.getAttribute(ATTACHMENTS) : this.getVideoAttachments(data, state, a);
+                     if ((v == null) || (v.size() != 1)) {
+                         addAlert(state, rb.getString("youmust9"));
+                     } 
+                    state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, v);
+                } else {
+                    // get attachment input and generate alert message according to assignment submission type
+                    checkSubmissionTextAttachmentInput(data, state, a, text);
+                }
             }
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
                 AssignmentSubmission submission;
@@ -11851,6 +11862,7 @@ public class AssignmentAction extends PagedResourceActionII {
         submissionTypeTable.put(4, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP));
         submissionTypeTable.put(5, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP));
         submissionTypeTable.put(6, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_EXTERNAL_TOOL));
+        submissionTypeTable.put(7, rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_VIDEO_PROP));
 
         return submissionTypeTable;
     } // submissionTypeTable
@@ -15522,4 +15534,56 @@ public class AssignmentAction extends PagedResourceActionII {
             m_timeStamp = timeStamp;
         }
     }
+
+    /**
+     * Used when students are uploading a video object
+     */
+    private List<Reference> getVideoAttachments(RunData data, SessionState state, Assignment assignment) {
+        List<Reference> attachments = entityManager.newReferenceList();
+        //Get the video object in base64 from the form post
+        String videoResponseBase64 = data.getParameters().get("videoResponse");
+        if (StringUtils.isBlank(videoResponseBase64) || videoResponseBase64.split(",").length < 2) {
+            return attachments;
+        }
+        videoResponseBase64 = videoResponseBase64.split(",")[1];
+        // Use the sessionId for the video reference.
+        String resourceId = sessionManager.getCurrentSession().getId();
+        String contentType = "video/webm";
+        // The blob is encoded Base64 in the client side and sent via POST.
+        InputStream contentStream = new ByteArrayInputStream(Base64.getDecoder().decode(videoResponseBase64.getBytes(StandardCharsets.UTF_8)));
+        ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
+        props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, resourceId);
+        props.addProperty(ResourceProperties.PROP_DESCRIPTION, resourceId);
+        SecurityAdvisor sa = createSubmissionSecurityAdvisor();
+        try {
+            securityService.pushAdvisor(sa);
+            String siteId = toolManager.getCurrentPlacement().getContext();
+            ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, contentStream, props);
+            try {
+                Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
+                attachments.add(ref);
+                state.setAttribute(ATTACHMENTS, attachments);
+            } catch (Exception e) {
+                log.warn("Cannot find reference for {}: {}", attachment.getId(), e.getMessage());
+            }
+        } catch (PermissionException e) {
+            addAlert(state, rb.getString("notpermis4"));
+        } catch (RuntimeException e) {
+            if (contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage())) {
+                addAlert(state, rb.getFormattedMessage("alert.toolong", resourceId));
+            } else {
+                throw e;
+            }
+        } catch (ServerOverloadException e) {
+            log.debug("***** DISK IO Exception ***** {}", e.getMessage());
+            addAlert(state, rb.getString("failed.diskio"));
+        } catch (Exception ignore) {
+            log.debug("***** Unknown Exception ***** {}", ignore.getMessage());
+            addAlert(state, rb.getString("failed"));
+        } finally {
+            securityService.popAdvisor(sa);
+        }
+        return attachments;
+    }
+
 }
