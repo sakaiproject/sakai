@@ -97,45 +97,6 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <script>
-  includeWebjarLibrary('mathjs');
-  var calcqFormatError = '<h:outputText value="#{deliveryMessages.calcq_invalid_characters_error}" escape="false"/>';
-  
-  $( document ).ready(function() {
-  
-    $('.calculatedQuestionInput').each( function() {
-      $(this).attr('data-toggle', 'popover'); 
-      $(this).attr('data-content', calcqFormatError);
-      $(this).attr('data-trigger', 'focus');
-    });
-  
-    $('#takeAssessmentForm').submit(function() {
-      $('.calculatedQuestionInput').each(function() {
-        //If a part or an exam is submitted, validate all the FIN inputs and alert about the invalid ones to prevent a response loss.
-        validateCalculatedQuestionInput(this);
-      });
-    });
-  
-    $('.calculatedQuestionInput').popover({
-      trigger: 'focus'
-    });
-  
-    $('.calculatedQuestionInput').change( function() {
-      validateCalculatedQuestionInput(this);
-    });
-  
-    $('.calculatedQuestionInput').keyup( throttle(function(){
-      // Do not validate on key up when the user is inserting a scientific notation or a real with sign.
-      if (this.value !== '' && 
-          (this.value.includes('+') ||
-          this.value.includes('-') ||
-          this.value.includes('e') ||
-          this.value.includes('E'))
-      ) {
-          return;
-      }
-      validateCalculatedQuestionInput(this);
-    }));
-  
-  });
-  </script>
-  
+var calcqFormatError = '<h:outputText value="#{deliveryMessages.calcq_invalid_characters_error}" escape="false"/>';
+</script>
+<script src="/samigo-app/js/calcQuestInputValidator.js"></script>  
