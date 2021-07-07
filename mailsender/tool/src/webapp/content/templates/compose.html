@@ -7,7 +7,7 @@
         <script src="/library/js/headscripts.js"></script>
         <script src="/library/js/spinner.js"></script>
         <script src="/mailsender-tool/content/js/mailsender.js"></script>
-        [(${sakaiHtmlHead})] 
+        [(${sakaiHtmlHead})]
     </head>
     <body>
         <div class="portletBody">
@@ -17,7 +17,7 @@
             <form id="mainForm" method="post" th:action="@{/compose}" enctype="multipart/form-data" data-dirty="false" th:object="${emailEntry}">
                 <div class="page-header">
                     <h1 th:text="#{compose_toolbar}">Compose</h1>
-                </div> 
+                </div>
                 <div class="section">
                     <div class="headerkeyholder">
                         <span th:text="#{from}" class="headerkey">From:</span>
@@ -58,7 +58,7 @@
                                         <input th:id="${user.getId()}" type="checkbox" name="user" th:value="${user.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${user.getEmail().isEmpty()}?@{disabled}"/>
                                         <label th:text="${user.getDisplayName()}+'('+ ${user.getDisplayId()}+')'"/>
                                     </div>
-                                </div> 
+                                </div>
                             </div>
                         </div>
                         <div id="mailsender-sections" class="rolesArea hidden">
@@ -117,7 +117,7 @@
                     <div id="attachOuter" class="headerkeyholder" style="display:none">
                         <span class="headerkey"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" ></span>
                     </div>
-                    <div id="attachInner" class="headervalue"> 
+                    <div id="attachInner" class="headervalue">
                         <div id="attachmentArea" name="attachmentArea"/>
                         <div id="attachLink"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" />
                         <a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}">Attach a file</a>
@@ -134,8 +134,12 @@
 
                     <div class="section">
                         <div class="headervalue">
+                            <input name="onlyPlainText" type="checkbox" id="onlyPlainText" value="true" th:checked="*{config.isOnlyPlainText}"/>
+                            <label th:text="#{onlyplaintext}" for="onlyPlainText">Send only as plain text</label>
+                        </div>
+                        <div class="headervalue">
                             <input name="smac" type="checkbox" id="sendMeACopy" value="true" th:attrappend="checked=*{config.isSendMeACopy() == true}?@{checked}"/>
-                            <label th:text="#{sendmeacopy}" for="sendMeCopy">Send me a copy</label>
+                            <label th:text="#{sendmeacopy}" for="sendMeACopy">Send me a copy</label>
                         </div>
                         <div th:if="${addedTo}" id="addToArchiveDiv" class="headervalue">
                             <input  name="addToArchive" type="checkbox" id="addToArchive" value="true" th:attrappend="checked=*{config.isAddToArchive() == true}?@{checked}" />
@@ -155,8 +159,6 @@
             </form>
             <script>  sakai.editor.launch("editor1", "{noop:0}");
                 CKEDITOR.instances.editor1.setData(/*[[${emailEntry.content}]]*/);
-
-
                 
                 var hroles = document.getElementById("mailsender-rcpt-link-roles");
                 var hsections = document.getElementById("mailsender-rcpt-link-sections");
@@ -213,12 +215,21 @@
                     form.dataset.dirty="true"
                 });
                     
-                    function losedata(msg) {
-                        if (form.dataset.dirty=='true'){
-                            return confirm(msg);
+                function losedata(msg) {
+                    if (form.dataset.dirty=='true'){
+                        return confirm(msg);
+                    }
+                    return true;
+                };
+
+                document.getElementById("onlyPlainText").addEventListener('change', function() {
+                    if (this.checked) {
+                        const editor = CKEDITOR.instances.editor1;
+                        if (editor.mode === 'wysiwyg') {
+                            editor.execCommand('source');
                         }
-                        return true;
-                    };
+                    }
+                });
             </script>
         </div>
     </body>
