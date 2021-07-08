@@ -1,9 +1,13 @@
+<script>includeWebjarLibrary('fullcalendar');</script>
+<script src="/library/webjars/moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js"></script>
+<script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
+
 <div class="portletBody">
   #if($menu)#toolbar($menu)#end
   <div class="page-header">
     <h1>$tlang.getString("tool_title")</h1>
     <div class="sakai-sideHeading">
-      <a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
+      <a onclick="sakaiCalendar.printCalendar('$printableVersionUrl')" title="$!tlang.getString('java.print')" href="#">$!tlang.getString('java.print')</a>
     </div>
   </div>
   #if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>#end
@@ -17,10 +21,6 @@
   ## include the Legend:
   #calendarLegend()
 </div>
-
-<script>includeWebjarLibrary('fullcalendar');</script>
-<script src="/library/webjars/moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js"></script>
-<script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
 
 <script>
 

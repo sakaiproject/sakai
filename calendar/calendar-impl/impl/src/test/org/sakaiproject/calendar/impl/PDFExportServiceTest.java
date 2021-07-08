@@ -178,7 +178,7 @@ public class PDFExportServiceTest {
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventVector());
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class), any(boolean.class))).thenReturn(new CalendarEventVector());
         when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
