@@ -18,6 +18,7 @@
   const calendar = new FullCalendar.Calendar(calendarDiv, {
     initialView: 'timeGridWeek',
     displayEventTime: false,
+    allDaySlot: false,
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
