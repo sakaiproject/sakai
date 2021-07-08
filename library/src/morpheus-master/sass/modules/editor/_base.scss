@@ -2,9 +2,60 @@
 .cke {
 	.cke_button__sakaipreview {
 		.cke_button__sakaipreview_icon {
-			background: url(/library/webjars/ckeditor/4.14.0/full/skins/moono-lisa/icons_hidpi.png) no-repeat 0 -1632px !important;
+			background: url(/library/webjars/ckeditor4/4.16.1/skins/moono-lisa/icons_hidpi.png) no-repeat 0 -1632px !important;
 			background-size: 16px !important;
 		}
+	}
+	.cke_toolbox {
+		display: flex;
+	}
+	a.cke_toolbox_collapser {
+		// float: none;
+		// position: absolute;
+		order: 1;
+		height: 24px;
+		width: 24px;
+		line-height: 28px;
+		// top: 9px;
+		// left: 23px;
+		margin: 0;
+		color: var(--sakai-text-color-1);
+		border-color: var(--sakai-border-color);
+		&:hover,
+		&:focus {
+			background: var(--sakai-background-color-2);
+		}
+		&:active {
+			background: var(--sakai-background-color-3);
+		}
+		.cke_arrow {
+			border-width: 6px;
+			border-bottom-color: var(--sakai-text-color-1);
+			margin: 0;
+			
+		}
+	}
+	a.cke_toolbox_collapser_min {
+		.cke_arrow {
+			border-top-color: var(--sakai-text-color-1);
+			border-bottom-color: transparent;
+		}
+	}
+	.cke_toolbox_main {
+		display: block;
+		order: 2;
+	}
+	.cke_top.min,
+	.cke_toolbox.min,
+	.cke_toolbox_main.min {
+		height: 32px !important; //!important to override inline styles set by ckeditor
+		display: block !important;
+	}
+	.cke_combo__format .cke_combo_text {
+		width: 45px; //adjust width to make icons line up across mutliple lines
+	}
+	.cke_contents {
+		background: var(--sakai-background-color-1);
 	}
 }
 #ckeditorPreview.modal {

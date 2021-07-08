@@ -4,6 +4,10 @@ body.cke_editable {
     color: var(--sakai-text-color-1);
 }
 
+body.cke_editable {
+    padding: 16px;
+}
+
 caption {
     color: var(--sakai-text-color-2);
 }

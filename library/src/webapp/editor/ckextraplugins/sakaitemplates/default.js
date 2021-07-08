@@ -2,7 +2,10 @@
 Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
-CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.basePath.substr(0, CKEDITOR.basePath.indexOf("ckeditor/"))+"../editor/ckextraplugins/" + 'templates/images/'), templates: [
+CKEDITOR.addTemplates('sakaiTemplates', {
+    // imagesPath: CKEDITOR.getUrl(CKEDITOR.basePath.substr(0, CKEDITOR.basePath.indexOf("ckeditor/"))+"../editor/ckextraplugins/" + 'sakaitemplates/images/'),
+    imagesPath: this.path + 'images',
+    templates: [
         {
             title:'<span class="fa fa-id-card template-icon" style="color:var(--sakai-color-blue--lighter-2);"></span>Instructor Insight Panel',
             description:'Panel box with photo where you can share a personal message.',

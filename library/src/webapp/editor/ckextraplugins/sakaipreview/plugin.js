@@ -45,11 +45,11 @@
           sakaiStylesheets = sakaiStylesheets + this.outerHTML;
         });
 
-        var mathjaxIncludes = "";
+        var sakaiMathjaxIncludes = "";
         if ($PBJQ("script[type*='mathjax-config']").length > 0) {
-          mathjaxIncludes = mathjaxIncludes + $PBJQ("script[type*='mathjax-config']")[0].outerHTML.replace(";executed=true", "");
+          sakaiMathjaxIncludes = sakaiMathjaxIncludes + $PBJQ("script[type*='mathjax-config']")[0].outerHTML.replace(";executed=true", "");
           $PBJQ("script[src*='MathJax.js'], script[src*='/mathjax/']").each(function() {
-            mathjaxIncludes = mathjaxIncludes + this.outerHTML;
+            sakaiMathjaxIncludes = sakaiMathjaxIncludes + this.outerHTML;
           });
         }
 
@@ -68,7 +68,7 @@
                         '<base href="'+ baseURL +'"/>' +
                         CKEDITOR.tools.buildStyleHtml( editor.config.contentsCss ) +
                         sakaiStylesheets +
-                        mathjaxIncludes +
+                        sakaiMathjaxIncludes +
                     '</head>'+
                     bodyHtml +
                     contentToPreview +
@@ -237,7 +237,7 @@
 
 	CKEDITOR.plugins.add( pluginName, {
 		lang: 'en',
-		icons: 'preview,preview-rtl',
+		icons: 'sakaipreview,sakaipreview-rtl',
 		hidpi: true,
 		init: function( editor ) {
 

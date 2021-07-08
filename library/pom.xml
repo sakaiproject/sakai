@@ -14,11 +14,11 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.14.0</ckeditor.version>
+		<ckeditor.version>4.16.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
-		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
+		<ckeditor-extra-plugins>image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table,sakaiopenlink,sakaidropdowntoolbar,sakaiformat</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
@@ -69,8 +69,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>ckeditor</artifactId>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>ckeditor4</artifactId>
 			<version>${ckeditor.version}</version>
 			<scope>runtime</scope>
 		</dependency>

@@ -1359,6 +1359,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
 		headJs.append("sakai.editor.sitePropertiesSkin = '" + CSSUtils.getCssPropertiesSkin(skin) + "';\n");
 		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
+		headJs.append("sakai.editor.mathjaxSrc = '" + MATHJAX_SRC_PATH + "';\n");
 		headJs.append("</script>\n");
 		headJs.append(preloadScript);
 		headJs.append(editorScript);

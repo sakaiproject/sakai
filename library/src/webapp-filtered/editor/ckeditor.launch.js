@@ -197,10 +197,12 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
         uploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
         imageUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
-
-        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
-
-
+        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'emoji,autolink,codesnippet,mentions,justify,balloontoolbar,balloonpanel,bidi,templates,mathjax,preview,showblocks,find,removeformat,',
+        mentions: [{
+            feed: '/direct/roster/site/'+siteId+'.json',
+            marker: '@',
+            minChars: 0
+        }],
         // These two settings enable the browser's native spell checking and context menus.
         // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
         // will cause the CKEditor menu to be suppressed and display the browser's standard context
@@ -208,44 +210,72 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
 
-        // Fix the smileys to a single location
-        smiley_path: "/library/editor/ckeditor/plugins/smiley/images/",
-
+        sakaiDropdownToolbar: true,
+        toolbarCanCollapse: true,
+        toolbarStartupExpanded: false,
+        sakaiOpenLinkToolbar: true,
         toolbar_Basic:
         [
             ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']
         ],
         toolbar_Full:
         [
-            ['About'],
-            ['Source','-','Templates'],
+            [
+                'Format',
+                'Bold',
+                'Italic',
+                'Strike',
+                'NumberedList',
+                'BulletedList',
+                'JustifyLeft',
+                'JustifyCenter',
+                'Link',
+                'Unlink',
+                'EmojiPanel',
+                'Mathjax',
+                'Cut',
+                'Copy',
+                'Paste',
+                'PasteText',
+                'RemoveFormat',
+                // 'SakaiPreview',
+                // 'SakaiPreview2',
+                'Preview'
+            ],
+            // ['A11ychecker'],
+            ['Source'],
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
-            //['Cut','Copy','Paste','PasteText','-','Print', 'SpellChecker', 'Scayt'],
-            ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
-            ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-            ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+            //['SpellChecker', 'Scayt'],
+
+            //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
-            ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-						['atd-ckeditor'],
-            ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-            ['BidiLtr', 'BidiRtl' ],
-            ['Link','Unlink','Anchor'],
-            (sakai.editor.enableResourceSearch
-                ? ( sakai.editor.contentItemUrl
-                    ? ['ContentItem', 'AudioRecorder','ResourceSearch', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                    : ['AudioRecorder','ResourceSearch', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                  )
-		: ( sakai.editor.contentItemUrl
-                    ? ['ContentItem', 'AudioRecorder', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                    : ['AudioRecorder', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                  )
-            ),
-            '/',
-            ['Styles','Format','Font','FontSize'],
-            ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks']
-            ,['A11ychecker']
+            [
+                'Undo',
+                'Redo',
+                'Find',
+                'Replace',
+                'BidiLtr',
+                'BidiRtl',
+                'Outdent',
+                'Indent',
+                'JustifyRight',
+                'JustifyBlock',
+                'atd-ckeditor',
+            ],
+            [
+                'Templates',
+                'CodeSnippet',
+                ( sakai.editor.contentItemUrl ? 'ContentItem' : undefined),
+                ( sakai.editor.enableResourceSearch ? 'ResourceSearch' : undefined),
+                'Blockquote',
+                'HorizontalRule',
+                'Image',
+                'Table',
+                'SpecialChar',
+                'ShowBlocks',
+                'Maximize'
+            ].filter(el => el !== undefined)
         ],
         toolbar: 'Full',
         resize_dir: 'both',
@@ -271,11 +301,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "showWordCount" : true,
             "showCharCount" : true,
         },
-
         //SAK-29598 - Add more templates to CK Editor
-        templates_files: [basePath+"templates/default.js"],
-        templates: 'customtemplates',
+        templates_files: [basePath+"sakaitemplates/default.js"],
+        templates: 'sakaiTemplates',
         templates_replaceContent: false,
+        format_tags: 'p;h3;h4;h5',
+        sakaiFormat: false,
+        mathJaxLib: sakai.editor.mathjaxSrc,
     };
 
     // Merge config values into ckconfig
@@ -314,17 +346,20 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        // CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
         CKEDITOR.plugins.addExternal('image2',webJars+'ckeditor-image2/${ckeditor.image2.version}/', 'plugin.js');
-
+        CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaiopenlink', basePath+'sakaiopenlink/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaiformat', basePath+'sakaiformat/', 'plugin.js');
+        // CKEDITOR.plugins.addExternal('sakaipreview2', basePath+'sakaipreview2/', 'plugin.js');
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/${ckeditor.wordcount.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
-        CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/${ckeditor.balloonpanel.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
+
         /*
            To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
            and to extraPlugins. This also needs extra stylesheets.
@@ -487,6 +522,17 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 ] 
                 {id} .cke_button_arrow [
                     border--top-color: {toolbarElementsBorder};
+                ]
+                .cke_balloon.cke_balloontoolbar [
+                    background-color:{lightBackground};
+                ]
+                .cke_balloon.cke_balloontoolbar .cke_balloon_triangle_inner.cke_balloon_triangle_bottom,
+                .cke_balloon.cke_balloontoolbar .cke_balloon_triangle_inner.cke_balloon_triangle_top [
+                    border-color: {defaultBorder} transparent;
+                ]
+                .cke_balloon.cke_balloontoolbar .cke_balloon_triangle_outer.cke_balloon_triangle_bottom,
+                .cke_balloon.cke_balloontoolbar .cke_balloon_triangle_outer.cke_balloon_triangle_top [
+                    border-color: {defaultBorder} transparent;
                 ]` +
                 // Combo buttons.
                 `{id} a.cke_combo_button:hover,
@@ -602,38 +648,43 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         } )();
     })();
 
-      let instance = CKEDITOR.replace(targetId, ckconfig);
+    CKEDITOR.on('instanceReady', function(event){
+        if (event.editor.lang.mathjax){
+            event.editor.lang.mathjax.docUrl = '/portal/help/TOCDisplay/content.hlp?docId=howdoiaddlatexlanguagetomycoursesite'
+        }
+    });
+    let instance = CKEDITOR.replace(targetId, ckconfig);
       //SAK-22505
-      CKEDITOR.on('dialogDefinition', function(e) {
-          // Take the dialog name and its definition from the event
-          // data.
-          var dialogName = e.data.name;
-          var dialogDefinition = e.data.definition;
+    //   CKEDITOR.on('dialogDefinition', function(e) {
+    //       // Take the dialog name and its definition from the event
+    //       // data.
+    //       var dialogName = e.data.name;
+    //       var dialogDefinition = e.data.definition;
 
-          var onShow = dialogDefinition.onShow;
-          dialogDefinition.onShow = function() {
-              var result;
-              if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
-                  result = onShow.call(this);
-              }
-              return result;
-          }
+    //       var onShow = dialogDefinition.onShow;
+    //       dialogDefinition.onShow = function() {
+    //           var result;
+    //           if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
+    //               result = onShow.call(this);
+    //           }
+    //           return result;
+    //       }
 
-          if ( dialogName == 'link' )
-          {
-              var targetTab = dialogDefinition.getContents('target');
-              var linkTypeItems = targetTab.elements[0].children[0].items;
-              var itemsNoPopup = [];
-              for (i=0;i<linkTypeItems.length;i++) {
-                  if (linkTypeItems[i][1] != "popup") {
-                      itemsNoPopup.push(linkTypeItems[i]);
-                  }
-              }
-              targetTab.elements[0].children[0].items = itemsNoPopup;
+    //       if ( dialogName == 'link' )
+    //       {
+    //           var targetTab = dialogDefinition.getContents('target');
+    //           var linkTypeItems = targetTab.elements[0].children[0].items;
+    //           var itemsNoPopup = [];
+    //           for (i=0;i<linkTypeItems.length;i++) {
+    //               if (linkTypeItems[i][1] != "popup") {
+    //                   itemsNoPopup.push(linkTypeItems[i]);
+    //               }
+    //           }
+    //           targetTab.elements[0].children[0].items = itemsNoPopup;
 
-          }
+    //       }
 
-      });
+    //   });
 
       return instance;
 }
