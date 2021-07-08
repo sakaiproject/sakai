@@ -20,6 +20,7 @@
     initialView: 'timeGridWeek',
     timeZone: userTimeZone,
     displayEventTime: false,
+    allDaySlot: false,
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
