@@ -18,13 +18,44 @@
   #calendarLegend()
 </div>
 
-<link href="/library/webjars/fullcalendar/5.8.0/main.min.css" rel="stylesheet" />
-<script src="/library/webjars/fullcalendar/5.8.0/main.min.js"></script>
-<script src="/library/webjars/fullcalendar/5.8.0/locales-all.min.js"></script>
+<script>includeWebjarLibrary('fullcalendar');</script>
 <script src="/library/webjars/moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js"></script>
 <script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
 
 <script>
   const currentDate = '$currentDate';
   calendar.gotoDate(currentDate);
+
+  // This logic is associated to set the default subview, by day, month, week or list.
+  const defaultSubview = '$defaultSubview';
+  switch (defaultSubview) {
+    case 'day':
+      calendar.changeView('timeGridDay');
+      break;
+    case 'month':
+      calendar.changeView('dayGridMonth');
+      break;
+    case 'list':
+      calendar.changeView('listWeek');
+      break;
+    case 'week':
+    default:
+      calendar.changeView('timeGridWeek');
+  }
+
+  // When the user changes the view, reflect the change in a param to set the default view.
+  setDefaultView = () => {
+    const currentView = calendar.currentData.currentViewType;
+    const defaultViewParams = document.getElementsByName('calendar_default_subview');
+    if (defaultViewParams && defaultViewParams.length > 0) {
+        defaultViewParams[0].value = currentView;
+    }
+    // Reenable the button when the subview changes.
+    const changeDefaultViewButton = document.getElementsByName('eventSubmit_doDefaultview');
+    if (changeDefaultViewButton && changeDefaultViewButton.length > 0) {
+        changeDefaultViewButton[0].removeAttribute('disabled');
+    }
+  }
+  document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach(viewButton => viewButton.setAttribute('onclick', 'setDefaultView();'));
+
 </script>

@@ -812,6 +812,12 @@ function includeWebjarLibrary(library) {
 				}
 			}
 			break;
+		case 'fullcalendar':
+			libraryVersion = "5.8.0";
+			jsReferences.push('/main.min.js');
+			jsReferences.push('/locales-all.min.js');
+			cssReferences.push('/main.min.css');
+			break;
 		default:
 			if (library.endsWith(".js")) {
 				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
