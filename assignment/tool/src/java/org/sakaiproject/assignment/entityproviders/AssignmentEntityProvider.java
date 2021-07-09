@@ -17,7 +17,6 @@ package org.sakaiproject.assignment.entityproviders;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -459,12 +458,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.sortName = sakaiUser.getSortName();
             this.id = sakaiUser.getId();
         }
-    }
-
-    private Map<String, GraderUser> getGraderUsersForSite(Site site) {
-
-        return userDirectoryService.getUsers(site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION))
-            .stream().collect(Collectors.toMap(User::getId, GraderUser::new));
     }
 
     @EntityCustomAction(action = "addTimeSheet", viewKey = EntityView.VIEW_NEW)
