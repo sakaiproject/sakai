@@ -67,7 +67,7 @@
     <sakai.spring.security.version>5.2.6.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
-    <sakai.tika.version>1.26</sakai.tika.version>
+    <sakai.tika.version>1.27</sakai.tika.version>
     <sakai.tomcat.version>9.0.50</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
