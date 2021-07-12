@@ -41,6 +41,7 @@
   <h3><h:outputText value="#{deliveryMessages.access_denied}"/></h3>
  <h:form id="removeTemplateForm">
    <h:panelGroup>
+       <h:outputText value="#{delivery.secureDeliveryErrorMessage}" rendered="#{not empty delivery.secureDeliveryErrorMessage}" />
        <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
    </h:panelGroup>
 

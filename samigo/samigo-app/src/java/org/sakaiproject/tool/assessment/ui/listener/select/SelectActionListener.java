@@ -441,7 +441,7 @@ public class SelectActionListener implements ActionListener {
             PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessment(db.getAssessmentId());
             final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
-            db.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()));
+            db.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(moduleId, new Long(db.getAssessmentId()), AgentFacade.getAgentString()).orElse(""));
         }
     }
 

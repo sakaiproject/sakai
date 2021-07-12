@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 @Slf4j
@@ -165,10 +166,14 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 		switch (phase) {
 			case ASSESSMENT_START:
 				final String currentAgentId = userDirectoryService.getCurrentUser().getId();
-				final String url = getAlternativeDeliveryUrl(assessment.getPublishedAssessmentId(), currentAgentId);
-				log.debug("Proctorio: phase={}, agentId={}, url={}", phase, currentAgentId, url);
+				final Optional<String> alternativeDeliveryUrl = getAlternativeDeliveryUrl(assessment.getPublishedAssessmentId(), currentAgentId);
 
-				return "<script> window.addEventListener(\"message\", function(event) {\n" + 
+ 				if (alternativeDeliveryUrl.isPresent())
+ 				{
+ 					String url = alternativeDeliveryUrl.get();
+ 					log.debug("Proctorio: phase={}, agentId={}, url={}", phase, currentAgentId, url);
+
+					return "<script> window.addEventListener(\"message\", function(event) {\n" + 
 						"    if(event.origin === \"https://getproctorio.com\") {\n" + 
 						"        // event.data.active should be true if Proctorio is running\n" + 
 						"        console.log(\"Proctorio is running: \" + event.data.active)\n" + 
@@ -180,6 +185,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 						"try { window.top.postMessage([10, \"proctorio_status\"], \"https://getproctorio.com\"); } " +
 						" catch(e) { jQuery('#takeAssessmentForm input.active').prop('disabled', true); fetch('/samigo-app/jsf/delivery/stopTimerProgress.faces').then(data => { window.location.href='" + url + "'; }); }" +
 						" </script>";
+ 				}
 			case ASSESSMENT_FINISH:
 			case ASSESSMENT_REVIEW:
 				return "";
@@ -204,33 +210,41 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 	}
 
 	@Override
-	public String getAlternativeDeliveryUrl (Long assessmentId, String uid) {
+	public Optional<String> getAlternativeDeliveryUrl (Long assessmentId, String uid) {
 		// Check cache first
 		final String cacheKey = "student-" + assessmentId + "-" + uid;
 		final String cacheRet = urlCache.get(cacheKey);
 		
 		if (StringUtils.isNotBlank(cacheRet)) {
-			return cacheRet;
+			return Optional.of(cacheRet);
 		}
 
 		String[] urls = getProctorioUrls(assessmentId, uid);
+		if (urls == null)
+		{
+			return Optional.empty();
+		}
 		urlCache.put(cacheKey, urls[0]);
-		return urls[0];
+		return Optional.of(urls[0]);
 	}
 		
 	@Override
-	public String getInstructorReviewUrl (Long assessmentId, String studentId) {
+	public Optional<String> getInstructorReviewUrl (Long assessmentId, String studentId) {
 		// Check cache first to avoid DB and API
 		final String cacheKey = "instructor-" + assessmentId + "-" + studentId;
 		final String cacheRet = urlCache.get(cacheKey);
 		
 		if (StringUtils.isNotBlank(cacheRet)) {
-			return cacheRet;
+			return Optional.of(cacheRet);
 		}
 
 		String[] urls = getProctorioUrls(assessmentId, studentId);
+		if (urls == null)
+		{
+			return Optional.empty();
+		}
 		urlCache.put(cacheKey, urls[1]);
-		return urls[1];
+		return Optional.of(urls[1]);
 	}
 
 	private String[] getProctorioUrls(final Long assessmentId, final String studentUid) {

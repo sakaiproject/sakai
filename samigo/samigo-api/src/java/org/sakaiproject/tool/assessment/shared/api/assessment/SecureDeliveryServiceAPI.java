@@ -16,6 +16,7 @@
 package org.sakaiproject.tool.assessment.shared.api.assessment;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.SortedSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -149,10 +150,15 @@ public interface SecureDeliveryServiceAPI {
 	 */
 	public SecureDeliveryModuleIfc getModuleReference( String moduleId, Object context );
 
-	public String getAlternativeDeliveryUrl( String moduleId, Long assessmentId, String uid );
+	public Optional<String> getAlternativeDeliveryUrl( String moduleId, Long assessmentId, String uid );
 
-	public String getInstructorReviewUrl( String moduleId, Long assessmentId, String studentId );
+	public Optional<String> getInstructorReviewUrl( String moduleId, Long assessmentId, String studentId );
 
 	public boolean isSecureDeliveryAvaliable( Long publishedAssessmentId );
+
+	/**
+	 * Gets the name of the secure delivery service associated with the specified module
+	 */
+	public Optional<String> getSecureDeliveryServiceNameForModule(String moduleId, Locale locale);
 
 }

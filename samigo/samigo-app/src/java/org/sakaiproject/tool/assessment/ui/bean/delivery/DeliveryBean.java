@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
@@ -105,6 +106,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -412,6 +414,8 @@ public class DeliveryBean implements Serializable {
   // been selected or if the selected module is no longer installed or disabled.
   @Getter @Setter
   private String secureDeliveryHTMLFragment;
+
+  private PhaseStatus secureDeliveryStatus = null;
 
   @Getter @Setter
   private boolean isFromPrint;
@@ -787,12 +791,12 @@ public class DeliveryBean implements Serializable {
 	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 	  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
 		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-		  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+		  if (moduleExists(moduleId)) {
 			  
 			  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-			  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_FINISH, publishedAssessment, request );
+			  secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_FINISH, publishedAssessment, request );
 			  	setSecureDeliveryHTMLFragment( 
-					secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, status, locale) );
+					secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, secureDeliveryStatus, locale) );
 		  }
 	  }
 	 
@@ -1319,13 +1323,13 @@ public class DeliveryBean implements Serializable {
       if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
    
     	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+    	  if (moduleExists(moduleId)) {
     		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+    		  secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
     		  setSecureDeliveryHTMLFragment( 
-				secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, locale));
-    		  setBlockDelivery( PhaseStatus.FAILURE == status );
-    		  if ( PhaseStatus.SUCCESS == status ) {
+				secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
+    		  setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
+    		  if ( PhaseStatus.SUCCESS == secureDeliveryStatus ) {
     			  results = "takeAssessment";
               } else {
     			  results = "secureDeliveryError";
@@ -1422,6 +1426,50 @@ public class DeliveryBean implements Serializable {
       return 0;
     }
   }
+
+  /**
+   * Returns an appropriate error message if an error occurred with the SecureDeliveryService (E.g. if the remote proctoring service is down)
+   */
+  public String getSecureDeliveryErrorMessage()
+  {
+    Phase phase;
+    String messageKey;
+    switch (actionMode)
+    {
+        case REVIEW_ASSESSMENT:
+        case GRADE_ASSESSMENT:
+            phase = Phase.ASSESSMENT_REVIEW;
+            messageKey = "secure_delivery_error_review_message";
+            break;
+        default:
+            phase = Phase.ASSESSMENT_START;
+            messageKey = "secure_delivery_error_take_message";
+    }
+
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    String moduleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
+
+    if (moduleExists(moduleId))
+    {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      if (PhaseStatus.FAILURE == secureDeliveryStatus || PhaseStatus.FAILURE == secureDelivery.validatePhase(moduleId, phase, publishedAssessment, request))
+      {
+        ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+        Optional<String> moduleName = secureDelivery.getSecureDeliveryServiceNameForModule(moduleId, rb.getLocale());
+        if (moduleName.isPresent())
+        {
+            return rb.getFormattedMessage(messageKey, moduleName.get());
+        }
+      }
+    }
+    return "";
+  }
+
+  public boolean moduleExists(String moduleId)
+  {
+    return moduleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(moduleId);
+  }
+
 
   public void updatEventLog(String errorMsg) {
 	  EventLogService eventService = new EventLogService();
@@ -2086,12 +2134,12 @@ public class DeliveryBean implements Serializable {
         SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
         if ( secureDelivery.isSecureDeliveryAvaliable(publishedAssessment.getPublishedAssessmentId()) ) {
             String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-            if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+            if (moduleExists(moduleId)) {
                 HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-                PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-                setBlockDelivery( PhaseStatus.FAILURE == status );
-                setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, locale));
-                if ( PhaseStatus.FAILURE == status ) {
+                secureDeliveryStatus = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+                setBlockDelivery( PhaseStatus.FAILURE == secureDeliveryStatus );
+                setSecureDeliveryHTMLFragment(secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, secureDeliveryStatus, locale));
+                if ( PhaseStatus.FAILURE == secureDeliveryStatus ) {
                     return "secureDeliveryError";
                 }
             }          
