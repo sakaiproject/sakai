@@ -403,6 +403,11 @@ function resizeFrame(){
 
 			#if ($notification)
 				<hr class="itemSeparator" />
+
+				#if (!$site.isPublished())
+				<div id="email-notify-warning" class="sak-banner-error">$tlang.getString("revise.notify_alert")</div>
+				#end
+
 				<div class="form-group row">
 					<label for="notify" class="form-control-label col-md-2">
       				$tlang.getString("revise.notify")
