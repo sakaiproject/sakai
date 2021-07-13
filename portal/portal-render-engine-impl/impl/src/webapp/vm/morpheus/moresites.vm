@@ -64,7 +64,6 @@
                     <div id="otherSiteSearch">
                         <label for="txtSearch">${rloader.sit_search}</label>
                         <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
-                        <a id="otherSiteSearchClear" class="other-site-search-clear" href="javascript:void(0);"></a>
                     </div>
                     <div id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</div>
 
