@@ -7831,17 +7831,17 @@ public class DiscussionForumTool {
 		forum.setExtendedDescription(oldExtendedDescription);
 		forum.setTitle(oldTitle);
 
-		Set<DBMembershipItem> fromForumMembershipItems = uiPermissionsManager.getForumItemsSet(oldForum);
-		if (fromForumMembershipItems != null) {
-          for (DBMembershipItem fromForumMembershipItem : fromForumMembershipItems) {
-            DBMembershipItem membershipItemCopy = getMembershipItemCopy(fromForumMembershipItem);
-            DBMembershipItem savedMembershipItem = permissionLevelManager.saveDBMembershipItem(membershipItemCopy);
-            forum.addMembershipItem(savedMembershipItem);
-            ((DBMembershipItemImpl) savedMembershipItem).setForum(forum);
-          }
+      Set<DBMembershipItem> fromForumMembershipItems = uiPermissionsManager.getForumItemsSet(oldForum);
+      if (fromForumMembershipItems != null) {
+        for (DBMembershipItem fromForumMembershipItem : fromForumMembershipItems) {
+          DBMembershipItem membershipItemCopy = getMembershipItemCopy(fromForumMembershipItem);
+          DBMembershipItem savedMembershipItem = permissionLevelManager.saveDBMembershipItem(membershipItemCopy);
+          forum.addMembershipItem(savedMembershipItem);
+          ((DBMembershipItemImpl) savedMembershipItem).setForum(forum);
         }
+      }
 
-		List fromForumAttach = oldForum.getAttachments();
+      List fromForumAttach = oldForum.getAttachments();
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
 			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
 				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
