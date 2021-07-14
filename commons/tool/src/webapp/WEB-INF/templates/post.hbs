@@ -7,6 +7,17 @@
             <div class="commons-post-body">
                 <div class="commons-post-content"><a id="commons-author-name-{{id}}" class="commons-post-author-name profile-popup-trigger" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a><span id="commons-post-content-{{id}}">{{{content}}}<span></div>
                 <div id="commons-post-options-{{id}}" class="commons-post-options">
+                    <span id="commons-like-section" >
+                        <a href="javascript:;" id="commons-like-link-{{id}}" class="commons-like-link" data-post-id="{{id}}" >
+                            <span id="commons-like-icon-{{id}}" class="fa fa-thumbs-o-up" ></span>
+                            {{tr 'like'}}
+                        </a>
+                        <a href="javascript://" data-toggle="popover" data-html="true" data-content="" id="commons-likes-count-{{id}}" class="commons-likes-count" data-post-id="{{id}}" >
+                            (<span id="commons-likes-count-number-{{id}}"></span>
+                            <span id="commons-likes-people-{{id}}" >{{tr 'people'}}</span>
+                            <span id="commons-likes-person-{{id}}" style="display:none;">{{tr 'person'}}</span>)
+                        </a>
+                    </span>
                     {{#if canComment}}
                     <a href="javascript:;" id="commons-create-comment-link-{{id}}" class="commons-create-comment-link" data-post-id="{{id}}">{{tr 'comment'}}</a>
                     {{/if}}

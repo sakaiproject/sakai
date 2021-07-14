@@ -73,6 +73,7 @@ commons.utils = {
 
         $('#commons-comment-edit-link-' + comment.id).click(commons.utils.editCommentHandler);
         $('#commons-comment-delete-link-' + comment.id).click(commons.utils.deleteCommentHandler);
+        $('#commons-like-link-' + comment.id).click(commons.utils.likePostHandler);
         profile.attachPopups($("#commons-author-name-" + comment.id));
     },
     editPostHandler: function (e) {
@@ -194,6 +195,35 @@ commons.utils = {
                 }
             });
     },
+    likePostHandler: function(){
+        var postId = this.dataset.postId;
+        commons.utils.likePost(postId);
+        var likeButtonNow = document.getElementById('commons-like-link-' + postId);
+        var likeCountNow = document.getElementById('commons-likes-count-number-' + postId);
+        var likeIconNow = document.getElementById('commons-like-icon-' + postId);
+        var likeNumber = parseInt(likeCountNow.getAttribute('data-count'));
+        likeIconNow.classList.remove('fa-thumbs-o-up');
+        likeIconNow.classList.remove('fa-thumbs-up');
+        if(likeButtonNow.getAttribute('class').includes('likedAlready')){
+            likeNumber = likeNumber - 1;
+            likeButtonNow.classList.remove('likedAlready'); //unliking
+            likeIconNow.classList.add('fa-thumbs-o-up');
+        } else {
+            likeNumber = likeNumber + 1;
+            likeButtonNow.classList.add('likedAlready');    //liking
+            likeIconNow.classList.add('fa-thumbs-up');
+        }
+        likeCountNow.textContent = likeNumber.toString();
+        likeCountNow.setAttribute('data-count', likeNumber.toString());
+        if(likeNumber === 1){
+            document.getElementById('commons-likes-person-' + postId).removeAttribute('style');
+            document.getElementById('commons-likes-people-' + postId).setAttribute('style','display:none;');
+        } else {
+            document.getElementById('commons-likes-people-' + postId).removeAttribute('style');
+            document.getElementById('commons-likes-person-' + postId).setAttribute('style','display:none;');
+        }
+        commons.utils.getPostLikerNames(postId);
+    },
     cancelCommentEdit: function (commentId) {
 
         commons.utils.renderTemplate('comment', commons.utils.commentBeingEdited, 'commons-comment-' + commentId);
@@ -304,6 +334,15 @@ commons.utils = {
 
         return false;
     },
+    likePost: function(postId){
+        var url = "/direct/commons/likePost?&postId=" + postId;
+        $.ajax( {
+            url: url,
+            type: 'POST',
+            data: postId,
+            timeout: commons.AJAX_TIMEOUT
+        });
+    },
     deleteComment: function (postId, commentId, callback) {
 
         var commentCreatorId = document.getElementById('commons-comment-' + commentId).dataset.creatorId;
@@ -384,6 +423,11 @@ commons.utils = {
 
             $('#commons-post-edit-link-' + post.id).click(self.editPostHandler);
             $('#commons-post-delete-link-' + post.id).click(self.deletePostHandler);
+            $('#commons-like-link-' + post.id).click(self.likePostHandler);
+            var numberOfLikes = $('.commons-likes-count');
+            numberOfLikes.each(function(){commons.utils.addLikeCount(this)});
+            commons.utils.getUserLikes();
+            $('[data-toggle="popover"]').popover();
             var textarea = $('#commons-comment-textarea-' + post.id);
             textarea.each(function () { autosize(this); });
             var creator = $('#commons-comment-creator-' + post.id);
@@ -552,5 +596,65 @@ commons.utils = {
             textRange.collapse(false);
             textRange.select();
         }
+    },
+    addLikeCount: function(likesLink){
+        var postId = likesLink.getAttribute('id').substring(20);
+        var url = "/direct/commons/countLikes.json?&postId=" + postId;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: postId,
+            cache: false,
+            timeout: commons.AJAX_TIMEOUT,
+            success: function(result){
+                var count = parseInt(result.data);
+                if(count === 1){
+                    document.getElementById('commons-likes-person-' + postId).removeAttribute('style');
+                    document.getElementById('commons-likes-people-' + postId).setAttribute('style','display:none;');
+                }
+                document.getElementById('commons-likes-count-number-' + postId).textContent = count.toString();
+                document.getElementById('commons-likes-count-number-' + postId).setAttribute('data-count', count.toString());
+                commons.utils.getPostLikerNames(postId);
+            }
+        });
+    },
+    getUserLikes: function(){
+        var url = "/direct/commons/userLikes.json";
+        $.ajax({
+            url: url,
+            type: 'GET',
+            cache: false,
+            timeout: commons.AJAX_TIMEOUT,
+            success: function(result){
+                for(var count=0; count<result.commons_collection.length; count++){
+                    var likeNow = document.getElementById('commons-like-link-' + result.commons_collection[count].postId);
+                    var iconNow = document.getElementById('commons-like-icon-' + result.commons_collection[count].postId);
+                    if(likeNow !== null){
+                        iconNow.classList.remove('fa-thumbs-o-up');
+                        iconNow.classList.remove('fa-thumbs-up');
+                        likeNow.classList.add('likedAlready');
+                        iconNow.classList.add('fa-thumbs-up');
+                    }
+                }
+            }
+        });
+    },
+    getPostLikerNames: function(postId){
+        var url = "/direct/commons/postLikes.json?&postId=" + postId;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: postId,
+            cache: false,
+            timeout: commons.AJAX_TIMEOUT,
+            success: function(result){
+                var likeNow = document.getElementById('commons-likes-count-' + postId);
+                var likeNames = ``;
+                for(var count=0; count<result.commons_collection.length; count++){
+                    likeNames = likeNames + result.commons_collection[count].data + `<br>`;
+                }
+                likeNow.setAttribute('data-content', likeNames);
+            }
+        });
     }
 };
