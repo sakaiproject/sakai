@@ -20,8 +20,6 @@ import java.util.List;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.Person;
 
-import org.sakaiproject.profile2.service.ProfileService;
-
 /**
  * A facade on the various logic component methods to improve backwards compatibility with
  * clients of the older Profile2 apis. See PRFL-551.
