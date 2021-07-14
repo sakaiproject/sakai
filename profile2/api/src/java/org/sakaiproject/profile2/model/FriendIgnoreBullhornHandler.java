@@ -63,8 +63,8 @@ public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
             transactionTemplate.execute(status -> {
 
                     sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
-                        .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
-                        .setString("fromUser", to).executeUpdate();
+                        .setParameter("event", ProfileConstants.EVENT_FRIEND_REQUEST)
+                        .setParameter("fromUser", to).executeUpdate();
                     return null;
                 });
         } catch (Exception e1) {
