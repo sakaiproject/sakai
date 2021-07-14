@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.IgniteMessaging;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
@@ -39,17 +38,16 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.ignite.EagerIgniteSpringBean;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.messaging.api.MessageListener;
-import org.sakaiproject.messaging.api.MessagingService;
+import org.sakaiproject.messaging.api.BullhornAlert;
 import org.sakaiproject.messaging.api.BullhornData;
 import org.sakaiproject.messaging.api.BullhornHandler;
-import org.sakaiproject.messaging.api.BullhornAlert;
+import org.sakaiproject.messaging.api.MessageListener;
+import org.sakaiproject.messaging.api.MessagingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -201,7 +199,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
     public boolean clearAlert(String userId, long alertId) {
 
         sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where id = :id and toUser = :toUser")
-                    .setLong("id", alertId).setString("toUser", userId)
+                    .setParameter("id", alertId).setParameter("toUser", userId)
                     .executeUpdate();
         return true;
     }
@@ -221,7 +219,7 @@ public class MessagingServiceImpl implements MessagingService, Observer {
 
         sessionFactory.getCurrentSession().createQuery(
                 "delete BullhornAlert where toUser = :toUser and deferred = :deferred")
-                .setString("toUser", userId).setBoolean("deferred", false)
+                .setParameter("toUser", userId).setParameter("deferred", false)
                 .executeUpdate();
         return true;
     }
