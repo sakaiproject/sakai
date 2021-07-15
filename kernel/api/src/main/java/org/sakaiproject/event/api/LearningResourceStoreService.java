@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.context.event.ContextStartedEvent;
+import lombok.Getter;
 
 /**
  * Provides support for Sakai to work with Learning Record Stores (LRS)
@@ -99,6 +101,10 @@ public interface LearningResourceStoreService {
      * @see org.sakaiproject.event.api.LearningResourceStoreService#getActor(org.sakaiproject.event.api.Event)
      */
     public LRS_Actor getEventActor(Event event);
+
+    public void onApplicationEvent(ContextStartedEvent event);
+
+    public void getXAPIEvent();
 
     // Service CLASSes
 
@@ -1231,6 +1237,20 @@ public interface LearningResourceStoreService {
         @Override
         public String toString() {
             return "Context[instructor=" + instructor + ", rev=" + revision + ", activities=" + activitiesMap + "]";
+        }
+    }
+
+    public class EventWrapper {
+        @Getter private String verb;
+        @Getter private String object;
+        @Getter private String origin;
+        @Getter private String type;
+
+        public EventWrapper(String verb, String object, String origin, String type) {
+            this.verb = verb;
+            this.object = object;
+            this.origin = origin;
+            this.type = type;
         }
     }
 

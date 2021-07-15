@@ -23,24 +23,34 @@ package org.sakaiproject.event.impl;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.transaction.annotation.Transactional;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreProvider;
 import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.TincanapiEvent;
+import org.sakaiproject.event.api.XAPIFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -66,9 +76,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 @Slf4j
 public class BaseLearningResourceStoreService implements LearningResourceStoreService, ApplicationContextAware {
 
-    private static final String ORIGIN_SAKAI_SYSTEM = "sakai.system";
-    private static final String ORIGIN_SAKAI_CONTENT = "sakai.resources";
-
     /**
      * Stores the complete set of known LRSP providers (from the Spring AC or registered manually)
      */
@@ -87,8 +94,17 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      */
     private ExperienceObserver experienceObserver;
 
+    private ExecutorService executorService;
+
+    private ConcurrentHashMap<String, EventWrapper> xAPIEvent;
+
+    @Setter private SessionFactory sessionFactory;
+
+    private XAPIFactory xapiFactory;
+
     public void init() {
         providers = new ConcurrentHashMap<String, LearningResourceStoreProvider>();
+        executorService = Executors.newFixedThreadPool(serverConfigurationService.getInt("lrs.max.threadPool", 10));
         // search for known providers
         if (isEnabled() && applicationContext != null) {
             Map<String, LearningResourceStoreProvider> beans = applicationContext.getBeansOfType(LearningResourceStoreProvider.class, true, false);
@@ -123,9 +139,29 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         log.info("LRS INIT: enabled={}", isEnabled());
     }
 
+    @Override
+    @EventListener(ContextStartedEvent.class)
+    public void onApplicationEvent(ContextStartedEvent event) {
+        event.getApplicationContext().getBean("org.sakaiproject.event.api.LearningResourceStoreService",LearningResourceStoreService.class).getXAPIEvent();
+    }
+
+    @Transactional(readOnly = true)
+    public void getXAPIEvent() {
+        xAPIEvent = new ConcurrentHashMap<>();
+        List<TincanapiEvent> eventos = getTincanapi();
+        eventos.stream().forEach(evento -> xAPIEvent.put(evento.getEvent(), new EventWrapper(evento.getVerb(), evento.getObject(), evento.getOrigin(), evento.getEventSupplier())));
+    }
+
+    private List<TincanapiEvent> getTincanapi() {
+        return (List<TincanapiEvent>) sessionFactory.getCurrentSession().getNamedQuery("getAllTincanapiEvent").list();
+    }
+
     public void destroy() {
         if (providers != null) {
             providers.clear();
+        }
+        if(executorService != null) {
+            executorService.shutdown();
         }
         originFilters = null;
         providers = null;
@@ -178,10 +214,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                         log.debug("LRS statement being processed, origin={}, statement={}", origin, statement);
                         for (LearningResourceStoreProvider lrsp : providers.values()) {
                             // run the statement processing in a new thread
-                            String threadName = "LRS_"+lrsp.getID();
-                            Thread t = new Thread(new RunStatementThread(lrsp, statement), threadName); // each provider has it's own thread
-                            t.setDaemon(true); // allow this thread to be killed when the JVM is shutdown
-                            t.start();
+                            executorService.execute(new RunStatementThread(lrsp, statement));
                         }
                     } else {
                         log.warn("Invalid statment registered, statement will not be processed: {}", statement);
@@ -274,6 +307,13 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     private static class ExperienceObserver implements Observer {
         final BaseLearningResourceStoreService lrss;
 
+        private static Map<String,Supplier<XAPIFactory>> supplierXAPI = new ConcurrentHashMap<>();
+
+        static {
+            supplierXAPI.put("default", XAPIFactory::new);
+            supplierXAPI.put("logout", XAPILogout::new);
+        }
+
         public ExperienceObserver(BaseLearningResourceStoreService lrss) {
             this.lrss = lrss;
         }
@@ -282,8 +322,18 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         public void update(Observable observable, Object object) {
             if (object != null && object instanceof Event) {
                 Event event = (Event) object;
+                String e = StringUtils.lowerCase(event.getEvent());
+                if(this.lrss.xAPIEvent.containsKey(e)) {
+                    try {
+                        this.lrss.xapiFactory = supplierXAPI.get(this.lrss.xAPIEvent.get(e).getType()).get();
+                    }catch (ClassCastException | NullPointerException ex) {
+                        this.lrss.xapiFactory = new XAPIFactory();
+                    }
+                }else {
+                    this.lrss.xapiFactory = new XAPIFactory();
+                }
                 // convert event into origin
-                String origin = this.lrss.getEventOrigin(event);
+                String origin = this.lrss.xapiFactory.getEventOrigin(event, this.lrss.xAPIEvent);
                 // convert event into statement when possible
                 LRS_Statement statement = this.lrss.getEventStatement(event);
                 if (statement != null && statement.isPopulated()) {
@@ -425,127 +475,11 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     }
 
     private LRS_Verb getEventVerb(Event event) {
-        LRS_Verb verb = null;
-        if (event != null) {
-            String e = StringUtils.lowerCase(event.getEvent());
-            if ("user.login".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.initialized);
-            } else if ("user.logout".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.exited);
-            } else if ("annc.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("calendar.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("chat.new".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.responded);
-            } else if ("chat.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("content.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.interacted);
-            } else if ("content.new".equals(e) || "content.revise".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.shared);
-            } else if ("gradebook.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("news.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("syllabus.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("webcontent.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            } else if ("wiki.new".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.initialized);
-            } else if ("wiki.revise".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.shared);
-            } else if ("wiki.read".equals(e)) {
-                verb = new LRS_Verb(SAKAI_VERB.experienced);
-            }
-        }
-        return verb;
+        return xapiFactory.getEventVerb(event, xAPIEvent);
     }
 
     private LRS_Object getEventObject(Event event) {
-        LRS_Object object = null;
-        if (event != null) {
-            String e = StringUtils.lowerCase(event.getEvent());
-            /*
-             * NOTE: use the following terms "view", "add", "edit", "delete"
-             */
-            if ("user.login".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl(), "session-started");
-            } else if ("user.logout".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl()+"/logout", "session-ended");
-            } else if ("annc.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-announcement");
-            } else if ("calendar.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-calendar");
-            } else if ("chat.new".equals(e) || "chat.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-chats");
-            } else if ("content.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "view-resource");
-            } else if ("content.new".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "add-resource");
-            } else if ("content.revise".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getAccessUrl() + event.getResource(), "edit-resource");
-            } else if ("gradebook.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-grades");
-            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-lesson");
-            } else if ("news.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-news");
-            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-podcast");
-            } else if ("syllabus.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-syllabus");
-            } else if ("webcontent.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-web-content");
-            } else if ("wiki.new".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "add-wiki-page");
-            } else if ("wiki.revise".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "edit-wiki-page");
-            } else if ("wiki.read".equals(e)) {
-                object = new LRS_Object(serverConfigurationService.getPortalUrl() + event.getResource(), "view-wiki-page");
-            }
-        }
-        return object;
-    }
-
-    private String getEventOrigin(Event event) {
-        String origin = null;
-        if (event != null) {
-            String e = StringUtils.lowerCase(event.getEvent());
-            if ("user.login".equals(e) || "user.logout".equals(e)) {
-                origin = ORIGIN_SAKAI_SYSTEM;
-            } else if ("annc.read".equals(e)) {
-                origin = "announcement";
-            } else if ("calendar.read".equals(e)) {
-                origin = "calendar";
-            } else if ("chat.new".equals(e) || "chat.read".equals(e)) {
-                origin = "chat";
-            } else if ("content.read".equals(e) || "content.new".equals(e) || "content.revise".equals(e)) {
-                origin = ORIGIN_SAKAI_CONTENT;
-            } else if ("gradebook.read".equals(e)) {
-                origin = "gradebook";
-            } else if ("lessonbuilder.page.read".equals(e) || "lessonbuilder.item.read".equals(e)) {
-                origin = "lessonbuilder";
-            } else if ("news.read".equals(e)) {
-                origin = "news";
-            } else if ("podcast.read".equals(e) || "podcast.read.public".equals(e) || "podcast.read.site".equals(e)) {
-                origin = "podcast";
-            } else if ("syllabus.read".equals(e)) {
-                origin = "syllabus";
-            } else if ("webcontent.read".equals(e)) {
-                origin = "webcontent";
-            } else if ("wiki.new".equals(e) || "wiki.revise".equals(e) || "wiki.read".equals(e)) {
-                origin = "rwiki";
-            } else {
-                origin = e;
-            }
-        }
-        return origin;
+        return xapiFactory.getEventObject(event, xAPIEvent, serverConfigurationService.getPortalUrl());
     }
 
 
