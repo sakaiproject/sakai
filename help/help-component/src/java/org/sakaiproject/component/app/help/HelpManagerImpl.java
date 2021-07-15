@@ -487,10 +487,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		{
 			public Object doInHibernate(Session session) throws HibernateException
 			{
-				org.hibernate.Query q = session
+				org.hibernate.query.Query q = session
 				.getNamedQuery(QUERY_GETRESOURCEBYDOCID);
 
-				q.setString(DOCID, (docId == null) ? null : docId.toLowerCase());
+				q.setParameter(DOCID, (docId == null) ? null : docId.toLowerCase());
 				if (q.list().size() == 0){
 					return null;
 				}
@@ -511,7 +511,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		initialize();
 		HibernateCallback<List<ResourceBean>> hcb = session -> session
             .getNamedQuery(QUERY_GET_WELCOME_PAGE)
-				.setString(WELCOME_PAGE, "true")
+				.setParameter(WELCOME_PAGE, "true")
 				.list();
 
 		List<ResourceBean> list = getHibernateTemplate().execute(hcb);
@@ -532,9 +532,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		{
 			public Object doInHibernate(Session session) throws HibernateException
 			{
-				org.hibernate.Query q = session
+				org.hibernate.query.Query q = session
 				.getNamedQuery(QUERY_GETCATEGORYBYNAME);
-				q.setString(NAME, (name == null) ? name : name.toLowerCase());
+				q.setParameter(NAME, (name == null) ? name : name.toLowerCase());
 				return q.uniqueResult();
 			}
 		};
