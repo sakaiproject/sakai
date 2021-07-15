@@ -131,7 +131,7 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 			public Object doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(FINDTYPEBYUUID);
-				q.setString(UUID, uuid);
+				q.setParameter(UUID, uuid);
 				q.setCacheable(cacheFindTypeByUuid);
 				return q.uniqueResult();
 			}
@@ -159,9 +159,9 @@ public class TypeManagerImpl extends HibernateDaoSupport implements TypeManager
 			public Object doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(FINDTYPEBYTUPLE);
-				q.setString(AUTHORITY, authority);
-				q.setString(DOMAIN, domain);
-				q.setString(KEYWORD, keyword);
+				q.setParameter(AUTHORITY, authority);
+				q.setParameter(DOMAIN, domain);
+				q.setParameter(KEYWORD, keyword);
 				q.setCacheable(cacheFindTypeByTuple);
 				return q.uniqueResult();
 			}

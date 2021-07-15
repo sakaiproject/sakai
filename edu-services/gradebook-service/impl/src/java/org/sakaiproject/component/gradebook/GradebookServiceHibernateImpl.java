@@ -237,8 +237,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final HibernateCallback<GradebookAssignment> hc = session -> (GradebookAssignment) session
 				.createQuery("from GradebookAssignment as asn where asn.gradebook = :gradebook and asn.externalId = :externalid")
-				.setEntity("gradebook", gradebook)
-				.setString("externalid", externalId)
+				.setParameter("gradebook", gradebook)
+				.setParameter("externalid", externalId)
 				.uniqueResult();
 
 		return getAssignmentDefinition(getHibernateTemplate().execute(hc));
@@ -741,7 +741,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				final Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
-				q.setLong("gradableObjectId", courseGrade.getId());
+				q.setParameter("gradableObjectId", courseGrade.getId());
 				final List records = filterAndPopulateCourseGradeRecordsByStudents(courseGrade, q.list(), studentUids);
 
 				final Long gradebookId = courseGrade.getGradebook().getId();
@@ -1082,7 +1082,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final HibernateCallback<List<GradebookAssignment>> hc = session -> session
 				.createQuery(
 						"from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false and asn.notCounted is false")
-				.setLong("gradebookid", gradebookId)
+				.setParameter("gradebookid", gradebookId)
 				.list();
 		return getHibernateTemplate().execute(hc);
 	}
@@ -1166,7 +1166,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				} else {
 					final Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
 							"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
-					q.setLong("gradebookId", gradebookId);
+					q.setParameter("gradebookId", gradebookId);
 					return filterGradeRecordsByStudents(q.list(), studentUids);
 				}
 			}
@@ -1189,7 +1189,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				} else {
 					final Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
 							"agr.gradableObject.id=:gradableObjectId order by agr.pointsEarned");
-					q.setLong("gradableObjectId", gradableObjectId);
+					q.setParameter("gradableObjectId", gradableObjectId);
 					return filterGradeRecordsByStudents(q.list(), studentUids);
 				}
 			}
@@ -2212,7 +2212,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				final Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
-				q.setLong("gradableObjectId", courseGrade.getId());
+				q.setParameter("gradableObjectId", courseGrade.getId());
 				final List records = filterAndPopulateCourseGradeRecordsByStudents(courseGrade, q.list(), enrollmentMap.keySet());
 
 				final Map returnMap = new HashMap();
