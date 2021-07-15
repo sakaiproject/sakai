@@ -44,10 +44,10 @@ public class PagingUtilQueries
 
     HibernateCallback callback = new HibernateCallback(){
        public Object doInHibernate(Session session) throws HibernateException{
-         ArrayList page = new ArrayList();
+         List page = new ArrayList<>();
          Query q = session.createQuery(queryString);
          if (value != null) {
-        	 q.setInteger(0, value.intValue());
+        	 q.setParameter(0, value.intValue());
          }
          ScrollableResults assessmentList = q.scroll();
          if (assessmentList.first()){ // check that result set is not empty

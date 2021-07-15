@@ -86,7 +86,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	public Map<String, ItemFacade> getPublishedItemsByHash(String hash) {
 		final HibernateCallback<List<PublishedItemData>> hcb = session -> {
 				Query q = session.createQuery("from PublishedItemData where hash = ? ");
-				q.setString(0, hash);
+				q.setParameter(0, hash);
 				return q.list();
 		};
 		List<PublishedItemData> list1 = getHibernateTemplate().execute(hcb);
@@ -189,7 +189,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	public Long getPublishedAssessmentId(Long itemId) {
 		final HibernateCallback<List<Long>> hcb = session -> {
 			Query q = session.createQuery("select s.assessment.publishedAssessmentId from PublishedSectionData s, PublishedItemData i where s.id = i.section AND i.itemId = ?");
-			q.setLong(0, itemId);
+			q.setParameter(0, itemId);
 			return q.list();
 		};
 		List<Long> list1 = getHibernateTemplate().execute(hcb);

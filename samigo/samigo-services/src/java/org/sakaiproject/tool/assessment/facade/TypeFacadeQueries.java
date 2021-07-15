@@ -167,8 +167,8 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
     public List getListByAuthorityDomain(final String authority, final String domain) {
         HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("from TypeD as t where t.authority = :auth and t.domain = :domain");
-            q.setString("auth", authority);
-            q.setString("domain", domain);
+            q.setParameter("auth", authority);
+            q.setParameter("domain", domain);
             q.setCacheable(true);
             return q.list();
         };

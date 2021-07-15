@@ -35,7 +35,7 @@ public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport impleme
 
         HibernateCallback<List<FavoriteColChoices>> hcb = session -> {
             Query q = session.createQuery("from FavoriteColChoices as a where a.favoriteName = :name");
-            q.setString("name", choices.getFavoriteName());
+            q.setParameter("name", choices.getFavoriteName());
             return q.list();
         };
         List<FavoriteColChoices> favoriteList = getHibernateTemplate().execute(hcb);
@@ -63,7 +63,7 @@ public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport impleme
 
         HibernateCallback<List<FavoriteColChoices>> hcb = session -> {
             Query q = session.createQuery("from FavoriteColChoices as a where a.ownerStringId = :site");
-            q.setString("site", siteAgentId);
+            q.setParameter("site", siteAgentId);
             return q.list();
         };
         return getHibernateTemplate().execute(hcb);
