@@ -22,7 +22,7 @@
   <properties>
     <sakai.version>22-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
-    <sakai.commons-io.version>2.10.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.11.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
