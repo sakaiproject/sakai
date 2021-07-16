@@ -6974,7 +6974,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (thisCatRef != -1) {
                         for(CategoryDefinition thisCategoryDefinition : categoryDefinitions) {
                             if (Objects.equals(thisCategoryDefinition.getId(), thisCatRef)) {
-                                if (thisCategoryDefinition.getDropKeepEnabled()) {
+                                if (thisCategoryDefinition.getDropKeepEnabled() && !thisCategoryDefinition.getEqualWeight()) {
                                     Double thisCategoryPoints = thisCategoryDefinition.getPointsForCategory();
                                     if (thisCategoryPoints != null) {
                                         droppedCategoryPoints = thisCategoryPoints;
