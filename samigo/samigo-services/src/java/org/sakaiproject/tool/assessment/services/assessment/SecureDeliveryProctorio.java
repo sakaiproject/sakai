@@ -16,8 +16,6 @@ import org.apache.http.util.EntityUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -27,7 +25,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -73,11 +70,9 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 	private static String proctorioSecret;
 	private static String proctorioUrl;
 	private static String proctorioEnabled;
-	private Cache<String, String> urlCache;
 
 	private UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-	private MemoryService memoryService = ComponentManager.get(MemoryService.class);
 	private SiteService siteService = ComponentManager.get(SiteService.class);
 	private SessionManager sessionManager = ComponentManager.get(SessionManager.class);
 
@@ -88,9 +83,6 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 		proctorioSecret = serverConfigurationService.getString("proctorio.secret", null);
 		proctorioUrl = serverConfigurationService.getString("proctorio.url", null);
 		proctorioEnabled = serverConfigurationService.getString("proctorio.enabled", "always");
-		
-		// Init the caches to hold the URLs
-		urlCache = memoryService.getCache("proctorio.urlCache");
 		
 		log.debug("Proctorio init: key={}", proctorioKey);
 
@@ -211,53 +203,27 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 
 	@Override
 	public Optional<String> getAlternativeDeliveryUrl (Long assessmentId, String uid) {
-		// Check cache first
-		final String cacheKey = "student-" + assessmentId + "-" + uid;
-		final String cacheRet = urlCache.get(cacheKey);
-		
-		if (StringUtils.isNotBlank(cacheRet)) {
-			return Optional.of(cacheRet);
-		}
-
 		String[] urls = getProctorioUrls(assessmentId, uid);
 		if (urls == null)
 		{
 			return Optional.empty();
 		}
-		urlCache.put(cacheKey, urls[0]);
 		return Optional.of(urls[0]);
 	}
 		
 	@Override
 	public Optional<String> getInstructorReviewUrl (Long assessmentId, String studentId) {
-		// Check cache first to avoid DB and API
-		final String cacheKey = "instructor-" + assessmentId + "-" + studentId;
-		final String cacheRet = urlCache.get(cacheKey);
-		
-		if (StringUtils.isNotBlank(cacheRet)) {
-			return Optional.of(cacheRet);
-		}
-
 		String[] urls = getProctorioUrls(assessmentId, studentId);
 		if (urls == null)
 		{
 			return Optional.empty();
 		}
-		urlCache.put(cacheKey, urls[1]);
 		return Optional.of(urls[1]);
 	}
 
 	private String[] getProctorioUrls(final Long assessmentId, final String studentUid) {
 		
-		// First check database
-		List<SecureDeliveryData> sds = PersistenceService.getInstance().getSecureDeliveryFacadeQueries().getUrlsForAssessmentAndUser(assessmentId, studentUid);
-		if (sds != null) {
-			for (SecureDeliveryData sd : sds) {
-				return new String[] {sd.getStudentUrl(), sd.getInstructorUrl()};
-			}
-		}
-
-		// Not in database, so build an API call up
+		// Build an API call up
 		PublishedAssessmentService pubService = new PublishedAssessmentService();
 		PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(assessmentId.toString());
 		
@@ -293,9 +259,6 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 
 			// We expect two URLs: one for student and one for instructor
 			if (urls != null && urls.length == 2) {
-				// Persist to database via Hibernate
-				PersistenceService.getInstance().getSecureDeliveryFacadeQueries().saveUrlsForAssessmentAndUser(assessmentId, user.getId(), urls[1], urls[0]);
-	
 				return urls;
 			}
 		} catch (IOException e) {

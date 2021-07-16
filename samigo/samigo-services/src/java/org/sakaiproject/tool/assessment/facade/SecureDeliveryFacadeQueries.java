@@ -42,7 +42,7 @@ public class SecureDeliveryFacadeQueries extends HibernateDaoSupport implements 
 
     HibernateCallback<List<SecureDeliveryData>> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_GET_URLS_FOR_ASSESSMENT_AND_USER);
-      q.setParameter("publishedId", "assessmentId");
+      q.setParameter("publishedId", assessmentId);
       q.setParameter("agentId", agentId);
       return q.list();
     };
