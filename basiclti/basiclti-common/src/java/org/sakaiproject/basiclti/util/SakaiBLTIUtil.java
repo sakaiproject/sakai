@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +69,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -511,6 +513,12 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 			setProperty(lti13subst, LTICustomVars.USER_USERNAME, user.getEid());
 			setProperty(lti13subst, LTICustomVars.PERSON_SOURCEDID, user.getEid());
+
+			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+			TimeZone tz = userTimeService.getLocalTimeZone(user.getId());
+			if (tz != null) {
+				setProperty(lti13subst, LTICustomVars.PERSON_ADDRESS_TIMEZONE, tz.getID());
+			}
 
 			if (releasename == 1) {
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
