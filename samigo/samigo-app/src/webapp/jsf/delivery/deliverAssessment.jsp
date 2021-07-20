@@ -306,7 +306,9 @@ document.links[newindex].onclick();
     </h4>
     <h4 class="tier1">
         <small class="part-text">
-            <h:outputText value="#{part.description}" escape="false"/>
+            <h:outputText value="#{part.description}" escape="false">
+              <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
         </small>
     </h4>
 
