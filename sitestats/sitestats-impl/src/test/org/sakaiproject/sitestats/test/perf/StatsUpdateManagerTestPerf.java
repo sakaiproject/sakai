@@ -28,10 +28,10 @@ import java.util.concurrent.BlockingQueue;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -160,7 +160,7 @@ public class StatsUpdateManagerTestPerf extends AbstractTransactionalJUnit4Sprin
 	
 
 	public void getEvents() throws InterruptedException {
-		SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(
+		NativeQuery query = sessionFactory.getCurrentSession().createSQLQuery(
 				"SELECT e.event_date, e.event, e.ref, e.context, s.session_user, e.session_id, s.session_server server " +
 				"FROM SAKAI_EVENT e " +
 				"LEFT JOIN SAKAI_SESSION s ON e.session_id = s.session_id ORDER BY e.event_date ASC LIMIT 400000"
