@@ -283,7 +283,8 @@ commons.utils = {
     savePost: function (postId, content, callback) {
 
         var success = false;
-
+        var priority = document.getElementById('commons-editor-priority').checked;
+        document.getElementById('commons-editor-priority').checked = false; //uncheck the box by default, we have what we need from it already.
         if (!postId) postId = '';
 
         if ('' == content) {
@@ -296,7 +297,8 @@ commons.utils = {
                 'content': content,
                 'commonsId': commons.commonsId,
                 'siteId': commons.siteId,
-                'embedder': commons.embedder
+                'embedder': commons.embedder,
+                'priority': priority
             };
 
         $.ajax({
@@ -499,7 +501,9 @@ commons.utils = {
             if (post.comments.length <= 3) {
                 showCommentsLink.hide();
             }
-
+            if(post.priority === true){
+                document.getElementById('commons-high-priority-' + post.id).removeAttribute('style');
+            }
             post.comments.forEach(function (c) { self.addHandlersToComment(c); });
         });
     },
