@@ -2968,7 +2968,7 @@
       <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.discussions</value>
+      <value>sakai.forums</value>
     </property>
   </bean>
   <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
