@@ -98,44 +98,151 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 
 	public List findByGlobalNameAndContents(final String criteria, final String user, final String realm) {
 
-		String[] criterias = criteria.split("\\s\\s*");
-
-		final StringBuffer expression = new StringBuffer();
-		final List criteriaList = new ArrayList();
-		criteriaList.add(realm);
-		criteriaList.add("%" + criteria.toLowerCase() + "%");
-		criteriaList.add("%" + criteria.toLowerCase() + "%");
 
 		// WARNING: In MySQL like does not produce a case sensitive search so
 		// this is Ok
 		// Oracle can probaly do it, but would need some set up (maybee)
 		// http://asktom.oracle.com/pls/ask/f?p=4950:8:::::F4950_P8_DISPLAYID:16370675423662
 
-		for (int i = 0; i < criterias.length; i++)
-		{
-			if (!"".equals(criterias[i]))
-			{
-				expression.append(" or lower(c.content) like ? ");
-				criteriaList.add("%" + criterias[i].toLowerCase() + "%");
+
+		final StringBuffer expression = new StringBuffer();
+		final List criteriaList = new ArrayList();
+
+
+		Pattern idPattern = Pattern.compile("(?<and>(!)?(\\S+)\\s+and\\s+(!)?(\\S+))*((?<!^)\\k<and>*and\\s+(!)?(\\S+))*(!)?(\\S+)*\\s*",Pattern.CASE_INSENSITIVE);
+		Matcher matcher = idPattern.matcher(criteria);
+
+		criteriaList.add(realm);
+		int t = 1;
+
+		Boolean firstParam = true;
+		Boolean onlyNotSearch = true;
+		Boolean firstNotSearchParam = true;
+
+		final StringBuffer expressionNotOperator = new StringBuffer();
+		final List criteriaListTmp = new ArrayList();
+		final List criteriaListTmp2 = new ArrayList();
+
+		String query = "select distinct r from RWikiCurrentObjectImpl as r, RWikiCurrentObjectContentImpl as c where r.realm = ? and ";
+
+		while(matcher.find()){
+			if(!matcher.group(0).isEmpty()){
+
+				//check for and operator linkage (word and anotherWord)
+				if(matcher.group("and") != null) {
+					//update flags
+					if (onlyNotSearch) {
+						onlyNotSearch = false;
+					}
+					// left param --> check for!
+					if (matcher.group(2) != null) {
+						//check if first
+						if(firstParam){
+							expression.append("(lower(c.content) not like ? and lower(r.name) not like ?)");
+							firstParam = false;
+						}else{
+							expression.append(" or (lower(c.content) not like ? and lower(r.name) not like ?)");
+						}
+					} else {
+						if(firstParam){
+							expression.append(" (lower(c.content) like ? or lower(r.name) like ?)");
+							firstParam = false;
+						}else {
+							expression.append(" or (lower(c.content) like ? or lower(r.name) like ?)");
+						}
+					}
+					//  right param --> check for!
+					if (matcher.group(4) != null) {
+						expression.append(" and (lower(c.content) not like ? and lower(r.name) not like ?) ");
+					} else {
+						expression.append(" and (lower(c.content) like ? or lower(r.name) like ?) ");
+					}
+					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
+					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
+
+					criteriaListTmp.add("%" + matcher.group(5).toLowerCase() + "%");
+					criteriaListTmp.add("%" + matcher.group(5).toLowerCase() + "%");
+					t += 4;
+
+					// check for trailing and operator
+				}else if(matcher.group(6) != null){
+					//check for !
+					if(matcher.group(7) != null){
+						expression.append(" and (lower(c.content) not like ? and lower(r.name) not like ?) ");
+					}else {
+						expression.append(" and (lower(c.content)  like ? or lower(r.name) like ?) ");
+					}
+					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
+					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
+					t+= 2;
+					//check for single search param
+				}else if(matcher.group(10) != null) {
+					//check for !
+					if(matcher.group(9) != null){
+						if(firstNotSearchParam){
+							expressionNotOperator.append("(lower(c.content) not like ? and lower(r.name) not like ?) ");
+							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
+							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
+
+							//criteriaListTmp3_1.add("%" + matcher.group(11).toLowerCase() + "%");
+							firstNotSearchParam = false;
+						}else {
+							expressionNotOperator.append(" or (lower(c.content) not like ? and lower(r.name) not like ?) ");
+
+							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
+							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
+						}
+					}else{
+						if(onlyNotSearch){
+							onlyNotSearch = false;
+						}
+						if(firstParam){
+							expression.append("  (lower(c.content) like ? or lower(r.name) like ?) ");
+							firstParam = false;
+						}else {
+							expression.append(" or (lower(c.content) like ? or lower(r.name) like ?) ");
+						}
+						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
+						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
+					}
+					t+= 2;
+				}
 			}
 		}
-		if ("".equals(criteria))
-		{
-			expression.append(" or lower(c.content) like ? ");
-			criteriaList.add("%%");
+
+		if(!onlyNotSearch){
+			query += " ( " + expression.toString();
+			criteriaListTmp.forEach(s -> {criteriaList.add(s);});
+
+			if(!criteriaListTmp2.isEmpty()){
+				query += " and ( " + expressionNotOperator.toString() + ")) ";
+				criteriaListTmp2.forEach(s -> {criteriaList.add(s);});
+
+			}else{
+				query += ") ";
+			}
+
+		}else {
+			query += "( " + expressionNotOperator.toString() + " )";
+			criteriaListTmp2.forEach(s -> {criteriaList.add(s);});
+
+
 		}
-		final Type[] types = new Type[criteriaList.size()];
-		for (int i = 0; i < types.length; i++)
+
+		query += " and r.id = c.rwikiid order by r.name";
+
+		final Type[] types = new Type[t];
+		for (int i = 0; i < t; i++)
 		{
 			types[i] = StringType.INSTANCE;
 		}
 
+		String finalQuery = query;
 		HibernateCallback<List> callback = session -> session
-				.createQuery("select distinct r " +
-						"from RWikiCurrentObjectImpl as r, RWikiCurrentObjectContentImpl as c " +
-						"where r.realm = ? and ( lower(r.name) like ? or lower(c.content) like ? " + expression.toString() + " ) and r.id = c.rwikiid order by r.name")
+				.createQuery(finalQuery)
 				.setParameters(criteriaList.toArray(), types)
 				.list();
+
 		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
