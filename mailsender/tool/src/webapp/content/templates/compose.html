@@ -1,132 +1,126 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-	<title rsf:id="page-title">Mail Sender</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-	<script type="text/javascript" language="JavaScript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" language="JavaScript" src="../js/mailsender.js"></script>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+            <link href="/mailsender-tool/content/css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+            <script src="/library/js/headscripts.js"/>
+            <script src="/library/js/spinner.js"></script>
+            <script src="/library/editor/ckeditor.launch.js"></script>
+            <script src="/mailsender-tool/content/js/mailsender.js"></script>
+             [(${sakaiHtmlHead})] 
 </head>
+    <body>
+        <div class="portletBody">
+            <div id="menu" th:include="fragments/menus :: main (compose)" />
+            <form id="mainForm" method="post" th:action="@{/compose}" >
+                <div class="page-header">
+                    <h1 th:text="#{compose_toolbar}">Compose</h1>
+                </div>
+                <div class="section">
+                    <div class="headerkeyholder">
+                        <span th:text="#{from}" class="headerkey">From:</span>
+                    </div>
+                    <div class="headervalue">
+                        <span id="from" th:value="${username}" th:text="${username}" >Freeman, Douglas Stuaart &lt;stuart.freeman@et.gatech.edu&gt;</span>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="headerkeyholder">
+                        <span th:text="#{select_rcpts}" class="headerkey">Select recipients:</span>
+                    </div>
+                    <div class="headervalue">
+                        <div class="rcpt_select">
+                            <input type="checkbox" id="mailsender-rcpt-all" name="rcptsall"/>
+                            <label th:text="#{select_rcpts_all}" for="mailsender-rcpt-all">All</label>        
+                        </div>
+                        <span> | </span>
+                        <div class="rcpt_select">
+                            <a id="mailsender-rcpt-link-roles"  >Roles</a>
+                        </div>
+                        <span> | </span>
+                        <div class="rcpt_select">
+                            <a id="mailsender-rcpt-link-sections" >Sections</a>
+                        </div>
+                        <span> | </span>
+                        <div class="rcpt_select">
+                            <a id="mailsender-rcpt-link-groups"  >Groups</a>
+                        </div>
+                        <div id="mailsender-roles" class="">
+                            <div th:each="rol:${comp.getEmailRoles()}" >
+                                <p th:text="${rol.getRoleId()}"></p>
+                                <div th:each="user:${comp.getUsersByRole(rol.getRoleId())}" th:text="${user.getDisplayId()}" >
+                                    hola                               
+                                </div>
+                             </div> 
+                        </div>
+                        <div id="mailsender-sections" class="rolesArea"></div>
+                        <div id="mailsender-groups" class="rolesArea"></div>
+                    </div>
+                    <div class="headervalue" id="otherRecipientsLink">
+                        <a href="#" th:text="#{addotherrecipients}" onclick="RcptSelect.showOther();return false">Other Recipient(s):</a>
+                    </div>
+                </div>
+                <div class="section" id="otherRecipientsDiv" style="display:none">
+                    <div class="headervalue">
+                        <span th:text="#{otherrecipients}">Other Recipients:</span>
+                    </div>
+                    <div class="headervalue" id="otherRecipientsValue">
+                        <input class="fullwidth" name="otherRecipients" value="" type="text" id="otherRecipients" />
+                        <div th:text="#{otherrecipients_instruction}" class="instruction">Separate additional email addresses with commas or semicolons.</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="headerkeyholder">
+                        <span class="headerkey"><label th:text="#{message_subject}" for="subject">Subject:</label></span>
+                    </div>
+                    <div class="headervalue">
+                        <input id="subject" class="fullwidth" name="subject" value="" type="text" />
+                    </div>
+                </div>
 
-<body>
-<div class="portletBody">
-	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
+                <div class="section">
+                    <div id="attachOuter" class="headerkeyholder" style="display:none">
+                        <span class="headerkey"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" /></span></span>
+                    </div>
+                    <div id="attachInner" class="headervalue"> 
+                        <div id="attachmentArea" name="attachmentArea"/>
+                        <div id="attachLink"><img src="/mailsender-tool/content/images/paperclip.gif" alt="attachment_img" height="15" width="15" /> <a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachlink}">Attach a file</a></div>
+                        <div id="attachMoreLink" style="display:none"><a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" th:text="#{attachmorelink}">Attach another file</a></div>
+                    </div>
+                </div>
 
-	<div rsf:id="message-for:*">Messages for the user show here</div>
+                <div class="section">
+                    <div class="headervalue">
+                        <!-- <sakai-editor editor-id="editor-classic" toolbar="basic" ></sakai-editor>-->
+                         <textarea name="editor1" id="editor1">
+                         </textarea>
+                    </div>
+                </div>
 
-	<form rsf:id="mainForm" method="post" enctype="multipart/form-data">
-		<div class="page-header">
-			<h1 rsf:id="msg=compose_toolbar">Compose</h1>
-		</div>
-		<div class="section">
-			<div class="headerkeyholder">
-				<span rsf:id="msg=from" class="headerkey">From:</span>
-			</div>
-			<div class="headervalue">
-				<span rsf:id="from">Freeman, Douglas Stuart &lt;stuart.freeman@et.gatech.edu&gt;</span>
-			</div>
-		</div>
-		<div class="section">
-			<div class="headerkeyholder">
-				<span rsf:id="msg=select_rcpts" class="headerkey">Select recipients:</span>
-			</div>
-			<div class="headervalue">
-				<div class="rcpt_select">
-					<input rsf:id="mailsender-rcpt-all" type="checkbox" id="mailsender-rcpt-all"/>
-					<label rsf:id="msg=select_rcpts_all" for="mailsender-rcpt-all">All</label>
-				</div>
-				<span> | </span>
-				<div class="rcpt_select">
-					<a rsf:id="mailsender-rcpt-link-roles">Roles</a>
-				</div>
-				<span> | </span>
-				<div class="rcpt_select">
-					<a rsf:id="mailsender-rcpt-link-sections">Sections</a>
-				</div>
-				<span> | </span>
-				<div class="rcpt_select">
-					<a rsf:id="mailsender-rcpt-link-groups">Groups</a>
-				</div>
-				<div id="mailsender-roles" class="rolesArea"></div>
-				<div id="mailsender-sections" class="rolesArea"></div>
-				<div id="mailsender-groups" class="rolesArea"></div>
-			</div>
-			<div class="headervalue" id="otherRecipientsLink">
-				<a href="#" rsf:id="msg=addotherrecipients" onclick="RcptSelect.showOther();return false">Other Recipient(s):</a>
-			</div>
-		</div>
-		<div class="section" id="otherRecipientsDiv" style="display:none">
-			<div class="headervalue">
-				<span rsf:id="msg=otherrecipients">Other Recipients:</span>
-			</div>
-			<div class="headervalue" id="otherRecipientsValue">
-				<input rsf:id="otherRecipients" class="fullwidth" name="otherRecipients" value="" type="text" id="otherRecipients" />
-				<div rsf:id="msg=otherrecipients_instruction" class="instruction">Separate additional email addresses with commas or semicolons.</div>
-			</div>
-		</div>
-		<div class="section">
-			<div class="headerkeyholder">
-				<span class="headerkey"><label rsf:id="msg=message_subject" for="subject">Subject:</label></span>
-			</div>
-			<div class="headervalue">
-				<input rsf:id="subject" id="subject" class="fullwidth" name="subject" value="" type="text" />
-			</div>
-		</div>
-
-		<div class="section">
-			<div id="attachOuter" class="headerkeyholder" style="display:none">
-				<span class="headerkey"><img src="../images/paperclip.gif" alt="attachment_img" height="15" width="15" /></span>
-			</div>
-			<div id="attachInner" class="headervalue">
-				<div id="attachmentArea"/>
-				<div id="attachLink"><img src="../images/paperclip.gif" alt="attachment_img" height="15" width="15" /> <a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" rsf:id="msg=attachlink">Attach a file</a></div>
-				<div id="attachMoreLink" style="display:none"><a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" rsf:id="msg=attachmorelink">Attach another file</a></div>
-			</div>
-		</div>
-
-		<div class="section">
-			<div class="headervalue">
-				<textarea rsf:id="content" rows="20" cols="80" name="content"></textarea>
-				<div rsf:id="content-div:" />
-			</div>
-		</div>
-
-		<div class="section">
-			<div class="headervalue">
-				<input rsf:id="sendMeCopy" name="sendMeCopy" type="checkbox" id="sendMeCopy" />
-				<label rsf:id="msg=sendmeacopy" for="sendMeCopy">Send me a copy</label>
-			</div>
-			<div rsf:id="addToArchiveDiv" class="headervalue">
-				<input rsf:id="addToArchive" name="addToArchive" type="checkbox" id="addToArchive" />
-				<label rsf:id="msg=addtoemailarchive" for="addToArchive">
-					Add to Email Archive, visible to all site participants
-				</label>
-			</div>
-			<div class="headervalue">
-				<input rsf:id="appendRecipientList" name="appendRecipientList" type="checkbox" id="appendRecipientList" />
-				<label rsf:id="msg=appendrecipientlist" for="appendRecipientList">Append list of recipients to message</label>
-			</div>
-		</div>
-		<input rsf:id="csrf" type="hidden" name="csrf" id="csrf" />
-		<span rsf:id="csrfvalue" id="csrfvalue" style="display:none"/>
-		<div class="section headervalue act">
-			<input rsf:id="send-button" value="Send Mail" class="active" type="submit" />
-			<input rsf:id="cancel-button" value="Cancel" type="submit" />
-		</div>
-	</form>
-	<script rsf:id="init_js" type="text/javascript">
-	// a real function call with real values which come from the 
-	// "emitJavascriptCall" method will be placed here by RSF
-	</script>
-	<script type="text/javascript">
-	  $("#csrf").val($("#csrfvalue").text());
-	</script>
-	<div class="cleaner" />
-</div>
-</body>
+                <div class="section">
+                    <div class="headervalue">
+                        <input name="sendMeCopy" type="checkbox" id="sendMeCopy"  th:attrappend="checked=${config.isSendMeACopy() == true}?@{checked}"/>
+                        <label th:text="#{sendmeacopy}" for="sendMeCopy">Send me a copy</label>
+                    </div>
+                    <div th:if="${added==true}" id="addToArchiveDiv" class="headervalue">
+                        <input  name="addToArchive" type="checkbox" id="addToArchive" th:attrappend="checked=${config.isAddToArchive() == true}?@{checked}" />
+                        <label th:text="#{addtoemailarchive}" for="addToArchive">
+                            Add to Email Archive, visible to all site participants
+                        </label>
+                    </div>
+                    <div class="headervalue">
+                        <input name="appendRecipientList" type="checkbox" id="appendRecipientList" th:attrappend="checked=${config.isAppendRecipientList() == true}?@{checked}"/>
+                        <label th:text="#{appendrecipientlist}" th:value="#{appendrecipientlist}" for="appendRecipientList">Append list of recipients to message</label>
+                    </div>
+                </div>
+                <div class="section headervalue act">
+                    <input id="send-button" value="Send Mail" class="active" type="submit" />
+                    <input id="cancel-button" value="Cancel" type="submit" />
+                </div>
+                <script defer="1">  sakai.editor.launch("editor1", "{noop:0}");
+                </script>
+            </form>
+        </div>
+    </body>
 </html>

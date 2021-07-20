@@ -1,128 +1,152 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-	<title rsf:id="page-title">Options</title>
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-	<script type="text/javascript" language="JavaScript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-</head>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <!--<head th:replace="fragments/common :: head"/>-->
+    <head>
+        <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+        <link href="/mailsender-tool/content/css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+        <script src="/library/js/headscripts.js"></script>
+    </head>
 <body>
-<div class="portletBody container-fluid">
-
-	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
-
-	<div rsf:id="message-for:*">Messages for the user show here</div>
-
-	<form rsf:id="optionsForm" method="post" class="form-horizontal">
+<div class="portletBody">
+    <div id="menu" th:include="fragments/menus :: main (options)" />
+	<form id="optionsForm" method="post" class="form-horizontal" >
 		<div class="page-header">
-			<h1 rsf:id="msg=options_toolbar">Options</h1>
+			<h1 th:text="#{options_toolbar}">Options</h1>
 		</div>
-		<div rsf:id="msg=options_instruction" class="instruction section">
+		<div th:text="#{options_instruction}" class="instruction section">
 			You are currently choosing options for Email. Settings chosen on this page will become the default settings for this site.
 		</div>
 
 		<div class="section form-group">
 			<div class="optionsheaderkeyholder col-sm-4 ">
-				<span rsf:id="msg=options_copies" class="headerkey control-label">Copies:</span>
+				<span th:text="#{options_copies}" class="headerkey control-label">Copies:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
 				<div class="option-checkbox">
-					<input rsf:id="sendMeACopy" id="sendMeACopy" name="sendMeACopy" type="checkbox" />
-					<label rsf:id="msg=sendmeacopy" for="sendMeACopy">Send me a copy</label>
+					<input  id="sendMeACopy" name="sendMeACopy" value="true" type="checkbox" th:attrappend="checked=${config.isSendMeACopy() == true}?@{checked}" />
+					<label th:text="#{sendmeacopy}" for="sendMeACopy">Send me a copy</label>
 				</div>
-				<div rsf:id="addToArchiveDiv" class="option-checkbox">
-					<input rsf:id="addToArchive" id="addToArchive" name="addToArchive" type="checkbox" />
-					<label rsf:id="msg=addtoemailarchive" for="addToArchive">Add to Email Archive, visible to all site participants</label>
+				<div  id="addToArchiveDiv" class="option-checkbox">
+					<input id="addToArchive" name="addToArchive" type="checkbox" value="true" th:attrappend="checked=${config.isAddToArchive() == true}?@{checked}" />
+					<label th:text="#{addtoemailarchive}" for="addToArchive">Add to Email Archive, visible to all site participants</label>
 				</div>
 			</div>
 		</div>
 		<div class="section form-group">
 			<div class="optionsheaderkeyholder col-sm-4">
-				<span rsf:id="msg=options_show_recipients" class="headerkey control-label">Show Recipients:</span>
+				<span th:text="#{options_show_recipients}" class="headerkey control-label">Show Recipients:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
 				<div class="option-checkbox">
-					<input rsf:id="appendRecipientList" id="appendRecipientList" name="appendRecipientList" type="checkbox" />
-					<label rsf:id="msg=appendrecipientlist" for="appendRecipientList">Append list of recipients to message</label>
+					<input id="appendRecipientList" name="appendRecipientList" value="true" type="checkbox" th:attrappend="checked=${config.isAppendRecipientList() == true}?@{checked}"/>
+					<label th:text="#{appendrecipientlist}" for="appendRecipientList">Append list of recipients to message</label>
 				</div>
 			</div>
 		</div>
 		<div class="section form-group">
 			<div class="optionsheaderkeyholder col-sm-4">
-				<span rsf:id="msg=replyto" class="headerkey control-label">Reply-to:</span>
+				<span th:text="#{replyto}" class="headerkey control-label">Reply-to:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
-				<span rsf:id="replyToSelect" />
+				<span id="replyToSelect" />
 				<div>
-					<input rsf:id="replyToSender" id="replyToSender" type="radio" />
-					<label rsf:id="replyToSenderLabel" for="replyToSender">Sender</label>
+					<input id="replyToSender" type="radio" name="replyto"  value="yes" th:attrappend="checked=${#strings.equals(config.getReplyTo(),'sender')}?@{checked}" />
+					<label id="replyToSenderLabel" for="replyToSender">Sender</label>
 					<br/>
-					<input rsf:id="replyToNone" id="replyToNone" type="radio" />
-					<label rsf:id="replyToNoneLabel" for="replyToNone">Do not allow reply</label>
+					<input id="replyToNone" type="radio" name="replyto" value="no" th:attrappend="checked=${#strings.equals(config.getReplyTo(),'no_reply_to')}?@{checked}"/>
+					<label id="replyToNoneLabel" for="replyToNone">Do not allow reply</label>
 				</div>
 			</div>
 		</div>
 		<div class="section form-group">
 			<div class="optionsheaderkeyholder col-sm-4">
-				<span rsf:id="msg=options_displayinvalidemails" class="headerkey optionsHeaderKey control-label">Display invalid emails:</span>
+				<span th:text="#{options_displayinvalidemails}" class="headerkey optionsHeaderKey control-label">Display invalid emails:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
-				<span rsf:id="invalidEmailsSelect" />
+				<span id="invalidEmailsSelect" />
 				<div>
-					<input rsf:id="invalidEmailsYes" id="invalidEmailsYes" type="radio" />
-					<label rsf:id="invalidEmailsYesLabel" for="invalidEmailsYes">Yes</label>
+					<input id="invalidEmailsYes" type="radio" name="InvalidEm" value="true" th:attrappend="checked=${config.isDisplayInvalidEmails() == true}?@{checked}" />
+					<label id="invalidEmailsYesLabel" for="invalidEmailsYes">Yes</label>
 					<br/>
-					<input rsf:id="invalidEmailsNo" id="invalidEmailsNo" type="radio" />
-					<label rsf:id="invalidEmailsNoLabel" for="invalidEmailsNo">No</label>
+					<input id="invalidEmailsNo" type="radio" name="InvalidEm" value="false" th:attrappend="checked=${config.isDisplayInvalidEmails() == false}?@{checked}" />
+					<label id="invalidEmailsNoLabel" for="invalidEmailsNo" >No</label>
 				</div>
 			</div>
 		</div>
 		<div class="section form-group">
 			<div class="optionsheaderkeyholder col-sm-4">
-				<span rsf:id="msg=options_displayemptygroups" class="headerkey optionsHeaderKey control-label">Display empty recipient groups:</span>
+				<span th:text="#{options_displayemptygroups}" class="headerkey optionsHeaderKey control-label">Display empty recipient groups:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
-				<span rsf:id="emptyGroupsSelect" />
+				<span id="emptyGroupsSelect" />
 				<div>
-					<input rsf:id="emptyGroupsYes" id="emptyGroupsYes" type="radio" />
-					<label rsf:id="emptyGroupsYesLabel" for="emptyGroupsYes">Yes</label>
+					<input id="emptyGroupsYes" type="radio" name="rcpsempty" value="true" th:attrappend="checked=${config.isDisplayEmptyGroups() == true}?@{checked}" />
+					<label id="emptyGroupsYesLabel" for="emptyGroupsYes">Yes</label>
 					<br/>
-					<input rsf:id="emptyGroupsNo" id="emptyGroupsNo" type="radio" />
-					<label rsf:id="emptyGroupsNoLabel" for="emptyGroupsNo">No</label>
+					<input id="emptyGroupsNo" type="radio" name="rcpsempty" value="false" th:attrappend="checked=${config.isDisplayEmptyGroups() == false}?@{checked}" />
+					<label id="emptyGroupsNoLabel" for="emptyGroupsNo">No</label>
 				</div>
 			</div>
 		</div>
-		<div rsf:id="subjectPrefixDiv" class="section form-group" >
+            <div th:if="${prefix==true}" id="subjectPrefixDiv" class="section form-group"  >
 			<div class="optionsheaderkeyholder col-sm-4">
-				<span rsf:id="msg=options_subjectprefix" class="headerkey control-label">Subject Prefix:</span>
+				<span th:text="#{options_subjectprefix}" class="headerkey control-label">Subject Prefix:</span>
 			</div>
 			<div class="optionsheadervalue col-sm-8">
-				<span rsf:id="subjectPrefixSelect" />
+				<span id="subjectPrefixSelect" />
 				<div>
-					<input rsf:id="subjectPrefixDefault" id="subjectPrefixDefault" type="radio" onclick="jQuery('#customPrefixDiv').hide()" />
-					<label rsf:id="subjectPrefixDefaultLabel" for="subjectPrefixDefault">Use the default prefix (%site_title%: )</label>
+					<input id="subjectPrefixDefault" type="radio" value="system" name="prefix" onclick="jQuery('#customPrefixDiv').hide()" th:attrappend="checked=${#strings.equals(config.getSubjectPrefixType(),'system')}?@{checked}" />
+					<label id="subjectPrefixDefaultLabel" for="subjectPrefixDefault">Use the default prefix (%site_title%: )</label>
 					<br/>
-					<input rsf:id="subjectPrefixCustom" id="subjectPrefixCustom" type="radio" onclick="jQuery('#customPrefixDiv').show()" />
-					<label rsf:id="subjectPrefixCustomLabel" for="subjectPrefixCustom">Use a custom prefix</label>
+					<input id="subjectPrefixCustom" type="radio" name="prefix" value="custom" onclick="jQuery('#customPrefixDiv').show()" th:attrappend="checked=${#strings.equals(config.getSubjectPrefixType(),'custom')}?@{checked}" />
+					<label id="subjectPrefixCustomLabel" for="subjectPrefixCustom">Use a custom prefix</label>
 					<br/>
-					<div id="customPrefixDiv" rsf:id="customPrefixDiv">
-						<span rsf:id="msg=options_customprefix" />
-						<input rsf:id="subjectPrefix" size="15" />
+					<div id="customPrefixDiv" th:style="${#strings.equals(config.getSubjectPrefixType(),'system') ? 'display:none':'display:block'}">
+						<span th:text="#{options_customprefix}" />
+						<input th:value="${config.getSubjectPrefix()}" id="subjectPrefix" name="subjectPrefix" size="15" />
 					</div>
-					<span rsf:id="msg=options_customprefixnote" />
+					<span th:text="#{options_customprefixnote}" />
 				</div>
 			</div>
 		</div>
 		<div class="section">
 			<p class="act section">
-				<input rsf:id="update-button" name="update" value="Update Defaults" class="active" type="submit" />
-				<input rsf:id="cancel-button" name="cancel" value="Cancel" type="submit" />
+				<input id="update-button" name="update" value="Update Defaults" class="active" type="submit" />
+				<input id="cancel-button" name="cancel" value="Cancel" type="submit" />
 			</p>
 		</div>
 	</form>
 	<div class="cleaner" />
 </div>
+    <script th:inline="javascript">
+            /*<![CDATA[*/
+                                  
+             /*var form = {
+                    "sendMeCopy": document.getElementById("sendMeACopy").checked,
+                    "addToArchive": document.getElementById("addToArchive").checked,
+                    "appendRecipientList": document.getElementById("appendRecipientList").value,
+                    "replyToSender": document.getElementByName
+                    "replyToNone": document.getElementById("replyToNone").value,
+                    "invalidEmailsYes": document.getElementById("invalidEmailsYes").value,
+                    "invalidEmailsNo": document.getElementById("invalidEmailsNo").value,
+                    "emptyGroupsYes": document.getElementById("emptyGroupsYes").value,
+                    "emptyGroupsNo": document.getElementById("emptyGroupsNo").value,
+                    "defaultPrefix": document.getElementById("subjectPrefixDefault").value,
+                    "customPrefix": document.getElementById("subjectPrefixCustom").value,
+                    
+                    console.log(data.sendMeCopy , data.appendRecipientList, data.emptyGroupsYes);
+                }                console.log(data.sendMeCopy , data.appendRecipientList, data.emptyGroupsYes);
+*/
+                 
+            fetch(window.location.href, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                    method: "POST"
+                    
+                    });
+            
+        </script>
 </body>
 </html>

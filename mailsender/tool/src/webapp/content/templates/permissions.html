@@ -1,17 +1,12 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-	<title rsf:id="page-title">Options</title>
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-</head>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head">
 <body>
 <div class="portletBody">
-	<h3 rsf:id="msg=mailsender.navbar.permissions">Permissions</h3>
+    <div id="menu" th:include="fragments/menus :: main (permissions)" />
+	<h3 th:text="#{mailsender.navbar.permissions}">Permissions</h3>
 
-	<sakai-permissions rsf:id="permissions-wc" tool="mailtool" bundle-key="mailsender" />
+	<sakai-permissions th:value="permissions-wc" tool="mailtool" bundle-key="mailsender" />
 </div>
 </body>
 </html>

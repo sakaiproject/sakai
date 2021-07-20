@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="main (current)">
+    <ul class="navIntraTool">
+      <li role="presentation"><span th:class="${current}=='compose' ? 'current'">
+        <span th:if="${current}=='compose'" th:text="#{compose_toolbar}">Compose</span>
+        <a th:unless="${current}=='compose'" href="#" th:href="@{/compose}" th:text="#{compose_toolbar}">Compose</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='options' ? 'current'">
+        <span th:if="${current}=='options'" th:text="#{options_toolbar}">Options</span>
+        <a th:unless="${current}=='options'" href="#" th:href="@{/options}" th:text="#{options_toolbar}">Options</a>
+      </span></li>
+      <li role="presentation"><span th:class="${current}=='permissions' ? 'current'">
+        <span th:if="${current}=='permissions'" th:text="#{mailsender.navbar.permissions}">Permissions</span>
+        <a th:unless="${current}=='permissions'" href="#" th:href="@{/permissions}" th:text="#{mailsender.navbar.permissions}">Permissions</a>
+      </span></li>
+    </ul>
+  </div>
+</body>
+</html>

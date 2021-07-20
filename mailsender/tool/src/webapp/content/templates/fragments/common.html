@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+            <link href="/mailsender-tool/content/css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+            <script src="/mailsender-tool/content/js/mailsender.js"/>
+            <script src="/library/js/headscripts.js"></script>
+            <script src="/library/js/spinner.js"></script>
+            
+            <title>Email</title>
+        </head>
+    <body>
+        <!--<div th:fragment="jQuery">
+            <script>includeLatestJQuery('sakai.mailtool');</script>
+            <script th:inline="javascript">
+                $(document).ready(function () {
+                    var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
+                    if (toolId) {
+                        setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+                    }
+                });
+            </script>
+        </div>-->
+    </body>
+</html>
