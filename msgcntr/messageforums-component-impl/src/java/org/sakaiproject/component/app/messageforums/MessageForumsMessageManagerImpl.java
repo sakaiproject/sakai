@@ -179,7 +179,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites");
              q.setParameterList("siteList", siteList);
-             q.setString("userId", getCurrentUser());
+             q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -200,7 +200,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites");
              q.setParameterList("siteList", siteList);
-             q.setString("userId", getCurrentUser());
+             q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -221,7 +221,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId");
              q.setParameterList("siteList", siteList);
              q.setParameterList("roleList", roleList);
-             q.setString("userId", getCurrentUser());
+             q.setParameter("userId", getCurrentUser(),  StringType.INSTANCE);
             return q.list();
         };
 
@@ -242,8 +242,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName");
              q.setParameterList("siteList", siteList);
              q.setParameterList("roleList", roleList);
-             q.setString("userId", getCurrentUser());
-             q.setString("customTypeUuid", typeManager.getCustomLevelType());
+             q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+             q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -260,7 +260,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
-            q.setString("userId", getCurrentUser());
+            q.setParameter("userId", getCurrentUser(),  StringType.INSTANCE);
             return q.list();
         };
         
@@ -277,8 +277,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
-            q.setString("userId", getCurrentUser());
-            q.setString("customTypeUuid", typeManager.getCustomLevelType());
+            q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+            q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
             return q.list();
         };
         
@@ -296,8 +296,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumMessageCountsForGroupedSitesByTopic");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
-            q.setString("userId", getCurrentUser());
-            q.setString("customTypeUuid", typeManager.getCustomLevelType());
+            q.setParameter("userId", getCurrentUser(),  StringType.INSTANCE);
+            q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);;
             return q.list();
         };
         
@@ -315,8 +315,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForGroupedSitesByTopic");
             q.setParameterList("siteList", siteList);
             q.setParameterList("roleList", roleList);
-            q.setString("userId", getCurrentUser());
-            q.setString("customTypeUuid", typeManager.getCustomLevelType());
+            q.setParameter("userId", getCurrentUser(),  StringType.INSTANCE);
+            q.setParameter("customTypeUuid", typeManager.getCustomLevelType(),  StringType.INSTANCE);
             return q.list();
         };
         
@@ -340,8 +340,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_BY_AUTHORED);
-            q.setLong("topicId", topicId);
-            q.setString("userId", userId);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -358,8 +358,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForStudent");
-            q.setString("contextId", getContextId());
-            q.setString("userId", userId);
+            q.setParameter("contextId", getContextId() , StringType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -473,7 +473,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudents");
-            q.setString("contextId", getContextId());
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -485,8 +485,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByTopicId");
-            q.setString("contextId", getContextId());
-            q.setLong("topicId", topicId);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
             return q.list();
         };
 
@@ -498,8 +498,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudentsByForumId");
-            q.setString("contextId", getContextId());
-            q.setLong("forumId", forumId);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("forumId", forumId, LongType.INSTANCE);
             return q.list();
         };
 
@@ -518,8 +518,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_BY_READ);
-            q.setLong("topicId", topicId);
-            q.setString("userId", userId);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -536,8 +536,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery("findReadMessageCountForStudent");
-            q.setString("contextId", getContextId());
-            q.setString("userId", userId);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -610,7 +610,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findReadMessageCountForAllStudents");
-            q.setString("contextId", getContextId());
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             return q.list();
         };
 
@@ -622,8 +622,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByTopicId");
-            q.setString("contextId", getContextId());
-            q.setLong("topicId", topicId);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
             return q.list();
         };
 
@@ -635,8 +635,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findReadMessageCountForAllStudentsByForumId");
-            q.setString("contextId", getContextId());
-            q.setLong("forumId", forumId);
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+            q.setParameter("forumId", forumId, LongType.INSTANCE);
             return q.list();
         };
 
@@ -658,8 +658,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
-            q.setLong("topicId", topicId);
-            q.setString("userId", userId);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -770,8 +770,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID);
-            q.setLong("topicId", topicId);
-            q.setString("userId", userId);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameter("userId", userId, StringType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -840,7 +840,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery("findMessageCountByTopicId");
-            q.setLong("topicId", topicId);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
             return (Number) q.uniqueResult();
         };
 
@@ -857,7 +857,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findMessageCountByForumId");
-            q.setLong("forumId", forumId);
+            q.setParameter("forumId", forumId, LongType.INSTANCE);
             return q.list();
         };
 
@@ -947,7 +947,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public List<Object[]> findMessageCountTotal() {
     	HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findMessageCountTotal");
-            q.setString("contextId", getContextId());
+            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             return q.list();
         };
     	
