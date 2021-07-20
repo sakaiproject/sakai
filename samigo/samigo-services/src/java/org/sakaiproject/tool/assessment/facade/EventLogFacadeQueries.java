@@ -15,16 +15,12 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
 import org.hibernate.query.Query;
-import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.User;
@@ -32,6 +28,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EventLogFacadeQueries extends HibernateDaoSupport implements EventLogFacadeQueriesAPI {
@@ -61,7 +59,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
 					"select eld from EventLogData as eld"
 							+ " where eld.processId = :id"
 							+ " order by eld.id desc");
-			q.setLong("id", assessmentGradingId);
+			q.setParameter("id", assessmentGradingId);
 
             return q.list();
         };
@@ -85,7 +83,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
                             + " where eld.siteId = :site"
                             + " order by eld.assessmentId asc, eld.userEid asc"
             );
-            q.setString("site", siteId);
+            q.setParameter("site", siteId);
 
             return q.list();
         };
@@ -113,9 +111,9 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
       final String hql = query;
       final HibernateCallback<List<EventLogData>> hcb = session -> {
          Query q = session.createQuery(hql);
-         q.setString("site", siteId);
+         q.setParameter("site", siteId);
          if (assessmentId > -1) {
-            q.setLong("id", assessmentId);
+            q.setParameter("id", assessmentId);
          }
 
          return q.list();
@@ -167,7 +165,7 @@ public class EventLogFacadeQueries extends HibernateDaoSupport implements EventL
                          + " where eld.siteId = :site"
                          + " order by lower(eld.title) asc"
          );
-         q.setString("site", siteId);
+         q.setParameter("site", siteId);
 
          return q.list();
       };
