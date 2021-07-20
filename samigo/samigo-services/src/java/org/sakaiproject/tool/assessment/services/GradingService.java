@@ -94,6 +94,8 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -146,6 +148,12 @@ public class GradingService
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
   
   private static final String NBSP = "&#160;";
+
+  @Getter @Setter
+  private List<String> texts;
+  @Getter @Setter
+  private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+  private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
    * Get all scores for a published assessment from the back end.
@@ -2735,10 +2743,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return map of calc answers
    */
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
-      Map<Integer, String> calculatedAnswersMap = new HashMap<>();
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
-      return calculatedAnswersMap;
+      if (answersMap.isEmpty()) {
+          extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+      }
+      return answersMap;
   }
 
   /**
@@ -3011,7 +3020,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
   public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
-      final int MAX_ERROR_TRIES = 100;
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
@@ -3030,12 +3038,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               try {
                   instructions = replaceCalculationsWithValues(instructions, 5); // what decimal precision should we use here?
                   // if could not process the calculation into a result then throws IllegalStateException which will be caught below and cause the numbers to regenerate
+                  // only pull out the segments if the formulas worked
+                  instructionSegments = extractInstructionSegments(instructions);
+                  hasErrors = false;
               } catch (SamigoExpressionError e1) {
                   log.warn("Samigo calculated item ("+item.getItemId()+") calculation invalid: "+e1.get());
+                  attemptCount++;
               }
-              // only pull out the segments if the formulas worked
-              instructionSegments = extractInstructionSegments(instructions);
-              hasErrors = false;
           } catch (Exception e) {
               attemptCount++;
           }
@@ -3272,53 +3281,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
       return formula;
   }
-
-  /**
-   * isNegativeSqrt() looks at the incoming expression and looks specifically
-   * to see if it executes the SQRT function.  If it does, it evaluates it.  If
-   * it has an error, it assumes that the SQRT function tried to evaluate a 
-   * negative number and evaluated to NaN.
-   * <p>Note - the incoming expression should have no variables.  They should 
-   * have been replaced before this function was called
-   * @param expression a mathematical formula, with all variables replaced by
-   * real values, to be evaluated
-   * @return true if the function uses the SQRT function, and the SQRT function
-   * evaluates as an error; else false
-   * @throws SamigoExpressionError if the evaluation of the SQRT function throws
-   * some other parse error
-   */
-    public boolean isNegativeSqrt(String expression) throws SamigoExpressionError {
-        Pattern sqrt = Pattern.compile("sqrt\\s*\\(");
-        boolean isNegative = false;
-        if (expression == null) {
-            expression = "";
-        }
-        expression = expression.toLowerCase();
-        Matcher matcher = sqrt.matcher(expression);
-        while (matcher.find()) {
-            int x = matcher.end();
-            int p = 1; // Parentheses left to match
-            int len = expression.length();
-            while (p > 0 && x < len) {
-                if (expression.charAt(x) == ')') {
-                    --p;
-                } else if (expression.charAt(x) == '(') {
-                    ++p;
-                }
-                ++x;
-            }
-            if (p == 0) {
-                String sqrtExpression = expression.substring(matcher.start(), x);
-                SamigoExpressionParser parser = new SamigoExpressionParser();
-                String numericAnswerString = parser.parse(sqrtExpression);
-                if (!isAnswerValid(numericAnswerString)) {
-                    isNegative = true;
-                    break; // finding 1 invalid one is enough
-                }
-            }
-        }
-        return isNegative;
-    }
 
   /**
    * CALCULATED_QUESTION
