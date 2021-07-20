@@ -932,9 +932,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         try {
             session = getSessionFactory().getCurrentSession();
             Query query = session.createSQLQuery("update CHAT2_CHANNEL c set c.placementDefaultChannel = :channel, c.PLACEMENT_ID = NULL WHERE c.context = :context and c.PLACEMENT_ID = :placement");
-            query.setBoolean("channel", false);
-            query.setString("context", context);
-            query.setString("placement", placement);
+            query.setParameter("channel", false);
+            query.setParameter("context", context);
+            query.setParameter("placement", placement);
             query.executeUpdate();
         } catch(Exception e) {
             log.warn(e.getMessage());
