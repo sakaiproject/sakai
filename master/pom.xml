@@ -36,7 +36,7 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.elasticsearch.version>1.7.6</sakai.elasticsearch.version>
-    <sakai.hibernate.version>5.3.18.Final</sakai.hibernate.version>
+    <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>3.4.2</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.14</sakai.httpcore.version>
@@ -952,7 +952,7 @@
       <dependency>
         <groupId>org.hibernate.common</groupId>
         <artifactId>hibernate-commons-annotations</artifactId>
-        <version>5.0.4.Final</version>
+        <version>5.0.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
