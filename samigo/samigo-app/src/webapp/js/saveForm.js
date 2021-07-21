@@ -141,7 +141,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
     //check noLateSubmission or isRetracted controlled by pastDueDate()
     if (text.indexOf("noLateSubmission") >= 0 || text.indexOf("isRetracted") >= 0 || text.indexOf("assessment_has_been_submitted") >= 0) {
         $("#autosave-timeexpired-warning").show();
-        $("[id$=\\:submitNoCheck]")[0].click();
+        $("[id$=\\:save]")[0].click();
     }
 
     if (d !== -1) {
