@@ -1514,9 +1514,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			HibernateCallback<Number> hcb = session -> (Number) session
 				.getNamedQuery("findNumRoleWithPermissionInTopic")
-				.setLong("id", topicId)
-				.setString("roleName", roleName)
-				.setString("permissionLevelName", permissionName)
+				.setParameter("id", topicId, LongType.INSTANCE)
+				.setParameter("roleName", roleName, StringType.INSTANCE)
+				.setParameter("permissionLevelName", permissionName, StringType.INSTANCE)
 				.uniqueResult();
 
 			Number countRows = getHibernateTemplate().execute(hcb);
@@ -1529,8 +1529,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			}
 			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInTopic")
-				.setLong("id", topicId)
-				.setString("permissionLevelName", permissionName)
+				.setParameter("id", topicId, LongType.INSTANCE)
+				.setParameter("permissionLevelName", permissionName, StringType.INSTANCE)
                 .setCacheable(true)
 				.list();
 			return getHibernateTemplate().execute(hcb);
@@ -1542,8 +1542,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			}
 			HibernateCallback<List<String>> hcb = session -> (List<String>) session
 				.getNamedQuery("findAllowedGroupInForum")
-				.setLong("id", forumId)
-				.setString("permissionLevelName", permissionName)
+				.setParameter("id", forumId, LongType.INSTANCE)
+				.setParameter("permissionLevelName", permissionName, StringType.INSTANCE)
                 .setCacheable(true)
 				.list();
 
