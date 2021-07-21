@@ -44,6 +44,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.CacheMode;
 import org.hibernate.query.Query;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -1309,8 +1311,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public void incrementQRCount(long questionId, long responseId) {
 		getHibernateTemplate().execute(session -> {
 			Query query = session.createQuery("update SimplePageQuestionResponseTotalsImpl s set s.count = s.count + 1 where s.questionId= :questionId and s.responseId = :responseId");
-			query.setLong("questionId", questionId);
-			query.setLong("responseId", responseId);
+			query.setParameter("questionId", questionId, LongType.INSTANCE);
+			query.setParameter("responseId", responseId, LongType.INSTANCE);
 			return query.executeUpdate();
 		});
 	}
@@ -1522,7 +1524,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		tx = session.beginTransaction();
 
 		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
-		query.setString("attr", property);
+		query.setParameter("attr", property, StringType.INSTANCE);
 
 		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
 
@@ -1580,7 +1582,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		tx = session.beginTransaction();
 
 		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
-		query.setString("attr", property);
+		query.setParameter("attr", property, StringType.INSTANCE);
 
 		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
 
