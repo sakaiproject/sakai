@@ -15,34 +15,9 @@
  */
 package org.sakaiproject.assignment.impl;
 
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
-import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_NO;
-import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
-import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.LINE_SEPARATOR;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_PREFIX;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_CONTENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SAKAI_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ALL_GROUPS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_SHARE_DRAFTS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.model.Assignment.Access.GROUP;
-import static org.sakaiproject.assignment.api.model.Assignment.Access.SITE;
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
