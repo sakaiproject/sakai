@@ -5,6 +5,17 @@
   .checkbox-label {
     margin-left: 20px;
   }
+
+  #assignment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    div:nth-child(2) {
+      margin-left: auto;
+    }
+  }
+
 	#req-new_assignment_grade_points{
 		color: var(--errorBanner-color);
 	    margin: 9px 0 0 -13px;
