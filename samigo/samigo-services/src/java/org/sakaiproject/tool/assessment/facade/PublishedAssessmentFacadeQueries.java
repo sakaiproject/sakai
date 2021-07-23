@@ -277,8 +277,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedMetaDataSet(PublishedAssessmentData p,
 			Set metaDataSet) {
-		Set h = new HashSet<>();
-		Iterator i = metaDataSet.iterator();
+		Set<PublishedMetaData> h = new HashSet<>();
+		Iterator<AssessmentMetaData> i = metaDataSet.iterator();
 		while (i.hasNext()) {
 			AssessmentMetaData metaData = (AssessmentMetaData) i.next();
 			PublishedMetaData publishedMetaData = new PublishedMetaData(p,
@@ -289,8 +289,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public Set preparePublishedSecuredIPSet(PublishedAssessmentData p, Set ipSet) {
-		Set h = new HashSet<>();
-		Iterator i = ipSet.iterator();
+		Set<PublishedSecuredIPAddress> h = new HashSet<>();
+		Iterator<SecuredIPAddress> i = ipSet.iterator();
 		while (i.hasNext()) {
 			SecuredIPAddress ip = (SecuredIPAddress) i.next();
 			PublishedSecuredIPAddress publishedIP = new PublishedSecuredIPAddress(
@@ -303,9 +303,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedSectionSet(
 			PublishedAssessmentData publishedAssessment, Set sectionSet,
 			String protocol) {
-		log.debug("**published section size = " + sectionSet.size());
-		Set h = new HashSet<>();
-		Iterator i = sectionSet.iterator();
+		log.debug("**published section size = {}", sectionSet.size());
+		Set<PublishedSectionData> h = new HashSet<>();
+		Iterator<SectionData> i = sectionSet.iterator();
 		while (i.hasNext()) {
 			SectionData section = (SectionData) i.next();
 
@@ -338,8 +338,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedSectionMetaDataSet(
 			PublishedSectionData publishedSection, Set metaDataSet) {
-		Set h = new HashSet<>();
-		Iterator n = metaDataSet.iterator();
+		Set<PublishedSectionMetaData> h = new HashSet<>();
+		Iterator<SectionMetaData> n = metaDataSet.iterator();
 		while (n.hasNext()) {
 			SectionMetaData sectionMetaData = (SectionMetaData) n.next();
 			PublishedSectionMetaData publishedSectionMetaData = new PublishedSectionMetaData(
@@ -352,9 +352,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemSet(PublishedSectionData publishedSection,
 			Set itemSet, String protocol) {
-		log.debug("**published item size = " + itemSet.size());
-		Set h = new HashSet<>();
-		Iterator j = itemSet.iterator();
+		log.debug("**published item size = {}", itemSet.size());
+		Set<PublishedItemData> h = new HashSet<>();
+		Iterator<ItemData> j = itemSet.iterator();
 		while (j.hasNext()) {
 			ItemData item = (ItemData) j.next();
 			PublishedItemData publishedItem = new PublishedItemData(
@@ -394,12 +394,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemTextSet(PublishedItemData publishedItem,
 			Set itemTextSet, String protocol) {
-		log.debug("**published item text size = " + itemTextSet.size());
-		Set h = new HashSet<>();
-		Iterator k = itemTextSet.iterator();
+		log.debug("**published item text size = {}", itemTextSet.size());
+		Set<PublishedItemText> h = new HashSet<>();
+		Iterator<ItemText> k = itemTextSet.iterator();
 		while (k.hasNext()) {
 			ItemText itemText = (ItemText) k.next();
-			log.debug("**item text id =" + itemText.getId());
+			log.debug("**item text id = {}", itemText.getId());
 			PublishedItemText publishedItemText = new PublishedItemText(
 					publishedItem, itemText.getSequence(), itemText.getText(),
 					null);
@@ -418,8 +418,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemMetaDataSet(PublishedItemData publishedItem,
 			Set itemMetaDataSet) {
-		Set h = new HashSet<>();
-		Iterator n = itemMetaDataSet.iterator();
+		Set<PublishedItemMetaData> h = new HashSet<>();
+		Iterator<ItemMetaData> n = itemMetaDataSet.iterator();
 		while (n.hasNext()) {
 			ItemMetaData itemMetaData = (ItemMetaData) n.next();
 			// The itemMetaData.getEntry() is actually the pending/core part id. 
@@ -439,8 +439,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemFeedbackSet(PublishedItemData publishedItem,
 			Set itemFeedbackSet) {
-		Set h = new HashSet<>();
-		Iterator o = itemFeedbackSet.iterator();
+		Set<PublishedItemFeedback> h = new HashSet<>();
+		Iterator<ItemFeedback> o = itemFeedbackSet.iterator();
 		while (o.hasNext()) {
 			ItemFeedback itemFeedback = (ItemFeedback) o.next();
 			PublishedItemFeedback publishedItemFeedback = new PublishedItemFeedback(
@@ -454,8 +454,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedItemAttachmentSet(
 			PublishedItemData publishedItem, Set itemAttachmentSet,
 			String protocol) {
-		Set h = new HashSet<>();
-		Iterator o = itemAttachmentSet.iterator();
+		Set<PublishedItemAttachment> h = new HashSet<>();
+		Iterator<ItemAttachment> o = itemAttachmentSet.iterator();
 		while (o.hasNext()) {
 			ItemAttachment itemAttachment = (ItemAttachment) o.next();
 			try {
@@ -487,8 +487,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
     public Set preparePublishedItemTagSet(PublishedItemData publishedItem,
                                           Set itemTagSet) {
-        Set h = new HashSet<>();
-        Iterator n = itemTagSet.iterator();
+        Set<PublishedItemTag> h = new HashSet<>();
+        Iterator<ItemTag> n = itemTagSet.iterator();
         while (n.hasNext()) {
             ItemTag itemTag = (ItemTag) n.next();
             PublishedItemTag publishedItemTag = new PublishedItemTag(publishedItem,
@@ -502,8 +502,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedItemTextAttachmentSet(
 			PublishedItemText publishedItemText, Set itemTextAttachmentSet,
 			String protocol) {
-		Set h = new HashSet<>();
-		Iterator o = itemTextAttachmentSet.iterator();
+		Set<PublishedItemTextAttachment> h = new HashSet<>();
+		Iterator<ItemTextAttachment> o = itemTextAttachmentSet.iterator();
 		while (o.hasNext()) {
 			ItemTextAttachment itemTextAttachment = (ItemTextAttachment) o.next();
 			try {
@@ -547,8 +547,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedSectionAttachmentSet(
 			PublishedSectionData publishedSection, Set sectionAttachmentSet,
 			String protocol) {
-		Set h = new HashSet<>();
-		Iterator o = sectionAttachmentSet.iterator();
+		Set<PublishedSectionAttachment> h = new HashSet<>();
+		Iterator<SectionAttachment> o = sectionAttachmentSet.iterator();
 		while (o.hasNext()) {
 			SectionAttachment sectionAttachment = (SectionAttachment) o.next();
 			try {
@@ -583,8 +583,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedAssessmentAttachmentSet(
 			PublishedAssessmentData publishedAssessment,
 			Set assessmentAttachmentSet, String protocol) {
-		Set h = new HashSet<>();
-		Iterator o = assessmentAttachmentSet.iterator();
+		Set<PublishedAssessmentAttachment> h = new HashSet<>();
+		Iterator<AssessmentAttachment> o = assessmentAttachmentSet.iterator();
 		while (o.hasNext()) {
 			AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o
 					.next();
@@ -620,9 +620,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedAnswerSet(PublishedItemText publishedItemText,
 			Set answerSet) {
-		log.debug("**published answer size = " + answerSet.size());
-		Set h = new HashSet<>();
-		Iterator l = answerSet.iterator();
+		log.debug("**published answer size = {}", answerSet.size());
+		Set<PublishedAnswer> h = new HashSet<>();
+		Iterator<Answer> l = answerSet.iterator();
 		while (l.hasNext()) {
 			Answer answer = (Answer) l.next();
 			PublishedAnswer publishedAnswer = new PublishedAnswer(
@@ -641,8 +641,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedAnswerFeedbackSet(
 			PublishedAnswer publishedAnswer, Set answerFeedbackSet) {
-		Set h = new HashSet<>();
-		Iterator m = answerFeedbackSet.iterator();
+		Set<PublishedAnswerFeedback> h = new HashSet<>();
+		Iterator<AnswerFeedback> m = answerFeedbackSet.iterator();
 		while (m.hasNext()) {
 			AnswerFeedback answerFeedback = (AnswerFeedback) m.next();
 			PublishedAnswerFeedback publishedAnswerFeedback = new PublishedAnswerFeedback(
