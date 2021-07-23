@@ -187,6 +187,7 @@
 	#if (${sitePages.additionalLessonsPages})
 		<script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
 		<script>
+			sakai = window.sakai || {};
 			sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
 		</script>
 	#end
