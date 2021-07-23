@@ -27,20 +27,15 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
-import lombok.Getter;
-import lombok.Setter;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
-
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
+import org.hibernate.type.StringType;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -75,6 +70,10 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.comparator.NullSafeComparator;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
@@ -297,7 +296,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public Date getEventDateFromLatestJobRun() throws Exception {
 		Date r = getHibernateTemplate().execute(session -> {
             Criteria c = session.createCriteria(JobRunImpl.class);
-            c.add(Expression.isNotNull("lastEventDate"));
+            c.add(Restrictions.isNotNull("lastEventDate"));
             c.setMaxResults(1);
             c.addOrder(Order.desc("id"));
             List jobs = c.list();
@@ -680,9 +679,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						// New files
 						HibernateCallback<List<String>> hcb1 = session -> {
                             Query q = session.createQuery(hql);
-                            q.setString("siteid", siteId);
-                            q.setString("pageAction", "create");
-                            q.setString("pageRef", finalPageRef);
+                            q.setParameter("siteid", siteId, StringType.INSTANCE);
+                            q.setParameter("pageAction", "create", StringType.INSTANCE);
+                            q.setParameter("pageRef", finalPageRef, StringType.INSTANCE);
                             return q.list();
                         };
 
@@ -981,10 +980,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			EventStat eExisting = null;
 			try{
 				Criteria c = session.createCriteria(EventStatImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("eventId", eUpdate.getEventId()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
+				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
+				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (EventStat) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1037,11 +1036,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			try{
 				Criteria c = session.createCriteria(ResourceStatImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("resourceRef", eUpdate.getResourceRef()));
-				c.add(Expression.eq("resourceAction", eUpdate.getResourceAction()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
+				c.add(Restrictions.eq("resourceRef", eUpdate.getResourceRef()));
+				c.add(Restrictions.eq("resourceAction", eUpdate.getResourceAction()));
+				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (ResourceStat) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1086,11 +1085,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			try {
 				Criteria c = session.createCriteria(LessonBuilderStatImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("pageRef", eUpdate.getPageRef()));
-				c.add(Expression.eq("pageAction", eUpdate.getPageAction()));
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
+				c.add(Restrictions.eq("pageRef", eUpdate.getPageRef()));
+				c.add(Restrictions.eq("pageAction", eUpdate.getPageAction()));
+				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try {
 					eExisting = (LessonBuilderStat) c.uniqueResult();
 				} catch (HibernateException ex){
@@ -1135,9 +1134,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			try{
 				Criteria c = session.createCriteria(SiteActivityImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("eventId", eUpdate.getEventId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
+				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (SiteActivity) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1182,8 +1181,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingSiteId = null;
 			try{
 				Criteria c = session.createCriteria(SiteVisitsImpl.class);
-				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("siteId", eUpdate.getSiteId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (SiteVisits) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1229,8 +1228,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			ServerStat eExisting = null;
 			try{
 				Criteria c = session.createCriteria(ServerStatImpl.class);
-				c.add(Expression.eq("eventId", eUpdate.getEventId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("eventId", eUpdate.getEventId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (ServerStat) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1273,8 +1272,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String eExistingUserId = null;
 			try{
 				Criteria c = session.createCriteria(UserStatImpl.class);
-				c.add(Expression.eq("userId", eUpdate.getUserId()));
-				c.add(Expression.eq("date", eUpdate.getDate()));
+				c.add(Restrictions.eq("userId", eUpdate.getUserId()));
+				c.add(Restrictions.eq("date", eUpdate.getDate()));
 				try{
 					eExisting = (UserStat) c.uniqueResult();
 				}catch(HibernateException ex){
@@ -1419,9 +1418,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private SitePresence doGetSitePresence(Session session, String siteId, String userId, Date date) {
 		SitePresence eDb = null;
 		Criteria c = session.createCriteria(SitePresenceImpl.class);
-		c.add(Expression.eq("siteId", siteId));
-		c.add(Expression.eq("userId", userId));
-		c.add(Expression.eq("date", date));
+		c.add(Restrictions.eq("siteId", siteId));
+		c.add(Restrictions.eq("userId", userId));
+		c.add(Restrictions.eq("date", date));
 		
 		try{
 			eDb = (SitePresence) c.uniqueResult();
@@ -1450,8 +1449,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 		SitePresenceTotal eDb = null;
 		Criteria c = session.createCriteria(SitePresenceTotalImpl.class);
-		c.add(Expression.eq("siteId", siteId));
-		c.add(Expression.eq("userId", userId));
+		c.add(Restrictions.eq("siteId", siteId));
+		c.add(Restrictions.eq("userId", userId));
 
 		try {
 			eDb = (SitePresenceTotal) c.uniqueResult();

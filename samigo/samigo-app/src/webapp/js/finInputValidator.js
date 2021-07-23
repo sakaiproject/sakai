@@ -1,3 +1,71 @@
+//Setup qtips
+window.onload = function() {
+	$('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
+	    $(this).qtip({
+	        content: {
+	            text: $(this).next('div') // Use the "div" element after this for the content
+	        },
+	        position: {
+	          target: 'mouse', 
+	          adjust: {
+	            mouse: false
+	          }
+	       },
+	       style: {
+	         classes: 'qtip-tipped qtip-shadow qtipBodyContent',
+	       },
+	       show: 'click',
+	       hide: 'unfocus click'
+	      });
+	});
+};
+
+includeWebjarLibrary('mathjs');
+
+$( document ).ready(function() {
+
+  $('.fillInNumericInput').each( function() {
+    $(this).attr('data-toggle', 'popover'); 
+    $(this).attr('data-content', finFormatError);
+    $(this).attr('data-trigger', 'focus');
+  });
+
+  $('#takeAssessmentForm').submit(function() {
+    $('.fillInNumericInput').each(function() {
+      //If a part or an exam is submitted, validate all the FIN inputs and alert about the invalid ones to prevent a response loss.
+      validateFinInput(this);
+    });
+  });
+
+  $('.fillInNumericInput').popover({
+    trigger: 'focus'
+  });
+
+  $('.fillInNumericInput').change( function() {
+    if (validateFinInput(this)) {
+      $(this).popover('destroy');
+    }
+  });
+
+  $('.fillInNumericInput').keyup( throttle(function(){
+    // Do not validate on key up when the user is inserting a complex number or scientific notation or a real with sign.
+    if (this.value !== '' && 
+        (this.value.includes('+') ||
+        this.value.includes('-') ||
+        this.value.includes('{') ||
+        this.value.includes('}') ||
+        this.value.includes('e') ||
+        this.value.includes('E'))
+    ) {
+        return;
+    }
+    if (validateFinInput(this)) {
+      $(this).popover('destroy');
+    }
+  }));
+
+});
+
 var validateFinInput = function(input) {
   if (!input.value) {
     //Empty inputs are accepted.
@@ -39,15 +107,4 @@ var validateFinInput = function(input) {
   }
 
   return true;
-}
-
-function throttle(f, delay) {
-  var timer = null;
-  return function() {
-   var context = this, args = arguments;
-   clearTimeout(timer);
-   timer = window.setTimeout(function() {
-     f.apply(context, args);
-   }, delay || 200);
-  };
 }

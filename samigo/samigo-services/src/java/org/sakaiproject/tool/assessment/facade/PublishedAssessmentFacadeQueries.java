@@ -36,10 +36,9 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
+import org.hibernate.type.BooleanType;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -53,7 +52,46 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -67,8 +105,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -76,11 +112,13 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
@@ -277,8 +315,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedMetaDataSet(PublishedAssessmentData p,
 			Set metaDataSet) {
-		HashSet h = new HashSet();
-		Iterator i = metaDataSet.iterator();
+		Set<PublishedMetaData> h = new HashSet<>();
+		Iterator<AssessmentMetaData> i = metaDataSet.iterator();
 		while (i.hasNext()) {
 			AssessmentMetaData metaData = (AssessmentMetaData) i.next();
 			PublishedMetaData publishedMetaData = new PublishedMetaData(p,
@@ -289,8 +327,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	public Set preparePublishedSecuredIPSet(PublishedAssessmentData p, Set ipSet) {
-		HashSet h = new HashSet();
-		Iterator i = ipSet.iterator();
+		Set<PublishedSecuredIPAddress> h = new HashSet<>();
+		Iterator<SecuredIPAddress> i = ipSet.iterator();
 		while (i.hasNext()) {
 			SecuredIPAddress ip = (SecuredIPAddress) i.next();
 			PublishedSecuredIPAddress publishedIP = new PublishedSecuredIPAddress(
@@ -303,9 +341,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedSectionSet(
 			PublishedAssessmentData publishedAssessment, Set sectionSet,
 			String protocol) {
-		log.debug("**published section size = " + sectionSet.size());
-		HashSet h = new HashSet();
-		Iterator i = sectionSet.iterator();
+		log.debug("**published section size = {}", sectionSet.size());
+		Set<PublishedSectionData> h = new HashSet<>();
+		Iterator<SectionData> i = sectionSet.iterator();
 		while (i.hasNext()) {
 			SectionData section = (SectionData) i.next();
 
@@ -338,8 +376,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedSectionMetaDataSet(
 			PublishedSectionData publishedSection, Set metaDataSet) {
-		HashSet h = new HashSet();
-		Iterator n = metaDataSet.iterator();
+		Set<PublishedSectionMetaData> h = new HashSet<>();
+		Iterator<SectionMetaData> n = metaDataSet.iterator();
 		while (n.hasNext()) {
 			SectionMetaData sectionMetaData = (SectionMetaData) n.next();
 			PublishedSectionMetaData publishedSectionMetaData = new PublishedSectionMetaData(
@@ -352,9 +390,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemSet(PublishedSectionData publishedSection,
 			Set itemSet, String protocol) {
-		log.debug("**published item size = " + itemSet.size());
-		HashSet h = new HashSet();
-		Iterator j = itemSet.iterator();
+		log.debug("**published item size = {}", itemSet.size());
+		Set<PublishedItemData> h = new HashSet<>();
+		Iterator<ItemData> j = itemSet.iterator();
 		while (j.hasNext()) {
 			ItemData item = (ItemData) j.next();
 			PublishedItemData publishedItem = new PublishedItemData(
@@ -394,12 +432,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemTextSet(PublishedItemData publishedItem,
 			Set itemTextSet, String protocol) {
-		log.debug("**published item text size = " + itemTextSet.size());
-		HashSet h = new HashSet();
-		Iterator k = itemTextSet.iterator();
+		log.debug("**published item text size = {}", itemTextSet.size());
+		Set<PublishedItemText> h = new HashSet<>();
+		Iterator<ItemText> k = itemTextSet.iterator();
 		while (k.hasNext()) {
 			ItemText itemText = (ItemText) k.next();
-			log.debug("**item text id =" + itemText.getId());
+			log.debug("**item text id = {}", itemText.getId());
 			PublishedItemText publishedItemText = new PublishedItemText(
 					publishedItem, itemText.getSequence(), itemText.getText(),
 					null);
@@ -418,8 +456,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemMetaDataSet(PublishedItemData publishedItem,
 			Set itemMetaDataSet) {
-		HashSet h = new HashSet();
-		Iterator n = itemMetaDataSet.iterator();
+		Set<PublishedItemMetaData> h = new HashSet<>();
+		Iterator<ItemMetaData> n = itemMetaDataSet.iterator();
 		while (n.hasNext()) {
 			ItemMetaData itemMetaData = (ItemMetaData) n.next();
 			// The itemMetaData.getEntry() is actually the pending/core part id. 
@@ -439,8 +477,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedItemFeedbackSet(PublishedItemData publishedItem,
 			Set itemFeedbackSet) {
-		HashSet h = new HashSet();
-		Iterator o = itemFeedbackSet.iterator();
+		Set<PublishedItemFeedback> h = new HashSet<>();
+		Iterator<ItemFeedback> o = itemFeedbackSet.iterator();
 		while (o.hasNext()) {
 			ItemFeedback itemFeedback = (ItemFeedback) o.next();
 			PublishedItemFeedback publishedItemFeedback = new PublishedItemFeedback(
@@ -454,8 +492,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedItemAttachmentSet(
 			PublishedItemData publishedItem, Set itemAttachmentSet,
 			String protocol) {
-		HashSet h = new HashSet();
-		Iterator o = itemAttachmentSet.iterator();
+		Set<PublishedItemAttachment> h = new HashSet<>();
+		Iterator<ItemAttachment> o = itemAttachmentSet.iterator();
 		while (o.hasNext()) {
 			ItemAttachment itemAttachment = (ItemAttachment) o.next();
 			try {
@@ -487,8 +525,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
     public Set preparePublishedItemTagSet(PublishedItemData publishedItem,
                                           Set itemTagSet) {
-        HashSet h = new HashSet();
-        Iterator n = itemTagSet.iterator();
+        Set<PublishedItemTag> h = new HashSet<>();
+        Iterator<ItemTag> n = itemTagSet.iterator();
         while (n.hasNext()) {
             ItemTag itemTag = (ItemTag) n.next();
             PublishedItemTag publishedItemTag = new PublishedItemTag(publishedItem,
@@ -502,8 +540,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedItemTextAttachmentSet(
 			PublishedItemText publishedItemText, Set itemTextAttachmentSet,
 			String protocol) {
-		HashSet h = new HashSet();
-		Iterator o = itemTextAttachmentSet.iterator();
+		Set<PublishedItemTextAttachment> h = new HashSet<>();
+		Iterator<ItemTextAttachment> o = itemTextAttachmentSet.iterator();
 		while (o.hasNext()) {
 			ItemTextAttachment itemTextAttachment = (ItemTextAttachment) o.next();
 			try {
@@ -547,8 +585,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedSectionAttachmentSet(
 			PublishedSectionData publishedSection, Set sectionAttachmentSet,
 			String protocol) {
-		HashSet h = new HashSet();
-		Iterator o = sectionAttachmentSet.iterator();
+		Set<PublishedSectionAttachment> h = new HashSet<>();
+		Iterator<SectionAttachment> o = sectionAttachmentSet.iterator();
 		while (o.hasNext()) {
 			SectionAttachment sectionAttachment = (SectionAttachment) o.next();
 			try {
@@ -583,8 +621,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Set preparePublishedAssessmentAttachmentSet(
 			PublishedAssessmentData publishedAssessment,
 			Set assessmentAttachmentSet, String protocol) {
-		HashSet h = new HashSet();
-		Iterator o = assessmentAttachmentSet.iterator();
+		Set<PublishedAssessmentAttachment> h = new HashSet<>();
+		Iterator<AssessmentAttachment> o = assessmentAttachmentSet.iterator();
 		while (o.hasNext()) {
 			AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o
 					.next();
@@ -620,9 +658,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedAnswerSet(PublishedItemText publishedItemText,
 			Set answerSet) {
-		log.debug("**published answer size = " + answerSet.size());
-		HashSet h = new HashSet();
-		Iterator l = answerSet.iterator();
+		log.debug("**published answer size = {}", answerSet.size());
+		Set<PublishedAnswer> h = new HashSet<>();
+		Iterator<Answer> l = answerSet.iterator();
 		while (l.hasNext()) {
 			Answer answer = (Answer) l.next();
 			PublishedAnswer publishedAnswer = new PublishedAnswer(
@@ -641,8 +679,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public Set preparePublishedAnswerFeedbackSet(
 			PublishedAnswer publishedAnswer, Set answerFeedbackSet) {
-		HashSet h = new HashSet();
-		Iterator m = answerFeedbackSet.iterator();
+		Set<PublishedAnswerFeedback> h = new HashSet<>();
+		Iterator<AnswerFeedback> m = answerFeedbackSet.iterator();
 		while (m.hasNext()) {
 			AnswerFeedback answerFeedback = (AnswerFeedback) m.next();
 			PublishedAnswerFeedback publishedAnswerFeedback = new PublishedAnswerFeedback(
@@ -953,7 +991,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						"from AssessmentGradingData as a where a.agentId = :agent and a.forGrade= :forgrade and a.status > :status " +
 						"group by a.publishedAssessmentId")
 				.setParameter("agent", agentId)
-				.setBoolean("forgrade", true)
+				.setParameter("forgrade", true, BooleanType.INSTANCE)
 				.setParameter("status", AssessmentGradingData.REMOVED)
 				.list();
 		return getHibernateTemplate().execute(hcb);
@@ -974,7 +1012,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
 								+ " group by a.publishedAssessmentId");
                 q.setParameter("agentId", agentId);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("siteId", siteId);
                 q.setParameterList("groupIds", groupIds);
@@ -994,7 +1032,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 								+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
 								+ " group by a.publishedAssessmentId");
                 q.setParameter("agentId", agentId);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("siteId", siteId);
                 q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
@@ -1482,7 +1520,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 		final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
             Query q = session.createQuery(query);
-            q.setBoolean("forgrade", true);
+            q.setParameter("forgrade", true, BooleanType.INSTANCE);
             q.setParameter("agent", agentId);
             q.setParameter("status", AssessmentGradingData.REMOVED);
             return q.list();
@@ -1537,7 +1575,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
 		final HibernateCallback<List<Number>> hcb = session -> session
 				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id and a.status > :status")
-				.setBoolean("forgrade", true)
+				.setParameter("forgrade", true, BooleanType.INSTANCE)
 				.setParameter("id", publishedAssessmentId)
 				.setParameter("status", AssessmentGradingData.REMOVED)
 				.list();
@@ -1549,7 +1587,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public Integer getTotalSubmission(final String agentId, final Long publishedAssessmentId) {
 		final HibernateCallback<List<Number>> hcb = session -> session
 				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.agentId = :agent and a.publishedAssessmentId = :id and a.status > :status")
-				.setBoolean("forgrade", true)
+				.setParameter("forgrade", true, BooleanType.INSTANCE)
 				.setParameter("agent", agentId)
 				.setParameter("id", publishedAssessmentId)
 				.setParameter("status", AssessmentGradingData.REMOVED)
@@ -1938,7 +1976,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
                 Query q = session.createQuery(hql + order_last);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("agentId", agentId);
                 q.setParameter("siteId", siteId);
@@ -1954,7 +1992,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
                 Query q = session.createQuery(hql + order_highest);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("agentId", agentId);
                 q.setParameter("siteId", siteId);
@@ -1985,7 +2023,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			final HibernateCallback<List<AssessmentGradingData>> hcb_last = session -> {
                 Query q = session.createQuery(hql + order_last);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("agentId", agentId);
                 q.setParameter("siteId", siteId);
@@ -1998,7 +2036,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			final HibernateCallback<List<AssessmentGradingData>> hcb_highest = session -> {
                 Query q = session.createQuery(hql + order_highest);
-                q.setBoolean("forGrade", true);
+                q.setParameter("forGrade", true, BooleanType.INSTANCE);
                 q.setParameter("status", AssessmentGradingData.REMOVED);
                 q.setParameter("agentId", agentId);
                 q.setParameter("siteId", siteId);
@@ -2595,7 +2633,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							"and az.agentIdString=:siteId " +
 							"and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId")
 				.setParameter("agentId", agentId)
-				.setBoolean("forGrade", true)
+				.setParameter("forGrade", true, BooleanType.INSTANCE)
 				.setParameter("status", AssessmentGradingData.REMOVED)
 				.setParameter("siteId", siteId)
 				.setParameter("functionId", "OWN_PUBLISHED_ASSESSMENT")
