@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Resource;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.type.StringType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.messaging.api.BullhornData;
 import org.sakaiproject.messaging.api.bullhornhandlers.AbstractBullhornHandler;
@@ -58,25 +59,25 @@ public class RemoveAssignmentBullhornHandler extends AbstractBullhornHandler {
         String assignmentId = pathParts[pathParts.length - 1];
         try {
             users = sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref = :ref")
-                    .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
-                    .setString("ref", ref).list();
+                    .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
+                    .setParameter("ref", ref, StringType.INSTANCE).list();
             // every graded user has probably received the addition event too, but it might have been added after creation
             users.addAll(sessionFactory.getCurrentSession().createQuery("select toUser from BullhornAlert where event = :event and ref like :ref")
-                .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
-                .setString("ref", ref.replace("/a/","/s/")+"%").list());
+                .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
+                .setParameter("ref", ref.replace("/a/","/s/")+"%").list());
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
 
                     sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
-                        .setString("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT)
-                        .setString("ref", ref).executeUpdate();
+                        .setParameter("event", AssignmentConstants.EVENT_ADD_ASSIGNMENT, StringType.INSTANCE)
+                        .setParameter("ref", ref, StringType.INSTANCE).executeUpdate();
                     return null;
                 });
             transactionTemplate.execute(status -> {
 
                     sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref like :ref")
-                        .setString("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION)
-                        .setString("ref", ref.replace("/a/","/s/")+"%").executeUpdate();
+                        .setParameter("event", AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, StringType.INSTANCE)
+                        .setParameter("ref", ref.replace("/a/","/s/")+"%", StringType.INSTANCE).executeUpdate();
                     return null;
                 });
         } catch (Exception e1) {

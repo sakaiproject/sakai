@@ -27,6 +27,7 @@ import java.time.Instant;
 import javax.annotation.Resource;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.type.StringType;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_ADD_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
@@ -136,7 +137,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
 
             sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where EVENT in :events and REF = :ref and TO_USER in :toUsers")
                 .setParameterList("events", new String[] {EVENT_ADD_ASSIGNMENT, EVENT_UPDATE_ASSIGNMENT_ACCESS})
-                .setString("ref", ref)
+                .setParameter("ref", ref, StringType.INSTANCE)
                 .setParameterList("toUsers", users).executeUpdate();
             return null;
         });
@@ -177,7 +178,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
 
                 Long bhWithRef = (Long) sessionFactory.getCurrentSession()
                     .createQuery("select count(*) from BullhornAlert where ref = :ref and event = :event")
-                    .setString("ref", ref).setString("event", EVENT_UPDATE_ASSIGNMENT_ACCESS).uniqueResult();
+                    .setParameter("ref", ref, StringType.INSTANCE).setParameter("event", EVENT_UPDATE_ASSIGNMENT_ACCESS, StringType.INSTANCE).uniqueResult();
                 return bhWithRef > 0;
             });
     }
