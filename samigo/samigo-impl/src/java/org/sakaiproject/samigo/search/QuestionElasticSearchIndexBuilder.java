@@ -423,7 +423,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             //in that way we can delete all the items in a site w/o affect the
             //questionpools.
 
-                HashMap<String,Object> allFields = icp.getAllFields(resourceName);
+                Map<String,Object> allFields = icp.getAllFields(resourceName);
 
                 if (allFields.get("isFromQuestionPool").equals("false")){
                     contentSourceBuilder.field("site", allFields.get("site"));
@@ -444,7 +444,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             }else if (ecp.getSubType(resourceName).equals("publisheditem")){
                 PublishedItemContentProducer picp = (PublishedItemContentProducer)ecp;
 
-                HashMap<String,Object> allFieldsPub = picp.getAllFields(resourceName);
+                Map<String,Object> allFieldsPub = picp.getAllFields(resourceName);
 
                 return contentSourceBuilder.field("questionId", allFieldsPub.get("questionId"))
                         .field("site", allFieldsPub.get("site"))
