@@ -83,10 +83,10 @@
 
     .commons-post-outer-container {
         border-bottom: 1px solid var(--sakai-border-color);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
         .commons-post-inner-container{
-            margin: 5px;
+            padding: 5px;
             overflow: auto;
         }
             .commons-post-body {
@@ -259,7 +259,4 @@
 }
 #commons-editor-priority-help {
     text-decoration: none;
-}
-.commons-high-priority {
-    color: red;
 }

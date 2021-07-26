@@ -502,6 +502,7 @@ commons.utils = {
                 showCommentsLink.hide();
             }
             if(post.priority === true){
+                document.getElementById('commons-post-inner-container-' + post.id).classList.add('alert-info');
                 document.getElementById('commons-high-priority-' + post.id).removeAttribute('style');
             }
             post.comments.forEach(function (c) { self.addHandlersToComment(c); });
