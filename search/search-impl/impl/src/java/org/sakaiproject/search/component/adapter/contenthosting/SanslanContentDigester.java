@@ -25,90 +25,90 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.Sanselan;
-import org.apache.sanselan.common.IImageMetadata;
-import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
-import org.apache.sanselan.formats.tiff.TiffField;
-import org.apache.sanselan.formats.tiff.TiffImageMetadata;
-import org.apache.sanselan.formats.tiff.constants.TagInfo;
-import org.apache.sanselan.formats.tiff.constants.TiffConstants;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffField;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
+import org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants;
+import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class SanslanContentDigester extends BaseContentDigester {
 
-	public String getContent(ContentResource contentResource) {
-		log.debug("digesting: " + contentResource.getId());
-		
-		InputStream contentStream = null;
-		IImageMetadata metadata = null;
+    public String getContent(ContentResource contentResource) {
+        log.debug("digesting: {}", contentResource.getId());
+        
+        InputStream contentStream = null;
+        ImageMetadata metadata = null;
 
-		try {
-			contentStream = contentResource.streamContent();
-			ResourceProperties resourceProperties = contentResource.getProperties();
-			String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
-			try {
-				metadata = Sanselan.getMetadata(contentStream, fileName);
-				StringBuffer sb = new StringBuffer();
-				if (metadata instanceof JpegImageMetadata) {
-					JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
-					sb.append(getFieldValue(jpegMetadata, TiffConstants.EXIF_TAG_MAKE));
-					sb.append(getFieldValue(jpegMetadata, TiffConstants.EXIF_TAG_MODEL));
-					sb.append(getFieldValue(jpegMetadata, TiffConstants.EXIF_TAG_ARTIST));
-					sb.append(getFieldValue(jpegMetadata, TiffConstants.EXIF_TAG_USER_COMMENT));
-					//get the GPS info 
-					//TODO this should go in its own field in the index
-					TiffImageMetadata exifMetadata = jpegMetadata.getExif();
-					if (exifMetadata != null) {
-						try {
-							TiffImageMetadata.GPSInfo gpsInfo = exifMetadata.getGPS();
-							if (null != gpsInfo) {
-								double longitude = gpsInfo.getLongitudeAsDegreesEast();
-								double latitude = gpsInfo.getLatitudeAsDegreesNorth();
-								sb.append("GPS Description: " + gpsInfo + "\n");
-								sb.append("GPS Longitude: " + longitude + "\n");
-								sb.append("GPS Latitude: " + latitude + "\n");
-							}
-						} catch (ImageReadException e) {
-							log.error(e.getMessage(), e);
-						}
+        try {
+            contentStream = contentResource.streamContent();
+            ResourceProperties resourceProperties = contentResource.getProperties();
+            String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
+            try {
+                metadata = Imaging.getMetadata(contentStream, fileName);
+                StringBuffer sb = new StringBuffer();
+                if (metadata instanceof JpegImageMetadata) {
+                    JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+                    sb.append(getFieldValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE));
+                    sb.append(getFieldValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MODEL));
+                    sb.append(getFieldValue(jpegMetadata, TiffTagConstants.TIFF_TAG_ARTIST));
+                    sb.append(getFieldValue(jpegMetadata, ExifTagConstants.EXIF_TAG_USER_COMMENT));
+                    //get the GPS info 
+                    //TODO this should go in its own field in the index
+                    TiffImageMetadata exifMetadata = jpegMetadata.getExif();
+                    if (exifMetadata != null) {
+                        try {
+                            TiffImageMetadata.GPSInfo gpsInfo = exifMetadata.getGPS();
+                            if (null != gpsInfo) {
+                                double longitude = gpsInfo.getLongitudeAsDegreesEast();
+                                double latitude = gpsInfo.getLatitudeAsDegreesNorth();
+                                sb.append("GPS Description: " + gpsInfo + "\n");
+                                sb.append("GPS Longitude: " + longitude + "\n");
+                                sb.append("GPS Latitude: " + latitude + "\n");
+                            }
+                        } catch (ImageReadException e) {
+                            log.error(e.getMessage(), e);
+                        }
 
-					}	
-				}
-				log.debug("got metadata: " + sb.toString());
-				return sb.toString();
-			} catch (ImageReadException e) {
-				log.error(e.getMessage(), e);
-			} catch (IOException e) {
-				log.error(e.getMessage(), e);
-			}
-		} catch (ServerOverloadException e) {
-			log.error(e.getMessage(), e);
-		}
-		
-		
-		return null;
-	}
+                    }    
+                }
+                log.debug("got metadata: {}", sb.toString());
+                return sb.toString();
+            } catch (ImageReadException e) {
+                log.error(e.getMessage(), e);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (ServerOverloadException e) {
+            log.error(e.getMessage(), e);
+        }
+        
+        
+        return null;
+    }
 
-	private String getFieldValue(JpegImageMetadata metadata,
-			TagInfo tagInfo) {
-			TiffField field = metadata.findEXIFValue(tagInfo);
+    private String getFieldValue(JpegImageMetadata metadata,
+            TagInfo tagInfo) {
+            TiffField field = metadata.findEXIFValue(tagInfo);
             if (field == null) {
                return "";
             } else {
                 return(tagInfo.name + ": " +
                     field.getValueDescription() + "\n");
             }
+    }
 
-	}
-
-	public Reader getContentReader(ContentResource contentResource) {
-		
-		return new StringReader(this.getContent(contentResource));
-	}
+    public Reader getContentReader(ContentResource contentResource) {
+        return new StringReader(this.getContent(contentResource));
+    }
 
 }
