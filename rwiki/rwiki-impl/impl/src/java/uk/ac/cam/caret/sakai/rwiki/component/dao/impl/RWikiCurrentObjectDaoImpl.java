@@ -58,6 +58,8 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 
 	protected RWikiHistoryObjectDao historyDAO = null;
 
+	private Pattern idPattern = Pattern.compile("(?<and>(!)?(\\S+)\\s+and\\s+(!)?(\\S+))*((?<!^)\\k<and>*and\\s+(!)?(\\S+))*(!)?(\\S+)*\\s*",Pattern.CASE_INSENSITIVE);
+
 	public boolean exists(final String name) {
 		long start = System.currentTimeMillis();
 		try {
@@ -113,7 +115,6 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		final List criteriaList = new ArrayList();
 
 
-		Pattern idPattern = Pattern.compile("(?<and>(!)?(\\S+)\\s+and\\s+(!)?(\\S+))*((?<!^)\\k<and>*and\\s+(!)?(\\S+))*(!)?(\\S+)*\\s*",Pattern.CASE_INSENSITIVE);
 		Matcher matcher = idPattern.matcher(criteria);
 
 		criteriaList.add(realm);
