@@ -164,6 +164,8 @@ commons.utils = {
                         commons.utils.addPermissionsToComment(savedComment);
                         commons.utils.renderTemplate('comment', savedComment, 'commons-comment-' + savedComment.id);
                         commons.utils.addHandlersToComment(savedComment);
+                        commons.utils.addLikeCount(document.getElementById('commons-likes-count-' + commentId));   //re-render likesNumber after edit
+                        commons.utils.getUserLikes();   //re-render Like styling for the page
                     });
             });
         });
