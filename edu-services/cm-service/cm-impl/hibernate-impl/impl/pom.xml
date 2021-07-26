@@ -27,7 +27,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-component-manager</artifactId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.course-management</groupId>
