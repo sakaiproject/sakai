@@ -123,6 +123,12 @@
 			<version>2.24.0</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Used by the Calendar full calendar UI -->
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>moment-timezone</artifactId>
+			<version>0.5.33</version>
+		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
