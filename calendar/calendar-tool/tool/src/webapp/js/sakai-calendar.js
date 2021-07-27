@@ -1,4 +1,5 @@
   const userLanguage = window.top.portal.locale || navigator.language;
+  const userTimeZone = window.top.portal.user.timezone || 'local';
   // Get the event color from the skin variables.
   const computedStyle = getComputedStyle(document.querySelector(':root'));
   const eventBackgroundColor = computedStyle.getPropertyValue('--infoBanner-bgcolor', '#e9f5fc');
@@ -17,6 +18,7 @@
   // Initialize fullcalendar and render it in the calendarDiv.
   const calendar = new FullCalendar.Calendar(calendarDiv, {
     initialView: 'timeGridWeek',
+    timeZone: userTimeZone,
     displayEventTime: false,
     headerToolbar: {
       left: 'prev,next today',
@@ -45,10 +47,8 @@
           const events = [];
           responseData.calendar_collection.forEach(event => {
             // Every Sakai Calendar event has to be mapped with a full calendar event.
-            const startTime = event.firstTime.time;
-            const startDate = new Date(startTime);
-            const endTime = event.firstTime.time + event.duration;
-            const endDate = new Date(endTime);
+            const startDate = moment(new Date(event.firstTime.time)).tz(userTimeZone).format();
+            const endDate = moment(new Date(event.firstTime.time + event.duration)).tz(userTimeZone).format();
             // The calendar event url needs to be a link to view or edit the event.
             const eventReference = event.eventReference;
             const eventLink = new URL(window.location);
