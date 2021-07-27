@@ -23,6 +23,8 @@ package org.sakaiproject.calendar.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -2180,7 +2182,7 @@ extends VelocityPortletStateAction
 	private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS = "calendarSubscriptions";
 	private final static String SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS = "addCalendarSubscriptions";
 
-	private final static String STATE_NEW = "new";	
+	private final static String STATE_NEW = "new";
 	private static final String EVENT_REFERENCE_PARAMETER = "eventReference";
 	
 	private static final String EVENT_CONTEXT_VAR = "event";
@@ -2360,7 +2362,7 @@ extends VelocityPortletStateAction
 				// build the context for the basic step of adding file
 				buildDescriptionContext(portlet, context, runData, state);				
 				break;
-			case "new":
+			case STATE_NEW:
 				// build the context to display the property list
 				buildNewContext(portlet, context, runData, state);
 				break;
@@ -2648,7 +2650,7 @@ extends VelocityPortletStateAction
 					customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
 					context.put("tlang",rb);
 					context.put("calEventFlag","true");
-					context.put("new", "false");
+					context.put(STATE_NEW, "false");
 					// if from the metadata view of announcement, the message is already the system resource
 					if ( state.getState().equals("goToReviseCalendar") )
 					{
@@ -2689,7 +2691,7 @@ extends VelocityPortletStateAction
 		else
 		{
 			// if this a new annoucement, get the subject and body from temparory record
-			context.put("new", "true");
+			context.put(STATE_NEW, "true");
 			context.put("tlang",rb);
 			context.put("attachments", attachments);
 			context.put("fromAttachmentFlag",state.getfromAttachmentFlag());
@@ -2788,7 +2790,7 @@ extends VelocityPortletStateAction
 		context.put("getEventsFlag", Boolean.valueOf(getEventsFlag));
 		
 		if(state.getIsNewCalendar()==true)
-			context.put("vmtype","new");
+			context.put("vmtype",STATE_NEW);
 		else
 			context.put("vmtype","revise");
 		
@@ -4669,7 +4671,7 @@ extends VelocityPortletStateAction
 		state.clearData();
 		state.setAttachments(null);
 		state.setPrevState(state.getState());
-		state.setState("new");
+		state.setState(STATE_NEW);
 		state.setCalendarEventId("", "");
 		state.setIsNewCalendar(true);
 		state.setIsPastAlertOff(true);
@@ -4715,8 +4717,7 @@ extends VelocityPortletStateAction
 	 * Action doAdd is requested when the user click on the add in the new view to add an event into a calendar.
 	 */
 	
-	public void doAdd(RunData runData, Context context)
-	{
+	public void doAdd(RunData runData, Context context) {
 		CalendarUtil m_calObj = new CalendarUtil();// null;
 		Calendar calendarObj = null;
 		int houri;
@@ -4766,51 +4767,43 @@ extends VelocityPortletStateAction
 		location = runData.getParameters().getString("location");
 		
 		String calId = state.getPrimaryCalendarReference();
-		try
-		{
+		try {
 			calendarObj = CalendarService.getCalendar(calId);
-		}
-		catch(IdUnusedException e)
-		{
+		} catch(IdUnusedException e) {
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno"));
 			log.debug(".doAdd(): " + e);
 			return;
-		}
-		catch (PermissionException e)
-		{
+		} catch (PermissionException e) {
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont")); 
 			log.debug(".doAdd(): " + e);
 			return;
 		}
-		
+
 		// for section awareness - read user selection
 		readEventGroupForm(runData, context);
-		
+
 		Map addfieldsMap = new HashMap();
-		
+
 		// Add any additional fields in the calendar.
 		customizeCalendarPage.loadAdditionalFieldsMapFromRunData(runData, addfieldsMap, calendarObj);
 		
-		if (timeType.equals("pm"))
-		{
+		if (timeType.equals("pm")) {
 			if (Integer.parseInt(hour)>11)
 				houri = Integer.parseInt(hour);
 			else
 				houri = Integer.parseInt(hour)+12;
 		}
-		else if (timeType.equals("am") && Integer.parseInt(hour)==12)
-		{
+		else if (timeType.equals("am") && Integer.parseInt(hour)==12) {
 			// set 12 AM as the beginning of one day
 			houri = 0;
 		}
-		else
-		{
+		else {
 			houri = Integer.parseInt(hour);
 		}
-		
+
 		Time now_time = TimeService.newTime();
 		Time event_startTime = TimeService.newTimeLocal(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day), houri, Integer.parseInt(minute), 0,	 0);
-		
+
 		// conditions for an new event:
 		// 1st, frequency not touched, no save state rule or state freq (0, 0)
 		// --> non-recurring, no alert needed (0)
@@ -4823,50 +4816,42 @@ extends VelocityPortletStateAction
 		boolean earlierEnding = false;
 		
 		String freq = "";
-		if ((( freq = (String) sstate.getAttribute(FREQUENCY_SELECT))!= null)
-		&& (!(freq.equals(FREQ_ONCE))))
-		{
+		if ((( freq = (String) sstate.getAttribute(FREQUENCY_SELECT))!= null) && (!(freq.equals(FREQ_ONCE)))) {
 			RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
-			if (rule != null)
-			{
+			if (rule != null) {
 				Time startingTime = TimeService.newTimeLocal(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day),houri,Integer.parseInt(minute),00,000);
-				
 				Time endingTime = rule.getUntil();
 				if ((endingTime != null) && endingTime.before(startingTime))
 					earlierEnding = true;
 			} // if (rule != null)
 		} // if state saved freq is not null, and it not equals "once"
-		
+
 		String intentionStr = ""; // there is no recurrence modification intention for new event
-		
+
 		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 		Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
 		
-		if(title.length()==0)
-		{
+		if(title.length() == 0) {
 			String errorCode = rb.getString("java.pleasetitle");
 			addAlert(sstate, errorCode);
-			
+
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
+			state.setState(STATE_NEW);
 		}
-		else if(hour.equals("100") || minute.equals("100"))
-		{
+		else if(hour.equals("100") || minute.equals("100")) {
 			String errorCode = rb.getString("java.pleasetime");
 			addAlert(sstate, errorCode);
-			
+
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
-		}
-		else if( earlierEnding ) // if ending date is earlier than the starting date, show alert
-		{
+			state.setState(STATE_NEW);
+		} else if( earlierEnding ) {
+			// if ending date is earlier than the starting date, show alert
 			addAlert(sstate, rb.getString("java.theend") );
-			
+
 			state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
+			state.setState(STATE_NEW);
 		}
-		else if( event_startTime.before(now_time) && state.getIsPastAlertOff() )
-		{
+		else if( event_startTime.before(now_time) && state.getIsPastAlertOff() ) {
 			// IsPastAlertOff
 			// true: no alert shown -> then show the alert, set false;
 			// false: Alert shown, if user click ADD - doAdd again -> accept it, set true, set alert empty;
@@ -4875,50 +4860,40 @@ extends VelocityPortletStateAction
 			addAlert(sstate, errorCode);
 			
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
+			state.setState(STATE_NEW);
 			state.setIsPastAlertOff(false);
-		}
-		else if (!DateFormatterUtil.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year)))
-		{
+		} else if (!DateFormatterUtil.checkDate(Integer.parseInt(day), Integer.parseInt(month), Integer.parseInt(year))) {
 			addAlert(sstate, rb.getString("date.invalid"));
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
-		}
-		else if (scheduleTo.equals("groups") && ((groupChoice == null) || (groupChoice.size() == 0)))
-		{
+			state.setState(STATE_NEW);
+		} else if (scheduleTo.equals("groups") && ((groupChoice == null) || (groupChoice.size() == 0))) {
 			state.setNewData(state.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
-			state.setState("new");
+			state.setState(STATE_NEW);
 			addAlert(sstate, rb.getString("java.alert.youchoosegroup"));
-		}
-		else
-		{
-			try
-			{
+		} else {
+			try {
 				calendarObj = CalendarService.getCalendar(calId);
-				
+
 				Time timeObj = TimeService.newTimeLocal(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day),houri,Integer.parseInt(minute),00,000);
-				
+
 				long du = (((Integer.parseInt(dhour) * 60)*60)*1000) + ((Integer.parseInt(dminute)*60)*(1000));
 				Time endTime = TimeService.newTime(timeObj.getTime() + du);
 				boolean includeEndTime = false;
-				if (du==0)
-				{
+				if (du==0) {
 					includeEndTime = true;
 				}
 				TimeRange range = TimeService.newTimeRange(timeObj, endTime, true, includeEndTime);
 				List attachments = state.getAttachments();
-				
+
 				// prepare to create the event
 				Collection groups = new Vector();
 				CalendarEvent.EventAccess access = CalendarEvent.EventAccess.GROUPED;
 				if (scheduleTo.equals("site")) access = CalendarEvent.EventAccess.SITE;
 
-				if (access == CalendarEvent.EventAccess.GROUPED)
-				{
+				if (access == CalendarEvent.EventAccess.GROUPED) {
 					// make a collection of Group objects from the collection of group ref strings
 					Site site = SiteService.getSite(calendarObj.getContext());
-					for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
-					{
+					for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();) {
 						String groupRef = (String) iGroups.next();
 						groups.add(site.getGroup(groupRef));
 					}
@@ -4926,10 +4901,9 @@ extends VelocityPortletStateAction
 
 				// create the event = must create it with grouping / access to start with
 				CalendarEvent event = calendarObj.addEvent(range, title, "", type, location, access, groups, attachments);
-				
+
 				// edit it further
-				CalendarEventEdit edit = calendarObj.getEditEvent(event.getId(),
-																				  org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
+				CalendarEventEdit edit = calendarObj.getEditEvent(event.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 				edit.setDescriptionFormatted(description);
 				edit.setCreator();
 				String timeZone = TimeService.getLocalTimeZone().getID();
@@ -4938,7 +4912,7 @@ extends VelocityPortletStateAction
 				// it is necessary to generate re-occurring events correctly
 				edit.setField("createdInTimeZone",timeZone);
 				setFields(edit, addfieldsMap);
-				
+
 				RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
 				// for a brand new event, there is no saved recurring rule
 				if (rule != null)
@@ -4949,41 +4923,30 @@ extends VelocityPortletStateAction
 				// save it
 				calendarObj.commitEvent(edit);
 				state.setEdit(null);
-				
 				state.setIsNewCalendar(false);
-				
 				m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
-				
 				sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
 				sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
 				sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
-				
+
 				// clear the saved recurring rule and the selected frequency
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
 				sstate.setAttribute(FREQUENCY_SELECT, null);
-				
+
 				// set the return state to be the state before new/revise
 				String returnState = state.getReturnState();
 				state.setState(returnState != null ? returnState : CALENDAR_INIT_PARAMETER);
-				
+
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);
 				sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-			}
-			catch (IdUnusedException  e)
-			{
+			} catch (IdUnusedException e) {
 				addAlert(sstate, rb.getString("java.alert.noexist"));
 				log.debug(".doAdd(): " + e);
-			}
-			
-			catch (PermissionException	 e)
-			{
+			} catch (PermissionException e) {
 				addAlert(sstate, rb.getString("java.alert.youcreate"));
 				log.debug(".doAdd(): " + e);
-			}
-			
-			catch (InUseException e)
-			{
+			} catch (InUseException e) {
 				addAlert(sstate, rb.getString("java.alert.noexist"));
 				log.debug(".doAdd(): " + e);
 			}
@@ -5558,7 +5521,7 @@ extends VelocityPortletStateAction
 		ParameterParser params = data.getParameters();
 		String source = params.getString("source");
 		switch (source) {
-			case "new":
+			case STATE_NEW:
 				// create new event
 				doNew(data, context);
 				break;
@@ -6615,7 +6578,7 @@ extends VelocityPortletStateAction
 		{
 			String eventId = state.getCalendarEventId();
 			if ((eventId == null) || (eventId.equals("")))
-				returnState = "new";
+				returnState = STATE_NEW;
 			else
 				returnState = "revise";
 		}
@@ -6921,7 +6884,7 @@ extends VelocityPortletStateAction
 	 * Build the context for showing the calendar view
 	 */
 	protected void buildViewCalendarContext(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state) {
-		
+
 		boolean allowed = false;
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
@@ -6930,7 +6893,7 @@ extends VelocityPortletStateAction
 			context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotallowsee"));
 		} else {
 			try {
-				allowed = CalendarService.getCalendar(state.getPrimaryCalendarReference()).allowAddEvent();				
+				allowed = CalendarService.getCalendar(state.getPrimaryCalendarReference()).allowAddEvent();
 			} catch(IdUnusedException e) {
 				context.put(ALERT_MSG_KEY, rb.getString("java.alert.therenoactv"));
 			}
@@ -6938,6 +6901,19 @@ extends VelocityPortletStateAction
 				context.put(ALERT_MSG_KEY, rb.getString("java.alert.younotperm"));
 			}
 		}
+
+		ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
+		int stateYear = currentZonedDateTime.get(ChronoField.YEAR);
+		int stateMonth = currentZonedDateTime.get(ChronoField.MONTH_OF_YEAR);
+		int stateDay = currentZonedDateTime.get(ChronoField.DAY_OF_MONTH);
+		if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null)) {
+			stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
+			stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
+			stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
+		}
+		// Full calendar accepts as current date in the format YYYY-MM-DD
+		// See https://fullcalendar.io/docs/date-parsing
+		context.put("currentDate", String.format("%d-%s-%s", stateYear, stateMonth < 10 ? "0"+stateMonth : String.valueOf(stateMonth), stateDay < 10 ? "0"+stateDay : String.valueOf(stateDay)));
 
 		context.put("tlang",rb);
 		state.setState(CALENDAR_INIT_PARAMETER);

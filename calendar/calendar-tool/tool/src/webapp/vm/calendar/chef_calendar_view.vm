@@ -23,3 +23,8 @@
 <script src="/library/webjars/fullcalendar/5.8.0/locales-all.min.js"></script>
 <script src="/library/webjars/moment-timezone/0.5.33/builds/moment-timezone-with-data.min.js"></script>
 <script src="/sakai-calendar-tool/js/sakai-calendar.js"></script>
+
+<script>
+  const currentDate = '$currentDate';
+  calendar.gotoDate(currentDate);
+</script>
