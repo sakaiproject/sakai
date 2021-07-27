@@ -144,6 +144,8 @@ extends VelocityPortletStateAction
 	private static final String IMPORT_WIZARD_SELECT_TYPE_STATE = SELECT_TYPE_IMPORT_WIZARD_STATE;
 	private static final String STATE_SCHEDULE_IMPORT = "scheduleImport";
 	private static final String CALENDAR_INIT_PARAMETER = "calendar";
+	private static final String VIEW_LIST = "list";
+	
 	private static final int HOURS_PER_DAY = 24;
 	static int tempHours = ServerConfigurationService.getInt("calendar.hoursPerPage", 10);
 	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 16 ? 16 : (tempHours < 8 ? 8 : tempHours);
@@ -2375,7 +2377,7 @@ extends VelocityPortletStateAction
 				// build the context to display the property list
 				buildDeleteContext(portlet, context, runData, state);
 				break;
-			case "list":
+			case VIEW_LIST:
 				// build the context to display the list view
 				buildListContext(portlet, context, runData, state);
 				break;
@@ -2389,10 +2391,10 @@ extends VelocityPortletStateAction
 			case CALENDAR_INIT_PARAMETER:
 			default:
 				buildViewCalendarContext(portlet, context, runData, state);
-				break;		
+				break;
 		}
 
-		if (StringUtils.equalsAny(stateName, "description", "list", CALENDAR_INIT_PARAMETER)) {
+		if (StringUtils.equalsAny(stateName, "description", VIEW_LIST, CALENDAR_INIT_PARAMETER)) {
 		    // SAK-23566 capture the view calendar events
 		    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
 		    String calendarRef = state.getPrimaryCalendarReference();
@@ -5362,7 +5364,7 @@ extends VelocityPortletStateAction
 						}
 						else
 						{
-							state.setState("week");
+							state.setState(CALENDAR_INIT_PARAMETER);
 						}
 						
 						// clean state
@@ -5413,85 +5415,11 @@ extends VelocityPortletStateAction
 		
 		calendarSubscriptionsPage.doAddSubscription( runData, context, state, getSessionState(runData));
 	}
-	
-	
-	/**
-	 * Action doNpagew is requested when the user click on the next arrow to move to the next page in the week view.
-	 */
-	
-	public void doNpagew(RunData runData, Context context)
-	{
-		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
-		if(state.getCurrentPage().equals("third"))
-			state.setCurrentPage("first");
-		else if(state.getCurrentPage().equals("second"))
-			state.setCurrentPage("third");
-		else if(state.getCurrentPage().equals("first"))
-			state.setCurrentPage("second");
-		state.setState("week");
-	}
-	
-	
-	
-	/**
-	 * Action doPpagew is requested when the user click on the previous arrow to move to the previous page in week view.
-	 */
-	
-	public void doPpagew(RunData runData, Context context)
-	{
-		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
-		if(state.getCurrentPage().equals("first"))
-			state.setCurrentPage("third");
-		else if (state.getCurrentPage().equals("third"))
-			state.setCurrentPage("second");
-		else if (state.getCurrentPage().equals("second"))
-			state.setCurrentPage("first");
-		state.setState("week");
-	}
-	
-	
-	/**
-	 * Action doDpagen is requested when the user click on the next arrow to move to the next page in day view.
-	 */
-	
-	public void doDpagen(RunData runData, Context context)
-	{
-		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
-		if(state.getCurrentPage().equals("third"))
-			state.setCurrentPage("first");
-		else if(state.getCurrentPage().equals("second"))
-			state.setCurrentPage("third");
-		else if(state.getCurrentPage().equals("first"))
-			state.setCurrentPage("second");
-		state.setState("day");
-	}
-	
-	
-	
-	/**
-	 * Action doDpagep is requested when the user click on the upper arrow to move to the previous page in day view.
-	 */
-	
-	public void doDpagep(RunData runData, Context context)
-	{
-		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
-		
-		if(state.getCurrentPage().equals("first"))
-			state.setCurrentPage("third");
-		else if (state.getCurrentPage().equals("third"))
-			state.setCurrentPage("second");
-		else if (state.getCurrentPage().equals("second"))
-			state.setCurrentPage("first");
-		state.setState("day");
-	}	 // doDpagep
-	
+
 	/**
 	 * Action doPrev_activity is requested when the user navigates to the previous message in the detailed view.
 	 */
-	
+
 	public void doPrev_activity(RunData runData, Context context)
 	{
 		String peid = ((JetspeedRunData)runData).getJs_peid();
@@ -5499,7 +5427,7 @@ extends VelocityPortletStateAction
 		
 		sstate.setAttribute(STATE_NAV_DIRECTION, STATE_PREV_ACT);
 	} //doPrev_activity
-	
+
 	/**
 	 * Action doNext_activity is requested when the user navigates to the previous message in the detailed view.
 	 */
@@ -5510,7 +5438,7 @@ extends VelocityPortletStateAction
 		
 		sstate.setAttribute(STATE_NAV_DIRECTION, STATE_NEXT_ACT);
 	} // doNext_activity
-	
+
 	/*
 	 * detailNavigatorControl will handle the goNext/goPrev buttons in detailed view,
 	 * as well as figure out the prev/next message if available
@@ -5686,84 +5614,44 @@ extends VelocityPortletStateAction
 		CalendarUtil calObj = new CalendarUtil();
 		calObj.setDay(stateYear, stateMonth, stateDay);
 
-		String prevState = state.getState().toString();
-		if (prevState.equals("day"))
-		{
-			sY = Integer.valueOf(calObj.getYear()).toString();
-			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			sD = Integer.valueOf(calObj.getDayOfMonth()).toString();
-			eY = Integer.valueOf(calObj.getYear()).toString();
-			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
+		int dayofweek = calObj.getDay_Of_Week(true);
+		calObj.setPrevDate(dayofweek-1);
+		sY = Integer.valueOf(calObj.getYear()).toString();
+		sM = Integer.valueOf(calObj.getMonthInteger()).toString();
+		sD = Integer.valueOf(calObj.getDayOfMonth()).toString();
+
+		for(int i = 0; i < 6; i++) {
+			calObj.getNextDate();
 		}
-		else if (prevState.equals("week"))
-		{
-			int dayofweek = calObj.getDay_Of_Week(true);
-			calObj.setPrevDate(dayofweek-1);
-			sY = Integer.valueOf(calObj.getYear()).toString();
-			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			sD = Integer.valueOf(calObj.getDayOfMonth()).toString();
-			
-			for(int i = 0; i<6; i++)
-			{
-				calObj.getNextDate();
-			}
-			eY = Integer.valueOf(calObj.getYear()).toString();
-			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
-		}
-		else if (prevState.equals("month"))
-		{
-			sY = Integer.valueOf(calObj.getYear()).toString();
-			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			sD = String.valueOf("1");
-			calObj.setDay(stateYear, stateMonth, 1);
-		
-			GregorianCalendar cal = new GregorianCalendar(calObj.getYear(), calObj.getMonthInteger()-1, 1);
-			int daysInMonth = cal.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
-			for (int i=1; i<daysInMonth; i++)
-				calObj.getNextDate();
-			eY = Integer.valueOf(calObj.getYear()).toString();
-			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
-			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
-		}
-		else
-		{
-			// for other conditions: show the current year
-			sY = Integer.valueOf(stateYear).toString();
-			sM = "1";
-			sD = "1";
-			eY = Integer.valueOf(stateYear).toString();
-			eM = "12";
-			eD = "31";
-		}
-		
+		eY = Integer.valueOf(calObj.getYear()).toString();
+		eM = Integer.valueOf(calObj.getMonthInteger()).toString();
+		eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
+
 		if (sM.length() == 1) sM = "0"+sM;
 		if (eM.length() == 1) eM = "0"+eM;
 		if (sD.length() == 1) sD = "0"+sD;
 		if (eD.length() == 1) eD = "0"+eD;
 		sY = sY.substring(2);
 		eY = eY.substring(2);
-		
+
 		String startingDateStr = sM + "/" + sD + "/" + sY;
 		String endingDateStr	  = eM + "/" + eD + "/" + eY;
 		state.getCalendarFilter().setListViewFilterMode(CalendarFilter.SHOW_CUSTOM_RANGE);
-		
+
 		sstate.removeAttribute(STATE_SCHEDULE_TO);
 		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-		
+
 		// Pass in a buffer for a possible error message.
 		StringBuilder errorMessage = new StringBuilder();
-		
+
 		// Try to simultaneously set the start/end dates.
 		// If that doesn't work, add an error message.
-		if ( !state.getCalendarFilter().setStartAndEndListViewDates(startingDateStr, endingDateStr, errorMessage) )
-		{
+		if ( !state.getCalendarFilter().setStartAndEndListViewDates(startingDateStr, endingDateStr, errorMessage) ) {
 			addAlert(sstate, errorMessage.toString());
 		}
-		
-		state.setState("list");
-		this.defaultStateView = "list";
+
+		state.setState(VIEW_LIST);
+		this.defaultStateView = VIEW_LIST;
 	}	 // doList
 	
 	/**
@@ -6183,7 +6071,7 @@ extends VelocityPortletStateAction
 		sstate.setAttribute(STATE_MONTH, Integer.valueOf(stateMonth));
 		sstate.setAttribute(STATE_DAY, Integer.valueOf(stateDay));
 		
-		state.setState("list");
+		state.setState(VIEW_LIST);
 		context.put("date",dateObj1);
 		
 		// output CalendarService and SiteService
@@ -6221,7 +6109,7 @@ extends VelocityPortletStateAction
 	{
 		String stateName = state.getState();
 		
-		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, "list")) {
+		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, VIEW_LIST)) {
 			int printType = CalendarService.UNKNOWN_VIEW;
 			String timeRangeString = "";
 			
@@ -6304,7 +6192,7 @@ extends VelocityPortletStateAction
 			calObj.setDay(stateYear, stateMonth, stateDay);
 			
 			switch (stateName) {
-				case "list":
+				case VIEW_LIST:
 					printType = CalendarService.LIST_VIEW;
 					timeRangeString = TimeService.newTimeRange(state.getCalendarFilter().getListViewStartingTime(), state.getCalendarFilter().getListViewEndingTime()).toString();
 					break;
@@ -6358,7 +6246,7 @@ extends VelocityPortletStateAction
 		Menu bar = new MenuImpl(portlet, runData, "CalendarAction");
 		String status = state.getState();
 		boolean viewing = false;
-		if (StringUtils.equalsAny(status, CALENDAR_INIT_PARAMETER, "list")) {
+		if (StringUtils.equalsAny(status, CALENDAR_INIT_PARAMETER, VIEW_LIST)) {
 			viewing = true;
 			allow_revise = false;
 			allow_delete = false;
@@ -6502,7 +6390,7 @@ extends VelocityPortletStateAction
 		String view = state.getState();
 
 		// Basic data validation
-		if (StringUtils.equalsAny(view, "day", "week", "month", "year", "list"))
+		if (StringUtils.equalsAny(view, CALENDAR_INIT_PARAMETER, VIEW_LIST))
 		{
 			Placement placement = ToolManager.getCurrentPlacement();
 			placement.getPlacementConfig().setProperty( PORTLET_CONFIG_DEFAULT_VIEW, view );
@@ -6522,7 +6410,7 @@ extends VelocityPortletStateAction
 		cstate.setPrevState(cstate.getState());
 		cstate.setState(MODE_PERMISSIONS);
 
-		state.setAttribute(STATE_TOOL_KEY, "calendar");
+		state.setAttribute(STATE_TOOL_KEY, CALENDAR_INIT_PARAMETER);
 	}
 
 	/**
