@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,12 +57,12 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class ChatContentProducer implements EntityContentProducer {
 
-   private SearchService searchService = null;
-   private SearchIndexBuilder searchIndexBuilder = null;
-   private EntityManager entityManager = null;
-   private ChatManager chatManager = null;
-   private List addEvents = new ArrayList();
-   private List removeEvents = new ArrayList();
+   @Setter @Getter private SearchService searchService = null;
+   @Setter @Getter private SearchIndexBuilder searchIndexBuilder = null;
+   @Setter @Getter  private EntityManager entityManager = null;
+   @Setter @Getter private ChatManager chatManager = null;
+   @Setter @Getter private List<String> addEvents = new ArrayList<>();
+   @Setter @Getter private List<String> removeEvents = new ArrayList<>();
    
    private ResourceLoader toolBundle;
    
@@ -77,16 +78,15 @@ protected void init() throws Exception {
       if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
             "search.enable", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
       {
-         for (Iterator i = addEvents.iterator(); i.hasNext();)
+         for (Iterator<String> i = addEvents.iterator(); i.hasNext();)
          {
             getSearchService().registerFunction((String) i.next());
          }
-         for (Iterator i = removeEvents.iterator(); i.hasNext();)
+         for (Iterator<String> i = removeEvents.iterator(); i.hasNext();)
          {
             getSearchService().registerFunction((String) i.next());
          }
          getSearchIndexBuilder().registerEntityContentProducer(this);
-                
          
       }
       
@@ -114,7 +114,7 @@ protected void init() throws Exception {
    private EntityProducer getProducer(Reference ref) {
       try {
           return ref.getEntityProducer();
-      } catch ( Exception ex ) {       
+      } catch ( Exception ex ) {
       }
       return null;
    }
@@ -127,9 +127,7 @@ protected void init() throws Exception {
    }
    
    
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean canRead(String reference)
    {
       Reference ref = getReference(reference);
@@ -149,14 +147,12 @@ protected void init() throws Exception {
       return false;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public Integer getAction(Event event)
    {
       String evt = event.getEvent();
       if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-      for (Iterator i = addEvents.iterator(); i.hasNext();)
+      for (Iterator<String> i = addEvents.iterator(); i.hasNext();)
       {
          String match = (String) i.next();
          if (evt.equals(match))
@@ -164,7 +160,7 @@ protected void init() throws Exception {
             return SearchBuilderItem.ACTION_ADD;
          }
       }
-      for (Iterator i = removeEvents.iterator(); i.hasNext();)
+      for (Iterator<String> i = removeEvents.iterator(); i.hasNext();)
       {
          String match = (String) i.next();
          if (evt.equals(match))
@@ -175,43 +171,7 @@ protected void init() throws Exception {
       return SearchBuilderItem.ACTION_UNKNOWN;
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public List getAllContent()
-   {
-      List all = new ArrayList();
-      List l = getChatManager().getContextChannels(null, false);
-      for (Iterator i = l.iterator(); i.hasNext();)
-      {
-
-         try
-         {
-            ChatChannel c = (ChatChannel) i.next();
-
-            Set messages = c.getMessages();
-            // WARNING: I think the implementation caches on thread, if this
-            // is
-            // a builder
-            // thread this may not work
-            for (Iterator mi = messages.iterator(); mi.hasNext();)
-            {
-               ChatMessage m = (ChatMessage) mi.next();
-               all.add(m.getReference());
-            }
-         }
-         catch (Exception ex)
-         {
-            log.error("Got error on channel ", ex); //$NON-NLS-1$
-
-         }
-      }
-      return all;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getContainer(String reference)
    {
       try {
@@ -241,9 +201,7 @@ protected void init() throws Exception {
       }
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getContent(String reference)
    {
       Reference ref = getReference(reference);
@@ -292,33 +250,25 @@ protected void init() throws Exception {
       } 
 
       
-      throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
+      throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$getAllContent
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public Reader getContentReader(String reference) {
       return new StringReader(getContent(reference));
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public Map getCustomProperties(String ref) {
+   @Override
+   public Map<String, ?> getCustomProperties(String ref) {
       return null;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getCustomRDF(String ref) {
       return null;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getId(String reference)
    {
       try {
@@ -328,44 +278,10 @@ protected void init() throws Exception {
       }
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public List getSiteContent(String context)
+   @Override
+   public Iterator<String> getSiteContentIterator(final String context)
    {
-      List all = new ArrayList();
-      List l = getChatManager().getContextChannels(context, false);
-      for (Iterator i = l.iterator(); i.hasNext();)
-      {
-         ChatChannel c = (ChatChannel) i.next();
-         try
-         {
-            Set messages = c.getMessages();
-            // WARNING: I think the implementation caches on thread, if this
-            // is
-            // a builder
-            // thread this may not work
-            for (Iterator mi = messages.iterator(); mi.hasNext();)
-            {
-               ChatMessage m = (ChatMessage) mi.next();
-               all.add(m.getReference());
-            }
-         }
-         catch (Exception ex)
-         {
-            log.warn("Failed to get channel {}", c.getId()); //$NON-NLS-1$
-            log.error(ex.getMessage(), ex);
-         }
-      }
-      return all;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Iterator getSiteContentIterator(final String context)
-   {
-      List l = getChatManager().getContextChannels(context, false);
+      List<ChatChannel>  l = getChatManager().getContextChannels(context, false);
       final Iterator ci = l.iterator();
       return new Iterator()
       {
@@ -398,7 +314,7 @@ protected void init() throws Exception {
                ChatChannel c = (ChatChannel) ci.next();
                try
                {
-                  Set messages = c.getMessages();
+                  Set<ChatMessage> messages = c.getMessages();
                   mi = messages.iterator();
                   if (mi.hasNext())
                   {
@@ -434,16 +350,12 @@ protected void init() throws Exception {
       return ref.getContext();
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getSiteId(String reference) {
       return getSiteId(entityManager.newReference(reference));
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getSubType(String reference)
    {
       try {
@@ -453,9 +365,7 @@ protected void init() throws Exception {
       }
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getTitle(String reference)
    {
       Reference ref = getReference(reference);
@@ -485,16 +395,12 @@ protected void init() throws Exception {
 
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getTool() {
       return ChatManager.CHAT;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getType(String ref) {
       try {
          return getReference(ref).getType();
@@ -503,24 +409,18 @@ protected void init() throws Exception {
       }
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public String getUrl(String reference) {
       Reference ref = getReference(reference);
       return ref.getUrl();
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean isContentFromReader(String reference) {
       return false;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean isForIndex(String reference)
    {
 
@@ -569,70 +469,10 @@ protected void init() throws Exception {
       return false;
    }
 
-   /**
-    * {@inheritDoc}
-    */
+   @Override
    public boolean matches(Event event)
    {
       return matches(event.getResource());
-   }
-
-
-   public SearchService getSearchService() {
-      return searchService;
-   }
-
-
-   public void setSearchService(SearchService searchService) {
-      this.searchService = searchService;
-   }
-
-
-   public EntityManager getEntityManager() {
-      return entityManager;
-   }
-
-
-   public void setEntityManager(EntityManager entityManager) {
-      this.entityManager = entityManager;
-   }
-
-
-   public ChatManager getChatManager() {
-      return chatManager;
-   }
-
-   public void setChatManager(ChatManager chatManager) {
-      this.chatManager = chatManager;
-   }
-
-   public List getAddEvents() {
-      return addEvents;
-   }
-
-
-   public void setAddEvents(List addEvents) {
-      this.addEvents = addEvents;
-   }
-
-
-   public List getRemoveEvents() {
-      return removeEvents;
-   }
-
-
-   public void setRemoveEvents(List removeEvents) {
-      this.removeEvents = removeEvents;
-   }
-
-
-   public SearchIndexBuilder getSearchIndexBuilder() {
-      return searchIndexBuilder;
-   }
-
-
-   public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
-      this.searchIndexBuilder = searchIndexBuilder;
    }
 
 }
