@@ -310,7 +310,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>viewerjs</artifactId>
-			<version>0.5.8</version>
+			<version>0.5.9</version>
 		</dependency>
 		<!--Used in the BasicLTI and Site Manage-->
 		<dependency>
