@@ -79,7 +79,7 @@
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.10.10</joda.time.version>
-    <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
+    <sakai.weld.shaded.version>4.0.2.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
