@@ -64,7 +64,7 @@
     <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.3</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.2.11.RELEASE</sakai.spring.security.version>
+    <sakai.spring.security.version>5.5.1</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.27</sakai.tika.version>
