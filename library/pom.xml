@@ -288,7 +288,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>mathjs</artifactId>
-			<version>6.5.0</version>
+			<version>9.4.4</version>
 		</dependency>
 		<!--Used in feedback tool-->
 		<dependency>
