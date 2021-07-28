@@ -71,7 +71,7 @@
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}qtip2/3.0.3-1/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}fontawesome/4.7.0/css/font-awesome.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
