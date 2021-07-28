@@ -218,7 +218,7 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>cropper</artifactId>
-			<version>4.0.0</version>
+			<version>4.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups) -->
