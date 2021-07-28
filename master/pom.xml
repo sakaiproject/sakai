@@ -934,7 +934,7 @@
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
-        <version>3.4.0.Final</version>
+        <version>3.4.2.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
