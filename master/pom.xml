@@ -103,7 +103,7 @@
     <random-source></random-source>
 
     <!-- These should only be updated when the webjars version is updated -->
-    <ckeditor.autosave.version>0.18.4</ckeditor.autosave.version>
+    <ckeditor.autosave.version>0.18.6</ckeditor.autosave.version>
     <ckeditor.wordcount.version>1.17.9</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
