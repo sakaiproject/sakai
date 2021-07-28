@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>wavesurfer.js</artifactId>
-			<version>3.3.1</version>
+			<version>5.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
