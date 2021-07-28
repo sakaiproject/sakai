@@ -33,7 +33,7 @@ public class EditorRegistryImpl implements EditorRegistry {
 	private HashMap<String, Editor> editors = new HashMap<String, Editor>();
 	
 	public void init() {
-		String ckEditorVersion = "4.14.0";
+		String ckEditorVersion = "4.16.1";
 		//TODO: pull this out to somewhere appropriate
 		register("textarea", "textarea", "/library/editor/textarea/textarea.js", "/library/editor/textarea.launch.js", "");
 		register("fckeditor", "FCKeditor", "/library/editor/FCKeditor/fckeditor.js", "/library/editor/fckeditor.launch.js", "");
