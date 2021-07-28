@@ -323,7 +323,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>flatpickr</artifactId>
-			<version>4.6.3</version>
+			<version>4.6.9</version>
 		</dependency>
 	</dependencies>
 	<profiles>
