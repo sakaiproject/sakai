@@ -239,7 +239,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>datatables</artifactId>
-			<version>1.10.20</version>
+			<version>1.10.25</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
