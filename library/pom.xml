@@ -47,9 +47,9 @@
 		</dependency>
 		<!--Used in cloud storage, Google Drive integration, file navigation UI -->
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>jstree</artifactId>
-			<version>3.3.8</version>
+			<version>3.3.11</version>
 		</dependency>
 		
 		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
