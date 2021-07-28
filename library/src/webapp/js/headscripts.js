@@ -750,7 +750,7 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Cscript src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
 	} else if (library == 'datatables') {
-		libraryVersion = "1.10.20";
+		libraryVersion = "1.10.25";
 		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'datatables-rowgroup') {
 		libraryVersion = "1.1.1";
