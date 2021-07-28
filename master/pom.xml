@@ -940,7 +940,7 @@
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-annotations</artifactId>
-        <version>2.2.0.Final</version>
+        <version>2.2.1.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
