@@ -763,7 +763,7 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Cscript src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else if (library == 'mathjs') {
-		libraryVersion = "6.5.0";
+		libraryVersion = "9.4.4";
 		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'handlebars') {
 		libraryVersion = "4.0.6";
