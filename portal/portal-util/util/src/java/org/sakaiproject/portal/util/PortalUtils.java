@@ -40,7 +40,7 @@ public class PortalUtils
 	/**
 	 * External libraries versions
 	 */
-	public static final String MOMENTJS_VERSION = "2.24.0";//TODO SAK-43259 : This string should be updated when the version of the library is modified
+	public static final String MOMENTJS_VERSION = "2.29.1";//TODO SAK-43259 : This string should be updated when the version of the library is modified
 
 	private static CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
 
