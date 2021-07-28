@@ -263,7 +263,7 @@
 		<dependency>
 			<groupId>org.webjars.bowergithub.noelboss</groupId>
 			<artifactId>featherlight</artifactId>
-			<version>1.7.13</version>
+			<version>1.7.14</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Gradebook, Forums, autocomplete with previous inputs -->
