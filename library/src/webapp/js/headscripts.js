@@ -753,7 +753,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.10.25";
 		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'datatables-rowgroup') {
-		libraryVersion = "1.1.1";
+		libraryVersion = "1.1.3";
 		document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
 		libraryVersion = "4.16.1";
