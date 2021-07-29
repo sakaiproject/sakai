@@ -70,7 +70,6 @@
     </render-kit>
     <!-- =================== Validators ============== -->
     <validator>
-        <description>Required Validator that trims first</description>
         <validator-id>MessageTitle</validator-id>
         <validator-class>
             org.sakaiproject.tool.messageforums.jsf.MessageTitleValidator
@@ -157,7 +156,7 @@
         </navigation-case>
         <navigation-case>
             <from-outcome>removeAttachConfirm</from-outcome>
-            <to-view-id>/jsp/removeAttachConfirm.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/removeAttachConfirm.jsp</to-view-id>
             <redirect/>
         </navigation-case>
         <navigation-case>
@@ -229,11 +228,6 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>dfConfirmForumDelete</from-outcome>
-            <to-view-id>/jsp/discussionForum/forum/dfConfirmForumDelete.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
             <from-outcome>dfForumDetail</from-outcome>
             <to-view-id>/jsp/discussionForum/forum/dfForumDetail.jsp</to-view-id>
             <redirect/>
@@ -301,11 +295,6 @@
             <redirect/>
         </navigation-case> 
         <navigation-case>
-            <from-outcome>dfThreadedView</from-outcome>
-            <to-view-id>/jsp/discussionForum/message/dfThreadedView.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
             <from-outcome>dfMessageReply</from-outcome>
             <to-view-id>/jsp/dfMessageReply.jsp</to-view-id>
             <redirect/>
@@ -365,11 +354,6 @@
 
         <!--******************* navigation cases for synoptic ***************************-->
         <navigation-case>
-            <from-outcome>synOptions</from-outcome>
-            <to-view-id>/jsp/synoptic/synOptions.jsp</to-view-id>
-            <redirect />
-        </navigation-case>
-        <navigation-case>
             <from-outcome>synMain</from-outcome>
             <to-view-id>/jsp/synoptic/synMain.jsp</to-view-id>
         </navigation-case>
@@ -379,7 +363,7 @@
         </navigation-case>
         <navigation-case>
             <from-outcome>synPvtMsg</from-outcome>
-            <to-view-id>/../privateMsg/pvtMsg.jsp</to-view-id>
+            <to-view-id>/jsp/privateMsg/pvtMsg.jsp</to-view-id>
         </navigation-case>
 
         <!--******************* navigation cases for Private Messages via synoptic ***************************-->

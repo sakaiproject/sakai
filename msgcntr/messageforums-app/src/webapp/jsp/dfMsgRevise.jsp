@@ -119,13 +119,13 @@
 
 			<p style="padding:0" class="act">
 				<h:commandButton 
-					rendered="#{empty ForumTool.attachments}"
+					rendered="#{empty ForumTool.attachments && empty facesContext.maximumSeverity}"
 						action="#{ForumTool.processAddAttachmentRedirect}" 
 						value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
 						accesskey="a" 
 						style="font-size:95%"/>
 				<h:commandButton
-					rendered="#{!empty ForumTool.attachments}"
+					rendered="#{not empty ForumTool.attachments && empty facesContext.maximumSeverity}"
 						action="#{ForumTool.processAddAttachmentRedirect}"
 						value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}"
 						accesskey="a"
@@ -149,11 +149,11 @@
           </table>
         </sakai:panel_titled>
 --%>		        
-			<p style="padding:0" class="act">
-        <h:commandButton action="#{ForumTool.processDfMsgRevisedPost}" value="#{msgs.cdfm_button_bar_post_revised_msg}" accesskey="s" styleClass="active blockMeOnClick" />
+      <p style="padding:0" class="act">
+        <h:commandButton action="#{ForumTool.processDfMsgRevisedPost}" value="#{msgs.cdfm_button_bar_post_revised_msg}" rendered="#{empty facesContext.maximumSeverity}" accesskey="s" styleClass="active blockMeOnClick" />
         <h:commandButton action="#{ForumTool.processDfMsgRevisedCancel}" value="#{msgs.cdfm_button_bar_cancel}"  accesskey="x" />
         <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
-        	</p>	
+      </p>
     </h:form>
      
     </sakai:view_content>
