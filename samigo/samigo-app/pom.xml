@@ -257,6 +257,11 @@
             <artifactId>weld-servlet-shaded</artifactId>
             <version>${sakai.weld.shaded.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>${sakai.jakarta.jstl-api.version}</version>
+        </dependency>
     </dependencies>
     
 	<build>

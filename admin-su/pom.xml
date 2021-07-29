@@ -36,11 +36,6 @@
       <artifactId>jsf2-widgets-sun-depend</artifactId>
       <type>pom</type>
     </dependency>
-    <!-- updated so that the jstl library is packed into the tool for now -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
@@ -58,6 +53,11 @@
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet-shaded</artifactId>
       <version>${sakai.weld.shaded.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${sakai.jakarta.jstl-api.version}</version>
     </dependency>
   </dependencies>
   <build>
