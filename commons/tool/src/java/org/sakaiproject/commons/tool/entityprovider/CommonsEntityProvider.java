@@ -572,7 +572,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             }
             List<String> headers = new ArrayList<String>();
             headers.add(rl.getString("priority_email_subject") + siteService.getSite(siteId).getTitle());
-            headers.add("From: " + userDirectoryService.getCurrentUser().getDisplayName() + " (" + userDirectoryService.getCurrentUser().getEmail() + ')');
+            headers.add("From: " + "\"" + userDirectoryService.getCurrentUser().getDisplayName() + "\" <" + userDirectoryService.getCurrentUser().getEmail() + ">");
             headers.add("Reply-To: " + userDirectoryService.getCurrentUser().getEmail());
             StringBuilder messageText = new StringBuilder();    //make message body
             messageText.append(rl.getString("priority_email_forwarded"));
