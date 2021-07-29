@@ -47,7 +47,7 @@
 		</dependency>
 		<!--Used in cloud storage, Google Drive integration, file navigation UI -->
 		<dependency>
-			<groupId>org.webjars.npm</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>jstree</artifactId>
 			<version>3.3.11</version>
 		</dependency>
