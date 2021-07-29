@@ -114,11 +114,11 @@
 			      						val:"$value_TsDay$H$value_TsMonth$H$value_TsYear $value_TsHour:$value_TsMin",
 			      						parseFormat: 'DD-MM-YYYY HH:mm',
 			      						ashidden:{
-			      							day:"newTsRecordDay",
-			      							month:"newTsRecordMonth",
-			      							year:"newTsRecordYear",
-			      							hour:"newTsRecordHour",
-			      							minute:"newTsRecordMinute"
+			      							day:"new_ts_record_day",
+			      							month:"new_ts_record_month",
+			      							year:"new_ts_record_year",
+			      							hour:"new_ts_record_hour",
+			      							minute:"new_ts_record_minute"
 			      						}
 			      					});
 								</script>

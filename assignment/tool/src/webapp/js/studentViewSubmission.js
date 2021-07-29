@@ -44,11 +44,11 @@ ASN_TS_API.addTimeSheet = function(button, onSuccess, onError)
 	var tsassignmentId = document.getElementById("assignmentId").value;
 	var tsDate = document.getElementById("regDate").value;
 	
-	var newTsRecordDay = document.getElementById("newTsRecordDay").value;
-	var newTsRecordMonth = document.getElementById("newTsRecordMonth").value;
-	var newTsRecordYear = document.getElementById("newTsRecordYear").value;
-	var newTsRecordHour = document.getElementById("newTsRecordHour").value;
-	var newTsRecordMinute = document.getElementById("newTsRecordMinute").value;
+	var new_ts_record_day = document.getElementById("new_ts_record_day").value;
+	var new_ts_record_month = document.getElementById("new_ts_record_month").value;
+	var new_ts_record_year = document.getElementById("new_ts_record_year").value;
+	var new_ts_record_hour = document.getElementById("new_ts_record_hour").value;
+	var new_ts_record_minute = document.getElementById("new_ts_record_minute").value;
 	
 	var tsComment = document.getElementById("regComment").value;
 	var tsTime = document.getElementById("regTime").value;
@@ -56,11 +56,11 @@ ASN_TS_API.addTimeSheet = function(button, onSuccess, onError)
 	params.assignmentId = tsassignmentId;
 	params.regDate = tsDate;
 	
-	params.newTsRecordDay = newTsRecordDay;
-	params.newTsRecordMonth = newTsRecordMonth;
-	params.newTsRecordYear = newTsRecordYear;
-	params.newTsRecordHour = newTsRecordHour;
-	params.newTsRecordMinute = newTsRecordMinute;
+	params.new_ts_record_day = new_ts_record_day;
+	params.new_ts_record_month = new_ts_record_month;
+	params.new_ts_record_year = new_ts_record_year;
+	params.new_ts_record_hour = new_ts_record_hour;
+	params.new_ts_record_minute = new_ts_record_minute;
 	
 	params.regComment = tsComment;
 	params.regTime = tsTime;
