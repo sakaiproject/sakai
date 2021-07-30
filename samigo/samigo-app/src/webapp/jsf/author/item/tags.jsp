@@ -1,5 +1,5 @@
 <script>includeWebjarLibrary('select2');</script>
-<script src="/library/webjars/select2/4.0.12/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
+<script src="/library/webjars/select2/4.0.13/js/i18n/<h:outputText value='#{itemauthor.language}' rendered='#{not empty itemauthor.language}' /><h:outputText value='en' rendered='#{empty itemauthor.language}' />.js"></script>
 <f:subview id="delete" rendered="#{itemauthor.deleteTagsAllowed == true}">
     <script>
 
