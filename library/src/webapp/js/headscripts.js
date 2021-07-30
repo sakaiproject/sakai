@@ -779,7 +779,7 @@ function includeWebjarLibrary(library) {
 			break;
 		case 'mathjs':
 			libraryVersion = "9.4.4";
-			jsReferences.push('/dist/math.min.js');
+			jsReferences.push('/lib/browser/math.js');
 			break;
 		case 'handlebars':
 			libraryVersion = "4.0.6";
