@@ -261,7 +261,7 @@
 			<version>2.27.7</version>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars.bowergithub.noelboss</groupId>
+			<groupId>org.webjars.npm</groupId>
 			<artifactId>featherlight</artifactId>
 			<version>1.7.14</version>
 			<scope>runtime</scope>
