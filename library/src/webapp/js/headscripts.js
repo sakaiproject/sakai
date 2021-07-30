@@ -710,17 +710,12 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library) {
-	let webjars = "/library/webjars/";
-	let ver = "";
-	let libraryVersion = "";
-	if ( typeof window.portal !== 'undefined' ) {
-		if (window.portal.pageScriptPath) psp = window.portal.pageScriptPath;
-		if (window.portal.pageWebjarsPath) webjars = window.portal.pageWebjarsPath;
-		if (window.portal.portalCDNQuery) ver = window.portal.portalCDNQuery;
-	}
+	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
+	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
+	let libraryVersion = '';
+	const jsReferences = [];
+	const cssReferences = [];
 
-    const jsReferences = [];
-    const cssReferences = [];
 	switch(library) {
 		case 'bootstrap':
 			libraryVersion = "3.3.7";
