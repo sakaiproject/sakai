@@ -829,8 +829,8 @@ function includeWebjarLibrary(library) {
 	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion}`);
 
 	// Add all the library references to the DOM.
-	jsReferences.forEach(jsReference => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
-	cssReferences.forEach(cssReference => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
+	jsReferences.forEach( (jsReference) => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
+	cssReferences.forEach( (cssReference) => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
 
 }
 
