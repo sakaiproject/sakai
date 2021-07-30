@@ -726,7 +726,7 @@ function includeWebjarLibrary(library) {
 			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap/' + libraryVersion + '/css/bootstrap.min.css' + ver + '"/>');
 			break;
 		case 'bootstrap-multiselect':
-			libraryVersion = "1.1.0";
+			libraryVersion = "0.9.15";
 			document.write('\x3Cscript src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
 			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
 			break;

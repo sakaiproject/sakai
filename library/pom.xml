@@ -250,9 +250,9 @@
 		</dependency>
 		<!--Used in Tests&Quizzes, Assignments, Site Info, Resources, Announcements, Sites, selector of multiple items (groups, tools) -->
   		<dependency>
-			<groupId>org.webjars.bower</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap-multiselect</artifactId>
-			<version>1.0.0</version>
+			<version>0.9.15</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
