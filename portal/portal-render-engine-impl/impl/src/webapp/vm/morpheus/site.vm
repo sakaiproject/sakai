@@ -145,8 +145,8 @@
         </script>
         <script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/5.2.0/dist/iife/PNotify.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/5.2.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotify.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
         <script>includeWebjarLibrary("qtip2");</script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
