@@ -571,15 +571,16 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
                 }
             }
             List<String> headers = new ArrayList<String>();
-            headers.add(rl.getString("priority_email_subject") + siteService.getSite(siteId).getTitle());
+            headers.add("Subject: " + rl.getFormattedMessage("priority_email_subject", siteService.getSite(siteId).getTitle()));
             headers.add("From: " + "\"" + userDirectoryService.getCurrentUser().getDisplayName() + "\" <" + userDirectoryService.getCurrentUser().getEmail() + ">");
             headers.add("Reply-To: " + userDirectoryService.getCurrentUser().getEmail());
+            headers.add("Content-Type: text/html");
             StringBuilder messageText = new StringBuilder();    //make message body
-            messageText.append(rl.getString("priority_email_forwarded"));
-            messageText.append("<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> ");
-            messageText.append(rl.getString("priority_email_sitebreak"));
-            messageText.append(postContent);
-            messageText.append(rl.getString("priority_email_view") + "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a>");
+            messageText.append(rl.getFormattedMessage("priority_email_added", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
+            messageText.append("<br><br>" + postContent);
+            messageText.append("<br><br><hr><em>");
+            messageText.append(rl.getFormattedMessage("priority_email_forwarded", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
+            messageText.append("</em>");
             emailService.sendToUsers(siteUsers, headers, messageText.toString());
         } catch (IdUnusedException e){
             log.error("Cannot send email; no site with ID " + siteId);
