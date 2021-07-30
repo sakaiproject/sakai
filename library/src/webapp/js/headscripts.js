@@ -710,13 +710,13 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library) {
-	var webjars = "/library/webjars/";
-	var ver = "";
-	var libraryVersion = "";
-	if ( typeof portal !== 'undefined' ) {
-		if (portal.pageScriptPath) psp = portal.pageScriptPath;
-		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
-		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
+	let webjars = "/library/webjars/";
+	let ver = "";
+	let libraryVersion = "";
+	if ( typeof window.portal !== 'undefined' ) {
+		if (window.portal.pageScriptPath) psp = window.portal.pageScriptPath;
+		if (window.portal.pageWebjarsPath) webjars = window.portal.pageWebjarsPath;
+		if (window.portal.portalCDNQuery) ver = window.portal.portalCDNQuery;
 	}
 
     const jsReferences = [];
@@ -810,8 +810,8 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/dist/plugins/confirmDate/confirmDate.js');
 			cssReferences.push('/dist/flatpickr.min.css');
 			cssReferences.push('/dist/plugins/confirmDate/confirmDate.css');
-			if (portal) {
-				let lang = portal.locale.split("-")[0];
+			if (window.portal) {
+				let lang = window.portal.locale.split("-")[0];
 				if (lang !== "en") {
 					jsReferences.push(`/dist/l10n/${lang}.js'`);
 				}
