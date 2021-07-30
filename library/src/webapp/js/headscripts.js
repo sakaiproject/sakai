@@ -719,97 +719,102 @@ function includeWebjarLibrary(library) {
 		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
 	}
 
+    const jsReferences = [];
+    const cssReferences = [];
 	switch(library) {
 		case 'bootstrap':
 			libraryVersion = "3.3.7";
-			document.write('\x3Cscript src="' + webjars + 'bootstrap/' + libraryVersion + '/js/bootstrap.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap/' + libraryVersion + '/css/bootstrap.min.css' + ver + '"/>');
+			jsReferences.push('/js/bootstrap.min.js');
+			cssReferences.push('/css/bootstrap.min.css');
 			break;
 		case 'bootstrap-multiselect':
 			libraryVersion = "0.9.15";
-			document.write('\x3Cscript src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
+			jsReferences.push('/js/bootstrap-multiselect.js');
+			cssReferences.push('/css/bootstrap-multiselect.css');
 			break;
 		case 'jquery.tablesorter':
 			libraryVersion = "2.27.7";
-			document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
+			jsReferences.push('/dist/js/jquery.tablesorter.combined.min.js');
+			jsReferences.push('/dist/js/extras/jquery.tablesorter.pager.min.js');
+			jsReferences.push('/dist/js/extras/jquery.metadata.min.js');
+			cssReferences.push('/dist/css/theme.jui.min.css');
+			cssReferences.push('/dist/css/jquery.tablesorter.pager.min.css');
 			break;
 		case 'featherlight':
 			libraryVersion = "1.7.14";
-			document.write('\x3Cscript src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
+			jsReferences.push('/release/featherlight.min.js');
+			cssReferences.push('/release/featherlight.min.css');
 			break;
 		case 'momentjs':
 			libraryVersion = "2.29.1";
-			document.write('\x3Cscript src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/min/moment-with-locales.min.js');
 			break;
 		case 'dropzone':
 			libraryVersion = "5.9.2";
-			document.write('\x3Cscript src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
+			jsReferences.push('/dist/min/dropzone.min.js');
+			cssReferences.push('/dist/min/dropzone.min.css');
 			break;
 		case 'select2':
 			libraryVersion = "4.0.13";
-			document.write('\x3Cscript src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
+			jsReferences.push('/js/select2.full.min.js');
+			cssReferences.push('/css/select2.min.css');
 			break;
 		case 'datatables':
 			libraryVersion = "1.10.25";
-			document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/js/jquery.dataTables.min.js');
 			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
-			document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
+			// This webjar has a different convention without version and library name.
+			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
 		case 'ckeditor':
 			libraryVersion = "4.16.1";
-			document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/full/ckeditor.js');
 			break;
 		case 'awesomplete':
 			libraryVersion = "1.1.5";
-			document.write('\x3Cscript src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
+			jsReferences.push('/awesomplete.min.js');
+			cssReferences.push('/awesomplete.css');
 			break;
 		case 'mathjs':
 			libraryVersion = "9.4.4";
-			document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/dist/math.min.js');
 			break;
 		case 'handlebars':
 			libraryVersion = "4.0.6";
-			document.write('\x3Cscript src="' + webjars + 'handlebars/' + libraryVersion + '/handlebars.runtime.min.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/handlebars.runtime.min.js');
 			break;
 		case 'qtip2':
 			libraryVersion = "3.0.3-1";
-			document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
+			jsReferences.push('/jquery.qtip.min.js');
+			cssReferences.push('/jquery.qtip.min.css');
 			break;
 		case 'jstree':
 			libraryVersion = "3.3.11";
-			document.write('\x3Cscript src="' + webjars + 'jstree/' + libraryVersion + '/jstree.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jstree/' + libraryVersion + '/themes/default/style.min.css' + ver + '"/>');
+			jsReferences.push('/jstree.min.js');
+			cssReferences.push('/themes/default/style.min.css');
 			break;
 		case 'multiselect-two-sides':
 			libraryVersion = "2.5.5";
-			document.write('\x3Cscript src="' + webjars + 'multiselect-two-sides/' + libraryVersion + '/dist/js/multiselect.min.js' + ver + '">' + '\x3C/script>');
+			jsReferences.push('/dist/js/multiselect.min.js');
 			break;
 		case 'fontawesome-iconpicker':
 			libraryVersion = "1.4.1";
-			document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
+			jsReferences.push('/dist/js/fontawesome-iconpicker.min.js');
+			cssReferences.push('/dist/css/fontawesome-iconpicker.min.css');
 			break;
 		case 'flatpickr':
 			libraryVersion = "4.6.9";
-			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.js' + ver + '">\x3C/script>');
-			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.js' + ver + '">\x3C/script>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.css' + ver + '"/>');
-			document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.css' + ver + '"/>');
-			let lang = portal.locale.split("-")[0];
-			if (lang !== "en") {
-				document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/l10n/' + lang + '.js' + ver + '">\x3C/script>');
+			jsReferences.push('/dist/flatpickr.min.js');
+			jsReferences.push('/dist/plugins/confirmDate/confirmDate.js');
+			cssReferences.push('/dist/flatpickr.min.css');
+			cssReferences.push('/dist/plugins/confirmDate/confirmDate.css');
+			if (portal) {
+				let lang = portal.locale.split("-")[0];
+				if (lang !== "en") {
+					jsReferences.push(`/dist/l10n/${lang}.js'`);
+				}
 			}
 			break;
 		default:
@@ -821,7 +826,12 @@ function includeWebjarLibrary(library) {
 			break;
 	}
 
-	window.console && console.log('Adding webjar library '+library+', version '+libraryVersion);
+	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion}`);
+
+	// Add all the library references to the DOM.
+	jsReferences.forEach(jsReference => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
+	cssReferences.forEach(cssReference => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
+
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
