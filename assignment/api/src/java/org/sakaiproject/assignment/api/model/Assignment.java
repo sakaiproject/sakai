@@ -251,10 +251,10 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview = Boolean.FALSE;
 
-    @Column(name = "OB_ESTIMATE", length = 1)
-    private Boolean obEstimate;
+    @Column(name = "IS_REQUIRED_ESTIMATE", length = 1)
+    private Boolean reqEstimate;
 
-    @Column(name = " ESTIMATE", length = 255)
+    @Column(name = "ESTIMATE", length = 255)
     private String estimate;
 
     @Column(name = "CONTENT_ID")

@@ -968,7 +968,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // for ContentReview service
                 assignment.setContentReview(existingAssignment.getContentReview());
 
-                assignment.setObEstimate(existingAssignment.getObEstimate());
+                assignment.setReqEstimate(existingAssignment.getReqEstimate());
                 assignment.setEstimate(existingAssignment.getEstimate());
                 
                 //duplicating attachments
@@ -4067,7 +4067,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
-                    nAssignment.setObEstimate(oAssignment.getObEstimate());
+                    nAssignment.setReqEstimate(oAssignment.getReqEstimate());
                     nAssignment.setEstimate(oAssignment.getEstimate());
 
                     // If there is a LTI launch associated with this copy it over

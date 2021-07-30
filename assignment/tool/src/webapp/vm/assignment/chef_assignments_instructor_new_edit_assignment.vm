@@ -486,17 +486,17 @@
 				</div>
 	
 				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
-					<div id="checkobestimate" class="checkbox">
+					<div id="checkreqestimate" class="checkbox">
 				#else
-					<div id="checkobestimate" style="display:none" class="checkbox">
+					<div id="checkreqestimate" style="display:none" class="checkbox">
 				#end
-					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE.equals("true"))
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE" type="checkbox" value="true" checked="checked" />
+					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE">
+					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE.equals("true"))
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" type="checkbox" value="true" checked="checked" />
 					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE" type="checkbox" value="true" />
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" type="checkbox" value="true" />
 					#end
-						$tlang.getString("gen.obestimate")
+						$tlang.getString("gen.reqestimate")
 					</label>
 				</div>
 				

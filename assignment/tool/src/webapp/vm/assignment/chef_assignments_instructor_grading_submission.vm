@@ -286,15 +286,15 @@
                     $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText)
                 </div>
             #end
-			## Submitted time spent
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-				<h3>
-					$tlang.getString("gen.totaltimespent")
-				</h3>
-				<p>
-					$!submitterTimeSpent
-				</p>
-			#end
+            ## Submitted time spent
+            #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+                <h3>
+                    $tlang.getString("gen.totaltimespent")
+                </h3>
+                <p>
+                    $!submitterTimeSpent
+                </p>
+            #end
             ## Submitted Attachment
             #set ($attachAllowed = $submissionType != 1 && $submissionType != 4)
             #if ($attachAllowed || $size != 0) ##do not show attach messages if no attach are allowed unless an attach is present anyway.

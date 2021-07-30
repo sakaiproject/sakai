@@ -1388,7 +1388,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private boolean anonymousGrading;
 
 
-        private Boolean obEstimate;
+        private Boolean reqEstimate;
 
         private String estimate;
 
@@ -1505,7 +1505,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
-            this.obEstimate = a.getObEstimate();
+            this.reqEstimate = a.getReqEstimate();
             this.estimate = a.getEstimate();
 
             this.allowPeerAssessment = a.getAllowPeerAssessment();
