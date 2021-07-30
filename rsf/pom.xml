@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>20-SNAPSHOT</version>
+    <version>20.4</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.rsf</groupId>

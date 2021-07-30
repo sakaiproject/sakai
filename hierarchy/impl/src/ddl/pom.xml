@@ -12,7 +12,7 @@
     <parent>
         <artifactId>hierarchy</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>20-SNAPSHOT</version><!--hierarchy.version-->
+        <version>20.4</version><!--hierarchy.version-->
     </parent>
 
     <properties>
