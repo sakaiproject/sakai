@@ -852,21 +852,22 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     }
 };
 
+// SAK-43155
 ASN.toggleAutoAnnounceEstimate = function(checked){
-    var obEstimate = document.getElementById("checkobestimate");
-    var timeEstimate = document.getElementById("inputtimestimate");
-    var timeEstimateInput = document.getElementById("new_assignment_input_add_time_estimate");
-    var obEstimateCheck = document.getElementById("new_assignment_check_add_ob_estimate");
-    if(checked){
-    	obEstimate.style.display="block";
-    	timeEstimate.style.display="block";
-        ASN.resizeFrame('grow');
-    }else{
-    	obEstimate.style.display="none";
-    	timeEstimate.style.display="none";
-    	timeEstimateInput.value="";
-    	obEstimateCheck.checked="";
-        ASN.resizeFrame('shrink');
+    const reqEstimate = document.getElementById('checkreqestimate');
+    const timeEstimate = document.getElementById('inputtimestimate');
+    const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
+    const reqEstimateCheck = document.getElementById('new_assignment_check_add_req_estimate');
+    
+    const display = checked ? 'block': 'none';
+    const resizeState = checked ? 'grow': 'shrink';
+    
+    reqEstimate && (reqEstimate.style.display = display);
+    timeEstimate && (timeEstimate.style.display = display);
+    ASN.resizeFrame(resizeState);
+    if (!checked) {
+        timeEstimateInput && (timeEstimateInput.value = '');
+        reqEstimateCheck && (reqEstimateCheck.checked = '');
     }
 };
 
@@ -978,22 +979,29 @@ ASN.changeVisibleDate = function()
 	}
 }
 
+// SAK-43155
 ASN.enableTimesheetSetupSection = function()
 {
-	document.getElementById("timesheetsetupsection").style.display="block";
+    const el = document.getElementById('timesheetsetupsection');
+    el && (el.style.display = 'block');
 }
 
+// SAK-43155
 ASN.disableTimesheetSetupSection = function()
 {
-	document.getElementById("timesheetsetupsection").style.display="none";
-	document.getElementById("new_assignment_check_add_is_estimate").checked="";
-	ASN.toggleAutoAnnounceEstimate(false);
+    const el = document.getElementById('timesheetsetupsection');
+    el && (el.style.display = 'none');
+    
+    const el2 = document.getElementById('new_assignment_check_add_is_estimate');
+    el2 && (el2.checked = "");
+    
+    ASN.toggleAutoAnnounceEstimate(false);
 }
 
 $(document).ready(() => {
 
   $("#infoImg").popover({html : true});
-  
+
   const saveRubric = e => {
     [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. save());
   };

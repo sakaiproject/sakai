@@ -742,14 +742,14 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	}
 	
 	/**
-	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
 	 * 
-	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
 	 */
 	@Override
-	public String getNamePropNewAssignmentCheckAddObEstimate()
+	public String getNamePropNewAssignmentCheckAddReqEstimate()
 	{
-		return NEW_ASSIGNMENT_CHECK_ADD_OB_ESTIMATE;
+		return NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE;
 	}
 	
 	/**
