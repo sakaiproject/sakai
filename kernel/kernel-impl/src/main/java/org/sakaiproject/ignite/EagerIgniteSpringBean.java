@@ -14,4 +14,8 @@ public class EagerIgniteSpringBean extends IgniteSpringBean implements Initializ
     public void afterPropertiesSet() throws Exception {
         super.afterSingletonsInstantiated();
     }
+
+    public void init() {
+        active(true);
+    }
 }
