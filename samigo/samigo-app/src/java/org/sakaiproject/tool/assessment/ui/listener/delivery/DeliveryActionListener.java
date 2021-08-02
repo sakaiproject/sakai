@@ -2336,6 +2336,8 @@ public class DeliveryActionListener
       long gradingId = determineCalcQGradingId(delivery);
       String agentId = determineCalcQAgentId(delivery, bean);
 
+      service.getAnswersMap().clear();
+      service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId));
       String questionText = service.getTexts().get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
@@ -2887,9 +2889,8 @@ public class DeliveryActionListener
 	  
 	  String keysString = "";
 
-	if (service.getAnswersMap().isEmpty()) {
-		  service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId)); // return value not used, answersMap is populated
-	}
+	service.getAnswersMap().clear();
+	service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId));
 
 	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
 	int decimalPlaces = 3;
