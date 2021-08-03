@@ -1,4 +1,4 @@
-const SakaiCalendar = {
+const sakaiCalendar = {
   calendar: {},
 
   // Initialize the calendar and attach it to the calendar div.
@@ -81,7 +81,7 @@ const SakaiCalendar = {
       eventBackgroundColor: eventBackgroundColor,
       eventTextColor: eventTextColor,
       eventContent: function (args) {
-        const isListView = SakaiCalendar.calendar.getCurrentData() && SakaiCalendar.calendar.getCurrentData().currentViewType.includes('list');
+        const isListView = sakaiCalendar.calendar.getCurrentData() && sakaiCalendar.calendar.getCurrentData().currentViewType.includes('list');
         // Create the default event structure to benefit from the theme.
         const eventTitle = document.createElement('div');
         eventTitle.classList.add(!isListView ? 'fc-event-title' : 'fc-list-event-title');
@@ -118,6 +118,20 @@ const SakaiCalendar = {
     this.calendar.gotoDate(currentDate);
   },
 
+    // When the user changes the view, reflect the change in a param to set the default view.
+  changeCalendarView: function () {
+    const currentView = this.calendar.currentData.currentViewType;
+    const defaultViewParams = document.getElementsByName('calendar_default_subview');
+    if (defaultViewParams && defaultViewParams.length > 0) {
+      defaultViewParams[0].value = currentView;
+    }
+    // Reenable the button when the subview changes.
+    const changeDefaultViewButton = document.getElementsByName('eventSubmit_doDefaultview');
+    if (changeDefaultViewButton && changeDefaultViewButton.length > 0) {
+      changeDefaultViewButton[0].removeAttribute('disabled');
+    }
+  },
+
   // This logic is associated to set the default subview, by day, month, week or list.
   setDefaultSubview: function(defaultSubview) {
     switch (defaultSubview) {
@@ -133,23 +147,9 @@ const SakaiCalendar = {
       case 'week':
       default:
         this.calendar.changeView('timeGridWeek');
-  }
+    }
 
-    // When the user changes the view, reflect the change in a param to set the default view.
-    setDefaultCalendarSubview = () => {
-      const currentView = this.calendar.currentData.currentViewType;
-      const defaultViewParams = document.getElementsByName('calendar_default_subview');
-      if (defaultViewParams && defaultViewParams.length > 0) {
-        defaultViewParams[0].value = currentView;
-      }
-      // Reenable the button when the subview changes.
-      const changeDefaultViewButton = document.getElementsByName('eventSubmit_doDefaultview');
-      if (changeDefaultViewButton && changeDefaultViewButton.length > 0) {
-        changeDefaultViewButton[0].removeAttribute('disabled');
-      }
-  }
-
-    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach(viewButton => viewButton.setAttribute('onclick', 'setDefaultCalendarSubview();'));
+    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach(viewButton => viewButton.setAttribute('onclick', 'sakaiCalendar.changeCalendarView();'));
 
   }
 }
