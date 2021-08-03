@@ -2,7 +2,7 @@ const sakaiCalendar = {
   calendar: {},
 
   // Initialize the calendar and attach it to the calendar div.
-  initializeSakaiCalendar: function (calendarDiv) {
+  initializeSakaiCalendar (calendarDiv) {
     const userLanguage = window.top.portal.locale || navigator.language;
     const userTimeZone = window.top.portal.user.timezone || 'local';
     // Get the event color from the skin variables.
@@ -41,14 +41,14 @@ const sakaiCalendar = {
           };
           // Fetch the site calendar events from the REST endpoint.
           const calendarRequestUrl = new URL(`${sakaiOrigin}/direct/calendar/site/${siteId}.json`);
-          Object.keys(requestData).forEach(key => calendarRequestUrl.searchParams.append(key, requestData[key]));
-          window.fetch(calendarRequestUrl, requestInit).then(response => {
+          Object.keys(requestData).forEach( (key) => calendarRequestUrl.searchParams.append(key, requestData[key]));
+          window.fetch(calendarRequestUrl, requestInit).then( (response) => {
            if (response.ok) {
              return response.json()
            } else throw new Error("Network error while fetching calendar data");
-          }).then(responseData => {
+          }).then( (responseData) => {
             const events = [];
-            responseData.calendar_collection.forEach(event => {
+            responseData.calendar_collection.forEach( (event) => {
               // Every Sakai Calendar event has to be mapped with a full calendar event.
               const startDate = moment(new Date(event.firstTime.time)).tz(userTimeZone).format();
               const endDate = moment(new Date(event.firstTime.time + event.duration)).tz(userTimeZone).format();
@@ -72,7 +72,7 @@ const sakaiCalendar = {
               });
             });
             successCallback(events);
-          }).catch(error => console.error(error));
+          }).catch( (error) => console.error(error));
         }
       }],
       eventSourceSuccess: function(content, xhr) {
@@ -114,12 +114,12 @@ const sakaiCalendar = {
   },
 
   // Go to the current date set by the backend.
-  gotoDate: function(date) {
+  gotoDate (currentDate) {
     this.calendar.gotoDate(currentDate);
   },
 
     // When the user changes the view, reflect the change in a param to set the default view.
-  changeCalendarView: function () {
+  onChangeCalendarView () {
     const currentView = this.calendar.currentData.currentViewType;
     const defaultViewParams = document.getElementsByName('calendar_default_subview');
     if (defaultViewParams && defaultViewParams.length > 0) {
@@ -133,7 +133,7 @@ const sakaiCalendar = {
   },
 
   // This logic is associated to set the default subview, by day, month, week or list.
-  setDefaultSubview: function(defaultSubview) {
+  setDefaultSubview (defaultSubview) {
     switch (defaultSubview) {
       case 'day':
         this.calendar.changeView('timeGridDay');
@@ -149,7 +149,8 @@ const sakaiCalendar = {
         this.calendar.changeView('timeGridWeek');
     }
 
-    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach(viewButton => viewButton.setAttribute('onclick', 'sakaiCalendar.changeCalendarView();'));
+    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach( (viewButton) => viewButton.setAttribute('onclick', 'sakaiCalendar.onChangeCalendarView();'));
 
   }
-}
+
+};
