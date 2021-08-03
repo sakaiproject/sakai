@@ -114,6 +114,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
+            igniteConfiguration.setFailureDetectionTimeout(20000);
 
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
