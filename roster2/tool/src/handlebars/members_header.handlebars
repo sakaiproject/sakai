@@ -1,0 +1,40 @@
+<div id="roster-members-header" class="roster-table">
+    <div class="roster-table-header-group">
+        <div class="roster-table-row">
+            {{#if viewPicture}}
+            <div class="roster-table-cell" id="roster-picture-header-cell">{{tr 'facet_picture'}}</div>
+            {{/if}}
+            {{#unless hideNames}}
+            <div class="roster-table-cell">{{tr 'facet_name'}}</div>
+            {{/unless}}
+            {{#if viewUserNamePronunciation}}
+            <div class="roster-table-cell">{{tr 'facet_user_name_pronunciation'}}</div>
+            {{/if}}
+            {{#if viewUserDisplayId}}
+            <div class="roster-table-cell">{{tr 'facet_userId'}}</div>
+            {{/if}}
+            {{#if enrollmentsMode}}
+            <div class="roster-table-cell">{{tr 'facet_status'}}</div>
+            <div class="roster-table-cell">{{tr 'facet_credits'}}</div>
+            {{else}}
+            <div class="roster-table-cell">{{tr 'facet_role'}}</div>
+            {{/if}}
+            {{#if showVisits}}
+                {{#if ../viewSiteVisits}}
+            <div class="roster-table-cell">{{tr 'total_visits'}}</div>
+            <div class="roster-table-cell">{{tr 'last_visit'}}</div>
+                {{/if}}
+            {{/if}} <!-- showVisits -->
+            {{#if viewGroup}}
+            <div class="roster-table-cell roster-group-cell">{{tr 'facet_groups'}}</div>
+            {{/if}}
+            {{#if viewEmail}}
+            <div class="roster-table-cell">{{tr 'facet_email'}}</div>
+            {{/if}}
+            {{#if viewUserProperty}}
+            <div class="roster-table-cell">{{tr 'facet_userProperties'}}</div>
+            {{/if}}
+        </div>
+    </div>
+    <div id="roster-members" class="roster-table-row-group"></div>
+</div>

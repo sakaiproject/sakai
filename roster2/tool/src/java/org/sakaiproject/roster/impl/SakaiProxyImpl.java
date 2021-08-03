@@ -1032,7 +1032,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             List<RosterMember> enrolled = new ArrayList<>();
 
             Map<String, String> statusCodes
-                = courseManagementService.getEnrollmentStatusDescriptions(null);
+                = courseManagementService.getEnrollmentStatusDescriptions(new ResourceLoader().getLocale());
 
             for (Enrollment enrollment : courseManagementService.getEnrollments(enrollmentSet.getEid())) {
                 RosterMember member = membership.get(enrollment.getUserId());
@@ -1118,8 +1118,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			rosterSite.setUserRoles(userRoles);
 		}
 
-		Map<String, String> statusCodes
-			= courseManagementService.getEnrollmentStatusDescriptions(null);
+		Map<String, String> statusCodes = courseManagementService
+				.getEnrollmentStatusDescriptions(new ResourceLoader()
+						.getLocale());
 
 		rosterSite.setEnrollmentStatusCodes(statusCodes);
 

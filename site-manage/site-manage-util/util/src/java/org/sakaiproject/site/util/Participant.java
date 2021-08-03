@@ -55,9 +55,6 @@ public class Participant {
 	/** the status, active vs. inactive */
 	public boolean active = true;
 
-	/** the enrollment status */
-	public String enrollmentStatus = NULL_STRING;
-
 	public String getName() {
 		return name;
 	}
@@ -100,11 +97,6 @@ public class Participant {
 	public String getCredits() {
 		return credits;
 	} // getCredits
-
-	// extra info from provider
-	public String getEnrollmentStatus() {
-		return enrollmentStatus;
-	}
 
 	public String getSection() {
 		if (sectionEidList == null)

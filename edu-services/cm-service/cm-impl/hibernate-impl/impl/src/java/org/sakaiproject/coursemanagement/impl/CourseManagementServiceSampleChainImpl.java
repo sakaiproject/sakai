@@ -231,10 +231,6 @@ public class CourseManagementServiceSampleChainImpl implements CourseManagementS
 		return null;
 	}
 
-	public String getEnrollmentStatusDescription(String statusId) {
-		return null;
-	}
-
 	public Map<String, String> getEnrollmentStatusDescriptions(Locale locale) {
 		return null;
 	}

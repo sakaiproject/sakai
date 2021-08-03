@@ -206,9 +206,6 @@
                                 #else
                                     $!uRole
                                 #end
-                                #if ($showEnrollmentStatus)
-                                <span class="enrollment-status">${participant.getEnrollmentStatus()}</span>
-                                #end
                             </td>
                             #if ($allowUpdateSiteMembership)
                                 #if ($!activeInactiveUser && !$!isMyWorkspace)
