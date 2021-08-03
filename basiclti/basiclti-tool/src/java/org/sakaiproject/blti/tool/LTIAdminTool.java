@@ -484,6 +484,22 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					log.error("error getting url for site {}", siteId);
 				}
 
+				// Patch the date type
+				// https://stackoverflow.com/questions/19431234/converting-between-java-time-localdatetime-and-java-util-date
+				Object created_at = content.get("created_at");
+				if ( created_at instanceof java.util.Date ) {
+			        DateFormat df2 = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
+					String output = df2.format(created_at);
+					content.put("created_at", output);
+				} else if ( created_at instanceof java.time.LocalDateTime) {
+					java.time.LocalDateTime ldt = (java.time.LocalDateTime) created_at;
+					String output = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(rb.getLocale()).format(ldt.now());
+					content.put("created_at", output);
+				} else {
+					String output = created_at.toString();
+					content.put("created_at", output);
+				}
+
 				//get LTI url based on site id and tool id
 				content.put("tool_url", "/access/basiclti/site/" + siteId + "/content:" + content.get(LTIService.LTI_ID));
 			}
@@ -491,10 +507,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("contents", contents);
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
-
-		//put velocity date tool in the context
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
-		context.put("dateTool", df);
 
 		//export csv/excel links
 		context.put("export_url_csv", ltiService.getExportUrl(toolManager.getCurrentPlacement().getContext(), filterId, LTIExportService.ExportType.CSV));

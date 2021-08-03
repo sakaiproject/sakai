@@ -102,7 +102,7 @@ ${includeLatestJQuery}
 
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItew"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
+		<li class="firstToolBarItem"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
 		<li><span class="current">$tlang.getString("tool.in.site")</span></li>
 	</ul>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
@@ -179,7 +179,7 @@ ${includeLatestJQuery}
 			#if ($isAdmin) 
 				<td headers="site"><a target="_blank" href="$!content.get("site_url")">$formattedText.escapeHtml($!content.get("SITE_TITLE"))</a></td>
 			#end
-				<td headers="created_at">$!dateTool.format($!content.get("created_at"))</td>
+				<td headers="created_at">$!content.get("created_at")</td>
 			#if ($isAdmin)
 				<td headers="contactname"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
 				<td headers="contactemail"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>
