@@ -1,9 +1,13 @@
 portal = portal || {};
 
-portal.messagesEventSource = new EventSource("/api/users/me/events", { withCredentials: true });
+if (portal?.user?.id) {
+  portal.messagesEventSource = new EventSource("/api/users/me/events");
 
-portal.registerForMessages = function (sakaiEvent, listener) {
+  portal.messagesEventSource.onopen = e => console.debug("events connection established");
 
-  console.debug(`Registering a listener for event ${sakaiEvent} ...`);
-  portal.messagesEventSource.addEventListener(sakaiEvent, (e) => listener(JSON.parse(event.data)));
-};
+  portal.registerForMessages = function (sakaiEvent, listener) {
+
+    console.debug(`Registering a listener for event ${sakaiEvent} ...`);
+    portal.messagesEventSource.addEventListener(sakaiEvent, e => listener(JSON.parse(event.data)));
+  };
+}
