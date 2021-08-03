@@ -124,7 +124,7 @@ public class LessonsSubNavBuilder {
             }
         }
 
-        String group = rs.getString("item_groups");
+        String group = rs.getString("groups");
         boolean contains = true;
         if(!StringUtils.isEmpty(group) && !isInstructor){
             contains = false;
