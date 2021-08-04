@@ -8,7 +8,7 @@
 </jsp:useBean>
 
 <f:view>
-  <sakai:view title="#{msgs.pvt_detmsgreply}">
+  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr-qtip.css" title="#{msgs.pvt_detmsgreply}">
     <h:form id="pvtMsgDetail">
     		<script>
        			// Define i18n for js text
@@ -27,6 +27,22 @@
 					var menuLinkSpan = menuLink.closest('span');
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
+					
+					$('#pvtMsgDetail .authorProfile').each(function() {
+						$(this).qtip({ 
+							content: {
+								ajax: {
+									url: $(this).prop('href'),
+									type: 'GET'
+								}
+							},
+							position: {	my: 'left center', at: 'top center'},
+							show: { event: 'click', solo: true, effect: {length:0} },
+							hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
+							style: { classes: 'msgcntr-profile-qtip' }
+						});
+						$(this).prop('href', 'javascript:;');
+					});
 				});
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
