@@ -92,7 +92,7 @@ public class O11AssignmentContent {
     private String title;
     // typeofgrade="3"
     private Integer typeofgrade;
-    
+
     private String estimate;
     private Boolean reqEstimate;
 

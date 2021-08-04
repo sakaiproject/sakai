@@ -294,13 +294,11 @@ public class GradeSheetExporter {
 
                             // Create item and fill up if doesn't exist.
                             // find right row
-
-                            if(params.get("estimate") != null && params.get("estimate").equals("true")) {
+                            if (params.get("estimate") != null && params.get("estimate").equals("true")) {
                                 if (submission.getSubmitted() && submission.getDateSubmitted() != null && (submissionSubmitters[0].getTimeSpent() == null || "".equals(submissionSubmitters[0].getTimeSpent()))) {
-                                	submissionInfo = new SubmissionInfo(rb.getString("gen.noestimate"), submission);
-                                }
-                                else {
-                                	submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
+                                    submissionInfo = new SubmissionInfo(rb.getString("gen.noestimate"), submission);
+                                } else {
+                                    submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
                                 }
                             }
 

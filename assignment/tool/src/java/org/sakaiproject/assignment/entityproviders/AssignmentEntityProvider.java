@@ -468,67 +468,67 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (StringUtils.isBlank(userId)) {
           log.warn("You need to be logged in to add time sheet register");
           return "{\"error\": {"
-          		+ "\"code\": 1,"
-          		+ "\"message\": \"ts.add.err.userId\""
-          		+ "}"
-          		+ "}";
+                + "\"code\": 1,"
+                + "\"message\": \"ts.add.err.userId\""
+                + "}"
+                + "}";
         }
         
         User u;
-		try {
-			u = userDirectoryService.getUser(userId);
-		} catch (UserNotDefinedException e2) {
+        try {
+            u = userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e2) {
             log.warn("You need to be logged in to add time sheet register");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.userId\""
-            		+ "}"
-            		+ "}";
-		}
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.userId\""
+                    + "}"
+                    + "}";
+        }
 
         String assignmentId = (String)params.get("assignmentId");
         if (StringUtils.isBlank(assignmentId)) {
 
             log.warn("You need to supply the assignmentId and ref");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.assignmentId\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.assignmentId\""
+                    + "}"
+                    + "}";
         }
 
         AssignmentSubmission as;
-		try {
-			as = assignmentService.getSubmission(assignmentId, u);
-		} catch (PermissionException e1) {
-        	log.warn("You can't modify this sumbitter");
+        try {
+            as = assignmentService.getSubmission(assignmentId, u);
+        } catch (PermissionException e1) {
+            log.warn("You can't modify this sumbitter");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.permission\""
-            		+ "}"
-            		+ "}";
-		}
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.permission\""
+                    + "}"
+                    + "}";
+        }
 
         if(as == null) {
             String submitterId = u.getId();
 
-	        try {
-	            as = assignmentService.addSubmission(assignmentId, submitterId);
-	            if (as != null ) {
-	            	as.setSubmitted(true);
-	            	as.setUserSubmission(false);
-	            	as.setDateModified(Instant.now());
-	            	as.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findFirst().ifPresent(sb -> sb.setSubmittee(false));
-	                assignmentService.updateSubmission(as);
-	            }
-	        } catch (PermissionException e) {
-	            log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.getMessage());
-	            return "{\"error\": {"
-        		+ "\"code\": 1,"
-        		+ "\"message\": \"ts.add.err.submitter\""
-        		+ "}"
-        		+ "}";
-	        }
+            try {
+                as = assignmentService.addSubmission(assignmentId, submitterId);
+                if (as != null ) {
+                    as.setSubmitted(true);
+                    as.setUserSubmission(false);
+                    as.setDateModified(Instant.now());
+                    as.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findFirst().ifPresent(sb -> sb.setSubmittee(false));
+                    assignmentService.updateSubmission(as);
+                }
+            } catch (PermissionException e) {
+                log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.getMessage());
+                return "{\"error\": {"
+                + "\"code\": 1,"
+                + "\"message\": \"ts.add.err.submitter\""
+                + "}"
+                + "}";
+            }
         }
 
         String regTime = (String) params.get("regTime");
@@ -537,10 +537,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             log.warn("Wrong time format. Must be XXHXXM");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.regTime\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.regTime\""
+                    + "}"
+                    + "}";
         }
 
         String asnComment = (String) params.get("regComment");
@@ -571,12 +571,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         AssignmentSubmissionSubmitter ass = as.getSubmitters().stream().findAny().orElse(null);
 
         if(ass == null) {
-        	log.warn("You submitter does not exist");
+            log.warn("You submitter does not exist");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.submitter\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.submitter\""
+                    + "}"
+                    + "}";
         }
 
         String context = ass.getSubmission().getAssignment().getContext();
@@ -588,15 +588,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         timeSheet.setSubmitter(ass);
         
         try {
-			assignmentService.addAssignmentTimeSheet(timeSheet, context);
-		} catch (PermissionException e) {
+            assignmentService.addAssignmentTimeSheet(timeSheet, context);
+        } catch (PermissionException e) {
             log.warn("You can't modify this sumbitter");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.permission\""
-            		+ "}"
-            		+ "}";
-		}
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.permission\""
+                    + "}"
+                    + "}";
+        }
 
         return "{\"success\": true}";
     }
@@ -609,106 +609,106 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (StringUtils.isBlank(userId)) {
             log.warn("You need to be logged in to add time sheet register");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.rem.err.userId\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.rem.err.userId\""
+                    + "}"
+                    + "}";
         }
 
         User u;
-		try {
-			u = userDirectoryService.getUser(userId);
-		} catch (UserNotDefinedException e2) {
+        try {
+            u = userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException e2) {
             log.warn("You need to be logged in to add time sheet register");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.rem.err.userId\""
-            		+ "}"
-            		+ "}";
-		}
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.rem.err.userId\""
+                    + "}"
+                    + "}";
+        }
 
         String assignmentId = (String)params.get("assignmentId");
         if (StringUtils.isBlank(assignmentId)) {
             log.warn("You need to supply the assignmentId and ref");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.assignmentId\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.assignmentId\""
+                    + "}"
+                    + "}";
         }
 
         AssignmentSubmission as;
-		try {
-			as = assignmentService.getSubmission(assignmentId, u);
-		} catch (PermissionException e1) {
-        	log.warn("You can't modify this sumbitter");
+        try {
+            as = assignmentService.getSubmission(assignmentId, u);
+        } catch (PermissionException e1) {
+            log.warn("You can't modify this sumbitter");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.add.err.permission\""
-            		+ "}"
-            		+ "}";
-		}
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.add.err.permission\""
+                    + "}"
+                    + "}";
+        }
 
         final List<String> timeSheetIds;
         Object ts = params.get("selectedTimeSheets[]");
         if (ts != null && ts instanceof String[]) {
-        	timeSheetIds = Arrays.asList((String[]) ts);
+            timeSheetIds = Arrays.asList((String[]) ts);
         } else if (ts != null && ts instanceof String) {
-        	timeSheetIds = Collections.singletonList((String) ts);
+            timeSheetIds = Collections.singletonList((String) ts);
         } else {
             log.warn("Selected time sheet must be provided.");
             return "{\"error\": {"
-            		+ "\"code\": 1,"
-            		+ "\"message\": \"ts.rem.err.empty\""
-            		+ "}"
-            		+ "}";
+                    + "\"code\": 1,"
+                    + "\"message\": \"ts.rem.err.empty\""
+                    + "}"
+                    + "}";
         }
 
         if (timeSheetIds != null) {
             for (String timeSheetId : timeSheetIds) {
-        
-		        if (StringUtils.isBlank(timeSheetId)) {
-		            log.warn("Selected time sheet must be provided.");
-		            return "{\"error\": {"
-		            		+ "\"code\": 1,"
-		            		+ "\"message\": \"ts.rem.err.submitterId\""
-		            		+ "}"
-		            		+ "}";
-		        }
-		
-		        AssignmentTimeSheet timeSheet = null;
-		        try {
-		        	timeSheet = assignmentService.getTimeSheet(timeSheetId);
-		        } catch (PermissionException pe) {
-		            log.warn("Selected time sheet must be provided.");
-		            return "{\"error\": {"
-		            		+ "\"code\": 1,"
-		            		+ "\"message\": \"ts.rem.err.permission\""
-		            		+ "}"
-		            		+ "}";
-		        }
 
-		        if(!timeSheet.getSubmitter().getSubmission().getId().equals(as.getId())) {
-		            log.warn("Selected time sheet must be provided.");
-		            return "{\"error\": {"
-		            		+ "\"code\": 1,"
-		            		+ "\"message\": \"ts.rem.err.permission\""
-		            		+ "}"
-		            		+ "}";
-		        }
-		
-		        String context = timeSheet.getSubmitter().getSubmission().getAssignment().getContext();
-		        
-		        try {
-					assignmentService.removeAssignmentTimeSheet(timeSheet, context);
-				} catch (PermissionException e) {
-		            log.warn("Selected time sheet must be provided.");
-		            return "{\"error\": {"
-		            		+ "\"code\": 1,"
-		            		+ "\"message\": \"ts.rem.err.permission\""
-		            		+ "}"
-		            		+ "}";
-				}
+                if (StringUtils.isBlank(timeSheetId)) {
+                    log.warn("Selected time sheet must be provided.");
+                    return "{\"error\": {"
+                            + "\"code\": 1,"
+                            + "\"message\": \"ts.rem.err.submitterId\""
+                            + "}"
+                            + "}";
+                }
+
+                AssignmentTimeSheet timeSheet = null;
+                try {
+                    timeSheet = assignmentService.getTimeSheet(timeSheetId);
+                } catch (PermissionException pe) {
+                    log.warn("Selected time sheet must be provided.");
+                    return "{\"error\": {"
+                            + "\"code\": 1,"
+                            + "\"message\": \"ts.rem.err.permission\""
+                            + "}"
+                            + "}";
+                }
+
+                if(!timeSheet.getSubmitter().getSubmission().getId().equals(as.getId())) {
+                    log.warn("Selected time sheet must be provided.");
+                    return "{\"error\": {"
+                            + "\"code\": 1,"
+                            + "\"message\": \"ts.rem.err.permission\""
+                            + "}"
+                            + "}";
+                }
+
+                String context = timeSheet.getSubmitter().getSubmission().getAssignment().getContext();
+                
+                try {
+                    assignmentService.removeAssignmentTimeSheet(timeSheet, context);
+                } catch (PermissionException e) {
+                    log.warn("Selected time sheet must be provided.");
+                    return "{\"error\": {"
+                            + "\"code\": 1,"
+                            + "\"message\": \"ts.rem.err.permission\""
+                            + "}"
+                            + "}";
+                }
             }
         }
 

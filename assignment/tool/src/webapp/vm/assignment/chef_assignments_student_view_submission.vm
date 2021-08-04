@@ -28,7 +28,7 @@ $(document).ready(function(){
 
 <div class="portletBody">
 #if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
-	#navBarTimesheet("Assignment")
+    #navBarTimesheet("Assignment")
 #end
 ## submission times
 	#set($dateReturned=false)
