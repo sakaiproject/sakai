@@ -165,7 +165,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 				notSubmitted.remove(response.getUserId());
 				try {
 					SimpleUser user = new SimpleUser();
-					user.displayName = UserDirectoryService.getUser(response.getUserId()).getDisplayName();
+					user.displayName = UserDirectoryService.getUser(response.getUserId()).getSortName();
 					user.userId = response.getUserId();
 					if (manuallyGraded && !response.isOverridden())
 					    user.grade = null;
