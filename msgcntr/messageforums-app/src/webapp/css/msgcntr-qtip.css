@@ -1,0 +1,14 @@
+/*
+  Add styles for qtip
+*/
+div.msgcntr-profile-qtip {
+  max-height: 220px;
+  max-width: 640px;
+  background-color: var(--sakai-background-color-1);
+}
+
+.qtip-content .profile2-profile-content {
+  float: right;
+  overflow: auto;
+  max-height: 200px;
+}
