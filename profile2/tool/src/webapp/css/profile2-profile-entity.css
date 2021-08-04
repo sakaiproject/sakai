@@ -97,6 +97,14 @@ div.profile2-profile-content-thumb {
     padding-left: 18px;
 }
 
+.profile2-profile .icon{
+	width: 100%;
+}
+
+.profile2-profile #profile_friend_admin{
+	background-size: contain;
+}
+
 .connection-request {
 	background-image: url(/library/image/silk/group_gear.png);
 }
