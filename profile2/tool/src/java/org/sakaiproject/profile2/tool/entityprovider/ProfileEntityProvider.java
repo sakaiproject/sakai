@@ -625,6 +625,15 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append(StringEscapeUtils.escapeHtml4(nickname).toString());
 			sb.append("</div>");
 		}
+		String phoneticPronunciation = userProfile.getPhoneticPronunciation();
+		if(StringUtils.isNotBlank(nickname)) {
+			sb.append("<div class=\"profile2-profile-phoneticName\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.phoneticname"));
+			sb.append("</span>");
+			sb.append(StringEscapeUtils.escapeHtml4(phoneticPronunciation));
+			sb.append("</div>");
+		}
 		if(StringUtils.isNotBlank(userProfile.getPersonalSummary())) {
 			sb.append("<div class=\"profile2-profile-personalSummary\">");
 			sb.append("<span class=\"profile2-profile-label\">");
