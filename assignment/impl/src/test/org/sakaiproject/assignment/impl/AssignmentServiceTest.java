@@ -1102,14 +1102,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submitter.setSubmission(duplicateSubmission);
             submitter.setTimeSheet(new HashSet<>());
             s.getTimeSheet().forEach(ts -> {
-            	AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
-            	BeanUtils.copyProperties(ts, timeSheet);
-            	timeSheet.setId(null);
-            	timeSheet.setAsnComment(ts.getAsnComment());
-            	timeSheet.setRegDate(ts.getRegDate());
-            	timeSheet.setRegTime(ts.getRegTime());
-            	timeSheet.setSubmitter(submitter);
-            	submitter.getTimeSheet().add(timeSheet);
+                AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
+                BeanUtils.copyProperties(ts, timeSheet);
+                timeSheet.setId(null);
+                timeSheet.setAsnComment(ts.getAsnComment());
+                timeSheet.setRegDate(ts.getRegDate());
+                timeSheet.setRegTime(ts.getRegTime());
+                timeSheet.setSubmitter(submitter);
+                submitter.getTimeSheet().add(timeSheet);
             });
             duplicateSubmission.getSubmitters().add(submitter);
         });

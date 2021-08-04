@@ -68,12 +68,12 @@ public class AssignmentTimeSheet {
 
     
     @ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "SUBMITTER_ID", nullable = false)
-	@JsonBackReference
-	private AssignmentSubmissionSubmitter submitter;
+    @JoinColumn(name = "SUBMITTER_ID", nullable = false)
+    @JsonBackReference
+    private AssignmentSubmissionSubmitter submitter;
 
     @Type(type = "org.hibernate.type.InstantType")
-	@Column(name = "REG_DATE", nullable = false)
+    @Column(name = "REG_DATE", nullable = false)
     private Instant regDate;
 
     @Column(name = "REG_TIME", length = 255)
@@ -81,5 +81,4 @@ public class AssignmentTimeSheet {
 
     @Column(name = "ASN_COMMENT", length = 255)
     private String asnComment;
-
 }

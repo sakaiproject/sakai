@@ -107,17 +107,17 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
-    	if(timeSheet!= null) {
+        if(timeSheet!= null) {
             sessionFactory.getCurrentSession().delete(sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheet.getId()));
-    	}
+        }
     }
-    
+
     @Override
     @Transactional
     public boolean existsAssignmentTimeSheet(Long timeSheetId) {
-    	return timeSheetId != null && sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheetId) != null;
+        return timeSheetId != null && sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheetId) != null;
     }
-    
+
     @Override
     @Transactional
     public boolean existsAssignment(String assignmentId) {

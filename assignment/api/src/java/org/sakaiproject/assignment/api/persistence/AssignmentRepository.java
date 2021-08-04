@@ -93,14 +93,14 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
     
-	AssignmentSubmissionSubmitter findSubmissionSubmitter(String submitterId);
+    AssignmentSubmissionSubmitter findSubmissionSubmitter(String submitterId);
 
-	public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
-	
-	public boolean existsAssignmentTimeSheet(Long timeSheetId);
+    public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
 
-	public AssignmentTimeSheet findTimeSheet(String timeSheetId);
+    public boolean existsAssignmentTimeSheet(Long timeSheetId);
 
-	public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
+    public AssignmentTimeSheet findTimeSheet(String timeSheetId);
+
+    public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
 
 }

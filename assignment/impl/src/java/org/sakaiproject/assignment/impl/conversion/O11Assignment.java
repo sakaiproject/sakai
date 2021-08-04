@@ -72,10 +72,10 @@ public class O11Assignment {
     private String title;
     // visibledate=""
     private String visibledate;
-    
+
     private String estimate;
     private Boolean reqEstimate;
-    
+
     // List of authzGroups
     // <group authzGroup="/site/BVCC_942A_9301/group/b9ff34b8-1465-4ba8-b532-ed8e097b88fa"/>
     private List<O11Group> groups = new ArrayList<>();

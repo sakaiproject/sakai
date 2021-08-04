@@ -133,7 +133,7 @@ ASN.switchTimesheetTab = function( source )
 //SAK-43155
 ASN.handleAjaxAddSuccess = function(data)
 {
-    if(data.error && data.error.message) {
+    if (data.error && data.error.message) {
         var button = document.getElementById("btnTimesheetAdd");
         button.classList.remove("spinButton");
         button.disabled = false;
@@ -148,7 +148,7 @@ ASN.handleAjaxAddSuccess = function(data)
 //SAK-43155
 ASN.handleAjaxRemoveSuccess = function(data)
 {
-    if(data.error && data.error.message) {
+    if (data.error && data.error.message) {
         var button = document.getElementById("btnTimesheetDelete");
         button.classList.remove("spinButton");
         button.disabled = false;

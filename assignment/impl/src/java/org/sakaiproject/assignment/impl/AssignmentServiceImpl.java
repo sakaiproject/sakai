@@ -569,10 +569,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-                                if (queryString.contains("estimate")){
+                                if (queryString.contains("estimate")) {
                                     res.setHeader("Content-Disposition", "attachment; filename = \"export_worklog_" + filename + ".xlsx\"");
-                                }
-                                else {
+                                } else {
                                     res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
                                 }
                                 try (OutputStream out = res.getOutputStream()) {
@@ -850,7 +849,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignmentRepository.newAssignmentTimeSheet(timeSheet);
         log.debug("Created new timeSheet {}", timeSheet.getId());
     }
-  
+
     @Override
     @Transactional
     public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException {
@@ -861,7 +860,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
         log.debug("Remove timeSheet {}", timeSheet.getId());
     }
-    
+
     private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
