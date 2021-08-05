@@ -154,7 +154,6 @@
         <script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-maximise-button.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
