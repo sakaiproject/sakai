@@ -1,6 +1,9 @@
 const sakaiVideoRecorder = {
   recorder: null,
-  player: document.getElementById('submission-recorder'),
+  player: document.getElementById('submission-preview-player'),
+  recordingHiddenInput: document.getElementById('video-submission'),
+  recorderStartButton: document.getElementById('btn-start-recording'),
+  recorderStopButton: document.getElementById('btn-stop-recording'),
 
   getBase64 (file) {
     return new Promise( (resolve, reject) => {
@@ -27,9 +30,10 @@ const sakaiVideoRecorder = {
     sakaiVideoRecorder.player.src = URL.createObjectURL(sakaiVideoRecorder.recorder.getBlob());
 
     // TODO: Ideally we want a different mechanism to send the file to the backend as it's sent by a classic form post.
+    // Would be good to work on formats and browser support, this could be a serious problem with Safari.
     let fileObject = new File([sakaiVideoRecorder.recorder.getBlob()], "video.webm", {type: 'video/webm'});
     sakaiVideoRecorder.getBase64(fileObject).then(
-      (data) => document.getElementById('videoResponse').value = data
+      (data) => sakaiVideoRecorder.recordingHiddenInput.value = data
     );
 
     sakaiVideoRecorder.recorder.camera.stop();
@@ -38,7 +42,7 @@ const sakaiVideoRecorder = {
   },
 
   bindStartRecordingButton () {
-    document.getElementById('btn-start-recording').onclick = function() {
+    sakaiVideoRecorder.recorderStartButton.onclick = function() {
       sakaiVideoRecorder.player.style.display = 'block';
       let submissionPlayers = document.querySelectorAll('#submission-player');
       if (submissionPlayers) {
@@ -55,25 +59,25 @@ const sakaiVideoRecorder = {
         sakaiVideoRecorder.recorder.startRecording();
         // release camera on stopRecording
         sakaiVideoRecorder.recorder.camera = camera;
-        document.getElementById('btn-stop-recording').disabled = false;
+        sakaiVideoRecorder.recorderStopButton.disabled = false;
 
         // Important: The default Sakai file size is 20MB so by default is recording around 2:30 of video, increase this value if your instance allows bigger files.
         // TODO: Could be interesting to calculate this depending on the server side property content.upload.max, maybe as future improvement.
         const sleep = (m) => new Promise( (r) => setTimeout(r, m));
         await sleep(150000);
 
-        document.getElementById('btn-stop-recording').disabled = true;
+        sakaiVideoRecorder.recorderStopButton.disabled = true;
         sakaiVideoRecorder.recorder.stopRecording(sakaiVideoRecorder.stopRecordingCallback);
-        document.getElementById('btn-start-recording').disabled = false;
+        sakaiVideoRecorder.recorderStartButton.disabled = false;
       });
     };
   },
 
   bindStopRecordingButton () {
-    document.getElementById('btn-stop-recording').onclick = function() {
+    sakaiVideoRecorder.recorderStopButton.onclick = function() {
       this.disabled = true;
       sakaiVideoRecorder.recorder.stopRecording(sakaiVideoRecorder.stopRecordingCallback);
-      document.getElementById('btn-start-recording').disabled = false;
+      sakaiVideoRecorder.recorderStartButton.disabled = false;
     };
   }
 

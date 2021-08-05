@@ -4,19 +4,17 @@
     <script>includeWebjarLibrary('recordrtc');</script>
     <script>includeWebjarLibrary('webrtc-adapter');</script>
 
-    <div class="videoRecorder">
-        <input type="hidden" name="videoResponse" id="videoResponse" value="" />
+    <div class="video-recorder">
+        <input type="hidden" name="video-submission" id="video-submission" value="" />
 
+        <video style="display:none" id="submission-preview-player" controls autoplay playsinline></video>
+        <br><br>
         <input type="button" class="button" id="btn-start-recording" value="$tlang.getString("stuviewsubm.start.recording")"/>
         <input type="button" class="button" id="btn-stop-recording" value="$tlang.getString("stuviewsubm.stop.recording")" disabled/>
 
-        <br><br>
-
-        <video style="display:none" id="submission-recorder" controls autoplay playsinline></video>
-
     </div>
 
-    <script src="/sakai-assignment-tool/js/videoRecorder.js"></script>
+    <script src="/sakai-assignment-tool/js/video-recorder.js"></script>
 
 #end
 <!-- end: assignments_record_video_submission.vm  -->
