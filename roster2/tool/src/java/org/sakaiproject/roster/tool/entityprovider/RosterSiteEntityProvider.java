@@ -43,6 +43,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -253,18 +254,35 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
 			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
 		}
+		
+		String groupId = null;
+		if (parameters.containsKey(KEY_GROUP_ID)) {
+			groupId = parameters.get(KEY_GROUP_ID).toString();
+		}
+		
+		String roleId = null;
+		if (parameters.containsKey(KEY_ROLE_ID)) {
+			roleId = parameters.get(KEY_ROLE_ID).toString();
+		}
 
 		List<RosterMember> membership = new ArrayList();
 		Map<String, Integer> roleCounts = new HashMap(1);
 
 		for (String userId : userIds) {
-			RosterMember member = sakaiProxy.getMember(siteId, userId, enrollmentSetId);
+			RosterMember member = sakaiProxy.getMember(siteId, userId, groupId, enrollmentSetId);
 
 			if (null == member) {
 				throw new EntityException("Unable to retrieve membership", reference.getReference());
 			}
-
-			membership.add(member);
+			
+			if(roleId != null) {
+				if(StringUtils.equals(member.getRole(), roleId)) {
+					membership.add(member);
+				}
+			} else {
+				membership.add(member);
+			}
+			
 
 			String role = member.getRole();
 			if (!roleCounts.containsKey(role)) {
