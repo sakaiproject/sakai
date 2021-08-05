@@ -2533,11 +2533,6 @@ public class DeliveryBean implements Serializable {
   	    return ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
 	  }
 
-	  public boolean getStudentRichText() {
-	      String studentRichText = ServerConfigurationService.getString("samigo.studentRichText", "true");
-		  return Boolean.parseBoolean(studentRichText);
-	  }
-
 	  public String getRecURL() {
   	    if (RECPATH == null || RECPATH.trim().equals("")) {
   	    	return "";
