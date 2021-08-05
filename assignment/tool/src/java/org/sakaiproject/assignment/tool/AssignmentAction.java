@@ -285,6 +285,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS = "new_assignment_peer_assessment_num_reviews";
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS = "new_assignment_peer_assessment_instructions";
 
+    // Video Submissions
+    private static final String VIDEO_SUBMISSION_PARAM = "video-submission";
     /**
      * Is the review service available?
      */
@@ -15541,7 +15543,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private List<Reference> getVideoAttachments(RunData data, SessionState state, Assignment assignment) {
         List<Reference> attachments = entityManager.newReferenceList();
         //Get the video object in base64 from the form post
-        String videoResponseBase64 = data.getParameters().get("videoResponse");
+        String videoResponseBase64 = data.getParameters().get(VIDEO_SUBMISSION_PARAM);
         if (StringUtils.isBlank(videoResponseBase64) || videoResponseBase64.split(",").length < 2) {
             return attachments;
         }
