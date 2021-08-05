@@ -580,7 +580,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.previewMode = true;
     this.selectedAttachment = this.submission.submittedAttachments.find(sa => sa.url === e.target.dataset.url);
     const preview = this.submission.previewableAttachments[this.selectedAttachment.ref];
-    this.selectedPreview = preview || this.selectedAttachment;
+    if (preview) {
+      this.selectedPreview = preview;
+    } else {
+      this.selectedPreview = this.selectedAttachment;
+      // If there's no preview, download the attachment.
+      location.href = this.selectedPreview.url;
+    }
   }
 
   addRubricParam(e, type) {
