@@ -50,7 +50,7 @@ public class HideDivisionRenderer extends Renderer
 {
 //  private static final String BARSTYLE = "navModeAction";
   private static final String BARSTYLE = "";
-  private static final String BARTAG = "h3";
+  private static final String BARTAG = "h2";
 
   public boolean supportsComponentType(UIComponent component)
   {

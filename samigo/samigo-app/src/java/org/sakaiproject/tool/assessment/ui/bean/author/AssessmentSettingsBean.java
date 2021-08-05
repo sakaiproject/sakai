@@ -368,7 +368,7 @@ public class AssessmentSettingsBean implements Serializable {
         if (accessControl.getHonorPledge() != null) {
           this.honorPledge = accessControl.getHonorPledge();
         } else {
-          this.honorPledge = false;
+          this.honorPledge = true;
         }
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
@@ -377,7 +377,7 @@ public class AssessmentSettingsBean implements Serializable {
         }
         else{
           this.unlimitedSubmissions=AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString();
-          this.submissionsAllowed="";
+          this.submissionsAllowed="1";
         }
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
