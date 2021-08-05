@@ -150,14 +150,6 @@ extends VelocityPortletStateAction
 	private static final String WEEK_VIEW = "week";
 	private static final String DAY_VIEW = "day";
 	private static final String MONTH_VIEW = "month";
-
-	private static final int HOURS_PER_DAY = 24;
-	static int tempHours = ServerConfigurationService.getInt("calendar.hoursPerPage", 10);
-	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 16 ? 16 : (tempHours < 8 ? 8 : tempHours);
-
-	private static final int FIRST_PAGE_START_HOUR = 0;
-	private static final int SECOND_PAGE_START_HOUR = 8;
-	private static final int THIRD_PAGE_START_HOUR = 24-NUMBER_HOURS_PER_PAGE;
 	
 	private static final String STATE_YEAR = "calYear";
 	private static final String STATE_MONTH = "calMonth";
@@ -931,20 +923,6 @@ extends VelocityPortletStateAction
 		
 		
 		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,59,59,000);
-		return TimeService.newTimeRange(startTime,endTime,true,true);
-	}
-	
-	/**
-	 * Given a current date in the year, month, and day parameters, returns a TimeRange for the day.
-	 */
-	public TimeRange getDayTimeRange(
-	int year,
-	int month,
-	int day)
-	{
-		Time startTime = TimeService.newTimeLocal(year,month,day,00,00,00,000);
-		Time endTime = TimeService.newTimeLocal(year,month,day,23,59,59,000);
-		
 		return TimeService.newTimeRange(startTime,endTime,true,true);
 	}
 
@@ -6070,92 +6048,32 @@ extends VelocityPortletStateAction
 
 	}	 // buildListContext
 	
-	private void buildPrintLink( VelocityPortlet portlet,
-								 RunData runData,
-								 CalendarActionState state,
-								 Context context )
-	{
+	private void buildPrintLink(VelocityPortlet portlet, RunData runData, CalendarActionState state, Context context ) {
+		String peid = ((JetspeedRunData)runData).getJs_peid();
+		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
 		String stateName = state.getState();
 		
 		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, LIST_VIEW)) {
 			int printType = CalendarService.UNKNOWN_VIEW;
+
 			String timeRangeString = "";
-			
-			TimeRange dailyStartTime = null;
 			int startHour = 0, startMinute = 0;
-			int endHour = 0, endMinute = 0;
-			int endSeconds = 0, endMSeconds = 0;
-			
-			//
-			// Depending what page we are on, there will be
-			// a different time of the day on which we start.
-			//
-			if (state.getCurrentPage().equals("first"))
-			{
-				startHour = FIRST_PAGE_START_HOUR;
-				endHour = startHour + NUMBER_HOURS_PER_PAGE;
-			}
-			else
-				if (state.getCurrentPage().equals("second"))
-				{
-					startHour = SECOND_PAGE_START_HOUR;
-					endHour = startHour + NUMBER_HOURS_PER_PAGE;
-				}
-				else
-					if (state.getCurrentPage().equals("third"))
-					{
-						startHour = THIRD_PAGE_START_HOUR;
-						endHour = startHour + NUMBER_HOURS_PER_PAGE;
-					}
-					else
-					{
-						startHour = 0;
-						endHour = startHour + HOURS_PER_DAY;
-					}
-			
-			// If we go over twenty-four hours, stop at the end of the day.
-			if ( endHour >= HOURS_PER_DAY )
-			{
-				endHour = 23;
-				endMinute = 59;
-				endSeconds = 59;
-				endMSeconds = 999;
-			}
-			
-			dailyStartTime =
-			TimeService.newTimeRange(
-			TimeService.newTimeLocal(
-			state.getcurrentYear(),
-			state.getcurrentMonth(),
-			state.getcurrentDay(),
-			startHour,
-			startMinute,
-			00,
-			000),
-			TimeService.newTimeLocal(
-			state.getcurrentYear(),
-			state.getcurrentMonth(),
-			state.getcurrentDay(),
-			endHour,
-			endMinute,
-			endSeconds,
-			endMSeconds));
-			
-			String peid = ((JetspeedRunData)runData).getJs_peid();
-			SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
-			
-			Time m_time = TimeService.newTime();
-			TimeBreakdown b = m_time.breakdownLocal();
-			int stateYear = b.getYear();
-			int stateMonth = b.getMonth();
-			int stateDay = b.getDay();
-			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
-			{
+			int endHour = 23, endMinute = 59;
+			int endSeconds = 59, endMSeconds = 999;
+			TimeRange dailyStartTime = TimeService.newTimeRange(
+					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), startHour, startMinute, 00, 000),
+					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), endHour, endMinute, endSeconds, endMSeconds)
+			);
+			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
+			int stateYear = currentZonedDateTime.get(ChronoField.YEAR);
+			int stateMonth = currentZonedDateTime.get(ChronoField.MONTH_OF_YEAR);
+			int stateDay = currentZonedDateTime.get(ChronoField.DAY_OF_MONTH);
+			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null)) {
 				stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
 				stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
 				stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
 			}
-			
+
 			CalendarUtil calObj = new CalendarUtil();
 			calObj.setDay(stateYear, stateMonth, stateDay);
 			
@@ -6172,26 +6090,15 @@ extends VelocityPortletStateAction
 			}
 
 			// set the actual list of calendars into the user's session:
-			List calRefList = getCalendarReferenceList(
-			portlet,
-			state.getPrimaryCalendarReference(),
-			isOnWorkspaceTab());
-			
-			sessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
-			boolean dateDesc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
-			
-			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
-			
+			List calRefList = getCalendarReferenceList(portlet, state.getPrimaryCalendarReference(), isOnWorkspaceTab());			
+			sessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST, calRefList);
+
 			// Create the PDF print version URL
-			String printableVersionUrl = ServerConfigurationService.getAccessUrl()
-			+ CalendarService.calendarPdfReference(calendarRef.getContext(), 
-														calendarRef.getId(),
-														printType,
-														timeRangeString,
-														UserDirectoryService.getCurrentUser().getDisplayName(),
-														dailyStartTime,
-														dateDesc);
-			
+			boolean dateDesc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
+			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
+			String userDisplayName = UserDirectoryService.getCurrentUser().getDisplayName();
+			String calendarPdfReference = CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(), printType, timeRangeString, userDisplayName, dailyStartTime, dateDesc);
+			String printableVersionUrl = String.format("%s%s", ServerConfigurationService.getAccessUrl(), calendarPdfReference);			
 			context.put("printableVersionUrl", printableVersionUrl);
 		}
 	}

@@ -5441,29 +5441,28 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * Called by the servlet to service a get/post requesting a calendar in PDF format.
 	 */
-	protected void printSchedule(Properties parameters, OutputStream os) throws PermissionException
-	{
-      //		 Get the user name.
+	protected void printSchedule(Properties parameters, OutputStream os) throws PermissionException {
+		// Get the user name.
 		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
 
 		// Get the list of calendars.from user session
 		List calendarReferenceList = getCalendarReferenceList();
-		
+
 		// Get the type of schedule (daily, weekly, etc.)
 		int scheduleType = getScheduleTypeFromParameterList(parameters);
 
 		// Now get the time range.
 		TimeRange timeRange = getTimeRangeFromParameters(parameters);
-		
+
 		// Now get the order
 		boolean reverseOrder = Boolean.parseBoolean( (String) parameters.get(ORDER_EVENTS_PARAMETER_NAME) );
 
 		Document document = docBuilder.newDocument();
 
-		pdfExportService.generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
-				calendarReferenceList, userName, this, reverseOrder);
+		pdfExportService.generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters), calendarReferenceList, userName, this, reverseOrder);
 
 		pdfExportService.generatePDF(document, pdfExportService.getXSLFileNameForScheduleType(scheduleType), os);
+
 	}
 
    
