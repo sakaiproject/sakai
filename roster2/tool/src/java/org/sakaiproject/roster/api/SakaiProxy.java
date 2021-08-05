@@ -197,7 +197,7 @@ public interface SakaiProxy {
 		
 	public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
 
-	public RosterMember getMember(String siteId, String userId, String enrollmentSetId);
+	public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId);
 
 	public List<User> getSiteUsers(String siteId);
 	

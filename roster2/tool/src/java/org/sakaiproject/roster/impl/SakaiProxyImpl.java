@@ -380,7 +380,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 				"roster.display.officialPicturesByDefault", true);
     }
 
-	public RosterMember getMember(String siteId, String userId, String enrollmentSetId) {
+	public RosterMember getMember(String siteId, String userId, String groupId, String enrollmentSetId) {
 
         User user = null;
         try {
@@ -405,7 +405,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             if (membersMap != null) {
                 List<RosterMember> members = membersMap.get(enrollmentSetId + "#all");
 
-                members = filterMembers(site, getCurrentUserId(), members, null);
+                members = filterMembers(site, getCurrentUserId(), members, groupId);
 
                 if (members != null) {
                     for (RosterMember member : members) {
@@ -421,8 +421,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             return null;
         } else {
             // Get the unfiltered memberships
-            List<RosterMember> members = getAndCacheSortedMembership(site, null, null);
-            members = filterMembers(site, getCurrentUserId(), members, null);
+            List<RosterMember> members = getAndCacheSortedMembership(site, groupId, null);
+            members = filterMembers(site, getCurrentUserId(), members, groupId);
             for (RosterMember member : members) {
                 if (member.getUserId().equals(userId)) {
                     return member;
