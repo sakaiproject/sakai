@@ -280,6 +280,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		// We give this three chances - try to submit right away - submit 1/2 second from now and show the link 5 seconds from now
 		body.append("<script>\n");
+		body.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('access.doRedirect prelaunch request');");
 		body.append("setTimeout(function() {document.getElementById('lti-message-"+hash+"').style.display='block';}, 5000);\n");
 		body.append("setTimeout(function() {window.location='"+redirectUrl+"';}, 500);\n");
 		body.append("window.location='"+redirectUrl+"';\n");
