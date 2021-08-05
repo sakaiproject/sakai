@@ -6,6 +6,7 @@
 
     <div class="video-recorder">
         <input type="hidden" name="video-submission" id="video-submission" value="" />
+        <input type="hidden" name="video-submission-mimetype" id="video-submission-mimetype" value="" />
 
         <video style="display:none" id="submission-preview-player" controls autoplay playsinline></video>
         <br><br>

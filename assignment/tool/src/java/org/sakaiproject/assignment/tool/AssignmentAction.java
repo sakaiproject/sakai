@@ -287,6 +287,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
     // Video Submissions
     private static final String VIDEO_SUBMISSION_PARAM = "video-submission";
+    private static final String VIDEO_SUBMISSION_MIMETYPE_PARAM = "video-submission-mimetype";
+
     /**
      * Is the review service available?
      */
@@ -15550,7 +15552,7 @@ public class AssignmentAction extends PagedResourceActionII {
         videoResponseBase64 = videoResponseBase64.split(",")[1];
         // Use the sessionId for the video reference.
         String resourceId = sessionManager.getCurrentSession().getId();
-        String contentType = "video/webm";
+        String contentType = data.getParameters().get(VIDEO_SUBMISSION_MIMETYPE_PARAM);
         // The blob is encoded Base64 in the client side and sent via POST.
         InputStream contentStream = new ByteArrayInputStream(Base64.getDecoder().decode(videoResponseBase64.getBytes(StandardCharsets.UTF_8)));
         ResourcePropertiesEdit props = contentHostingService.newResourceProperties();

@@ -2,6 +2,7 @@ const sakaiVideoRecorder = {
   recorder: null,
   player: document.getElementById('submission-preview-player'),
   recordingHiddenInput: document.getElementById('video-submission'),
+  recorderSubmissionMimetype: document.getElementById('video-submission-mimetype'),
   recorderStartButton: document.getElementById('btn-start-recording'),
   recorderStopButton: document.getElementById('btn-stop-recording'),
 
@@ -53,8 +54,11 @@ const sakaiVideoRecorder = {
         sakaiVideoRecorder.player.muted = true;
         sakaiVideoRecorder.player.volume = 0;
         sakaiVideoRecorder.player.srcObject = camera;
+        const mimeType = 'video/webm';
+        sakaiVideoRecorder.recorderSubmissionMimetype.value = mimeType;
         sakaiVideoRecorder.recorder = RecordRTC(camera, {
-          type: 'video'
+          type: 'video',
+          mimeType: mimeType
         });
         sakaiVideoRecorder.recorder.startRecording();
         // release camera on stopRecording
