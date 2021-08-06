@@ -149,6 +149,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	private static String FLOW_PARAMETER_EDITOR = "editor";
 	private static String FLOW_PARAMETER_ASSIGNMENT = "assignment";
 	private static String FLOW_PARAMETER_IMPORT = "import";
+	private static String SECRETONLY_PARAMETER = "secretonly";
 
 	/**
 	 * Service Implementations
@@ -1234,7 +1235,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 	public List<Map<String, Object>> getAvailableTools (String ourSite, String contextString) {
 
-		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, ourSite);
+		Boolean isAdmin = ltiService.isAdmin(ourSite);
+		List<Map<String, Object>> tools = null;
+		if ( isAdmin ) {
+			tools = ltiService.getTools(null, null, 0, 0, ourSite);
+		} else {
+			tools = ltiService.getToolsLaunch(ourSite);
+		}
+
 		// only list the tools available in the system
 		List<Map<String, Object>> systemTools = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> tool : tools) {
@@ -1369,6 +1377,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			Long visible = foorm.getLong(tool.get(LTIService.LTI_VISIBLE));
 			context.put("tool_visible", visible);
 		}
+
+		String flow = data.getParameters().getString(FLOW_PARAMETER);
+		context.put("flow", flow);
 
 		return "lti_content_insert";
 	}
@@ -2375,7 +2386,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (flow == null && previousPost != null) {
 			flow = previousPost.getProperty(FLOW_PARAMETER);
 		}
-		log.debug("buildContentConfigPanelContext flow={}", flow);
+		String secretonly = data.getParameters().getString(SECRETONLY_PARAMETER);
+		if (secretonly == null && previousPost != null) {
+			secretonly = previousPost.getProperty(SECRETONLY_PARAMETER);
+		}
+		log.debug("buildContentConfigPanelContext flow={} secretonly={}", flow, secretonly);
 
 		// TODO: Have Lessons use the normal entry point instead of coming directly here
 		if (flow == null) {
@@ -2480,7 +2495,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
-		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*");
+		// We handle the description separateely below
+		String[] contentForm = foorm.filterForm(null, ltiService.getContentModel(toolKey, getSiteId(state)), null, "^tool_id:.*|^SITE_ID:.*|^description:.*");
 		if (contentForm == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";
@@ -2527,6 +2543,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput", formInput);
 		context.put("flow", flow);
+		context.put("secretonly", secretonly);
 
 		return "lti_content_config";
 	}

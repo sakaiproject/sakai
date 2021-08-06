@@ -13,6 +13,7 @@
 	</h3>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $formattedText.escapeHtml($messageSuccess)</div>#end
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
+<!-- Flow: $flow -->
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 ## Let admins still see stealthed tools in the list
 #if ( !$isAdmin && $tool_id && $tool_visible == 1 )
@@ -44,7 +45,12 @@
 #end
 #if ( $formInput )
 		$formInput
+## If we are admin and in the admin worksite - this makes no sense
+#if ( ! $isAdmin )
+<div id="input-add-site-link">
 <input #if($placement) disabled="disabled" checked="checked" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
+</div>
+#end
 #else
 #if ( $oldContentId )
 $tlang.getString("add.tool.select")

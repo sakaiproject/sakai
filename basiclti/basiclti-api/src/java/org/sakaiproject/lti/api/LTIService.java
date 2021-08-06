@@ -60,7 +60,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
             "frameheight:integer:label=bl_frameheight:allowed=true",
-            "toolorder:integer:label=bl_toolorder:maxlength=2",
+            "toolorder:integer:label=bl_toolorder:maxlength=2:role=admin",
             "newpage:checkbox:label=bl_newpage",
             "protect:checkbox:label=bl_protect:role=admin",
             "debug:checkbox:label=bl_debug",
