@@ -146,6 +146,9 @@ public class SakaiBLTIUtil {
 	// SAK-45491 - Key rotation interval
 	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS = "lti.advantage.key.rotation.days";
 	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT = "30";
+	// SAK-45951 - Control post verify feature - default off
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED = "lti.advantage.post.verify.enabled";
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT = "false";
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
@@ -1906,8 +1909,10 @@ public class SakaiBLTIUtil {
 			*/
 
 			// Add post-launch call back claim
-			lj.origin = getOurServerUrl();
-			lj.postverify = getOurServerUrl() + LTI13_PATH + "postverify/" + signed_placement;
+			if ( checkSendPostVerify() ) {
+				lj.origin = getOurServerUrl();
+				lj.postverify = getOurServerUrl() + LTI13_PATH + "postverify/" + signed_placement;
+			}
 
 			if ( deepLink ) {
 				SakaiDeepLink ci = new SakaiDeepLink();
@@ -2754,6 +2759,16 @@ public class SakaiBLTIUtil {
 		int delta = 5*60*60; // Five minutes
 		boolean retval = LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
 		return retval;
+	}
+
+	/**
+	 * sendPostVerify - Check if we are supposed to send the postVerify Claims
+	 */
+	public static boolean checkSendPostVerify()
+	{
+		String postVerify = ServerConfigurationService.getString(
+		    LTI_ADVANTAGE_POST_VERIFY_ENABLED, LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT);
+		return "true".equals(postVerify);
 	}
 
 	public static boolean isPlacement(String placement_id) {
