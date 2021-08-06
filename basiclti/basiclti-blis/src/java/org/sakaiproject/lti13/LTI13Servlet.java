@@ -269,7 +269,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// /imsblis/lti13/postverify/{signed-placement}
-		if (parts.length == 5 && "postverify".equals(parts[3])) {
+		if (SakaiBLTIUtil.checkSendPostVerify() && parts.length == 5 && "postverify".equals(parts[3])) {
 			String signed_placement = parts[4];
 			handlePostVerify(signed_placement, request, response);
 			return;
