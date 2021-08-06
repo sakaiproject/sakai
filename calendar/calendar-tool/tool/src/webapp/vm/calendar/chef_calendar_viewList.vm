@@ -102,181 +102,229 @@
 #* 		Joanne: need a check here - if messages, display, otherwise do not.
 		Not sure what was available in the context to do this. (gsilver) *#
 
-			<table class="table table-striped table-bordered" summary="$tlang.getString('viewl.list.summary')">
-				<tr>
-					<th>
-						#if ($currentDateSortAsc)
-							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdateasc')">
+		<table class="table table-striped table-bordered" summary="$tlang.getString('viewl.list.summary')">
+			<tr>
+				<th>
+					#if ($currentDateSortAsc)
+						<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;"
+						   title="$tlang.getString('viewl.sortdateasc')">
 							$tlang.getString('viewl.date')
-							<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('viewl.sortdateasc')" />
-							</a>
-						#else
-							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdatedesc')">
+							<img src="#imageLink("sakai/sortascending.gif")" border="0"
+								 alt="$tlang.getString('viewl.sortdateasc')"/>
+						</a>
+					#else
+						<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;"
+						   title="$tlang.getString('viewl.sortdatedesc')">
 							$tlang.getString('viewl.date')
-							<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('viewl.sortdatedesc')"/>
-							</a>
-						#end
-					</th>
-					<th>
-						$tlang.getString("viewl.time")
-					</th>
-					#if (!$canViewAudience)
-					<th>$tlang.getString("view.for")</th>
+							<img src="#imageLink("sakai/sortdescending.gif")" border="0"
+								 alt="$tlang.getString('viewl.sortdatedesc')"/>
+						</a>
 					#end
-					#if ($fromColExist) <th>$tlang.getString("gen.from")</th> #end
-					<th>
-						$tlang.getString("viewl.desc")
-					</th>
+				</th>
+				<th>
+					$tlang.getString("viewl.time")
+				</th>
+				#if (!$canViewAudience)
+					<th>$tlang.getString("view.for")</th>
+				#end
+				#if ($fromColExist)
+					<th>$tlang.getString("gen.from")</th> #end
+				<th>
+					$tlang.getString("viewl.desc")
+				</th>
+			</tr>
+			#set($noEvent = "true")
+			#foreach ($key in $yearMap.keySet())  ##foreach--1
+				#set ($thisYear = $key)
+				#set ($theseMonths = $yearMap.get($key))
+				#set ($yearShown = "false") ## false - the current year is not shown in the list
+
+				#foreach ($aMonth in $theseMonths)  ##foreach--2
+					#set ($monthShown = "false") ## when false, the current month is not shown in the list
+					#set($row = $aMonth.getRow())
+
+					#if($currentDateSortAsc)
+						#set ($rowStart = 0)
+						#set ($rowEnd = $row)
+						#set ($uStart = 0)
+						#set ($uEnd = 6)
+					#else
+						#set ($rowStart = $row)
+						#set ($rowEnd = 0)
+						#set ($uStart = 6)
+						#set ($uEnd = 0)
+					#end
+
+					#foreach ($xn in [$rowStart..$rowEnd])  ##foreach--3
+						#foreach ($u in [$uStart..$uEnd])  ##foreach--4
+							#set ($dayShown = "false") ## when false, the number of current day is not shown in the list
+							#set ($mu = $aMonth.getDay($xn,$u))
+							#if (!($mu.getFlag() == 0)) ## only include the days inside this month
+								#set ($eventsn = $mu.getEvents())
+
+								#set($eventNumber=0)
+								#foreach ($m in $eventsn)  ##foreach--5
+									#set ($noEvent = "false")
+									#set ($eventNumber = $eventNumber +1)
+									#set ($showLegend = "true")
+								#end  ##foreach--5
+
+								#if ($noEvent == "false")
+									#foreach ($m in $eventsn)  ##foreach--6
+										<tr>
+											<td #if ($counter == 1) style="white-space:nowrap;" #else #if ($dayShown ==
+												"false") class="chefTopline" #end #end>
+												#if ($dayShown == "false")
+													#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
+													$mu.DayName $aMonth.MonthName.charAt(0)$aMonth.MonthName.substring(1).toLowerCase() $mu.Day
+												#else
+													&nbsp;
+												#end
+											</td>
+
+											## Time column
+											<td  #if ($counter == 1) #else #if ($dayShown == "false")
+													class="chefTopline" #end #end>
+												#set ($startTime = $m.getRange().firstTime().toStringLocalShort())
+												#set ($endTime = $m.getRange().lastTime(0).toStringLocalShort())
+
+												#if ($startTime == $endTime)
+													$startTime
+												#else
+													$startTime - $endTime
+												#end
+												$timezone
+											</td>
+
+											## For Column																	
+											#if (!$canViewAudience)
+												<td #if ($counter == 1) #else #if ($dayShown == "false")
+														class="chefTopline" #end #end>
+													#set ($dr = $m.getGroupRangeForDisplay($cal))
+													#if ($!dr && ($dr.equals("")))
+														$tlang.getString("gen.site")
+													#else
+														$formattedText.escapeHtml($dr)
+													#end
+												</td>
+											#end
+											## From Column
+											#if ($fromColExist)
+												#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
+												## #if ($calObj.getContext() != $PortalService.CurrentSiteId )
+												#set ($site = $SiteService.getSite($calObj.getContext()))
+												<td #if ($counter == 1) #else #if ($dayShown == "false")
+														class="chefTopline" #end #end>$!site.Title</td>
+											#end
+
+											## Description column
+											<td #if ($counter == 1) #else #if ($dayShown == "false")
+													class="chefTopline" #end #end>
+												#set ($dayShown = "true")
+												<a href="#toolLinkParam("$action" "doDescription"
+													"eventReference=$formattedText.escapeUrl($m.getReference())")"
+												   title="$formattedText.escapeHtml($m.getDisplayName())">
+													<span class="icon $eventIconMap.get($m.getType()) "
+														  title="$localizedEventTypes.get($m.getType())"></span>
+													$formattedText.escapeHtml($m.getDisplayName())</a>
+
+												#set ($counter= $counter + 1)
+
+												<div style="margin:.5em 2em">
+													#set ($desc = $formattedText.escapeHtmlFormattedText($m.DescriptionFormatted))
+
+													#if ($desc.length() > 50)
+														$calendarFormattedText.trimFormattedText($desc, 50) ...
+													#else
+														$desc
+													#end
+												</div>
+
+
+												#set ($size = 0)
+												#if (!$m.Attachments.isEmpty())
+													<ul class="attachList" style="margin:1em 2em">
+														#set ($props = false)
+														#set ($size = $m.Attachments.size())
+														#foreach ($attachment in $m.Attachments)
+															#set ($props = $attachment.Properties)
+															#if (!$props)
+																#if ($size > 0) #set ($size = $size - 1) #end
+															#else
+																#if ($props.getBooleanProperty($props.NamePropIsCollection))
+																<li><img src="#imageLink("sakai/attachments.gif")"
+																		 alt="$tlang.getString('viewl.folder')"
+																		 border="0"/>
+																	<img src="#imageLink($contentTypeImageService.getContentTypeImage(
+																		"folder"))" alt="folder" border="0"/>
+																#else
+																<li><img src="#imageLink("sakai/attachments.gif")"
+																		 alt="$tlang.getString('viewl.attach')"
+																		 border="0"/>
+																	<img src="#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))"
+																		 alt="$tlang.getString('viewl.attach')"
+																		 border="0"/>
+																#end
+
+																#set ($copyflag = false)
+																#if ($props.getProperty("CHEF:copyrightalert"))
+																	#if ($props.getBooleanProperty(
+																		"CHEF:copyrightalert"))
+																		#set ($copyflag = true)
+																	#end
+																#end
+
+																#if ($copyflag)
+																	## if there is a copyright alert, show the alert page first
+																	<a href=""
+																	   onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+																		$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted(
+																			"DAV:displayname"))</a>&#169;
+																#else
+																	<a href="$attachment.Url" target="_blank">
+																		$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted(
+																			"DAV:displayname"))</a>
+																#end
+
+																#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+																	($props.getPropertyFormatted($props.NamePropContentLength)
+																	)
+																#end
+															</li>
+															#end
+															#set ($props = false)
+														#end
+													</ul>
+												#end
+											</td>
+										</tr>
+
+										#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
+										#if ($calObj.getContext() != $Context )
+											<tr>
+												<td>&nbsp;</td>
+												#set ($siteDisplay = $SiteService.getSiteDisplay($calObj.getContext()))
+												#set ($leftBrkIndex = $siteDisplay.indexOf('('))
+												<td>$tlang.getString(
+													'viewl.froms') $siteDisplay.substring(0, $leftBrkIndex)</td>
+											</tr>
+										#end
+
+									#end   ##foreach--6
+								#end ##if ($noEvent == "false")
+							#end  ## -- end of if
+						#end   ##foreach--4
+					#end  ##foreach--3
+				#end  ##foreach--2
+			#end  ##foreach--1
+			#if ($noEvent == "true")
+				<tr>
+					<td colspan="4" class="text-center">
+						$tlang.getString("view1.emptyList")
+					</td>
 				</tr>
-				#foreach ($key in $yearMap.keySet())  ##foreach--1
-						#set ($thisYear = $key)
-						#set ($theseMonths = $yearMap.get($key))
-						#set ($yearShown = "false") ## false - the current year is not shown in the list
-
-						#foreach ($aMonth in $theseMonths)  ##foreach--2
-								#set ($monthShown = "false") ## when false, the current month is not shown in the list
-								#set($row = $aMonth.getRow())
-
-								#if($currentDateSortAsc)
-									#set ($rowStart = 0)
-									#set ($rowEnd = $row)
-									#set ($uStart = 0)
-									#set ($uEnd = 6)
-								#else
-									#set ($rowStart = $row)
-									#set ($rowEnd = 0)
-									#set ($uStart = 6)
-									#set ($uEnd = 0)
-								#end
-								
-									#foreach ($xn in [$rowStart..$rowEnd])  ##foreach--3
-										#foreach ($u in [$uStart..$uEnd])  ##foreach--4
-												#set ($dayShown = "false") ## when false, the number of current day is not shown in the list
-												#set ($mu = $aMonth.getDay($xn,$u))
-												#if (!($mu.getFlag() == 0)) ## only include the days inside this month
-														#set ($eventsn = $mu.getEvents())
-
-														#set($noEvent = "true")
-														#set($eventNumber=0)
-														#foreach ($m in $eventsn)  ##foreach--5
-																#set ($noEvent = "false")
-																#set ($eventNumber = $eventNumber +1)
-																#set ($showLegend = "true")
-														#end  ##foreach--5
-
-														#if ($noEvent == "false")
-																#foreach ($m in $eventsn)  ##foreach--6
-																		<tr>
-																		<td #if ($counter == 1) style="white-space:nowrap;" #else #if ($dayShown == "false") class="chefTopline" #end #end>
-																		#if ($dayShown == "false")
-																				#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
-																				$mu.DayName $aMonth.MonthName.charAt(0)$aMonth.MonthName.substring(1).toLowerCase() $mu.Day
-																		#else
-																			&nbsp;
-																		#end
-																		</td>
-																		
-																		## Time column
-																		<td  #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
-																		#set ($startTime = $m.getRange().firstTime().toStringLocalShort())
-																		#set ($endTime = $m.getRange().lastTime(0).toStringLocalShort())
-
-																		#if ($startTime == $endTime)
-																				$startTime
-																		#else
-																				$startTime - $endTime
-																		#end
-                                                      $timezone
-																		</td>
-
-## For Column																	
-#if (!$canViewAudience)
-<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
-#set ($dr = $m.getGroupRangeForDisplay($cal))
-#if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $formattedText.escapeHtml($dr) #end
-</td>
-#end
-## From Column
-#if ($fromColExist)
-#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
-#set ($site = $SiteService.getSite($calObj.getContext()))
-<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>$!site.Title</td>
-#end
-																		
-																		## description column
-																		<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
-																			#set ($dayShown = "true")
-																			<a href="#toolLinkParam("$action" "doDescription" "eventReference=$formattedText.escapeUrl($m.getReference())")" title="$formattedText.escapeHtml($m.getDisplayName())">
-																				<span class="icon $eventIconMap.get($m.getType()) " title="$localizedEventTypes.get($m.getType())"></span>
-																			 $formattedText.escapeHtml($m.getDisplayName())</a>
-
-																		#set ($counter= $counter + 1)
-
-																		<div style="margin:.5em 2em">
-																		#set ($desc = $formattedText.escapeHtmlFormattedText($m.DescriptionFormatted))
-																		
-																		#if ($desc.length() > 50)
-																			$calendarFormattedText.trimFormattedText($desc, 50) ...
-																		#else
-																			$desc
-																		#end
-																		</div>
-																		
-																		
-																		#set ($size = 0)
-																		#if (!$m.Attachments.isEmpty())
-																			<ul class="attachList" style="margin:1em 2em">
-																			#set ($props = false)
-																			#set ($size = $m.Attachments.size())
-																			#foreach ($attachment in $m.Attachments)
-																					#set ($props = $attachment.Properties)
-																					#if (!$props)
-																							#if ($size > 0) #set ($size = $size - 1) #end
-																					#else
-																							#if ($props.getBooleanProperty($props.NamePropIsCollection))
-																									<li><img src = "#imageLink("sakai/attachments.gif")" alt="$tlang.getString('viewl.folder')" border="0" />
-																									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" alt="folder" border="0" />
-																							#else
-																									<li><img src = "#imageLink("sakai/attachments.gif")" alt="$tlang.getString('viewl.attach')"  border="0" />
-																									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" alt="$tlang.getString('viewl.attach')"  border="0" />
-																							#end
-																							
-																							#set ($copyflag = false)
-																							#if ($props.getProperty("CHEF:copyrightalert"))
-																								#if ($props.getBooleanProperty("CHEF:copyrightalert"))
-																									#set ($copyflag = true)
-																								#end
-																							#end
-																							
-																							#if ($copyflag)
-																								## if there is a copyright alert, show the alert page first
-																								<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-																								$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
-																							#else
-																								<a href="$attachment.Url" target="_blank">
-																								$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
-																							#end
-																							
-																							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-																											($props.getPropertyFormatted($props.NamePropContentLength))
-																							#end
-																							</li>
-																					#end
-																			#set ($props = false)
-																			#end
-																			</ul>
-																		#end
-																</td>
-																</tr>
-
-														#end   ##foreach--6
-														#end ##if ($noEvent == "false")
-												#end  ## -- end of if
-										#end   ##foreach--4
-								#end  ##foreach--3
-						#end  ##foreach--2
-				 #end  ##foreach--1
-	</table>
+			#end
+		</table>
 	
 ## Section awareness
 #if ($!groups && ($!groups.size()>0)) #set ($show_group = "true") #else #set ($show_group = "false") #end
@@ -285,7 +333,11 @@
 	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
 #else
 	<p class="checkbox">
-		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
+		<input type="radio" name="scheduleTo" id="group-sites" value="all" #if ($!scheduleTo == "all" || $!event.Access == $channelAccess) checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"/>
+		<label for="group-sites">$tlang.getString("displayfrom.all")</label>
+	</p>
+	<p class="checkbox">
+		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site") checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
 		<label for="site">$tlang.getString("displayfrom.site")</label>
 	</p>
 	#if ($!groups)
