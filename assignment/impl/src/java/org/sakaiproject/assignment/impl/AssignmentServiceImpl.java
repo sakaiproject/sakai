@@ -969,7 +969,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 assignment.setReqEstimate(existingAssignment.getReqEstimate());
                 assignment.setEstimate(existingAssignment.getEstimate());
-                
+
                 //duplicating attachments
                 Set<String> tempAttach = existingAssignment.getAttachments();
                 if (tempAttach != null && !tempAttach.isEmpty()){
@@ -1612,7 +1612,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException {
-    	AssignmentSubmissionSubmitter submitter = assignmentRepository.findSubmissionSubmitter(submitterId);
+        AssignmentSubmissionSubmitter submitter = assignmentRepository.findSubmissionSubmitter(submitterId);
         if (submitter != null) {
             String reference = AssignmentReferenceReckoner.reckoner().submission(submitter.getSubmission()).reckon().getReference();
             if (allowGetSubmission(reference)) {
@@ -1626,10 +1626,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         return null;
     }
-    
+
     @Override
     public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException {
-    	AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
+        AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
         if (timeSheet != null) {
             String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getSubmitter().getSubmission()).reckon().getReference();
             if (allowGetSubmission(reference)) {
@@ -1643,7 +1643,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
         return null;
     }
-    
+
     @Override
     @Transactional
     public AssignmentSubmission getSubmission(String assignmentId, User person) throws PermissionException {
@@ -4722,16 +4722,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         dupes.sort(Comparator.comparing(r -> r.user.getDisplayName()));
         return dupes;
     }
-    
-    public boolean correctTime(String timeSheet) {
-    	Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-		Matcher match = pattern.matcher(timeSheet);
 
-		if(!match.matches()) {
-			return false;
-		}else {
-			return true;
-		}
-	}
-    
+    public boolean correctTime(String timeSheet) {
+        Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
+        Matcher match = pattern.matcher(timeSheet);
+
+        if (!match.matches()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
