@@ -6049,28 +6049,7 @@ extends VelocityPortletStateAction
 		
 		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, LIST_VIEW)) {
 			int printType = CalendarService.UNKNOWN_VIEW;
-
-			String timeRangeString = "";
-			int startHour = 0, startMinute = 0;
-			int endHour = 23, endMinute = 59;
-			int endSeconds = 59, endMSeconds = 999;
-			TimeRange dailyStartTime = TimeService.newTimeRange(
-					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), startHour, startMinute, 00, 000),
-					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), endHour, endMinute, endSeconds, endMSeconds)
-			);
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			int stateYear = currentZonedDateTime.get(ChronoField.YEAR);
-			int stateMonth = currentZonedDateTime.get(ChronoField.MONTH_OF_YEAR);
-			int stateDay = currentZonedDateTime.get(ChronoField.DAY_OF_MONTH);
-			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null)) {
-				stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
-				stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
-				stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
-			}
-
-			CalendarUtil calObj = new CalendarUtil();
-			calObj.setDay(stateYear, stateMonth, stateDay);
-			
+			String timeRangeString;
 			switch (stateName) {
 				case LIST_VIEW:
 					printType = CalendarService.LIST_VIEW;
@@ -6079,7 +6058,7 @@ extends VelocityPortletStateAction
 				case CALENDAR_INIT_PARAMETER:
 				default:
 					printType = CalendarService.WEEK_VIEW;
-					timeRangeString = getWeekTimeRange(calObj).toString();
+					timeRangeString = "";
 					break;			
 			}
 
@@ -6091,7 +6070,7 @@ extends VelocityPortletStateAction
 			boolean dateDesc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 			String userDisplayName = UserDirectoryService.getCurrentUser().getDisplayName();
-			String calendarPdfReference = CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(), printType, timeRangeString, userDisplayName, dailyStartTime, dateDesc);
+			String calendarPdfReference = CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(), printType, timeRangeString, userDisplayName, dateDesc);
 			String printableVersionUrl = String.format("%s%s", ServerConfigurationService.getAccessUrl(), calendarPdfReference);			
 			context.put("printableVersionUrl", printableVersionUrl);
 		}
