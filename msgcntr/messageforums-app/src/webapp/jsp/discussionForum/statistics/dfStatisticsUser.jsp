@@ -261,6 +261,9 @@
   			</h:column>
 
   			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.stat_forum_more_details}"  />
+				</f:facet>
 				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 					onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
 					<f:param value="#{stat.forumId}" name="forumId"/>
