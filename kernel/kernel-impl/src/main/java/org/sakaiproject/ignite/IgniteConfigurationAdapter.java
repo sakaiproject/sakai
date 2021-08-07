@@ -11,6 +11,7 @@ import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
+import org.apache.ignite.failure.StopNodeFailureHandler;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
 import org.apache.ignite.spi.collision.fifoqueue.FifoQueueCollisionSpi;
@@ -38,6 +39,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
     public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
     public static final String IGNITE_TCP_MESSAGE_QUEUE_LIMIT = "ignite.tcpMessageQueueLimit";
+    public static final String IGNITE_STOP_ON_FAILURE = "ignite.stopOnFailure";
 
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
     private static Boolean configured = Boolean.FALSE;
@@ -72,6 +74,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
+            boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
             // disable banner
             System.setProperty("IGNITE_NO_ASCII", "true");
@@ -111,10 +114,12 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             // configuration for metrics update frequency
             igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
-
             igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
             igniteConfiguration.setFailureDetectionTimeout(20000);
+            if (stopOnFailure) {
+                igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
+            }
 
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
