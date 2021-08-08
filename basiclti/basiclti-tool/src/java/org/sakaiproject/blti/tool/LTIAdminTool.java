@@ -20,7 +20,6 @@
  ********************************************************************************* */
 package org.sakaiproject.blti.tool;
 
-import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.Date;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.FormatStyle;
 
 import java.net.URLEncoder;
 
@@ -82,6 +86,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.time.api.UserTimeService;
 
 // We need to interact with the RequestFilter
 import org.sakaiproject.util.RequestFilter;
@@ -156,6 +161,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	protected static ToolManager toolManager = null;
 	protected static LTIService ltiService = null;
 	protected static ServerConfigurationService serverConfigurationService = null;
+	protected static UserTimeService userTimeService = null;
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
 
@@ -175,6 +181,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		if (serverConfigurationService == null) {
 			serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+		}
+		if (userTimeService == null) {
+			userTimeService = (UserTimeService) ComponentManager.get("org.sakaiproject.time.api.UserTimeService");
 		}
 	}
 
@@ -487,13 +496,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				// Patch the date type
 				// https://stackoverflow.com/questions/19431234/converting-between-java-time-localdatetime-and-java-util-date
 				Object created_at = content.get("created_at");
-				if ( created_at instanceof java.util.Date ) {
-			        DateFormat df2 = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
-					String output = df2.format(created_at);
+				if ( created_at instanceof Date ) {
+					String output = userTimeService.dateTimeFormat(((Date) created_at), rb.getLocale(), java.text.DateFormat.MEDIUM);
 					content.put("created_at", output);
-				} else if ( created_at instanceof java.time.LocalDateTime) {
-					java.time.LocalDateTime ldt = (java.time.LocalDateTime) created_at;
-					String output = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(rb.getLocale()).format(ldt.now());
+				} else if ( created_at instanceof LocalDateTime) {
+					LocalDateTime ldt = (LocalDateTime) created_at;
+					// Foorm stores these as UTC
+					Instant ldtInstant = ldt.toInstant(ZoneOffset.UTC);
+					String output = userTimeService.dateTimeFormat(ldtInstant, FormatStyle.MEDIUM, FormatStyle.SHORT);
 					content.put("created_at", output);
 				} else {
 					String output = created_at.toString();
