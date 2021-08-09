@@ -2207,7 +2207,7 @@ public class ItemAddListener
 					log.debug("oneAnswer = {}, oneLabel = {}", oneAnswer, oneLabel);
 					answer.setText(oneAnswer);
 					answer.setLabel(oneLabel);
-					if (choiceSequence.equals(matchSequence)) {
+					if (choiceSequence.equals(matchSequence) || validAnswer.getSequenceStr().equals(choiceBean.getControllingSequence())) {
 						answer.setIsCorrect(Boolean.TRUE);
 					} else {
 						answer.setIsCorrect(Boolean.FALSE);
