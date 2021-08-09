@@ -6300,13 +6300,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	boolean checkHome = BooleanUtils.toBooleanDefaultIfNull((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED), true);
 	boolean isNewToolOrderType = ServerConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
+	boolean useSeparateExternalToolsGroup = ServerConfigurationService.getBoolean("site-manage.useExternalToolsGroup", true);
+	String defaultGroupName = rb.getString("tool.group.default");
 	Map<String, List<MyTool>> toolGroup = new LinkedHashMap<>();
 
 	File moreInfoDir = new File(moreInfoPath);
 	
 	// if this is legacy format toolOrder.xml file, get all tools by siteType
 	if (!isNewToolOrderType) {
-		String defaultGroupName = rb.getString("tool.group.default");
 		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkHome));
 	} else {	
 		// get all the groups that are available for this site type
@@ -6326,7 +6327,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	// add external tools to end of toolGroup list
 	String externaltoolgroupname = getGroupName(LTI_TOOL_TITLE);
 	List<MyTool> externalTools = getLtiToolGroup(externaltoolgroupname, moreInfoDir, site);
-	if (!externalTools.isEmpty()) toolGroup.put(externaltoolgroupname, externalTools);
+	if (!externalTools.isEmpty() && useSeparateExternalToolsGroup) {
+		toolGroup.put(externaltoolgroupname, externalTools);
+	} else if (!externalTools.isEmpty()) {
+		List<MyTool> combinedList = toolGroup.get(defaultGroupName);
+		combinedList.addAll(externalTools);
+		Collections.sort(combinedList, new Comparator<MyTool>(){
+			public int compare(MyTool t1, MyTool t2) {
+				return t1.getTitle().compareToIgnoreCase(t2.getTitle());
+			}
+		});
+		toolGroup.put(defaultGroupName, combinedList);
+	}
 	
 	if (checkHome) {
 		// Home page should be auto-selected
