@@ -6334,7 +6334,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		combinedList.addAll(externalTools);
 		Collections.sort(combinedList, new Comparator<MyTool>(){
 			public int compare(MyTool t1, MyTool t2) {
-				return t1.getTitle().compareTo(t2.getTitle());
+				return t1.getTitle().compareToIgnoreCase(t2.getTitle());
 			}
 		});
 		toolGroup.put(defaultGroupName, combinedList);
