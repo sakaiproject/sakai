@@ -5313,6 +5313,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "layout-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addLayout}");
 		UICommand.make(form, "layout-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+		createSectionLayoutTab(tofill);
+	}
+
+	private void createSectionLayoutTab(UIContainer tofill){
+		UIForm form2 = UIForm.make(tofill, "section-form");
+		makeCsrf(form2, "section-csrf28");
+		UIOutput.make(form2,"section-preview-subpage").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/preview-subpage-layout.png"));
+		UIOutput.make(form2,"section-preview-resource").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/preview-resource-layout.png"));
+		UIOutput.make(form2,"section-preview-task").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/preview-task-layout.png"));
+		UISelect.make(form2, "section-dropdown", SimplePageBean.sectionLayoutValues, SimplePageBean.sectionLayoutLabels, "#{simplePageBean.sectionLayoutSelect}", SimplePageBean.sectionLayoutValues[0]);
+		UIInput.make(form2,"section-option-subpage-breaktitle","#{simplePageBean.sectionSubpageBreakTitle}");
+		UIInput.make(form2, "section-option-subpage-title", "#{simplePageBean.sectionSubpageTitle}");
+		UISelect.make(form2, "section-option-subpage-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.sectionSubpageCount}", SimplePageBean.subpageCountValues[1]);
+		UISelect.make(form2, "section-option-task-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.sectionTaskCount}", SimplePageBean.subpageCountValues[1]);
+		UIBoundBoolean.make(form2, "section-option-task-collapsible", "#{simplePageBean.sectionTaskCollapsible}",false);
+		UIBoundBoolean.make(form2, "section-option-task-closed", "#{simplePageBean.sectionTaskClosed}",false);
+		UICommand.make(form2, "section-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addLayout}");
+		UICommand.make(form2, "section-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 
 	private void createDeleteItemDialog(UIContainer tofill, SimplePage currentPage) {

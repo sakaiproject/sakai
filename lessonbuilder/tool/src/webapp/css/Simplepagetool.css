@@ -2177,3 +2177,30 @@ button.accordionBtn.collapsed:before {
     color: var(--sakai-text-color-1);
     padding-right: 5px;
 }
+
+span#buttonAndTextArea {
+    width: 53%;
+    display: inline-block;
+    margin: 4em 2em 2em 2em;
+}
+span#previewArea {
+    width: 40%;
+    display: inline-block;
+    margin: 2em;
+}
+.inlineHeading {
+    display: inline;
+    margin-left: 1em;
+}
+.templateTypeDescription {
+    margin-top: 1em;
+}
+div.sectionTemplateDiv {
+    margin-top: 2em;
+}
+div.sectionLayoutFlex {
+    display: flex;
+}
+img.sectionPreviewImage {
+    height: 500px;
+}
