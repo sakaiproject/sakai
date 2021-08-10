@@ -176,7 +176,7 @@
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_componse_message_dfAllMessages" 
 				rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"/>&nbsp;
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}"/>&nbsp;
-			<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" rendered="#{ForumTool.selectedTopic.changeSettings}">&nbsp;
+			<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" rendered="#{ForumTool.selectedTopic.changeSettings}">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<h:outputText value="#{msgs.cdfm_topic_settings}"/>
 			</h:commandLink>&nbsp;
