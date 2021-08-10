@@ -900,7 +900,7 @@ public class HistogramListener
     } else if (qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString())) {
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     } else if (qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())) {
-      getCalculatedQuestionScores(scores, qbean, text);
+      getCalculatedQuestionScores(scores, qbean, item);
     } else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
       getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
     }
@@ -1688,70 +1688,58 @@ public class HistogramListener
 							.toString((int) (((double) correctresponses / (double) qbean.getNumResponses()) * 100)));
 	}
 
+	private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ItemDataIfc item) {
+		final String CORRECT = "Correct";
+		final String INCORRECT = "Incorrect";
+		final int COLUMN_MAX_HEIGHT = 100;
 
+		// count incorrect and correct to support column height calculation
+		Map<String, Integer> results = new HashMap<>();
+		results.put(CORRECT, Integer.valueOf(0));
+		results.put(INCORRECT, Integer.valueOf(0));
 
-private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, List labels) {
-    final String CORRECT = "Correct";
-    final String INCORRECT = "Incorrect";
-    final int COLUMN_MAX_HEIGHT = 100;
-    
-    // count incorrect and correct to support column height calculation
-    Map<String, Integer> results = new HashMap<String, Integer>();
-    results.put(CORRECT, Integer.valueOf(0));
-    results.put(INCORRECT, Integer.valueOf(0));
-    
-    for (ItemGradingData score : scores) {
-        if (score.getAutoScore() != null && score.getAutoScore() > 0) {
-            Integer value = results.get(CORRECT);
-            results.put(CORRECT, ++value);
-        } else if (score.getPublishedAnswerId() != null) {
-            Integer value = results.get(INCORRECT);
-            results.put(INCORRECT, ++value);
-        }
-    }
-    
-    // build the histogram bar for correct/incorrect answers
-    List<HistogramBarBean> barList = new ArrayList<HistogramBarBean>();
-    for (Map.Entry<String, Integer> entry : results.entrySet()) {
-        HistogramBarBean bar = new HistogramBarBean();
-        bar.setLabel(entry.getKey());
-        bar.setNumStudents(entry.getValue());
-	bar.setNumStudentsText(String.valueOf(entry.getValue()));
-        bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
-        bar.setIsCorrect(entry.getKey().equals(CORRECT));
-        int height = 0;
-        if (scores.size() > 0) {
-            height = COLUMN_MAX_HEIGHT * entry.getValue() / scores.size();
-        }
-        bar.setColumnHeight(Integer.toString(height));
-        barList.add(bar);
-    }    
-    
-    HistogramBarBean[] bars = new HistogramBarBean[barList.size()];
-    bars = barList.toArray(bars);
-    qbean.setHistogramBars(bars);
-    
-    // store any assessment grading ID's that are incorrect.
-    // this will allow us to calculate % Students All correct by giving
-    // us a count of assessmnets that had an incorrect answer 
-    Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
-    int total = 0;
-    for (ItemGradingData score : scores) {
-	if (score.getAutoScore() != null) {
-	    total++;
-	    if (score.getAutoScore() == 0) {
-	        assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
-	    }
-        }
-    }
-    
-    if (qbean.getNumResponses() > 0) {
-        int correct = total - assessmentQuestionIncorrect.size();
-        double percentCorrect = ((double) correct / (double) total) * 100;
-        String percentCorrectStr = Integer.toString((int)percentCorrect);
-        qbean.setPercentCorrect(percentCorrectStr);
-    }
-}
+		Map<Integer, String> answersMap = new HashMap<>();
+		int total = 0;
+		for (ItemGradingData score : scores) {
+			delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
+			if (score.getAutoScore() != null) {
+				total++;
+				if (delegate.getCalcQResult(score, item, answersMap, 1)) {
+					results.merge(CORRECT, 1, Integer::sum);
+				} else {
+					results.merge(INCORRECT, 1, Integer::sum);
+				}
+			}
+		}
+
+		// build the histogram bar for correct/incorrect answers
+		List<HistogramBarBean> barList = new ArrayList<>();
+		for (Map.Entry<String, Integer> entry : results.entrySet()) {
+			HistogramBarBean bar = new HistogramBarBean();
+			bar.setLabel(entry.getKey());
+			bar.setNumStudents(entry.getValue());
+			bar.setNumStudentsText(String.valueOf(entry.getValue()));
+			bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
+			bar.setIsCorrect(entry.getKey().equals(CORRECT));
+			int height = 0;
+			if (scores.size() > 0) {
+				height = COLUMN_MAX_HEIGHT * entry.getValue() / scores.size();
+			}
+			bar.setColumnHeight(Integer.toString(height));
+			barList.add(bar);
+		}
+
+		HistogramBarBean[] bars = new HistogramBarBean[barList.size()];
+		bars = barList.toArray(bars);
+		qbean.setHistogramBars(bars);
+
+		if (qbean.getNumResponses() > 0) {
+			int correct = total - results.get(INCORRECT);
+			double percentCorrect = ((double) correct / (double) total) * 100;
+			String percentCorrectStr = Integer.toString((int)percentCorrect);
+			qbean.setPercentCorrect(percentCorrectStr);
+		}
+	}
 
 	private void getImageMapQuestionScores(Map publishedItemTextHash, Map publishedAnswerHash,
 	    List scores, HistogramQuestionScoresBean qbean, List labels)
