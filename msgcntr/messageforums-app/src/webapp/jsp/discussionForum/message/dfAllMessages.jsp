@@ -180,6 +180,10 @@
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<h:outputText value="#{msgs.cdfm_topic_settings}"/>
 			</h:commandLink>&nbsp;
+			<h:commandLink styleClass="button" action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
+				value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+			</h:commandLink>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 			</h:outputLink>
