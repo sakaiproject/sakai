@@ -1249,14 +1249,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			String color = null;
 			for (SimplePageItem i : itemList) {
 
-				// If the content is MULTIMEDIA (type 7) and the sakaiId is populated, then this is
-				// a Sakai content reference. We can then check if it's available to the current user
-				if (i.getType() == SimplePageItem.MULTIMEDIA && StringUtils.isNotBlank(i.getSakaiId())) {
-				    if (!contentHostingService.isAvailable(String.valueOf(i.getSakaiId()))) {
-				        continue;
-				    }
-				}
-				
 				// break is not a normal item. handle it first
 			        // this will work whether first item is break or not. Might be a section
 			        // break or a normal item
