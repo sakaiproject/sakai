@@ -712,7 +712,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         try {
-            contentHostingService.removeResource(ref);
+            contentHostingService.removeResource(assignmentService.removeReferencePrefix(ref));
         } catch (Exception e) {
             log.warn("Exception caught while removing resource " + ref + ". It may have been removed previously.");
         }

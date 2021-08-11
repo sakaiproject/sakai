@@ -4326,7 +4326,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return userTimeService.dateTimeFormat(date, null, null);
     }
 
-    private String removeReferencePrefix(String referenceId) {
+    @Override
+    public String removeReferencePrefix(String referenceId) {
         if (referenceId.startsWith(REF_PREFIX)) {
             referenceId = referenceId.replaceFirst(REF_PREFIX, "");
         }

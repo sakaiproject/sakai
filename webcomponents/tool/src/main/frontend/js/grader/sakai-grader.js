@@ -910,7 +910,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
       const ref = e.target.dataset.ref;
 
-      fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this.submission.id}&ref=${ref}`).then(r => {
+      fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this.submission.id}&ref=${encodeURIComponent(ref)}`).then(r => {
 
         if (r.status === 200) {
           this.submission.feedbackAttachments.splice(this.submission.feedbackAttachments.findIndex(fa => fa.ref === ref), 1);
