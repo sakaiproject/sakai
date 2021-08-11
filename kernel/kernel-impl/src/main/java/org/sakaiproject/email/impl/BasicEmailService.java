@@ -275,9 +275,7 @@ public class BasicEmailService implements EmailService
 	 * Work interface methods: org.sakai.service.email.EmailService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content, InternetAddress[] headerTo,
 			InternetAddress[] replyTo, List<String> additionalHeaders)
 	{
@@ -290,9 +288,7 @@ public class BasicEmailService implements EmailService
 		sendMail(from, to, subject, content, recipients, replyTo, additionalHeaders, null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) {
@@ -304,6 +300,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
+	
 	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) throws AttachmentSizeException, MessagingException {
@@ -578,9 +575,7 @@ public class BasicEmailService implements EmailService
 	    }
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void send(String fromStr, String toStr, String subject, String content, String headerToStr, String replyToStr,
 			List<String> additionalHeaders)
 	{
@@ -636,9 +631,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendToUsers(Collection<User> users, Collection<String> headers, String message)
 	{
 		if (headers == null)
@@ -887,12 +880,7 @@ public class BasicEmailService implements EmailService
 		return props;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
-	 * For temporary backward compatibility
-	 */
+	@Override
 	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException, NoRecipientsException {
 
 		List<EmailAddress> addresses = new ArrayList<>();
@@ -903,11 +891,8 @@ public class BasicEmailService implements EmailService
 		}
 		return addresses;
 	}
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
-	 */
+	
+	@Override
 	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
 			AttachmentSizeException, NoRecipientsException, MessagingException
 	{

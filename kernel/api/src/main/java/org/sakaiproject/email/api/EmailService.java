@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
-import org.sakaiproject.email.api.AttachmentSizeException;
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
 
@@ -133,7 +132,6 @@ public interface EmailService
 	/**
 	 * Sends a single message to a set of users.
 	 * 
-	 * @deprecated
 	 * @param message
 	 *            {@link EmailMessage} that contains the parameters to create a message to the
 	 *            specified recipients.
@@ -144,6 +142,7 @@ public interface EmailService
 	 * @throws NoRecipientsException
 	 * @return {@link java.util.List} of recipients that were found to be invalid per to
 	 *         {@link javax.mail.internet.InternetAddress}.
+	 * @deprecated use {@link #send(EmailMessage, true)}
 	 */
 	List<EmailAddress> send(EmailMessage message) throws AddressValidationException,
 			NoRecipientsException;
