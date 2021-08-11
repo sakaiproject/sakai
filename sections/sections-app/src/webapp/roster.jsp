@@ -45,7 +45,7 @@
         </t:div>
     </h:panelGrid>
     
-    <h:panelGroup rendered="#{rosterBean.enrollmentsSize<=0}" >
+    <h:panelGroup rendered="#{rosterBean.enrollmentsSize <= 0}" >
         <h:outputText styleClass="sak-banner-warn" value="#{msgs.students_not_found}"  />
     </h:panelGroup>
 
