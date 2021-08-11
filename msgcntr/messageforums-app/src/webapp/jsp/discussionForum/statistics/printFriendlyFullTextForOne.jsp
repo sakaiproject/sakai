@@ -8,7 +8,7 @@
 
 <f:view>
 <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-	<h:form id="msgForum" rendered="#{ForumTool.instructor}">
+	<h:form id="msgForum" rendered="#{ForumTool.instructor  || mfStatisticsBean.isAuthor}">
 		<!--discussionForum/statistics/printFriendlyFullTextForOne.jsp-->		
 				<ul class="navIntraTool actionToolBar">
 				<li class="firstToolBarItem">
