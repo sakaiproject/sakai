@@ -8,7 +8,7 @@
 <f:view>
   <sakai:view>
   
-  	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
+	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor || mfStatisticsBean.isAuthor}">
 		<!-- discussionForum/statistics/dfStatisticsFullTextForOne.jsp -->
   	       	<script>includeLatestJQuery("msgcntr");</script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
