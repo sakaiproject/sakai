@@ -393,7 +393,6 @@ public class MessageForumStatisticsBean {
 	public String selectedAllTopicsForumTitle = null;
 
 	private String buttonUserName;
-	private boolean isAuthor = false;
 	private boolean isFirstParticipant = false;
 	private boolean isLastParticipant = false;
 	
@@ -2186,19 +2185,7 @@ public class MessageForumStatisticsBean {
 	}
 
 	public boolean getIsAuthor() {
-		String siteUserId;
-		String currentUserId;
-		try
-		{
-			siteUserId = userDirectoryService.getUser(selectedSiteUserId).getId();
-			currentUserId = userDirectoryService.getCurrentUser().getId();
-		}
-		catch (UserNotDefinedException unde)
-		{
-			return false;
-		}
-		isAuthor = (siteUserId == currentUserId);
-		return isAuthor;
+		return selectedSiteUserId == userDirectoryService.getCurrentUser().getId();
 	}
 
 	public String getButtonUserName() {
