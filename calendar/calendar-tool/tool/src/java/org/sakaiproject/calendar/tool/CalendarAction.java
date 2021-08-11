@@ -3770,26 +3770,21 @@ extends VelocityPortletStateAction
 		
 		if ( SELECT_TYPE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{
-			// If the type is Outlook or MeetingMaker, the next state is
+			// If the type is Outlook, the next state is
 			// the "other" file select mode where we just select a file without
 			// all of the extra info on the generic import page.
 			
 			String importType = data.getParameters ().getString(WIZARD_IMPORT_TYPE);
 			
 			
-			if ( CalendarImporterService.OUTLOOK_IMPORT.equals(importType) || CalendarImporterService.MEETINGMAKER_IMPORT.equals(importType) || CalendarImporterService.ICALENDAR_IMPORT.equals(importType))
+			if ( CalendarImporterService.OUTLOOK_IMPORT.equals(importType) || CalendarImporterService.ICALENDAR_IMPORT.equals(importType))
 			{
 				if (CalendarImporterService.OUTLOOK_IMPORT.equals(importType))
 				{
 					state.setImportWizardType(CalendarImporterService.OUTLOOK_IMPORT);
 					state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
 				}
-				else if (CalendarImporterService.MEETINGMAKER_IMPORT.equals(importType))
-				{
-					state.setImportWizardType(CalendarImporterService.MEETINGMAKER_IMPORT);
-					state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
-				}
-				else
+				else if (CalendarImporterService.ICALENDAR_IMPORT.equals(importType))
 				{
 					state.setImportWizardType(CalendarImporterService.ICALENDAR_IMPORT);
 					state.setImportWizardState(ICAL_SELECT_FILE_IMPORT_WIZARD_STATE);
@@ -4090,8 +4085,7 @@ extends VelocityPortletStateAction
 		else
 		if (CONFIRM_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()))
 		{
-			if (CalendarImporterService.OUTLOOK_IMPORT.equals(state.getImportWizardType())
-				|| CalendarImporterService.MEETINGMAKER_IMPORT.equals(state.getImportWizardType()))
+			if (CalendarImporterService.OUTLOOK_IMPORT.equals(state.getImportWizardType()))
 			{
 				state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}

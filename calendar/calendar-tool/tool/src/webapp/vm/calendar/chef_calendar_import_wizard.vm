@@ -52,7 +52,6 @@
 			#if ($icalEnable == "true")
 				<input type="radio" name="importType" id="importType_Icalendar" value="Icalendar" /><label for="importType_Icalendar">$tlang.getString("imp.ical")</label><br />
 			#end
-				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
 				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label>
 			</p>
 			<p class="act">
