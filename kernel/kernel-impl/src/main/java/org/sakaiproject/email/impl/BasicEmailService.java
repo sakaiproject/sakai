@@ -1613,6 +1613,25 @@ public class BasicEmailService implements EmailService
 			}
 		}
 
+		/**
+		 * Override MimeMessage Message-ID to use Sakai serverId instead of hostname
+		 * https://javaee.github.io/javamail/FAQ#msgid
+		 * @throws MessagingException
+		 */
+		protected void updateMessageID() throws MessagingException
+		{
+			StringBuilder s = new StringBuilder();
+			// Unique string is <hashcode>.<id>.<currentTime><suffix>
+			s.append(s.hashCode()).
+					append('.').
+					append(serverConfigurationService.getServerId()).
+					append('.').
+					append(System.currentTimeMillis()).
+					append('@').
+					append(serverConfigurationService.getServerName());
+			setHeader("Message-ID", s.toString());
+		}
+
 		protected void updateHeaders() throws MessagingException
 		{
 			super.updateHeaders();
