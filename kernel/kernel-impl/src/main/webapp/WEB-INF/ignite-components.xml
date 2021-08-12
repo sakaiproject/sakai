@@ -67,8 +67,15 @@
                 </property>
             </bean>
         </property>
+        <property name="hibernateCacheConfiguration" ref="org.sakaiproject.ignite.cache.list.hibernate"/>
+        <property name="requiredCacheConfiguration" ref="org.sakaiproject.ignite.cache.list.core"/>
+        <property name="conditionalCacheConfiguration" ref="org.sakaiproject.ignite.cache.list.contrib"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
-        <property name="cacheConfiguration">
+    <bean id="org.sakaiproject.ignite.cache.list.hibernate"
+          class="java.util.ArrayList">
+        <constructor-arg>
             <list>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-update-timestamps-region"/>
@@ -76,7 +83,14 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="default-query-results-region"/>
                 </bean>
-                <!-- Entity Caches -->
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.cache.list.core"
+          class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.coursemanagement.impl.AcademicSessionCmImpl"/>
                 </bean>
@@ -207,8 +221,120 @@
                     <property name="name" value="org.sakaiproject.hbm.privacy.PrivacyRecord"/>
                 </bean>
             </list>
-        </property>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="org.sakaiproject.ignite.cache.list.contrib"
+          class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <!-- SCORM Caches -->
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DataModel" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.ieee.SCORM_2004_DM.mElements" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.nav.SCORM_2004_NAV_DM.mElements" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DataModel" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="java.net.URL" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMDelimiter" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMDelimiter" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMDelimiterDescriptor" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMDelimiterDescriptor" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMElement" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMElement" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMElement" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMElement.mChildren" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMElementDescriptor" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMElementDescriptor" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMProcessingInfo" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMProcessingInfo" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.DMTypeValidator" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.DMTypeValidator" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.SCODataManager" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.SCODataManager" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.ignite.IgniteConditionalCache">
+                    <property name="className" value="org.adl.datamodels.SCODataManager" />
+                    <property name="cacheConfiguration">
+                        <bean parent="org.sakaiproject.ignite.cache.transactional">
+                            <property name="name" value="org.adl.datamodels.SCODataManager.dataModels" />
+                        </bean>
+                    </property>
+                </bean>
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="org.sakaiproject.ignite.cache.atomic"
