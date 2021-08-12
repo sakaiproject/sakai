@@ -719,7 +719,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 					else {
 						if (gdata.getRationale() != null
 								&& !gdata.getRationale().trim().equals(""))
-							rationale = "\n" + evaluationMessages.getString("rationale") + " " + gdata.getRationale();
+							rationale = "\n" + evaluationMessages.getString("rationale") + ": " + gdata.getRationale();
 					}
 					// Huong's temp commandout
 					// answerText = answerText.replaceAll("<.*?>", "");
