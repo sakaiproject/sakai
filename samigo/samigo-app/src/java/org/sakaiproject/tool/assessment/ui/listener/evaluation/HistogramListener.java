@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -888,30 +889,21 @@ public class HistogramListener
       }
     }
    
-    if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString())) // mcsc
+    if (StringUtils.equalsAny(qbean.getQuestionType(), TypeIfc.MULTIPLE_CHOICE.toString(), TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(), TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(), TypeIfc.TRUE_FALSE.toString())) {
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString())) // mcmc
-      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())) 
-      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()))
-      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString())) // tf
-      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if ((qbean.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString()))||(qbean.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString())) )
-      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    //else if (qbean.getQuestionType().equals("11"))
-    //    getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.MATCHING.toString()))
+    } else if (StringUtils.equalsAny(qbean.getQuestionType(), TypeIfc.MULTIPLE_CORRECT.toString(), TypeIfc.FILL_IN_BLANK.toString(), TypeIfc.FILL_IN_NUMERIC.toString())) {
+      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers, item);
+    } else if (qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) {
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
-    else if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()))
-        getEMIScores(publishedItemHash, publishedAnswerHash, emiRequiredCorrectAnswersCount, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString())) // matrix survey question
+    } else if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString())) {
+      getEMIScores(publishedItemHash, publishedAnswerHash, emiRequiredCorrectAnswersCount, scores, qbean, answers);
+    } else if (qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString())) {
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
-    else if (qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())) // CALCULATED_QUESTION
-        getCalculatedQuestionScores(scores, qbean, text);
-    else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) // IMAGEMAP_QUESTION
-    	getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
+    } else if (qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())) {
+      getCalculatedQuestionScores(scores, qbean, text);
+    } else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
+      getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
+    }
   }
 
   /**
@@ -1373,10 +1365,10 @@ public class HistogramListener
 		
 	}
   
-  private void getFIBMCMCScores(Map publishedItemHash, Map publishedAnswerHash, List scores, HistogramQuestionScoresBean qbean, List answers) {
+  private void getFIBMCMCScores(Map publishedItemHash, Map publishedAnswerHash, List scores, HistogramQuestionScoresBean qbean, List answers, ItemDataIfc itemData) {
 		Map texts = new HashMap();
 		Iterator iter = answers.iterator();
-		Map results = new HashMap();
+		Map<Long, Integer> results = new HashMap();
 		Map numStudentRespondedMap = new HashMap();
 		Map sequenceMap = new HashMap();
 		while (iter.hasNext()) {
@@ -1415,19 +1407,18 @@ public class HistogramListener
 						studentResponseList);
 				// we found a response, and got the existing num , now update
 				// one
-				if ((qbean.getQuestionType().equals("8"))
-						|| (qbean.getQuestionType().equals("11"))) {
+				if (qbean.getQuestionType().equals("8")) {
 					// for fib we only count the number of correct responses
-					Double autoscore = data.getAutoScore();
-					if (!(Double.valueOf(0)).equals(autoscore)) {
-						results.put(answer.getId(), Integer.valueOf(
-								num.intValue() + 1));
+					if (delegate.getFIBResult(data, new HashMap<Long, Set<String>>(), itemData, publishedAnswerHash)) {
+						results.merge(answer.getId(), 1, Integer::sum);
+					}
+				} else if (qbean.getQuestionType().equals("11")) {
+					if (delegate.getFINResult(data, itemData, publishedAnswerHash)) {
+						results.merge(answer.getId(), 1, Integer::sum);
 					}
 				} else {
 					// for mc, we count the number of all responses
-					results
-							.put(answer.getId(),
-									Integer.valueOf(num.intValue() + 1));
+					results.merge(answer.getId(), 1, Integer::sum);
 				}
 			}
 		}
@@ -1441,7 +1432,6 @@ public class HistogramListener
 		}
 
 		Collections.sort(sequenceList);
-		// iter = results.keySet().iterator();
 		iter = sequenceList.iterator();
 		int i = 0;
 		int correctresponses = 0;
@@ -1478,16 +1468,12 @@ public class HistogramListener
 			while (listiter.hasNext()) {
 				ItemGradingData item = (ItemGradingData) listiter.next();
 				
-				if ((qbean.getQuestionType().equals("8"))
-						|| (qbean.getQuestionType().equals("11"))) {
-					// TODO: we are checking to see if the score is > 0, this
-					// will not work if the question is worth 0 points.
-					// will need to verify each answer individually.
-					Double autoscore = item.getAutoScore();
-					if ((Double.valueOf(0)).equals(autoscore)) {
-						hasIncorrect = true;
-						break;
-					}
+				if (qbean.getQuestionType().equals("8") && !delegate.getFIBResult(item, new HashMap<Long, Set<String>>(), itemData, publishedAnswerHash)) {
+					hasIncorrect = true;
+					break;
+				} else if (qbean.getQuestionType().equals("11") && !delegate.getFINResult(item, itemData, publishedAnswerHash)) {
+					hasIncorrect = true;
+					break;
 				} else if (qbean.getQuestionType().equals("2")) { // mcmc
 
 					// only answered choices are created in the
