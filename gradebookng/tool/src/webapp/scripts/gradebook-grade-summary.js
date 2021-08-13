@@ -115,12 +115,15 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 
   var currentStudentIndex = GbGradeTable.rowForStudent(this.studentId);
 
+  // get the students as they are currently rendered so the sorting/filtering is accurately reflected
+  const studentsAsRendered = GbGradeTable.instance.getDataAtCol(0);
+
   var previousStudentId, nextStudentId;
   if (currentStudentIndex > 0) {
-    previousStudentId = GbGradeTable.students[currentStudentIndex - 1].userId;
+    previousStudentId = studentsAsRendered[currentStudentIndex - 1].userId;
   }
-  if (currentStudentIndex < GbGradeTable.students.length - 1) {
-    nextStudentId = GbGradeTable.students[currentStudentIndex + 1].userId;
+  if (currentStudentIndex < studentsAsRendered.length - 1) {
+    nextStudentId = studentsAsRendered[currentStudentIndex + 1].userId;
   } 
 
   if (previousStudentId) {
