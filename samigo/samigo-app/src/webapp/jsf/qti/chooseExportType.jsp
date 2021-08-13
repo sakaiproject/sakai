@@ -89,9 +89,9 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
     </div>
     <h:panelGroup layout="block">
      <h:outputText value="#{authorImportExport.choose_export_type}"/>
-     <t:selectOneRadio id="exportType" layout="spread" value="1">
-       <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
+     <t:selectOneRadio id="exportType" layout="spread" value="2">
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
+       <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
        <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3"/>
      </t:selectOneRadio>
      <h:panelGrid>
