@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -1689,8 +1690,8 @@ public class HistogramListener
 	}
 
 	private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ItemDataIfc item) {
-		final String CORRECT = "Correct";
-		final String INCORRECT = "Incorrect";
+		final String CORRECT = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","correct");
+		final String INCORRECT = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","incorrect");
 		final int COLUMN_MAX_HEIGHT = 100;
 
 		// count incorrect and correct to support column height calculation
@@ -1700,11 +1701,18 @@ public class HistogramListener
 
 		Map<Integer, String> answersMap = new HashMap<>();
 		int total = 0;
+		int i = 1;
+		Long publishAnswerIdAnt = scores.get(0).getPublishedAnswerId();
 		for (ItemGradingData score : scores) {
+			Long publishAnswerIdAct = score.getPublishedAnswerId();
+			if (!Objects.equals(publishAnswerIdAnt, publishAnswerIdAct)) {
+				i++;
+				publishAnswerIdAnt = publishAnswerIdAct;
+			}
 			delegate.extractCalcQAnswersArray(answersMap, item, score.getAssessmentGradingId(), score.getAgentId());
 			if (score.getAutoScore() != null) {
 				total++;
-				if (delegate.getCalcQResult(score, item, answersMap, 1)) {
+				if (delegate.getCalcQResult(score, item, answersMap, i)) {
 					results.merge(CORRECT, 1, Integer::sum);
 				} else {
 					results.merge(INCORRECT, 1, Integer::sum);
