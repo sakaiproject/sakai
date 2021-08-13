@@ -42,6 +42,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.collections4.comparators.NullComparator;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -329,6 +330,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 thisone.add(data);
                 map.put(data.getPublishedItemId(), thisone);
             }
+            map.forEach((k, v) -> {
+                Collections.sort(v, new Comparator<ItemGradingData>() {
+                    public int compare(ItemGradingData itg1, ItemGradingData itg2) {
+                        return new NullComparator().compare(itg1.getPublishedAnswerId(), itg2.getPublishedAnswerId());
+                    }
+                });
+            });
             return map;
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
