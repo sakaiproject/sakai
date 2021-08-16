@@ -1393,6 +1393,19 @@ label#itemForm\:noFeedbackMsg {
 	color: var(--sakai-text-color-disabled);
 }
 
+input#eventLogId\:previousEventPage,
+input#eventLogId\:search {
+	margin-right: 4px;
+}
+
+input#eventLogId\:clear {
+	margin-right: 8px;
+}
+
+div#eventSearchContainer {
+	margin-top: 4px;
+}
+
 .noListStyle {
 	list-style: none;
 	padding-left: 0;
