@@ -358,7 +358,7 @@
 
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" rowIndexVar="index" styleClass="dropdown-menu row">
-                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores" rendered="#{index == 0 && assessment.submittedCount>0}">
+                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores" rendered="#{index == 0 && assessment.submittedCount > 0}">
                                     <f:param name="action" value="scores" />
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
