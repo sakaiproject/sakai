@@ -88,7 +88,7 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
       <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.cp_message}"/></p>
     </div>
     <h:panelGroup layout="block">
-     <h:outputLabel value="#{authorImportExport.choose_export_type}"/>
+     <h:outputLabel value="#{authorImportExport.choose_export_type}" for="exportType" />
      <t:selectOneRadio id="exportType" layout="spread" value="2">
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
        <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
