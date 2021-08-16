@@ -2771,6 +2771,17 @@ public class SakaiBLTIUtil {
 		return "true".equals(postVerify);
 	}
 
+	/**
+	 * addSakaiBaseCapabilities - Add a list of Sakai base capabilities to a URL under construction
+	 *
+	 * There may be additional capabilities available through an org.imsglobal.lti.capabilities message.
+	 * These are the commonly available capabilities to all LTI placements, comma separated.
+	 */
+
+	public static void addSakaiBaseCapabilities(URIBuilder redirect) {
+		redirect.addParameter("sakai_base_capabilities", "org.imsglobal.lti.capabilities,org.imsglobal.lti.put_data,org.imsglobal.lti.get_data");
+	}
+
 	public static boolean isPlacement(String placement_id) {
 		if (placement_id == null) {
 			return false;
