@@ -2531,7 +2531,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor);
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor, gradebook.getCategory_type());
 		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
 		return result;
