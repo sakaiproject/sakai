@@ -102,7 +102,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		ValueChangeListener {
 
 	// private static EvaluationListenerUtil util;
-	private static BeanSort bs;
+	private BeanSort bs;
 
 	private static final ResourceLoader evaluationMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final String noAnswer = evaluationMessages.getString("no_answer");

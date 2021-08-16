@@ -69,12 +69,12 @@ import org.springframework.core.io.ClassPathResource;
 @Slf4j
 public final class XmlUtil
 {
-  private static String[] M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
+  private static final String[] M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
   private static Pattern[] M_goodTagsPatterns;
   private static Pattern[] M_goodCloseTagsPatterns;
-  private static Pattern M_htmlPattern = Pattern.compile("(<([a-z]\\w*)\\b[^>]*>)|(</\\s*[a-z]\\w*(\\s.*>|>))|(<([a-z]\\w*)\\b[^>]*/>)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  private static final Pattern M_htmlPattern = Pattern.compile("(<([a-z]\\w*)\\b[^>]*>)|(</\\s*[a-z]\\w*(\\s.*>|>))|(<([a-z]\\w*)\\b[^>]*/>)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-  private static FormattedText formattedText = (FormattedText)ComponentManager.get(FormattedText.class);
+  private static final FormattedText formattedText = (FormattedText)ComponentManager.get(FormattedText.class);
 
   /**
    * Create document object

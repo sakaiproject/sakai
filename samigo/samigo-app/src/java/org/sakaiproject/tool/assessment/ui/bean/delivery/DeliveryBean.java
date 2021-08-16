@@ -443,14 +443,14 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String rbcsToken;
 
-  private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
-  private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
+  private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl();
+  private static final String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
 
-  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
-  private static String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
-  private static String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
-  private static String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
+  private static final String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
+  private static final String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
+  private static final String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
 
   // delivery action
   public static final int TAKE_ASSESSMENT = 1;

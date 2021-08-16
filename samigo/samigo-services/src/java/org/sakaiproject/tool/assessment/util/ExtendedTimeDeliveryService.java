@@ -38,8 +38,8 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
  *
  */
 public class ExtendedTimeDeliveryService {
-	private static int MINS_IN_HOUR = 60;
-	private static int SECONDS_IN_MIN = 60;
+	private static final int MINS_IN_HOUR = 60;
+	private static final int SECONDS_IN_MIN = 60;
 
 	private String siteId;
 	private AuthzGroupService authzGroupService;

@@ -46,14 +46,10 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 public class EventLogListener
 implements ActionListener, ValueChangeListener
 {
-	private static BeanSort bs;
-	private static String userFilterString = null;
-	
+	private BeanSort bs;
+	private final String userFilterString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "search_hint");
 
-	public EventLogListener()
-	{
-		userFilterString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "search_hint");
-	}
+	public EventLogListener() {}
 
 
 	public void processAction(ActionEvent ae)
