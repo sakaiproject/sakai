@@ -398,7 +398,7 @@ roster.renderMembership = function (options) {
         if (roster.officialPictureMode) {
           m.profileImageUrl += "/official";
         }
-        m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
+        m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId) + "&v=" + Math.random().toString(36).slice(2);
 
         var groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
