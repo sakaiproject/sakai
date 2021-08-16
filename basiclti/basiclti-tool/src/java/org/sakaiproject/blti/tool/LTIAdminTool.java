@@ -2363,6 +2363,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		String returnUrl = data.getParameters().getString("returnUrl");
+
 		if (returnUrl == null && previousPost != null) {
 			returnUrl = previousPost.getProperty("returnUrl");
 		}
@@ -2492,7 +2493,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
-		if (!returnUrl.startsWith("about:blank")) {
+		// Assignment flow does not want a cancel button - just close the modal
+		if (!FLOW_PARAMETER_ASSIGNMENT.equals(flow) && !returnUrl.startsWith("about:blank")) {
 			context.put("cancelUrl", returnUrl);
 		}
 		context.put("returnUrl", returnUrl);
