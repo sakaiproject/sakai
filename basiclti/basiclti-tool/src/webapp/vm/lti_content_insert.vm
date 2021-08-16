@@ -45,12 +45,9 @@
 #end
 #if ( $formInput )
 		$formInput
-## If we are admin and in the admin worksite - this makes no sense
-#if ( ! $isAdmin )
 <div id="input-add-site-link">
 <input #if($placement) disabled="disabled" checked="checked" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
 </div>
-#end
 #else
 #if ( $oldContentId )
 $tlang.getString("add.tool.select")
