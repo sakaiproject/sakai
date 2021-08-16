@@ -2187,6 +2187,7 @@ span#previewArea {
     width: 40%;
     display: inline-block;
     margin: 2em;
+    height: 500px;
 }
 .inlineHeading {
     display: inline;
@@ -2202,5 +2203,5 @@ div.sectionLayoutFlex {
     display: flex;
 }
 img.sectionPreviewImage {
-    height: 500px;
+    max-height: 500px;
 }
