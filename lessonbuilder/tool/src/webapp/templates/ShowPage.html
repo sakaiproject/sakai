@@ -135,14 +135,6 @@
 			   </h2>
 		       </div>
 	     <div class="action topaction">
-                 <span id="expandCollapseButtons" style="display:none;">
-                   <a href="#" role="button" id="expandAllSections" class="button menuitem"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
-                   <a href="#" role="button" id="collapseAllSections" style="display:none;" class="button menuitem"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
-		 </span>
-		 <span>
-		   <a role="button" href="#" rsf:id="prev" class="nextprev prev menuitem button">prev</a>
-		   <a role="button" href="#" rsf:id="next" class="nextprev prev menuitem button">next</a>
-		 </span>
 		 <a role="button"  href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
 		 <a role="button"  href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle"></span></a>
 		 <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
@@ -493,6 +485,18 @@
 		<ul id="error-list" rsf:id="error-list:" role="alert">
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
+
+		<ul class="navIntraTool">
+			<li class="bottomButtons">
+				<span id="expandCollapseButtons" style="display:none;">
+					<a href="#" role="button" id="expandAllSections" class="button menuitem"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
+					<a href="#" role="button" id="collapseAllSections" style="display:none;" class="button menuitem"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
+				</span>
+				<a role="button" class="nextprev prev menuitem button" href="#" rsf:id="prev">next</a>
+				<a role="button" class="bottomRight nextprev prev menuitem button" href="#" rsf:id="next">next</a>
+			</li>
+		</ul>
+
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 			<input type="hidden" id="activeQuestion" />
             <div style="display:none" rsf:id="current-item-id"></div>
