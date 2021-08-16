@@ -52,6 +52,8 @@ public class ExtendedTimeDeliveryService {
 
 	@Getter
 	private Long publishedAssessmentId;
+	@Getter
+	private String agentId;
 
 	/**
 	 * Creates an ExtendedTimeService object using the userId in the agentFacade as the current user
@@ -82,6 +84,8 @@ public class ExtendedTimeDeliveryService {
 		String pubId = publishedAssessmentId.toString();
 		siteId = publishedAssessmentService.getPublishedAssessmentSiteId(pubId);
 		PublishedAssessmentData pubData = publishedAssessmentService.getBasicInfoOfPublishedAssessment(pubId);
+
+		this.agentId = agentId;
 
 		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		List<ExtendedTime> extendedTimes = extendedTimeFacade.getEntriesForPub(pubData);
