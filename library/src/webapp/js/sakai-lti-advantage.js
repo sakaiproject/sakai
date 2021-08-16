@@ -4,6 +4,17 @@
 let _Sakai_LTI_Iframes = [];
 let stored_data = {}
 
+// Future feature: Allow additions / deletions to this from same origin
+let supported_messages = [
+        { subject: "org.imsglobal.lti.capabilities" },
+        { subject: "org.imsglobal.lti.put_data" },
+        { subject: "org.imsglobal.lti.get_data" },
+        // Some general things we may or may not support depending on which page
+        { subject: "org.imsglobal.lti.close"},
+        { subject: "lti.frameResize" },
+        { subject: "lti.pageRefresh" },
+];
+
 //  https://github.com/MartinLenord/simple-lti-1p3/blob/cookie-shim/src/web/platform/csstorage.php
 
 w.addEventListener('message', function (event) {
@@ -50,6 +61,20 @@ w.addEventListener('message', function (event) {
                 console.log('org.imsglobal.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
             } else {
                 console.log('org.imsglobal.lti.prelaunch must come from same origin, not', origin);
+            }
+            break;
+        case 'org.imsglobal.lti.capabilities':
+            if ( approved || same_origin ) {
+                let send_data = {
+                    subject: 'org.imsglobal.lti.capabilities.response',
+                    message_id: message.message_id,
+                    supported_messages: supported_messages,
+                };
+                console.log(w.location.origin + " Sending post message to " + event.origin);
+                console.log(JSON.stringify(send_data, null, '    '));
+                event.source.postMessage(send_data, event.origin);
+            } else {
+                console.log('org.imsglobal.lti.capabilities must come from approved frame, not', origin);
             }
             break;
         case 'org.imsglobal.lti.put_data':
