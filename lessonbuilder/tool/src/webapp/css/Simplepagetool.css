@@ -2203,5 +2203,9 @@ div.sectionLayoutFlex {
     display: flex;
 }
 img.sectionPreviewImage {
-    max-height: 500px;
+    max-height: 150px;
+}
+a.layoutPreviewLink{
+    display: block;
+    text-align: center;
 }
