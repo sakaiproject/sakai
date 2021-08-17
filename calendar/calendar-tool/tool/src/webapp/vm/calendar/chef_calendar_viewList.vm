@@ -199,7 +199,6 @@
 ## From Column
 #if ($fromColExist)
 #set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
-## #if ($calObj.getContext() != $PortalService.CurrentSiteId )
 #set ($site = $SiteService.getSite($calObj.getContext()))
 <td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>$!site.Title</td>
 #end
@@ -269,16 +268,6 @@
 																		#end
 																</td>
 																</tr>
-
-																#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
-																#if ($calObj.getContext() != $Context )
-																<tr>
-																	<td>&nbsp;</td>
-																	#set ($siteDisplay = $SiteService.getSiteDisplay($calObj.getContext()))
-																	#set ($leftBrkIndex = $siteDisplay.indexOf('('))
-																	<td>$tlang.getString('viewl.froms') $siteDisplay.substring(0, $leftBrkIndex)</td>
-																</tr>
-																#end
 
 														#end   ##foreach--6
 														#end ##if ($noEvent == "false")
