@@ -361,15 +361,15 @@ public class SimplePageBean {
 	private boolean layoutSectionStartCollapsed = false;
 	private boolean layoutSectionShowBorders = true;
 	private String layoutSelect;
-	private String sectionLayoutSelect;
-	private String sectionSubpageTitle;
-	private boolean sectionSubpageButton;
-	private int sectionSubpageCount;
-	private int sectionTaskCount;
-	private boolean sectionTaskCollapsible;
-	private String sectionButtonColorScheme;
-	private String sectionColorScheme;
-	private boolean sectionTaskClosed;
+	private String pageLayoutSelect;
+	private String pageSubpageTitle;
+	private boolean pageSubpageButton;
+	private int pageSubpageCount;
+	private int pageTaskCount;
+	private boolean pageTaskCollapsible;
+	private String pageButtonColorScheme;
+	private String pageColorScheme;
+	private boolean pageTaskClosed;
 	private String layoutColorScheme;
 
 	public static final String NewColors[] = {
@@ -402,7 +402,7 @@ public class SimplePageBean {
 			"Teal",
 			"Purple"
 	};
-	public static final String sectionLayoutValues[] = {"none", "addSubpageList", "interiorResources", "interiorTask"};
+	public static final String pageLayoutValues[] = {"none", "addSubpageList", "interiorResources", "interiorTask"};
 	public static final String subpageCountValues[] = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
 
         // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
@@ -1154,67 +1154,67 @@ public class SimplePageBean {
 		this.layoutSelect = layoutSelect;
 	}
 
-	public void setSectionLayoutSelect(String sectionLayoutSelect) {
-		this.sectionLayoutSelect = sectionLayoutSelect;
+	public void setPageLayoutSelect(String pageLayoutSelect) {
+		this.pageLayoutSelect = pageLayoutSelect;
 	}
-	public String getSectionLayoutSelect(){
-		return sectionLayoutSelect;
-	}
-
-	public void setSectionSubpageTitle(String sectionSubpageTitle){
-		this.sectionSubpageTitle = sectionSubpageTitle;
-	}
-	public String getSectionSubpageTitle(){
-		return sectionSubpageTitle;
+	public String getPageLayoutSelect(){
+		return pageLayoutSelect;
 	}
 
-	public void setSectionSubpageCount(int count){
-		this.sectionSubpageCount = count;
+	public void setPageSubpageTitle(String pageSubpageTitle){
+		this.pageSubpageTitle = pageSubpageTitle;
 	}
-	public int getSectionSubpageCount(){
-		return sectionSubpageCount;
-	}
-
-	public void setSectionTaskCount(int count){
-		this.sectionTaskCount = count;
-	}
-	public int getSectionTaskCount(){
-		return sectionTaskCount;
+	public String getPageSubpageTitle(){
+		return pageSubpageTitle;
 	}
 
-	public void setSectionTaskCollapsible(boolean whether){
-		this.sectionTaskCollapsible = whether;
+	public void setPageSubpageCount(int count){
+		this.pageSubpageCount = count;
 	}
-	public boolean isSectionTaskCollapsible(){
-		return this.sectionTaskCollapsible;
-	}
-
-	public void setSectionTaskClosed(boolean whether){
-		this.sectionTaskClosed = whether;
-	}
-	public boolean isSectionTaskClosed(){
-		return sectionTaskClosed;
+	public int getPageSubpageCount(){
+		return pageSubpageCount;
 	}
 
-	public void setSectionColorScheme(String sectionColorScheme){
-		this.sectionColorScheme = sectionColorScheme;
+	public void setPageTaskCount(int count){
+		this.pageTaskCount = count;
 	}
-	public String getSectionColorScheme(){
-		return sectionColorScheme;
-	}
-
-	public void setSectionButtonColorScheme(String sectionButtonColorScheme){
-		this.sectionButtonColorScheme = sectionButtonColorScheme;
-	}
-	public String getSectionButtonColorScheme(){
-		return sectionButtonColorScheme;
+	public int getPageTaskCount(){
+		return pageTaskCount;
 	}
 
-	public void setSectionSubpageButton(boolean whether){
-		this.sectionSubpageButton = whether;
+	public void setPageTaskCollapsible(boolean whether){
+		this.pageTaskCollapsible = whether;
 	}
-	public boolean getSectionSubpageButton(){
-		return sectionSubpageButton;
+	public boolean isPageTaskCollapsible(){
+		return this.pageTaskCollapsible;
+	}
+
+	public void setPageTaskClosed(boolean whether){
+		this.pageTaskClosed = whether;
+	}
+	public boolean isPageTaskClosed(){
+		return pageTaskClosed;
+	}
+
+	public void setPageColorScheme(String pageColorScheme){
+		this.pageColorScheme = pageColorScheme;
+	}
+	public String getPageColorScheme(){
+		return pageColorScheme;
+	}
+
+	public void setPageButtonColorScheme(String pageButtonColorScheme){
+		this.pageButtonColorScheme = pageButtonColorScheme;
+	}
+	public String getPageButtonColorScheme(){
+		return pageButtonColorScheme;
+	}
+
+	public void setPageSubpageButton(boolean whether){
+		this.pageSubpageButton = whether;
+	}
+	public boolean getPageSubpageButton(){
+		return pageSubpageButton;
 	}
 
 	public String getLayoutColorScheme() {
@@ -4683,7 +4683,7 @@ public class SimplePageBean {
 		}
 	}
 
-	private int getSequenceOnPage(long pageId){	//find highest Sequence number among a page's items and return a higher one that can be used for a new item
+	private int getNextSequenceOnPage(long pageId){	//find highest Sequence number among a page's items and return a higher one that can be used for a new item
 		List<SimplePageItem> itemsNow = getItemsOnPage(pageId);
 		if (itemsNow==null || itemsNow.isEmpty()){
 			return 1;
@@ -4697,13 +4697,13 @@ public class SimplePageBean {
 		return currentHighest + 1;
 	}
 
-	public String addSectionLayout(){
-		int sequence = getSequenceOnPage(getCurrentPageId());	//find the starting sequence number based on whatever might already be on the page. Must be incremented after every use.
-       	if(StringUtils.equals(this.sectionLayoutSelect, "addSubpageList")){
+	public String addPageLayout(){
+		int sequence = getNextSequenceOnPage(getCurrentPageId());	//find the starting sequence number based on whatever might already be on the page. Must be incremented after every use.
+       	if(StringUtils.equals(this.pageLayoutSelect, "addSubpageList")){
 			SimplePage pageNow = null;
 			SimplePageItem itemNow = null;
-			if(StringUtils.isBlank(sectionSubpageTitle)){
-				setErrMessage(messageLocator.getMessage("simplepage.layout.section.emptyName"));
+			if(StringUtils.isBlank(pageSubpageTitle)){
+				setErrMessage(messageLocator.getMessage("simplepage.layout.page.emptyName"));
 				return "failure";
 			}
 			itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,null);
@@ -4712,22 +4712,22 @@ public class SimplePageBean {
 			itemNow.setAttribute("forceBtn","false");
 			itemNow.setAttribute("checklistItems",null);
 			update(itemNow);	//finish writing break before subpages
-			for(int count=1; count<=sectionSubpageCount; count++){
-				pageNow = addPage(sectionSubpageTitle + ' ' + count, null, false, false);	//make new page
+			for(int count=1; count<=pageSubpageCount; count++){
+				pageNow = addPage(pageSubpageTitle + ' ' + count, null, false, false);	//make new page
 				pageNow.setParent(getCurrentPageId());	//clean up page data
 				pageNow.setTopParent(getCurrentPage().getTopParent());
 				update(pageNow);	//save revised page data
 				itemNow = simplePageToolDao.findItemsBySakaiId(Long.toString(pageNow.getPageId())).get(0);	//there should only be one item with this sakaiId, because it was just now created as part of addPage.
-				if(sectionSubpageButton){	//clean up item data
+				if(pageSubpageButton){	//clean up item data
 					itemNow.setFormat("button");
 				}
 				itemNow.setPageId(getCurrentPageId());
-				itemNow.setAttribute("btnColor",sectionButtonColorScheme);
+				itemNow.setAttribute("btnColor",pageButtonColorScheme);
 				itemNow.setSequence(sequence);
 				sequence++;
 				update(itemNow);	//save revised item data
 			}
-		} else if(StringUtils.equals(this.sectionLayoutSelect, "interiorResources") || StringUtils.equals(this.sectionLayoutSelect, "interiorTask")){	//first handle the parts that these layouts have in common.
+		} else if(StringUtils.equals(this.pageLayoutSelect, "interiorResources") || StringUtils.equals(this.pageLayoutSelect, "interiorTask")){	//first handle the parts that these layouts have in common.
 			SimplePageItem itemNow = simplePageToolDao.makeItem(getCurrentPageId(), sequence, SimplePageItem.BREAK, null, null);
 			sequence++;
 			itemNow.setFormat("section");
@@ -4738,14 +4738,14 @@ public class SimplePageBean {
 			itemNow = simplePageToolDao.makeItem(getCurrentPageId(), sequence,SimplePageItem.TEXT,null,null);
 			sequence++;
 			String overviewHtmlAppender = "";
-			if(StringUtils.equals(this.sectionLayoutSelect, "interiorResources")){	//special Overview text for interiorResources only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.section.overview","Tasks");
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.section.overview.task");
+			if(StringUtils.equals(this.pageLayoutSelect, "interiorResources")){	//special Overview text for interiorResources only
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview","Tasks");
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.task");
 			} else {	//text items for interiorTask only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.section.overview","Learning Outcomes");
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.section.overview.lo");
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview","Learning Outcomes");
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.lo");
 			}
-			overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.section.overview.tail");
+			overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.tail");
 			itemNow.setHtml(overviewHtmlAppender);
 			itemNow.setAttribute("checklistItems",null);
 			update(itemNow);	//finish writing second item [overview]
@@ -4767,10 +4767,10 @@ public class SimplePageBean {
 			itemNow.setAttribute("btnColor",null);
 			itemNow.setAttribute("customCssClass","bg-success");
 			update(itemNow);	//finish writing fourth item, the checklist itself
-			if(StringUtils.equals(this.sectionLayoutSelect, "interiorResources")){	//parts unique to interiorResources
+			if(StringUtils.equals(this.pageLayoutSelect, "interiorResources")){	//parts unique to interiorResources
 				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.TEXT,null,null);
 				sequence++;
-				itemNow.setHtml(messageLocator.getMessage("simplepage.layout.section.dates"));
+				itemNow.setHtml(messageLocator.getMessage("simplepage.layout.page.dates"));
 				itemNow.setAttribute("checklistItems",null);
 				update(itemNow); 	//finish writing fifth item, Important Dates
 				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,"Resources");
@@ -4779,22 +4779,22 @@ public class SimplePageBean {
 				itemNow.setAttribute("forceBtn","false");
 				itemNow.setAttribute("checklistItems",null);
 				itemNow.setAttribute("colcolor","nnavy");
-				update(itemNow);	//finish writing last section, Resources heading
+				update(itemNow);	//finish writing last page, Resources heading
 			} else {	//parts unique to interiorTask
-				for(int count=1; count<=this.sectionTaskCount; count++){
+				for(int count=1; count<=this.pageTaskCount; count++){
 					itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null, "Task " + count);
 					sequence++;
 					itemNow.setFormat("section");
 					itemNow.setAttribute("forceBtn","false");
 					itemNow.setAttribute("checklistItems",null);
-					itemNow.setAttribute("colcolor",sectionColorScheme);
-					if(this.sectionTaskCollapsible){
+					itemNow.setAttribute("colcolor",pageColorScheme);
+					if(this.pageTaskCollapsible){
 						itemNow.setAttribute("collapsible","1");
 					}
-					if(this.sectionTaskClosed){
+					if(this.pageTaskClosed){
 						itemNow.setAttribute("defaultClosed","1");
 					}
-					update(itemNow);	//finish writing an individual Task section
+					update(itemNow);	//finish writing an individual Task page
 				}
 			}
 		}	//completed either interiorResources or interiorTask layout.

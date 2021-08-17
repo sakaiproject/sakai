@@ -5313,30 +5313,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "layout-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addLayout}");
 		UICommand.make(form, "layout-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-		createSectionLayoutTab(tofill);
+		createPageLayoutTab(tofill);
 	}
 
-	private void createSectionLayoutTab(UIContainer tofill){
-		String sectionLayoutLabels[] = {"", messageLocator.getMessage("simplepage.layout.section.menuSubpage"), messageLocator.getMessage("simplepage.layout.section.menuResources"), messageLocator.getMessage("simplepage.layout.section.menuTasks")};	//populate dropdown labels from properties
-		UIForm form2 = UIForm.make(tofill, "section-form");
-		makeCsrf(form2, "section-csrf28");
-		UIOutput.make(form2,"section-preview-subpage-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png"));
-		UIOutput.make(form2,"section-preview-subpage").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
-		UIOutput.make(form2,"section-preview-resource-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png"));
-		UIOutput.make(form2,"section-preview-resource").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
-		UIOutput.make(form2,"section-preview-task-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png"));
-		UIOutput.make(form2,"section-preview-task").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
-		UISelect.make(form2, "section-dropdown", SimplePageBean.sectionLayoutValues, sectionLayoutLabels, "#{simplePageBean.sectionLayoutSelect}", SimplePageBean.sectionLayoutValues[0]);
-		UISelect.make(form2, "section-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.sectionButtonColorScheme}", SimplePageBean.NewColors[0]);
-		UISelect.make(form2, "section-color-scheme-3", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.sectionColorScheme}", SimplePageBean.NewColors[0]);
-		UIBoundBoolean.make(form2,"section-subpage-button","#{simplePageBean.sectionSubpageButton}",true);
-		UIInput.make(form2, "section-option-subpage-title", "#{simplePageBean.sectionSubpageTitle}");
-		UISelect.make(form2, "section-option-subpage-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.sectionSubpageCount}", SimplePageBean.subpageCountValues[1]);
-		UISelect.make(form2, "section-option-task-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.sectionTaskCount}", SimplePageBean.subpageCountValues[1]);
-		UIBoundBoolean.make(form2, "section-option-task-collapsible", "#{simplePageBean.sectionTaskCollapsible}",false);
-		UIBoundBoolean.make(form2, "section-option-task-closed", "#{simplePageBean.sectionTaskClosed}",false);
-		UICommand.make(form2, "section-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addSectionLayout}");
-		UICommand.make(form2, "section-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	private void createPageLayoutTab(UIContainer tofill){
+		String pageLayoutLabels[] = {"", messageLocator.getMessage("simplepage.layout.page.menuSubpage"), messageLocator.getMessage("simplepage.layout.page.menuResources"), messageLocator.getMessage("simplepage.layout.page.menuTasks")};	//populate dropdown labels from properties
+		UIForm form2 = UIForm.make(tofill, "page-form");
+		makeCsrf(form2, "page-csrf28");
+		UIOutput.make(form2,"page-preview-subpage-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png"));
+		UIOutput.make(form2,"page-preview-subpage").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UIOutput.make(form2,"page-preview-resource-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png"));
+		UIOutput.make(form2,"page-preview-resource").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UIOutput.make(form2,"page-preview-task-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png"));
+		UIOutput.make(form2,"page-preview-task").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
+		UISelect.make(form2, "page-dropdown", SimplePageBean.pageLayoutValues, pageLayoutLabels, "#{simplePageBean.pageLayoutSelect}", SimplePageBean.pageLayoutValues[0]);
+		UISelect.make(form2, "page-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.pageButtonColorScheme}", SimplePageBean.NewColors[0]);
+		UISelect.make(form2, "page-color-scheme-3", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.pageColorScheme}", SimplePageBean.NewColors[0]);
+		UIBoundBoolean.make(form2,"page-subpage-button","#{simplePageBean.pageSubpageButton}",true);
+		UIInput.make(form2, "page-option-subpage-title", "#{simplePageBean.pageSubpageTitle}");
+		UISelect.make(form2, "page-option-subpage-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.pageSubpageCount}", SimplePageBean.subpageCountValues[1]);
+		UISelect.make(form2, "page-option-task-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.pageTaskCount}", SimplePageBean.subpageCountValues[1]);
+		UIBoundBoolean.make(form2, "page-option-task-collapsible", "#{simplePageBean.pageTaskCollapsible}",false);
+		UIBoundBoolean.make(form2, "page-option-task-closed", "#{simplePageBean.pageTaskClosed}",false);
+		UICommand.make(form2, "page-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addPageLayout}");
+		UICommand.make(form2, "page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 
 	private void createDeleteItemDialog(UIContainer tofill, SimplePage currentPage) {

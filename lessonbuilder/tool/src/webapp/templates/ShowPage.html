@@ -2384,11 +2384,11 @@
                 </div>
                     <h3><span rsf:id="msg=simplepage.layout.add.from.template"></span></h3>
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#pagelayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></a></li>
-                        <li><a data-toggle="tab" href="#sectionlayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></a></li>
+                        <li class="active"><a data-toggle="tab" href="#sectionlayout"><span rsf:id="msg=simplepage.layout.section.layouts" ></span></a></li>
+                        <li><a data-toggle="tab" href="#pagelayout"><span rsf:id="msg=simplepage.layout.page.layouts" ></span></a></li>
                     </ul>
                     <div class="tab-content" >
-                        <div id="pagelayout" class="tab-pane fade in active" >
+                        <div id="sectionlayout" class="tab-pane fade in active" >
                             <form action="#" rsf:id="layout-form" class="controlsPanel form">
                                 <input type="hidden" rsf:id="csrf28" />
                                 <div class="row row-no-margin">
@@ -2511,73 +2511,73 @@
                                 </p>
                             </form>
                         </div>
-                        <div id="sectionlayout" class="tab-pane fade" >
-                            <form action="#" rsf:id="section-form" class="controlsPanel form" >
-                                <input type="hidden" rsf:id="section-csrf28" />
-                                <div rsf:id="msg=simplepage.layout.section.directions"></div>
-                                <h5 rsf:id="msg=simplepage.layout.section.choose" ></h5>
-                                <select id="section-dropdown-selection" rsf:id="section-dropdown" onchange="sectionLayoutSelectChange()" >
-                                    <option rsf:id="section-options:"><span rsf:id="section-labels"></span></option>
+                        <div id="pagelayout" class="tab-pane fade" >
+                            <form action="#" rsf:id="page-form" class="controlsPanel form" >
+                                <input type="hidden" rsf:id="page-csrf28" />
+                                <div rsf:id="msg=simplepage.layout.page.directions"></div>
+                                <h5 rsf:id="msg=simplepage.layout.page.choose" ></h5>
+                                <select id="page-dropdown-selection" rsf:id="page-dropdown" onchange="pageLayoutSelectChange()" >
+                                    <option rsf:id="page-options:"><span rsf:id="page-labels"></span></option>
                                 </select>
                                 <hr />
                                 <h5 rsf:id="msg=simplepage.layout.example" id="simplepage-layout-example" style="display:none"></h5>
                                 <div style="display:none;" id="type1description" class="templateTypeDescription" >
                                     <div rsf:id="msg=simplepage.layout.subpage.listing.desc" ></div><br/>
-                                    <a rsf:id="section-preview-subpage" class="layoutPreviewLink" >
-                                        <img class="sectionPreviewImage img-thumbnail" id="section-preview-subpage-image" rsf:id="section-preview-subpage-image" alt="Preview image" />
+                                    <a rsf:id="page-preview-subpage" class="layoutPreviewLink" >
+                                        <img class="pagePreviewImage img-thumbnail" id="page-preview-subpage-image" rsf:id="page-preview-subpage-image" alt="Preview image" />
                                         <div rsf:id="msg=simplepage.layout.click"></div>
                                     </a><br/>
                                     <hr />
                                     <h5 rsf:id="msg=simplepage.layout.options"></h5>
-                                    <input id="section-option-subpage-title" rsf:id="section-option-subpage-title" />
-                                    <label for="section-option-subpage-title" rsf:id="msg=simplepage.layout.section.subpage"></label><br/><br/>
-                                    <input type="checkbox" rsf:id="section-subpage-button" id="section-subpage-button" onclick="buttonLinkChange()"/>
-                                    <label rsf:id="msg=simplepage.subpage-button" for="section-subpage-button"></label><br/><br/>
-                                    <div id="section-color-div">
-                                        <select rsf:id="section-color-scheme" id="section-color-scheme">
-                                            <option rsf:id="sectionschemes:"><span rsf:id="sectionSchemeLabel"></span></option>
+                                    <input id="page-option-subpage-title" rsf:id="page-option-subpage-title" />
+                                    <label for="page-option-subpage-title" rsf:id="msg=simplepage.layout.page.subpage"></label><br/><br/>
+                                    <input type="checkbox" rsf:id="page-subpage-button" id="page-subpage-button" onclick="buttonLinkChange()"/>
+                                    <label rsf:id="msg=simplepage.subpage-button" for="page-subpage-button"></label><br/><br/>
+                                    <div id="page-color-div">
+                                        <select rsf:id="page-color-scheme" id="page-color-scheme">
+                                            <option rsf:id="pageschemes:"><span rsf:id="pageSchemeLabel"></span></option>
                                         </select>
-                                        <label rsf:id="msg=simplepage.btncolor" for="section-color-scheme"></label><br/><br/>
+                                        <label rsf:id="msg=simplepage.btncolor" for="page-color-scheme"></label><br/><br/>
                                     </div>
-                                    <select id="section-option-subpage-count-selection" rsf:id="section-option-subpage-count" >
-                                        <option rsf:id="section-subpage-count-options:" id="section-dropdown-subpage-count"><span rsf:id="subpage-count-labels"></span></option>
+                                    <select id="page-option-subpage-count-selection" rsf:id="page-option-subpage-count" >
+                                        <option rsf:id="page-subpage-count-options:" id="page-dropdown-subpage-count"><span rsf:id="subpage-count-labels"></span></option>
                                     </select>
-                                    <label for="section-option-subpage-count-selection" rsf:id="msg=simplepage.layout.section.subpage.count" ></label><br/><br/>
+                                    <label for="page-option-subpage-count-selection" rsf:id="msg=simplepage.layout.page.subpage.count" ></label><br/><br/>
                                 </div>
                                 <div style="display:none;" id="type2description" class="templateTypeDescription" >
                                     <div rsf:id="msg=simplepage.layout.interior.resources.desc"></div><br/>
-                                    <a rsf:id="section-preview-resource" class="layoutPreviewLink">
-                                        <img class="sectionPreviewImage img-thumbnail" id="section-preview-resource-image" rsf:id="section-preview-resource-image" alt="Preview image" /><br/>
+                                    <a rsf:id="page-preview-resource" class="layoutPreviewLink">
+                                        <img class="pagePreviewImage img-thumbnail" id="page-preview-resource-image" rsf:id="page-preview-resource-image" alt="Preview image" /><br/>
                                         <div rsf:id="msg=simplepage.layout.click"></div>
                                     </a>
                                 </div>
                                 <div style="display:none;" id="type3description" class="templateTypeDescription" >
                                     <div rsf:id="msg=simplepage.layout.interior.task.desc" ></div><br/>
-                                    <a rsf:id="section-preview-task" class="layoutPreviewLink">
-                                        <img class="sectionPreviewImage img-thumbnail" id="section-preview-task-image" rsf:id="section-preview-task-image" alt="Preview image" /><br/>
+                                    <a rsf:id="page-preview-task" class="layoutPreviewLink">
+                                        <img class="pagePreviewImage img-thumbnail" id="page-preview-task-image" rsf:id="page-preview-task-image" alt="Preview image" /><br/>
                                         <div rsf:id="msg=simplepage.layout.click"></div>
                                     </a>
                                     <hr />
                                     <h5 rsf:id="msg=simplepage.layout.options"></h5>
-                                    <select rsf:id="section-option-task-count" id="section-option-task-count-selection" >
-                                        <option rsf:id="section-task-count-options:" ><span rsf:id="task-count-labels"></span></option>
+                                    <select rsf:id="page-option-task-count" id="page-option-task-count-selection" >
+                                        <option rsf:id="page-task-count-options:" ><span rsf:id="task-count-labels"></span></option>
                                     </select>
-                                    <label rsf:id="msg=simplepage.layout.section.task.count" for=""></label><br/><br/>
-                                    <select rsf:id="section-color-scheme-3" id="section-color-scheme-3">
-                                        <option rsf:id="sectionschemes:"><span rsf:id="sectionSchemeLabel"></span></option>
+                                    <label rsf:id="msg=simplepage.layout.page.task.count" for=""></label><br/><br/>
+                                    <select rsf:id="page-color-scheme-3" id="page-color-scheme-3">
+                                        <option rsf:id="pageschemes:"><span rsf:id="pageSchemeLabel"></span></option>
                                     </select>
-                                    <label rsf:id="msg=simplepage.layout.color.scheme" for="section-color-scheme"></label><br/><br/>
-                                    <input type="checkbox" id="section-option-task-collapsible" rsf:id="section-option-task-collapsible" onclick="collapsibleChange()" />
-                                    <label for="section-option-task-collapsible" rsf:id="msg=simplepage.layout.section.task.collapsible"></label>
-                                    <div style="display:none" id="sectionCloseDiv">
-                                        <input type="checkbox" id="section-option-task-closed" rsf:id="section-option-task-closed" />
-                                        <label for="section-option-task-closed" rsf:id="msg=simplepage.layout.section.task.closed" ></label>
+                                    <label rsf:id="msg=simplepage.layout.color.scheme" for="page-color-scheme"></label><br/><br/>
+                                    <input type="checkbox" id="page-option-task-collapsible" rsf:id="page-option-task-collapsible" onclick="collapsibleChange()" />
+                                    <label for="page-option-task-collapsible" rsf:id="msg=simplepage.layout.page.task.collapsible"></label>
+                                    <div style="display:none" id="pageCloseDiv">
+                                        <input type="checkbox" id="page-option-task-closed" rsf:id="page-option-task-closed" />
+                                        <label for="page-option-task-closed" rsf:id="msg=simplepage.layout.page.task.closed" ></label>
                                     </div>
                                 </div>
                                 <hr />
                                 <p class="act">
-                                    <input type="submit" rsf:id="section-submit" class="btn btn-primary" />
-                                    <input type="submit" rsf:id="section-cancel" class="btn btn-link" />
+                                    <input type="submit" rsf:id="page-submit" class="btn btn-primary" />
+                                    <input type="submit" rsf:id="page-cancel" class="btn btn-link" />
                                 </p>
                             </form>
                         </div>
