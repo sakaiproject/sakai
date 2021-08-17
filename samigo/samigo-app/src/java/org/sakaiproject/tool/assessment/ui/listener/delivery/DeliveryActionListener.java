@@ -2337,14 +2337,18 @@ public class DeliveryActionListener
       String agentId = determineCalcQAgentId(delivery, bean);
 
       service.getAnswersMap().clear();
-      service.setTexts(service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId));
+      List<String> texts = service.extractCalcQAnswersArray(service.getAnswersMap(), item, gradingId, agentId);
+      if (texts.isEmpty())
+      {
+          log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
+          texts = Collections.singletonList(rb.get("calc.extract_text_error").toString());
+      }
+      service.setTexts(texts);
       String questionText = service.getTexts().get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
       List<FinBean> fins = new ArrayList<FinBean>();
       bean.setInstruction(questionText); // will be referenced in table of contents
-
-      int numOfAnswers = service.getAnswersMap().size();
 
       int i = 0;
       List<AnswerIfc> calcQuestionEntities = text.getAnswerArraySorted();
