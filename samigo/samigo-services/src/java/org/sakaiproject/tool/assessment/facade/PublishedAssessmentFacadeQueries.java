@@ -966,7 +966,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
                 Query q = session.createQuery(
 						"select new AssessmentGradingData("
-								+ " a.publishedAssessmentId, count(a)) "
+								+ " a.publishedAssessmentId, count(distinct a)) "
 								+ " from AssessmentGradingData as a, AuthorizationData as az "
 								+ " where a.agentId=:agentId and a.forGrade=:forGrade and a.status > :status"
 								+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
