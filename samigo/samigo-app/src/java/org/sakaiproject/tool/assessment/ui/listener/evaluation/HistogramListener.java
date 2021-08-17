@@ -1902,11 +1902,10 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   {
     Map texts = new HashMap();
     Iterator iter = labels.iterator();
-    Map results = new HashMap();
+    Map<Long, Integer> results = new HashMap();
     Map numStudentRespondedMap= new HashMap();
     Map sequenceMap = new HashMap();
-
-    int distractorCount = 0;
+    List<Long> distractors = new ArrayList<>();
     
     while (iter.hasNext())
     {
@@ -1915,7 +1914,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       results.put(label.getId(), Integer.valueOf(0));
       sequenceMap.put(label.getSequence(), label.getId());
       if ( delegate.isDistractor(label)){
-          distractorCount++;
+          distractors.add(label.getId());
       }
     }
     iter = scores.iterator();
@@ -1925,14 +1924,8 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       ItemGradingData data = (ItemGradingData) iter.next();
       ItemTextIfc text = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
       AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
-      //    if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
       if (answer != null)
       {
-        Integer num = (Integer) results.get(text.getId());
-        if (num == null)
-          num = Integer.valueOf(0);
-
-
         List studentResponseList = (List) numStudentRespondedMap.get(data.getAssessmentGradingId());
         if (studentResponseList==null) {
             studentResponseList = new ArrayList();
@@ -1943,8 +1936,10 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
         // only store correct responses in the results
         {
-          results.put(text.getId(), Integer.valueOf(num.intValue() + 1));
+          results.merge(text.getId(), 1, Integer::sum);
         }
+      } else if(data.getPublishedAnswerId() != null && data.getPublishedAnswerId() < 0 && distractors.contains(text.getId())) {
+        results.merge(text.getId(), 1, Integer::sum);
       }
     }
 
@@ -1960,7 +1955,6 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
      
     Collections.sort(sequenceList);
     iter = sequenceList.iterator();
-    //iter = results.keySet().iterator();
     int i = 0;
     int correctresponses = 0;
     while (iter.hasNext())
@@ -1978,10 +1972,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       i++;
     }
 
-
     // now calculate correctresponses
     // correctresponses = # of students who got all answers correct,
-    int numberOfRealChoices = labels.size() - distractorCount;
+    int numberOfRealChoices = labels.size() - distractors.size();
     for (Iterator it = numStudentRespondedMap.entrySet().iterator(); it.hasNext();) {
     	Map.Entry entry = (Map.Entry) it.next();
      	List resultsForOneStudent = (List) entry.getValue();
