@@ -938,7 +938,9 @@ label.inactive
 
 #modifyPartForm fieldset.roundedBorder input[type="text"]
 {
-    width: 30px;
+    box-sizing: content-box; /* content-box is used so we can safely use the "ch" unit to define the number of digits that fit in the field */
+    width: 5ch;
+    text-align: center;
     margin-left: 5px;
     margin-right: 5px;
 }
