@@ -93,7 +93,7 @@ import org.sakaiproject.util.api.FormattedText;
  public class TotalScoreListener
   implements ActionListener, ValueChangeListener
 {
-  private static BeanSort bs;
+  private BeanSort bs;
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 

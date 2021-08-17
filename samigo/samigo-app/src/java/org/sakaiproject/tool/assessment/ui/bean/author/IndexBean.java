@@ -31,20 +31,17 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /* For author: Template Index backing bean. */
 @Slf4j
 @ManagedBean(name="templateIndex")
 @SessionScoped
 public class IndexBean implements Serializable {
-  private static BeanSort bs;
   private Collection templateList;
   private List sortTemplateList;
 

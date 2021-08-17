@@ -116,7 +116,7 @@ public class DeliveryActionListener
   implements ActionListener
 {
 
-  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");

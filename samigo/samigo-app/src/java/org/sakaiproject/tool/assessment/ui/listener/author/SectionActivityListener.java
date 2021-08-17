@@ -54,7 +54,7 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class SectionActivityListener implements ActionListener, ValueChangeListener
 {
-    private static BeanSort bs;
+    private BeanSort bs;
 
     public SectionActivityListener()
     {

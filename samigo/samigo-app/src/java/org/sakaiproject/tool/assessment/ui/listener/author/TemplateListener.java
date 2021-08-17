@@ -48,7 +48,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class TemplateListener extends TemplateBaseListener
     implements ActionListener
 {
-  private static BeanSort bs;
+  private BeanSort bs;
 
   public TemplateListener()
   {
