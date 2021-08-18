@@ -87,7 +87,7 @@ export class SakaiGrades extends SakaiPageableElement {
       </div>
 
       <div id="grades">
-        <div class="header">Course/Assignment</div>
+        <div class="header">${this.i18n["course_assignment"]}</div>
         <div class="header">${this.i18n["course_average"]}</div>
         <div class="header">${this.i18n["view"]}</div>
         ${this.dataPage.map((a, i) => html`
