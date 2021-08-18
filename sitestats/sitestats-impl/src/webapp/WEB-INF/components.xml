@@ -146,6 +146,7 @@
 		<property name="serverEventIds" ref="org.sakaiproject.sitestats.api.serverevents.List" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.event.FileEventRegistry"
 		  class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"
