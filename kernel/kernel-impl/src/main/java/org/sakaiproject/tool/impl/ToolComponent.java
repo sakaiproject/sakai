@@ -703,7 +703,16 @@ public abstract class ToolComponent implements ToolManager
 			return false;
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isStealthed(String toolID) {
+		Tool tool = getTool(toolID);
+		Set<Tool> tools = findTools(Collections.emptySet(), null);
+		return tool == null || !tools.contains(tool);
+	}
+
 	private boolean arrayContains(Object obj, String item){
 		if(obj != null && obj instanceof String[]){
 			String[] array = (String[]) obj;
