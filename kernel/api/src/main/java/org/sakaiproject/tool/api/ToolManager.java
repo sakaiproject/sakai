@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.w3c.dom.Document;
@@ -191,7 +190,11 @@ public interface ToolManager
 	 * If the configuration tag is not set or is null, then all users see the tool.
 	 */
 	public boolean allowTool(Site site, Placement placement);
+
+	/**
+	 * Determine if the tool defined by the given tool ID is stealthed globally.
+	 * @param toolID the ID of the tool in question
+	 * @return true if the tool is stealthed globally; false otherwise
+	 */
+	public boolean isStealthed(String toolID);
 }
-
-
-
