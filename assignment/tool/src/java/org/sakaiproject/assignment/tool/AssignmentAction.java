@@ -5984,7 +5984,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     if (NumberUtils.isParsable(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER))) {
                         // if this submission has been already been submitted previously.
-                        if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
+                        boolean isResub = properties.entrySet().stream().anyMatch(e -> e.getKey().startsWith("log") && e.getValue().contains("submitted"));
+                        if (submission.getSubmitted() && isResub) {
                             // decrease the allow_resubmit_number,
                             int number = Integer.parseInt(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
                             // minus 1 from the submit number, if the number is not -1 (not unlimited)
