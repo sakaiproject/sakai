@@ -91,7 +91,7 @@
         <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 col-lg-2 form-control-label"/>
         <div class="col-md-2">
             <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-                        required="true" size="6" styleClass="form-control ConvertPoint">
+                        required="true" disabled="#{author.isEditPoolFlow}" size="6" styleClass="form-control ConvertPoint">
                 <f:validateDoubleRange />
             </h:inputText>
             <h:message for="answerptr" styleClass="validate" />
