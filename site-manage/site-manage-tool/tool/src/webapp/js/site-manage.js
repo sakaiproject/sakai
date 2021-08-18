@@ -494,6 +494,8 @@ sakai.siteTypeSetup = function(){
         }
     });
     
+    // Click the first item in the create site screen
+    $('input[name="itemType"]').first().click();
 };
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
