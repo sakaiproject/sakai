@@ -56,8 +56,8 @@ public class ItemRemoveListener implements ActionListener
 		if(item.getItemToDelete() == null) {
 			return;
 		}
-		String deleteId = String.valueOf(item.getItemToDelete().getItemId());
-		ItemFacade itemf = delegate.getItem(deleteId);
+		Long deleteId = item.getItemToDelete().getItemId();
+		ItemFacade itemf = delegate.getItem(String.valueOf(deleteId));
 		// save the currSection before itemf.setSection(null), used to reorder question sequences
 		SectionFacade  currSection = (SectionFacade) itemf.getSection();
 		Integer  currSeq = itemf.getSequence();
@@ -70,13 +70,13 @@ public class ItemRemoveListener implements ActionListener
 			if (!authzBean.isUserAllowedToEditAssessment(af.getAssessmentBaseId().toString(), af.getCreatedBy(), false)) {
 				throw new IllegalArgumentException("User does not have permission to delete item in assessment: " + af.getAssessmentBaseId());
 			}
-			delegate.deleteItem(Long.valueOf(deleteId), AgentFacade.getAgentString());
+			delegate.deleteItem(deleteId, AgentFacade.getAgentString());
 		}
 		else {
 			if (currSection == null) {
 				// if this item is created from question pool
 				QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-				ItemFacade itemfacade= delegate.getItem(deleteId);
+				ItemFacade itemfacade= delegate.getItem(String.valueOf(deleteId));
 				ArrayList<ItemFacade> items = new ArrayList<>();
 				items.add(itemfacade);
 				qpoolbean.setItemsToDelete(items);
