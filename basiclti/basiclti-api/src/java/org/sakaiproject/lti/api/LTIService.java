@@ -156,10 +156,13 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
             "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
 
+            // SAK-45491 - Key rotation interval
+            "lti13_platform_public_next:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
+            "lti13_platform_public_next_at:date",
+            "lti13_platform_private_next:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_public:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_public_old:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_public_old_at:date",
             "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
+            "lti13_platform_public_old:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
             "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
@@ -279,10 +282,12 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13 = "lti13";
     String LTI13_CLIENT_ID = "lti13_client_id";
     String LTI13_TOOL_KEYSET = "lti13_tool_keyset";
+    String LTI13_PLATFORM_PUBLIC_NEXT = "lti13_platform_public_next";
+    String LTI13_PLATFORM_PUBLIC_NEXT_AT = "lti13_platform_public_next_at";
+    String LTI13_PLATFORM_PRIVATE_NEXT = "lti13_platform_private_next";
     String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";
-    String LTI13_PLATFORM_PUBLIC_OLD = "lti13_platform_public_old";
-    String LTI13_PLATFORM_PUBLIC_OLD_at = "lti13_platform_public_old_at";
     String LTI13_PLATFORM_PRIVATE = "lti13_platform_private";
+    String LTI13_PLATFORM_PUBLIC_OLD = "lti13_platform_public_old";
     String LTI13_OIDC_ENDPOINT = "lti13_oidc_endpoint";
     String LTI13_OIDC_REDIRECT = "lti13_oidc_redirect";
 
