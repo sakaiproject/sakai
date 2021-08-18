@@ -3094,10 +3094,14 @@ public class SakaiBLTIUtil {
 
 		// Generate new Keypair in case we update
 		KeyPair kp = LTI13Util.generateKeyPair();
-		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, LTI13Util.getPublicEncoded(kp));
+		String pub = LTI13Util.getPublicEncoded(kp);
+		String priv = LTI13Util.getPrivateEncoded(kp);
+		priv = SakaiBLTIUtil.encryptSecret(priv);
+		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, pub);
+		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, priv);
+
 		Instant instant = Foorm.getInstantUTC(new java.util.Date());
 		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT, Foorm.now());
-		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, LTI13Util.getPrivateEncoded(kp));
 		String siteId = null; // bypass
 
 		if ( nextInstant == null ) {
@@ -3118,14 +3122,13 @@ public class SakaiBLTIUtil {
 				String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
 				String privateSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE_NEXT));
 				Key publicKeyNext = LTI13Util.string2PublicKey(publicSerializedNext);
-				Key privateKeyNext = LTI13Util.string2PrivateKey(privateSerializedNext);
+				Key privateKeyNext = LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
 
 				if ( publicKeyNext != null && privateKeyNext != null ) {
-					String privateSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 					String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
 
 					updates.put(LTIService.LTI13_PLATFORM_PUBLIC, publicSerializedNext);
-					updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, privateSerializedNext);
+					updates.put(LTIService.LTI13_PLATFORM_PRIVATE, privateSerializedNext);
 					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD, publicSerializedCurrent);
 				}
 
