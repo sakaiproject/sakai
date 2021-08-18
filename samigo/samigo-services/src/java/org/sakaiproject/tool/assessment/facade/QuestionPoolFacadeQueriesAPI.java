@@ -204,7 +204,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByItem(String itemId);
+  public List getPoolIdsByItem(Long itemId);
 
   /**
    * Copy a pool to a new location.

@@ -252,8 +252,7 @@ public class QuestionPoolFacadeQueries
     List newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
-      String itemId = itemdata.getItemId().toString();
-     if (getPoolIdsByItem(itemId).size() == 1) {
+     if (getPoolIdsByItem(itemdata.getItemId()).size() == 1) {
        newlist.add(itemdata);
      }
      else {
@@ -985,7 +984,7 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByItem(final String itemId) {
+  public List getPoolIdsByItem(final Long itemId) {
     List idList = new ArrayList();
     
     final HibernateCallback<List> hcb = session -> {

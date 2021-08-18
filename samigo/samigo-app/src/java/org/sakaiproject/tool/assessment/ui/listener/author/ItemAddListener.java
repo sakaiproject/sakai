@@ -937,8 +937,7 @@ public class ItemAddListener
 
         QuestionPoolService qpdelegate = new QuestionPoolService();
 
-        if (!qpdelegate.hasItem(item.getItemIdString(),
-        		Long.valueOf(itemauthor.getQpoolId()))) {
+        if (!qpdelegate.hasItem(item.getItemId(), Long.valueOf(itemauthor.getQpoolId()))) {
           qpdelegate.addItemToPool(item.getItemId(),
                                    Long.valueOf(itemauthor.getQpoolId()));
 
@@ -1092,13 +1091,13 @@ public class ItemAddListener
 	        if (StringUtils.isNotEmpty(bean.getOrigPool())
 	                && StringUtils.isNotEmpty(bean.getSelectedPool())
 	                && !bean.getSelectedPool().equals(bean.getOrigPool())
-	                && qpdelegate.hasItem(item.getItemIdString(), Long.valueOf(bean.getOrigPool()))) {
+	                && qpdelegate.hasItem(item.getItemId(), Long.valueOf(bean.getOrigPool()))) {
 	            qpdelegate.removeQuestionFromPool(item.getItemId(), Long.valueOf(bean.getOrigPool()));
 	        }
 	
 	        // if assign to pool, add the item to the pool
 	        if (StringUtils.isNotEmpty(bean.getSelectedPool())
-	                && !qpdelegate.hasItem(item.getItemIdString(), Long.valueOf(bean.getSelectedPool()))) {
+	                && !qpdelegate.hasItem(item.getItemId(), Long.valueOf(bean.getSelectedPool()))) {
 	            // if the item is already in the pool then do not add.
 	            qpdelegate.addItemToPool(item.getItemId(), Long.valueOf(bean.getSelectedPool()));
 	        }

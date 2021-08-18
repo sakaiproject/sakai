@@ -55,11 +55,11 @@ public interface QuestionPoolServiceAPI
   public QuestionPoolDataIfc getPool(Long poolId, String agentId);
 
   /**
-   * Get a list of pools that have a specific Agent
+   * Get a list of pools that have a specific item
    */
-  public List getPoolIdsByItem(String itemId);
+  public List getPoolIdsByItem(Long itemId);
 
-  public boolean hasItem(String itemId, Long poolId);
+  public boolean hasItem(Long itemId, Long poolId);
 
   /**
    * Get pool id's by agent.

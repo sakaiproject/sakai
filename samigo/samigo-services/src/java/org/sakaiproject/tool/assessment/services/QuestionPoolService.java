@@ -121,9 +121,9 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   }
 
   /**
-   * Get a list of pools that have a specific Agent
+   * Get a list of pools that have a specific item
    */
-  public List getPoolIdsByItem(String itemId)
+  public List getPoolIdsByItem(Long itemId)
   {
     List idList = null;
     try
@@ -142,7 +142,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   }
 
 
-  public boolean hasItem(String itemId, Long poolId)
+  public boolean hasItem(Long itemId, Long poolId)
   {
         List poollist = null;
 	boolean found = false;
