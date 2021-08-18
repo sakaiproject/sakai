@@ -756,7 +756,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					// double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
 					final List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
 
-					applyDropScores(studentGradeRecs);
+					applyDropScores(studentGradeRecs, gradebook.getCategory_type());
 					final List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs,
 							countedAssigns);
 					final double totalPointsEarned = ((Double) totalEarned.get(0));
@@ -2574,7 +2574,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 *
 	 *            NOTE: When the UI changes, this needs to be made private again
 	 */
-	public void applyDropScores(final Collection<AssignmentGradeRecord> gradeRecords) {
+	public void applyDropScores(final Collection<AssignmentGradeRecord> gradeRecords, int categoryType) {
 		if (gradeRecords == null || gradeRecords.size() < 1) {
 			return;
 		}
@@ -2594,6 +2594,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			// reset
 			gradeRecord.setDroppedFromGrade(false);
+
+			if (categoryType == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
+				continue;
+			}
 
 			final GradebookAssignment assignment = gradeRecord.getAssignment();
 			if (assignment.getUngraded() // GradebookService.GRADE_TYPE_LETTER
@@ -2624,7 +2628,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		}
 
-		if (categories.size() < 1) {
+		if (categories.size() < 1 || categoryType == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
 			return;
 		}
 		for (final Category cat : categories) {
@@ -3047,7 +3051,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		BigDecimal totalPossible = new BigDecimal("0");
 
 		// apply any drop/keep settings for this category
-		applyDropScores(gradeRecords);
+		applyDropScores(gradeRecords, categoryType);
 
 		// find the records marked as dropped (highest/lowest) before continuing,
 		// as gradeRecords will be modified in place after this and these records will be removed
