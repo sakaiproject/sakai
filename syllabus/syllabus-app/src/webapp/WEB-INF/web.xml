@@ -7,16 +7,12 @@
     <display-name>sakai-syllabus</display-name>
     <description>Sakai Syllabus Tool</description>
 
-<!--sakai-->
+    <!--sakai-->
     <context-param>
         <param-name>com.sun.faces.validateXml</param-name>
         <param-value>true</param-value>
     </context-param>
-    <context-param>
-        <param-name>com.sun.faces.verifyObjects</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/local.xml</param-value>

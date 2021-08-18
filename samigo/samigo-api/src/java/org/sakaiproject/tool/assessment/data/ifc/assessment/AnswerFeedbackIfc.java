@@ -27,10 +27,10 @@ package org.sakaiproject.tool.assessment.data.ifc.assessment;
 public interface AnswerFeedbackIfc
     extends java.io.Serializable
 {
-  public static String CORRECT_FEEDBACK = "Correct Feedback";
-  public static String INCORRECT_FEEDBACK = "InCorrect Feedback";
-  public static String GENERAL_FEEDBACK = "General Feedback";
-  public static String ANSWER_FEEDBACK = "answerfeedback";
+  public static final String CORRECT_FEEDBACK = "Correct Feedback";
+  public static final String INCORRECT_FEEDBACK = "InCorrect Feedback";
+  public static final String GENERAL_FEEDBACK = "General Feedback";
+  public static final String ANSWER_FEEDBACK = "answerfeedback";
 
   Long getId();
 

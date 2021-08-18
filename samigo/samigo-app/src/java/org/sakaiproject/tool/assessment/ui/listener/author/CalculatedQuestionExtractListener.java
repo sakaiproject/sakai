@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 
 public class CalculatedQuestionExtractListener implements ActionListener{
     private static final String ERROR_MESSAGE_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
+    private static final int MAX_ATTEMPT_CNT = 100;
 
     /**
      * This listener will read in the instructions, parse any variables and 
@@ -125,8 +126,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
         // don't bother looking at formulas if any data validations have failed
         if (errors.size() == 0) {
-            errors.addAll(validateFormulas(item, service,extracting));
-            errors.addAll(validateCalculations(item.getCalculatedQuestion(), service));
+            errors.addAll(validateFormulasAndCalculations(item, service, extracting));
         } else {
             errors.add(getErrorMessage("formulas_not_validated"));
         }
@@ -459,95 +459,64 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
 
         int attemptCnt = 0;
-        while (attemptCnt < 100 && errors.size() == 0) {
+        while (attemptCnt < MAX_ATTEMPT_CNT && errors.size() == 0) {
             // create random values for the variables to substitute into the formulas (using dummy values)
             Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, 1, 1, "dummy", attemptCnt);
 
             // evaluate each calculation
-            for (CalculatedQuestionCalculationBean cqcb : calculatedQuestionBean.getCalculationsList()) {
-                String formulaStr = StringEscapeUtils.unescapeHtml4(GradingService.cleanFormula(cqcb.getText()));
-                if (formulaStr == null || formulaStr.length() == 0) {
-                    String msg = getErrorMessage("empty_field");
-                    cqcb.setStatus(msg);
-                    errors.add(msg);
-                } else {
-                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
-                    cqcb.setFormula(substitutedFormulaStr);
-                    // look for wrapped variables that haven't been replaced (undefined variable)
-                    List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
-                    if (unwrappedVariables.size() > 0) {
-                        String msg = getErrorMessage("samigo_formula_error_9");
-                        cqcb.setStatus(msg);
-                        errors.add(msg + " :"+substitutedFormulaStr);
-                    } else {
-                        try {
-                            if (service.isNegativeSqrt(substitutedFormulaStr)) {
-                                String msg = getErrorMessage("samigo_formula_error_8");
-                                cqcb.setStatus(msg);
-                                errors.add(msg + " :"+substitutedFormulaStr);
-                            } else {
-                                String formulaValue = service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions if formula is invalid
-                                cqcb.setValue(formulaValue);
-                                cqcb.setText(formulaStr);
-                            }
-                        } catch (SamigoExpressionError e) {
-                            String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
-                            cqcb.setStatus(msg);
-                            errors.add(msg + " :"+substitutedFormulaStr);
-                        } catch (Exception e) {
-                            String msg = getErrorMessage("samigo_formula_error_500");
-                            cqcb.setStatus(msg);
-                            errors.add(msg + " :"+substitutedFormulaStr);
-                        }
-                    }
-                }
-            }
+            evaluateCalculations(calculatedQuestionBean, service, answersMap, errors);
+
             attemptCnt++;
         }
         return errors;
     }
 
     /**
-     * validateFormulas() iterates through all of the formula definitions.  It 
+     * validateFormulasAndCalculations() iterates through all of the formula definitions. It
      * creates valid dummy values for all of the defined variables, substitutes those
      * variables into the formula, then executes the formula to determine if a value
-     * is returned.  This is a syntax checker; a syntactically valid formula can
+     * is returned. This is a syntax checker; a syntactically valid formula can
      * definitely return the wrong value if the author enters a wrong formula.
+     * Also, takes a populated calculatedQuestionBean and validates the calculations and populates the
+     * calculation values and sample data (and status)
      * @param item
+     * @param service
      * @param extracting - boolean. True when extracting Variables a formulas, false when saving
      * a question
      * @return a map of errors.  The Key is an integer value, set by the SamigoExpressionParser, the
      * value is the string result of that error message.
      */
-    private List<String> validateFormulas(ItemBean item, GradingService service,boolean extracting) {
+    private List<String> validateFormulasAndCalculations(ItemBean item, GradingService service, boolean extracting) {
+
+        CalculatedQuestionBean cqb = item.getCalculatedQuestion();
         List<String> errors = new ArrayList<String>();
         if (service == null) {
             service = new GradingService();
         }
-        
+
         // list of variables to substitute
         Map<String, String> variableRangeMap = new HashMap<String, String>();
         for (CalculatedQuestionVariableBean variable : item.getCalculatedQuestion().getActiveVariables().values()) {
             String match = variable.getMin() + "|" + variable.getMax() + "," + variable.getDecimalPlaces();
             variableRangeMap.put(variable.getName(), match);
         }
-        
+
         // dummy variables needed to generate random values within ranges for the variables
         long dummyItemId = 1;
         long dummyGradingId = 1;
         String dummyAgentId = "dummy";
-        
+
         int attemptCnt = 0;
-        while (attemptCnt < 100 && errors.size() == 0) {
+        while (attemptCnt < MAX_ATTEMPT_CNT && errors.size() == 0) {
         
             // create random values for the variables to substitute into the formulas
             Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, dummyItemId, 
                     dummyGradingId, dummyAgentId, attemptCnt);
-            
+
             // evaluate each formula
-            for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getActiveFormulas().values()) {
+            for (CalculatedQuestionFormulaBean formulaBean : cqb.getActiveFormulas().values()) {
                 String formulaStr = formulaBean.getText();
-                
+
                 if (formulaStr == null || formulaStr.length() == 0) {
                     formulaBean.setValidFormula(false);
                     errors.add(getErrorMessage("empty_field"));
@@ -556,7 +525,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     errors.add(getErrorMessage("no_variables_formula") + " : " + formulaBean.getName() + " = "+ formulaStr);                    
                 } else {
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
-                    
+
                     // look for wrapped variables that haven't been replaced (undefined variable)
                     List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
                     if (unwrappedVariables.size() > 0) {
@@ -564,12 +533,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                         errors.add(getErrorMessage("samigo_formula_error_9") + " :"+substitutedFormulaStr);
                     } else {
                         try {
-                            if (service.isNegativeSqrt(substitutedFormulaStr)) {
-                                formulaBean.setValidFormula(false);
-                                errors.add(getErrorMessage("samigo_formula_error_8") + " :"+substitutedFormulaStr);
-                            } else {
-                                service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions on failure
-                            }
+                            service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions on failure
                         } catch (SamigoExpressionError e) {
                             formulaBean.setValidFormula(false);
                             String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
@@ -581,11 +545,60 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     }
                 }
             }
+
+            evaluateCalculations(cqb, service, answersMap, errors);
+
             attemptCnt++;
         }
         return errors;
     }
-    
+
+    /**
+     * evaluateCalculations iterates through all of the formula definitions.
+     * Also, takes a populated calculatedQuestionBean and validates the calculations and populates the
+     * calculation values and sample data (and status)
+     * @param calculatedQuestionBean
+     * @param service
+     * @param answersMap
+     * @param errors
+     */
+    private static void evaluateCalculations(CalculatedQuestionBean calculatedQuestionBean, GradingService service, Map<String, String> answersMap, List<String> errors ) {
+
+        // evaluate each calculation
+        for (CalculatedQuestionCalculationBean cqcb : calculatedQuestionBean.getCalculationsList()) {
+            String formulaStr = StringEscapeUtils.unescapeHtml4(GradingService.cleanFormula(cqcb.getText()));
+            if (formulaStr == null || formulaStr.length() == 0) {
+                String msg = getErrorMessage("empty_field");
+                cqcb.setStatus(msg);
+                errors.add(msg);
+            } else {
+                String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                cqcb.setFormula(substitutedFormulaStr);
+                // look for wrapped variables that haven't been replaced (undefined variable)
+                List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
+                if (unwrappedVariables.size() > 0) {
+                    String msg = getErrorMessage("samigo_formula_error_9");
+                    cqcb.setStatus(msg);
+                    errors.add(msg + " :"+substitutedFormulaStr);
+                } else {
+                    try {
+                        String formulaValue = service.processFormulaIntoValue(substitutedFormulaStr, 5); // throws exceptions if formula is invalid
+                        cqcb.setValue(formulaValue);
+                        cqcb.setText(formulaStr);
+                    } catch (SamigoExpressionError e) {
+                        String msg = getErrorMessage("samigo_formula_error_" + Integer.valueOf(e.get_id()));
+                        cqcb.setStatus(msg);
+                        errors.add(msg + " :"+substitutedFormulaStr);
+                    } catch (Exception e) {
+                        String msg = getErrorMessage("samigo_formula_error_500");
+                        cqcb.setStatus(msg);
+                        errors.add(msg + " :"+substitutedFormulaStr);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * getErrorMessage() retrieves the localized error message associated with
      * the errorCode

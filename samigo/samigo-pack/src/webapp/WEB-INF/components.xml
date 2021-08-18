@@ -351,17 +351,21 @@
     <bean id="org.sakaiproject.samigo.search.ItemContentProducer"
              class="org.sakaiproject.samigo.search.ItemContentProducer"
              init-method="init">
-       <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
-       <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
-       <property name="searchIndexBuilder"><ref bean="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" /></property>
+       <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+       <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+       <property name="searchIndexBuilder" ref="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" />
+       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
+       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
     <bean id="org.sakaiproject.samigo.search.PublishedItemContentProducer"
           class="org.sakaiproject.samigo.search.PublishedItemContentProducer"
           init-method="init">
-        <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
-        <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
-        <property name="searchIndexBuilder"><ref bean="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" /></property>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" />
+        <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
    <!--  Add a job to auto-submit assessments -->

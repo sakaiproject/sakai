@@ -37,9 +37,6 @@ public class CalendarImporterService
 	/** Comma separated value import type */
 	public static final String CSV_IMPORT = org.sakaiproject.calendar.api.CalendarImporterService.CSV_IMPORT;
 	
-	/** MeetingMaker import type */
-	public static final String MEETINGMAKER_IMPORT = org.sakaiproject.calendar.api.CalendarImporterService.MEETINGMAKER_IMPORT;
-	
 	/** Outlook import type */
 	public static final String OUTLOOK_IMPORT = org.sakaiproject.calendar.api.CalendarImporterService.OUTLOOK_IMPORT;
 

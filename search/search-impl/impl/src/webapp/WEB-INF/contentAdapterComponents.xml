@@ -9,9 +9,9 @@
      >
      <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
      <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
-	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+     <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
-	 <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
      <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
      
      <property name="defaultDigester"><ref bean="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"/></property>
@@ -147,16 +147,16 @@
     </bean> 
   
   <bean id="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester" 
-  	class="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester"
-  	init-method="init" 
+    class="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester"
+    init-method="init" 
      destroy-method="destroy"
      >
-  	<property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
-  	<property name="mimeTypes">
-  		<map>
-	  		<entry key="image/jpeg"><value>images/jpeg</value> </entry>
-  			<entry key="image/jpg"><value>images/jpg</value> </entry>
-  		</map>
-  	</property>
-  	</bean>
+    <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+    <property name="mimeTypes">
+      <map>
+        <entry key="image/jpeg"><value>images/jpeg</value> </entry>
+        <entry key="image/jpg"><value>images/jpg</value> </entry>
+      </map>
+    </property>
+    </bean>
 </beans>

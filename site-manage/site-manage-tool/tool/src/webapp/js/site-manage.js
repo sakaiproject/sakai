@@ -177,9 +177,6 @@ sakai.siteTypeSetup = function(){
      //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
      // if there are none associated in sakai.properties, the value will be just one ('course')
      var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(/ /gi, '').split(',');
-     
-    //uncheck site type radio
-    $('input[name="itemType"]').prop('checked', false);
     
     // handles clicking in "Build site from template"
     $('#copy').click(function(e){
@@ -497,6 +494,8 @@ sakai.siteTypeSetup = function(){
         }
     });
     
+    // Click the first item in the create site screen
+    $('input[name="itemType"]').first().click();
 };
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){

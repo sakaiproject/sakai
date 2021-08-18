@@ -2184,6 +2184,9 @@ public class MessageForumStatisticsBean {
 		return (String) paramMap.get(parameterId);    
 	}
 
+	public boolean getIsAuthor() {
+		return selectedSiteUserId == userDirectoryService.getCurrentUser().getId();
+	}
 
 	public String getButtonUserName() {
 		String userName;

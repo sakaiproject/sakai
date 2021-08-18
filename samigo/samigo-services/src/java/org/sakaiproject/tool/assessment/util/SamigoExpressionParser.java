@@ -29,16 +29,16 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 public class SamigoExpressionParser
 {
 
-  public static String INFINITY = "Infinity";
-  public static String NaN = "NaN";
+  public static final String INFINITY = "Infinity";
+  public static final String NaN = "NaN";
 
   // Samigo once had a custom function parser. Now we use a well-supported library called mxParser that is case-sensitive.
-  public static String[] oldSamigoParserVars = {"SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ABS", "EXP", "SGN", "SQRT", "LOG10", "LN", "PI", "E", "SIGN", "LOG", "log"};
-  public static String[] newSamigoParserVars = {"sin", "cos", "tan", "asin", "acos", "atan", "abs", "exp", "sgn", "sqrt", "log10", "ln", "pi", "e", "sgn",  "ln",  "ln"};
+  public static final String[] oldSamigoParserVars = {"SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "ABS", "EXP", "SGN", "SQRT", "LOG10", "LN", "PI", "E", "SIGN", "LOG", "log"};
+  public static final String[] newSamigoParserVars = {"sin", "cos", "tan", "asin", "acos", "atan", "abs", "exp", "sgn", "sqrt", "log10", "ln", "pi", "e", "sgn",  "ln",  "ln"};
 
   // Special case for factorial replacement
-  public static String OLD_FACTORIAL_PATTERN = "(?i)factorial\\((\\d+)\\)";
-  public static String NEW_FACTORIAL_PATTERN = "($1!)";
+  public static final String OLD_FACTORIAL_PATTERN = "(?i)factorial\\((\\d+)\\)";
+  public static final String NEW_FACTORIAL_PATTERN = "($1!)";
 
   /**
    * finalructor.

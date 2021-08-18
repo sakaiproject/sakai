@@ -47,9 +47,9 @@
 			<version>${sakai.weld.shaded.version}</version>
 		</dependency>
 		<dependency>
-		  <groupId>javax.servlet</groupId>
-		  <artifactId>jstl</artifactId>
-		  <scope>runtime</scope>
+			<groupId>jakarta.servlet.jsp.jstl</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<version>${sakai.jakarta.jstl-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-fileupload</groupId>
@@ -123,6 +123,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
+        <dependency>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
+         </dependency>
 	</dependencies>
 	<build>
 		<resources>

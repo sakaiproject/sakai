@@ -263,63 +263,42 @@ public class PDFExportService {
      * @param userID
      * @param baseCalendarService
      */
-    void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange,
-                                       List calendarReferenceList, String userID, BaseCalendarService baseCalendarService, boolean reverseOrder)
-    {
+    void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange, List calendarReferenceList, String userID, BaseCalendarService baseCalendarService, boolean reverseOrder) {
 
         // This list will have an entry for every week day that we care about.
-        List timeRangeList = null;
-        TimeRange actualTimeRange = null;
+        List<TimeRange> timeRangeList = null;
+        TimeRange actualTimeRange = timeRange;
         Element topLevelMaxConcurrentEvents = null;
 
-        switch (scheduleType)
-        {
+        switch (scheduleType) {
             case CalendarService.WEEK_VIEW:
+            case CalendarService.LIST_VIEW:
                 actualTimeRange = timeRange;
-                timeRangeList = getTimeRangeListForWeek(actualTimeRange, calendarReferenceList, dailyTimeRange);
+                timeRangeList = makeTimeRangeList(actualTimeRange, calendarReferenceList, baseCalendarService, reverseOrder);
                 break;
-
             case CalendarService.MONTH_VIEW:
                 // Make sure that we trim off the days of the previous and next
                 // month. The time range that we're being passed is "padded"
                 // with extra days to make up a full block of an integral number
                 // of seven day weeks.
                 actualTimeRange = shrinkTimeRangeToCurrentMonth(timeRange);
-                timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange, null);
+                timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange);
                 break;
-
-            case CalendarService.LIST_VIEW:
-                //
-                // With the list view, we want to come up with a list of days
-                // that have events, not every day in the range.
-                //
-                actualTimeRange = timeRange;
-
-                timeRangeList = makeListViewTimeRangeList(actualTimeRange, calendarReferenceList, baseCalendarService, reverseOrder);
-                break;
-
             case CalendarService.DAY_VIEW:
-                //
-                // We have a single entry in the list for a day. Having a singleton
-                // list may seem wasteful, but it allows us to use one loop below
-                // for all processing.
-                //
-                actualTimeRange = timeRange;
-                timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange, dailyTimeRange);
+                timeRangeList = new ArrayList<>();
+                actualTimeRange = dailyTimeRange;
+                timeRangeList.add(actualTimeRange);
                 break;
-
             default:
                 log.warn(".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
                 break;
         }
 
-        if (timeRangeList != null)
-        {
+        if (timeRangeList != null) {
             // Create Root Element
             Element root = doc.createElement(SCHEDULE_NODE);
 
-            if (userID != null)
-            {
+            if (userID != null) {
                 writeStringNodeToDom(doc, root, UID_NODE, userID);
             }
 
@@ -338,8 +317,7 @@ public class PDFExportService {
             // Only add a "month" node with the first numeric day
             // of the month if we're in the month view.
             //
-            if (scheduleType == CalendarService.MONTH_VIEW)
-            {
+            if (scheduleType == CalendarService.MONTH_VIEW)  {
                 CalendarUtil monthCalendar = new CalendarUtil(rb);
 
                 // Use the middle of the month since the start/end ranges
@@ -364,8 +342,7 @@ public class PDFExportService {
             int maxNumberOfColumnsPerRow = 1;
 
             // Go through all the time ranges (days)
-            while (itList.hasNext())
-            {
+            while (itList.hasNext())  {
                 TimeRange currentTimeRange = (TimeRange) itList.next();
                 int maxConcurrentEventsOverListNode = 1;
 
@@ -375,8 +352,7 @@ public class PDFExportService {
                 //
                 // We don't need to generate "empty" event lists for the list view.
                 //
-                if (scheduleType == CalendarService.LIST_VIEW && calendarEventVector.size() == 0)
-                {
+                if (scheduleType == CalendarService.LIST_VIEW && calendarEventVector.size() == 0) {
                     continue;
                 }
 
@@ -414,14 +390,11 @@ public class PDFExportService {
                 // Day and week views use a layout table to assist in constructing the
                 // rowspan information for layout.
                 //
-                if (scheduleType == CalendarService.DAY_VIEW || scheduleType == CalendarService.WEEK_VIEW)
-                {
-                    SingleDayLayoutTable layoutTable = new SingleDayLayoutTable(currentTimeRange, MAX_OVERLAPPING_COLUMNS,
-                            SCHEDULE_INTERVAL_IN_MINUTES);
+                if (scheduleType == CalendarService.DAY_VIEW || scheduleType == CalendarService.WEEK_VIEW)  {
+                    SingleDayLayoutTable layoutTable = new SingleDayLayoutTable(currentTimeRange, MAX_OVERLAPPING_COLUMNS, SCHEDULE_INTERVAL_IN_MINUTES);
 
                     // Load all the events into our layout table.
-                    while (itEvent.hasNext())
-                    {
+                    while (itEvent.hasNext()) {
                         CalendarEvent event = (CalendarEvent) itEvent.next();
                         layoutTable.addEvent(event);
                     }
@@ -431,18 +404,15 @@ public class PDFExportService {
                     Iterator rowIterator = layoutRows.iterator();
 
                     // Iterate through the list of rows.
-                    while (rowIterator.hasNext())
-                    {
+                    while (rowIterator.hasNext()) {
                         LayoutRow layoutRow = (LayoutRow) rowIterator.next();
                         TimeRange rowTimeRange = layoutRow.getRowTimeRange();
 
-                        if (maxNumberOfColumnsPerRow < layoutRow.size())
-                        {
+                        if (maxNumberOfColumnsPerRow < layoutRow.size())  {
                             maxNumberOfColumnsPerRow = layoutRow.size();
                         }
 
-                        if (maxConcurrentEventsOverListNode < layoutRow.size())
-                        {
+                        if (maxConcurrentEventsOverListNode < layoutRow.size()) {
                             maxConcurrentEventsOverListNode = layoutRow.size();
                         }
 
@@ -453,8 +423,7 @@ public class PDFExportService {
                         eventNode.setAttribute(FROM_ATTRIBUTE_STRING, getTimeString(rowTimeRange.firstTime()));
 
                         // Add the "to" time as an attribute.
-                        eventNode.setAttribute(TO_ATTRIBUTE_STRING, getTimeString(performEndMinuteKludge(rowTimeRange.lastTime()
-                                .breakdownLocal())));
+                        eventNode.setAttribute(TO_ATTRIBUTE_STRING, getTimeString(performEndMinuteKludge(rowTimeRange.lastTime().breakdownLocal())));
 
                         Element rowNode = doc.createElement(ROW_NODE_NAME);
 
@@ -466,8 +435,7 @@ public class PDFExportService {
                         Iterator layoutRowIterator = layoutRow.iterator();
 
                         // Iterate through our list of column lists.
-                        while (layoutRowIterator.hasNext())
-                        {
+                        while (layoutRowIterator.hasNext()) {
                             Element columnNode = doc.createElement(COLUMN_NODE_NAME);
                             rowNode.appendChild(columnNode);
 
@@ -476,22 +444,18 @@ public class PDFExportService {
                             Iterator columnListIterator = columnList.iterator();
 
                             // Iterate through the list of columns.
-                            while (columnListIterator.hasNext())
-                            {
+                            while (columnListIterator.hasNext()) {
                                 CalendarEvent event = (CalendarEvent) columnListIterator.next();
                                 generateXMLEvent(doc, columnNode, event, SUB_EVENT_NODE_NAME, rowTimeRange, true, false, false, baseCalendarService);
                             }
                         }
                     }
                 }
-                else
-                {
+                else {
                     // Generate XML for all the events.
-                    while (itEvent.hasNext())
-                    {
+                    while (itEvent.hasNext())  {
                         CalendarEvent event = (CalendarEvent) itEvent.next();
-                        generateXMLEvent(doc, eventList, event, EVENT_NODE_NAME, currentTimeRange, false, false,
-                                (scheduleType == CalendarService.LIST_VIEW ? true : false), baseCalendarService);
+                        generateXMLEvent(doc, eventList, event, EVENT_NODE_NAME, currentTimeRange, false, false, scheduleType == CalendarService.LIST_VIEW, baseCalendarService);
                     }
                 }
 
@@ -548,14 +512,13 @@ public class PDFExportService {
      * @param baseCalendarService
      * @param reverseOrder
      */
-    private List makeListViewTimeRangeList(TimeRange timeRange, List calendarReferenceList, BaseCalendarService baseCalendarService, boolean reverseOrder)
-    {
+    private List<TimeRange> makeTimeRangeList(TimeRange timeRange, List calendarReferenceList, BaseCalendarService baseCalendarService, boolean reverseOrder) {
         // This is used to dimension a hash table. The default load factor is .75.
         // A rehash isn't done until the number of items in the table is .75 * the number
         // of items in the capacity.
         final int DEFAULT_INITIAL_HASH_CAPACITY = 150;
 
-        List listOfDays = new ArrayList();
+        List<TimeRange> listOfDays = new ArrayList<>();
 
         // Get a list of merged events.
         CalendarEventVector calendarEventVector = baseCalendarService.getEvents(calendarReferenceList, timeRange, reverseOrder);
@@ -563,8 +526,7 @@ public class PDFExportService {
         Iterator itEvents = calendarEventVector.iterator();
         HashMap datesSeenSoFar = new HashMap(DEFAULT_INITIAL_HASH_CAPACITY);
 
-        while (itEvents.hasNext())
-        {
+        while (itEvents.hasNext()) {
 
             CalendarEvent event = (CalendarEvent) itEvents.next();
 
@@ -572,23 +534,19 @@ public class PDFExportService {
             // Each event may span multiple days, so we need to split each
             // events's time range into single day slots.
             //
-            List timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(event.getRange(), null);
+            List timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(event.getRange());
 
             Iterator itDatesInRange = timeRangeList.iterator();
 
-            while (itDatesInRange.hasNext())
-            {
+            while (itDatesInRange.hasNext())  {
                 TimeRange curDay = (TimeRange) itDatesInRange.next();
                 String curDate = curDay.firstTime().toStringLocalDate();
 
-                if (!datesSeenSoFar.containsKey(curDate))
-                {
+                if (!datesSeenSoFar.containsKey(curDate))  {
                     // Add this day to list
                     TimeBreakdown startBreakDown = curDay.firstTime().breakdownLocal();
 
-                    listOfDays.add(getFullDayTimeRangeFromYMD(startBreakDown.getYear(), startBreakDown.getMonth(), startBreakDown
-                            .getDay()));
-
+                    listOfDays.add(getFullDayTimeRangeFromYMD(startBreakDown.getYear(), startBreakDown.getMonth(), startBreakDown.getDay()));
                     datesSeenSoFar.put(curDate, "");
                 }
             }
@@ -599,67 +557,27 @@ public class PDFExportService {
 
     /**
      * Returns a list of daily time ranges for every day in a range.
-     * @param timeRange
-     *        overall time range
-     * @param dailyTimeRange
+     * @param timeRange overall time range
      */
-    private ArrayList splitTimeRangeIntoListOfSingleDayTimeRanges(TimeRange timeRange, TimeRange dailyTimeRange)
-    {
+    private List<TimeRange> splitTimeRangeIntoListOfSingleDayTimeRanges(TimeRange timeRange) {
 
         TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
         TimeBreakdown endBreakdown = timeRange.lastTime().breakdownLocal();
 
         GregorianCalendar startCalendarDate = new GregorianCalendar();
         startCalendarDate.set(startBreakdown.getYear(), startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0);
+        long numDaysInTimeRange = getNumberDaysGivenTwoDates(startBreakdown.getYear(), startBreakdown.getMonth() - 1, startBreakdown.getDay(), endBreakdown.getYear(), endBreakdown.getMonth() - 1, endBreakdown.getDay());
 
-        long numDaysInTimeRange = getNumberDaysGivenTwoDates(startBreakdown.getYear(), startBreakdown.getMonth() - 1,
-                startBreakdown.getDay(), endBreakdown.getYear(), endBreakdown.getMonth() - 1, endBreakdown.getDay());
-
-        ArrayList splitTimeRanges = new ArrayList();
-
-        TimeBreakdown dailyStartBreakDown = null;
-        TimeBreakdown dailyEndBreakDown = null;
-
-        if (dailyTimeRange != null)
-        {
-            dailyStartBreakDown = dailyTimeRange.firstTime().breakdownLocal();
-            dailyEndBreakDown = dailyTimeRange.lastTime().breakdownLocal();
-        }
-
-        for (long i = 0; i < numDaysInTimeRange; i++)
-        {
-            Time curStartTime = null;
-            Time curEndTime = null;
-
-            if (dailyTimeRange != null)
-            {
-                //
-                // Use the same start/end times for all days.
-                //
-                curStartTime = timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-                                .get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH),
-                        dailyStartBreakDown.getHour(), dailyStartBreakDown.getMin(), dailyStartBreakDown.getSec(),
-                        dailyStartBreakDown.getMs());
-
-                curEndTime = timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-                        .get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), dailyEndBreakDown
-                        .getHour(), dailyEndBreakDown.getMin(), dailyEndBreakDown.getSec(), dailyEndBreakDown.getMs());
-
-                splitTimeRanges.add(timeService.newTimeRange(curStartTime, curEndTime, true, false));
-            }
-            else
-            {
-                //
-                // Add a full day range since no start/stop time was specified.
-                //
-                splitTimeRanges.add(getFullDayTimeRangeFromYMD(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-                        .get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH)));
-            }
+        List<TimeRange> splitTimeRanges = new ArrayList<>();
+        for (long i = 0; i < numDaysInTimeRange; i++) {
+            //
+            // Add a full day range since no start/stop time was specified.
+            //
+            splitTimeRanges.add(getFullDayTimeRangeFromYMD(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate.get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH)));
 
             // Move to the next day.
             startCalendarDate.add(GregorianCalendar.DATE, 1);
         }
-
         return splitTimeRanges;
     }
 
@@ -694,8 +612,7 @@ public class PDFExportService {
      * The time ranges that we get from the CalendarAction class have days in the week of the first and last weeks padded out to make a full week. This function will shrink this range to only one month.
      * @param expandedTimeRange
      */
-    private TimeRange shrinkTimeRangeToCurrentMonth(TimeRange expandedTimeRange)
-    {
+    private TimeRange shrinkTimeRangeToCurrentMonth(TimeRange expandedTimeRange){
         long millisecondsInWeek = (7 * MILLISECONDS_IN_DAY);
 
         Time startTime = expandedTimeRange.firstTime();
@@ -718,54 +635,9 @@ public class PDFExportService {
         // Construct a new time range starting on the first day of the month and ending on
         // the last day at one millisecond before midnight.
         //
-        return timeService.newTimeRange(timeService.newTimeLocal(somewhereInTheMonthBreakdown.getYear(),
-                somewhereInTheMonthBreakdown.getMonth(), 1, 0, 0, 0, 0), timeService.newTimeLocal(somewhereInTheMonthBreakdown
-                .getYear(), somewhereInTheMonthBreakdown.getMonth(), numDaysInMonth, 23, 59, 59, 999));
-    }
-
-    /**
-     * Generates a list of time ranges for a week. Each range in the list is a day.
-     *  @param timeRange start & end date range
-     * @param calendarReferenceList list of calendar(s)
-     * @param dailyTimeRange start and end hour/minute time range
-     */
-    private ArrayList getTimeRangeListForWeek(TimeRange timeRange, List calendarReferenceList, TimeRange dailyTimeRange)
-    {
-        TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
-
-        GregorianCalendar startCalendarDate = (GregorianCalendar)GregorianCalendar.getInstance(timeService.getLocalTimeZone(), rb.getLocale());
-        startCalendarDate.set(startBreakdown.getYear(),	startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0);
-
-        ArrayList weekDayTimeRanges = new ArrayList();
-
-        TimeBreakdown startBreakDown = dailyTimeRange.firstTime().breakdownLocal();
-
-        TimeBreakdown endBreakDown = dailyTimeRange.lastTime().breakdownLocal();
-
-        // Search all seven weekdays
-        // Note: no assumption can be made regarding the first day being Sunday,
-        // since in some locales, the first weekday is Monday.
-        for (int i = 0; i <= 6; i++)
-        {
-            //
-            // Use the same start/end times for all days.
-            //
-            Time curStartTime = timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-                    .get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), startBreakDown
-                    .getHour(), startBreakDown.getMin(), startBreakDown.getSec(), startBreakDown.getMs());
-
-            Time curEndTime = timeService.newTimeLocal(startCalendarDate.get(GregorianCalendar.YEAR), startCalendarDate
-                    .get(GregorianCalendar.MONTH) + 1, startCalendarDate.get(GregorianCalendar.DAY_OF_MONTH), endBreakDown
-                    .getHour(), endBreakDown.getMin(), endBreakDown.getSec(), endBreakDown.getMs());
-
-            TimeRange newTimeRange = timeService.newTimeRange(curStartTime, curEndTime, true, false);
-            weekDayTimeRanges.add(newTimeRange);
-
-            // Move to the next day.
-            startCalendarDate.add(GregorianCalendar.DATE, 1);
-        }
-
-        return weekDayTimeRanges;
+        return timeService.newTimeRange(
+        		timeService.newTimeLocal(somewhereInTheMonthBreakdown.getYear(), somewhereInTheMonthBreakdown.getMonth(), 1, 0, 0, 0, 0), 
+        		timeService.newTimeLocal(somewhereInTheMonthBreakdown.getYear(), somewhereInTheMonthBreakdown.getMonth(), numDaysInMonth, 23, 59, 59, 999));
     }
 
     /**
@@ -774,10 +646,8 @@ public class PDFExportService {
      * @param month
      * @param day
      */
-    private TimeRange getFullDayTimeRangeFromYMD(int year, int month, int day)
-    {
-        return timeService.newTimeRange(timeService.newTimeLocal(year, month, day, 0, 0, 0, 0), timeService.newTimeLocal(year,
-                month, day, 23, 59, 59, 999));
+    private TimeRange getFullDayTimeRangeFromYMD(int year, int month, int day) {
+        return timeService.newTimeRange(timeService.newTimeLocal(year, month, day, 0, 0, 0, 0), timeService.newTimeLocal(year, month, day, 23, 59, 59, 999));
     }
 
     /**

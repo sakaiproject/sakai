@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.tool.assessment.samlite.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -80,7 +79,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class SamLiteServiceImpl implements SamLiteService {
 	public static final String DEFAULT_CHARSET = "UTF-8";
-	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 	
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
 	private Pattern correctFillInPattern, answerPattern, endQuestionPattern, correctMultipleChoicePattern;

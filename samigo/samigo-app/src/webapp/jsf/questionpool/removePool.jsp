@@ -44,7 +44,7 @@
                     <div class="tier1">
                         <h4><h:outputText value="#{questionPoolMessages.p_names}" /></h4>
                         <t:dataList layout="unorderedList" value="#{questionpool.poolsToDelete}" var="pool">
-                            <h:outputText value="#{pool.displayName}" />
+                            <h:outputText value="#{pool.displayName}" escape="false" />
                         </t:dataList>
                     </div>
                     <p class="act">

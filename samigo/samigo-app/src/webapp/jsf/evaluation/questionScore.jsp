@@ -916,6 +916,7 @@ $Id$
     </h:panelGroup>
     
     <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+		<br /><br />
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
 

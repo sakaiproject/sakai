@@ -6,13 +6,14 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="EventLog"/></title>
-      <script>
-        var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
-      </script>
-      <script src="/samigo-app/js/eventInfo.js"></script>
+        <title><h:outputText value="EventLog"/></title>
+        <script>
+          var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
+          var searchHint = '<h:outputText value="#{eventLogMessages.search_hint}"/>';
+        </script>
+        <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
       </head>
-    <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">
+    <body onload="<%= request.getAttribute("html.body.onload") %>;">
 
 <div class="portletBody container-fluid">
   <h:form id="eventLogId">
@@ -28,7 +29,7 @@
   </div>
 
   <h:panelGroup layout="block" styleClass="sakai-table-buttonContainer act pull-right clear">
-    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button">
+    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button" id="previousEventPage">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
     </h:commandButton>
     <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}" styleClass="button">
@@ -46,11 +47,9 @@
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
      </h:selectOneMenu>
    </div>
-   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
+   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12" id="eventSearchContainer">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
-      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off"
-         onfocus="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"
-         onclick="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"/>
+      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off" />
       <h:outputText value="&#160;" escape="false" />
       <h:commandButton value="#{eventLogMessages.search}" type="submit" id="search" accesskey="#{eventLogMessages.a_search}">
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />

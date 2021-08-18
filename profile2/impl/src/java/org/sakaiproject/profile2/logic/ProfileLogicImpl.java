@@ -431,6 +431,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setNickname(sp.getNickname());
 		p.setDateOfBirth(sp.getDateOfBirth());
 		p.setPersonalSummary(sp.getNotes());
+		p.setPhoneticPronunciation(sp.getPhoneticPronunciation());
 		
 		//contact info
 		p.setHomepage(sp.getLabeledURI());

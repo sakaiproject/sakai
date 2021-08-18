@@ -8,6 +8,7 @@ $(function(){
             var calendar = new FullCalendar.Calendar(this, {
                 initialView: 'dayGridMonth',
                 displayEventTime: false,
+                allDaySlot: false,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',

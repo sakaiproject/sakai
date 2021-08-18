@@ -1,0 +1,11 @@
+<!-- start: assignments_display_video_submission.vm  -->
+<script>includeWebjarLibrary('video.js');</script>
+
+#if ($assignment.TypeOfSubmission.ordinal() == 7)
+    #foreach ($attachmentReference in $submission.getAttachments())
+        <video id="submission-player" class="video-js" controls data-setup="{}">
+            <source src="/access$attachmentReference" type="video/webm">
+        </video>
+    #end
+#end
+<!-- end: assignments_display_video_submission.vm  -->

@@ -102,7 +102,7 @@
 #* 		Joanne: need a check here - if messages, display, otherwise do not.
 		Not sure what was available in the context to do this. (gsilver) *#
 
-			<table class="calendar-list listHier lines nolines" summary="$tlang.getString('viewl.list.summary')">
+			<table class="table table-striped table-bordered" summary="$tlang.getString('viewl.list.summary')">
 				<tr>
 					<th>
 						#if ($currentDateSortAsc)
@@ -168,7 +168,12 @@
 																#foreach ($m in $eventsn)  ##foreach--6
 																		<tr>
 																		<td #if ($counter == 1) style="white-space:nowrap;" #else #if ($dayShown == "false") class="chefTopline" #end #end>
-																		&nbsp;
+																		#if ($dayShown == "false")
+																				#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
+																				$mu.DayName $aMonth.MonthName.charAt(0)$aMonth.MonthName.substring(1).toLowerCase() $mu.Day
+																		#else
+																			&nbsp;
+																		#end
 																		</td>
 																		
 																		## Time column

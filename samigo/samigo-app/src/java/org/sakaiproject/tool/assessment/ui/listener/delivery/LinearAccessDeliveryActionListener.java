@@ -61,7 +61,7 @@ import org.sakaiproject.util.api.FormattedText;
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   implements ActionListener
 {
-  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
 
   /**
