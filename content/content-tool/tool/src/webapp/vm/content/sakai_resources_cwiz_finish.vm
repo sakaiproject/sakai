@@ -31,14 +31,17 @@
 			<p class="instruction">$tlang.getString("instr.title")</p>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />
-		</div>	
-		
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			#if($model.isDropbox())
-			 	## SAK-18932 show email checkbox only when possible to use it
-				#if($dropboxNotificationAllowed)
+		</div>
+
+		<p class="act">
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.finish")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+
+			#if ($model.resourceTypeDef.hasNotificationDialog())
+				## SAK-18932 show email checkbox only when possible to use it
+				#if($model.isDropbox() && $dropboxNotificationAllowed)
 					<p class="act">
-						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
 						<label for="notify_dropbox">
 							#if($model.isCourseSite())
 								#if($model.userIsMaintainer())
@@ -55,14 +58,11 @@
 							#end
 						</label>
 					</p>
-				#end
-			#elseif($model.isUserSite())
-			#else
-				<p class="shorttext">
+				#elseif(!$model.isUserSite())
 					<label for="notify">
 						$tlang.getString("gen.email1")
-					</label>	
-					<select name="notify" id="notify">
+					</label>
+					<select name="notify" id="notify" title="$tlang.getString("gen.email.help")" aria-label="$tlang.getString("gen.email.help")">
 						#if ($noti)
 							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
 							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
@@ -71,16 +71,10 @@
 							<option value="r">$tlang.getString("gen.email2")</option>
 							<option value="o">$tlang.getString("gen.email3")</option>
 							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-						#end							
+						#end
 					</select>
-				</p>	
+				#end
 			#end
-		#end
-		
-	
-		<p class="act">
-			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.finish")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
