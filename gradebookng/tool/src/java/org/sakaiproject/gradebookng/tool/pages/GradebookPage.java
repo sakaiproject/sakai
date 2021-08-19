@@ -65,6 +65,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewRubricPreviewAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
@@ -104,6 +105,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	GbModalWindow rubricGradeWindow;
+	GbModalWindow rubricPreviewWindow;
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
@@ -186,6 +188,10 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
+
+		this.rubricPreviewWindow = new GbModalWindow("rubricPreviewWindow");
+		this.rubricPreviewWindow.setPositionAtTop(true);
+		this.form.add(this.rubricPreviewWindow);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
@@ -292,6 +298,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
+		this.gradeTable.addEventListener("previewRubric", new ViewRubricPreviewAction());
 		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
 		this.gradeTable.addEventListener("editComment", new EditCommentAction());
 		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
@@ -504,6 +511,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getRubricGradeWindow() {
 		return this.rubricGradeWindow;
+	}
+
+	public GbModalWindow getRubricPreviewWindow() {
+		return this.rubricPreviewWindow;
 	}
 
 	public GbModalWindow getGradeLogWindow() {

@@ -654,3 +654,64 @@ sakai-rubric-student-comment {
         @include justify-content(space-between);
     }
 }
+
+.rubric-tab-content {
+    display:none;
+}
+
+.rubrics-visible {
+    display:block;
+    margin-bottom: 1em;
+}
+
+.rubrics-tab-button {
+    border: 1px solid lightgrey;
+    width: 14em;
+    padding: 8px;
+    display: inline-block;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+    background: #FAFAFA;
+    &:hover{
+        cursor: pointer;
+    }
+}
+
+.rubrics-tab-row {
+    margin-bottom: 1em;
+}
+
+.rubrics-tab-selected {
+    border-bottom:none;
+    background: #fff;
+    pointer-events: none;
+    text-decoration: none !important;
+    &:hover{
+        cursor: default;
+    }
+}
+
+.rubrics-summary-average-cell {
+    border-left-style: double !important;
+    border-left-width: 3px !important;
+}
+
+.rubrics-summary-average-row {
+    border-top-style: double !important;
+    border-top-width: 3px !important;
+}
+
+.summary-rating-name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2em;
+    font-weight: normal;
+    font-style: italic;
+}
+dl {
+    margin-bottom: 0;
+}
+
+div.collapse-toggle-buttons > button {
+    padding: 0.5rem;
+}

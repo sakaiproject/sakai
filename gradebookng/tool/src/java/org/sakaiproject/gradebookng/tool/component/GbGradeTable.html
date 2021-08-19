@@ -143,6 +143,9 @@
                             <li><a href="javascript:void(0);" class="gb-move-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
                         {/if}
+                        {if hasAssociatedRubric}
+                            <li><a href="javascript:void(0);" class="preview-assignment-rubric" role="menuitem"><wicket:message key="assignment.option.preview" /></a></li>
+                        {/if}
                         {if !externallyMaintained && settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
                         {/if}

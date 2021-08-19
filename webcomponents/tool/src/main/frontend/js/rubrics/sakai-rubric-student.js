@@ -105,7 +105,16 @@ class SakaiRubricStudent extends RubricsElement {
           ` : ""}
         </h3>
 
-        ${this.preview || this.forcePreview ? html`
+        ${this.instructor==='true' ? html`
+        <div class="rubrics-tab-row">
+          <a href="javascript:void(0);" id="rubric-grading-or-preview-button" class="rubrics-tab-button rubrics-tab-selected" @keypress=${this.openGradePreviewTab} @click=${this.openGradePreviewTab}><sr-lang key="grading_rubric">gradingrubric</sr-lang></a>
+          <a href="javascript:void(0);" id="rubric-student-summary-button" class="rubrics-tab-button" @keypress=${this.makeStudentSummary} @click=${this.makeStudentSummary}><sr-lang key="student_summary">studentsummary</sr-lang></a>
+          <a href="javascript:void(0);" id="rubric-criteria-summary-button" class="rubrics-tab-button" @keypress=${this.makeCriteriaSummary} @click=${this.makeCriteriaSummary}><sr-lang key="criteria_summary">criteriasummary</sr-lang></a>
+        </div>
+        ` : html``}
+
+        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+          ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
             criteria="${JSON.stringify(this.rubric.criteria)}"
             .weighted=${this.rubric.weighted}
@@ -119,8 +128,10 @@ class SakaiRubricStudent extends RubricsElement {
             entity-id="${this.entityId}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-student>
-        `}
+          `}
       </div>
+      <div id="rubric-student-summary" class="rubric-tab-content"></div>
+      <div id="rubric-criteria-summary" class="rubric-tab-content"></div>
     `;
   }
 
@@ -216,6 +227,21 @@ class SakaiRubricStudent extends RubricsElement {
       }
     })
     .catch (error => console.error(error));
+  }
+
+  openGradePreviewTab(e) {
+    e.stopPropagation();
+    this.openRubricsTab("rubric-grading-or-preview");
+  }
+
+  makeStudentSummary(e) {
+    e.stopPropagation();
+    this.makeASummary("student");
+  }
+
+  makeCriteriaSummary(e) {
+    e.stopPropagation();
+    this.makeASummary("criteria");
   }
 }
 

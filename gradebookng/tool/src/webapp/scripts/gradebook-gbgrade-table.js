@@ -1148,6 +1148,15 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       studentId: $.data($cell[0], "studentid")
     });
   }).
+  on("click", ".preview-assignment-rubric", function() {
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    GbGradeTable.ajax({
+      action: 'previewRubric',
+      studentId: $.data($cell[0], "studentid"),
+      assignmentId: $.data($cell[0], "assignmentid")
+    });
+  }).
   // Edit Comment
   on("click", ".gb-dropdown-menu .gb-edit-comments", function() {
     var $dropdown = $(this).closest(".gb-dropdown-menu");
