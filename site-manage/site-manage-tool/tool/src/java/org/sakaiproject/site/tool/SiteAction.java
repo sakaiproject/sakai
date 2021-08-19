@@ -3336,9 +3336,14 @@ public class SiteAction extends PagedResourceActionII {
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				context.put("backIndex", "");
 			}
-			List ll = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
-			context.put("termCourseList", state
-					.getAttribute(STATE_TERM_COURSE_LIST));
+
+			// Sort the course offerings if necessary
+			List<CourseObject> courseList = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
+			if (CollectionUtils.isNotEmpty(courseList)) {
+				courseList.sort(Comparator.comparing(CourseObject::getTitle, new AlphaNumericComparator()));
+				state.setAttribute(STATE_TERM_COURSE_LIST, courseList);
+			}
+			context.put("termCourseList", state.getAttribute(STATE_TERM_COURSE_LIST));
 
 			Boolean showRosterEIDs = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ROSTER_EID, SAK_PROP_SHOW_ROSTER_EID_DEFAULT);
 			context.put("showRosterEIDs", showRosterEIDs);
@@ -14008,7 +14013,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			CourseOffering o = (CourseOffering) j.next();
 			if (!dealtWith.contains(o.getEid())) {
 				// 1. construct list of CourseOfferingObject for CourseObject
-				ArrayList l = new ArrayList();
+				ArrayList<CourseOfferingObject> l = new ArrayList<>();
 				CourseOfferingObject coo = new CourseOfferingObject(o,
 						(ArrayList) sectionHash.get(o.getEid()));
 				l.add(coo);
@@ -14280,9 +14285,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		public String eid;
 		public String title;
 		public String description;
-		public List courseOfferingObjects;
+		public List<CourseOfferingObject> courseOfferingObjects;
 
-		public CourseObject(CourseOffering offering, List courseOfferingObjects) {
+		public CourseObject(CourseOffering offering, List<CourseOfferingObject> courseOfferingObjects) {
 			this.eid = offering.getEid();
 			this.title = offering.getTitle();
 			this.description = offering.getDescription();
