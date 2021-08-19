@@ -61,7 +61,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                         <span>
                           <sr-lang key="weight">Weight</sr-lang>
                         </span>
-                        <span>${c.weight}</span>
+                        <span>${c.weight.toLocaleString(this.locale)}</span>
                         <span>
                           <sr-lang key="percent_sign">%</sr-lang>
                         </span>
@@ -79,7 +79,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                     <span class="points">
                       ${this.weighted && r.points > 0 ? html`
                         <b>
-                            (${(r.points * (c.weight / 100)).toFixed(2)})
+                            (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                         </b>`
                         : ""
                       }
