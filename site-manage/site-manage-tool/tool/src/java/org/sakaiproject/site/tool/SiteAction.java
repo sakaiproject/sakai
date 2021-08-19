@@ -3340,7 +3340,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Sort the course offerings if necessary
 			List<CourseObject> courseList = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
 			if (CollectionUtils.isNotEmpty(courseList)) {
-				courseList.sort(Comparator.comparing(CourseObject::getTitle));
+				courseList.sort(Comparator.comparing(CourseObject::getTitle, new AlphaNumericComparator()));
 				state.setAttribute(STATE_TERM_COURSE_LIST, courseList);
 			}
 			context.put("termCourseList", state.getAttribute(STATE_TERM_COURSE_LIST));
