@@ -107,37 +107,43 @@ function displayEMIHelp(){
 
 <!-- breadcrumb-->
 <ol class="breadcrumb">
-  <li>
-    <h:commandLink title="#{authorMessages.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
-      <h:outputText value="#{authorMessages.global_nav_assessmt}" />
-    </h:commandLink>
-  </li>
-  <li>
-    <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
-      <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
-    </h:commandLink>
-  </li>
-  <li>
-    <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
-  </li>
+  <h:panelGroup rendered="#{itemauthor.target == 'assessment'}" >
+    <li>
+      <h:commandLink title="#{authorMessages.t_assessment}" action="author" immediate="true">
+        <h:outputText value="#{authorMessages.global_nav_assessmt}" />
+      </h:commandLink>
+    </li>
+    <li>
+      <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" >
+        <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false"/>
+      </h:commandLink>
+    </li>
+    <li>
+      <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" />
+    </li>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{itemauthor.target == 'questionpool'}">
+    <li>
+      <h:outputText value="#{authorMessages.global_nav_pools}" />
+    </li>
+    <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100" >
+      <h:column>
+        <li>
+          <h:commandLink action="#{questionpool.editPool}" immediate="true">
+            <h:outputText value="#{parent.displayName}" escape="false"/>
+            <f:param name="qpid" value="#{parent.questionPoolId}"/>
+          </h:commandLink>
+        </li>
+      </h:column>
+    </samigo:dataLine>
+    <li>
+      <h:commandLink action="#{questionpool.editPool}" immediate="true">
+        <h:outputText value="#{questionpool.currentPool.displayName}"/>
+        <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
+      </h:commandLink>
+    </li>
+  </h:panelGroup>
 </ol>
-
-<h:outputText rendered="#{itemauthor.target == 'questionpool'}" value="#{authorMessages.global_nav_pools}> "/>
-
-<samigo:dataLine rendered="#{itemauthor.target == 'questionpool'}" value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
-   separator=" > " first="0" rows="100" >
-  <h:column>
-    <h:commandLink action="#{questionpool.editPool}"  immediate="true">
-      <h:outputText value="#{parent.displayName}" />
-      <f:param name="qpid" value="#{parent.questionPoolId}"/>
-    </h:commandLink>
-  </h:column>
-</samigo:dataLine>
-<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" #{authorMessages.greater} " />
-<h:commandLink rendered="#{itemauthor.target == 'questionpool'}" action="#{questionpool.editPool}"  immediate="true">
-  <h:outputText value="#{questionpool.currentPool.displayName}"/>
-  <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
-</h:commandLink>
 
 <div class="page-header">
   <h1>
