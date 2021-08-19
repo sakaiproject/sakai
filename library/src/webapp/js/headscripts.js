@@ -763,9 +763,9 @@ function includeWebjarLibrary(library) {
 			// This webjar has a different convention without version and library name.
 			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
-		case 'ckeditor':
+		case 'ckeditor4':
 			libraryVersion = "4.16.1";
-			jsReferences.push('/full/ckeditor.js');
+			jsReferences.push('/ckeditor.js');
 			break;
 		case 'awesomplete':
 			libraryVersion = "1.1.5";
