@@ -1477,3 +1477,11 @@ td.stats-correctness {
 .feedbackByDatePanel {
   padding-left: 2em;
 }
+
+#autosave-msg {
+	visibility: hidden;
+}
+
+#autosave-lasttime-msg {
+	display: none;
+}
