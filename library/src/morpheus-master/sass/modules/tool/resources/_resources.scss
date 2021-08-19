@@ -317,6 +317,11 @@
 		display: none;
 		clear: both;
 	}
+
+	label[for="notify"] {
+		padding-left: $standard-spacing;
+		padding-right: 5px;
+	}
 }
 
 /* this belongs to resources but it is accessed out of its namespace */
