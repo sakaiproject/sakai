@@ -160,7 +160,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     }
 
     var ckconfig = {
-	//Some defaults for audio recorder
+    //Some defaults for audio recorder
         audiorecorder : {
             "maxSeconds" : 180,
             "attemptAllowed" : Number.MAX_VALUE,
@@ -194,9 +194,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserImageBrowseUrl : filebrowser.imageBrowseUrl,
         filebrowserFlashBrowseUrl : filebrowser.flashBrowseUrl,
 
-        filebrowserUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
-        uploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
-        imageUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
+        filebrowserUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
+        uploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
+        imageUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
 
         extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
 
