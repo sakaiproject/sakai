@@ -1150,9 +1150,8 @@
 		// 'Please select...' is always the first element in the drop down, but only enforce this if configured via sakai.properties
 		if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
 		{
-			$('.sak-banner-error').html('$tlang.getString("label.alert") $copyrightError');
-			$('.sak-banner-error').removeClass('hide');
-			$('.sak-banner-error').show();
+			$('#resourceAlert').html('$tlang.getString("label.alert") $copyrightError');
+			$('#resourceAlert').removeClass('hide');
 			window.scrollTo(0, 0);
 			copyrightSelect.focus();
 
@@ -1161,7 +1160,6 @@
 		}
 
 		// Copyright status has been selected; let the calling site submit the necessary form
-		$('.sak-banner-error').hide();
 		submitButton.disabled = true;
 		return true;
 	}
