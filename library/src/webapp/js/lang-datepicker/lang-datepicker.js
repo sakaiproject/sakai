@@ -1438,10 +1438,12 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 
 $.datepicker._getPreferredSakaiDatetime = function () {
 
-  if (portal.serverTimeMillis && portal.user && portal.user.offsetFromServerMillis) {
+    const p = typeof portal !== "undefined" ? portal : parent.portal;  // we might be inside an iframe (ie. Lessons)
+
+    if (p && p.serverTimeMillis && p.user && p.user.offsetFromServerMillis) {
     let osTzOffset = (new Date()).getTimezoneOffset();
-    return moment(parseInt(portal.serverTimeMillis))
-      .add(portal.user.offsetFromServerMillis, 'ms')
+    return moment(parseInt(p.serverTimeMillis))
+      .add(p.user.offsetFromServerMillis, 'ms')
 	  //Add in the number of ms since this page was loaded
 	  .add(Date.now() - this._initTime, 'ms')
       .add(osTzOffset, 'm')
