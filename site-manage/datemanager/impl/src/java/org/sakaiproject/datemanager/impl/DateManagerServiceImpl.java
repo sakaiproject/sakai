@@ -740,6 +740,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 					errors.add(new DateManagerError("signup_deadline", rb.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
 					continue;
 				}
+				if (update.signupBegins.isAfter(update.signupDeadline)) {
+					errors.add(new DateManagerError("signup_begins", rb.getString("error.signup.begins.after.signup.deadline"), "signupMeetings", toolTitle, idx));
+					continue;
+				}
 				updates.add(update);
 
 			} catch (Exception ex) {
