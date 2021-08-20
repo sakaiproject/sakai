@@ -76,7 +76,7 @@ export class SakaiRubricSummary extends RubricsElement {
                                         <th style="display:none" class="rubrics-summary-table-cell "><sr-lang key="stdev">stdev</sr-lang></th>
                                     </tr>
                                     <tr>
-                                        ${c.ratings.map(r => html`
+                                        ${c.ratings.map((r) => html`
                                             <td class="points-${r.points} rubrics-summary-table-cell pointCell-${c.id}" >${this.getACount(c.id, r.id)}</td>
                                             ${this.association.parameters.fineTunePoints && this.getCustomCount(c.id, r.points)>0 ? html`
                                                 <td class="rubrics-summary-table-cell">${this.getCustomCount(c.id, r.points)}</td>
@@ -150,7 +150,7 @@ export class SakaiRubricSummary extends RubricsElement {
                     </table>
                 </div>
             ` }
-        `
+        `;
         }
     }
 
@@ -176,7 +176,7 @@ export class SakaiRubricSummary extends RubricsElement {
             $.ajax({
                 url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
                 headers: { "authorization": this.token }
-            }).done(data => {
+            }).done((data) => {
                 this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
                 this.selectedRatings = this.evaluation.criterionOutcomes.map((ed) => ed.selectedRatingId);
                 this.existingEvaluation = true;
