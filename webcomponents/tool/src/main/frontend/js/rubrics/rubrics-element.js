@@ -75,7 +75,7 @@ class RubricsElement extends SakaiElement {
     }
     const tabButtonNow = this.querySelector(`#${tabname}-button`);
     if (tabButtonNow !== null) {
-      tabButtonNow.setAttribute('class', 'rubrics-tab-button rubrics-tab-selected') //select styling on current tab button
+      tabButtonNow.setAttribute('class', 'rubrics-tab-button rubrics-tab-selected'); //select styling on current tab button
     }
   }
 

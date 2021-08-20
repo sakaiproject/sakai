@@ -49,7 +49,7 @@ export class SakaiRubricSummary extends RubricsElement {
                         <sr-lang key="no_evaluations_warning">WARN</sr-lang>
                     </div>
                 ` : html`
-                    ${this.criteria.map(c => html`
+                    ${this.criteria.map((c) => html`
                         <div class="panel-group">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
@@ -62,7 +62,7 @@ export class SakaiRubricSummary extends RubricsElement {
                                         <div class="table-responsive">
                                 <table class="rubrics-summary-table table table-bordered table-condensed">
                                     <tr>
-                                        ${c.ratings.map(r => html`
+                                        ${c.ratings.map((r) => html`
                                             <th class="rubrics-summary-table-cell">
                                                 <div>${r.points} <sr-lang key="points">points</sr-lang></div>
                                                 <div class="summary-rating-name" title="${r.title}">${this.limitCharacters(r.title, 20)}</div>
@@ -109,7 +109,7 @@ export class SakaiRubricSummary extends RubricsElement {
                     `)}
                     <div><sr-lang key="adjusted_score_warning">adjustedscorewarning</sr-lang></div>
                 ` }
-            `
+            `;
         } else {
             return html`
             <h3><sr-lang key="student_summary">studentsummary</sr-lang></h3>
@@ -123,17 +123,17 @@ export class SakaiRubricSummary extends RubricsElement {
                         <thead>
                         <tr>
                             <th class="rubrics-summary-table-cell rubrics-summary-table-cell-wide"><sr-lang key="student_name">studentname</sr-lang></th>
-                            ${this.criteria.map(c => html`<th class="rubrics-summary-table-cell" >${c.title}</th>`)}
+                            ${this.criteria.map((c) => html`<th class="rubrics-summary-table-cell" >${c.title}</th>`)}
                             <th class="rubrics-summary-table-cell rubrics-summary-average-cell"><sr-lang key="score">score</sr-lang></th>
                         </tr>
                         </thead>
                         <tbody>
-                        ${this.allEvaluations.map(e => html`
+                        ${this.allEvaluations.map((e) => html`
                             <tr>
                                 <td class="rubrics-summary-table-cell rubrics-summary-table-cell-wide nameColumn" >
                                     <sakai-rubric-sort-name user-id="${e.evaluatedItemOwnerId}"></sakai-rubric-sort-name>
                                 </td>
-                                ${e.criterionOutcomes.map(o => html`
+                                ${e.criterionOutcomes.map((o) => html`
                                     <td class="rubrics-summary-table-cell rubrics-summary-table-cell pointCell-${o.criterionId}" >${o.points}</td>
                                 `)}
                                 <td class="rubrics-summary-table-cell rubrics-summary-average-cell pointCell-score" >${this.getCriteriaTotal(e.criterionOutcomes)}</td>
@@ -143,7 +143,7 @@ export class SakaiRubricSummary extends RubricsElement {
                         <tfoot>
                         <tr>
                             <th class="rubrics-summary-table-cell rubrics-summary-table-cell-wide rubrics-summary-average-row " ><sr-lang key="average">average</sr-lang></th>
-                            ${this.criteria.map(c => html`<td class="rubrics-summary-table-cell rubrics-summary-average-row">${this.getColumnAverage(c.id)}</td>`)}
+                            ${this.criteria.map((c) => html`<td class="rubrics-summary-table-cell rubrics-summary-average-row">${this.getColumnAverage(c.id)}</td>`)}
                             <td class="rubrics-summary-table-cell rubrics-summary-average-cell rubrics-summary-average-row" >${this.getColumnAverage('score')}</td>
                         </tr>
                         </tfoot>
@@ -158,7 +158,7 @@ export class SakaiRubricSummary extends RubricsElement {
         $.ajax({
             url: `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`,
             headers: { "authorization": this.token }
-        }).done(data => {
+        }).done((data) => {
             this.association = data._embedded['rubric-associations'][0];
             var rubricId = data._embedded['rubric-associations'][0].rubricId;
             this.getRubric(rubricId);
@@ -172,17 +172,17 @@ export class SakaiRubricSummary extends RubricsElement {
         $.ajax({
             url: `/rubrics-service/rest/rubrics/${rubricId}?projection=inlineRubric`,
             headers: { "authorization": this.token }
-        }).done(rubric => {
+        }).done((rubric) => {
             $.ajax({
                 url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
                 headers: { "authorization": this.token }
             }).done(data => {
                 this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
-                this.selectedRatings = this.evaluation.criterionOutcomes.map(ed => ed.selectedRatingId);
+                this.selectedRatings = this.evaluation.criterionOutcomes.map((ed) => ed.selectedRatingId);
                 this.existingEvaluation = true;
                 this.rubric = rubric;
                 this.criteria = this.rubric.criterions;
-                this.criteria.forEach(c => {
+                this.criteria.forEach((c) => {
                     if (!c.selectedvalue) {
                         c.selectedvalue = 0;
                     }
@@ -238,7 +238,7 @@ export class SakaiRubricSummary extends RubricsElement {
         $.ajax({
             url: `/rubrics-service/rest/evaluations/search/user-name?userId=${studentid}`,
             headers: { "authorization": this.token }
-        }).done(result => {return result.toString()});
+        }).done((result) => {return result.toString();});
     }
 
     getACount(criterion, rating){
@@ -246,7 +246,6 @@ export class SakaiRubricSummary extends RubricsElement {
         for (var i=0; i<this.allEvaluations.length; i++) {
             for (var j=0; j<this.allEvaluations[i].criterionOutcomes.length; j++){
                 if(this.allEvaluations[i].criterionOutcomes[j].criterionId === parseInt(criterion)
-                    //&& this.allEvaluations[i].criterionOutcomes[j].selectedRatingId === parseInt(rating)
                     && this.doesScoreMatchRating(this.allEvaluations[i].criterionOutcomes[j].points, criterion, rating)){
                     total = total + 1;
                 }
