@@ -107,7 +107,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
-                  ${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
+                  ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
                 <div class="add-criterion-item">

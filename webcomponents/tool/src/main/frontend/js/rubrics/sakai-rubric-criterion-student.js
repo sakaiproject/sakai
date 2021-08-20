@@ -95,12 +95,12 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
             ${!this.preview ? html`
               <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
               <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
-                ${c.selectedvalue}
+                ${c.selectedvalue.toLocaleString(this.locale)}
                 ${!c.selectedRatingId ? "0" : ""}
                 &nbsp;
               </strong>
               ${this.isOverridden(c.pointoverride,c.selectedvalue) ?
-                html`<strong class="points-display">${c.pointoverride}</strong>`
+                html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
                 : html``}
             ` : html``}
             </div>
