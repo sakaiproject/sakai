@@ -200,7 +200,7 @@ export class SakaiRubricSummary extends RubricsElement {
         $.ajax({
             url: `/rubrics-service/rest/evaluations/search/by-tool-item-and-associated-item-ids?toolId=${this.toolId}&itemId=${this.entityId}`,
             headers: { "authorization": this.token }
-        }).done(data => {
+        }).done((data) => {
             this.allEvaluations = data._embedded.evaluations;
         }).fail((jqXHR, textStatus, errorThrown) => {
             console.log(textStatus);
