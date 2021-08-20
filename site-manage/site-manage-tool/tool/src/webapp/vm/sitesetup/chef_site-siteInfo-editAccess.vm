@@ -93,13 +93,13 @@
 		</p>
 		<div class="radio">			
 			<label for="publish">
-				<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" aria-describedby="site_status_inst" />
+				<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked); validatePage();" aria-describedby="site_status_inst" />
 				$tlang.getString("ediacc.pubsit")
 			</label>
 		</div>
 		<div class="radio">			
 			<label for="unpublish">
-				<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" aria-describedby="site_status_inst" />
+				<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked); validatePage();" aria-describedby="site_status_inst" />
 				$tlang.getString("ediacc.unpubsit")
 			</label>
 		</div>
@@ -215,7 +215,7 @@
 			<div class="radio">
 				<label for="unjoinable">
 					<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
-				      onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; utils.resizeFrame();"
+				      onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; validatePage(); utils.resizeFrame();"
 				      aria-describedby="site_glob_inst" />
 					$tlang.getString("ediacc.cannotbejoi")
 				</label>
@@ -223,7 +223,7 @@
 			<div class="radio">
 				<label for="joinable">
 				     <input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
-				            onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; utils.resizeFrame();"
+				            onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; validatePage(); utils.resizeFrame();"
 				            aria-describedby="site_glob_inst" />				
 					$tlang.getFormattedMessage("ediacc.canbejoi", $uiService)
 				</label>
