@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -210,7 +211,7 @@ public abstract class DbSiteService extends BaseSiteService
 		protected SqlReader lightSiteReader = new SiteSqlReader(false);
 
 		/** SqlReader for reading just the Site IDs, used for tuning getSites performance. */
-		protected SqlReader siteIdReader = new SiteIdSqlReader();
+		protected SqlReader<String> siteIdReader = new SiteIdSqlReader();
 
 		/**
 		 * The sizes of parameters to use for IN clauses padded with NULLs; up to Oracle maximum.
@@ -1097,8 +1098,8 @@ public abstract class DbSiteService extends BaseSiteService
 
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, propertyRestrictions, userId, excludedSites );
-			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, excludedSites);
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, propertyRestrictions, userId, null);
+			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, null);
 
 			String sql;
 			if (page != null)
@@ -1115,9 +1116,13 @@ public abstract class DbSiteService extends BaseSiteService
 
 			log.debug("getSiteIds SQL: {}, values: {}", sql, java.util.Arrays.toString(values));
 
-			@SuppressWarnings("unchecked")
-			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
-			return siteIds;
+			List<String> results = sqlService().dbRead(sql, values, siteIdReader);
+			Set<String> siteIds = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			if (results != null) siteIds.addAll(results);
+			Set<String> excludedSiteIds = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			if (excludedSites != null) excludedSiteIds.addAll(excludedSites);
+			siteIds.removeAll(excludedSiteIds);
+			return new ArrayList<>(siteIds);
 		}
 
 		/**
