@@ -1279,7 +1279,7 @@ function doCategoryCheck(clickedElement) {
   }
 }
 
-// Returns true iff the limitByAccountType checkboxes are in a valid state.
+// Returns true if the limitByAccountType checkboxes are in a valid state.
 // Also responsible for the visibility of the "You must select at least one account type below" message
 function limitByAccountTypesValidation() {
 
@@ -1296,21 +1296,18 @@ function limitByAccountTypesValidation() {
 
     // determine if at least one is checked
     var atLeastOneChecked = [].slice.call(chkAccountTypes).some(function (t) { return t.checked; });
-    /*
-    var atLeastOneChecked = false;
-    for (var i = 0; i < chkAccountTypes.length; i++) {
-      if (chkAccountTypes[i].checked) {
-        atLeastOneChecked = true;
-        break;
-      }
-    }
-    */
 
     if (!atLeastOneChecked) {
       // 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
       displayJoinLimitInfo = true;
       valid = false;
     }
+  }
+
+  const unjoinable = document.getElementById("unjoinable");
+  const unpublished = document.getElementById("unpublish");
+  if ((unjoinable && unjoinable.checked) || (unpublished && unpublished.checked)) {
+      valid = true;
   }
 
   // Control the visibility of the "You must select at least one account type below" message
