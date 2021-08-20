@@ -3,12 +3,14 @@
    <emailTemplate>
        <subject>Welcome To ${localSakaiName}!</subject>
        <message>Thank you for requesting an account for ${localSakaiName}, ${institution}'s learning management system. You're almost done!
+Your requested account login is: ${userEid}
 
-To create an account, click on the following link or paste it into your favourite web browser, and fill in the form.
+To create this account, click on the following link or paste it into your favourite web browser, and fill in the form.
 ${url}
 
 If you haven't requested this account, you can safely ignore this message.
         </message>
        <locale></locale>
+       <version>2</version>
    </emailTemplate>
 </emailTemplates>
