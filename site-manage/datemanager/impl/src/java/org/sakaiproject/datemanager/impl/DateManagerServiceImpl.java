@@ -568,7 +568,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
-		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
+		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
 		for(org.sakaiproject.service.gradebook.shared.Assignment gbitem : gbitems) {
 			if(!gbitem.isExternallyMaintained()) {
 				JSONObject gobj = new JSONObject();
