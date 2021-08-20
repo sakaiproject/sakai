@@ -75,10 +75,21 @@
                                 <td headers="section">$enrolment.getSectionTitle()</td>
                                 <td headers="worksite">
                                     #if ($enrolment.siteWrappers.size() > 0)
-                                        #foreach( $site in $enrolment.siteWrappers )
+                                        #if ($enrolment.siteWrappers.size() == 1)
+                                            #set ($site = $enrolment.siteWrappers.get(0))
                                             <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $formattedText.escapeHtml( $site.getSiteTitle() )">
                                                 $formattedText.escapeHtml( $site.getSiteTitle() )
                                             </a>
+                                        #else
+                                            <ul>
+                                            #foreach( $site in $enrolment.siteWrappers )
+                                                <li>
+                                                    <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $formattedText.escapeHtml( $site.getSiteTitle() )">
+                                                        $formattedText.escapeHtml( $site.getSiteTitle() )
+                                                    </a>
+                                                </li>
+                                            #end
+                                            </ul>
                                         #end
                                     #else
                                         $tlang.getString('mb.enrolments.siteNotAvailable')
