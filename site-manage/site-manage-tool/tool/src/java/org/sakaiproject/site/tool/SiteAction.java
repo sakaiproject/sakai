@@ -8960,6 +8960,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		// create list of all participants that have been inactivated
 		Set<String> inactivatedParticipants = new HashSet();
+		// create list of all participants that have been activated
+		Set<String> activatedParticipants = new HashSet();
 		for(Participant statusParticipant : participants ) {
 			String activeGrantId = statusParticipant.getUniqname();
 			String activeGrantField = "activeGrant" + activeGrantId;
@@ -8968,6 +8970,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				boolean activeStatus = params.getString(activeGrantField).equalsIgnoreCase("true") ? true : false;
 				if (activeStatus == false) {
 					inactivatedParticipants.add(activeGrantId);
+				}
+				else {
+					activatedParticipants.add(activeGrantId);
 				}
 			}
 		}
@@ -8980,7 +8985,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String newRole = params.getString(roleId);
 
 			// skip any that are not already inactive or are not candidates for inactivation
-			if (!inactivatedParticipants.contains(id) && roleParticipant.isActive()) {
+			if ((!inactivatedParticipants.contains(id) && roleParticipant.isActive()) || (activatedParticipants.contains(id))) {
 				 if (!removedParticipantIds.contains(id)) {
 					if (StringUtils.isNotBlank(newRole)){
 						if (newRole.equals(maintainRole)) {
