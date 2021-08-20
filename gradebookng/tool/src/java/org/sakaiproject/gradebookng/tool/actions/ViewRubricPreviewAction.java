@@ -33,12 +33,11 @@ public class ViewRubricPreviewAction extends InjectableAction implements Seriali
     @Override
     public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final String assignmentId = params.get("assignmentId").asText();
-        final Map<String, Object> model = new HashMap<>();
-        model.put("assignmentId", Long.valueOf(assignmentId));
+        final Long model = Long.valueOf(assignmentId);
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getRubricPreviewWindow();
         window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setContent(new RubricPreviewPanel(window.getContentId(), Model.ofMap(model), window));
+        window.setContent(new RubricPreviewPanel(window.getContentId(), Model.of(model), window));
         window.show(target);
         return new EmptyOkResponse();
     }

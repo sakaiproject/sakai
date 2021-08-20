@@ -46,7 +46,7 @@ public class RubricPreviewPanel extends BasePanel {
 
     private final ModalWindow window;
 
-    public RubricPreviewPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
+    public RubricPreviewPanel(final String id, final IModel<Long> model, final ModalWindow window) {
         super(id, model);
         this.window = window;
     }
@@ -54,8 +54,8 @@ public class RubricPreviewPanel extends BasePanel {
     @Override
     public void onInitialize() {
         super.onInitialize();
-        final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-        final Long assignmentId = (Long) modelData.get("assignmentId");
+        final Long assignmentId = (Long) getDefaultModelObject();
+        //final Long assignmentId = (Long) modelData.get("assignmentId");
         final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student");
         Assignment assignmentNow = businessService.getAssignment(assignmentId);
         if(assignmentNow!=null && assignmentNow.isExternallyMaintained()){  //this is an externally-maintained item from Assignments
@@ -77,8 +77,7 @@ public class RubricPreviewPanel extends BasePanel {
         done.setDefaultFormProcessing(false);
         add(done);
         this.window.setInitialWidth(1100);
-        Assignment assignment = businessService.getAssignment(assignmentId);
-        RubricPreviewPanel.this.window.setTitle(this.getString("label.rubric.preview") + assignment.getName());
+        RubricPreviewPanel.this.window.setTitle(this.getString("label.rubric.preview") + assignmentNow.getName());
     }
 
     public void renderHead(final IHeaderResponse response) {
@@ -90,7 +89,7 @@ public class RubricPreviewPanel extends BasePanel {
     }
 
     private String extractAssignmentId(String externalId){
-        if (externalId==null || !externalId.contains("/")){ //make sure we have an ID that exists and contains slashes
+        if (externalId==null){ //make sure we have an ID that exists
             return "";
         }
         String[] splitArray = externalId.split("/");    //go ahead and split it since we know it won't break.
