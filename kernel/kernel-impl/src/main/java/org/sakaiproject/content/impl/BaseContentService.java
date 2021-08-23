@@ -929,6 +929,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
 			functionManager.registerFunction(AUTH_DROPBOX_GROUPS, false);
 			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_WRITE_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_WRITE_ANY, false);
+			functionManager.registerFunction(AUTH_DROPBOX_REMOVE_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_REMOVE_ANY, false);
 
 			// quotas
 			m_siteQuota = Long.parseLong(m_serverConfigurationService.getString("content.quota", Long.toString(m_siteQuota)));
@@ -1444,68 +1448,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	} // getAccessPoint
 
 	/**
-	 * If the id is for a resource in a dropbox, change the function to a dropbox check, which is to check for write.<br />
-	 * You have full or no access to a dropbox.
-	 * 
-	 * @param lock
-	 *        The lock we are checking.
-	 * @param id
-	 *        The resource id.
-	 * @return The lock to check.
+	 * Determines if the entity id's format matches that of a dropbox entity
 	 */
-	protected String convertLockIfDropbox(String lock, String id)
+	protected boolean isDropboxEntity(String id)
 	{
-		//the id could be null
-		if (id == null) {
-			return null;
-		}
-		
-		// if this resource is a dropbox, you need dropbox maintain permission
-		// Changed in SAK-11647 to enable group-aware dropboxes
-		if (id.startsWith(COLLECTION_DROPBOX))
-		{
-			// only for /group-user/SITEID/USERID/ refs.
-			String[] parts = StringUtil.split(id, "/");
-			if (parts.length >= 3)
-			{
-				boolean authDropboxGroupsCheck=true;
-				String ref = getReference(id);
-
-				if (parts.length>=4)
-				{
-					//Http servlet access to dropbox resources
-					String userId=parts[3];
-					if ((userId==null) || isDropboxMaintainer(parts[2]) || (!isDropboxOwnerInCurrentUserGroups(ref,userId)))
-					{
-						authDropboxGroupsCheck=false;
-					}
-				}
-
-				//Before SAK-11647 any dropbox id asked for dropbox.maintain permission.
-				//Now we must support groups permission, so we ask for this permission too.
-				//Groups permission gives full access to dropboxes of users in current user's groups. 
-				//A different logic can be achieved here depending of lock parameter received.
-				if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
-				{
-					if (authDropboxGroupsCheck)
-					{
-						return AUTH_DROPBOX_GROUPS;
-					}
-					else
-					{
-						return AUTH_DROPBOX_MAINTAIN;
-					}
-				}
-				else
-				{
-					return AUTH_DROPBOX_MAINTAIN;
-				}
-			}
-		}
-
-		return lock;
+		return id != null && id.startsWith(COLLECTION_DROPBOX);
 	}
-	
+
 	/**
 	 * Checks if a dropbox owner is in any group with current user, so AUTH_DROPBOX_GROUPS is rightly applied.
 	 * @return true if the dropbox owner is in the group, false otherwise. 
@@ -1754,17 +1703,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		boolean isAllowed = m_securityService.isSuperUser();
 		if(! isAllowed)
 		{
-			//SAK-11647 - Changes in this function.
-			lock = convertLockIfDropbox(lock, id);
-
-			// make a reference from the resource id, if specified
-			String ref = null;
-			if (id != null)
+			if (isDropboxEntity(id))
 			{
-				ref = getReference(id);
+				isAllowed = DropboxAuthzHandler.isAuthorizedViaDropbox(lock, id);
 			}
+			else
+			{
+				// make a reference from the resource id, if specified
+				String ref = null;
+				if (id != null)
+				{
+					ref = getReference(id);
+				}
 
-			isAllowed = ref != null && m_securityService.unlock(lock, ref);
+				isAllowed = ref != null && m_securityService.unlock(lock, ref);
+			}
 
 			if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
 			{
@@ -1818,9 +1771,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			return;
 		}
 
-		//SAK-11647 - Changes in this function.
-		lock = convertLockIfDropbox(lock, id);
-
 		// make a reference from the resource id, if specified
 		String ref = null;
 		if (id != null)
@@ -1828,7 +1778,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			ref = getReference(id);
 		}
 
-		if (!m_securityService.unlock(lock, ref))
+		if (isDropboxEntity(id))
+		{
+			if (!DropboxAuthzHandler.isAuthorizedViaDropbox(lock, id))
+			{
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, ref);
+			}
+		}
+		else if (!m_securityService.unlock(lock, ref))
 		{
 			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, ref);
 		}
