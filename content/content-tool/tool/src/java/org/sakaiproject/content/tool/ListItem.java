@@ -314,6 +314,11 @@ public class ListItem
 						{
 							continue;
 						}
+						if (dropboxAuthz != null && !dropboxAuthz.getDropboxPermissionsForEntity(childEntity).contains(ContentPermissions.READ))
+						{
+							// This is a Drop Box context and we don't have read permission on this entity; exclude it
+							continue;
+						}
 	
 					ListItem child = getListItem(childEntity, item, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter, dropboxAuthz);
 		        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
