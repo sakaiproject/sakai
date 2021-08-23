@@ -757,6 +757,8 @@ function includeWebjarLibrary(library) {
 		case 'datatables':
 			libraryVersion = "1.10.25";
 			jsReferences.push('/js/jquery.dataTables.min.js');
+			jsReferences.push('/js/dataTables.bootstrap.min.js');
+			cssReferences.push('/css/dataTables.bootstrap.min.css');
 			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
