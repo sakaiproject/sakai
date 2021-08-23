@@ -55,7 +55,9 @@ $(document).ready(function(){
 			## if there is a submitted submission
 			## get the properies
 			#if ($!allowAddAssignment)
-				<h3>$tlang.getString("viewexampleassign") </h3>
+				<h3>$tlang.getString("exampleassign") </h3>
+				<p class="sak-banner-info">$tlang.getString("exampleassign2")</p>
+				#if ($!assignment.isGroup) <p class="sak-banner-warn">$tlang.getString("exampleassign3")</p> #end
 			#else
 			<h3>
 				$formattedText.escapeHtml($assignment.Title)
@@ -94,7 +96,9 @@ $(document).ready(function(){
 			#end
 		#else
 			#if ($!allowAddAssignment)
-				<h3>$tlang.getString("subexampleassign")</h3>
+				<h3>$tlang.getString("exampleassign")</h3>
+				<p class="sak-banner-info">$tlang.getString("exampleassign2")</p>
+				#if ($!assignment.isGroup) <p class="sak-banner-warn">$tlang.getString("exampleassign3")</p> #end
 			#else 
 				<h3>$tlang.getString("gen.assig")
 					## no need to show status if this is for an non-electronic submission type of assignment
