@@ -7,7 +7,7 @@
     <div id="menu" th:include="fragments/menus :: main (index)" />
     <div class="page-header"><h1 th:text="#{index.header.grouplist}"></h1></div>
     <div class="sak-banner-info" th:if="${groupList.isEmpty()}" th:text="#{index.warning.groupempty}">No groups in this site.</div>
-    <div class="instruction" th:if="${anyGroupLocked}"><span class="fa fa-fw fa-lock" aria-hidden="true"></span> - <span th:text="#{index.table.grouplocked.info}"></span></div>
+    <div class="instruction" th:if="${anyGroupLocked}"><span class="fa fa-fw fa-lock" aria-hidden="true"></span> - <span ria-hidden="true" th:text="#{index.table.grouplocked.info}"></span></div>
     <form th:if="${!groupList.isEmpty()}" id="group-manager-form" action="#" th:action="@{/removeGroups}" th:object="${mainForm}" method="post">
       <table id="groupTable" class="table table-striped table-bordered table-hover">
         <thead>
@@ -23,7 +23,8 @@
         <tbody>
           <tr th:each="group : ${groupList}">
             <td>
-              <span th:if="${lockedGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true" th:title="#{index.table.grouplocked}"></span>
+              <span th:if="${lockedGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true"></span>
+              <span th:if="${lockedGroupList.contains(group.id)}" class="sr-only" th:text="#{index.table.group.locked}"></span>
               <a th:if="${!lockedGroupList.contains(group.id)}" th:href="@{/group(groupId=${group.id})}" th:text="${group.title}"></a>
               <span th:if="${lockedGroupList.contains(group.id)}" th:text="${group.title}"></span>
             </td>
@@ -53,7 +54,8 @@
             <td class="hidden-xs" th:text="${groupMemberMap.get(group.id)}"></td>
             <td>
               <input th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="indexFunctions.checkSubmitButton();"/>
-              <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true" th:title="#{index.table.grouplocked}"></span>
+              <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true"></span>
+              <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="sr-only" th:text="#{index.table.group.locked}"></span>
             </td>
           </tr>
         </tbody>
