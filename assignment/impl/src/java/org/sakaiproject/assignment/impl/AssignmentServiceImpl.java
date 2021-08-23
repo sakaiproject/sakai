@@ -27,9 +27,11 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -3749,6 +3751,84 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    public String createContentReviewAssignment(Assignment assignment, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime) {
+        Map<String, Object> opts = new HashMap<>();
+        Map<String, String> p = assignment.getProperties();
+
+        opts.put("submit_papers_to", p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO));
+        opts.put("report_gen_speed", p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO));
+        opts.put("institution_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION)) ? "1" : "0");
+        opts.put("internet_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET)) ? "1" : "0");
+        opts.put("journal_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB)) ? "1" : "0");
+        opts.put("s_paper_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN)) ? "1" : "0");
+        opts.put("s_view_report", Boolean.valueOf(p.get("s_view_report")) ? "1" : "0");
+
+        if (serverConfigurationService.getBoolean("turnitin.option.exclude_bibliographic", true)) {
+            //we don't want to pass parameters if the user didn't get an option to set it
+            opts.put("exclude_biblio", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)) ? "1" : "0");
+        }
+        //Rely on the deprecated "turnitin.option.exclude_quoted" setting if set, otherwise use "contentreview.option.exclude_quoted"
+        boolean showExcludeQuoted = serverConfigurationService.getBoolean("turnitin.option.exclude_quoted", serverConfigurationService.getBoolean("contentreview.option.exclude_quoted", Boolean.TRUE));
+        if (showExcludeQuoted) {
+            opts.put("exclude_quoted", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)) ? "1" : "0");
+        } else {
+            Boolean defaultExcludeQuoted = serverConfigurationService.getBoolean("contentreview.option.exclude_quoted.default", true);
+            opts.put("exclude_quoted", defaultExcludeQuoted ? "1" : "0");
+        }
+
+        //exclude self plag
+        if (serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag", true)) {
+            opts.put("exclude_self_plag", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG)) ? "1" : "0");
+        } else {
+            Boolean defaultExcludeSelfPlag = serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag.default", true);
+            opts.put("exclude_self_plag", defaultExcludeSelfPlag ? "1" : "0");
+        }
+
+        //Store institutional Index
+        if (serverConfigurationService.getBoolean("contentreview.option.store_inst_index", true)) {
+            opts.put("store_inst_index", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)) ? "1" : "0");
+        } else {
+            Boolean defaultStoreInstIndex = serverConfigurationService.getBoolean("contentreview.option.store_inst_index.default", true);
+            opts.put("store_inst_index", defaultStoreInstIndex ? "1" : "0");
+        }
+
+        //Student preview
+        if (serverConfigurationService.getBoolean("contentreview.option.student_preview", false)) {
+            opts.put("student_preview", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW)) ? "1" : "0");
+        } else {
+            Boolean defaultStudentPreview = serverConfigurationService.getBoolean("contentreview.option.student_preview.default", false);
+            opts.put("student_preview", defaultStudentPreview ? "1" : "0");
+        }
+
+        int excludeType = Integer.parseInt(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE));
+        int excludeValue = Integer.parseInt(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE));
+        if ((excludeType == 1 || excludeType == 2)
+                && excludeValue >= 0 && excludeValue <= 100) {
+            opts.put("exclude_type", Integer.toString(excludeType));
+            opts.put("exclude_value", Integer.toString(excludeValue));
+        }
+        opts.put("late_accept_flag", "1");
+
+        SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
+        dform.applyPattern("yyyy-MM-dd HH:mm:ss");
+        opts.put("dtstart", dform.format(openTime.toEpochMilli()));
+        opts.put("dtdue", dform.format(dueTime.toEpochMilli()));
+        //opts.put("dtpost", dform.format(closeTime.getTime()));
+        opts.put("points", assignment.getMaxGradePoint());
+        opts.put("title", assignment.getTitle());
+        opts.put("instructions", assignment.getInstructions());
+        if (!assignment.getAttachments().isEmpty()) {
+            opts.put("attachments", new ArrayList<>(assignment.getAttachments()));
+        }
+        try {
+            contentReviewService.createAssignment(assignment.getContext(), assignmentRef, opts);
+            return "";
+        } catch (Exception e) {
+            log.error(e.toString());
+            return e.getMessage();
+        }
+    }
+
     @Override
     public String[] myToolIds() {
         return new String[] { "sakai.assignment", "sakai.assignment.grades" };
@@ -3886,9 +3966,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
-                    // review service
-                    nAssignment.setContentReview(oAssignment.getContentReview());
-
                     // attachments
                     Set<String> oAttachments = oAssignment.getAttachments();
                     for (String oAttachment : oAttachments) {
@@ -3985,6 +4062,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
                     if (StringUtils.isBlank(associatedGradebookAssignment)) {
                         // if the association property is empty then set gradebook integration to not integrated
                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
@@ -4011,15 +4089,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         = createCategoryForGbAssignmentIfNecessary(
                                             gbAssignment, oAssignment.getContext(), nAssignment.getContext());
 
-                                    String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
-
                                     gradebookExternalAssessmentService.addExternalAssessment(nAssignment.getContext()
-                                            , assignmentRef, null, nAssignment.getTitle()
+                                            , nAssignmentRef, null, nAssignment.getTitle()
                                             , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
                                             , Date.from(nAssignment.getDueDate()), this.getToolTitle()
                                             , null, false, categoryId.isPresent() ? categoryId.get() : null);
 
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, assignmentRef);
+                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
                                 }
                             } else {
                                 // if this is an external defined (came from assignment)
@@ -4069,6 +4145,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
 
                     updateAssignment(nAssignment);
+
+                    // review service
+                    if (oAssignment.getContentReview()) {
+                        nAssignment.setContentReview(true);
+                        String errorMsg = createContentReviewAssignment(nAssignment, nAssignmentRef, nAssignment.getOpenDate(), nAssignment.getDueDate(), nAssignment.getCloseDate());
+                        if (StringUtils.isNotBlank(errorMsg)) {
+                            log.warn("Error while copying old assignments and creating content review link: {}", errorMsg);
+                            nAssignment.setDraft(true);
+                            updateAssignment(nAssignment);
+                        }
+                    }
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);

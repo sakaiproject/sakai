@@ -810,4 +810,15 @@ public interface AssignmentService extends EntityProducer {
      * @return list of submission group users with multiple group memberships and the groups they belong to
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
+
+    /**
+     * Returns true if the content review implementation successfully created the assignment
+     * @param a
+     * @param assignmentRef
+     * @param openTime
+     * @param dueTime
+     * @param closeTime
+     * @return
+     */
+    public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
 }
