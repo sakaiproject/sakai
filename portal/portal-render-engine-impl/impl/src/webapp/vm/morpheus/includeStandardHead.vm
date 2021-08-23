@@ -76,6 +76,9 @@
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.24.0/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script>
+            moment.locale(window.portal.locale);
+        </script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
     #end
