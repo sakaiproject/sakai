@@ -562,15 +562,15 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
     private void sendPriorityEmail(String siteId, String postContent){
         try{
             Set<String> siteUserIds = siteService.getSite(siteId).getUsers();
-            Set<User> siteUsers = new HashSet<User>();  //will be list of users to email
+            Set<User> siteUsers = new HashSet<>();  //will be list of users to email
             for(String id: siteUserIds){
                 try{
                     siteUsers.add(userDirectoryService.getUser(id));
                 } catch (UserNotDefinedException u){
-                    log.error("No user found with ID " + id + " while sending Commons Priority email.");
+                    log.error("No user found with ID {} while sending Commons Priority email.", id);
                 }
             }
-            List<String> headers = new ArrayList<String>();
+            List<String> headers = new ArrayList<>();
             headers.add("Subject: " + rl.getFormattedMessage("priority_email_subject", siteService.getSite(siteId).getTitle()));
             headers.add("From: " + "\"" + userDirectoryService.getCurrentUser().getDisplayName() + "\" <" + userDirectoryService.getCurrentUser().getEmail() + ">");
             headers.add("Reply-To: " + userDirectoryService.getCurrentUser().getEmail());
@@ -583,7 +583,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             messageText.append("</em>");
             emailService.sendToUsers(siteUsers, headers, messageText.toString());
         } catch (IdUnusedException e){
-            log.error("Cannot send email; no site with ID " + siteId);
+            log.error("Cannot send email; no site with ID {}", siteId);
         }
     }
 }
