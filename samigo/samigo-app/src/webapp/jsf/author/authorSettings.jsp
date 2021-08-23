@@ -44,7 +44,6 @@
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
       <script src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
-      <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
 
