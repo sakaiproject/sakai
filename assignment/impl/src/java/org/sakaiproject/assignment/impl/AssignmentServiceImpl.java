@@ -3824,7 +3824,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             contentReviewService.createAssignment(assignment.getContext(), assignmentRef, opts);
             return "";
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
             return e.getMessage();
         }
     }
