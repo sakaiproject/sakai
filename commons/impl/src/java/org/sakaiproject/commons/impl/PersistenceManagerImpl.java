@@ -274,7 +274,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     return loadPostLikeFromResult(result);
                 }
         });
-        if(Collections.isEmpty(results)){
+        if (list != null && !list.isEmpty()){
             return null;
         }
         return results.get(0);
