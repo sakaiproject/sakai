@@ -304,7 +304,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
     public List<String> getAllPostLikes(Map<String, Object> params){
         String postId = (String) params.get("postId");
         List<PostLike> allLikes = commonsManager.getAllPostLikes(postId);
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for(PostLike like: allLikes){
             names.add(sakaiProxy.getDisplayNameForTheUser(like.getUserId()));
         }

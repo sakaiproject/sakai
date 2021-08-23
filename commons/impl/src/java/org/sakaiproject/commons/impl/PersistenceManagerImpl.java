@@ -274,7 +274,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     return loadPostLikeFromResult(result);
                 }
         });
-        if(results == null || results.size() == 0){
+        if(Collections.isEmpty(results)){
             return null;
         }
         return results.get(0);
@@ -295,10 +295,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
     public int doesUserLike(String postId, String userId){
         PostLike likeRecord = getLike(postId, userId);
-        if(likeRecord.isLiked()){
-            return 1;
-        }
-        return 0;
+        return likeRecord.isLiked() ? 1 : 0;
     }
 
     public List<PostLike> getAllUserLikes(String userId){
@@ -307,9 +304,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 return loadPostLikeFromResult(result);
             }
         });
-        if(results == null){
-            return null;
-        }
         return results;
     }
 
@@ -319,9 +313,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 return loadPostLikeFromResult(result);
             }
         });
-        if(results == null){
-            return null;
-        }
         return results;
     }
 

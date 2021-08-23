@@ -12,25 +12,14 @@ import org.w3c.dom.Element;
 import java.sql.Timestamp;
 import java.util.Stack;
 
+@Getter @Setter
 public class PostLike implements Entity {
 
-
-    @Getter @Setter
     private String id = "";
-
-    @Getter @Setter
     private String postId;
-
-    @Getter @Setter
     private String userId;
-
-    @Getter @Setter
     private boolean liked;
-
-    @Getter @Setter
     private Timestamp modified;
-
-    @Getter @Setter
     private String url;
 
     public ResourceProperties getProperties() {
