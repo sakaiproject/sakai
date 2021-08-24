@@ -14,9 +14,9 @@
         #end
     </ol>
     #if ($itemAlertMessage)
-        <div class="sak-banner-success">$itemAlertMessage</div>
+        <div  id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
     #else
-        <div class="sak-banner-error" style="display:none"></div>
+        <div  id="resourceAlert" class="sak-banner-error hide"></div>
     #end
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
