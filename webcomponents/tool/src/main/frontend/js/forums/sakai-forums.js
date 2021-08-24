@@ -156,7 +156,18 @@ export class SakaiForums extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
-
+        a {
+          color: var(--link-color);
+        }
+        a:hover { 
+          color: var(--link-hover-color);
+        }
+        a:active {
+          color: var(--link-active-color);
+        }
+        a:visited {
+          color: var(--link-visited-color);
+        }
         #options {
           margin-bottom: 8px;
           margin-top: 10px;
@@ -188,7 +199,7 @@ export class SakaiForums extends SakaiPageableElement {
           }
             .header a {
               text-decoration: none;
-              color: black;
+              color: var(--sakai-text-color-1, #000);
             }
           .cell {
             padding: 8px;

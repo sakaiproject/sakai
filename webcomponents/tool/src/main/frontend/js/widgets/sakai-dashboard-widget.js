@@ -146,7 +146,18 @@ export class SakaiDashboardWidget extends LitElement {
         :host {
           width: 100%;
         }
-
+        a {
+          color: var(--link-color);
+        }
+        a:hover { 
+          color: var(--link-hover-color);
+        }
+        a:active {
+          color: var(--link-active-color);
+        }
+        a:visited {
+          color: var(--link-visited-color);
+        }
         #topbar {
           display: flex;
           margin-top: 8px;
