@@ -48,6 +48,7 @@ import org.sakaiproject.commons.api.QueryBean;
 import org.sakaiproject.commons.api.SakaiProxy;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.commons.api.datamodel.PostsData;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -268,6 +269,46 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
         } else {
             return new ActionReturn("FAIL");
         }
+    }
+
+    @EntityCustomAction(action = "likePost", viewKey = EntityView.VIEW_NEW)
+    public ActionReturn handleLikePost(Map<String, Object> params){
+        String userId = getCheckedUser();
+        String postId = (String) params.get("postId");
+        boolean toggle = true;
+        commonsManager.likePost(postId, toggle, userId);
+        return new ActionReturn("SUCCESS");
+    }
+
+    @EntityCustomAction(action = "countLikes", viewKey = EntityView.VIEW_LIST)
+    public int countPostLikes(Map<String, Object> params){
+        String postId = (String) params.get("postId");
+        return commonsManager.countPostLikes(postId);
+    }
+
+    @EntityCustomAction(action = "doesLike", viewKey = EntityView.VIEW_LIST)
+    public int doesUserLike(Map<String, Object> params){
+        String userId = getCheckedUser();
+        String postId = (String) params.get("postId");
+        return commonsManager.doesUserLike(postId, userId);
+    }
+
+    @EntityCustomAction(action = "userLikes", viewKey = EntityView.VIEW_LIST)
+    public List<PostLike> getAllUserLikes(){
+        String userId = getCheckedUser();
+        List<PostLike> allLikes = commonsManager.getAllUserLikes(userId);
+        return allLikes;
+    }
+
+    @EntityCustomAction(action = "postLikes", viewKey = EntityView.VIEW_LIST)
+    public List<String> getAllPostLikes(Map<String, Object> params){
+        String postId = (String) params.get("postId");
+        List<PostLike> allLikes = commonsManager.getAllPostLikes(postId);
+        List<String> names = new ArrayList<>();
+        for(PostLike like: allLikes){
+            names.add(sakaiProxy.getDisplayNameForTheUser(like.getUserId()));
+        }
+        return names;
     }
 
     @EntityCustomAction(action = "deleteComment", viewKey = EntityView.VIEW_LIST)

@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 
@@ -40,6 +41,16 @@ public interface CommonsManager extends EntityProducer {
     public Post savePost(Post post);
 
     public boolean deletePost(String postId);
+
+    public boolean likePost(String postId, boolean toggle, String userId);
+
+    public int countPostLikes(String postId);
+
+    public int doesUserLike(String postId, String userId);
+
+    public List<PostLike> getAllUserLikes(String userId);
+
+    public List<PostLike> getAllPostLikes(String postId);
 
     public Optional<Comment> getComment(String commentId);
 
