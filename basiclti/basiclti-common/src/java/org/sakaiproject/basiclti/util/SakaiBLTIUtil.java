@@ -409,7 +409,7 @@ public class SakaiBLTIUtil {
 			}
 
 			// Never double encrypt
-			String check = decryptSecret(orig, encryptionKey);
+			String check = decryptSecret(orig, encryptionKey, true);
 			if ( ! orig.equals(check) ) {
 				return orig;
 			}
@@ -421,10 +421,10 @@ public class SakaiBLTIUtil {
 
 		public static String decryptSecret(String orig) {
 			String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
-			return decryptSecret(orig, encryptionKey);
+			return decryptSecret(orig, encryptionKey, false);
 		}
 
-		public static String decryptSecret(String orig, String encryptionKey) {
+		public static String decryptSecret(String orig, String encryptionKey, boolean checkonly) {
 			if (StringUtils.isEmpty(orig) || StringUtils.isEmpty(encryptionKey) ) {
 				return orig;
 			}
@@ -433,7 +433,7 @@ public class SakaiBLTIUtil {
 				String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
 				return newsecret;
 			} catch (RuntimeException re) {
-				log.debug("Exception when decrypting secret - this is normal if the secret is unencrypted");
+				if ( ! checkonly ) log.debug("Exception when decrypting secret - this is normal if the secret is unencrypted");
 				return orig;
 			}
 		}
@@ -3076,6 +3076,7 @@ public class SakaiBLTIUtil {
 	 * If it is zero, no rotation happens
 	 *
 	 */
+	// SAK-45491 - Support LTI 1.3 Key Rotation
 	public static void rotateToolKeys(Long toolKey, Map<String, Object> tool)
 	{
 		// Get services
@@ -3092,7 +3093,7 @@ public class SakaiBLTIUtil {
 
 		Map<String, Object> updates = new TreeMap<String, Object>();
 
-		// Generate new Keypair in case we update
+		// Generate next Keypair in case we update
 		KeyPair kp = LTI13Util.generateKeyPair();
 		String pub = LTI13Util.getPublicEncoded(kp);
 		String priv = LTI13Util.getPrivateEncoded(kp);
@@ -3100,7 +3101,6 @@ public class SakaiBLTIUtil {
 		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, pub);
 		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, priv);
 
-		Instant instant = Foorm.getInstantUTC(new java.util.Date());
 		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT, Foorm.now());
 		String siteId = null; // bypass
 
@@ -3118,10 +3118,11 @@ public class SakaiBLTIUtil {
 			// Should we rotate?
 			if ( ( days > 0 && deltaDays >= days ) || ( days < -1 && deltaMinutes >= (-1*days) ) ) {
 
-				// Only rotate next->current if next already had valid values
+				// Only rotate next->current if next already contains valid values
 				String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
 				String privateSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE_NEXT));
 				Key publicKeyNext = LTI13Util.string2PublicKey(publicSerializedNext);
+				// Key privateKeyNext = (privateSerializedNext == null) ? null : LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
 				Key privateKeyNext = LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
 
 				if ( publicKeyNext != null && privateKeyNext != null ) {
@@ -3130,13 +3131,15 @@ public class SakaiBLTIUtil {
 					updates.put(LTIService.LTI13_PLATFORM_PUBLIC, publicSerializedNext);
 					updates.put(LTIService.LTI13_PLATFORM_PRIVATE, privateSerializedNext);
 					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD, publicSerializedCurrent);
+					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD_AT, Foorm.now());
 				}
 
+				// If the next key is somehow broken, at least we update the next values
 				Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
 				if ( retval instanceof String) {
 					log.error("Could not update tool={} retval={}", toolKey, retval);
 				} else {
-					log.info("Rotated keys for tool={} days={}", toolKey, days);
+					log.info("Rotated keys for tool={} days={} delta={}", toolKey, days, deltaDays);
 				}
 			}
 		}
