@@ -1791,6 +1791,8 @@ GbGradeTable.setupToggleGradeItems = function() {
     var $group = $itemFilter.closest(".gb-item-filter-group");
     var $label = $group.find(".gb-item-category-filter label");
     var $input = $group.find(".gb-item-category-filter input");
+    const $hideThisCategory = $group.find(".gb-hide-this-category");
+    const $showThisCategory = $group.find(".gb-show-this-category");
 
     var checkedItemFilters = $group.find(".gb-item-filter :input:checked, .gb-item-category-score-filter :input:checked").length;
     var itemFilters = $group.find(".gb-item-filter :input, .gb-item-category-score-filter :input").length;
@@ -1800,16 +1802,19 @@ GbGradeTable.setupToggleGradeItems = function() {
       removeClass("off").
       find(".gb-filter-partial-signal").remove();
 
-    if (checkedItemFilters == 0) {
+    if (checkedItemFilters === 0) {
       $input.prop("checked", false);
       $label.addClass("off");
-    } else if (checkedItemFilters == itemFilters) {
+      $hideThisCategory.hide();
+    } else if (checkedItemFilters === itemFilters) {
       $input.prop("checked", true);
+      $showThisCategory.hide();
     } else {
       $input.prop("checked", false);
       $label.addClass("partial");
-      $label.find(".gb-item-filter-signal").
-        append($("<span>").addClass("gb-filter-partial-signal"));
+      $label.find(".gb-item-filter-signal").append($("<span>").addClass("gb-filter-partial-signal"));
+      $hideThisCategory.show();
+      $showThisCategory.show();
     }
   };
 
@@ -1886,6 +1891,10 @@ GbGradeTable.setupToggleGradeItems = function() {
         .attr("data-suppress-update-view-preferences", "true")
         .trigger("click");
 
+    // Everything in every category is shown, so we should hide the "show this category" menu options
+    $panel.find(".gb-show-this-category").hide();
+    $panel.find(".gb-hide-this-category").show();
+
     GbGradeTable.updateViewPreferences();
   };
 
@@ -1895,6 +1904,10 @@ GbGradeTable.setupToggleGradeItems = function() {
     $panel.find(".gb-item-filter :input:checked, .gb-item-category-score-filter :input:checked")
         .attr("data-suppress-update-view-preferences", "true")
         .trigger("click");
+
+    // Everything in every category is hidden, so we should hide the "hide this category" menu options
+    $panel.find(".gb-hide-this-category").hide();
+    $panel.find(".gb-show-this-category").show();
 
     GbGradeTable.updateViewPreferences();
   };
@@ -2041,8 +2054,17 @@ GbGradeTable.setupToggleGradeItems = function() {
         on("click", ".gb-toggle-this-category", function(event) {
           event.preventDefault();
 
-          var $filter = $(event.target).closest(".gb-item-category-filter");
-          $filter.find(":input").trigger("click");
+          const hide = event.target.className.includes("hide");
+          const $filter = $(event.target).closest(".gb-item-filter-group");
+          if (hide) {
+            $filter.find("div.gb-filter").not(".off").find(":input").trigger("click");
+            $filter.find(".gb-hide-this-category").hide();
+            $filter.find(".gb-show-this-category").show();
+          } else {
+            $filter.find("div.off").find(":input").trigger("click");
+            $filter.find(".gb-hide-this-category").show();
+            $filter.find(".gb-show-this-category").hide();
+          }
           $(this).focus();
         }).
         on("click", ".gb-toggle-this-item", function(event) {
