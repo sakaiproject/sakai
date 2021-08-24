@@ -32,6 +32,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -50,6 +53,7 @@ import org.sakaiproject.gradebookng.tool.component.GbStyleableWebMarkupContainer
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
+import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * Page to allow the user to select which items in the imported file are to be imported
@@ -299,6 +303,10 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 						} else {
 							gbItemWrap.removeStyle(GbStyle.SELECTED);
+							if (commentItem.isSelectable()) {
+								commentItem.setSelected(false);
+								commentWrap.removeStyle(GbStyle.SELECTED);
+							}
 						}
 						gbItemWrap.style();
 						commentWrap.style();
@@ -438,5 +446,14 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		rval.setType(Type.COMMENT);
 		rval.setStatus(Status.SKIP);
 		return rval;
+	}
+
+	@Override
+	public void renderHead(final IHeaderResponse response) {
+		super.renderHead(response);
+
+		final String version = PortalUtils.getCDNQuery();
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-import.js%s", version)));
+		response.render(OnDomReadyHeaderItem.forScript("$('#selectAllNone').click(function(){ GBI.selectAllNone(this); });"));
 	}
 }
