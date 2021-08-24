@@ -108,7 +108,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
         if(timeSheet!= null) {
-            sessionFactory.getCurrentSession().delete(sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheet.getId()));
+        	sessionFactory.getCurrentSession().delete(sessionFactory.getCurrentSession().merge(timeSheet));
         }
     }
 
