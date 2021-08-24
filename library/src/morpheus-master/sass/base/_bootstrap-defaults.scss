@@ -759,10 +759,9 @@ $panel-primary-text:          var(--sakai-text-color-1);
 // $panel-warning-border:        $state-warning-border
 // $panel-warning-heading-bg:    $state-warning-bg
 
-// $panel-danger-text:           $state-danger-text
-// $panel-danger-border:         $state-danger-border
-// $panel-danger-heading-bg:     $state-danger-bg
-
+$panel-danger-text:           var(--errorBanner-color);
+$panel-danger-border:         var(--errorBanner-bordercolor);
+$panel-danger-heading-bg:     var(--errorBanner-bgcolor);
 
 //== Thumbnails
 //
