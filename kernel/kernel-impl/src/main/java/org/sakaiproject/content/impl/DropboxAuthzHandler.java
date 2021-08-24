@@ -71,7 +71,7 @@ public class DropboxAuthzHandler
 			return true;
 		}
 
-		lock = convertLockToDropbox(lock);
+		String dropboxLock = convertLockToDropbox(lock);
 
 		/*
 		 * Dropbox entity format:
@@ -100,7 +100,7 @@ public class DropboxAuthzHandler
 		if (parts.length == 3)
 		{
 			// It's the site dropbox (/group-user/siteId)
-			return isAuthorizedOnSiteDropbox(lock, siteId);
+			return isAuthorizedOnSiteDropbox(dropboxLock, siteId);
 		}
 
 		if (canMaintainEntity(id))
@@ -108,9 +108,9 @@ public class DropboxAuthzHandler
 			if (parts.length == 4 && userExists(getDropboxOwner(id)))
 			{
 				// It's a user's dropbox, don't allow destructive permissions
-				return isAuthorizedOnEntity(lock, id, false);
+				return isAuthorizedOnEntity(dropboxLock, id, false);
 			}
-			return isAuthorizedOnEntity(lock, id, true);
+			return isAuthorizedOnEntity(dropboxLock, id, true);
 		}
 
 		return false;
@@ -131,6 +131,7 @@ public class DropboxAuthzHandler
 				return ContentHostingService.AUTH_DROPBOX_REMOVE_ANY;
 			case ContentHostingService.AUTH_RESOURCE_REMOVE_OWN:
 				return ContentHostingService.AUTH_DROPBOX_REMOVE_OWN;
+			default:
 		}
 		return lock;
 	}

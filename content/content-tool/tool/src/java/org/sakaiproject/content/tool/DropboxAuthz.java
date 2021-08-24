@@ -343,7 +343,6 @@ public class DropboxAuthz
 	 */
 	private boolean canMaintainEntity(String entityId)
 	{
-		ContentHostingService contentService = getContentHostingService();
 		if (isSuperUser)
 		{
 			return true;
