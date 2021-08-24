@@ -4036,28 +4036,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
                             nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
                         }
-
-                        String openDateAnnounced = StringUtils.trimToNull(oProperties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-                        String fromAnnouncementId = StringUtils.trimToNull(oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
-                        AnnouncementChannel fromChannel = getAnnouncementChannel(oAssignment.getContext());
-                        if (fromChannel != null && fromAnnouncementId != null) {
-                            AnnouncementMessage fromAnnouncement = fromChannel.getAnnouncementMessage(fromAnnouncementId);
-                            AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
-                            if (toChannel == null) {
-                                // Create the announcement channel
-                                String toChannelId = announcementService.channelReference(nAssignment.getContext(), siteService.MAIN_CONTAINER);
-                                announcementService.commitChannel(announcementService.addAnnouncementChannel(toChannelId));
-                                toChannel = getAnnouncementChannel(nAssignment.getContext());
-                            }
-                            AnnouncementMessage toAnnouncement
-                                = toChannel.addAnnouncementMessage(fromAnnouncement.getAnnouncementHeader().getSubject()
-                                    , fromAnnouncement.getAnnouncementHeader().getDraft()
-                                    , fromAnnouncement.getAnnouncementHeader().getAttachments()
-                                    , fromAnnouncement.getBody());
-                            nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-                            nProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, toAnnouncement.getId());
-                            nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
-                        }
                     }
 
                     // gradebook-integration link
