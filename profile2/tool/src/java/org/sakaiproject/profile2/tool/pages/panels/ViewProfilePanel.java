@@ -464,7 +464,7 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_socialNetworking++;
 		}
 		
-		//Instagram
+		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
 		myspaceContainer.add(new ExternalLink("myspaceLink", myspaceUsername, myspaceUsername));
@@ -475,7 +475,7 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_socialNetworking++;
 		}
 		
-		//myspace
+		//Instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
 				instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
 				instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
