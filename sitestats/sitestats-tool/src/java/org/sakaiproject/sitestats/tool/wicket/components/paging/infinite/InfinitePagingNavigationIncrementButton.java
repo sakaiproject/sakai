@@ -18,7 +18,7 @@ package org.sakaiproject.sitestats.tool.wicket.components.paging.infinite;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
-import org.sakaiproject.sitestats.tool.wicket.components.SakaiAjaxButton;
+import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 /**
  * Button for navigating between pages of the SakaiInfinitePagingDataTable

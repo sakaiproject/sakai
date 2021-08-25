@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2018 The Apereo Foundation
+ * Copyright (c) 2006-2021 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.sitestats.tool.wicket.components;
+package org.sakaiproject.wicket.component;
 
 import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.form.Form;
  */
 public class SakaiAjaxButton extends AjaxButton
 {
+	private static final long serialVersionUID = 1L;
 	protected boolean willRenderOnClick = false;
 
 	public SakaiAjaxButton(String id) {
