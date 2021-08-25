@@ -665,7 +665,7 @@ sakai-rubric-student-comment {
 }
 
 .rubrics-tab-button {
-    border: 1px solid lightgrey;
+    border: 1px solid var(--sakai-border-color);
     width: 14em;
     padding: 8px;
     display: inline-block;
@@ -681,24 +681,24 @@ sakai-rubric-student-comment {
     margin-bottom: 1em;
 }
 
-.rubrics-tab-selected {
+a.rubrics-tab-selected {
     border-bottom:none;
     background: #fff;
     pointer-events: none;
-    text-decoration: none !important;
+    text-decoration: none;
     &:hover{
         cursor: default;
     }
 }
 
-.rubrics-summary-average-cell {
-    border-left-style: double !important;
-    border-left-width: 3px !important;
+table#student-summary>tfoot>tr>td.rubrics-summary-average-cell, table#student-summary>thead>tr>th.rubrics-summary-average-cell, table#student-summary>tbody>tr>td.rubrics-summary-average-cell {
+    border-left-style: double;
+    border-left-width: 3px;
 }
 
-.rubrics-summary-average-row {
-    border-top-style: double !important;
-    border-top-width: 3px !important;
+table#student-summary>tfoot>tr>td.rubrics-summary-average-row, table#student-summary>tfoot>tr>th.rubrics-summary-average-row {
+    border-top-style: double;
+    border-top-width: 3px;
 }
 
 .summary-rating-name{
