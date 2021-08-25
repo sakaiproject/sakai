@@ -31,18 +31,13 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.context.ExternalContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -65,9 +60,9 @@ public class DownloadFileSubmissionsBean implements Serializable {
 	private List<SelectItem> availableSectionItems;
 	private String publishedAssessmentId;
 	private HashMap<String, String> sectionUuidNameMap;
-	public static String SELECTED_SECTIONS_GROUPS = "sections";
-	public static String ONE_SECTION_GROUP = "one";
-	public static String SITE = "site";
+	public static final String SELECTED_SECTIONS_GROUPS = "sections";
+	public static final String ONE_SECTION_GROUP = "one";
+	public static final String SITE = "site";
 
 	/**
 	 * Creates a new TotalScoresBean object.

@@ -28,14 +28,14 @@ public class ExternalImage extends WebComponent {
 
 	public ExternalImage(String id, String imageUrl) {
 	    super(id);
-	    add(new AttributeModifier("src", true, new Model(imageUrl)));
+	    add(new AttributeModifier("src", new Model(imageUrl)));
 	    setVisible(!(imageUrl==null || imageUrl.equals("")));
 	}
 
 	protected void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
 		checkComponentTag(tag, "img");
-		tag.addBehavior(new AttributeModifier("id", true, new Model(getMarkupId())));
+		tag.addBehavior(new AttributeModifier("id", new Model(getMarkupId())));
 	}
 
 }

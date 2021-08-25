@@ -26,10 +26,10 @@ package org.sakaiproject.tool.assessment.data.ifc.assessment;
 public interface SectionMetaDataIfc
     extends java.io.Serializable
 {
-  public static String KEYWORDS = "SECTION_KEYWORDS";
-  public static String OBJECTIVES = "SECTION_OBJECTIVES";
-  public static String RUBRICS = "SECTION_RUBRICS";
-  public static String ATTACHMENTS = "ATTACHMENTS";
+  public static final String KEYWORDS = "SECTION_KEYWORDS";
+  public static final String OBJECTIVES = "SECTION_OBJECTIVES";
+  public static final String RUBRICS = "SECTION_RUBRICS";
+  public static final String ATTACHMENTS = "ATTACHMENTS";
   
   Long getId();
 

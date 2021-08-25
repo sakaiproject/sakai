@@ -23,6 +23,7 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
  */
 public abstract class AbstractSakaiSpinnerAjaxCallListener extends AjaxCallListener
 {
+	private static final long serialVersionUID = 1L;
 	protected static final String SPINNER_CLASS = "spinButton";
 	protected static final String DISABLED = "$('#%s').prop('disabled', true);";
 	protected static final String ENABLED = "$('#%s').prop('disabled', false);";

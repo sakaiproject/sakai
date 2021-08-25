@@ -43,10 +43,6 @@ public class WidgetApplication extends WebApplication {
         // Remove the wicket specific tags from the generated markup
         getMarkupSettings().setStripWicketTags(true);
 
-        // Don't add any extra tags around a disabled link (default is <em></em>)
-        getMarkupSettings().setDefaultBeforeDisabledLink(null);
-        getMarkupSettings().setDefaultAfterDisabledLink(null);
-
         // On Wicket session timeout, redirect to main page
         getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 
@@ -59,7 +55,7 @@ public class WidgetApplication extends WebApplication {
         // When rendered inline, the URLs these generate are incorrect - the context path is /page/ instead of the webapp name.
         // However it is cleaner if we just handle this manually in the page
         getJavaScriptLibrarySettings().setJQueryReference(new UrlResourceReference(Url.parse("/sitedescription/scripts/wicket/empty.js")));
-        getJavaScriptLibrarySettings().setWicketEventReference(new UrlResourceReference(Url.parse("/sitedescription/scripts/wicket/empty.js")));
+        getJavaScriptLibrarySettings().setWicketAjaxReference(new UrlResourceReference(Url.parse("/sitedescription/scripts/wicket/empty.js")));
 
         // to put this app into deployment mode, see web.xml
     }

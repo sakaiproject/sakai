@@ -173,6 +173,7 @@ public class GradebookPage extends BasePage {
 		 */
 		this.addOrEditGradeItemWindow = new GbModalWindow("addOrEditGradeItemWindow");
 		this.addOrEditGradeItemWindow.showUnloadConfirmation(false);
+		this.addOrEditGradeItemWindow.setCssClassName("modal-add-or-edit-gbitem");
 		this.form.add(this.addOrEditGradeItemWindow);
 
 		this.studentGradeSummaryWindow = new GbModalWindow("studentGradeSummaryWindow");

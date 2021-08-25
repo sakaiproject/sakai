@@ -130,6 +130,9 @@
                 $tlang.getString('confirm.savesubmission.include')
             #end
         </h4>
+
+        #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
         ## only show the following section if text submission is allowed
         #if (!$!attachmentSubmissionOnly)
         ## submission text

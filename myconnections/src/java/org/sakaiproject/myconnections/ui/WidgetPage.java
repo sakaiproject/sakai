@@ -33,6 +33,7 @@ import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -134,7 +135,8 @@ public class WidgetPage extends WebPage {
 
 		// add connections grid or label
 		if (!finalList.isEmpty()) {
-			add(new ConnectionsGrid("connections", Model.ofList(finalList), cols));
+			IModel<List<GridPerson>> list = Model.ofList(finalList);
+			add(new ConnectionsGrid("connections", list, cols));
 		} else {
 			add(new Label("connections", new ResourceModel("label.noconnections"))
 					.add(new AttributeAppender("class", "instruction")));

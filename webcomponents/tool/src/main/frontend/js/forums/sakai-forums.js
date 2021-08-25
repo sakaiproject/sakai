@@ -105,7 +105,7 @@ export class SakaiForums extends SakaiPageableElement {
         <label for="options-checkbox">${this.i18n["syn_options"]}</label>
       </div>
       <div class="messages ${this.messagesClass}">
-        ${this.showOptions ? html`<div class="header">Hide</div>` : ""}
+        ${this.showOptions ? html`<div class="header">${this.i18n["syn_hide"]}</div>` : ""}
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortByMessages}

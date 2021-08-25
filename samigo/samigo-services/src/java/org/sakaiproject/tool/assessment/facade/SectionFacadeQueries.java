@@ -84,8 +84,8 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     
     final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery(query);
-        q.setLong("id", sectionId);
-        q.setString("label", label);
+        q.setParameter("id", sectionId);
+        q.setParameter("label", label);
         return q.list();
     };
     List sectionmetadatalist = getHibernateTemplate().execute(hcb);

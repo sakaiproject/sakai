@@ -202,6 +202,7 @@ roster.switchState = function (state, args) {
 
       $('#roster-roles-selector').change(function (e) {
 
+        $('#roster-search-field').val('');
         roster.roleToView = (this.value === 'all') ? null : this.value;
         roster.renderMembership({ replace: true});
       });
@@ -329,15 +330,17 @@ roster.renderMembership = function (options) {
     } else {
       url += 'page=' + roster.nextPage;
     }
-    if (roster.groupToView) {
-      url += "&groupId=" + roster.groupToView;
-    } else if (roster.enrollmentSetToView) {
+    if (roster.enrollmentSetToView) {
       url += "&enrollmentSetId=" + roster.enrollmentSetToView;
     }
-
-    if (roster.roleToView) {
-      url += "&roleId=" + encodeURIComponent(roster.roleToView);
-    }
+  }
+  
+  if (roster.groupToView) {
+    url += "&groupId=" + roster.groupToView;
+  }
+  
+  if (roster.roleToView) {
+    url += "&roleId=" + encodeURIComponent(roster.roleToView);
   }
 
   if (roster.enrollmentStatus) {
@@ -472,7 +475,16 @@ roster.renderMembership = function (options) {
       });
     },
     error: function (jqXHR, textStatus, errorThrown) {
-      console.log('Failed to get membership data. textStatus: ' + textStatus + '. errorThrown: ' + errorThrown);
+      if(jqXHR.status === 404){
+        loadImage.hide();
+        if (roster.nextPage === 0) {
+          var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+          $('#roster-members-total').html(membersTotalString);
+          $('#roster-role-totals').html('');
+        }
+      } else {
+        console.log('Failed to get membership data. textStatus: ' + textStatus + '. errorThrown: ' + errorThrown);
+      }
     }
   });
 };
@@ -500,10 +512,9 @@ roster.search = function (query) {
       }
       i++;
     });
-
-    if (userIds.length > 5) {
-      // Limit to 5 users
-      userIds = userIds.slice(0, 5);
+    //if query string is too short, show 20 users as much
+    if (query.length < 3 && userIds.length > 20) {
+      userIds = userIds.slice(0, 20);
     }
 
     if (userIds.length > 0) {

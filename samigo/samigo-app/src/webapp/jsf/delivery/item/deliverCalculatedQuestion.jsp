@@ -35,7 +35,9 @@ should be included in file importing DeliveryMessages
 
 <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false" />
+      <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false" >
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+      </h:outputText>
       <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
@@ -49,7 +51,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>      
       <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
         <h:outputLabel styleClass="sr-only" for="calcq" value="#{deliveryMessages.calcq_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.calcq_sr_answer_label_part2}" />
-        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="calcq" />
+        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="calcq" styleClass="calculatedQuestionInput" />
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
          value="#{answer.response}"/>
@@ -95,3 +97,8 @@ should be included in file importing DeliveryMessages
       escape="false" />
   </h:panelGroup>
 </h:panelGroup>
+
+<script>
+var calcqFormatError = '<h:outputText value="#{deliveryMessages.calcq_invalid_characters_error}" escape="false"/>';
+</script>
+<script src="/samigo-app/js/calcQuestInputValidator.js"></script>  

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -482,19 +481,28 @@ public class JoinableSiteSettings
 	}
 	
 	/**
-	 * Filter the given list of sites, taking into account the site's setting for the 'exclude from
-	 * public list' joinable site setting, and the master toggle.
+	 * Filter the given list of sites, taking into account:
+	 * 1) If the user is already a member of the site but marked as inactive, the site should not appear in the list of joinable sits
+	 * 2) The master toggle determining if sites can be excluded from the public listing
+	 * 3) the site's setting for the 'exclude from public list' joinable site setting
 	 * 
 	 * @param sites
 	 * 				the list of sites to filter
-	 * @return status (true/false)
 	 */
-	public static boolean filterSitesListForMembership( List<Site> sites )
+	public static void filterSitesListForMembership( List<Site> sites )
 	{
+		// Filter out any sites the user is already a member of, but set as inactive
+		User currentUser = userDirectoryService.getCurrentUser();
+		if( currentUser != null && StringUtils.isNotBlank( currentUser.getId() ) )
+		{
+			String userUUID = currentUser.getId();
+			sites.removeIf( s -> s.getMember( userUUID ) != null && !s.getMember( userUUID ).isActive());
+		}
+
 		// If the exclude from public list setting is disabled globally, don't do anything to the list (no filter)
 		if( !siteService.isGlobalJoinExcludedFromPublicListEnabled() )
 		{
-			return false;
+			return;
 		}
 		
 		// Otherwise remove any sites that have the exclude from public list setting enabled
@@ -513,8 +521,6 @@ public class JoinableSiteSettings
 				}
 			}
 		}
-		
-		return true;
 	}
 	
 	/***********************************************************************************************

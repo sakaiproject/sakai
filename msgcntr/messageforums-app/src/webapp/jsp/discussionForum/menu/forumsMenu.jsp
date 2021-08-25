@@ -18,7 +18,7 @@
   <ul class="navIntraTool actionToolbar" role="menu">
     <li role="menuitem">
       <span id="forumsMainMenuLink">
-        <h:commandLink value="#{msgs.cdfm_discussion_forums}" action="forumsMain" immediate="true"/>
+        <h:commandLink value="#{msgs.cdfm_discussions}" action="forumsMain" immediate="true"/>
       </span>
     </li>
     <h:panelGroup rendered="#{ForumTool.newForum}">

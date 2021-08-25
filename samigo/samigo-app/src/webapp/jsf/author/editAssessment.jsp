@@ -321,7 +321,7 @@ $(window).load( function() {
         <!-- each selectItem stores the itemtype, current sequence -->
         <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
+             <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
         </h:selectOneMenu>
       </div>
     </div>
@@ -464,7 +464,7 @@ $(window).load( function() {
           <!-- each selectItem stores the itemtype, current sequence -->
           <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-            <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
+            <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
           </h:selectOneMenu>
           <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
             <f:param name="itemSequence" value="#{question.itemData.sequence}"/>

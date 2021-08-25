@@ -123,9 +123,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.sanselan</groupId>
-      <artifactId>sanselan</artifactId>
-      <version>0.97-incubator</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-imaging</artifactId>
+      <version>1.0-alpha2</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jtidy</groupId>

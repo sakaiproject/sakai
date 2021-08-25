@@ -39,7 +39,6 @@
       <script src="/sakai-editor/editor.js"></script>
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
-      <script src="/samigo-app/js/finInputValidator.js"></script>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
@@ -250,6 +249,8 @@ document.links[newindex].onclick();
 <h:inputHidden id="formatByAssessment" value="#{delivery.settings.formatByAssessment}"/>
 <h:inputHidden id="lastSubmittedDate1" value="#{delivery.assessmentGrading.submittedDate.time}" 
    rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
+<h:inputHidden id="lastSubmittedDateStr" value="#{delivery.submittedDateString}"
+   rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
@@ -306,7 +307,9 @@ document.links[newindex].onclick();
     </h4>
     <h4 class="tier1">
         <small class="part-text">
-            <h:outputText value="#{part.description}" escape="false"/>
+            <h:outputText value="#{part.description}" escape="false">
+              <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
         </small>
     </h4>
 
@@ -458,6 +461,10 @@ document.links[newindex].onclick();
 </h:panelGroup>
 
   <f:verbatim><br/></f:verbatim>
+  <div role="alert" aria-live="polite" aria-atomic="true">
+    <span id="autosave-msg"><h:outputText value="#{deliveryMessages.autosaving}"/></span>
+    <span id="autosave-lasttime-msg"><h:outputText value="#{deliveryMessages.autosaveTime}"/> <span id="autosave-lasttime"></span></span>
+  </div>
 
 <!-- 1. special case: linear + no question to answer -->
 <h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">

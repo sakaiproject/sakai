@@ -350,7 +350,7 @@ public class SelectActionListener implements ActionListener {
     
     /// --mustansar
     List reviewableList=new ArrayList();
-    List recordedList=new ArrayList();
+    List<DeliveryBeanie> recordedList=new ArrayList<>();
     Iterator it=submittedAssessmentGradingList.iterator();
     String assessmentIdNew="";
     while(it.hasNext()){
@@ -413,7 +413,9 @@ public class SelectActionListener implements ActionListener {
     		reviewableList.add(beanie);
     	}  
     }
-    
+
+    // display warning legend if any quizzes have been marked as modified in the review section
+    select.setHasAnyAssessmentBeenModified(recordedList.stream().anyMatch(db -> db.getHasAssessmentBeenModified()));
     
     if ("2".equals(select.getDisplayAllAssessments())){
     	submittedAssessmentGradingList=reviewableList;    
@@ -834,7 +836,6 @@ public class SelectActionListener implements ActionListener {
 	    		log.debug("AssessmentGradingId = " + g.getAssessmentGradingId());
 	    		log.debug("LastModifiedDate = " + p.getLastModifiedDate());
 	    		log.debug("SubmittedDate = " + g.getSubmittedDate());
-	    		select.setHasAnyAssessmentBeenModified(true);
 	    		return true;
 	    	}
 	    }

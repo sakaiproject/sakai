@@ -16,7 +16,6 @@
 package org.sakaiproject.profile2.logic;
 
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.types.PreferenceType;
 import org.sakaiproject.profile2.types.PrivacyType;
 
 /**

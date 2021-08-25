@@ -68,7 +68,7 @@ public class SubmissionStatusListener
   implements ActionListener, ValueChangeListener
 {
   //private static EvaluationListenerUtil util;
-  private static BeanSort bs;
+  private BeanSort bs;
   //private static ContextUtil cu;
 
   /**

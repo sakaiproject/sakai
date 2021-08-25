@@ -453,9 +453,4 @@
 		</div>
 		<div style="clear:both"> </div>
 		#end
-	#if ($!viewRoster && !$!isMyWorkspace) 
-		<div class="sak-banner-info"> 
-			$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
-		</div>
-	#end
 </div>

@@ -22,10 +22,14 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.IModel;
-import org.sakaiproject.util.Web;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.util.api.FormattedText;
 
-public class CHResourceModel implements IModel {
-	private static final long	serialVersionUID	= 1L;
+public class CHResourceModel implements IModel<Object> {
+	private static final long serialVersionUID = 1L;
+	
+	@SpringBean(name = "org.sakaiproject.util.api.FormattedText")
+	private FormattedText formattedText;
 	
 	String resourceId = null;
 	String resourceName = null;
@@ -59,7 +63,7 @@ public class CHResourceModel implements IModel {
 	}
 	
 	public String getResourceNameEscaped() {
-		return Web.escapeHtml(getResourceName());
+		return formattedText.escapeHtml(getResourceName());
 	}
 	
 	public boolean isCollection() {

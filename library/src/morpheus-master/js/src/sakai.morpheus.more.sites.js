@@ -313,10 +313,6 @@ $PBJQ(document).ready(function(){
     $PBJQ('#txtSearch').focus();
   }
 
-  $PBJQ('#otherSiteSearchClear').on('click', function () {
-      resetSearch();
-  });
-
   //toggle presence panel
   $PBJQ("#presenceToggle").click(function(e){
     e.preventDefault();

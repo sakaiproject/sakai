@@ -491,7 +491,7 @@ public interface AssignmentService extends EntityProducer {
      * @param submissionId
      * @return
      */
-    public AssignmentConstants.SubmissionStatus getSubmissionCannonicalStatus(AssignmentSubmission s);
+    AssignmentConstants.SubmissionStatus getSubmissionCanonicalStatus(AssignmentSubmission submission, boolean canGrade);
 
     /**
      * @param submissionId
@@ -758,10 +758,16 @@ public interface AssignmentService extends EntityProducer {
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
-    * This will return the internationalized title of the tool.
-    * This is used when creating a new gradebook item.
-    */
+     * This will return the internationalized title of the tool.
+     * This is used when creating a new gradebook item.
+     */
     public String getToolTitle();
+
+    /**
+     * This will return the reference removing from it the auxiliar prefix.
+     * This is used when interacting with the ContentHostingService.
+     */
+    public String removeReferencePrefix(String referenceId);
 
     String getUsersLocalDateTimeString(Instant date);
 
@@ -805,14 +811,25 @@ public interface AssignmentService extends EntityProducer {
      * @return list of submission group users with multiple group memberships and the groups they belong to
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
+
     public boolean correctTime(String timeSheet);
 
-	public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
+    public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
 
-	public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
+    public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
 	
-	public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+    public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
 
-	public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+    public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
 
+    /**
+     * Returns true if the content review implementation successfully created the assignment
+     * @param a
+     * @param assignmentRef
+     * @param openTime
+     * @param dueTime
+     * @param closeTime
+     * @return
+     */
+    public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
 }

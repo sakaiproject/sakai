@@ -21,16 +21,21 @@ function printView(url) {
 
 <div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
-	<div class="page-header">
-		<h1>
-		$formattedText.escapeHtml($assignment.Title)
-		<small>
-		#if ($!assignment.IsGroup )
-			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
-		#end
-		  - $tlang.getString('gen.subm2')
-		</small>
-		</h1>
+	<div id="assignment-header">
+		<div class="page-header">
+			<h1>
+			$formattedText.escapeHtml($assignment.Title)
+			<small>
+			#if ($!assignment.IsGroup )
+				<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
+			#end
+			  - $tlang.getString('gen.subm2')
+			</small>
+			</h1>
+		</div>
+		<div>
+			<grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></grader-toggle>
+		</div>
 	</div>
 
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
@@ -54,8 +59,18 @@ function printView(url) {
 			#if(!$disableGrade)
 				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
+					<div class="form-group">
+						<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
 					##for non-point-based grading, choose the default grade from drop-down
+						<div>
+							<label class="textPanelFooter">
+								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")
+							</label>
+							<label class="textPanelFooter">
+								<input type="checkbox" checked="checked" name="notSubmit" value="true"/>$tlang.getString("defaultGrade.notSubmit")<br/>
+							</label>
+						</div>
+					</div>
 					#if ($!gradeType != 3)
 						<select id="defaultGrade_1" name="defaultGrade" size="1" >
 							<option value="">$tlang.getString("non.submission.grade.select")</option>
@@ -80,7 +95,6 @@ function printView(url) {
 					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-				<grader-toggle #if(!$useGraderByDefault)unchecked-by-default#end tool="assignments"></grader-toggle>
 			#end
 			</div>
 		</div>
@@ -418,6 +432,7 @@ function printView(url) {
 					#end
 					#if ($!submission)## && $submission.submitted)
 						## SAK-17606
+						#set($submissionId = $submission.Id)
 						#set($anonymousSubmissionId = $submission.getId() + ' ' + ($tlang.getString("grading.anonymous.title")))
 
 						<tr>
@@ -434,13 +449,6 @@ function printView(url) {
 							</td>
 							<td headers="studentname">
 								#if ($taggable)
-									#if (!$!submission.submitted)
-										#set($submittedText = $!submission.submittedText)
-										#set($submittedAttachments = $submission.Attachments)
-										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
-										#end
-									#end
-									
 									#if ($value_CheckAnonymousGrading)
 										$anonymousSubmissionId
 									#else
@@ -482,13 +490,6 @@ function printView(url) {
 								#else
 									#if(!$disableGrade)
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
-											#if (!$!submission.submitted)
-												#set($submittedText = $!submission.submittedText)
-												#set($submittedAttachments = $submission.Attachments)
-												#if ($submittedText && !$submittedText.isEmpty() || $!submittedAttachments.size() > 0 )
-												#end
-											#end
-											
 											#if ($value_CheckAnonymousGrading)
 												$anonymousSubmissionId
 											#else
@@ -529,11 +530,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								#if ($!submission && $submission.submitted)
-									$!service.getSubmissionStatus($submission.Id)
-								#elseif (!$!submission.submitted)
-										$tlang.getString("listsub.nosub")
-								#end
+								$!service.getSubmissionStatus($!submissionId)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>

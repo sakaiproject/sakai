@@ -279,6 +279,9 @@
                     <p class="sak-banner-warn-inline">$tlang.getString("gradingsub.nosubmittedtext")</p>
                 #end
             #end
+
+            #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
             ## for returned submission, show the instructor comment as well
             #if ($!prevFeedbackText)
                 <h4 id="toggleInline" class="toggleAnchor specialLink">

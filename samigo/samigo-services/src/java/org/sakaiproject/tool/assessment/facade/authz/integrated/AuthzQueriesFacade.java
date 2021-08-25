@@ -89,8 +89,8 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   {
     final HibernateCallback<List<AuthorizationData>> hcb = session -> session
             .createQuery("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id")
-            .setString("fid", functionId)
-            .setString("id", qualifierId)
+            .setParameter("fid", functionId)
+            .setParameter("id", qualifierId)
             .list();
     List<AuthorizationData> authorizationList = getHibernateTemplate().execute(hcb);
 
@@ -135,12 +135,12 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     HibernateCallback hcb = session -> {
       Query query = session.createQuery(HQL_QUERY_CHECK_AUTHZ);
       if(agentId == null) {
-        query.setString("agentId", queryAgentId);
+        query.setParameter("agentId", queryAgentId);
       } else {
-        query.setString("agentId", agentId);
+        query.setParameter("agentId", agentId);
       }
-      query.setString("functionId", functionId);
-      query.setString("qualifierId", qualifierId);
+      query.setParameter("functionId", functionId);
+      query.setParameter("qualifierId", qualifierId);
       return query.uniqueResult();
     };
     Object result = getHibernateTemplate().execute(hcb);
@@ -185,8 +185,8 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     }
     HibernateCallback<List<AuthorizationData>> hcb = session -> {
       Query query = session.createQuery(HQL_QUERY_BY_AGENT_FUNC);
-      query.setString("agentId", agentId);
-      query.setString("functionId", functionId);
+      query.setParameter("agentId", agentId);
+      query.setParameter("functionId", functionId);
       return query.list();
     };
     List<AuthorizationData> returnList = getHibernateTemplate().execute(hcb);
@@ -207,8 +207,8 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
     }
     HibernateCallback<List<AssessmentBaseData>> hcb = session -> {
       Query query = session.createQuery(HQL_QUERY_ASSESS_BY_AGENT_FUNC);
-      query.setString("agentId", agentId);
-      query.setString("functionId", functionId);
+      query.setParameter("agentId", agentId);
+      query.setParameter("functionId", functionId);
       return query.list();
     };
     return getHibernateTemplate().execute(hcb);
@@ -278,8 +278,8 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
     HibernateCallback<List<AuthorizationData>> hcb = session -> session
             .createQuery("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id")
-            .setString("fid", functionId)
-            .setString("id", qualifierId)
+            .setParameter("fid", functionId)
+            .setParameter("id", qualifierId)
             .list();
     return getHibernateTemplate().execute(hcb);
   }

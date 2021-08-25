@@ -3123,7 +3123,11 @@ function checkEditTitleForm() {
 	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
 		$('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
 		$('#edit-title-error-container').show();
-	}else {
+	} else if(/[\[\]{}\\|\^\`]/.test($('#pageTitle').val())) {
+		$('#edit-title-error').text(msg("simplepage.subpage_invalid_chars"));
+		$('#edit-title-error-container').show();
+		return false;
+	} else {
 		$('#edit-title-error-container').hide();
 		if ($("#page-releasedate").prop('checked'))
 		    $("#release_date_string").val($("#releaseDateISO8601").val());

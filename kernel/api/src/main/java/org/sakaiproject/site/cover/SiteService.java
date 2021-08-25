@@ -608,4 +608,15 @@ public class SiteService
 
 		return service.validateSiteTitle(orig, stripped);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static boolean isStealthedToolPresent(Site site, String toolID)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) { return false; }
+
+		return service.isStealthedToolPresent(site, toolID);
+	}
 }

@@ -24,7 +24,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 
 
 public class ServerWideModel extends Model {
-	private static final long	serialVersionUID		= 1L;
+	private static final long serialVersionUID = 1L;
 	public static final String	MONTHLY_LOGIN_REPORT	= StatsManager.MONTHLY_LOGIN_REPORT;
 	public static final String	WEEKLY_LOGIN_REPORT		= StatsManager.WEEKLY_LOGIN_REPORT;
 	public static final String	DAILY_LOGIN_REPORT		= StatsManager.DAILY_LOGIN_REPORT;

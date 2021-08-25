@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.contentpackaging;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
@@ -29,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -58,7 +56,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -72,13 +69,13 @@ import org.xml.sax.SAXException;
 public class ManifestGenerator {
 
 	/**default namespace and metadata namespace*/
-	private static String DEFAULT_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscp_v1p1";
-	private static String DEFAULT_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imscp_v1p1.xsd";
-	private static String IMSMD_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imsmd_v1p2";
-	private static String IMSMD_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imsmd_v1p2.xsd";
+	private static final String DEFAULT_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscp_v1p1";
+	private static final String DEFAULT_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imscp_v1p1.xsd";
+	private static final String IMSMD_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imsmd_v1p2";
+	private static final String IMSMD_NAMESPACE_SCHEMA_LOCATION = "http://www.imsglobal.org/xsd/imsmd_v1p2.xsd";
 
-	private static String EXPORT_ASSESSMENT = "exportAssessment";
-	private static String EXPORT_ASSESSMENT_XML = EXPORT_ASSESSMENT + ".xml";
+	private static final String EXPORT_ASSESSMENT = "exportAssessment";
+	private static final String EXPORT_ASSESSMENT_XML = EXPORT_ASSESSMENT + ".xml";
 	private Document document;
 	private String assessmentId;
 	private HashMap contentMap = new HashMap();

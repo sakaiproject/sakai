@@ -28,6 +28,19 @@ div.profile2-profile-image {
 	float:left;
 }
 
+div.profile2-profile .profile-image .profile2-profile-view-full {
+	text-align: center;
+}
+
+div.profile2-profile .profile-image {
+	text-align: center;
+}
+
+div.profile2-profile [id^="profile_friend_"] {
+	text-align: center;
+	background-size: contain;
+}
+
 div.profile2-profile-image-thumb {
 	float:left;
 }
@@ -103,6 +116,7 @@ div.profile2-profile-content-thumb {
 
 .connection-add {
 	background-image: url(/library/image/silk/user_add.png);
+	background-repeat: no-repeat;
 }
 
 .connection-confirmed {
@@ -115,4 +129,5 @@ div.profile2-profile-content-thumb {
 
 .profile-image {
 	background-image: url(/library/image/silk/vcard.png);
+	background-repeat: no-repeat;
 }

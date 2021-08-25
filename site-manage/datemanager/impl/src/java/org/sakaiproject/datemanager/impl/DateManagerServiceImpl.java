@@ -444,25 +444,15 @@ public class DateManagerServiceImpl implements DateManagerService {
 					errored = true;
 				}
 				if (acceptUntil == null && lateHandling) {
-					errors.add(new DateManagerError("accept_until", rb.getString("error.accept.until.not.found"), "assessments", toolTitle, i));
+					errors.add(new DateManagerError("accept_until", rb.getString("error.accept.until.not.found"), "assessments", toolTitle, idx));
 					errored = true;
 				}
 
 				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
 												: ((PublishedAssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery();
-				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode)) {
-					if (feedbackStart == null) {
-						errors.add(new DateManagerError("feedback_start", rb.getString("error.feedback.start.not.found"), "assessments", toolTitle, i));
-						errored = true;
-					}
-					if (feedbackEnd == null) {
-						errors.add(new DateManagerError("feedback_end", rb.getString("error.feedback.end.not.found"), "assessments", toolTitle, i));
-						errored = true;
-					}
-					if (feedbackStart != null && feedbackEnd != null && feedbackEnd.isBefore(feedbackStart)) {
-						errors.add(new DateManagerError("feedback_end", rb.getString("error.feedback.start.before.feedback.end"), "assessments", toolTitle, i));
-						errored = true;
-					}
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && feedbackStart == null) {
+					errors.add(new DateManagerError("feedback_start", rb.getString("error.feedback.start.not.found"), "assessments", toolTitle, idx));
+					errored = true;
 				}
 
 				if (errored) {
@@ -498,6 +488,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && feedbackStart != null && feedbackEnd != null && feedbackEnd.isBefore(feedbackStart)) {
+					errors.add(new DateManagerError("feedback_end", rb.getString("error.feedback.start.before.feedback.end"), "assessments", toolTitle, idx));
+					continue;
+				}
+
 				updates.add(update);
 
 			} catch (Exception ex) {
@@ -530,7 +525,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
-					control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
+					if (update.feedbackEndDate != null) {
+						control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
+					}
 				}
 				assessment.setAssessmentAccessControl(control);
 				assessmentServiceQueries.saveOrUpdate(assessment);
@@ -548,7 +545,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
-					control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
+					if (update.feedbackEndDate != null) {
+						control.setFeedbackEndDate(Date.from(update.feedbackEndDate));
+					}
 				}
 				assessment.setAssessmentAccessControl(control);
 				pubAssessmentServiceQueries.saveOrUpdate(assessment);
@@ -568,7 +567,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
-		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
+		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
 		for(org.sakaiproject.service.gradebook.shared.Assignment gbitem : gbitems) {
 			if(!gbitem.isExternallyMaintained()) {
 				JSONObject gobj = new JSONObject();
@@ -743,6 +742,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (update.signupDeadline.isAfter(update.dueDate)) {
 					errors.add(new DateManagerError("signup_deadline", rb.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
+					continue;
+				}
+				if (update.signupBegins.isAfter(update.signupDeadline)) {
+					errors.add(new DateManagerError("signup_begins", rb.getString("error.signup.begins.after.signup.deadline"), "signupMeetings", toolTitle, idx));
 					continue;
 				}
 				updates.add(update);
@@ -1328,33 +1331,35 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
 		JSONArray jsonLessons = new JSONArray();
-		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false");
+		List<Long> processedItemIDs = new ArrayList<>();
+		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false", processedItemIDs);
 		return jsonLessons;
 	}
 
-	private JSONArray addAllSubpages(List<SimplePageItem> items, Long pageId, JSONArray jsonLessons, String extraInfo) {
+	private JSONArray addAllSubpages(List<SimplePageItem> items, Long pageId, JSONArray jsonLessons, String extraInfo, List<Long> processedItemIDs) {
 		if (items != null) {
 			String url = getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS);
 			String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
 			for (SimplePageItem item : items) {
-				if (item.getType() == SimplePageItem.PAGE // Avoid creating a infinite loop
-					&& !Long.valueOf(item.getSakaiId()).equals(pageId) 
-					&& !jsonLessons.toString().contains("\"id\":\""+item.getSakaiId()+"\"")) {
-					JSONObject lobj = new JSONObject();
-					lobj.put("id", Long.parseLong(item.getSakaiId()));
-					lobj.put("title", item.getName());
-					SimplePage page = simplePageToolDao.getPage(Long.parseLong(item.getSakaiId()));
-					if(page.getReleaseDate() != null) {
-						lobj.put("open_date", formatToUserDateFormat(page.getReleaseDate()));
-					} else {
-						lobj.put("open_date", null);
+				if (item.getType() == SimplePageItem.PAGE) {
+					Long itemId = Long.parseLong(item.getSakaiId());
+					if (!itemId.equals(pageId) && !processedItemIDs.contains(itemId)) { // Avoid creating a infinite loop
+						processedItemIDs.add(itemId);
+						JSONObject lobj = new JSONObject();
+						lobj.put("id", itemId);
+						lobj.put("title", item.getName());
+						SimplePage page = simplePageToolDao.getPage(itemId);
+						if(page.getReleaseDate() != null) {
+							lobj.put("open_date", formatToUserDateFormat(page.getReleaseDate()));
+						} else {
+							lobj.put("open_date", null);
+						}
+						lobj.put("tool_title", toolTitle);
+						lobj.put("url", url);
+						lobj.put("extraInfo", extraInfo);
+						jsonLessons.add(lobj);
+						jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"), processedItemIDs);
 					}
-					lobj.put("tool_title", toolTitle);
-					lobj.put("url", url);
-					lobj.put("extraInfo", extraInfo);
-					jsonLessons.add(lobj);
-					long itemId = Long.parseLong(item.getSakaiId());
-					jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"));
 				}
 			}
 		}

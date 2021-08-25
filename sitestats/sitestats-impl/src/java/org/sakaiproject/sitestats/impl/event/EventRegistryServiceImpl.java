@@ -31,10 +31,12 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.authz.api.SecurityService;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -79,6 +81,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	@Setter private ToolManager					toolManager;
 	@Setter private MemoryService				memoryService;
 	@Setter private ServerConfigurationService	serverConfigurationService;
+	@Setter private SecurityService				securityService;
 
 	// ################################################################
 	// Spring methods
@@ -416,9 +419,48 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			cloneRegistry.add(t.clone());
 		}
 
+		// If not admin, remove stealthed tools from clone
+		if (!securityService.isSuperUser()) {
+			final Site site = getCurrentSite();
+			cloneRegistry.removeIf(tool -> isToolStealthed(site, tool.getToolId()));
+		}
+
 		return cloneRegistry;
 	}
-	
+
+	/**
+	 * Utility function to remove stealthed tool from the list:
+	 *      1. If user has stealthed tool(s) in site, show stealthed tool(s) present but not those which aren't
+	 *      2. If user has no stealthed tools in site, do not show any stealthed tools
+	 * @param currentSite the site currently in context
+	 * @param toolID tool registration of the tool in question
+	 * @return true if the tool is stealthed and not present in the current site; false otherwise
+	 */
+	private boolean isToolStealthed(Site currentSite, String toolID) {
+
+		boolean isStealthed = toolManager.isStealthed(toolID);
+
+		// If we have a site and the tool is stealthed, check to see if it's present in the site
+		if (currentSite != null && isStealthed) {
+			isStealthed = !siteService.isStealthedToolPresent(currentSite, toolID);
+		}
+
+		return isStealthed;
+	}
+
+	/*
+	 * Utility function to get the current Site.
+	 */
+	private Site getCurrentSite() {
+		Site site = null;
+		try {
+			String siteID = toolManager.getCurrentPlacement().getContext();
+			site = siteService.getSite(siteID);
+		} catch (Exception ex) {} // ignore
+
+		return site;
+	}
+
 	/** Process event registry expired notifications */
 	public void update(Observable obs, Object obj) {
 		if(NOTIF_EVENT_REGISTRY_EXPIRED.equals(obj)) {

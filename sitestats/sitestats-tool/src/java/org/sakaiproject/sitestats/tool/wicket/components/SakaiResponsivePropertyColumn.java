@@ -29,6 +29,8 @@ import static org.sakaiproject.sitestats.tool.wicket.components.SakaiResponsiveA
  */
 public class SakaiResponsivePropertyColumn<T,S> extends PropertyColumn<T,S>
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * A PropertyColumn with CardTable support
 	 * @param displayModel display model

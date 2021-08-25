@@ -1402,4 +1402,17 @@ public interface SiteService extends EntityProducer
 	 * @return {@link SiteTitleValidationStatus}
 	 */
 	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped);
+
+	/**
+	 * Determine if a stealthed tool is present in the given site.
+	 * NOTE: can't just do "currentSite.getTool(toolID) != null" because getTool() will not
+	 * report on stealthed tools; so we have to do it the long way.
+	 * NOTE: you can technically use this method with non-stealthed tool IDs, but in that case
+	 * it may be easier to just call "currentSite.getTool(toolID) != null"
+	 *
+	 * @param site the current site in question
+	 * @param toolID the ID of the stealthed tool to check for in the current site
+	 * @return true if the stealthed tool is present in the given site; false otherwise
+	 */
+	public boolean isStealthedToolPresent(Site site, String toolID);
 }

@@ -23,6 +23,7 @@ import org.apache.wicket.model.IModel;
  */
 public class InfinitePagingDataTableToolbar extends Panel
 {
+	private static final long serialVersionUID = 1L;
 	protected final InfinitePagingDataTable<?, ?> table;
 
 	public InfinitePagingDataTableToolbar(final IModel<?> model, final InfinitePagingDataTable<?, ?> table)

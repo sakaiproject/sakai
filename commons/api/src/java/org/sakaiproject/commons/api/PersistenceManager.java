@@ -22,6 +22,7 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Commons;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.QueryBean;
+import org.sakaiproject.commons.api.datamodel.PostLike;
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -38,4 +39,9 @@ public interface PersistenceManager {
     public boolean deletePost(Post post);
     public Post getPost(String postId, boolean loadComments);
     public Commons getCommons(String commonsId);
+    public boolean likePost(String postId, boolean toggle, String userId);
+    public int countPostLikes(String postId);
+    public int doesUserLike(String postId, String userId);
+    public List<PostLike> getAllUserLikes(String userId);
+    public List<PostLike> getAllPostLikes(String postId);
 }

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
@@ -225,8 +226,8 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
         String emailAddr = serverConfigurationService.getString("direct.error.email", 
                 serverConfigurationService.getString("portal.error.email"));
 
-        if (emailAddr != null && !"".equals(emailAddr)) {
-            String from = "\" <"+ serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName()) + ">";
+        if (StringUtils.isNotBlank(emailAddr)) {
+            String from = "EntityBroker <"+ serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName()) + ">";
             if (emailService != null) {
                 emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
             } else {

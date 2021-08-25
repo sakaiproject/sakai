@@ -22,7 +22,7 @@
   <properties>
     <sakai.version>22-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
-    <sakai.commons-io.version>2.10.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.11.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.4</sakai.commons.fileupload.version>
@@ -36,51 +36,52 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.elasticsearch.version>1.7.6</sakai.elasticsearch.version>
-    <sakai.hibernate.version>5.3.18.Final</sakai.hibernate.version>
-    <sakai.hikaricp.version>3.4.2</sakai.hikaricp.version>
+    <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
+    <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.14</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
     <sakai.httpclient5.version>5.1</sakai.httpclient5.version>
     <sakai.httpcore5.version>5.1.1</sakai.httpcore5.version>
-    <sakai.ignite.version>2.9.1</sakai.ignite.version>
-    <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
-    <sakai.jackson.version>2.12.3</sakai.jackson.version>
-    <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
-    <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
-    <sakai.stax2.version>4.2</sakai.stax2.version>
+    <sakai.ignite.version>2.10.0</sakai.ignite.version>
+    <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
+    <sakai.jackson.version>2.12.4</sakai.jackson.version>
+    <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
+    <sakai.woodstox.version>6.2.6</sakai.woodstox.version>
+    <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.20</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
-    <sakai.org.json.version>20190722</sakai.org.json.version>
+    <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
-    <sakai.opencsv.version>5.4</sakai.opencsv.version>
+    <sakai.opencsv.version>5.5.1</sakai.opencsv.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.2.9.RELEASE</sakai.spring.version>
-    <sakai.spring.data.commons.version>2.3.4.RELEASE</sakai.spring.data.commons.version>
-    <sakai.spring.data.jpa.version>2.3.4.RELEASE</sakai.spring.data.jpa.version>
-    <sakai.spring.data.rest.version>3.3.4.RELEASE</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>5.2.6.RELEASE</sakai.spring.security.version>
-    <sakai.spring.hateoas.version>1.1.2.RELEASE</sakai.spring.hateoas.version>
+    <sakai.spring.version>5.3.9</sakai.spring.version>
+    <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
+    <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
+    <sakai.spring.data.rest.version>3.5.3</sakai.spring.data.rest.version>
+    <sakai.spring.security.version>5.4.7</sakai.spring.security.version>
+    <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
-    <sakai.tika.version>1.26</sakai.tika.version>
-    <sakai.tomcat.version>9.0.48</sakai.tomcat.version>
+    <sakai.tika.version>1.27</sakai.tika.version>
+    <sakai.tomcat.version>9.0.52</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
-    <sakai.slf4j.version>1.7.30</sakai.slf4j.version>
+    <sakai.slf4j.version>1.7.32</sakai.slf4j.version>
     <sakai.poi.version>5.0.0</sakai.poi.version>
-    <sakai.mockito.version>3.9.0</sakai.mockito.version>
+    <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.10.10</joda.time.version>
-    <sakai.weld.shaded.version>3.1.3.Final</sakai.weld.shaded.version>
-    <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
+    <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
+    <jayway.jsonpath.version>2.6.0</jayway.jsonpath.version>
+    <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
     <sakai.genericdao.version>0.12.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
@@ -102,11 +103,11 @@
     <random-source></random-source>
 
     <!-- These should only be updated when the webjars version is updated -->
-    <ckeditor.autosave.version>0.18.4</ckeditor.autosave.version>
-    <ckeditor.wordcount.version>1.17.6</ckeditor.wordcount.version>
+    <ckeditor.autosave.version>0.18.6</ckeditor.autosave.version>
+    <ckeditor.wordcount.version>1.17.9</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
-    <ckeditor.image2.version>4.14.0</ckeditor.image2.version>
+    <ckeditor.image2.version>4.16.1</ckeditor.image2.version>
     <ckeditor.html5video.version>1.2.1</ckeditor.html5video.version>
 
   </properties>
@@ -142,7 +143,7 @@
             -->
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-maven</artifactId>
-            <version>5.3.2</version>
+            <version>6.2.2</version>
             <dependencies>
               <dependency>
                 <groupId>org.sakaiproject</groupId>
@@ -546,7 +547,7 @@
       <dependency>
         <groupId>org.atteo</groupId>
         <artifactId>evo-inflector</artifactId>
-        <version>1.2.2</version>
+        <version>1.3</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -576,7 +577,7 @@
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.8.M1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -662,9 +663,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>javax.activation-api</artifactId>
-        <version>1.2.0</version>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>2.0.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -682,7 +683,7 @@
       <dependency>
         <groupId>cglib</groupId>
         <artifactId>cglib-nodep</artifactId>
-        <version>3.2.12</version>
+        <version>3.3.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -897,7 +898,7 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.10.2</version>
+        <version>1.11.9</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -934,25 +935,25 @@
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
-        <version>3.4.0.Final</version>
+        <version>3.4.2.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-annotations</artifactId>
-        <version>2.2.0.Final</version>
+        <version>2.2.1.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.1.1.Final</version>
+        <version>2.3.0.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate.common</groupId>
         <artifactId>hibernate-commons-annotations</artifactId>
-        <version>5.0.4.Final</version>
+        <version>5.1.2.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -964,19 +965,19 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.25.0-GA</version>
+        <version>3.28.0-GA</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
-        <version>2.5.1</version>
+        <version>2.5.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.22</version>
+        <version>3.0.29</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1017,19 +1018,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
-        <version>1.6.7</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.5.0-b01</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>javax.mail</artifactId>
-        <version>1.6.2</version>
+        <version>2.0.1</version>
         <scope>provided</scope>
       </dependency>
       <!-- KERNEL -->
@@ -1978,13 +1967,13 @@
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast</artifactId>
-        <version>3.12.1</version>
+        <version>3.12.12</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-client</artifactId>
-        <version>3.12.1</version>
+        <version>3.12.12</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2106,7 +2095,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -2176,7 +2165,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.8.2</version>
+          <version>3.9.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -2191,17 +2180,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.2.3</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.12.0</version>
+          <version>3.14.0</version>
           <configuration>
             <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
             <sourceEncoding>utf-8</sourceEncoding>
@@ -2263,12 +2252,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.2</version>
           <configuration>
             <configLocation>google_checks.xml</configLocation>
             <linkXRef>false</linkXRef>
@@ -2445,7 +2434,7 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-ssh-external</artifactId>
-        <version>3.3.4</version>
+        <version>3.4.3</version>
       </extension>
     </extensions>
 

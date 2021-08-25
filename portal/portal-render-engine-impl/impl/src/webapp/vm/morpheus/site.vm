@@ -149,7 +149,7 @@
         <script src="${pageWebjarsPath}/pnotify/4.0.0/dist/iife/PNotifyButtons.js$!{portalCDNQuery}"></script>
         <script>includeWebjarLibrary("qtip2");</script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
         <script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>

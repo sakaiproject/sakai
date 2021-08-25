@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"	xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="fragments/common :: head"/>
+    <body>
+        <div th:replace="fragments/common :: jQuery" />
+        <div class="portletBody">
+            <div id="menu" th:include="fragments/menus :: main (list)" />
+
+            <div id="banner" class="sak-banner-success" th:if="${success}" th:text="#{template.saved.message(${templateKey}, ${templateLocale})}">
+                Success message
+            </div>
+
+            <!-- upload max size -->
+            <div class="table-responsive clear">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th th:text="#{mainview.key}">Template key</th>
+                            <th th:text="#{mainview.locale}">Locale</th>
+                            <th th:text="#{mainview.actions}">Actions</th>
+                        </tr>
+                        <tr th:each= " template:${templates}">
+                            <td th:text="${template.key}">Template key</td>
+                            <td th:text="${template.locale}">Locale</td>
+                            <td><a th:text="#{mainview.edit}" th:href="@{'/edit/'+ ${template.id}}">Edit</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var banner = document.getElementById("banner");
+            document.addEventListener("DOMContentLoaded", function () {
+                window.setTimeout(function () {
+                    banner.classList.add("hidden")
+                }, 5000);
+            });
+            /*]]>*/
+        </script>
+    </body>
+</html>

@@ -240,29 +240,29 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   public Map<String, ItemFacade> getItemsByKeyword(final String keyword) {
 	    final HibernateCallback<List<ItemData>> hcb = session -> {
             Query q = session.createQuery("select ab from ItemData ab, ItemText itext where itext.item=ab and itext.text like :text");
-            q.setString("text", keyword);
+            q.setParameter("text", keyword);
             return q.list();
         };
 	    List<ItemData> list1 = getHibernateTemplate().execute(hcb);
 
 	    final HibernateCallback<List<ItemData>> hcb2 = session -> {
             Query q = session.createQuery("select distinct ab from ItemData ab, Answer answer where answer.item=ab and answer.text like :text");
-            q.setString("text", keyword);
+            q.setParameter("text", keyword);
             return q.list();
         };
 	    List<ItemData> list2 = getHibernateTemplate().execute(hcb2);
 
 	    final HibernateCallback<List<ItemData>> hcb3 = session -> {
             Query q = session.createQuery("select ab from ItemData ab, ItemMetaData md where md.item=ab and md.entry like :keyword and md.label = :label");
-            q.setString("keyword", keyword);
-            q.setString("label", "KEYWORD");
+            q.setParameter("keyword", keyword);
+            q.setParameter("label", "KEYWORD");
             return q.list();
         };
 	    List<ItemData> list3 = getHibernateTemplate().execute(hcb3);
 
 	    final HibernateCallback<List<ItemData>> hcb4 = session -> {
             Query q = session.createQuery("select ab from ItemData ab where ab.instruction like :keyword");
-            q.setString("keyword", keyword);
+            q.setParameter("keyword", keyword);
             return q.list();
         };
 	    List<ItemData> list4 = getHibernateTemplate().execute(hcb4);

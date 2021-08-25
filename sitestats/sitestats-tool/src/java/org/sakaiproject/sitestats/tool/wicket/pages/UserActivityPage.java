@@ -60,6 +60,7 @@ import org.sakaiproject.wicket.component.SakaiDateTimeField;
  */
 public class UserActivityPage extends BasePage
 {
+	private static final long serialVersionUID = 1L;
 	private final String siteId;
 	private String user = ReportManager.WHO_NONE;  // cannot be made final, though your IDE may tell you so; is bound to the user filter drop down choice
 	private String tool = ReportManager.WHAT_EVENTS_ALLTOOLS;	// cannot be made final, though your IDE may tell you so; is bound to the tool filter drop down choice

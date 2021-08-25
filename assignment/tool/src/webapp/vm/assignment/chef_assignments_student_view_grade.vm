@@ -48,13 +48,10 @@
         #if ($!assignment.IsGroup)
             <span> - $tlang.getString("gen.groupassignment") </span>
         #end
-        #if ($submission.Returned)
-            <span class="highlight"> - $tlang.getString("gen.returned")</span>
-        #elseif (!$submission.Submitted)
-            <span class="highlight"> - $!service.getSubmissionStatus($!submission.Id) </span>
-        #elseif (!$!nonElectronicType && $!submission.UserSubmission)
-            <span class="highlight"> - $tlang.getString("gen.subm4")</span>
+        #if ($submission)
+            #set($submissionId = $submission.Id)
         #end
+        <span class="highlight"> - $!service.getSubmissionStatus($!submissionId)</span>
     </h3>
     #if (!$!nonElectronicType)
         #progressBar($!service.getProgressBarStatus($!submission))
@@ -251,6 +248,9 @@
             <h4>$tlang.getString("gen.totaltimespent")</h4>
             <div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
         #end
+
+        #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
         ## Submission Attachments
         #set ($attachments = $submission.Attachments)
         #if ($attachments)

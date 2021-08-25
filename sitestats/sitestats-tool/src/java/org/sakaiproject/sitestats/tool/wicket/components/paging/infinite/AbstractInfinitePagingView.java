@@ -31,6 +31,7 @@ import org.apache.wicket.model.IModel;
  */
 public abstract class AbstractInfinitePagingView<T> extends RefreshingView<T>
 {
+	private static final long serialVersionUID = 1L;
 	@Getter private long itemsPerPage = Long.MAX_VALUE;
 	@Getter @Setter protected long offset = 0;
 	protected boolean hasNextPage = false;

@@ -69,8 +69,8 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
         moduleName = "modulename";
 
         Assert.assertNotNull(messageBundleService);
-        resourceBundleEN = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeEn);
-        resourceBundleFr = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeFr);
+        resourceBundleEN = ResourceBundle.getBundle("bundle", localeEn);
+        resourceBundleFr = ResourceBundle.getBundle("bundle", localeFr);
 
         messageBundleService.saveOrUpdate(baseName, moduleName, resourceBundleEN, localeEn);
         messageBundleService.saveOrUpdate(baseName, moduleName, resourceBundleFr, localeFr);

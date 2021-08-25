@@ -50,6 +50,9 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.InfiniteDataPro
  */
 public class InfinitePagingDataTable<T, S> extends Panel
 {
+
+	private static final long serialVersionUID = 1L;
+
 	static abstract class CssAttributeBehavior extends Behavior
 	{
 		private static final long serialVersionUID = 1L;

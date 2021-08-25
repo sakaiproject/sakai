@@ -42,7 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 public class ItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
 
-  static ResourceBundle rb =
+  private static final ResourceBundle rb =
     ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;

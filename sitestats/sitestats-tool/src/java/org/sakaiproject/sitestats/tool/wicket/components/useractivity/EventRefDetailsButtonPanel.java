@@ -31,6 +31,8 @@ import org.sakaiproject.sitestats.tool.wicket.components.SakaiAjaxButton;
  */
 public class EventRefDetailsButtonPanel extends GenericPanel<DetailedEvent>
 {
+	private static final long serialVersionUID = 1L;
+
 	public final boolean resolvable;
 
 	private final String siteID;

@@ -105,7 +105,7 @@
 		<h3 class="specialLink">
 			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 				rendered="#{ForumTool.messagesandForums}" />
-			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
 				rendered="#{ForumTool.forumsTool}" />
 			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			<h:commandLink immediate="true" action="#{ForumTool.processActionDisplayForum}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">

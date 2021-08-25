@@ -26,6 +26,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.SakaiAjaxButton;
  */
 public class InfinitePagingNavigationIncrementButton extends SakaiAjaxButton
 {
+	private static final long serialVersionUID = 1L;
 	protected final InfinitePagingDataTable table;
 	private final boolean increment;
 

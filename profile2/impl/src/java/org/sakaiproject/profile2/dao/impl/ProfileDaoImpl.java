@@ -73,7 +73,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<List<String>> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
             q.setParameter(USER_UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             //q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 
             return q.list();
@@ -92,8 +92,8 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		//updated: now just returns a List of Strings
 		final HibernateCallback<List<String>> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_OUTGOING_FRIEND_REQUESTS_FOR_USER);
-            q.setString(USER_UUID, userId);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter(USER_UUID, userId);
+            q.setParameter("false", Boolean.FALSE);
 
             return q.list();
         };
@@ -111,7 +111,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<List<String>> hcb = session -> {
 	  			final Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, StringType.INSTANCE);
-	  			q.setBoolean("true", Boolean.TRUE); 
+	  			q.setParameter("true", Boolean.TRUE); 
 	  			return q.list();
 	  	};
 	  	
@@ -779,7 +779,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<Number> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
             q.setParameter(UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             return (Number) q.uniqueResult();
         };
 	  	
@@ -795,7 +795,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<Number> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
             q.setParameter(UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             return (Number) q.uniqueResult();
         };
 	  	

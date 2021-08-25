@@ -534,7 +534,7 @@ public class Web
 			if ( agent != null && agent.indexOf("MSIE")>=0 )
 				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
 			else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
-				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
+				fileName = jakarta.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
 			else
 				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
 		}

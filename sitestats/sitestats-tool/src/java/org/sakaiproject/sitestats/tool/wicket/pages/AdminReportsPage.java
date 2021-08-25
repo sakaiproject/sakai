@@ -23,6 +23,8 @@ import org.apache.wicket.model.ResourceModel;
 
 public class AdminReportsPage extends ReportsPage {
 	
+	private static final long serialVersionUID = 1L;
+
 	public AdminReportsPage(PageParameters pageParameters) {
 		super(pageParameters);
 	}

@@ -793,10 +793,10 @@
 				document.getElementById("hide-button").disabled = false;
 			#end
 		#end
-		#if($counter.getValue("$zipdownloadselected") > 0)
+		#if($!counter.getValue("$zipdownloadselected") && $counter.getValue("$zipdownloadselected") > 0)
 			document.getElementById("zipdownload-button").disabled = false;
 		#end
-		#if($counter.getValue("selectall") > 0)
+		#if($!counter.getValue("selectall") && $counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
 		#end
 

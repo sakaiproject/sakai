@@ -56,6 +56,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.persistence.OptimisticLockException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -254,6 +255,7 @@ public class DiscussionForumTool {
   private static final String FORUM_LOCKED = "cdfm_forum_locked";
   private static final String TOPIC_LOCKED = "cdfm_topic_locked";
   private static final String ERROR_POSTING_THREAD = "cdfm_error_posting_thread";
+  private static final String ERROR_POSTING_THREAD_STALE = "cdfm_error_posting_thread_stale";
   private static final String USER_NOT_ALLOWED_CREATE_FORUM="cdfm_user_not_allowed_create_forum";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM="cdfm_insufficient_privileges_delete_forum";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DUPLICATE = "cdfm_insufficient_privileges_duplicate";
@@ -3650,7 +3652,7 @@ public class DiscussionForumTool {
     }catch(Exception e){
     	log.error("DiscussionForumTool: processDfMsgPost", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
-    	gotoMain();
+    	return gotoMain();
     }
 
     return ALL_MESSAGES;
@@ -4441,7 +4443,7 @@ public class DiscussionForumTool {
   	}catch(Exception e){
   		log.error("DiscussionForumTool: processDfReplyMsgPost", e);
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
-  		gotoMain();
+  		return gotoMain();
   	}
     return processActionGetDisplayThread();
   }
@@ -4647,12 +4649,16 @@ public class DiscussionForumTool {
 
 		getSelectedTopic();
 		getThreadFromMessage();
-	}catch(Exception e){
-    	log.error("DiscussionForumTool: processDfMsgRevisedPost", e);
-    	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
-    	gotoMain();
+	} catch(Exception e) {
+      log.error("Error while editing a message", e);
+      if (e instanceof OptimisticLockException) {
+        // javax.persistence.OptimisticLockException: Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect)
+        setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD_STALE));
+      } else {
+        setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+      }
+      return gotoMain();
     }
-
     return MESSAGE_VIEW;
   }
 
@@ -6528,8 +6534,9 @@ public class DiscussionForumTool {
   private void setErrorMessage(String errorMsg)
   {
     log.debug("setErrorMessage(String " + errorMsg + ")");
-    FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(FacesMessage.SEVERITY_ERROR, getResourceBundleString(ALERT) + errorMsg, null));
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, getResourceBundleString(ALERT) + errorMsg, null));
+    facesContext.getExternalContext().getFlash().setKeepMessages(true);
   }
   
   private void setSuccessMessage(String successMsg)
@@ -7069,12 +7076,7 @@ public class DiscussionForumTool {
 	}
 	
    private String gotoMain() {
-	    if (isForumsTool()) {
-	    	return FORUMS_MAIN;
-	    }
-	    else {
-	    	return MAIN;
-	    }
+     return (isForumsTool() ? FORUMS_MAIN : MAIN) + "?faces-redirect=true";
    }
    
 	/**
@@ -7718,23 +7720,16 @@ public class DiscussionForumTool {
 	newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 
 	// Get/set the topic's permissions
-
-	Set topicMembershipItemSet = uiPermissionsManager.getTopicItemsSet(fromTopic);
-
-	if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() ) { //&& allowedPermNames != null && !allowedPermNames.isEmpty()
-		log.debug("About to assign topicMembershipItemSet's iterator");
-		Iterator membershipIter = topicMembershipItemSet.iterator();
-		while (membershipIter.hasNext()) {
-			log.debug("About to get a member of membershipIter");
-			DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-				log.debug("About to getMembershipItemCopy()");
-				DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-				if (newItem != null) {
-					newItem = permissionLevelManager.saveDBMembershipItem(newItem);
-					newTopic.addMembershipItem(newItem);
-				}
-		}
+	Set<DBMembershipItem> fromTopicMembershipItems = uiPermissionsManager.getTopicItemsSet(fromTopic);
+	if (fromTopicMembershipItems != null) {
+      for (DBMembershipItem fromTopicMembershipItem : fromTopicMembershipItems) {
+        DBMembershipItem membershipItemCopy = getMembershipItemCopy(fromTopicMembershipItem);
+        DBMembershipItem savedMembershipItem = permissionLevelManager.saveDBMembershipItem(membershipItemCopy);
+        newTopic.addMembershipItem(savedMembershipItem);
+        ((DBMembershipItemImpl) savedMembershipItem).setTopic(newTopic);
+      }
 	}
+
 	// Add the attachments
 	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
 	if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
@@ -7836,9 +7831,19 @@ public class DiscussionForumTool {
 		String oldExtendedDescription = oldForum.getExtendedDescription();
 		if (oldExtendedDescription == null) oldExtendedDescription = "";
 		forum.setExtendedDescription(oldExtendedDescription);
-        forum.setTitle(oldTitle);
+		forum.setTitle(oldTitle);
 
-		List fromForumAttach = oldForum.getAttachments();
+      Set<DBMembershipItem> fromForumMembershipItems = uiPermissionsManager.getForumItemsSet(oldForum);
+      if (fromForumMembershipItems != null) {
+        for (DBMembershipItem fromForumMembershipItem : fromForumMembershipItems) {
+          DBMembershipItem membershipItemCopy = getMembershipItemCopy(fromForumMembershipItem);
+          DBMembershipItem savedMembershipItem = permissionLevelManager.saveDBMembershipItem(membershipItemCopy);
+          forum.addMembershipItem(savedMembershipItem);
+          ((DBMembershipItemImpl) savedMembershipItem).setForum(forum);
+        }
+      }
+
+      List fromForumAttach = oldForum.getAttachments();
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
 			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
 				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
@@ -9032,7 +9037,7 @@ public class DiscussionForumTool {
     		try{
     			String topicIdStr = getExternalParameterByKey(CURRENT_TOPIC_ID);
     			long topicId = Long.parseLong(topicIdStr);
-    			if(tmpSelectedTopic == null || tmpSelectedTopic.getTopic() == null 
+    			if(tmpSelectedTopic == null || tmpSelectedTopic.getTopic() == null || tmpSelectedTopic.getTopic().getBaseForum() == null
     					|| (!tmpSelectedTopic.getTopic().getId().equals(topicId))){
     				//selected message doesn't match the current message input,
     				//verify user has access to parameter message and use that one

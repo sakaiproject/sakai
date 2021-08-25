@@ -710,97 +710,143 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library) {
-	var webjars = "/library/webjars/";
-	var ver = "";
-	var libraryVersion = "";
-	if ( typeof portal !== 'undefined' ) {
-		if (portal.pageScriptPath) psp = portal.pageScriptPath;
-		if (portal.pageWebjarsPath) webjars = portal.pageWebjarsPath;
-		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
+	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
+	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
+	let libraryVersion = '';
+	const jsReferences = [];
+	const cssReferences = [];
+
+	switch(library) {
+		case 'bootstrap':
+			libraryVersion = "3.3.7";
+			jsReferences.push('/js/bootstrap.min.js');
+			cssReferences.push('/css/bootstrap.min.css');
+			break;
+		case 'bootstrap-multiselect':
+			libraryVersion = "0.9.15";
+			jsReferences.push('/js/bootstrap-multiselect.js');
+			cssReferences.push('/css/bootstrap-multiselect.css');
+			break;
+		case 'jquery.tablesorter':
+			libraryVersion = "2.27.7";
+			jsReferences.push('/dist/js/jquery.tablesorter.combined.min.js');
+			jsReferences.push('/dist/js/extras/jquery.tablesorter.pager.min.js');
+			jsReferences.push('/dist/js/extras/jquery.metadata.min.js');
+			cssReferences.push('/dist/css/theme.jui.min.css');
+			cssReferences.push('/dist/css/jquery.tablesorter.pager.min.css');
+			break;
+		case 'featherlight':
+			libraryVersion = "1.7.14";
+			jsReferences.push('/release/featherlight.min.js');
+			cssReferences.push('/release/featherlight.min.css');
+			break;
+		case 'momentjs':
+			libraryVersion = "2.29.1";
+			jsReferences.push('/min/moment-with-locales.min.js');
+			break;
+		case 'dropzone':
+			libraryVersion = "5.9.2";
+			jsReferences.push('/dist/min/dropzone.min.js');
+			cssReferences.push('/dist/min/dropzone.min.css');
+			break;
+		case 'select2':
+			libraryVersion = "4.0.13";
+			jsReferences.push('/js/select2.full.min.js');
+			cssReferences.push('/css/select2.min.css');
+			break;
+		case 'datatables':
+			libraryVersion = "1.10.25";
+			jsReferences.push('/js/jquery.dataTables.min.js');
+			jsReferences.push('/js/dataTables.bootstrap.min.js');
+			cssReferences.push('/css/dataTables.bootstrap.min.css');
+			break;
+		case 'datatables-rowgroup':
+			libraryVersion = "1.1.3";
+			// This webjar has a different convention without version and library name.
+			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
+			break;
+		case 'ckeditor4':
+			libraryVersion = "4.16.1";
+			jsReferences.push('/ckeditor.js');
+			break;
+		case 'awesomplete':
+			libraryVersion = "1.1.5";
+			jsReferences.push('/awesomplete.min.js');
+			cssReferences.push('/awesomplete.css');
+			break;
+		case 'mathjs':
+			libraryVersion = "9.4.4";
+			jsReferences.push('/lib/browser/math.js');
+			break;
+		case 'handlebars':
+			libraryVersion = "4.0.6";
+			jsReferences.push('/handlebars.runtime.min.js');
+			break;
+		case 'qtip2':
+			libraryVersion = "3.0.3-1";
+			jsReferences.push('/jquery.qtip.min.js');
+			cssReferences.push('/jquery.qtip.min.css');
+			break;
+		case 'jstree':
+			libraryVersion = "3.3.11";
+			jsReferences.push('/jstree.min.js');
+			cssReferences.push('/themes/default/style.min.css');
+			break;
+		case 'multiselect-two-sides':
+			libraryVersion = "2.5.5";
+			jsReferences.push('/dist/js/multiselect.min.js');
+			break;
+		case 'fontawesome-iconpicker':
+			libraryVersion = "1.4.1";
+			jsReferences.push('/dist/js/fontawesome-iconpicker.min.js');
+			cssReferences.push('/dist/css/fontawesome-iconpicker.min.css');
+			break;
+		case 'flatpickr':
+			libraryVersion = "4.6.9";
+			jsReferences.push('/dist/flatpickr.min.js');
+			jsReferences.push('/dist/plugins/confirmDate/confirmDate.js');
+			cssReferences.push('/dist/flatpickr.min.css');
+			cssReferences.push('/dist/plugins/confirmDate/confirmDate.css');
+			if (window.portal) {
+				let lang = window.portal.locale.split("-")[0];
+				if (lang !== "en") {
+					jsReferences.push(`/dist/l10n/${lang}.js'`);
+				}
+			}
+			break;
+		case 'fullcalendar':
+			libraryVersion = "5.8.0";
+			jsReferences.push('/main.min.js');
+			jsReferences.push('/locales-all.min.js');
+			cssReferences.push('/main.min.css');
+			break;
+		case 'recordrtc':
+			libraryVersion = "5.6.2";
+			jsReferences.push('/RecordRTC.js');
+			break;
+		case 'webrtc-adapter':
+			libraryVersion = "8.0.0";
+			jsReferences.push('/out/adapter.js');
+			break;
+		case 'video.js':
+			libraryVersion = "7.14.0";
+			jsReferences.push('/dist/video.min.js');
+			cssReferences.push('/dist/video-js.css');
+			break;
+		default:
+			if (library.endsWith(".js")) {
+				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
+			} else if (library.endsWith(".css")) {
+				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
+			}
 	}
 
-	if (library == 'bootstrap') {
-		libraryVersion = "3.3.7";
-		document.write('\x3Cscript src="' + webjars + 'bootstrap/' + libraryVersion + '/js/bootstrap.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap/' + libraryVersion + '/css/bootstrap.min.css' + ver + '"/>');
-	} else if (library == 'bootstrap-multiselect') {
-    libraryVersion = "0.9.15";
-    document.write('\x3Cscript src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
-  } else if (library == 'jquery.tablesorter') {
-		libraryVersion = "2.27.7";
-    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Cscript src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
-    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
-    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
-	} else if (library == 'featherlight') {
-		libraryVersion = "1.7.13";
-		document.write('\x3Cscript src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
-	} else if (library == 'momentjs') {
-		libraryVersion = "2.24.0";
-		document.write('\x3Cscript src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'dropzone') {
-		libraryVersion = "5.5.0";
-		document.write('\x3Cscript src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
-	} else if (library == 'select2') {
-		libraryVersion = "4.0.12";
-		document.write('\x3Cscript src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
-	} else if (library == 'datatables') {
-		libraryVersion = "1.10.20";
-		document.write('\x3Cscript src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'datatables-rowgroup') {
-		libraryVersion = "1.1.1";
-		document.write('\x3Cscript src="' + webjars + 'datatables.net-rowgroup/js/dataTables.rowGroup.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'ckeditor') {
-		libraryVersion = "4.14.0";
-		document.write('\x3Cscript src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'awesomplete') {
-		libraryVersion = "1.1.5";
-		document.write('\x3Cscript src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
-	} else if (library == 'mathjs') {
-		libraryVersion = "6.5.0";
-		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'handlebars') {
-		libraryVersion = "4.0.6";
-		document.write('\x3Cscript src="' + webjars + 'handlebars/' + libraryVersion + '/handlebars.runtime.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'qtip2') {
-		libraryVersion = "3.0.3-1";
-		document.write('\x3Cscript src="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'qtip2/' + libraryVersion + '/jquery.qtip.min.css' + ver + '"/>');
-	} else if (library == 'jstree') {
-		libraryVersion = "3.3.8";
-		document.write('\x3Cscript src="' + webjars + 'jstree/' + libraryVersion + '/jstree.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jstree/' + libraryVersion + '/themes/default/style.min.css' + ver + '"/>');
-	} else if (library == 'multiselect-two-sides') {
-		libraryVersion = "2.5.5";
-		document.write('\x3Cscript src="' + webjars + 'multiselect-two-sides/' + libraryVersion + '/dist/js/multiselect.min.js' + ver + '">' + '\x3C/script>');
-	} else if (library == 'fontawesome-iconpicker') {
-		libraryVersion = "1.4.1";
-		document.write('\x3Cscript src="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/js/fontawesome-iconpicker.min.js' + ver + '">' + '\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'fontawesome-iconpicker/' + libraryVersion + '/dist/css/fontawesome-iconpicker.min.css' + ver + '"/>');
-	} else if (library === "flatpickr") {
-		libraryVersion = "4.6.3";
-		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.js' + ver + '">\x3C/script>');
-		document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.js' + ver + '">\x3C/script>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/flatpickr.min.css' + ver + '"/>');
-		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'flatpickr/' + libraryVersion + '/dist/plugins/confirmDate/confirmDate.css' + ver + '"/>');
-		let lang = portal.locale.split("-")[0];
-		if (lang !== "en") {
-			document.write('\x3Cscript src="' + webjars + 'flatpickr/' + libraryVersion + '/dist/l10n/' + lang + '.js' + ver + '">\x3C/script>');
-		}
-	} else {
-		if (library.endsWith(".js")) {
-			document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
-		} else if (library.endsWith(".css")) {
-			document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
-		}
-	}
-	window.console && console.log('Adding webjar library '+library+', version '+libraryVersion);
+	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion}`);
+
+	// Add all the library references to the DOM.
+	jsReferences.forEach( (jsReference) => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
+	cssReferences.forEach( (cssReference) => document.write(`<link rel="stylesheet" href="${webjars}/${library}/${libraryVersion}${cssReference}${ver}"></link>`));
+
 }
 
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same

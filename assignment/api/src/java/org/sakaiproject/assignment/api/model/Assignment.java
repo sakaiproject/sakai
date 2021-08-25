@@ -275,7 +275,8 @@ public class Assignment {
         TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION, // 3
         NON_ELECTRONIC_ASSIGNMENT_SUBMISSION,      // 4
         SINGLE_ATTACHMENT_SUBMISSION,              // 5
-        EXTERNAL_TOOL_SUBMISSION                   // 6
+        EXTERNAL_TOOL_SUBMISSION,                  // 6
+        VIDEO_SUBMISSION                           // 7
     }
 
     public enum GradeType {

@@ -156,9 +156,10 @@
 											&nbsp;
 										</td>
 										<td headers="status">
-											#if ($!submission)
-												$!service.getSubmissionStatus($submission.Id)
+											#if ($submission)
+												#set($submissionId = $submission.Id)
 											#end
+											$!service.getSubmissionStatus($!submissionId)
 											&nbsp;
 										</td>
 										#if ($!isTimesheet)

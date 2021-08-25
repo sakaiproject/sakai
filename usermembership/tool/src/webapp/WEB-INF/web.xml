@@ -18,18 +18,6 @@
         <param-value>false</param-value>
     </context-param>
 
-    <context-param>
-        <description>
-            Set this flag to true if you want the JavaServer Faces
-            Reference Implementation to verify that all of the application
-            objects you have configured (components, converters,
-            renderers, and validators) can be successfully created.
-            Default value is false.
-        </description>
-        <param-name>com.sun.faces.verifyObjects</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    
     <!-- Faces Servlet -->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>

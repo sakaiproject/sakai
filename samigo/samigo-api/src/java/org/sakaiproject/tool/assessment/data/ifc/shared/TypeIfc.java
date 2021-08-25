@@ -26,36 +26,36 @@ import java.util.Date;
 
 public interface TypeIfc extends java.io.Serializable {
   // This has the exact same list as TypeFacade. Please keep both list updated
-  public static final Long MULTIPLE_CHOICE = Long.valueOf(1);
-  public static final Long MULTIPLE_CORRECT = Long.valueOf(2);
-  public static final Long MULTIPLE_CHOICE_SURVEY = Long.valueOf(3);
-  public static final Long TRUE_FALSE = Long.valueOf(4);
-  public static final Long ESSAY_QUESTION = Long.valueOf(5);
-  public static final Long FILE_UPLOAD = Long.valueOf(6);
-  public static final Long AUDIO_RECORDING = Long.valueOf(7);
-  public static final Long FILL_IN_BLANK = Long.valueOf(8);
-  public static final Long MATCHING = Long.valueOf(9);
-  public static final Long FILL_IN_NUMERIC = Long.valueOf(11);
-  public static final Long MULTIPLE_CORRECT_SINGLE_SELECTION = Long.valueOf(12);
-  public static final Long MATRIX_CHOICES_SURVEY = Long.valueOf(13);
-  public static final Long EXTENDED_MATCHING_ITEMS = Long.valueOf(14);
-  public static final Long CALCULATED_QUESTION = Long.valueOf(15); // CALCULATED_QUESTION
-  public static Long IMAGEMAP_QUESTION = Long.valueOf(16); // IMAGEMAP_QUESTION
+  public static final Long MULTIPLE_CHOICE = 1L;
+  public static final Long MULTIPLE_CORRECT = 2L;
+  public static final Long MULTIPLE_CHOICE_SURVEY = 3L;
+  public static final Long TRUE_FALSE = 4L;
+  public static final Long ESSAY_QUESTION = 5L;
+  public static final Long FILE_UPLOAD = 6L;
+  public static final Long AUDIO_RECORDING = 7L;
+  public static final Long FILL_IN_BLANK = 8L;
+  public static final Long MATCHING = 9L;
+  public static final Long FILL_IN_NUMERIC = 11L;
+  public static final Long MULTIPLE_CORRECT_SINGLE_SELECTION = 12L;
+  public static final Long MATRIX_CHOICES_SURVEY = 13L;
+  public static final Long EXTENDED_MATCHING_ITEMS = 14L;
+  public static final Long CALCULATED_QUESTION = 15L; // CALCULATED_QUESTION
+  public static final Long IMAGEMAP_QUESTION = 16L; // IMAGEMAP_QUESTION
   // these are section type available in this site,
-  public static Long DEFAULT_SECTION = Long.valueOf(21);
+  public static final Long DEFAULT_SECTION = 21L;
   // these are assessment template type available in this site,
-  public static final Long TEMPLATE_SYSTEM_DEFINED = Long.valueOf(142);
-  public static Long TEMPLATE_QUIZ = Long.valueOf(41);
-  public static Long TEMPLATE_HOMEWORK = Long.valueOf(42);
-  public static Long TEMPLATE_MIDTERM = Long.valueOf(43);
-  public static Long TEMPLATE_FINAL = Long.valueOf(44);
+  public static final Long TEMPLATE_SYSTEM_DEFINED = 142L;
+  public static final Long TEMPLATE_QUIZ = 41L;
+  public static final Long TEMPLATE_HOMEWORK = 42L;
+  public static final Long TEMPLATE_MIDTERM = 43L;
+  public static final Long TEMPLATE_FINAL = 44L;
   // these are assessment type available in this site,
-  public static Long QUIZ = Long.valueOf(61);
-  public static Long HOMEWORK = Long.valueOf(62);
-  public static Long MIDTERM = Long.valueOf(63);
-  public static Long FINAL = Long.valueOf(64);
-  public static String SITE_AUTHORITY = "stanford.edu";
-  public static String DOMAIN_ASSESSMENT_ITEM = "assessment.item";
+  public static final Long QUIZ = 61L;
+  public static final Long HOMEWORK = 62L;
+  public static final Long MIDTERM = 63L;
+  public static final Long FINAL = 64L;
+  public static final String SITE_AUTHORITY = "stanford.edu";
+  public static final String DOMAIN_ASSESSMENT_ITEM = "assessment.item";
   
   enum TypeId{
 	  MULTIPLE_CHOICE_ID(MULTIPLE_CHOICE);

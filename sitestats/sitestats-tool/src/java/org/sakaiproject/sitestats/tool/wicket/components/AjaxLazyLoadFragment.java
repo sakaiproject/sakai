@@ -37,7 +37,7 @@ import org.apache.wicket.model.Model;
  * @author Nuno Fernandes
  */
 public abstract class AjaxLazyLoadFragment extends Panel {
-	private static final long				serialVersionUID	= 1L;
+	private static final long serialVersionUID	= 1L;
 
 	// State:
 	// 0:add loading component
@@ -53,6 +53,8 @@ public abstract class AjaxLazyLoadFragment extends Panel {
 		setOutputMarkupId(true);
 
 		final AbstractDefaultAjaxBehavior behavior = new AbstractDefaultAjaxBehavior() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void respond(AjaxRequestTarget target) {
 				Fragment fragment = getLazyLoadFragment("content");
@@ -107,7 +109,7 @@ public abstract class AjaxLazyLoadFragment extends Panel {
 	public Component getLoadingComponent(String markupId) {
 		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null) + "\"/>");
 		indicator.setEscapeModelStrings(false);
-		indicator.add(new AttributeModifier("title", new Model("...")));
+		indicator.add(new AttributeModifier("title", new Model<String>("...")));
 		return indicator;
 	}
 

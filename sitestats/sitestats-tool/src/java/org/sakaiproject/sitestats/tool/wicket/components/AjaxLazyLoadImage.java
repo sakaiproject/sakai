@@ -18,18 +18,13 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.request.Request;
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
@@ -38,29 +33,33 @@ import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.NonCachingImage;
-import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse.CacheScope;
+import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.resource.DynamicImageResource;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
-@Slf4j
+
 public abstract class AjaxLazyLoadImage extends Panel {
-	private static final long			serialVersionUID					= 1L;
-	private SubmitLink					link								= null;
-	private Page						returnPage							= null;
-	private Class<?>					returnClass							= null;
-	private AbstractDefaultAjaxBehavior chartRenderAjaxBehavior				= null;
+	private static final long serialVersionUID = 1L;
+	private SubmitLink link = null;
+	private Page returnPage = null;
+	private Class<?> returnClass = null;
+	private AbstractDefaultAjaxBehavior chartRenderAjaxBehavior = null;
 	
-	private Form						form								= null;
-	private boolean						autoDetermineChartSizeByAjax 		= false;
-	private int							selectedWidth						= 400;
-	private int							selectedHeight						= 200;
-	private int							maxWidth							= 800;
-	private int							maxHeight							= 600;
+	private Form form = null;
+	private boolean autoDetermineChartSizeByAjax = false;
+	private int selectedWidth = 400;
+	private int selectedHeight = 200;
+	private int maxWidth 	= 800;
+	private int maxHeight 	= 600;
 
 	// State:
 	// 0:add loading component
@@ -196,7 +195,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	public Component getLoadingComponent(String markupId) {
 		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null) + "\"/>");
 		indicator.setEscapeModelStrings(false);
-		indicator.add(new AttributeModifier("title", new Model("...")));
+		indicator.add(new AttributeModifier("title", new Model<String>("...")));
 		return indicator;
 	}
 
@@ -212,6 +211,8 @@ public abstract class AjaxLazyLoadImage extends Panel {
 			public void onSubmit() {
 				if(returnPage != null || returnClass != null) {
 					setResponsePage(new MaximizedImagePage(returnPage, returnClass) {
+						private static final long serialVersionUID = 1L;
+
 						@Override
 						public byte[] getMaximizedImageData() {
 							int _width = (int) ((int) maxWidth * 0.98);

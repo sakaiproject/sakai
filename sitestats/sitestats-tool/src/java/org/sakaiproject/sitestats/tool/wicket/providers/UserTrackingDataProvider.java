@@ -39,6 +39,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.PagedInfiniteIt
  */
 public class UserTrackingDataProvider extends AbstractSortableInfiniteDataProvider<DetailedEvent, String>
 {
+	private static final long serialVersionUID = 1L;
 	@Setter private TrackingParams trackingParams;
 
 	/**

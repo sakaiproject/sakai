@@ -18,9 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -34,7 +32,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.tool.facade.Locator;
@@ -44,7 +42,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.providers.ReportDefsProvider;
 
-@Slf4j
+
 public class ReportsPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
 

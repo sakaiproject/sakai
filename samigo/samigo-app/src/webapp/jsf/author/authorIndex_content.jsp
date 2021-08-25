@@ -358,7 +358,7 @@
 
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" rowIndexVar="index" styleClass="dropdown-menu row">
-                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores" rendered="#{index == 0}">
+                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores" rendered="#{index == 0 && assessment.submittedCount > 0}">
                                     <f:param name="action" value="scores" />
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
@@ -395,7 +395,7 @@
                             <f:verbatim></button></f:verbatim>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" styleClass="dropdown-menu row" rowIndexVar="index">
-                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" rendered="#{index == 0}" styleClass="hiddenBtn_scores">
+                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" rendered="#{index == 0 && assessment.submittedCount > 0}" styleClass="hiddenBtn_scores">
                                     <f:param name="action" value="scores" />
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />

@@ -29,13 +29,14 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk21</artifactId>
+      <version>1.1.14</version>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.jsf2</groupId>
       <artifactId>jsf2-tool-sun</artifactId>
       <type>pom</type>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
     </dependency>
     <dependency>
       <groupId>javax</groupId>
@@ -61,6 +62,11 @@
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet-shaded</artifactId>
       <version>${sakai.weld.shaded.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>${sakai.jakarta.jstl-api.version}</version>
     </dependency>
   </dependencies>
   <build>

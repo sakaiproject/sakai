@@ -37,6 +37,12 @@ function GetFormContent(formId, buttonName) {
     var elements = theForm.elements;
     var pairs = [];
     disabledButtons = [];
+
+    // show autosaving message
+    document.getElementById("autosave-lasttime-msg").style.display = "none";
+    document.getElementById("autosave-msg").style.visibility = "visible";
+    document.getElementById("autosave-msg").style.display = "inline";
+
     //autosave for ckeditor
     for(var i in CKEDITOR.instances) {
         var encoded = encodeURIComponent(CKEDITOR.instances[i].name)+"="+encodeURIComponent(CKEDITOR.instances[i].getSnapshot());
@@ -141,7 +147,7 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
     //check noLateSubmission or isRetracted controlled by pastDueDate()
     if (text.indexOf("noLateSubmission") >= 0 || text.indexOf("isRetracted") >= 0 || text.indexOf("assessment_has_been_submitted") >= 0) {
         $("#autosave-timeexpired-warning").show();
-        $("[id$=\\:submitNoCheck]")[0].click();
+        $("[id$=\\:save]")[0].click();
     }
 
     if (d !== -1) {
@@ -165,6 +171,22 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
             if (document.getElementById("progressbar") === null && dueDateorRetractDate - timeNow <= repeatMilliseconds) {
                 $("#autosave-timeleft-warning").show();
             }
+        }
+    }
+
+    // we're done saving now so remove the autosaving message and update the last autosave date
+    document.getElementById("autosave-msg").style.display = "none";
+    let start = text.indexOf("lastSubmittedDateStr");
+    if (start >= 0) {
+        start = text.indexOf("value=", start);
+        let end = -1;
+        if (start >= 0)	{
+            end = text.indexOf('" />', start + 7);
+        }
+        if (end >= 0) {
+            const submittedDateStr = text.substring(start + 7, end);
+            document.getElementById("autosave-lasttime").innerText = submittedDateStr;
+            document.getElementById("autosave-lasttime-msg").style.display = "inline";
         }
     }
 

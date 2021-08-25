@@ -285,9 +285,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
                             + " from AssessmentTemplateData a where a.assessmentBaseId = :id or"
                             + " a.createdBy = :agent or a.typeId = :type order by a.title"
             );
-            q.setLong("id", 1L);
-            q.setString("agent", agent);
-            q.setLong("type", typeId);
+            q.setParameter("id", 1L);
+            q.setParameter("agent", agent);
+            q.setParameter("type", typeId);
             return q.list();
         };
 		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
@@ -309,10 +309,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
             		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
 					+ " from AssessmentTemplateData a where a.status = :status and (a.assessmentBaseId = :id or"
 					+ " a.createdBy = :agent or a.typeId = :type) order by a.title");
-            q.setInteger("status", 1);
-            q.setLong("id", 1L);
-            q.setString("agent", agent);
-            q.setLong("type", typeId);
+            q.setParameter("status", 1);
+            q.setParameter("id", 1L);
+            q.setParameter("agent", agent);
+            q.setParameter("type", typeId);
             return q.list();
         };
 		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
@@ -343,10 +343,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							+ " from AssessmentTemplateData a where a.status = :status and "
 							+ " (a.assessmentBaseId = :id or a.createdBy = :agent or typeId = :type) order by a.title"
 			);
-            q.setInteger("status", 1);
-            q.setLong("id", Long.valueOf(1));
-            q.setString("agent", agent);
-            q.setLong("type", typeId.longValue());
+            q.setParameter("status", 1);
+            q.setParameter("id", Long.valueOf(1));
+            q.setParameter("agent", agent);
+            q.setParameter("type", typeId.longValue());
             return q.list();
         };
 		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
@@ -690,9 +690,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		final String hql = query;
 		HibernateCallback<List<AssessmentData>> hcb = session -> {
             Query q = session.createQuery(hql);
-            q.setInteger("status", 1);
-            q.setString("fid", "EDIT_ASSESSMENT");
-            q.setString("site", siteAgentId);
+            q.setParameter("status", 1);
+            q.setParameter("fid", "EDIT_ASSESSMENT");
+            q.setParameter("site", siteAgentId);
             return q.list();
         };
 		List<AssessmentData> list = getHibernateTemplate().execute(hcb);
@@ -703,8 +703,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
             		"select a.assessmentBaseId, count(*) from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z " +
 							"where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId and z.functionId = :fid and z.agentIdString = :site " +
 							"group by a.assessmentBaseId ");
-            q2.setString("fid", "EDIT_ASSESSMENT");
-            q2.setString("site", siteAgentId);
+            q2.setParameter("fid", "EDIT_ASSESSMENT");
+            q2.setParameter("site", siteAgentId);
             return q2.list();
         };
 		List<Object[]> questionSizeList = getHibernateTemplate().execute(hcb2);
@@ -749,9 +749,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							+ " and z.agentIdString = :site order by a." + orderBy
 
 			);
-			q.setInteger("status", 1);
-            q.setString("fid", "EDIT_ASSESSMENT");
-            q.setString("site", siteAgentId);
+			q.setParameter("status", 1);
+            q.setParameter("fid", "EDIT_ASSESSMENT");
+            q.setParameter("site", siteAgentId);
             return q.list();
         };
 		List<AssessmentData> list = getHibernateTemplate().execute(hcb);
@@ -809,7 +809,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public int getQuestionSize(final Long assessmentId) {
 		HibernateCallback<Number> hcb = session -> (Number) session
 				.createQuery("select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId = :id")
-				.setLong("id", assessmentId)
+				.setParameter("id", assessmentId)
 				.uniqueResult();
 		return getHibernateTemplate().execute(hcb).intValue();
 	}
@@ -817,7 +817,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public List getQuestionsIdList(final Long assessmentId) {
 		HibernateCallback<List<Long>> hcb = session -> session
 				.createQuery("select i.itemId from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?")
-				.setLong(0, assessmentId.longValue())
+				.setParameter(0, assessmentId.longValue())
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
@@ -1167,9 +1167,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
             		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)" +
 							" from AssessmentTemplateData a where a.status = 1 and (a.assessmentBaseId = :id or" +
 							" a.createdBy = :agent or typeId = :type) order by a." + orderBy);
-            q.setLong("id", 1L);
-            q.setString("agent", agent);
-            q.setLong("type", typeId);
+            q.setParameter("id", 1L);
+            q.setParameter("agent", agent);
+            q.setParameter("type", typeId);
             return q.list();
         };
 		List<AssessmentTemplateData> list = getHibernateTemplate().execute(hcb);
@@ -1245,10 +1245,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
                 		"select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate) " +
 								"from AssessmentTemplateData a, AuthorizationData z where " +
 								"a.title = :title and a.assessmentBaseId != :id and a.createdBy = :agent and a.status = :status");
-                q.setString("title", titlef);
-                q.setLong("id", assessmentBaseId);
-                q.setString("agent", agentString);
-                q.setInteger("status", 1);
+                q.setParameter("title", titlef);
+                q.setParameter("id", assessmentBaseId);
+                q.setParameter("agent", agentString);
+                q.setParameter("status", 1);
                 return q.list();
             };
 			list = getHibernateTemplate().execute(hcb);
@@ -1260,11 +1260,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 								" from AssessmentData a, AuthorizationData z where " +
 								" a.title = :title and a.assessmentBaseId != :id and z.functionId = :fid and " +
 								" a.assessmentBaseId = z.qualifierId and z.agentIdString = :site and a.status = :status");
-                q.setString("title", titlef);
-                q.setLong("id", assessmentBaseId);
-                q.setString("fid", "EDIT_ASSESSMENT");
-                q.setString("site", siteId);
-                q.setInteger("status", 1);
+                q.setParameter("title", titlef);
+                q.setParameter("id", assessmentBaseId);
+                q.setParameter("fid", "EDIT_ASSESSMENT");
+                q.setParameter("site", siteId);
+                q.setParameter("status", 1);
                 return q.list();
             };
 			list = getHibernateTemplate().execute(hcb);
@@ -1282,14 +1282,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		HibernateCallback<List<AssessmentData>> hcb = session -> session
 				.createQuery("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
 					+ "from AssessmentData a where a.assessmentTemplateId = :id")
-					.setLong("id", templateId)
+					.setParameter("id", templateId)
 					.list();
 		return getHibernateTemplate().execute(hcb);
 	}
 
 	public List getDefaultMetaDataSet() {
 		HibernateCallback<List<AssessmentMetaData>> hcb = session -> session.createQuery("from AssessmentMetaData m where m.assessment.assessmentBaseId = :id")
-				.setLong("id", 1L)
+				.setParameter("id", 1L)
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
@@ -1602,9 +1602,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		HibernateCallback<List<AssessmentData>> hcb = session -> session.createQuery(
             		"select a from AssessmentData a,AuthorizationData z where a.status = :status and " +
 							"a.assessmentBaseId=z.qualifierId and z.functionId = :fid and z.agentIdString = :site")
-				.setInteger("status", 1)
-				.setString("fid", "EDIT_ASSESSMENT")
-				.setString("site", siteAgentId)
+				.setParameter("status", 1)
+				.setParameter("fid", "EDIT_ASSESSMENT")
+				.setParameter("site", siteAgentId)
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
@@ -1774,8 +1774,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							"where a.title like :title and z.functionId='EDIT_ASSESSMENT' " +
 							"and a.assessmentBaseId=z.qualifierId and z.agentIdString = :site"
 			);
-            q.setString("title", titlef);
-            q.setString("site", currentSiteId);
+            q.setParameter("title", titlef);
+            q.setParameter("site", currentSiteId);
             return q.list();
         };
     	List<String> list = getHibernateTemplate().execute(hcb);
@@ -2399,9 +2399,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
                 "from AssessmentData a, AuthorizationData z " +
                 "where a.assessmentBaseId=z.qualifierId and z.functionId=:functionId " +
                 "and z.agentIdString=:siteId and a.status=:inactiveStatus ")
-                .setString("functionId", "EDIT_ASSESSMENT")
-                .setString("siteId", siteAgentId)
-                .setInteger("inactiveStatus", AssessmentIfc.DEAD_STATUS)
+                .setParameter("functionId", "EDIT_ASSESSMENT")
+                .setParameter("siteId", siteAgentId)
+                .setParameter("inactiveStatus", AssessmentIfc.DEAD_STATUS)
                 .list();
         return getHibernateTemplate().execute(hcb);
     }

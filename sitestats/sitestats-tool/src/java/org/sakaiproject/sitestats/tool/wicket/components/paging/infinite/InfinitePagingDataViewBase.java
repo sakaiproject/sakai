@@ -27,6 +27,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.PagedInfiniteIt
  */
 public abstract class InfinitePagingDataViewBase<T> extends AbstractInfinitePagingView<T>
 {
+	private static final long serialVersionUID = 1L;
 	private final InfiniteDataProvider<T> dataProvider;
 
 	public InfinitePagingDataViewBase(String id, InfiniteDataProvider<T> dataProvider)

@@ -27,6 +27,7 @@ import org.sakaiproject.sitestats.tool.facade.Locator;
  */
 public class LoadableEventRefDetailsModel extends LoadableDetachableModel<ResolvedEventData>
 {
+	private static final long serialVersionUID = 1L;
 	private final String eventType, eventRef, siteID;
 
 	/**
