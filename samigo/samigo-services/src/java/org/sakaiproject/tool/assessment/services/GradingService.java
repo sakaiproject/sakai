@@ -1060,6 +1060,7 @@ public class GradingService
       //collect min score information to determine if the auto score will need to be adjusted
       //since there can be multiple questions store in map: itemId -> {user's score, minScore, # of answers}
       Map<Long, Double[]> minScoreCheck = new HashMap<>();
+      Map<Long, Boolean> minScoreAnswered = new HashMap<>();
       double totalAutoScoreCheck = 0;
       Map<Long, Integer> countMcmcAllItemGradings = new HashMap<>();
       //get item information to check if it's MCMS and Not Partial Credit
@@ -1112,12 +1113,15 @@ public class GradingService
         if(item.getMinScore() != null){
         	Double accumulatedScore = itemGrading.getAutoScore();
         	Double itemParts = 1d;
+        	boolean answered = isAnswered(itemGrading, itemType2);
         	if(minScoreCheck.containsKey(itemId)){
         		Double[] accumulatedScoreArr = minScoreCheck.get(itemId);
         		accumulatedScore += accumulatedScoreArr[0];
         		itemParts += accumulatedScoreArr[2];
+        		answered = answered || minScoreAnswered.get(itemId);
         	}
         	minScoreCheck.put(itemId, new Double[]{accumulatedScore, item.getMinScore(), itemParts});
+        	minScoreAnswered.put(itemId, answered);
         }
       }
       
@@ -1202,7 +1206,7 @@ public class GradingService
     		  }
     	  }
       }
-      
+
         // If there is a minimum score value, then make sure the auto score is at least the minimum
         // entry.getValue()[0] = total score for the question
         // entry.getValue()[1] = min score
@@ -1215,8 +1219,7 @@ public class GradingService
                     if (!Boolean.valueOf(item.getPartialCreditFlag())) {
                         // We should only set the autoScore to the min score
                         // if partial credit is not in effect
-                        AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
-                        if (answer != null && itemGrading.getPublishedItemId().equals(entry.getKey())) {
+                        if (minScoreAnswered.get(entry.getKey()) && itemGrading.getPublishedItemId().equals(entry.getKey())) {
                             itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
                         }
                     }
@@ -1291,6 +1294,27 @@ public class GradingService
         }
     }
     return totalAutoScore.doubleValue();
+  }
+
+  private boolean isAnswered(ItemGradingData data, Long type) {
+    if(TypeIfc.MATCHING.equals(type)) {
+        if (data.getPublishedAnswerId() != null) {
+          return true;
+        }
+    } else if(TypeIfc.ESSAY_QUESTION.equals(type) || TypeIfc.FILL_IN_BLANK.equals(type) || TypeIfc.FILL_IN_NUMERIC.equals(type)) {
+        if (StringUtils.isNotEmpty(data.getAnswerText())) {
+          return true;
+        }
+    } else if(TypeIfc.IMAGEMAP_QUESTION.equals(type)) {
+        if (StringUtils.isNotEmpty(data.getAnswerText()) && data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+          return true;
+        }
+    } else {
+        if (data.getPublishedAnswerId() != null || StringUtils.isNotEmpty(data.getAnswerText())) {
+          return true;
+        }
+	}
+	return false;
   }
 
   public void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
