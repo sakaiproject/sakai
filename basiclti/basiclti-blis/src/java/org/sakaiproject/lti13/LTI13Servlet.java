@@ -720,7 +720,7 @@ public class LTI13Servlet extends HttpServlet {
 			SakaiBLTIUtil.rotateToolKeys(toolKey, tool);
 		} catch (Exception e) {
 			// We still return the JSON - just log and go
-			log.error(e.getMessage(), e);
+			log.error(e.toString(), e);
 		}
 
 	}
