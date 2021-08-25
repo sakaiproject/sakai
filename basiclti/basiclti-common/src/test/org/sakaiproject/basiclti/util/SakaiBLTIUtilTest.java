@@ -131,7 +131,8 @@ System.err.println("encrypt1="+encrypt1);
 		String encrypt2 = SakaiBLTIUtil.encryptSecret(encrypt1, key);
 		assertTrue(goodEncrypt(encrypt2));
 		assertEquals(encrypt1, encrypt2);
-		String decrypt = SakaiBLTIUtil.decryptSecret(encrypt2, key);
+		boolean checkonly = false;
+		String decrypt = SakaiBLTIUtil.decryptSecret(encrypt2, key, checkonly);
 		assertEquals(plain, decrypt);
 	}
 

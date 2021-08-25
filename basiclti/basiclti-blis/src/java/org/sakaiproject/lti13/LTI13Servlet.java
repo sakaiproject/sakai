@@ -635,7 +635,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		pc.lti_platform_configuration = lpc;
 
-
 		response.setContentType(APPLICATION_JSON);
 		try {
 			PrintWriter out = response.getWriter();
@@ -664,35 +663,41 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String publicSerialized = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-		if (publicSerialized == null) {
+		String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+		if (publicSerializedCurrent == null) {
 			response.setHeader(ERROR_DETAIL, "Client has no public key");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} has no public key", tool_id);
 			return;
 		}
 
-		Key publicKey = LTI13Util.string2PublicKey(publicSerialized);
-		if (publicKey == null) {
+		Map<String, RSAPublicKey> keys = new TreeMap<>();
+
+		if (LTI13KeySetUtil.addPublicKey(keys, publicSerializedCurrent) != true ) {
 			response.setHeader(ERROR_DETAIL, "Client public key deserialization error");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} deserialization error", tool_id);
 			return;
 		}
 
-		// Cast should work :)
-		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
+		// Pull in Next and Old if they exist
+		String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
+		LTI13KeySetUtil.addPublicKey(keys, publicSerializedNext);
+		String publicSerializedOld = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_OLD));
+		LTI13KeySetUtil.addPublicKey(keys, publicSerializedOld);
+
 
 		String keySetJSON = null;
 		try {
-			keySetJSON = LTI13KeySetUtil.getKeySetJSON(rsaPublic);
+			keySetJSON = LTI13KeySetUtil.getKeySetJSON(keys);
 		} catch (NoSuchAlgorithmException ex) {
 			response.setHeader(ERROR_DETAIL, "NoSuchAlgorithmException");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} NoSuchAlgorithmException", tool_id);
 			return;
 		}
-
+		//
+		// Send Response
 		response.setContentType(APPLICATION_JSON);
 		try {
 			out = response.getWriter();
@@ -707,7 +712,17 @@ public class LTI13Servlet extends HttpServlet {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
 		}
+
+		// See if this key needs to be rotated
+		try {
+			SakaiBLTIUtil.rotateToolKeys(toolKey, tool);
+		} catch (Exception e) {
+			// We still return the JSON - just log and go
+			log.error(e.toString(), e);
+		}
+
 	}
 
 	protected void handleTokenPost(String tool_id, HttpServletRequest request, HttpServletResponse response) {
