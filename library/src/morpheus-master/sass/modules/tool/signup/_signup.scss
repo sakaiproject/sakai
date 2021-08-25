@@ -11,11 +11,8 @@
 
 	.toggleMeetings{
 		cursor:pointer;
-		&.toggleDownload{
-			left: 5px;
-			top: -2px;
-			position: relative;
-			margin: 0 0 0 0;
+		&.toggleDownload img{
+			vertical-align: baseline;
 		}
 	}
 
