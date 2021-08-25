@@ -251,7 +251,7 @@
 
     <f:verbatim><br/></f:verbatim>
     <div class="tier2">
-        <h:commandButton value="#{commonMessages.action_save_pair}" action="#{itemauthor.currentItem.addMatchPair}"></h:commandButton>
+        <h:commandButton value="#{commonMessages.action_save_pair}" action="#{itemauthor.currentItem.addMatchPair}" onclick="SPNR.disableControlsAndSpin( this, null );"></h:commandButton>
     </div>
     <f:verbatim><br/></f:verbatim>
 
