@@ -111,7 +111,7 @@ public class AssessmentToolFsVolumeFactory implements ToolFsVolumeFactory {
         @Override
         public String getName() {
             // TODO i18n
-            return "Assessments";
+            return "Tests & Quizzes";
         }
 
         @Override
