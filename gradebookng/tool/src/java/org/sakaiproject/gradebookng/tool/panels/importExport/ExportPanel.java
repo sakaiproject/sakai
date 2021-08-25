@@ -355,11 +355,15 @@ public class ExportPanel extends BasePanel {
 						final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
 
 						final String assignmentPoints = FormatHelper.formatGradeForDisplay(a1.getPoints().toString());
+						String externalPrefix = "";
+						if (a1.isExternallyMaintained()) {
+							externalPrefix = IGNORE_COLUMN_PREFIX;
+						}
 						if (!isCustomExport || this.includeGradeItemScores) {
-							header.add(a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
+							header.add(externalPrefix + a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
 						}
 						if (!isCustomExport || this.includeGradeItemComments) {
-							header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, a1.getName()));
+							header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, a1.getName()));
 						}
 						
 						if (isCustomExport && this.includeCategoryAverages
