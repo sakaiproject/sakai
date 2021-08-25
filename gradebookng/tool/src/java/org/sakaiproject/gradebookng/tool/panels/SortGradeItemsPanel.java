@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,6 +36,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 @Slf4j
 public class SortGradeItemsPanel extends Panel {
@@ -64,7 +64,7 @@ public class SortGradeItemsPanel extends Panel {
 
 		final Form<Void> form = new Form<>("form");
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -119,6 +119,7 @@ public class SortGradeItemsPanel extends Panel {
 				setResponsePage(getPage().getPageClass());
 			}
 		};
+		submit.setWillRenderOnClick(true);
 
 		if (categoriesEnabled) {
 			tabs.add(new AbstractTab(new Model<String>(getString("sortgradeitems.bycategory"))) {
@@ -160,6 +161,16 @@ public class SortGradeItemsPanel extends Panel {
 			}
 		});
 
+		SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+				SortGradeItemsPanel.this.window.close(target);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+		cancel.setWillRenderOnClick(true);
+
+		form.add(cancel);
 		form.add(submit);
 		add(form);
 	}
