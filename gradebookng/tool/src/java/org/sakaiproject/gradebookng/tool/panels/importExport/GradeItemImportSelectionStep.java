@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +150,28 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
 		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
+		// Set up the previous selections, if any
+		final List<ProcessedGradeItem> selectedItems = importWizardModel.getSelectedGradeItems() == null ? Collections.emptyList() : importWizardModel.getSelectedGradeItems();
+		for (ProcessedGradeItem prevSelection : selectedItems)
+		{
+			final String title = prevSelection.getItemTitle();
+			ProcessedGradeItem item = null;
+			switch (prevSelection.getType())
+			{
+				case GB_ITEM:
+					item = gradeItemMap.get(title);
+					break;
+				case COMMENT:
+					item = commentMap.get(title);
+					break;
+			}
+
+			if (item != null && item.isSelectable())
+			{
+				item.setSelected(true);
+			}
+		}
+
 		final Form<?> form = new Form("form");
 		add(form);
 
@@ -223,6 +246,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				log.debug("Items to modify: {}", itemsToModify.size());
 
 				// set data for next page
+				importWizardModel.setSelectedGradeItems(itemsToProcess); // This is grades and comments now
 				importWizardModel.setItemsToCreate(itemsToCreate);
 				importWizardModel.setItemsToUpdate(itemsToUpdate);
 				importWizardModel.setItemsToModify(itemsToModify);
