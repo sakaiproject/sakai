@@ -81,6 +81,7 @@
 				// Improve accessibility in error messages.adding the error as title
 				var errorMessages = $('#revise\\:errorMessages');
 				if (errorMessages !== undefined) {
+					errorMessages.attr("role", "alert");
 					errorMessages.find('td').each(function() {
 						$(this).attr('title', $(this).html());
 					});
