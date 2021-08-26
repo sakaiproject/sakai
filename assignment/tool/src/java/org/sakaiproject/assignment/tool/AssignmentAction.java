@@ -320,10 +320,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String ADDITIONAL_CALENDAR_TOOL_READY = "additional_calendar_tool_ready";
     /**
-     * Sakai property key to change the default value for the 'Add due date to calendar' checkbox
-     */
-    private static final String SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT = "asn.due.date.to.calendar.default";
-    /**
      * Default value for the 'Add due date to calendar' checkbox
      */
     private static final boolean DUE_DATE_TO_CALENDAR_DEFAULT = true;
@@ -1027,14 +1023,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * To know if grade_submission go from view_students_assignment view or not
      **/
     private static final String FROM_VIEW = "from_view";
-    /**
-     * Sakai.property for enable/disable anonymous grading
-     */
-    private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
-    /**
-     * Site property for forcing anonymous grading in a site
-     */
-    private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
 
     private static final String FLAG_ON = "on";
     private static final String FLAG_TRUE = "true";
@@ -2739,11 +2727,11 @@ public class AssignmentAction extends PagedResourceActionII {
         initState(state, portlet, (JetspeedRunData) data);
 
         // Anon grading enabled/disabled
-        context.put("enableAnonGrading", serverConfigurationService.getBoolean(SAK_PROP_ENABLE_ANON_GRADING, false));
+        context.put("enableAnonGrading", serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_ENABLE_ANON_GRADING, false));
         boolean forceAnonGrading = false;
         try {
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-            forceAnonGrading = site.getProperties().getBooleanProperty(SAK_PROP_FORCE_ANON_GRADING);
+            forceAnonGrading = site.getProperties().getBooleanProperty(AssignmentConstants.SAK_PROP_FORCE_ANON_GRADING);
         } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException | SakaiException se) {
             log.debug("Failed to find if anonymous grading is forced.");
         }
@@ -3249,10 +3237,10 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         // get all assignment
         Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
-        HashMap<String, String> gAssignmentIdTitles = new HashMap<String, String>();
+        HashMap<String, String> gAssignmentIdTitles = new HashMap<>();
 
-        HashMap<String, String> gradebookAssignmentsSelectedDisabled = new HashMap<String, String>();
-        HashMap<String, String> gradebookAssignmentsLabel = new HashMap<String, String>();
+        HashMap<String, String> gradebookAssignmentsSelectedDisabled = new HashMap<>();
+        HashMap<String, String> gradebookAssignmentsLabel = new HashMap<>();
 
         for (Assignment a : assignments) {
             String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -3310,9 +3298,12 @@ public class AssignmentAction extends PagedResourceActionII {
             // exception
             log.debug(this + ":currentAssignmentGradebookIntegrationIntoContext " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
         }
-        context.put("gradebookAssignmentsSelectedDisabled", gradebookAssignmentsSelectedDisabled);
 
+        context.put("gradebookAssignmentsSelectedDisabled", gradebookAssignmentsSelectedDisabled);
         context.put("gradebookAssignmentsLabel", gradebookAssignmentsLabel);
+
+        // Determine if we're hiding the option to link to existing gradebook items
+        context.put("allowLinkToExistingGradebookItem", serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM, AssignmentConstants.SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT));
     }
 
     private void putGradebookCategoryInfoIntoContext(SessionState state, Context context) {
@@ -11534,7 +11525,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_TITLE, null);
         state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, null);
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
-        boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
+        boolean checkAddDueDate = (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null) && serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT, DUE_DATE_TO_CALENDAR_DEFAULT);
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.toString(checkAddDueDate));
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 
