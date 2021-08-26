@@ -7244,6 +7244,14 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getString("thiasshas"));
         }
 
+        Integer assignmentType = params.getInt(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        if ( assignmentType == 6 ) {
+            Integer contentId = params.getInt(NEW_ASSIGNMENT_CONTENT_ID);
+            if ( contentId < 1 ) {
+                addAlert(state, rb.getString("pleaseselectlti"));
+            }
+        }
+
         // allow resubmission numbers
         if (params.getString("allowResToggle") != null && params.getString(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null) {
             // read in allowResubmit params
