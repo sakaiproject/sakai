@@ -78,7 +78,7 @@ public class LetterGradePlusMinusMapping extends GradeMapping {
      */
     @Override
 	public String getName() {
-        return "Letter Grades with +/-";
+		return "letter_grades_plus";
     }
 
 }
