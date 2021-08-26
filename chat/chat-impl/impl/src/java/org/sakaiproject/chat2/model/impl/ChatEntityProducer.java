@@ -722,8 +722,10 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
 
          Site toSite = SiteService.getSite(toContext);
          ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
+         if (toSynTool == null) {
+            return;
+         }
          Properties toSynProp = toSynTool.getPlacementConfig();
-
          if (fromSynProp != null && !fromSynProp.isEmpty()) 
          {
             Set synPropSet = fromSynProp.keySet();
