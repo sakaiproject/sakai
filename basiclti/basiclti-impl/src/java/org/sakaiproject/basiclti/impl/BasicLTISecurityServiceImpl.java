@@ -318,7 +318,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
 			redirect.addParameter("login_hint", encoded_login_hint);
-			redirect.addParameter("suports_postmessage", "yes");
+			redirect.addParameter("web_message_target", "_parent");
 			SakaiBLTIUtil.addSakaiBaseCapabilities(redirect);
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);

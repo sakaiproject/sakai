@@ -45,6 +45,7 @@ w.addEventListener('message', function (event) {
     if ( typeof message == 'string' ) message = JSON.parse(message)
     console.log(message);
 
+    // The old way
     approved = _Sakai_LTI_Iframes.includes(frame_id);
     if ( ! same_origin ) {
         console.log('id', frame_id, (approved ? 'approved' : 'not approved'));
@@ -58,73 +59,63 @@ w.addEventListener('message', function (event) {
         case 'org.sakailms.lti.prelaunch':
             if ( same_origin ) {
                 _Sakai_LTI_Iframes.push(frame_id);
+		// TODO: Get a list of origins and whitelist them
+                // _Sakai_LTI_origins.push(something);
                 console.log('org.imsglobal.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
             } else {
                 console.log('org.imsglobal.lti.prelaunch must come from same origin, not', origin);
             }
             break;
         case 'org.imsglobal.lti.capabilities':
-            if ( approved || same_origin ) {
-                let send_data = {
-                    subject: 'org.imsglobal.lti.capabilities.response',
-                    message_id: message.message_id,
-                    supported_messages: supported_messages,
-                };
-                console.log(w.location.origin + " Sending post message to " + event.origin);
-                console.log(JSON.stringify(send_data, null, '    '));
-                event.source.postMessage(send_data, event.origin);
-            } else {
-                console.log('org.imsglobal.lti.capabilities must come from approved frame, not', origin);
-            }
+            let send_data = {
+                subject: 'org.imsglobal.lti.capabilities.response',
+                message_id: message.message_id,
+                supported_messages: supported_messages,
+            };
+            console.log(w.location.origin + " Sending post message to " + event.origin);
+            console.log(JSON.stringify(send_data, null, '    '));
+            event.source.postMessage(send_data, event.origin);
             break;
         case 'org.imsglobal.lti.put_data':
-            if ( approved || same_origin ) {
-                if (!stored_data[frame_id]) {
-                    stored_data[frame_id] = {};
-                }
-                stored_data[frame_id][message.key] = message.value;
-                let send_data = {
-                    subject: 'org.imsglobal.lti.put_data.response',
+            if (!stored_data[origin]) {
+                stored_data[origin] = {};
+            }
+            // TODO: Check quota
+            stored_data[origin][message.key] = message.value;
+            let send_data = {
+                subject: 'org.imsglobal.lti.put_data.response',
+                message_id: message.message_id,
+                key: message.key,
+                value: message.value,
+            };
+            console.log(w.location.origin + " Sending post message to " + event.origin);
+            console.log(JSON.stringify(send_data, null, '    '));
+            event.source.postMessage(send_data, event.origin);
+            break;
+        case 'org.imsglobal.lti.get_data':
+            console.log('get_data ',origin, ' ', message.key,' ', message.value);
+            let retval = false;
+            if (stored_data[origin] && stored_data[origin][message.key]) {
+                let retval = stored_data[origin][message.key];
+                 let send_data = {
+                    subject: 'org.imsglobal.lti.get_data.response',
                     message_id: message.message_id,
                     key: message.key,
-                    value: message.value,
+                    value: stored_data[origin][message.key]
                 };
                 console.log(w.location.origin + " Sending post message to " + event.origin);
                 console.log(JSON.stringify(send_data, null, '    '));
                 event.source.postMessage(send_data, event.origin);
             } else {
-                console.log('org.imsglobal.lti.put_data must come from approved frame, not', origin);
-            }
-            break;
-        case 'org.imsglobal.lti.get_data':
-            if ( approved || same_origin ) {
-                console.log('get_data ',frame_id, ' ', message.key,' ', message.value);
-                let retval = false;
-                if (stored_data[frame_id] && stored_data[frame_id][message.key]) {
-                    let retval = stored_data[frame_id][message.key];
-                     let send_data = {
-                        subject: 'org.imsglobal.lti.get_data.response',
-                        message_id: message.message_id,
-                        key: message.key,
-                        value: stored_data[frame_id][message.key]
-                    };
-                    console.log(w.location.origin + " Sending post message to " + event.origin);
-                    console.log(JSON.stringify(send_data, null, '    '));
-                    event.source.postMessage(send_data, event.origin);
-                } else {
-                    let send_data = {
-                        subject: 'org.imsglobal.lti.get_data.response',
-                        message_id: message.message_id,
-                        key: message.key,
-                        error: 'Could not find key',
-                    };
-                    console.log(w.location.origin + " Sending post message to " + event.origin);
-                    console.log(JSON.stringify(send_data, null, '    '));
-                    event.source.postMessage(send_data, event.origin);
-
-                }
-            } else {
-                console.log('org.imsglobal.lti.get_data must come from approved frame, not', origin);
+                let send_data = {
+                    subject: 'org.imsglobal.lti.get_data.response',
+                    message_id: message.message_id,
+                    key: message.key,
+                    error: 'Could not find key',
+                };
+                console.log(w.location.origin + " Sending post message to " + event.origin);
+                console.log(JSON.stringify(send_data, null, '    '));
+                event.source.postMessage(send_data, event.origin);
             }
             break;
         case 'org.sakailms.lti.postverify':
