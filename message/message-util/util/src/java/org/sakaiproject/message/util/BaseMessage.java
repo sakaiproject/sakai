@@ -1962,9 +1962,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			Site toSite = m_siteService.getSite(toContext);
 			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
 			Properties toSynProp = null;
-			if (toSynTool != null)
+			if (toSynTool != null) {
 				toSynProp = toSynTool.getPlacementConfig();
-
+			} else {
+				return;
+			}
 			if (fromSynProp != null && !fromSynProp.isEmpty()) 
 			{
 				Set synPropSet = fromSynProp.keySet();
