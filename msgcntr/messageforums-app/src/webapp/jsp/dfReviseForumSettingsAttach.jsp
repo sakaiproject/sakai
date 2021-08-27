@@ -139,7 +139,7 @@
 			<h:panelGrid columns="1" styleClass="jsfFormTable" columnClasses="shorttext">
 				<h:panelGroup>
 					<%-- //designNote: does this text input need a maxlength attribute ? --%>
-					<h:outputLabel id="outputLabel" for="forum_title" styleClass="block" style="padding-bottom:.3em;display:block;clear:both;float:none;font-weight:700;">
+					<h:outputLabel id="outputLabel" for="forum_title" styleClass="block strong" style="padding-bottom:.3em;display:block;clear:both;float:none;">
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>	
 						<h:outputText  value="#{msgs.cdfm_forum_title}" />
 					</h:outputLabel>
@@ -154,7 +154,7 @@
 				<h:panelGroup >
 					<h:outputText value="" />
 					<%-- //designNote: this label should alert that textarea has a 255 max chars limit --%>
-					<h:outputLabel id="outputLabel1" for="forum_shortDescription"  value="#{msgs.cdfm_shortDescription}" style="font-weight:700;"/>
+					<h:outputLabel id="outputLabel1" for="forum_shortDescription"  value="#{msgs.cdfm_shortDescription}" styleClass="strong"/>
 							<h:outputText value="#{msgs.cdfm_shortDescriptionCharsRem}"  styleClass="charRemFormat" style="display:none"/>
 							<%--
 						

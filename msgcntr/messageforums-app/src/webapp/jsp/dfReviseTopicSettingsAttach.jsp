@@ -125,7 +125,7 @@
 
 		<h:panelGrid styleClass="jsfFormTable" columns="1"  columnClasses="shorttext">
 			<h:panelGroup>
-				<h:outputLabel id="outputLabel" for="topic_title"   style="padding-bottom:.3em;display:block;clear:both;float:none;font-weight:700;">
+				<h:outputLabel id="outputLabel" for="topic_title" styleClass="strong" style="padding-bottom:.3em;display:block;clear:both;float:none;">
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 					<h:outputText value="#{msgs.cdfm_topic_title}" />
 				</h:outputLabel>	 
@@ -138,7 +138,7 @@
 				and if there is server property (TBD) saying not to use it  - below just checking for pre-existing short description--%>
 		<h:panelGrid columns="1"  columnClasses="longtext" rendered="#{ForumTool.showTopicShortDescription}">
 			<h:panelGroup>
-				<h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}" style="font-weight:700;"/>
+				<h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}" styleClass="strong"/>
 				<h:outputText value="#{msgs.cdfm_shortDescriptionCharsRem}"  styleClass="charRemFormat" style="display:none"/>
 				<%--
 				<h:outputText value="%1 chars remain"  styleClass="charRemFormat" style="display:none"/>
