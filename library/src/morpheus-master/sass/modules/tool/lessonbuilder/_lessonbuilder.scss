@@ -216,7 +216,7 @@
 			border: 1px solid var(--$shade1);
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
-			@debug $shade2 + '  #{$shade2}  ' + map-get($colorPalette,#{$shade2});
+			// @debug $shade2 + '  #{$shade2}  ' + map-get($colorPalette,#{$shade2});
 
 			@include sakai-colorize(#{$shade2}, $colorPalette: $colorPalette);
 			border: 1px solid var(--#{$shade2});

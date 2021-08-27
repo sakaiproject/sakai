@@ -1,4 +1,10 @@
 /* Dark Theme */
+$dark-theme-colors: (
+    "sakai-greyblue": #84909f
+);
+$theme-colors: map-merge($theme-colors, $dark-theme-colors);
+@debug colorPalette, length($colorPalette), nth(map-keys($colorPalette),length($colorPalette)), map-get($colorPalette, nth(map-keys($colorPalette),length($colorPalette)));
+@debug theme-colors, length($theme-colors), nth(map-keys($theme-colors),length($theme-colors)), map-get($theme-colors, nth(map-keys($theme-colors),length($theme-colors)));
 
 :root.sakaiUserTheme-dark {
     /////////////////////////////////////////////////////////////
@@ -30,9 +36,8 @@
     // purple, and red palettes available for you to use.
     // More info about defineColorHSL in sass/themes/_base.scss
     // $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-greyblue, #84909f));
-    $theme-colors: map-merge($theme-colors, (sakai-greyblue: #84909f));
-
-    /////////////////////////////////////////////////////////////
+    // $colorPalette: defineColorHEX(sakai-greyblue, #84909f);
+ /////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////
     // Main theme definition

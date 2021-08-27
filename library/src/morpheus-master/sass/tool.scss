@@ -3,8 +3,8 @@
 @import "themes/base";
 @import "themes/light";
 @import "themes/dark";
-@import "themes/generate";
 @import "customization"; //it is copied from the user supplied file by maven
+@import "themes/generate";
 
 
 @import "base/bootstrap-defaults";

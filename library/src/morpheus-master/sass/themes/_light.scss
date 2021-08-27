@@ -1,5 +1,11 @@
+@import "../defaults";
 /* Light Theme */
-
+$light-theme-colors: (
+    "sakai-brand": #0f4b70
+);
+$theme-colors: map-merge($theme-colors, $light-theme-colors);
+@debug colorPalette, length($colorPalette), nth(map-keys($colorPalette),length($colorPalette)), map-get($colorPalette, nth(map-keys($colorPalette),length($colorPalette)));
+@debug theme-colors, length($theme-colors), nth(map-keys($theme-colors),length($theme-colors)), map-get($theme-colors, nth(map-keys($theme-colors),length($theme-colors)));
 
 :root{
     /////////////////////////////////////////////////////////////
@@ -30,10 +36,13 @@
     // predefined with gray, blue, teal, gold, green, orange,
     // purple, and red palettes available for you to use.
     // More info about defineColorHSL in sass/themes/_base.scss
-
-    // $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
+    // $theme-colors: map-merge($theme-colors, defineColorHEX(sakai-brand, #0f4b70));
+    // $colorPalette: map-merge($theme-colors, defineColorHEX(sakai-brand, #0f4b70));
+    // $theme-colors: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
+    // $colorPalette: defineColorHEX(sakai-brand, #0f4b70);
     
-    $theme-colors: map-merge($theme-colors, (sakai-brand: #0f4b70));
+    // $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
+   
     /////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////
@@ -53,7 +62,7 @@
     // Suggested: Your institution's main branding color.
     // Used in the top header, action buttons, etc. Commonly used as the background
     // color with white text color.
-    --sakai-primary-color-1: var(--sakai-brand);
+    --sakai-primary-color-1: var(--sakai-brand-50);
 
     // Default: A slightly darker shade of --sakai-primary-color-1
     // Used for hover effects and higher contrast with white text color
