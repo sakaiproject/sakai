@@ -320,13 +320,13 @@ document.links[newindex].onclick();
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
 		<h:panelGroup layout="block" styleClass="input-group col-sm-6">
-			<span class="input-group-addon">
+			<p class="input-group-addon">
 				<h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
 				<h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-			</span>
+			</p>
 			<%-- REVIEW ASSESSMENT --%>
 			<h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-			<span class="input-group-addon">
+			<p class="input-group-addon">
 				<%-- REVIEW ASSESSMENT --%>
 				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 				<%-- DELIVER ASSESSMENT --%>
@@ -337,7 +337,7 @@ document.links[newindex].onclick();
 				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
 					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
 				</h:outputText>
-			</span>
+			</p>
 			<h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}" />
 		</h:panelGroup>
 
