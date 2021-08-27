@@ -629,7 +629,7 @@
 					margin-left: 5px;
 					margin-top: 10px;
 					padding: 14px 2px 2px 2px;
-					color: var(--sakai-color-gray--darker-5);
+					color: var(--sakai-gray-75);
 					&__left{
 						background: $footerApp__chat__message__left__background;
 						border: $footerApp__chat__message__left__border solid 1px;
@@ -727,7 +727,7 @@
 				    padding: 1px;
 				}
 				&videocontent{
-					  background-color:var(--sakai-color-black);
+					  background-color:var(--sakai-black);
 				}
 				&messages{
 					list-style: none;
@@ -794,7 +794,7 @@
 					text-align: right;
 				}
 				&remotevideo{
-						background: var(--sakai-color-black);
+						background: var(--sakai-black);
 						position: relative;
 						z-index: 101;
 				}
@@ -822,7 +822,7 @@
 					  position: relative;
 					  top: 20px;
 					  color: $footerApp__chat__header__color;
-					  background-color: var(--sakai-color-black);
+					  background-color: var(--sakai-black);
 					  .Mrphs-footerApp--icon {
 					  	font-size: 3em;
 					  	padding-top: 10px;

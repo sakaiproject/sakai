@@ -57,102 +57,102 @@ $theme-colors: map-merge($theme-colors, $dark-theme-colors);
     // Suggested: Your institution's main branding color.
     // Used in the top header, action buttons, etc. Commonly used as the background
     // color with white text color.
-    --sakai-primary-color-1: var(--sakai-brand);
+    --sakai-primary-color-1: var(--sakai-brand-50);
 
     // Default: A slightly lighter shade of --sakai-primary-color-1
     // Used for hover effects and higher contrast with white text color
-    --sakai-primary-color-2: var(--sakai-brand--lighter-1);
+    --sakai-primary-color-2: var(--sakai-brand-45);
 
     // Default: A slightly lighter shade of --sakai-primary-color-2
     // Used for active, focus, selected effects
-    --sakai-primary-color-3: var(--sakai-brand--lighter-2);
+    --sakai-primary-color-3: var(--sakai-brand-40);
 
     // Default: A lighter tint of --sakai-primary-color-1. 
     // Suggested: A light tint of your institution's main branding color.
     // Used to highlight active/current site in favorites and active/current tool in toolmenu
     // Commonly used with white background color with white text color.
-    --sakai-active-color-1: var(--sakai-brand--darker-1);
+    --sakai-active-color-1: var(--sakai-brand-55);
 
     // Default: A slightly lighter shade of --sakai-active-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-3
-    --sakai-active-color-2: var(--sakai-brand);
+    --sakai-active-color-2: var(--sakai-brand-50);
 
     // Default: A slightly lighter shade of --sakai-active-color-2
     // Used for active, focus, selected effects with --sakai-text-color-3
-    --sakai-active-color-3: var(--sakai-brand--lighter-1);
+    --sakai-active-color-3: var(--sakai-brand-45);
 
         // Default: A very light tint of gray. 
-    // Suggested: --sakai-greyblue--darker-5.
+    // Suggested: --sakai-greyblue-75.
     // Used as background for non-active/current site in favorites and buttons
     // Commonly used with dark text color.
-    --sakai-passive-color-1: var(--sakai-greyblue--darker-5);
+    --sakai-passive-color-1: var(--sakai-greyblue-75);
 
     // Default: A slightly darker shade of --sakai-passive-color-1
     // Used for hover effects and higher contrast with --sakai-text-color-1
-    --sakai-passive-color-2: var(--sakai-greyblue--darker-4);
+    --sakai-passive-color-2: var(--sakai-greyblue-70);
 
     // Default: A slightly darker shade of --sakai-passive-color-2
     // Used for active, focus, selected effects with --sakai-text-color-1
-    --sakai-passive-color-3: var(--sakai-greyblue--darker-3);
+    --sakai-passive-color-3: var(--sakai-greyblue-65);
 
     // Primary background color. 
     // Suggested: very dark grey
     // Used on the body and main content containers
-    --sakai-background-color-1: var(--sakai-greyblue--darker-6);
+    --sakai-background-color-1: var(--sakai-greyblue-80);
 
     // Default: A slightly lighter shade of --sakai-background-color-1
     // Used in hover effects of --sakai-background-color-1, alternating table rows
-    --sakai-background-color-2: var(--sakai-greyblue--darker-5);
+    --sakai-background-color-2: var(--sakai-greyblue-75);
 
     // Default: A slightly lighter shade of --sakai-primary-color-2
     // Used for active, focus, selected effects of --sakai-background-color-1
     // and hover effects of --sakai-background-color-2
-    --sakai-background-color-3: var(--sakai-greyblue--darker-4);
+    --sakai-background-color-3: var(--sakai-greyblue-70);
 
     // Default: A slightly lighter shade of --sakai-primary-color-2
     // Used for active, focus, selected effects of --sakai-background-color-3
-    --sakai-background-color-4: var(--sakai-greyblue--darker-3);
+    --sakai-background-color-4: var(--sakai-greyblue-65);
 
     // Secondary branding color. 
     // Suggested: An alterate branding color distinct from
     // what you select for --sakai-primary-color-1
     // Used in new user tutorial, user profile image border
-    --sakai-secondary-color-1: var(--sakai-color-blue--lighter-2);
+    --sakai-secondary-color-1: var(--sakai-blue-40);
 
     // Tertiary branding color. 
     // Suggested: A third branding color distinct from
     // what you selected for --sakai-primary-color-1 and --sakai-secondary-color-1
     // Used in user profile image border
-    --sakai-tertiary-color-1: var(--sakai-color-orange--lighter-2);
+    --sakai-tertiary-color-1: var(--sakai-orange-40);
 
     // Primary border color used across sakai. 
     // Suggested: light gray
-    --sakai-border-color: var(--sakai-greyblue--darker-4);
+    --sakai-border-color: var(--sakai-greyblue-70);
 
     // Primary text color used across sakai. 
     // Suggested: light grey
     // Most commonly used against --sakai-background-color-1
-    --sakai-text-color-1: var(--sakai-color-gray--lighter-5);
+    --sakai-text-color-1: var(--sakai-gray-25);
 
     // Default: A slightly lighter shade of --sakai-text-color-1
     // Used in certain hover effects, but NOT a[href] elements
-    --sakai-text-color-2: var(--sakai-color-gray--lighter-6);
+    --sakai-text-color-2: var(--sakai-gray-20);
 
     // Default: A much lighter shade of --sakai-primary-color-1
     // Used as text color of active site in favorites, active tool in toolmenu
-    --sakai-text-color-3: var(--sakai-brand--lighter-6);
+    --sakai-text-color-3: var(--sakai-brand-20);
 
     // Default: A slightly lighter shade of --sakai-text-color-1
     // Used to reduce attention of text
-    --sakai-text-color-dimmed: var(--sakai-color-gray--lighter-4);
+    --sakai-text-color-dimmed: var(--sakai-gray-30);
 
     // Default: A lighter shade of --sakai-text-color-1
     // Used to make elements appear disabled or "grayed out"
-    --sakai-text-color-disabled: var(--sakai-color-gray--lighter-2);
+    --sakai-text-color-disabled: var(--sakai-gray-40);
 
-    // Default: --sakai-color-white
+    // Default: --sakai-white
     // Used for text color on saturated color backgrounds like primary button, header bar icons
-    --sakai-text-color-inverted: var(--sakai-color-gray--lighter-6);
+    --sakai-text-color-inverted: var(--sakai-gray-20);
 
     /////////////////////End main theme definition/////////////////////
 
@@ -168,25 +168,25 @@ $theme-colors: map-merge($theme-colors, $dark-theme-colors);
     --link-hover-color: var(--sakai-text-color-2);
     --link-visited-color: var(--sakai-color-purple--lighter-2);
     // Information (info) banner
-    --infoBanner-bordercolor: var(--sakai-color-blue--darker-4);
-    --infoBanner-bgcolor: var(--sakai-color-blue--darker-6);
-    --infoBanner-color: var(--sakai-color-blue--lighter-4);
+    --infoBanner-bordercolor: var(--sakai-blue-70);
+    --infoBanner-bgcolor: var(--sakai-blue-80);
+    --infoBanner-color: var(--sakai-blue-30);
     // Success banner
-    --successBanner-bordercolor: var(--sakai-color-green--darker-4);
-    --successBanner-bgcolor: var(--sakai-color-green--darker-6);
-    --successBanner-color: var(--sakai-color-green--lighter-4);
+    --successBanner-bordercolor: var(--sakai-green-70);
+    --successBanner-bgcolor: var(--sakai-green-80);
+    --successBanner-color: var(--sakai-green-30);
     // Warning (warn) banner
-    --warnBanner-bordercolor: var(--sakai-color-gold--darker-4);
-    --warnBanner-bgcolor: var(--sakai-color-gold--darker-6);
-    --warnBanner-color: var(--sakai-color-gold--lighter-4);
+    --warnBanner-bordercolor: var(--sakai-gold-70);
+    --warnBanner-bgcolor: var(--sakai-gold-80);
+    --warnBanner-color: var(--sakai-gold-30);
     // Error banner
-    --errorBanner-bordercolor: var(--sakai-color-red--darker-4);
-    --errorBanner-bgcolor: var(--sakai-color-red--darker-6);
-    --errorBanner-color: var(--sakai-color-red--lighter-4);
+    --errorBanner-bordercolor: var(--sakai-red-70);
+    --errorBanner-bgcolor: var(--sakai-red-80);
+    --errorBanner-color: var(--sakai-red-30);
 
     --progress-bar-bg: var(--infoBanner-bgcolor);
-    --footer-PoweredBy-bg: var(--sakai-color-gray--darker-1);
-    --sakai-hightlight-color: var(--sakai-color-red--lighter-6)
+    --footer-PoweredBy-bg: var(--sakai-gray-55);
+    --sakai-hightlight-color: var(--sakai-red-20)
 
     // Dashboard
     --sakai-calendar-button-background-color: var(--sakai-background-color);

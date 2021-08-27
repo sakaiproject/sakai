@@ -475,8 +475,8 @@
 
 	.formInputField.invalid,
 	.formInputArea.invalid {
-		border: 2px solid var(--sakai-color-red);
-		color: var(--sakai-color-red);
+		border: 2px solid var(--sakai-red-50);
+		color: var(--sakai-red-50);
 	}
 
 	.feedbackLabel {
@@ -1211,7 +1211,7 @@
 		border-radius: 17px;
 		padding: 7px 30px;
         @include sakai-colorize(sakai-red-50);
-		border-color: var(--sakai-color-red);
+		border-color: var(--sakai-red-50);
 		box-shadow: var(--elevation-2dp);
 		margin-bottom: 10px;
 		@include display-flex;
@@ -1219,12 +1219,12 @@
 		@include align-items(center);
 		&:hover {
         @include sakai-colorize(sakai-red-55);
-			border-color: var(--sakai-color-red--darker-1);
+			border-color: var(--sakai-red-55);
 			box-shadow: var(--elevation-4dp);
 		}
 		&:active, &:focus {
         @include sakai-colorize(sakai-red-60);
-			border-color: var(--sakai-color-red--darker-2);
+			border-color: var(--sakai-red-60);
 			box-shadow: var(--elevation-0dp);
 		}
 	}

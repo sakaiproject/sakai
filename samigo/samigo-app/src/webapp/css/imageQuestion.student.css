@@ -35,8 +35,8 @@
 	padding-left: 18px;
 	position: absolute;
 	display: none;
-	color: var(--sakai-color-red);
-	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
+	color: var(--sakai-red-50);
+	text-shadow: 1px 1px 0 var(--sakai-white), -1px -1px 0 var(--sakai-white), -1px 1px 0 var(--sakai-white), 1px -1px 0 var(--sakai-white);
 	font-size: 16px;
 }
 
@@ -48,8 +48,8 @@
 	padding-left: 18px;
 	position: absolute;
 	display: none;
-	color: var(--sakai-color-red);
-	text-shadow: 1px 1px 0 var(--sakai-color-white), -1px -1px 0 var(--sakai-color-white), -1px 1px 0 var(--sakai-color-white), 1px -1px 0 var(--sakai-color-white);
+	color: var(--sakai-red-50);
+	text-shadow: 1px 1px 0 var(--sakai-white), -1px -1px 0 var(--sakai-white), -1px 1px 0 var(--sakai-white), 1px -1px 0 var(--sakai-white);
 	font-size: 16px;
 }
 

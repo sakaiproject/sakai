@@ -9,7 +9,7 @@
 	width: 100%;
 	font-weight: bold;
 	text-align: center;
-	color: var(--sakai-color-white);
+	color: var(--sakai-white);
 	background: rgba(0, 0, 0, 0.2);
 	height: 26px;
 	line-height: 26px;

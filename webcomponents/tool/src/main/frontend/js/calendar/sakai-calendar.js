@@ -242,7 +242,7 @@ export class SakaiCalendar extends LionCalendar {
           margin-bottom: 10px;
         }
           sakai-icon[type="add"] {
-            color: var(--sakai-color-green);
+            color: var(--sakai-green-50);
           }
 
         .sakai-event {

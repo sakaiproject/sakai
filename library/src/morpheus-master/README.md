@@ -17,14 +17,14 @@ CSS Custom Properties (sometimes referred to as CSS Variables) have replaced man
 Sakai offers a robust color palette defined in `library/src/morpheus-master/sass/themes/_base.scss` and made available for use in CSS and JS throughout the application. The following hues are available for use. These are used in the core UI and it **is not** recommended that you change them.
 
 ```CSS
---sakai-color-gray
---sakai-color-blue
---sakai-color-teal
---sakai-color-gold
---sakai-color-green
---sakai-color-orange
---sakai-color-purple
---sakai-color-red
+--sakai-gray
+--sakai-blue
+--sakai-teal
+--sakai-gold
+--sakai-green
+--sakai-orange
+--sakai-purple
+--sakai-red
 ```
 
 Instead, it is preferred that you add your own colors to the palette through the `defineColorHSL` SASS function. Each color in the palette generates 15 total shades that are available on the `:root` selector. For example:
@@ -39,21 +39,21 @@ will result in the following CSS
 
 ```CSS
 :root{
-    --sakai-brand--lighter-7: #e7edf1;
-    --sakai-brand--lighter-6: #c7d5dd;
-    --sakai-brand--lighter-5: #a6bcca;
-    --sakai-brand--lighter-4: #86a4b7;
-    --sakai-brand--lighter-3: #668ca4;
-    --sakai-brand--lighter-2: #457490;
-    --sakai-brand--lighter-1: #255b7d;
+    --sakai-brand-10: #e7edf1;
+    --sakai-brand-20: #c7d5dd;
+    --sakai-brand-25: #a6bcca;
+    --sakai-brand-30: #86a4b7;
+    --sakai-brand-35: #668ca4;
+    --sakai-brand-40: #457490;
+    --sakai-brand-45: #255b7d;
     --sakai-brand: #0f4b70;
-    --sakai-brand--darker-1: #0e4466;
-    --sakai-brand--darker-2: #0c3a57;
-    --sakai-brand--darker-3: #0a3048;
-    --sakai-brand--darker-4: #082639;
-    --sakai-brand--darker-5: #061c2a;
-    --sakai-brand--darker-6: #04121a;
-    --sakai-brand--darker-7: #02080b;
+    --sakai-brand-55: #0e4466;
+    --sakai-brand-60: #0c3a57;
+    --sakai-brand-65: #0a3048;
+    --sakai-brand-70: #082639;
+    --sakai-brand-75: #061c2a;
+    --sakai-brand-80: #04121a;
+    --sakai-brand-90: #02080b;
 }
 ```
 

@@ -870,8 +870,8 @@ blockquote p {
 }
 
 .ui-datepicker .ui-datepicker-calendar .ui-state-default.ui-state-highlight {
-	color: var(--sakai-color-gold--darker-7);
-	background: var(--sakai-color-gold--lighter-7);
+	color: var(--sakai-gold-90);
+	background: var(--sakai-gold-10);
 }
 .ui-datepicker .ui-datepicker-calendar .ui-state-default.ui-state-active {
 	background: var(--sakai-active-color-3);

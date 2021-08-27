@@ -51,7 +51,7 @@
 		width:100%;
 		background-color: var(--tool-background-color);
 		.row-override:nth-child(odd){
-			background: var(--sakai-color-gray--lighter-7);
+			background: var(--sakai-gray-10);
 		}
 		.row-override{
 			padding: 0.5em 0 0.5em;
@@ -458,12 +458,12 @@
 
 	.contentReviewIconThreshold-2 {
 		@extend .contentReviewIcon;
-		color: var(--sakai-color-orange--darker-4);
+		color: var(--sakai-orange-70);
 	}
 
 	.contentReviewIconThreshold-2-draft {
 		@extend .contentReviewIconDraft;
-		color: var(--sakai-color-orange--darker-4);
+		color: var(--sakai-orange-70);
 	}
 
 	.contentReviewIconThreshold-3 {

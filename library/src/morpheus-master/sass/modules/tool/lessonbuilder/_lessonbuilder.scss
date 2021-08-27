@@ -119,57 +119,57 @@
 	//legacy gray
 	.colgray, .colgray-trans {
 		@include sakai-colorize(sakai-gray-20, sakai-gray-80);
-		border: 1px solid var(--sakai-color-gray--lighter-5);
+		border: 1px solid var(--sakai-gray-25);
 	}
 	.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv, .colgray-trans .commentDiv, .colgray-trans .studentContentTable, .colgray-trans .questionDiv .contentCol {
-		background-color: var(--sakai-color-gray--lighter-4);
+		background-color: var(--sakai-gray-30);
 	}
 	.colgray a[href], .colgray-trans a[href]{
-		color: var(--sakai-color-gray--darker-6);
+		color: var(--sakai-gray-80);
 	}
 	//legacy red
 	.colred, .colred-trans {
 		@include sakai-colorize(sakai-red-20, sakai-red-80);
-		border: 1px solid var(--sakai-color-red--lighter-5);
+		border: 1px solid var(--sakai-red-25);
 	}
 	.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .forumSummaryHeaderDiv, .colred .announcementsHeaderDiv, .colred-trans .commentDiv, .colred-trans .studentContentTable, .colred-trans .questionDiv .contentCol {
-		background-color: var(--sakai-color-red--lighter-4);
+		background-color: var(--sakai-red-30);
 	}
 	.colred a[href], .colred h3.author, .colred-trans a[href], .colred-trans h3.author {
-		color: var(--sakai-color-red--darker-6);
+		color: var(--sakai-red-80);
 	}
 	//legacy blue
 	.colblue, .colblue-trans {
 		@include sakai-colorize(sakai-blue-20, sakai-blue-80);
-		border: 1px solid var(--sakai-color-blue--lighter-5);
+		border: 1px solid var(--sakai-blue-25);
 	}
 	.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .forumSummaryHeaderDiv, .colblue .announcementsHeaderDiv, .colblue-trans .commentDiv, .colblue-trans .studentContentTable, .colblue-trans .questionDiv .contentCol {
-		background-color: var(--sakai-color-blue--lighter-4);
+		background-color: var(--sakai-blue-30);
 	}
 	.colblue a[href], .colblue-trans a[href] {
-		color: var(--sakai-color-blue--darker-6);
+		color: var(--sakai-blue-80);
 	}
 	//legacy green
 	.colgreen, .colgreen-trans {
 		@include sakai-colorize(sakai-green-20, sakai-green-80);
-		border: 1px solid var(--sakai-color-green--lighter-5);
+		border: 1px solid var(--sakai-green-25);
 	}
 	.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv, .colgreen-trans .commentDiv, .colgreen-trans .studentContentTable, .colgreen-trans .questionDiv .contentCol {
-		background-color: var(--sakai-color-green--lighter-4);
+		background-color: var(--sakai-green-30);
 	}
 	.colgreen a[href], .colgreen-trans a[href] {
-		color: var(--sakai-color-green--darker-6);
+		color: var(--sakai-green-80);
 	}
 	//legacy yellow
 	.colyellow, .colyellow-trans {
 		@include sakai-colorize(sakai-gold-20, sakai-gold-80);
-		border: 1px solid var(--sakai-color-gold--lighter-5);
+		border: 1px solid var(--sakai-gold-25);
 	}
 	.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv, .colyellow-trans .commentDiv, .colyellow-trans .studentContentTable, .colyellow-trans .questionDiv .contentCol {
-		background-color: var(--sakai-color-gold--lighter-4);
+		background-color: var(--sakai-gold-30);
 	}
 	.colyellow a[href],.colyellow h3.author, .colyellow-trans a[href],.colyellow-trans h3.author {
-		color: var(--sakai-color-gold--darker-6);
+		color: var(--sakai-gold-80);
 	}
 	.usebutton,
 	input[type="submit"].question-submit,
@@ -199,7 +199,7 @@
 	//      expects a string which matches the classes the lessons tool will apply to the markup
 	// @returns a set of CSS selectors and rules
 	// Example usage 
-	//      @include sakaiLessonsLayoutColorScheme('--sakai-color-gray', 'lighter', 'gray');
+	//      @include sakaiLessonsLayoutColorScheme('--sakai-gray', 'lighter', 'gray');
 		$shade1: #{$color}-30;
 		$shade2: #{$color}-25;
 		$shade3: #{$color}-35;

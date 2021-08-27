@@ -609,22 +609,22 @@ span.author_mcLabelText {
 .playback-analyzer {
     height: 128px;
     width: 100%;
-    background-color: var(--sakai-color-black);
+    background-color: var(--sakai-black);
 }
 .audio-timer-wrapper {
     width: auto;
     height: 60px;
-    background-color: var(--sakai-color-gray--darker-4);
+    background-color: var(--sakai-gray-70);
     margin: 0 auto;
     position: relative;
-    color: var(--sakai-color-white);
+    color: var(--sakai-white);
 }
 .audio-scrubber {
     width: 704px;
     height: 12px;
     border-radius: 4px;
-    background-color: var(--sakai-color-gray--lighter-2);
-    border: 1px solid var(--sakai-color-gray);
+    background-color: var(--sakai-gray-40);
+    border: 1px solid var(--sakai-gray-50);
     position: absolute;
     top: 30px;
     right: 50px;
@@ -635,8 +635,8 @@ span.author_mcLabelText {
     left: 12px;
     width: 30px;
     height: 20px;
-    background-color: var(--sakai-color-gray--darker-2);
-    border: 1px solid var(--sakai-color-gray--darker-4);
+    background-color: var(--sakai-gray-60);
+    border: 1px solid var(--sakai-gray-70);
     border-radius: 3px;
     text-align: center;
     font-size: 0.9em;
@@ -655,14 +655,14 @@ span.author_mcLabelText {
 
 .audio-timer:after {
 	border-color: transparent;
-	border-top-color: var(--sakai-color-gray--darker-2);
+	border-top-color: var(--sakai-gray-60);
 	border-width: 4px;
 	left: 50%;
 	margin-left: -4px;
 }
 .audio-timer:before {
 	border-color: transparent;
-	border-top-color: var(--sakai-color-gray--darker-2);
+	border-top-color: var(--sakai-gray-60);
 	border-width: 5px;
 	left: 50%;
 	margin-left: -5px;

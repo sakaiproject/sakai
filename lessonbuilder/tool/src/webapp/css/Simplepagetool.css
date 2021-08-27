@@ -2089,23 +2089,23 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     margin-right: 0;
 }
 .blueLessonsIcon {
-    color: var(--sakai-color-blue--darker-3);
+    color: var(--sakai-blue-65);
 }
 .darkblueLessonsIcon {
-    color: var(--sakai-color-blue--darker-5);
+    color: var(--sakai-blue-75);
 }
 .darkgrayLessonsIcon {
-    color: var(--sakai-color-gray--darker-3);
+    color: var(--sakai-gray-65);
 }
 .greenLessonsIcon {
-    color: var(--sakai-color-green--darker-3);
+    color: var(--sakai-green-65);
 }
 .redLessonsIcon {
     color: var(--errorBanner-color);
     background: var(--errorBanner-bgcolor);
 }
 .orangeLessonsIcon {
-    color: var(--sakai-color-orange--darker-3);
+    color: var(--sakai-orange-65);
 }
 /* SAK-44158 */
 #addContentDiv {

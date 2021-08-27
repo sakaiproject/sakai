@@ -41,7 +41,7 @@
 	margin-bottom: 0;
   }
   code, .highlight {
-	background-color: var(--sakai-color-white);
+	background-color: var(--sakai-white);
   }
 }
 
@@ -553,7 +553,7 @@ div.wicket-modal div.w_blue a.w_close {
 }
 .text-primary,
 .bg-primary {
-	color: var(--sakai-brand);
+	color: var(--sakai-brand-50);
 	background-color: var(--sakai-background-color-1);
 }
 .text-success,

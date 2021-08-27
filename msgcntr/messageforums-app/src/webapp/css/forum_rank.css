@@ -269,13 +269,13 @@ html>body .messages-to-field {
 }
 
 .token-all {
-    background-color: var(--sakai-color-purple--lighter-6);
-    border-color: var(--sakai-color-purple--lighter-3);
+    background-color: var(--sakai-purple-20);
+    border-color: var(--sakai-purple-35);
     font-style: italic;
 }
 
 .token-role-participates {
-     background-color: var(--sakai-color-red--lighter-6);
+     background-color: var(--sakai-red-20);
 }
 
 .token-hidden { 

@@ -294,7 +294,7 @@
 #gradeTableWrapper .gb-extra-credit,
 #gradeTableWrapper .currentRow .gb-extra-credit,
 #gradeTableWrapper .currentCol .gb-extra-credit {
-  background-color: var(--sakai-color-gold--lighter-5) !important;
+  background-color: var(--sakai-gold-25) !important;
 }
 .gb-flag-equal-weight:before {
   content: '\2696';
@@ -303,7 +303,7 @@
   content: '\f0fe';
 }
 #gradeTableWrapper .gb-notification.gb-flag-extra-credit:before {
-  color:var(--sakai-color-gold--darker-1);
+  color:var(--sakai-gold-55);
 }
 #gradeTableWrapper .gb-excused {
   text-decoration: line-through;

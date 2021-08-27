@@ -664,9 +664,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                 menubuttonTextHover: uiColor.getPropertyValue("--button-hover-text-color"),
                 menubuttonIcon: uiColor.getPropertyValue("--button-text-color"),
                 menubuttonIconHover: uiColor.getPropertyValue("--button-hover-background"),
-                okBackground: uiColor.getPropertyValue("--sakai-color-green--darker-3"),
-                okBorderColor: uiColor.getPropertyValue("--sakai-color-green--darker-4"),
-                okColor: uiColor.getPropertyValue("--sakai-color-green--lighter-7"),
+                okBackground: uiColor.getPropertyValue("--sakai-green-65"),
+                okBorderColor: uiColor.getPropertyValue("--sakai-green-70"),
+                okColor: uiColor.getPropertyValue("--sakai-green-10"),
                 }
                 return templates[ part ]
                     .output(templateStyles)

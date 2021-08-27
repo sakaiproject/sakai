@@ -91,7 +91,7 @@
   font-size: 12px;
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
-  color: var(--sakai-color-orange);
+  color: var(--sakai-orange-50);
   font-weight: bold;
 }
 /* Toolbar - Show/Hide grade items */
@@ -148,7 +148,7 @@
   height: 1.2em;
   width: 1.2em;
   border: 1px solid var(--sakai-border-color);
-  background-color: var(--sakai-color-gray);
+  background-color: var(--sakai-gray-50);
   position: absolute;
   right: 0;
   top: 50%;
@@ -263,7 +263,7 @@ div.wicket-mask-dark {
 }
 div.wicket-mask-transparent {
   opacity: 0.1; 
-  background-color: var(--sakai-color-black); 
+  background-color: var(--sakai-black); 
   filter: alpha(opacity=10); 
 }
 /* IE9-11 does not support a blur filter. As such, we fallback to an opaque mask */
@@ -277,7 +277,7 @@ body:nth-child(n) div.wicket-mask-dark {
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
   div.wicket-mask-dark {
     opacity: 0.95;
-    background-color: var(--sakai-color-black);
+    background-color: var(--sakai-black);
   }
 }
 div.wicket-modal div.w_content_container {
