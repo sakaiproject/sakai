@@ -421,7 +421,7 @@
 			#set ($hasScore = !$reviewResult.getReviewReport().equals("Error"))
 			<span class="reportIcon">
 				#if ($hasScore)
-					<a href="$reviewResult.getReviewReport()" target="_blank">
+					<a href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
 				#end
 				<span class="$reviewResult.getReviewIconCssClass()" title="#if(!$hasScore)$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
 				#if ($hasScore)
@@ -447,7 +447,7 @@
 				$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 			#end
 			#if ($displayUrkundOptOut && $hasScore && $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
-					(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
+					(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank" rel="noreferrer">$tlang.getString("review.report.urkund.optoutlink")</a>)
 			#end
 		</div>
 	#if (!$hasScore)
