@@ -114,7 +114,7 @@ public class HideDivisionRenderer extends Renderer
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
         title + "\"");
     writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" />");
-    writer.write("<h4>"  + title + "</h4>");
+    writer.write("<h2>"  + title + "</h2>");
     writer.write("</td><td class=\"discTria\">&nbsp;</td>");
     writer.write("<td  class=\"itemAction\" style=\"text-align: right;\">");
     List childrenList = component.getChildren();

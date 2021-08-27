@@ -168,6 +168,9 @@
 			&[for*=forum_assignments]{
 				margin-top: 0;
 			}
+			&.strong {
+				font-weight: 700;
+			}
 		}
 		input[type="text"], textarea{
 			width: 100%;
@@ -214,6 +217,7 @@
 		.permissionRow{
 			label{
 				margin: 0 0 0 0;
+				cursor: pointer;
 			}
 		}
 		.messageInstruction{
