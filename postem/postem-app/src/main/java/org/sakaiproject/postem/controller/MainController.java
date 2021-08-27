@@ -75,7 +75,7 @@ public class MainController {
         model.addAttribute("ascendingModifiedBy", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingLastMod", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingReleased", PostemToolConstants.POSTEM_FALSE_CONSTANT);
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
 
         ToolSession toolSession = sessionManager.getCurrentToolSession();
         toolSession.setAttribute("currentGradebook", null);
@@ -100,7 +100,7 @@ public class MainController {
             gradebookForm.setReleased(currentGradebook.getReleased());
         }
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("gradebookForm", gradebookForm);
         model.addAttribute("fileReference", gradebookForm.getFileReference());
         String uploadMax = serverConfigurationService.getString(ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
