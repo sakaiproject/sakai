@@ -1720,30 +1720,33 @@
                 </form>
 			</div>
 
-			<div id="export-cc-dialog" rsf:id="export-cc-dialog" class="lessonsDialog">
-				<form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
-					<div class="">					
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-v11" rsf:id="export-cc-v11"/>
-					    <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label> <br />
-					  </p>
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-v13" rsf:id="export-cc-v13"/>
-					    <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label> <br />
-					  </p>
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-bank" rsf:id="export-cc-bank"/>
-					    <label rsf:id="msg=simplepage.exportcc-includebank" for="export-cc-bank" id="export-cc-bank-label">Include bank</label> <br />
-					  </p>
-					  <a href="#" style="display:none" rsf:id="export-cc-link" id="export-cc-link"></a>
-					  <p>
-					    <input class="bold" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
-					    <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
-					  </p>
-
-					</div>
-				</form>
-			</div>
+            <div id="export-cc-dialog" rsf:id="export-cc-dialog" class="lessonsDialog">
+                <form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
+                    <a href="#" style="display:none" rsf:id="export-cc-link" id="export-cc-link"></a>
+                    <div class="form-group">
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v11" value="1.1"/>
+                            <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label>
+                        </div>
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v12" checked="checked" value="1.2"/>
+                            <label rsf:id="msg=simplepage.exportcc-use12" for="export-cc-v12" id="export-cc-v12-label">Use v1.2</label>
+                        </div>
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v13" value="1.3"/>
+                            <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label> <br />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="export-cc-bank"/>
+                        <label rsf:id="msg=simplepage.exportcc-includebank" for="export-cc-bank" id="export-cc-bank-label">Include bank</label> <br />
+                    </div>
+                    <p class="act">
+                        <input class="active" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
+                        <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
+                    </p>
+                </form>
+            </div>
 
 			<div id="edit-title-dialog" rsf:id="edit-title-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-title-error-container">
