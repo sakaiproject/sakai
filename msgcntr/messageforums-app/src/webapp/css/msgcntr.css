@@ -421,7 +421,7 @@ table.discTria{
 	background: var(--sakai-background-color-3);
 	border:1px solid var(--sakai-border-color);
 }
-table.discTria h4{
+table.discTria h2{
 	display: inline;
 	margin: 0;
 	padding: 3px;
