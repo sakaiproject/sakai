@@ -11700,8 +11700,19 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS);
         state.removeAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS);
 
-        // remove content-review setting
+        // remove content-review settings
         state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE);
+        state.removeAttribute(AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE);
 
         state.removeAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE);
 
