@@ -284,7 +284,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 					onError(target);
 				}
 
-				// Only continue to update/save if there are no validation errors
+				// Validation round 2 - gradebook set up; only do this if there were no validation errors already thrown, and gradebook exists in the site
 				if (!feedback.anyErrorMessage() && gradebookSetup.isGradebookDefined())
 				{
 					String context = getContext();
@@ -294,17 +294,18 @@ public class PackageConfigurationPage extends ConsoleBasePage
 						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
 						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
+						String fixedTitle = getItemTitle(assessmentSetup, context);
 
 						try
 						{
 							if (has && on)
 							{
-								gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, assessmentSetup.getItemTitle(), assessmentSetup.numberOffPoints,
+								gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, null, fixedTitle, assessmentSetup.numberOffPoints,
 																							gradebookSetup.getContentPackage().getDueOn(), false);
 							}
 							else if (!has && on)
 							{
-								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, assessmentSetup.getItemTitle(), assessmentSetup.numberOffPoints,
+								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints,
 																							gradebookSetup.getContentPackage().getDueOn(), "SCORM player", null, false);
 
 								// Push grades on creation of gradebook item
@@ -336,6 +337,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 						}
 						catch (ConflictingAssignmentNameException ex)
 						{
+							// This should never occur with the re-introduction and use of getItemTitle(), but we'll keep it here for posterity
 							error(getLocalizer().getString("form.error.gradebook.conflictingName", this));
 							onError(target);
 						}
@@ -350,7 +352,11 @@ public class PackageConfigurationPage extends ConsoleBasePage
 							onError(target);
 						}
 					}
+				}
 
+				// Only save & navigate back to the landing page if there were no errors
+				if (!feedback.anyErrorMessage())
+				{
 					contentService.updateContentPackage(contentPackage);
 					setResponsePage(pageSubmit);
 				}
@@ -405,5 +411,17 @@ public class PackageConfigurationPage extends ConsoleBasePage
 	{
 		String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
 		return assessmentExternalId;
+	}
+
+	private String getItemTitle(AssessmentSetup assessmentSetup, String context)
+	{
+		String fixedTitle = assessmentSetup.getItemTitle();
+		int count = 1;
+		while (gradebookExternalAssessmentService.isAssignmentDefined(context, fixedTitle))
+		{
+			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
+		}
+
+		return fixedTitle;
 	}
 }
