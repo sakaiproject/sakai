@@ -88,7 +88,7 @@ public class SakaiDateTimeField extends TextField<ZonedDateTime>
 		setOutputMarkupId(true);
 		dateConverter = new SakaiIsoDateConverter(getMarkupId());
 
-		add(AttributeModifier.append("class", "form-control datepicker sakai-datetimefield"));
+		add(AttributeModifier.append("class", "sakai-datetimefield"));
 	}
 
 	@Override

@@ -1,5 +1,12 @@
 function loadJQueryDatePicker(inputField, allowEmptyDate, value)
 {
+    if (typeof $.fn.button.noConflict === typeof Function)
+    {
+        // bootstrap has taken over the button() function, assign it back to jquery ui
+        // to resolve conflicts with the timepicker plugin
+        $.fn.button.noConflict();
+    }
+
     localDatePicker(
     {
         input: '#' + inputField,
