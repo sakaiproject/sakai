@@ -7047,6 +7047,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					site.setSkin(skin);
 				}
 
+				String isMathjaxEnabled = templateSite.getPropertiesEdit().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
+				if (StringUtils.isNotBlank(isMathjaxEnabled)) {
+					site.getPropertiesEdit().addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, isMathjaxEnabled);
+				}
+
 				// We don't want the new site to automatically be a template
 				site.getPropertiesEdit().removeProperty("template");
 				
