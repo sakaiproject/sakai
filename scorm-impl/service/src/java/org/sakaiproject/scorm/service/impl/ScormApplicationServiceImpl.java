@@ -54,7 +54,9 @@ import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
+import org.sakaiproject.scorm.model.api.LearnerExperience;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.ScoBeanImpl;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -1195,7 +1197,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		return isSuccessful;
 	}
 
-	protected void synchResultWithGradebook(SessionBean sessionBean)
+	public void synchResultWithGradebook(LearnerExperience experience, ContentPackage contentPackage, String itemIdentifier, Attempt latestAttempt)
+	{
+		SessionBean sessionBean = new SessionBean(experience.getLearnerId(), contentPackage);
+		ScoBean scoBean = produceScoBean(itemIdentifier, sessionBean);
+		scoBean.setDataManagerId(latestAttempt.getDataManagerId(scoBean.getScoId()));
+		synchResultWithGradebook(sessionBean);
+	}
+
+	public void synchResultWithGradebook(SessionBean sessionBean)
 	{
 		ScoBean displayingSco = sessionBean.getDisplayingSco();
 		IDataManager dataManager = getDataManager(displayingSco);
