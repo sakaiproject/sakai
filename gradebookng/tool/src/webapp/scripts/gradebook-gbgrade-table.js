@@ -2163,7 +2163,19 @@ GbGradeTable.setupColumnSorting = function() {
   $table.on("click", ".gb-title", function() {
     var $handle = $(this);
 
-    var colIndex = $handle.closest("th").index();
+    let colIndex = -1;
+    const $colHeader = $handle.closest("th").find(".colHeader");
+    if ($colHeader.length > 0 && "colIndex" in $colHeader[0].dataset) {
+        const index = parseInt($colHeader[0].dataset.colIndex, 10);
+        if (!isNaN(index)) {
+            colIndex = index;
+        }
+    }
+
+    if (colIndex < 0) {
+        log.error("Unable to find column index for sorting.");
+        return;
+    }
 
     if (GbGradeTable.currentSortColumn != colIndex) {
       GbGradeTable.currentSortColumn = colIndex;

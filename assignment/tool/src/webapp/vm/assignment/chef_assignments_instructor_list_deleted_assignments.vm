@@ -14,6 +14,7 @@
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
+		<div class="sak-banner-warn">$tlang.getString("restoreWarning")</div>
 		<div class="sakai-table-toolBar">
 			<div class="sakai-table-pagerContainer">
 				#pagerPanel("pager1")
