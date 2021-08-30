@@ -25,6 +25,21 @@
 			<h1 th:text="#{page.instructions}">Add/Edit Options in batch</h1>
 		</div>
 
+		<div class="date-manager-shifter panel-group">
+			<p>
+				<div class="sak-banner-error hidden" id="dateShifterError">
+					<span th:text="#{dateshifter.error.nonnumeric}"></span>
+				</div>
+				<label>
+					<span th:text="#{dateshifter.label.before}" th:remove="tag"></span>
+					<input id="dateShifterDays" type="text"></input>
+					<span th:text="#{dateshifter.label.after}" th:remove="tag"></span>
+				</label>
+			</p>
+			<button id="shiftAllDates" th:text="#{dateshifter.all.button}" disabled></button>
+			<button id="shiftVisibleDates" th:text="#{dateshifter.visible.button}" disabled></button>
+		</div>
+
 		<form class="panel-group" id="date-manager-form" method="POST">
 			<div class="sak-banner-error hidden" id="form-errors">
 				<span th:text="#{errors.instruction}">Your update could not be saved due to the following errors:</span>
@@ -234,6 +249,7 @@
 					var notModified = [];
 
 					DTMN.initDatePicker(updates, notModified);
+					DTMN.initShifter(updates, notModified);
 
 					function printErrors() {
 						$('.errors').empty();
