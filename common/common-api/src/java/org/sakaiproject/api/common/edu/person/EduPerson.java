@@ -22,7 +22,7 @@
 package org.sakaiproject.api.common.edu.person;
 
 /**
- * See Internet2 EduPerson specification.
+ * @see <a href="https://software.internet2.edu/eduperson/internet2-mace-dir-eduperson-201602.html">Internet2 EduPerson specification</a>. 
  * <p>
  * EduPerson is an auxiliary object class for campus directories designed to facilitate communication among higher education institutions. It consists of a set of data elements or attributes about individuals within higher education, along with
  * recommendations on the syntax and semantics of the data that may be assigned to those attributes.
@@ -139,4 +139,110 @@ public interface EduPerson extends InetOrgPerson
 	 * @return
 	 */
 	public void setPrincipalName(String principalName);
+	
+	/**
+	 * Each value of this multi-valued attribute represents an ePPN (eduPersonPrincipalName) 
+	 * value that was previously associated with the entry. The values MUST NOT 
+	 * include the currently valid ePPN value. There is no implied or assumed order 
+	 * to the values. This attribute MUST NOT be populated if ePPN values are ever 
+	 * reassigned to a different entry (after, for example, a period of dormancy). 
+	 * That is, they MUST be unique in space and over time.
+	 * @return
+	 */
+	public String getPrincipalNamePrior();
+	
+	/**
+	 * Each value of this multi-valued attribute represents an ePPN (eduPersonPrincipalName) 
+	 * value that was previously associated with the entry. The values MUST NOT 
+	 * include the currently valid ePPN value. There is no implied or assumed order 
+	 * to the values. This attribute MUST NOT be populated if ePPN values are ever 
+	 * reassigned to a different entry (after, for example, a period of dormancy). 
+	 * That is, they MUST be unique in space and over time.
+	 * @param PrincipalNamePrior
+	 */
+	public void setPrincipalNamePrior(String principalNamePrior);
+	
+	/**
+	 * Specifies the person's affiliation within a particular security domain in 
+	 * broad categories such as student, faculty, staff, alum, etc. The values consist 
+	 * of a left and right component separated by an "@" sign. The left component 
+	 * is one of the values from the eduPersonAffiliation controlled vocabulary.
+	 * This right-hand side syntax of eduPersonScopedAffiliation intentionally 
+	 * matches that used for the right-hand side values for eduPersonPrincipalName. 
+	 * The "scope" portion MUST be the administrative domain to which the affiliation 
+	 * applies. Multiple "@" signs are not recommended, but in any case, the first 
+	 * occurrence of the "@" sign starting from the left is to be taken as the 
+	 * delimiter between components. Thus, user identifier is to the left, security 
+	 * domain to the right of the first "@". This parsing rule conforms to the POSIX 
+	 * "greedy" disambiguation method in regular expression processing.
+	 * @return
+	 */
+	public String getScopedAffiliation();
+	
+	/**
+	 * Specifies the person's affiliation within a particular security domain in 
+	 * broad categories such as student, faculty, staff, alum, etc. The values consist 
+	 * of a left and right component separated by an "@" sign. The left component 
+	 * is one of the values from the eduPersonAffiliation controlled vocabulary.
+	 * This right-hand side syntax of eduPersonScopedAffiliation intentionally 
+	 * matches that used for the right-hand side values for eduPersonPrincipalName. 
+	 * The "scope" portion MUST be the administrative domain to which the affiliation 
+	 * applies. Multiple "@" signs are not recommended, but in any case, the first 
+	 * occurrence of the "@" sign starting from the left is to be taken as the 
+	 * delimiter between components. Thus, user identifier is to the left, security 
+	 * domain to the right of the first "@". This parsing rule conforms to the POSIX 
+	 * "greedy" disambiguation method in regular expression processing.	 
+	 * * @param scopedAffiliation
+	 */
+	public void  setScopedAffiliation(String scopedAffiliation);
+	
+	/**
+	 * A persistent, non-reassigned, opaque identifier for a principal.
+	 * @return
+	 */
+	public String getTargetedID();
+	
+	/**
+	 * A persistent, non-reassigned, opaque identifier for a principal.
+	 * @param targetedID
+	 */
+	public void setTargetedID(String targetedID);
+	
+	/**
+	 * Set of URIs that assert compliance with specific standards for identity assurance.
+	 * @return
+	 */
+	public String getAssurance();
+	
+	/**
+	 * Set of URIs that assert compliance with specific standards for identity assurance.
+	 * @param assurance
+	 */
+	public void setAssurance(String assurance);
+	
+	/**
+	 * 	 * A long-lived, non re-assignable, omnidirectional identifier suitable for 
+	 * use as a principal identifier by authentication providers or as a unique 
+	 * external key by applications.
+	 * @return
+	 */
+	public String getUniqueId();
+	
+	/**
+	 * A long-lived, non re-assignable, omnidirectional identifier suitable for 
+	 * use as a principal identifier by authentication providers or as a unique 
+	 * external key by applications.
+	 * @param uniqueId
+	 */
+	public void setUniqueId(String uniqueId);
+	
+	/**
+	 * @return
+	 */
+	public String getOrcid();
+	
+	/**
+	 * @param orcid
+	 */
+	public void setOrcid(String orcid);
 }
