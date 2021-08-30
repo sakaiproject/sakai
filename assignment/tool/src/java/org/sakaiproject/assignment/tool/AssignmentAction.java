@@ -3342,7 +3342,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private void putGradebookCategoryInfoIntoContext(SessionState state, Context context) {
         Map<Long, String> categoryTable = categoryTable();
         if (categoryTable != null) {
-            long categoryTableSize = categoryTable.keySet().stream().filter(i -> i >= 0).count();
+            long categoryTableSize = categoryTable.size();
             context.put("value_totalCategories", Long.valueOf(categoryTableSize));
 
             // selected category
