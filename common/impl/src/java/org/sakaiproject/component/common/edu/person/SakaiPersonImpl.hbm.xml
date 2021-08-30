@@ -104,6 +104,12 @@
           <property name="primaryAffiliation" column="PRIMARY_AFFILIATION" />
           <property name="primaryOrgUnitDn" column="PRIMARY_ORG_UNIT_DN" />
           <property name="principalName" column="PRINCIPAL_NAME" />
+          <property name="principalNamePrior" column="PRINCIPAL_NAME_PRIOR"/>
+          <property name="scopedAffiliation" column="SCOPED_AFFILIATION"/>
+          <property name="targetedID" column="TARGETED_ID"/>
+          <property name="assurance" column="ASSURANCE"/>
+          <property name="uniqueId" column="UNIQUE_ID"/>
+          <property name="orcid" column="ORCID"/>
 
           <subclass
             name="org.sakaiproject.component.common.edu.person.SakaiPersonImpl"
@@ -128,13 +134,13 @@
             
             <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
             
-			<property name="staffProfile" column="STAFF_PROFILE" type="materialized_clob" length="75000" />
-			<property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" type="materialized_clob" length="75000" />
-			<property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" type="materialized_clob" length="75000" />
-			<property name="publications" column="PUBLICATIONS" type="materialized_clob" length="75000"  />
-			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="materialized_clob" length="75000" />
-			<property name="phoneticPronunciation" column="PHONETIC_PRONUNCIATION" length="255" />
-			<property name="pronouns" column="PRONOUNS" length="255" />
+            <property name="staffProfile" column="STAFF_PROFILE" type="materialized_clob" length="75000" />
+            <property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" type="materialized_clob" length="75000" />
+            <property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" type="materialized_clob" length="75000" />
+            <property name="publications" column="PUBLICATIONS" type="materialized_clob" length="75000"  />
+            <property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="materialized_clob" length="75000" />
+            <property name="phoneticPronunciation" column="PHONETIC_PRONUNCIATION" length="255" />
+            <property name="pronouns" column="PRONOUNS" length="255" />
             
           </subclass>
         </subclass>
