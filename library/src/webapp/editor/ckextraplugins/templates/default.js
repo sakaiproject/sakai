@@ -22,16 +22,16 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
                     } 
                 </style> 
                 <div class="panel">
-                    <div class="panel-heading sakai-colorize--sakai-blue-30">
+                    <div class="panel-heading sakai-blue-30">
                         <h3 class="panel-insight-title">Professor Last Name&#39;s Insight</h3>
                         <p>Subtitle</p>
                     </div>
-                    <div class="panel-body sakai-colorize--sakai-gray-10">
+                    <div class="panel-body sakai-gray-10">
                         <img alt="Instructors Photo" class="panel-insight-speaker" src="/library/image/genericProf.png" />
                         <span class="fa fa-quote-left"></span> Replace this text, the title, the subtitle, and the picture to create a personal message you would like to communicate to your students. It should be no more than a short paragraph or two. An image size of <b>130px x 130px</b> would fit best with this template.<span class="fa fa-quote-right"></span>
                         <span></span>
                     </div>
-                    <div class="panel-body sakai-colorize--sakai-gray-10"><em>Here&#39;s an extra bit of instruction you can optionally add.</em></div>
+                    <div class="panel-body sakai-gray-10"><em>Here&#39;s an extra bit of instruction you can optionally add.</em></div>
                 </div>
                 `
         },
@@ -81,7 +81,7 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
                         <li>
                             <div class="left-insight">
                                 <img alt="Instructor speaking" src="/library/image/genericProf.png" />
-                                <p class="sakai-colorize--sakai-green-30">Replace this text and photo to create a casual personal message you would like to communicate to your students. It should be no more than a short paragraph or two. An image size of <b>70px x 70px</b> would fit best with this template.</p>
+                                <p class="sakai-green-30">Replace this text and photo to create a casual personal message you would like to communicate to your students. It should be no more than a short paragraph or two. An image size of <b>70px x 70px</b> would fit best with this template.</p>
                             </div>
                         </li>
                     </ul>
@@ -135,7 +135,7 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
                         <li>
                             <div class="right-insight">
                                 <img alt="Student" src="/library/image/genericProf.png" />
-                                <p class="sakai-colorize--sakai-purple-30">Replace this text and maybe the photo to create the effect of another side of a conversation or of a student responding to an instructor insight. It should be no more than a short paragraph or two. <b>An image size of 70px x 70px</b> would fit best with this template.</p>
+                                <p class="sakai-purple-30">Replace this text and maybe the photo to create the effect of another side of a conversation or of a student responding to an instructor insight. It should be no more than a short paragraph or two. <b>An image size of 70px x 70px</b> would fit best with this template.</p>
                             </div>
                         </li>
                     </ul>
@@ -146,7 +146,7 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
             title:'<span class="fa fa-lightbulb-o template-icon" style="color:var(--sakai-gold-40);"></span>Key Idea',
             description:'Yellow box with lightbulb and key idea text.',
             html:`
-                <div class="alert sakai-colorize--sakai-gold-30">
+                <div class="alert sakai-gold-30">
                     <div style="float:left"><span class="fa fa-3x fa-lightbulb-o" style="margin-top:-10px;"></span></div>
                     <div style="margin-left:35.0px"><strong>Enter a statement that highlights a key idea.</strong></div>
                 </div>
@@ -157,10 +157,10 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
             description:'Red panel box containing a warning message.',
             html:`
                 <div class="panel">
-                    <div class="panel-heading sakai-colorize--sakai-red-30">
+                    <div class="panel-heading sakai-red-30">
                         <h3 class="callout-title"><span class="fa fa-exclamation-triangle"></span> Warning!</h3>
                     </div>
-                    <div class="panel-body sakai-colorize--sakai-gray-10">Use this to give your students a very noticeable warning. Don&#39;t overuse these, or your students will stop noticing them. </div>
+                    <div class="panel-body sakai-gray-10">Use this to give your students a very noticeable warning. Don&#39;t overuse these, or your students will stop noticing them. </div>
                 </div>
                 `
         },
@@ -168,7 +168,7 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
             title:'<span class="fa fa-star template-icon" style="color:var(--sakai-gold-40);"></span>Alert with Star',
             description:'Yellow box with a star and text',
             html:`
-                <div class="alert sakai-colorize--sakai-gold-30">
+                <div class="alert sakai-gold-30">
                     <div style="float:left"><span class="fa fa-star" style="font-size:26.0px"></span></div>
                     <div style="margin-left:35.0px"><strong>Replace this with appropriate text to alert your students about something important.</strong></div>
                 </div>

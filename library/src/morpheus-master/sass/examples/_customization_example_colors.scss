@@ -1,0 +1,11 @@
+$colors: (
+    "red": #700f2c,
+    "green": #008000
+);
+
+$theme-colors: map-merge($theme-colors, $colors);
+
+:root {
+    --sakai-primary-color-1: var(--red-80);
+    --sakai-active-color-1: var(--green-20);
+}

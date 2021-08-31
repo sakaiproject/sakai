@@ -4,16 +4,26 @@ $colorPalette: ();
   $colorPalette: map-merge($colorPalette, defineColorHEX($name, $value));
 }
 
-@each $name, $value in $colorPalette {
+// These colors are used in the ckeditor templates. You can add specific colors to the 
+// $selectPalette map if you would like to generate CSS classes for them. Or, you can 
+// replace the $selectPalette map in the loop below with $colorPalette to generate
+// classes for all colors.
+$selectPalette: (
+  "sakai-blue-30": map-get($colorPalette, sakai-blue-30),
+  "sakai-gray-10": map-get($colorPalette, sakai-gray-10),
+  "sakai-green-30": map-get($colorPalette, sakai-green-30),
+  "sakai-purple-30": map-get($colorPalette, sakai-purple-30),
+  "sakai-gold-30": map-get($colorPalette, sakai-gold-30),
+  "sakai-red-30": map-get($colorPalette, sakai-red-30)
+);
+
+@each $name, $value in $selectPalette {
     .#{$name} {
-        @include sakai-colorize($name, $colorPalette: $colorPalette);
+        @include sakai-colorize($name, $colorPalette: $selectPalette);
     }
 }
-// @include sakai-colorize-all($colorPalette);
+
 :root {
   --sakai-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1);
   @include generateCSSProps($colorPalette);
 }
-@debug colorPalette, length($colorPalette), nth(map-keys($colorPalette),length($colorPalette)), map-get($colorPalette, nth(map-keys($colorPalette),length($colorPalette)));
-@debug theme-colors, length($theme-colors), nth(map-keys($theme-colors),length($theme-colors)), map-get($theme-colors, nth(map-keys($theme-colors),length($theme-colors)));
-

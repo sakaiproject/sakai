@@ -150,20 +150,6 @@
   // Example usage
   //      .selector { @include sakai-colorize(sakai-red, sakai-blue-l7); }
 
-  //   $family: str-slice($color, 0, -4);
-
-  //   $tmp: color-contrast(
-  //     map-get($colorPalette, #{$background}),
-  //     map-get($colorPalette, #{$family}-80),
-  //     map-get($colorPalette, #{$family}-10)
-  //   );
-  //   $color: $tmp;
-  //   @if $tmp == #{$family}-80 {
-  //     $color: var(--#{$family}-80);
-  //   } @else if $tmp == #{$family}-10 {
-  //     $color: var(--#{$family}-10);
-  //   }
-
   // @debug "sakai-colorize(#{$background}: " + map-get($colorPalette, $background) + ")";
 
   @if str-index($background, "var(--") {
@@ -365,17 +351,7 @@ $colorPalette: (
   "sakai-black": $black
 ) !default;
 
-// $colorPalette: defineColorHEX(sakai-gray, #898c90);
-// $colorPalette: defineColorHEX(sakai-blue, #289ae2);
-// $colorPalette: defineColorHEX(sakai-teal, #009999);
-// $colorPalette: defineColorHEX(sakai-gold, #dab601);
-// $colorPalette: defineColorHEX(sakai-green, #07a64f);
-// $colorPalette: defineColorHEX(sakai-orange, #d97008);
-// $colorPalette: defineColorHEX(sakai-purple, #4848f9);
-// $colorPalette: defineColorHEX(sakai-red, #cc000a);
-// $colorPalette: defineColorHEX(sakai-navy, #425466);
-
-$theme-colors: (  
+$theme-colors: (
   "sakai-white": $white,
   "sakai-black": $black,
   "sakai-gray": #898c90,
@@ -388,6 +364,3 @@ $theme-colors: (
   "sakai-red": #cc000a,
   "sakai-navy": #425466
 ) !default;
-
-@debug colorPalette, length($colorPalette), nth(map-keys($colorPalette),length($colorPalette)), map-get($colorPalette, nth(map-keys($colorPalette),length($colorPalette)));
-@debug theme-colors, length($theme-colors), nth(map-keys($theme-colors),length($theme-colors)), map-get($theme-colors, nth(map-keys($theme-colors),length($theme-colors)));

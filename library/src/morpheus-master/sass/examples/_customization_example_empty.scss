@@ -30,8 +30,8 @@
 //@import url( #{$header-font-family-url} );
 
 // Custom Theme
-
-:root {
+// Uncomment and add custom properties to the :root selector
+// :root { 
     /////////////////////////////////////////////////////////////
     // Color palette generation
     // Use defineColorHSL to generate an 11 shade palette for a color.
@@ -174,8 +174,9 @@
     // Uncomment below to set --sakai-text-color-inverted
     // --sakai-text-color-inverted: var(--sakai-background-color-1);
 
-}
+// }
 
-:root.sakaiUserTheme-dark {
+// Uncomment and add custom properties to customize dark theme
+// :root.sakaiUserTheme-dark {
 
-}
+// }

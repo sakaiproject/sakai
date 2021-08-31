@@ -3,9 +3,9 @@
 @import "themes/base";
 @import "themes/light";
 @import "themes/dark";
-@import "customization"; //it is copied from the user supplied file by maven
+//customization is copied from the user supplied file by maven
+@import "customization";
 @import "themes/generate";
-
 
 @import "base/bootstrap-defaults";
 @import "base/jquery-ui-defaults";

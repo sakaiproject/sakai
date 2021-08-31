@@ -1,56 +1,34 @@
 @import "../defaults";
 /* Light Theme */
+/////////////////////////////////////////////////////////////
+// Color palette generation
+// Add any colors to the SASS map below in key/value pairs
+// Example
+//
+// $light-theme-colors: (
+//     "sakai-brand": #0f4b70
+// );
+//
+// In addition to any colors defined here, Sakai comes 
+// predefined with gray, blue, teal, gold, green, orange,
+// purple, red, and navy palettes available for you to use.
+// More info .sass/themes/_base.scss
+/////////////////////////////////////////////////////////////
+
 $light-theme-colors: (
     "sakai-brand": #0f4b70
 );
+
+// Merge the $light-theme-colors map into the global $theme-colors map
 $theme-colors: map-merge($theme-colors, $light-theme-colors);
-@debug colorPalette, length($colorPalette), nth(map-keys($colorPalette),length($colorPalette)), map-get($colorPalette, nth(map-keys($colorPalette),length($colorPalette)));
-@debug theme-colors, length($theme-colors), nth(map-keys($theme-colors),length($theme-colors)), map-get($theme-colors, nth(map-keys($theme-colors),length($theme-colors)));
 
+/////////////////////////////////////////////////////////////
+// Main theme definition
+// Start by defining the variables below to create
+// your theme. If advanced customization is necessary,
+// continue to the remaining variables.
+/////////////////////////////////////////////////////////////
 :root{
-    /////////////////////////////////////////////////////////////
-    // Color palette generation
-    // Use defineColorHSL to generate an 11 shade palette for a color.
-    // @include defineColorHSL(colorname, hue, saturation, lightness)
-    // @param colorname
-    //      Type: string
-    //      expects a CSS custom property name starting with --
-    // @param hue
-    //      Type: integer
-    //      expects an integer 0-255
-    // @param saturation
-    //      Type: percentage
-    //      expects a percentage 0-100%
-    // @param lightness
-    //      Type: percentage
-    //      expects a percentage 0-100%
-    // @returns 11 CSS Custom Properties available in :root
-    //      named colorname-0 through colorname-10
-    //      The HSL you provide in the parameters will be in the
-    //      middle of the range at -5.
-    // Example 
-    // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
-    //      returns --myschool-gray-5: hsl(214, 3%, 55%;
-    //
-    // In addition to the primary branding color defined here, Sakai comes 
-    // predefined with gray, blue, teal, gold, green, orange,
-    // purple, and red palettes available for you to use.
-    // More info about defineColorHSL in sass/themes/_base.scss
-    // $theme-colors: map-merge($theme-colors, defineColorHEX(sakai-brand, #0f4b70));
-    // $colorPalette: map-merge($theme-colors, defineColorHEX(sakai-brand, #0f4b70));
-    // $theme-colors: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
-    // $colorPalette: defineColorHEX(sakai-brand, #0f4b70);
-    
-    // $colorPalette: map-merge($colorPalette, defineColorHEX(sakai-brand, #0f4b70));
-   
-    /////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////
-    // Main theme definition
-    // Start by defining the variables below to create
-    // your theme. If advanced customization is necessary,
-    // continue to the remaining variables.
-    /////////////////////////////////////////////////////////////
 
     // Logo
     --logo: url(#{$skin-path}images/logo-jewel.png);
@@ -130,11 +108,11 @@ $theme-colors: map-merge($theme-colors, $light-theme-colors);
     // Used in user profile image border, swapped view
     --sakai-tertiary-color-1: var(--sakai-orange-70);
 
-    // Primary border color used across sakai. 
+    // Primary border color used across sakai.
     // Suggested: light gray
     --sakai-border-color: var(--sakai-gray-20);
 
-    // Primary text color used across sakai. 
+    // Primary text color used across sakai.
     // Suggested: dark gray, near black
     // Most commonly used against --sakai-background-color-1
     --sakai-text-color-1: var(--sakai-gray-75);
