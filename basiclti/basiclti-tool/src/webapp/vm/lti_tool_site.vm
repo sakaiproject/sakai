@@ -117,11 +117,11 @@ ${includeLatestJQuery}
 			</div>
 		</div>
         <div id="tools_site_pager" class="pager">
-            <img src="/basiclti-admin-tool/addons/pager/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
-            <img src="/basiclti-admin-tool/addons/pager/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
+            <img src="/basiclti-admin-tool/icons/first.png" class="pager_button first #if ($sortIndex == 1) disabled #end" alt="First" />
+            <img src="/basiclti-admin-tool/icons/prev.png" class="pager_button prev #if ($sortIndex == 1) disabled #end" alt="Prev" />
             <span class="pagedisplay">$sortIndex - $sortLastIndex ($count_contents)</span> <!-- this can be any element, including an input -->
-            <img src="/basiclti-admin-tool/addons/pager/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
-            <img src="/basiclti-admin-tool/addons/pager/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
+            <img src="/basiclti-admin-tool/icons/next.png" class="pager_button next #if ($sortLastIndex == $count_contents) disabled #end" alt="Next" />
+            <img src="/basiclti-admin-tool/icons/last.png" class="pager_button last #if ($sortLastIndex == $count_contents) disabled #end" alt="Last" />
             <select class="pagesize">
                 <option #if ($sortPageSize == 10) selected="selected" #end value="10">10</option>
                 <option #if ($sortPageSize == 50) selected="selected" #end value="50">50</option>
