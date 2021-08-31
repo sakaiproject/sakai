@@ -130,9 +130,9 @@ ${includeLatestJQuery}
             </select>
         </div>
 		#end
-		<table id="tools_site" class="tablesorter" cellspacing="0" summary ="$tlang.getString("content.table")">
+		<table id="tools_site" class="tablesorter tablesorter-blue hasFilters" cellspacing="0" summary ="$tlang.getString("content.table")">
 			<thead>
-			<tr>
+			<tr class="tablesorter-headerRow">
 				<th id="title" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_title'))"><a>$tlang.getString("bl_title")</a></th>
 				<th id="searchURL"><a>$tlang.getString("bl_url")</a>
 					<input type="hidden" id="URL" data-placeholder="$tlang.getFormattedMessage('searchby', $tlang.getString('bl_url'))" />
@@ -150,7 +150,7 @@ ${includeLatestJQuery}
 				#end
 				<th id="action" width="25%" class="filter-false">$tlang.getString("bl_action")</th>
 			</tr>
-            <tr class="tablesorter-filter">
+            <tr class="tablesorter-filter tablesorter-filter-row tablesorter-ignoreRow">
                 <td><input class="tablesorter-filter" id="input_title" #if($search_map && $search_map.get('title')) value="$search_map.get('title')" #end /></td>
                 <td><input class="tablesorter-filter" id="input_URL" #if($search_map && $search_map.get('URL')) value="$search_map.get('URL')" #end /></td>
                 #if ($isAdmin)
