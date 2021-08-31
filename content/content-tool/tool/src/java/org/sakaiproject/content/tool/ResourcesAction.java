@@ -9413,6 +9413,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    } catch (Exception ex) {
 	        log.error("Exception while getting users collections", ex);
 	    }
+		copyrightChoicesIntoContext(state, context);
 	    context.put("usersDropboxList", usersDropboxList);
 	    return TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD;
 	} // buildDropboxMultipleFoldersUploadPanelContext
@@ -9449,6 +9450,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    String displayName = params.getString("MultipleFolderDisplayName");
 	    String[] multipleDropboxSelected = params.getStrings("usersDropbox-selection");
 	    Set usersCollectionIds = new TreeSet();
+		String copyright = "";
+		String newCopyright = "";
+		boolean copyrightAlert = false;
 
 	    if (fileitem == null) {
 	        String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
@@ -9474,6 +9478,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        return;
 
 	    } else if (fileitem.getFileName().length() > 0) {
+
+			// Check copyright
+			copyright = StringUtils.trimToNull(params.getString("copyright"));
+			if (copyright !=  null) {
+				newCopyright = StringUtils.trimToNull(params.getString("newcopyright"));
+				copyrightAlert = params.getBoolean("copyrightAlert");
+				boolean requireChoice = ServerConfigurationService.getBoolean(SAK_PROP_COPYRIGHT_REQ_CHOICE, SAK_PROP_COPYRIGHT_REQ_CHOICE_DEFAULT);
+				if (requireChoice && rb.getString(MSG_KEY_COPYRIGHT_REQ_CHOICE).equals(copyrightManager.getCopyrightString(copyright))) {
+					addAlert(state, rb.getString(ResourcesAction.MSG_KEY_COPYRIGHT_REQ_CHOICE_ERROR));
+					state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
+					return;
+				}
+			}
+
 	        String filename = FilenameUtils.getName(fileitem.getFileName());
 	        if (displayName == null) {
 	            displayName = filename;
@@ -9560,6 +9578,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
 						resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
 						resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+
+						// Add copyright settings
+						if (StringUtils.isNotBlank(copyright)) {
+							resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+						}
+						if (StringUtils.isNotBlank(newCopyright)) {
+							resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT, newCopyright);
+						}
+						if (copyrightAlert) {
+							resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+						}
 
 						// now to commit the changes
 						boolean notification = params.getBoolean("notify_dropbox");
