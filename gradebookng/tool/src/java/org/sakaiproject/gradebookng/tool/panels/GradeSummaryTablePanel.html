@@ -28,7 +28,13 @@
 					<tbody class="gb-summary-category-tbody">
 						<tr wicket:id="categoryRow" class="gb-summary-category-row" wicket:message="aria-label:studentsummary.categoryrow">
 							<th scope="rowgroup">
-								<a href="javascript:void(0);" class="gb-summary-category-toggle" wicket:message="title:studentsummary.categorytoggle"><span wicket:id="category" class="gb-summary-category-name"></span></a>
+								<div class="gb-summary-category-toggle-container">
+									<a href="javascript:void(0);" class="gb-summary-category-toggle" wicket:message="title:studentsummary.categorytoggle"><span wicket:id="category" class="gb-summary-category-name"></span></a>
+									<span class="gb-summary-grade-flags" wicket:id="flags">
+										<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
+										<span wicket:id="isEqualWeight" class="gb-flag-equal-weight"></span>
+									</span>
+								</div>
 								<p wicket:id="categoryDropInfo" class="gb-summary-grade-category-dropInfo">
 									<span wicket:id="categoryDropInfo1">Drop Highest: 1 & </span><wbr><span wicket:id="categoryDropInfo2">Drop Lowest: 1</span>
 								</p>
@@ -65,7 +71,13 @@
 						<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
 						<td class="gb-summary-grade-comments"><div wicket:id="comments"></div></td>
 						<td class="gb-summary-grade-category" wicket:id="category">
-							<div wicket:id="categoryName"></div>
+							<div>
+								<span wicket:id="categoryName"></span>
+								<span class="gb-summary-grade-category-flags" wicket:id="cflags">
+									<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
+									<span wicket:id="isEqualWeight" class="gb-flag-equal-weight"></span>
+								</span>
+							</div>
 							<p wicket:id="categoryDropInfo" class="gb-summary-grade-category-col-dropInfo">Drop Highest: 1</p>
 							<p wicket:id="categoryDropInfo2" class="gb-summary-grade-category-col-dropInfo">Drop Lowest: 1</p>
 						</td>
