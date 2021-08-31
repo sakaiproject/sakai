@@ -29,9 +29,42 @@ DTMN.initDatePicker = function(updates, notModified)
 					DTMN.attachDatePicker(selector, updates, notModified);
 					spinner.classList.remove("spinPlaceholder");
 				}, 25); // delay 25ms to give browser time to render the spinner
-		    });
+			});
+			$(target).on("shown.bs.collapse", function()
+			{
+				DTMN.validateShiftInput();
+			});
+			$(target).on("hidden.bs.collapse", function()
+			{
+				DTMN.validateShiftInput();
+			});
 		}
 	}
+};
+
+DTMN.initShifter = function(updates, notModified)
+{
+	DTMN.validShiftRegex = /^-{0,1}\d{1,4}$/;
+
+	DTMN.shiftErrorBanner = document.getElementById("dateShifterError");
+	DTMN.shiftInput = document.getElementById("dateShifterDays");
+	DTMN.shiftAllBtn = document.getElementById("shiftAllDates");
+	DTMN.shiftVisibleBtn = document.getElementById("shiftVisibleDates");
+
+	DTMN.shiftInput.addEventListener("input", function()
+	{
+		DTMN.validateShiftInput();
+	}, false);
+
+	DTMN.shiftAllBtn.addEventListener("click", function()
+	{
+		DTMN.handleShiftButtonClick(this, DTMN.collapseElements, updates, notModified);
+	}, false);
+
+	DTMN.shiftVisibleBtn.addEventListener("click", function()
+	{
+		DTMN.handleShiftButtonClick(this, DTMN.findExpandedSections(), updates, notModified);
+	}, false);
 };
 
 DTMN.attachDatePicker = function(selector, updates, notModified)
@@ -104,4 +137,120 @@ DTMN.attachDatePicker = function(selector, updates, notModified)
 			$td.find('.ui-datepicker-trigger').prop('disabled', disabled);
 		}
 	});
+};
+
+DTMN.handleShiftButtonClick = function(button, collapseElements, updates, notModified)
+{
+	DTMN.disableShiftControls(button);
+	window.setTimeout(function()
+	{
+		for (let i = 0; i < collapseElements.length; i++)
+		{
+			// use setTimeout() to space out the function calls so the browser doesn't report the page as unresponsive
+			// the last function will remove the spinner and re-enable the button
+			window.setTimeout(function() { DTMN.shiftDates(updates, notModified, collapseElements[i].id, button, i === collapseElements.length - 1); }, 10);
+		}
+	}, 25);
+};
+
+DTMN.validateShiftInput = function()
+{
+	const val = DTMN.shiftInput.value;
+	if (val === "" || val === "-")
+	{
+		DTMN.hideShiftError();
+		DTMN.disableShiftButtons();
+		return;
+	}
+	else if (!val.match(DTMN.validShiftRegex))
+	{
+		DTMN.showShiftError();
+		DTMN.disableShiftButtons();
+		return;
+	}
+
+	const days = parseInt(val);
+
+	DTMN.hideShiftError();
+
+	DTMN.shiftAllBtn.disabled = days === 0;
+
+	DTMN.shiftVisibleBtn.disabled = days === 0 || DTMN.findExpandedSections().length === 0;
+};
+
+DTMN.findExpandedSections = function()
+{
+	return DTMN.collapseElements.filter(function (e) { return e.getAttribute("aria-expanded") === "true"; });
+};
+
+DTMN.hideShiftError = function()
+{
+	DTMN.shiftErrorBanner.classList.add("hidden");
+	DTMN.shiftErrorBanner.removeAttribute("role");
+};
+
+DTMN.showShiftError = function()
+{
+	DTMN.shiftErrorBanner.classList.remove("hidden");
+	DTMN.shiftErrorBanner.setAttribute("role", "alert");
+};
+
+DTMN.disableShiftControls = function(button)
+{
+	DTMN.shiftInput.disabled = true;
+	DTMN.disableShiftButtons();
+	button.classList.add("spinButton");
+};
+
+DTMN.disableShiftButtons = function()
+{
+	DTMN.shiftAllBtn.disabled = true;
+	DTMN.shiftVisibleBtn.disabled = true;
+};
+
+DTMN.enableShiftControls = function(button)
+{
+	button.classList.remove("spinButton");
+	DTMN.validateShiftInput();
+	DTMN.shiftInput.disabled = false;
+};
+
+DTMN.shiftDates = function(updates, notModified, rootElementId, button, enableButton)
+{
+	// validate input again just in case
+	if (!DTMN.shiftInput.value.match(DTMN.validShiftRegex))
+	{
+		DTMN.showShiftError();
+		DTMN.disableShiftButtons();
+		return;
+	}
+
+	const days = parseInt(DTMN.shiftInput.value);
+
+	// attach any missing datepickers
+	const rootElement = "#" + rootElementId;
+	DTMN.attachDatePicker(rootElement + " .datepicker:not(.hasDatepicker)", updates, notModified);
+
+	$(rootElement + " .datepicker.hasDatepicker").each(function()
+	{
+		const pickerDate = $(this).datepicker("getDate");
+		if (pickerDate !== null)
+		{
+			const newDate = new Date(Number(pickerDate));
+			newDate.setDate(newDate.getDate() + days);
+			$(this).datepicker("setDate", newDate);
+
+			// setDate doesn't cause the hidden field that stores the date to update, so we have to do it ourselves
+			// find the associated hidden field, set it, trigger the onchange event manually
+			const $td = $(this).closest('td');
+			const $hidden = $td.find('input[type=hidden]');
+			$hidden.val(moment(newDate).format());
+			$hidden.change();
+		}
+	});
+
+	if (enableButton)
+	{
+		DTMN.enableShiftControls(button);
+	}
 };
