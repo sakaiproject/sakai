@@ -29,6 +29,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -48,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,7 +107,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(categoriesEnabled);
 
-		final GbAjaxLink toggleCategoriesLink = new GbAjaxLink("toggleCategoriesLink") {
+		final SakaiAjaxButton toggleCategoriesBtn = new SakaiAjaxButton("toggleCategoriesBtn") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -116,7 +118,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 			}
 
 			@Override
-			public void onClick(final AjaxRequestTarget target) {
+			public void onSubmit(final AjaxRequestTarget target, Form<?> form) {
 				if (getPage() instanceof GradebookPage) {
 					final GradebookPage page = (GradebookPage) getPage();
 					final GradebookUiSettings settings = page.getUiSettings();
@@ -133,7 +135,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 								showingStudentView));
 			}
 		};
-		toggleActions.add(toggleCategoriesLink);
+		toggleActions.add(toggleCategoriesBtn);
 		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(this.isGroupedByCategory));
 		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(this.isGroupedByCategory));
 		addOrReplace(toggleActions);
