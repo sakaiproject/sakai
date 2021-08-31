@@ -240,9 +240,9 @@ export class SakaiRubricGrading extends RubricsElement {
 
     const value = e.target.value;
 
-    const parsed = parseFloat(value.replace(/,/g, "."));
+    const parsed = value.replace(/,/g, ".");
 
-    if (isNaN(parsed)) {
+    if (isNaN(parseFloat(parsed))) {
       return;
     }
 
@@ -274,7 +274,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
       return {
         criterionId: c.id,
-        points: c.pointoverride || c.selectedvalue,
+        points: c.pointoverride ? parseFloat(c.pointoverride) : c.selectedvalue,
         comments: c.comments,
         pointsAdjusted: c.pointoverride !== c.selectedvalue,
         selectedRatingId: c.selectedRatingId
