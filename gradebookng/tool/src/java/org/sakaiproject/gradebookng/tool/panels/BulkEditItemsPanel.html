@@ -27,12 +27,32 @@
 			
 				
 			<div class="act">
-				<input type="submit" wicket:id="submit" class="active" wicket:message="value:button.savechanges" />
-				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+				<button id="gb-bulk-edit-fake-submit" class="active"><wicket:message key="button.savechanges" /></button>
+				<button id="gb-bulk-edit-real-submit" type="submit" wicket:id="submit" class="hide active"><wicket:message key="button.savechanges" /></button>
+				<button type="submit" wicket:id="cancel"><wicket:message key="button.cancel" /></button>
 			</div>
 
 		</form>
 
+		<script id="bulkEditConfirmationModalTemplate" type="text/template">
+			<div class="modal gb-bulk-edit-confirmation">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h3 class="modal-title"><wicket:message key="bulkedit.confirmation.title" /></h3>
+						</div>
+						<div class="modal-body">
+							<div class="sak-banner-warn"><wicket:message key="bulkedit.confirmation.warning" /></div>
+						</div>
+						<div class="modal-footer act">
+							<button type="button" class="button_color gb-bulk-edit-continue active" data-dismiss="modal"><wicket:message key="bulkedit.confirmation.continue" /></button>
+							<button type="button" class="gb-bulk-edit-cancel" data-dismiss="modal"><wicket:message key="bulkedit.confirmation.cancel" /></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
 	</wicket:panel>
 </body>
 </html>
