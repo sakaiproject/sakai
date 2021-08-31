@@ -164,6 +164,9 @@
                 {if extraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
                 {/if}
+                {if equalWeight}
+                    <span class="gb-flag-equal-weight" wicket:message="title:label.gradeitem.equalweightcategory"></span>
+                {/if}
                 {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     <span class="gb-category">

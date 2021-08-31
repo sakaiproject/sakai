@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -176,6 +178,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
 
+				// popover flags
+				final CategoryFlags cf = getCategoryFlags(categoryName, categoriesMap);
+				final WebMarkupContainer flags = new WebMarkupContainer("flags");
+				flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+				flags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
+				categoryRow.add(flags.setVisible(cf.hasFlags()));
+
 				final DropInfoPair pair = getDropInfo(categoryName, categoriesMap);
 				if (!pair.second.isEmpty()) {
 					pair.first += " " + getString("label.category.dropSeparator") + " ";
@@ -271,32 +280,14 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(assignment.isExtraCredit()));
-						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(!assignment.isCounted()));
-						flags.add(page.buildFlagWithPopover("isNotReleased", getString("label.gradeitem.notreleased"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(!assignment.isReleased()));
-						flags.add(page.buildFlagWithPopover("isExcused", getString("grade.notifications.excused"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(excused));
-						flags.add(page
-								.buildFlagWithPopover("isExternal",
-										new StringResourceModel("label.gradeitem.externalapplabel", null,
-												new Object[] { assignment.getExternalAppName() }).getString())
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.add(new AttributeModifier("class",
-										"gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment)))
-								.setVisible(assignment.isExternallyMaintained()));
 
+						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.isExtraCredit()));
+						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.isCounted()));
+						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.isReleased()));
+						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
+						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
+						flags.add(newPopoverFlag("isExternal", extAppName, assignment.isExternallyMaintained())
+								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new WebMarkupContainer("weight")
@@ -381,6 +372,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 						final WebMarkupContainer catCon = new WebMarkupContainer("category");
 						catCon.setVisible(categoriesEnabled && !GradeSummaryTablePanel.this.isGroupedByCategory);
 						catCon.add(new Label("categoryName", assignment.getCategoryName()));
+
+						final CategoryFlags cf = getCategoryFlags(assignment.getCategoryName(), categoriesMap);
+						final WebMarkupContainer cflags = new WebMarkupContainer("cflags");
+						cflags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+						cflags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
+						catCon.add(cflags.setVisible(cf.hasFlags()));
+
 						final DropInfoPair pair = getDropInfo(assignment.getCategoryName(), categoriesMap);
 						catCon.add(new Label("categoryDropInfo", pair.first).setVisible(!pair.first.isEmpty()));
 						catCon.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
@@ -404,7 +402,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		}
 	}
 
-	private final class DropInfoPair {
+	private final class DropInfoPair implements Serializable {
 		public String first = "";
 		public String second = "";
 	}
@@ -431,5 +429,30 @@ public class GradeSummaryTablePanel extends BasePanel {
 			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
 		response.render(StringHeaderItem.forString(
 			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+	}
+
+	private Component newPopoverFlag(String id, String msg, boolean visible) {
+		final BasePage page = (BasePage) getPage();
+		return page.buildFlagWithPopover(id, msg, "focus", "#gradeSummaryTable").setVisible(visible);
+	}
+
+	private final class CategoryFlags implements Serializable {
+		public boolean extraCredit = false;
+		public boolean equalWeight = false;
+
+		public boolean hasFlags() {
+			return extraCredit || equalWeight;
+		}
+	}
+
+	private CategoryFlags getCategoryFlags(String catName, final Map<String, CategoryDefinition> categoriesMap) {
+		CategoryFlags flags = new CategoryFlags();
+		if (catName != null && !catName.equals(getString(GradebookPage.UNCATEGORISED))) {
+			CategoryDefinition cat = categoriesMap.get(catName);
+			flags.extraCredit = cat != null && Boolean.TRUE.equals(cat.getExtraCredit());
+			flags.equalWeight = cat != null && Boolean.TRUE.equals(cat.getEqualWeight());
+		}
+
+		return flags;
 	}
 }
