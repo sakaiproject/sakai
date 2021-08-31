@@ -15,20 +15,20 @@
     }
 
     .textPanel {
-        font-size: .95em;
+        font-size: 0.95em;
         line-height: 150%;
         padding: 5px 5px  5px  21px;
     }
 
     ul {
         list-style: none;
-        margin: .5em 0 0 0;
+        margin: 0.5em 0 0 0;
         padding: 0;
 
         li {
             list-style: none;
             vertical-align: middle;
-            padding: .3em 0;
+            padding: 0.3em 0;
             margin: 0;
 
             img {
@@ -40,7 +40,7 @@
             a {
 	            font-weight: bold;
                 &.inactive {
-                    color: Gray;
+                    color: var(--sakai-text-color-disabled);
                     opacity: 0.5;
                 }
             }
@@ -60,7 +60,7 @@
                 }
             }
 
-            &.upfolder{
+            &.upfolder {
                 position: absolute;
                 top: 2px;
                 left: 2px;
@@ -98,13 +98,10 @@
                         @extend .fa-file-powerpoint-o;
                       }
                     }
-                    &.xls, &.xlsx, &.csv, &.xlsx, &.xlsm, &.xltx, &.xltm, &.xlsb, &.xlam {
+                    &.xls, &.xlsx, &.csv, &.xlsm, &.xltx, &.xltm, &.xlsb, &.xlam {
                       .faicon {
                         @extend .fa-file-excel-o;
                       }
-                    }
-                    &.mdb {
-                      .faicon {}
                     }
                     &.gif, &.jpg, &.jpeg, &.png {
                       .faicon {
@@ -141,15 +138,6 @@
                         @extend .fa-file-pdf-o;
                       }
                     }
-                    &.ai, &.ps, &.psd {
-                      .faicon {}
-                    }
-                    &.ram, &.rm {
-                      .faicon {}
-                    }
-                    &.swf {
-                      .faicon {}
-                    }
                 }
             }
         }
@@ -164,7 +152,7 @@ p#toggle {
 
 $background-pos: center left no-repeat !important;
 
-/* just in case the file is not inside a link (CARE : in this way there is no default icon)*/
+// just in case the file is not inside a link (CARE : in this way there is no default icon)
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
   .faicon {
     @extend .fa, .fa-file-word-o;
@@ -175,7 +163,7 @@ $background-pos: center left no-repeat !important;
     @extend .fa, .fa-file-powerpoint-o;
   }
 }
-.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam {
+.xls, .xlsx, .csv, .xlsm, .xltx, .xltm, .xlsb, .xlam {
   .faicon {
     @extend .fa, .fa-file-excel-o;
   }
@@ -236,6 +224,6 @@ $background-pos: center left no-repeat !important;
   }
 }
 
-.fa:before{
+.fa::before {
   padding-right: 5px;
 }

@@ -798,6 +798,9 @@
 									<arguments>
 										ci --unsafe-perms --save-dev
 										sass
+										stylelint
+										stylelint-config-standard
+										stylelint-scss
 									</arguments>
 								</configuration>
 							</execution>
@@ -810,6 +813,18 @@
 								<configuration>
 									<arguments>
 										run build-sass --outputStyle=${sakai.skin.outputStyle} --source=${sakai.skin.source} --target=${sakai.skin.target} --bsv=${bootstrap-version} --fav=${font-awesome-version}
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm stylelint</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run lint-sass --source=${sakai.skin.source}
 									</arguments>
 								</configuration>
 							</execution>

@@ -6,7 +6,7 @@
 @import "modules/tool/menu";
 @import "modules/navigation/breadCrumbs";
 
-a[href]:after {
+a[href]::after {
 	content: none !important;
 }
 
@@ -30,13 +30,13 @@ a[href]:after {
 .#{$namespace}headerLogo,
 .#{$namespace}toolTitleNav__button_container,
 .#{$namespace}toolTitleNav__button_container *,
-##{$namespace}footerApp__chat{
+##{$namespace}footerApp__chat {
 	display: none !important;
 }
 
-#{$namespace}toolTitleNav__title{
+#{$namespace}toolTitleNav__title {
 	font-size: 200%;
-	a{
+	a {
 		text-decoration: none;
 	}
 }
@@ -45,4 +45,3 @@ a[href]:after {
     font-size: 0.8em;
     margin: 0.5em 0 0 0 !important;
 }
-

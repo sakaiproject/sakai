@@ -1,4 +1,4 @@
-/* Global namespace */
+// Global namespace
 
 $namespace : "Mrphs-" !default;
 
@@ -12,7 +12,7 @@ $tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
 $desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
 $nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default;
 
-/* The standard spacing for items in Sakai */
+// The standard spacing for items in Sakai
 $standard-spacing: 16px !default;
 $standard-space: 4px !default; // the width of a keyboard space
 $standard-space-2x: 8px !default;
@@ -23,7 +23,7 @@ $standard-space-4x: 16px !default;
 $break-more-sites-single-column: 1200px !default;
 $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-single-column})" !default;
 
-/* Typography*/
+// Typography
 
 //Google family Fonts URL
 $font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" !default;
@@ -47,12 +47,10 @@ $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
 //Built to be used for padding
 //https://material-components.github.io/material-components-web-catalog/#/component/menu
-$material-menu-padding: calc( #{$standard-spacing} / 2) 0 !default;
+$material-menu-padding: calc(#{$standard-spacing} / 2) 0 !default;
 $material-menu-item-padding: calc(#{$standard-spacing} / 2) $standard-spacing !default;
 
-
-
-/* Tool tabs */
+// Tool tabs
 $tool-tab-height:                                         32px !default;
 $tool-tab-text-size:                                      12px !default;
 $tool-tab-text-weight:                                    normal !default;
@@ -60,14 +58,14 @@ $tool-tab-text-transform:                                 none !default;
 $tool-tab-text-letter-spacing:                            normal !default;
 $tool-tab-active-text-size:                               12px !default;
 
-$top-header-separators-thickness: 0px !default;
+$top-header-separators-thickness: 0 !default;
 $top-header-item-spacing: calc(#{$standard-spacing} / 2) !default;
 $top-header-text-display: none !default;
 $top-header-icon-size: calc(#{$standard-spacing} * 2) !default;
 $top-header-sites-padding-top: 6px !default;
 $top-header-profile-border-thickness: 2px !default;
 
-/* General button design */
+// General button design
 $button-radius: 4px !default;
 $button-text-transform: none !default;
 $button-radius-pill:            16px !default;
@@ -80,60 +78,60 @@ $button-disabled-font-weight:   300 !default;
 $button-primary-text-transform: none !default;
 $button-primary-font-weight: 600 !default;
 
-/* end of General button design */
+// end of General button design
 
 $instruction-size:          $default-font-size-small !default;
 
-/* Sakai Banners */
+// Sakai Banners
 $infoBanner-icon: ".fa-info-circle";
 $successBanner-icon: ".fa-check-circle";
 $warnBanner-icon: ".fa-exclamation-circle";
 $errorBanner-icon: ".fa-ban";
-/* end of Sakai Banners */
+// end of Sakai Banners
 
-/* Swapped 'View As' view */
+// Swapped 'View As' view
 $swapped-view-enabled: false !default;
 
-/* Favorites */
+// Favorites
 $sites-nav-menu-item-border-thickness: 1px !default;
 $sites-nav-menu-item-border-radius: $button-radius-pill !default;
 
-/* Favorites - item */
+// Favorites - item
 $sites-nav-menu-item-border-top:            $sites-nav-menu-item-border-thickness solid !default;
 $sites-nav-menu-item-border-right:          $sites-nav-menu-item-border-top !default;
 $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default;
 $sites-nav-menu-item-border-left:           $sites-nav-menu-item-border-top !default;
 
-/* Favorites - item hovered */
+// Favorites - item hovered
 $sites-nav-menu-item-hover-border-top:      $sites-nav-menu-item-border-thickness solid !default;
 $sites-nav-menu-item-hover-border-right:    $sites-nav-menu-item-hover-border-top !default;
 $sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top !default;
 $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top !default;
 
-/* Favorites - item selected */
+// Favorites - item selected
 $sites-nav-menu-item-selected-font-weight:  600 !default;
 $sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid !default;
 $sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top !default;
 
-/* Favorites - item selected and hovered */
+// Favorites - item selected and hovered
 $sites-nav-menu-item-selected-hover-border-top:   $sites-nav-menu-item-border-thickness solid !default;
 $sites-nav-menu-item-selected-hover-border-right: $sites-nav-menu-item-selected-hover-border-top !default;
 $sites-nav-menu-item-selected-hover-border-bottom:$sites-nav-menu-item-selected-hover-border-top !default;
 $sites-nav-menu-item-selected-hover-border-left:  $sites-nav-menu-item-selected-hover-border-top !default;
 
-/* Favorites - tool submenu */
+// Favorites - tool submenu
 $sites-nav-submenu-border: 1px solid !default;
 $sites-nav-submenu-top: $standard-spacing !default;
 $sites-nav-submenu-padding: $material-menu-padding !default;
 
-/* Favorites - tool submenu items */
+// Favorites - tool submenu items
 $sites-nav-submenu-item-text-size:          13px !default;
 $sites-nav-submenu-item-left-border: none !default;
 $sites-nav-submenu-item-padding: $material-menu-item-padding !default;
 
-/* All Sites menu */
+// All Sites menu
 $all-sites-title-text-size:                               18px !default;
 $all-sites-title-text-weight:                             normal !default;
 $all-sites-button-height:                                 30px !default;
@@ -150,28 +148,28 @@ $all-sites-tool-menu-text-weight:                         normal !default;
 $all-sites-tool-menu-left-border:                         4px solid !default;
 $all-sites-tool-menu-hover-left-border:                   4px solid !default;
 
-/* Tool Menu */
+// Tool Menu
 
-/* Wide tool menu, icons on left */
+// Wide tool menu, icons on left
 $tool-menu-icon-on-left: true !default;
 $tool-menu-width: 200px + $standard-spacing !default;
 $tool-menu-padding: calc(#{$standard-spacing} / 2) 0 0 0 !default;
 $tool-menu-width-collapsed: 52px !default;
 $tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
 
-/* Narrow tool menu, icons centered */
+// Narrow tool menu, icons centered
 @if not($tool-menu-icon-on-left) {
     $tool-menu-width: 8em;
     $tool-menu-width-collapsed: 42px;
     $tool-menu-collapseButton-height: $tool-menu-width-collapsed;
 }
 
-/* Tool Menu */
+// Tool Menu
 $tool-menu-item-text-weight:                               normal !default;
 $tool-menu-item-border-left: none !default;
 $tool-menu-item-border-radius: 0 calc(#{$button-radius-pill} * 1.5) calc(#{$button-radius-pill} * 1.5) 0 !default;
-$tool-menu-item-padding: calc( #{$standard-spacing} / 2) 0 calc( #{$standard-spacing} / 2) $standard-spacing !default;
-$tool-menu-item-margin-right: calc( #{$standard-spacing} / 2) !default;
+$tool-menu-item-padding: calc(#{$standard-spacing} / 2) 0 calc(#{$standard-spacing} / 2) $standard-spacing !default;
+$tool-menu-item-margin-right: calc(#{$standard-spacing} / 2) !default;
 $tool-menu-item-hover-border-left: $tool-menu-item-border-left !default;
 $tool-menu-item-collapsed-border-radius:                   0 !default;
 $tool-menu-item-collapsed-margin:                          0 !default;
@@ -187,17 +185,16 @@ $tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-b
 $tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
 $tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-border-top !default;
 
-
-/* Tool menu - lessons subpage menu enabled - top level pages */
+// Tool menu - lessons subpage menu enabled - top level pages
 $tool-lessons-toplevel-menu-icon-padding: $material-menu-item-padding !default;
 $tool-lessons-toplevel-menu-text-padding: $material-menu-item-padding !default;
 $tool-lessons-subpage-menu-text-padding: calc(#{$standard-spacing} / 2) $standard-spacing calc(#{$standard-spacing} / 2) calc(#{$standard-spacing} * 2) !default;
 
-/* Tool menu - lessons subpage menu enabled - sub pages */
-$tool-lessons-subpage-menu-fontsize: .9em !default;
+// Tool menu - lessons subpage menu enabled - sub pages
+$tool-lessons-subpage-menu-fontsize: 0.9em !default;
 $tool-lessons-subpage-menu-border-radius: 0 $button-radius-pill $button-radius-pill 0 !default;
 
-/* Lessons tool */
+// Lessons tool
 $lessons-column-border:1px solid !default;
 $lessons-item-border-top: 1px solid !default;
 $lessons-item-border-right: none !default;
@@ -205,29 +202,28 @@ $lessons-item-border-bottom: none !default;
 $lessons-item-border-left: none !default;
 $lessons-item-edit-display: none !default;
 $lessons-item-edit-hover-display: inline-block !default;
-/* Navigation Hierarchy */
+// Navigation Hierarchy
 $hierarchy-size: 3.5em !default;
 
-/* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
+// Golden Ratio width for 16px font http://www.pearsonified.com/typography/
 $measure: 960px !default;
 
 $banner-height: 52px !default;
 
-
-/* Tool icons */
+// Tool icons
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
 
-/* Unpublished Banner */
+// Unpublished Banner
 $siteUnpublish-border: 1px solid !default;
 
-/* Site Deletion Banner */
-$siteDelete-border: 1px solid!default;
+// Site Deletion Banner
+$siteDelete-border: 1px solid !default;
 
-/* Icon Overrides */
+// Icon Overrides
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
 
-/* Footer */
+// Footer
 $footer-font-size: 12px;
 
 // Overview page column widths. Total to add up to 96% as the columns have a margin.
@@ -236,15 +232,14 @@ $col1of2-width: 48% !default;
 $overview-portlet-border: none !default;
 $overview-portlet-border-radius: $button-radius !default;
 
-
-/* focus styles for all control elements (e.g. buttons, form controls, links, etc) */
+// focus styles for all control elements (e.g. buttons, form controls, links, etc)
 $focus-outline-width: 3px !default;
 $focus-outline-style: solid !default;
 $sakai-focus-outline: $focus-outline-width $focus-outline-style !default;
 $focus-outline-offset: 2px !default;
 
 //Used to give round elements an round focus and not square
-$sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
+$sakai-box-shadow-emulate-focus: 0 0 0 $focus-outline-width !default;
 
 $font-family: "Open Sans",sans-serif !default;
 $header-font-family: $font-family !default;
@@ -261,7 +256,7 @@ $active-transition-hover: box-shadow 100ms ease-out !default;
 $active-transition-active: box-shadow 100ms ease-in !default;
 
 :root {
-    /* topNav Main Menu */
+    // topNav Main Menu
     --header-size: 50px;
 
     //Dashboard

@@ -1,0 +1,19 @@
+{
+    "extends": "stylelint-config-standard",
+    
+    "plugins": [
+        "stylelint-scss"
+    ],
+    "rules": {
+        "at-rule-no-unknown": null,
+        "scss/at-rule-no-unknown": true,
+        "no-descending-specificity": null,
+        "indentation": null,
+        "at-rule-empty-line-before": null,
+        "selector-list-comma-newline-after": null,
+        "no-eol-whitespace": null,
+        "rule-empty-line-before": null,
+        "custom-property-empty-line-before": null,
+        "no-empty-source": null
+    }
+}
