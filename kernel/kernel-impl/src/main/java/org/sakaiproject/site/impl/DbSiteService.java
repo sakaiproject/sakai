@@ -30,11 +30,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -1117,9 +1117,9 @@ public abstract class DbSiteService extends BaseSiteService
 			log.debug("getSiteIds SQL: {}, values: {}", sql, java.util.Arrays.toString(values));
 
 			List<String> results = sqlService().dbRead(sql, values, siteIdReader);
-			Set<String> siteIds = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			Set<String> siteIds = new LinkedHashSet<>();
 			if (results != null) siteIds.addAll(results);
-			Set<String> excludedSiteIds = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			Set<String> excludedSiteIds = new LinkedHashSet<>();
 			if (excludedSites != null) excludedSiteIds.addAll(excludedSites);
 			siteIds.removeAll(excludedSiteIds);
 			return new ArrayList<>(siteIds);
