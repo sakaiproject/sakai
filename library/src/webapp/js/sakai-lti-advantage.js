@@ -3,6 +3,7 @@
 
 let _Sakai_LTI_Iframes = [];
 let stored_data = {}
+let quota = 300000; // 300K quota
 
 // Future feature: Allow additions / deletions to this from same origin
 let supported_messages = [
@@ -29,7 +30,6 @@ w.addEventListener('message', function (event) {
     // https://stackoverflow.com/questions/15329710/postmessage-source-iframe
     Array.prototype.forEach.call(document.getElementsByTagName('iframe'), function (element) {
       if (element.contentWindow === event.source) {
-        // console.log('source element', element);
         frame_id = element.getAttributeNode("id");
         if ( frame_id ) frame_id = frame_id.value;
       }
@@ -45,7 +45,7 @@ w.addEventListener('message', function (event) {
     if ( typeof message == 'string' ) message = JSON.parse(message)
     console.log(message);
 
-    // The old way
+    // Check if a frame is approved
     approved = _Sakai_LTI_Iframes.includes(frame_id);
     if ( ! same_origin ) {
         console.log('id', frame_id, (approved ? 'approved' : 'not approved'));
@@ -54,13 +54,11 @@ w.addEventListener('message', function (event) {
             console.log(event);
         }
     }
- 
+
     switch (message.subject) {
         case 'org.sakailms.lti.prelaunch':
             if ( same_origin ) {
                 _Sakai_LTI_Iframes.push(frame_id);
-		// TODO: Get a list of origins and whitelist them
-                // _Sakai_LTI_origins.push(something);
                 console.log('org.imsglobal.lti.prelaunch from same origin', origin, 'frame approved', frame_id);
             } else {
                 console.log('org.imsglobal.lti.prelaunch must come from same origin, not', origin);
@@ -80,17 +78,34 @@ w.addEventListener('message', function (event) {
             if (!stored_data[origin]) {
                 stored_data[origin] = {};
             }
-            // TODO: Check quota
-            stored_data[origin][message.key] = message.value;
-            let send_data = {
-                subject: 'org.imsglobal.lti.put_data.response',
-                message_id: message.message_id,
-                key: message.key,
-                value: message.value,
-            };
-            console.log(w.location.origin + " Sending post message to " + event.origin);
-            console.log(JSON.stringify(send_data, null, '    '));
-            event.source.postMessage(send_data, event.origin);
+
+            let storage = JSON.stringify(stored_data).length +
+                JSON.stringify(message.key).length + JSON.stringify(message.value).length;
+            /// console.log("new size="+storage);
+            if ( storage > quota ) {
+                let send_data = {
+                    subject: 'org.imsglobal.lti.put_data.response',
+                    message_id: message.message_id,
+                    key: message.key,
+                    error: {
+                        code: "storage_exhaustion",
+                        message: storage+" bytes"
+                    }
+                };
+                console.log(JSON.stringify(send_data, null, '    '));
+                event.source.postMessage(send_data, event.origin);
+            } else {
+                stored_data[origin][message.key] = message.value;
+                let send_data = {
+                    subject: 'org.imsglobal.lti.put_data.response',
+                    message_id: message.message_id,
+                    key: message.key,
+                    value: message.value,
+                };
+                console.log(w.location.origin + " Sending post message to " + event.origin);
+                console.log(JSON.stringify(send_data, null, '    '));
+                event.source.postMessage(send_data, event.origin);
+            }
             break;
         case 'org.imsglobal.lti.get_data':
             console.log('get_data ',origin, ' ', message.key,' ', message.value);
