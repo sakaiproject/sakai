@@ -7287,7 +7287,9 @@ public class AssignmentAction extends PagedResourceActionII {
         // read inputs for supplement items
         setNewAssignmentParametersSupplementItems(validify, state, params);
 
-        if (state.getAttribute(WITH_GRADES) != null && (Boolean) state.getAttribute(WITH_GRADES)) {
+        String option = params.get("option");
+
+        if (!"attach".equals(option) && state.getAttribute(WITH_GRADES) != null && (Boolean) state.getAttribute(WITH_GRADES)) {
             // the grade point
             String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
