@@ -22,7 +22,7 @@
     "@lion/dialog": "0.7.13",
     "@lion/pagination": "0.5.0",
     "@popperjs/core": "2.9.3",
-    "@webcomponents/webcomponentsjs": "2.5.0",
+    "@webcomponents/webcomponentsjs": "2.6.0",
     "cropperjs": "1.5.7",
     "flatpickr": "4.6.9",
     "lit-element": "2.5.1",
