@@ -1,5 +1,6 @@
 import { LitElement, html, css } from "../assets/lit-element/lit-element.js";
 import "../assets/flatpickr/dist/flatpickr.min.js";
+import moment from "../assets/moment/dist/moment.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { flatpickerStyles } from "./flatpicker-styles.js";
 import "../assets/flatpickr/dist/plugins/confirmDate/confirmDate.js";
