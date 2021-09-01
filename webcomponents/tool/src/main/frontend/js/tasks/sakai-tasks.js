@@ -2,6 +2,7 @@ import { css, html } from "../assets/lit-element/lit-element.js";
 import {unsafeHTML} from '../assets/lit-html/directives/unsafe-html.js';
 import { SakaiPageableElement } from '../sakai-pageable-element.js';
 import '../sakai-icon.js';
+import moment from "../assets/moment/dist/moment.js";
 import "../assets/@lion/dialog/lion-dialog.js";
 import "./sakai-tasks-create-task.js";
 import "../sakai-editor.js";
