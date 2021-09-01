@@ -84,7 +84,7 @@ public class UploadController {
 
         String userId = sessionManager.getCurrentSessionUserId();
         boolean isGradebookUpdate = gradebookForm.isGradebookUpdate();
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         final Locale locale = preferencesService.getLocale(userId);
         ToolSession toolSession = sessionManager.getCurrentToolSession();
         Gradebook sessionGradebook = (Gradebook) toolSession.getAttribute("currentGradebook");

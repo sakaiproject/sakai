@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -40,7 +41,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -49,7 +49,6 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.postem.constants.PostemToolConstants;
 import org.sakaiproject.postem.helpers.CSV;
@@ -70,31 +69,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class PostemSakaiService  {
 
-    protected ArrayList<Gradebook> gradebooks;
-    protected String userId;
-    protected String userEid;
-    protected String siteId = null;
-    protected boolean ascending = true;
-    protected String sortBy = Gradebook.SORT_BY_TITLE;
-    protected Gradebook currentGradebook;
-    private Boolean editable;
-    protected TreeMap<String, String> studentMap;
-    protected String csv = null;
-    protected String newTemplate;
+    private final int TITLE_MAX_LENGTH = 255;
+    private final int HEADING_MAX_LENGTH = 500;
+    private final boolean withHeader = true;
+    private final char csvDelim = CSV.COMMA_DELIM;
 
-    private static final int TITLE_MAX_LENGTH = 255;
-    private static final int HEADING_MAX_LENGTH = 500;
-
-    protected static final String FILE_UPLOAD_MAX_SIZE = "20";
-    protected static final String STATE_CONTENT_SERVICE = "DbContentService";
-
-    protected boolean withHeader = true;
-    char csvDelim = CSV.COMMA_DELIM;
-
-    /** kernel api **/
-    private static SecurityService securityService  = ComponentManager.get(SecurityService.class);
-
-    private ToolSession toolSession;
+    @Autowired
+    private SecurityService securityService;
 
     @Autowired
     private SessionManager sessionManager;
@@ -120,62 +101,27 @@ public class PostemSakaiService  {
     @Autowired
     private SiteService siteService;
 
-    @Autowired
-    private NotificationService notificationService;
-
     public List<Gradebook> getGradebooks(String sortBy, boolean ascending) {
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (null != userId) {
-            try {
-                userEid = userDirectoryService.getUserEid(userId);
-            } catch (UserNotDefinedException e) {
-                log.error("UserNotDefinedException", e);
-            }
-        }
-
         Placement placement = toolManager.getCurrentPlacement();
         String currentSiteId = placement.getContext();
-
-        siteId = currentSiteId;
-        List<Gradebook> gradebooks = new ArrayList<>();
-        try {
-            if (checkAccess()) {
-                gradebooks = new ArrayList<Gradebook>(gradebookManager
-                        .getGradebooksByContext(siteId, sortBy, ascending));
-            } else {
-                gradebooks = new ArrayList<Gradebook>(gradebookManager
-                        .getReleasedGradebooksByContext(siteId, sortBy, ascending));
-            }
-        } catch (Exception e) {
-            gradebooks = null;
-        }
-
-        return gradebooks;
+        boolean canUpdateSite = this.canUpdateSite();
+        return new ArrayList<>(canUpdateSite ? gradebookManager.getGradebooksByContext(currentSiteId, sortBy, ascending) : gradebookManager.getReleasedGradebooksByContext(currentSiteId, sortBy, ascending));
     }
 
     public TreeMap<String, String> processGradebookView(Long gradebookId) {
-        if (isEditable()) {
-            currentGradebook = gradebookManager.getGradebookByIdWithHeadings(gradebookId);
-            currentGradebook.setUsernames(gradebookManager.getUsernamesInGradebook(currentGradebook));
-            studentMap = currentGradebook.getStudentMap();
-            return studentMap;
+        boolean canUpdateSite = this.canUpdateSite();
+        Gradebook currentGradebook = gradebookManager.getGradebookByIdWithHeadings(gradebookId);
+        if (!canUpdateSite) {
+            return new TreeMap<>();
         }
-
-        // otherwise, just load what we need for the current user
-        currentGradebook = gradebookManager.getGradebookByIdWithHeadings(gradebookId);
-
-        return studentMap;
+        currentGradebook.setUsernames(gradebookManager.getUsernamesInGradebook(currentGradebook));
+        return currentGradebook.getStudentMap();
+        
     }
 
     public String processDelete(Long gradebookId) {
-        try {
-            if (!checkAccess()) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(),
-                        "syllabus_access_athz", "");
-            }
-
-        } catch (PermissionException e) {
+        boolean canUpdateSite = this.canUpdateSite();
+        if (!canUpdateSite) {
             return PostemToolConstants.RESULT_KO;
         }
         Gradebook currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(gradebookId);
@@ -184,16 +130,11 @@ public class PostemSakaiService  {
     }
 
     public CSV processCsvDownload(Long gradebookId) {
-        try {
-            if (!checkAccess()) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(),
-                        "syllabus_access_athz", "");
-            }
-
-        } catch (PermissionException e) {
+        boolean canUpdateSite = this.canUpdateSite();
+        if (!canUpdateSite) {
             return null;
         }
-        currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(gradebookId);
+        Gradebook currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(gradebookId);
 
         List<List<String>> csvContents = new ArrayList<>();
         if (currentGradebook.getHeadings().size() > 0) {
@@ -212,18 +153,11 @@ public class PostemSakaiService  {
         return newCsv;
     }
 
-    public boolean checkAccess() {
+    public boolean canUpdateSite() {
         return siteService.allowUpdateSite(toolManager.getCurrentPlacement().getContext());
     }
 
-    public boolean isEditable() {
-        if (null == editable) {
-            editable = checkAccess();
-        }
-        return editable;
-    }
-
-    public Gradebook getGradebookById2(Long gradebookId) {
+    public Gradebook getGradebookByIdWithHeadingsAndStudents(Long gradebookId) {
         return gradebookManager.getGradebookByIdWithHeadingsAndStudents(gradebookId);
     }
 
@@ -231,11 +165,16 @@ public class PostemSakaiService  {
         return gradebookManager.getStudentByGBAndUsername(currentGradebook, selectedStudent);
     }
 
+    public void registerStudentAccess(StudentGrades currentStudent) {
+        currentStudent.setLastChecked(new Timestamp(new Date().getTime()));
+        gradebookManager.updateStudent(currentStudent);
+    }
+
     public String doDragDropUpload (MultipartFile file, HttpServletRequest request) {
         String maxFileSizeMb = serverConfigurationService.getString(ContentHostingService.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
         long maxBytes = 1024L * 1024L;
         String fileName = "";
-        toolSession = sessionManager.getCurrentToolSession();
+        ToolSession toolSession = sessionManager.getCurrentToolSession();
 
         try {
             maxBytes = Long.parseLong(maxFileSizeMb) * 1024L * 1024L;
@@ -329,24 +268,18 @@ public class PostemSakaiService  {
 
     public String processCreate(Gradebook currentGradebook, boolean isGradebookUpdate) {
 
-        toolSession = sessionManager.getCurrentToolSession();
-
-        try {
-            if (!this.checkAccess()) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(),
-                        "syllabus_access_athz", "");
-            }
-
-        } catch (PermissionException e) {
+        boolean canUpdateSite = this.canUpdateSite();
+        ToolSession toolSession = sessionManager.getCurrentToolSession();
+        if (!canUpdateSite) {
             return PostemToolConstants.PERMISSION_ERROR;
         }
 
         if (null != currentGradebook && null != currentGradebook.getTitle()) {
-            ArrayList<Gradebook> gb = getGradebooks();
+            SortedSet<Gradebook> gb = getGradebooks();
             List<Gradebook> result = gb.stream().filter(gradeb -> gradeb.getTitle().equals(currentGradebook.getTitle()))
                     .filter(gradeb -> !gradeb.getId().equals(currentGradebook.getId())).collect(Collectors.toList());
-            if (result.size()>0) {
-                    return PostemToolConstants.DUPLICATE_TITLE;
+            if (result.size() > 0) {
+                return PostemToolConstants.DUPLICATE_TITLE;
             }
         }
 
@@ -361,6 +294,7 @@ public class PostemSakaiService  {
                 //Read the data from attachment
                 String attachmentId = (String) toolSession.getAttribute("attachmentId");
                 ContentResource cr = contentHostingService.getResource(attachmentId);
+                String csv;
                 //Check the type
                 if (ResourceProperties.TYPE_URL.equalsIgnoreCase(cr.getContentType())) {
                     //Going to need to read from a stream
@@ -451,34 +385,11 @@ public class PostemSakaiService  {
         return PostemToolConstants.RESULT_OK;
     }
 
-    public ArrayList<Gradebook> getGradebooks() {
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (null != userId) {
-            try {
-                userEid = userDirectoryService.getUserEid(userId);
-            } catch (UserNotDefinedException e) {
-                log.error("UserNotDefinedException", e);
-            }
-        }
-
+    public SortedSet<Gradebook> getGradebooks() {
         Placement placement = toolManager.getCurrentPlacement();
         String currentSiteId = placement.getContext();
-
-        siteId = currentSiteId;
-        try {
-            if (checkAccess()) {
-                gradebooks = new ArrayList<Gradebook>(gradebookManager
-                        .getGradebooksByContext(siteId, sortBy, ascending));
-            } else {
-                gradebooks = new ArrayList<Gradebook>(gradebookManager
-                        .getReleasedGradebooksByContext(siteId, sortBy, ascending));
-            }
-        } catch (Exception e) {
-            gradebooks = null;
-        }
-
-        return gradebooks;
+        boolean canUpdateSite = this.canUpdateSite();
+        return canUpdateSite ? gradebookManager.getGradebooksByContext(currentSiteId, Gradebook.SORT_BY_TITLE, Boolean.TRUE.booleanValue()) : gradebookManager.getReleasedGradebooksByContext(currentSiteId, Gradebook.SORT_BY_TITLE, Boolean.TRUE.booleanValue());
     }
 
     /**
@@ -526,8 +437,9 @@ public class PostemSakaiService  {
     public String getDuplicateUserNames() {
 
         String duplicates = null;
+        String csv = null;
         try {
-            toolSession = sessionManager.getCurrentToolSession();
+            ToolSession toolSession = sessionManager.getCurrentToolSession();
             //Read the data from attachment
             String attachmentId = (String) toolSession.getAttribute("attachmentId");
             ContentResource cr = contentHostingService.getResource(attachmentId);

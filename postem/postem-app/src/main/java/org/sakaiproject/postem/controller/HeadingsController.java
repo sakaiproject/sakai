@@ -52,7 +52,7 @@ public class HeadingsController {
         model.addAttribute("ascendingLastMod", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingReleased", PostemToolConstants.POSTEM_FALSE_CONSTANT);
 
-        String visible = Boolean.toString(postemSakaiService.checkAccess());
+        String visible = Boolean.toString(postemSakaiService.canUpdateSite());
         model.addAttribute("visible", visible);
 
         return PostemToolConstants.INDEX_TEMPLATE;
@@ -74,7 +74,7 @@ public class HeadingsController {
         model.addAttribute("ascendingLastMod", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingReleased", PostemToolConstants.POSTEM_FALSE_CONSTANT);
 
-        String visible = Boolean.toString(postemSakaiService.checkAccess());
+        String visible = Boolean.toString(postemSakaiService.canUpdateSite());
         model.addAttribute("visible", visible);
         return PostemToolConstants.INDEX_TEMPLATE;
     }
@@ -94,7 +94,7 @@ public class HeadingsController {
         model.addAttribute("ascendingLastMod", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingReleased", PostemToolConstants.POSTEM_FALSE_CONSTANT);
 
-        String visible = Boolean.toString(postemSakaiService.checkAccess());
+        String visible = Boolean.toString(postemSakaiService.canUpdateSite());
         model.addAttribute("visible", visible);
         return PostemToolConstants.INDEX_TEMPLATE;
     }
@@ -114,7 +114,7 @@ public class HeadingsController {
         model.addAttribute("ascendingModifiedBy", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingReleased", PostemToolConstants.POSTEM_FALSE_CONSTANT);
 
-        String visible = Boolean.toString(postemSakaiService.checkAccess());
+        String visible = Boolean.toString(postemSakaiService.canUpdateSite());
         model.addAttribute("visible", visible);
 
         return PostemToolConstants.INDEX_TEMPLATE;
@@ -135,7 +135,7 @@ public class HeadingsController {
         model.addAttribute("ascendingModifiedBy", PostemToolConstants.POSTEM_FALSE_CONSTANT);
         model.addAttribute("ascendingLastMod", PostemToolConstants.POSTEM_FALSE_CONSTANT);
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
 
         return PostemToolConstants.INDEX_TEMPLATE;
     }
