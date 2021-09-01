@@ -113,6 +113,18 @@ export class SakaiGrades extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
+        a {
+          color: var(--link-color);
+        }
+        a:hover { 
+          color: var(--link-hover-color);
+        }
+        a:active {
+          color: var(--link-active-color);
+        }
+        a:visited {
+          color: var(--link-visited-color);
+        }
         #total {
           flex: 1;
           margin-bottom: 10px;
@@ -149,7 +161,7 @@ export class SakaiGrades extends SakaiPageableElement {
             .new-count {
               font-size: var(--sakai-grades-count-font-size, 10px);
               font-weight: bold;
-              color: #262626;
+              color: var(--sakai-text-color-dimmed, #262626);
             }
             .title {
               font-size: var(--sakai-grades-title-font-size, 12px);

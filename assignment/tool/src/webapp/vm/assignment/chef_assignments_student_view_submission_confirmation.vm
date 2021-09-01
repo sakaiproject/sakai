@@ -13,7 +13,7 @@
     #if (!$!allowAddAssignment)
         #progressBar($!service.getProgressBarStatus($!submission))
     #end
-    <div class="success">
+    <div class="sak-banner-success">
         #if ($!submission.Submitted)
             $tlang.getString('confirm.submission.success')
         #else

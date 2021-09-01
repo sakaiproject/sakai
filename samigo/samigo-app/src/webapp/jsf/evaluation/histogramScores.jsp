@@ -154,8 +154,13 @@ $Id$
                               textColor: cssStyles.getPropertyValue('--sakai-text-color-1')
                             }
 			  }
-			}
+			},
+      grid: {
+        gridLineColor: cssStyles.getPropertyValue('--sakai-border-color'),
+        background: cssStyles.getPropertyValue('--sakai-background-color-1')
+      }
 		});
+    console.log(plot1);
           $('.presentation').attr('role','presentation');
 	        $(window).resize(function(){plot1.replot(dataSet);});
 	}</script>" />

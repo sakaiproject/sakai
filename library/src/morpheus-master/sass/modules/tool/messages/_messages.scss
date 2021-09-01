@@ -169,6 +169,10 @@
 
 	.dataTable {
 		thead {
+			.sorting:after {
+				opacity: 1;
+				color: var(--sakai-text-color-dimmed);
+			}
 			.sorting_asc, .sorting_desc {
 				a {
 					position: relative;
@@ -198,5 +202,7 @@
 			}
 		}
 	}
-
+	.ToggleBulkDisabled {
+		color: var(--sakai-text-color-disabled);
+	}
 }
