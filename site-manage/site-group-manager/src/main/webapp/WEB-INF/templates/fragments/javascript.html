@@ -125,12 +125,10 @@
 
 <script th:fragment="groupJs" th:inline="javascript">
   /*<![CDATA[*/
-  // Load the multiselect two sides library
-  includeWebjarLibrary('multiselect-two-sides');
+  // Load the select2 library
+  includeWebjarLibrary('select2');
 
   $(document).ready(function() {
-    // Initialize tooltips
-    $('[data-toggle="tooltip"]').tooltip();
 
     //Disable or enable the submit depending on the group title value.
     $('#create-group-submit-button').prop('disabled', $('#groupTitle').val() === '');
@@ -158,15 +156,11 @@
       this.value != '' ? $('#joinableOptionsDiv').show() : $('#joinableOptionsDiv').hide();
     });
 
-    //Initialize the multiselect component
+    //Initialize the select2 component
     var searchPlaceHolderText = /*[[#{groups.multiselect.search}]]*/;
-    $('#groupMembersFrom').multiselect({
-      sort: false,
-      startUp: true,
-      search: {
-        left: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
-        right: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
-      }
+    $('#groupMembers').select2({
+      placeholder: searchPlaceHolderText,
+      allowClear: true
     });
 
   });
