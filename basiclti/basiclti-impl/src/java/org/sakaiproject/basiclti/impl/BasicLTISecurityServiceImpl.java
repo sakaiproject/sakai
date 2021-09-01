@@ -280,6 +280,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		// We give this three chances - try to submit right away - submit 1/2 second from now and show the link 5 seconds from now
 		body.append("<script>\n");
+		body.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('access.doRedirect prelaunch request');");
 		body.append("setTimeout(function() {document.getElementById('lti-message-"+hash+"').style.display='block';}, 5000);\n");
 		body.append("setTimeout(function() {window.location='"+redirectUrl+"';}, 500);\n");
 		body.append("window.location='"+redirectUrl+"';\n");
@@ -317,6 +318,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
 			redirect.addParameter("login_hint", encoded_login_hint);
+			redirect.addParameter("web_message_target", "_parent");
+			SakaiBLTIUtil.addSakaiBaseCapabilities(redirect);
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);
 			}

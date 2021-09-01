@@ -146,6 +146,9 @@ public class SakaiBLTIUtil {
 	// SAK-45491 - Key rotation interval
 	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS = "lti.advantage.key.rotation.days";
 	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT = "30";
+	// SAK-45951 - Control post verify feature - default off
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED = "lti.advantage.post.verify.enabled";
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT = "false";
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
@@ -1905,6 +1908,12 @@ public class SakaiBLTIUtil {
 				"data": "csrftoken:c7fbba78-7b75-46e3-9201-11e6d5f36f53"
 			*/
 
+			// Add post-launch call back claim
+			if ( checkSendPostVerify() ) {
+				lj.origin = getOurServerUrl();
+				lj.postverify = getOurServerUrl() + LTI13_PATH + "postverify/" + signed_placement;
+			}
+
 			if ( deepLink ) {
 				SakaiDeepLink ci = new SakaiDeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
@@ -2004,9 +2013,11 @@ public class SakaiBLTIUtil {
 			}
 			html += "    </form>\n";
 
+
 			if ( ! dodebug ) {
 				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n";
 				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
 				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
@@ -2018,6 +2029,9 @@ public class SakaiBLTIUtil {
 						+ "</p>\n<p>\n--- Encoded JWT:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(jws)
 						+ "</p>\n";
+				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending debug prelaunch request');\n";
+				html += "</script>\n";
 			}
 			String[] retval = {html, launch_url};
 			return retval;
@@ -2745,6 +2759,27 @@ public class SakaiBLTIUtil {
 		int delta = 5*60*60; // Five minutes
 		boolean retval = LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
 		return retval;
+	}
+
+	/**
+	 * sendPostVerify - Check if we are supposed to send the postVerify Claims
+	 */
+	public static boolean checkSendPostVerify()
+	{
+		String postVerify = ServerConfigurationService.getString(
+		    LTI_ADVANTAGE_POST_VERIFY_ENABLED, LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT);
+		return "true".equals(postVerify);
+	}
+
+	/**
+	 * addSakaiBaseCapabilities - Add a list of Sakai base capabilities to a URL under construction
+	 *
+	 * There may be additional capabilities available through an org.imsglobal.lti.capabilities message.
+	 * These are the commonly available capabilities to all LTI placements, comma separated.
+	 */
+
+	public static void addSakaiBaseCapabilities(URIBuilder redirect) {
+		redirect.addParameter("sakai_base_capabilities", "org.imsglobal.lti.capabilities,org.imsglobal.lti.put_data,org.imsglobal.lti.get_data");
 	}
 
 	public static boolean isPlacement(String placement_id) {
