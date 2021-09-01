@@ -17,6 +17,12 @@
 			#end
 		#end
 	#end
+
+	<h3>$tlang.getString("import.reuse")</h3>
+	#if ($alertMessage)
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
+	#end
+
 	#if ($materialFound)
 		<div class="sak-banner-warn">
 			#if ($hideImportedContent)
@@ -25,16 +31,9 @@
 				$tlang.getString("sitinfimp.material.visible.warn")
 			#end
 		</div>
-		<div class="clear"></div>
 	#end
-	<h3>
-		$tlang.getString("import.reuse")
-	</h3>
-	<p class="step">
-		$tlang.getString("import.reuse2")
-	</p>
-	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
+	#if ($addMissingTools)
+		<p class="sak-banner-info">$tlang.getString("import.newtool")</p>
 	#end
 	<p class="instruction">
 	$tlang.getString("import.choose")
@@ -150,10 +149,6 @@
 				#end
 			</table>
 		</div>
-		
-		#if ($addMissingTools)
-			<p class="sak-banner-warn">$tlang.getString("import.newtool")</p>
-		#end
 		
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
