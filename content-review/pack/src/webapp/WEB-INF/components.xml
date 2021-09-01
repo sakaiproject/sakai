@@ -18,6 +18,8 @@
 	<bean id="org.sakaiproject.contentreview.service.BaseContentReviewService"
 			class="org.sakaiproject.contentreview.service.BaseContentReviewService"
 			abstract="true">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
