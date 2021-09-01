@@ -688,6 +688,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.COURSE_GRADE_COLUMN_INDEX = GbGradeTable.FIXED_COLUMN_OFFSET - 1; // course grade is always the last fixed column
   GbGradeTable.domElement.addClass('gb-fixed-columns-' + GbGradeTable.FIXED_COLUMN_OFFSET);
 
+  if (sakai && sakai.locale && sakai.locale.userLanguage) {
+    GbGradeTable.numFmt = new Intl.NumberFormat(sakai.locale.userLanguage);
+  }
+
   GbGradeTable.grades = GbGradeTable.mergeColumns(GbGradeTable.unpack(tableData.serializedGrades,
                                                                       tableData.rowCount,
                                                                       tableData.columnCount),
@@ -3087,8 +3091,8 @@ GbGradeTable.localizeNumber = function(number) {
         return;
     }
 
-    if (sakai && sakai.locale && sakai.locale.userLanguage) {
-        return parseFloat(number).toLocaleString(sakai.locale.userLanguage);
+    if (GbGradeTable.numFmt) {
+        return GbGradeTable.numFmt.format(parseFloat(number));
     }
 
     return '' + number;
