@@ -125,6 +125,11 @@
 		}
 	}
 
+	#dateShifterDays {
+		box-sizing: content-box;
+		width: 5ch;
+	}
+
   /*Start of Site Group Manager*/
   .wizard-step-active {
     background-color: var(--sakai-primary-color-1);

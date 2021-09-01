@@ -68,7 +68,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     private static final String COMMENT_UPDATE = "UPDATE COMMONS_COMMENT SET CONTENT = ?, MODIFIED_DATE = ? WHERE ID = ?";
     private static final String COMMENT_DELETE = "DELETE FROM COMMONS_COMMENT WHERE ID = ?";
     private static final String POST_UPDATE = "UPDATE COMMONS_POST SET CONTENT = ?, MODIFIED_DATE = ?, RELEASE_DATE = ? WHERE ID = ?";
-    private static final String POST_INSERT = "INSERT INTO COMMONS_POST VALUES (?,?,?,?,?,?)";
+    private static final String POST_INSERT = "INSERT INTO COMMONS_POST VALUES (?,?,?,?,?,?,?)";
     private static final String POST_DELETE = "DELETE FROM COMMONS_POST WHERE ID = ?";
     private static final String POST_LIKE = "INSERT INTO COMMONS_LIKE VALUES (?,?,?,?)";
     private static final String LIKE_GET = "SELECT * FROM COMMONS_LIKE WHERE POST_ID = ? AND USER_ID=?";
@@ -229,7 +229,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                             , post.getCreatorId()
                                             , new Timestamp(post.getCreatedDate())
                                             , new Timestamp(post.getModifiedDate())
-                                            , new Timestamp(post.getReleaseDate())});
+                                            , new Timestamp(post.getReleaseDate())
+                                            , post.isPriority()});
                     sqlService.dbWrite(COMMONS_POST_INSERT
                         , new Object [] { post.getCommonsId(), post.getId() });
                 }

@@ -135,7 +135,6 @@ var chatscript = {
 	sendMessage : function(params, textarea, submitButton) {
 		var me = this;
 		var errorSubmit = $("#errorSubmit");
-		var missingChannel = $("#missingChannel");
 		$.ajax({
 			url: me.url_submit + 'new',
 			data: params,
@@ -182,8 +181,10 @@ var chatscript = {
 	},
 	doUpdateChatData : function() {
 		var me = this;
-		var missingChannel = $("#missingChannel");
 		var url = me.url_submit + portal.user.id + "/chatData.json";
+		if(!this.currentChatChannelId) {
+			return;
+		}
 		var params = {
 			"siteId": portal.siteId,
 			"channelId": this.currentChatChannelId

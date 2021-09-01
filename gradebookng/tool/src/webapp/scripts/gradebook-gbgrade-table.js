@@ -1740,6 +1740,9 @@ GbGradeTable.applyStudentFilter = function(data) {
 
       var student = row[GbGradeTable.STUDENT_COLUMN_INDEX];
       var searchableFields = [student.firstName, student.lastName, student.eid];
+      if (GbGradeTable.settings.isStudentNumberVisible) {
+          searchableFields.push(student.studentNumber);
+      }
       var studentSearchString = searchableFields.join(";")
 
       for (var i=0; i<queryStrings.length; i++) {
@@ -2163,7 +2166,19 @@ GbGradeTable.setupColumnSorting = function() {
   $table.on("click", ".gb-title", function() {
     var $handle = $(this);
 
-    var colIndex = $handle.closest("th").index();
+    let colIndex = -1;
+    const $colHeader = $handle.closest("th").find(".colHeader");
+    if ($colHeader.length > 0 && "colIndex" in $colHeader[0].dataset) {
+        const index = parseInt($colHeader[0].dataset.colIndex, 10);
+        if (!isNaN(index)) {
+            colIndex = index;
+        }
+    }
+
+    if (colIndex < 0) {
+        log.error("Unable to find column index for sorting.");
+        return;
+    }
 
     if (GbGradeTable.currentSortColumn != colIndex) {
       GbGradeTable.currentSortColumn = colIndex;

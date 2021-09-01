@@ -1,11 +1,15 @@
 <div id="commons-post-outer-container-{{id}}" class="commons-post-outer-container">
 
-    <div class="commons-post-inner-container">
+    <div class="commons-post-inner-container" id="commons-post-inner-container-{{id}}">
 
         <div class="commons-photo" style="background-image:url(/direct/profile/{{creatorId}}/image/thumb)"></div>
         <div class="commons-post-text-container">
             <div class="commons-post-body">
-                <div class="commons-post-content"><a id="commons-author-name-{{id}}" class="commons-post-author-name profile-popup-trigger" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a><span id="commons-post-content-{{id}}">{{{content}}}<span></div>
+                <div class="commons-post-content">
+                    <span id="commons-high-priority-{{id}}" class="fa fa-flag commons-high-priority" title={{tr 'priority_icon'}} style="display:none;"></span>
+                    <a id="commons-author-name-{{id}}" class="commons-post-author-name profile-popup-trigger" data-user-id="{{creatorId}}" href="javascript:;">{{creatorDisplayName}}</a>
+                    <span id="commons-post-content-{{id}}">{{{content}}}<span>
+                </div>
                 <div id="commons-post-options-{{id}}" class="commons-post-options">
                     <span id="commons-like-section" >
                         <a href="javascript:;" id="commons-like-link-{{id}}" class="commons-like-link" data-post-id="{{id}}" >

@@ -238,7 +238,8 @@ public class GradebookNgBusinessService {
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
 			// users are provided
-			final Set<String> userUuids = this.siteService.getSite(givenSiteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
+			Site site = siteService.getSite(givenSiteId);
+			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -295,13 +296,18 @@ public class GradebookNgBusinessService {
 						}
 					}
 
+					// If all group IDs in perms are null, this means TA has permission to view/grade All Sections/Groups.
+					// In this situation, we should add non-provided site members to their viewable list
+					List<String> nonProvidedMembers = site.getMembers().stream().filter(m -> !m.isProvided()).map(Member::getUserId).collect(Collectors.toList());
+					if (perms.stream().allMatch(p -> p.getGroupReference() == null)) {
+						viewableStudents.addAll(nonProvidedMembers);
+					}
+
 					if (!viewableStudents.isEmpty()) {
-						userUuids.retainAll(viewableStudents); // retain only
-																// those that
-																// are visible
-																// to this TA
+						userUuids.retainAll(viewableStudents); // retain only those that are visible to this TA
 					} else {
 						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
+						userUuids.removeAll(nonProvidedMembers); // Filter out non-provided users
 					}
 				}
 			}
@@ -834,7 +840,7 @@ public class GradebookNgBusinessService {
 			final Double newGradePoints = FormatHelper.validateDouble(newGradeAdjusted);
 
 			// if over limit, still save but return the warning
-			if (newGradePoints.compareTo(maxPoints) > 0) {
+			if (newGradePoints != null && newGradePoints.compareTo(maxPoints) > 0) {
 				log.debug("over limit. Max: {}", maxPoints);
 				rval = GradeSaveResponse.OVER_LIMIT;
 			}

@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +51,7 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.commons.api.datamodel.PostsData;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -64,6 +66,12 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +91,10 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
     private CommonsSecurityManager commonsSecurityManager;
     private RequestGetter requestGetter;
     private SakaiProxy sakaiProxy;
+    private EmailService emailService;
+    private SiteService siteService;
+    private UserDirectoryService userDirectoryService;
+    private static final ResourceLoader rl = new ResourceLoader("commons");
 
     private final static List<String> contentTypes
         = Arrays.asList("image/png", "image/jpg", "image/jpeg", "image/gif");
@@ -204,6 +216,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
         String siteId = (String) params.get("siteId");
         String commonsId = (String) params.get("commonsId");
         String embedder = (String) params.get("embedder");
+        boolean priority = Boolean.valueOf((String) params.get("priority"));
 
         if (StringUtils.isBlank(content) || StringUtils.isBlank(siteId)
                 || StringUtils.isBlank(commonsId) || StringUtils.isBlank(embedder)) {
@@ -226,6 +239,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             post.setCommonsId(commonsId);
             post.setEmbedder(embedder);
             post.setContent(content);
+            post.setPriority(priority);
         }
 
         Post createdOrUpdatedPost = commonsManager.savePost(post);
@@ -234,6 +248,9 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
                 sakaiProxy.postEvent(CommonsEvents.POST_CREATED,
                                         createdOrUpdatedPost.getReference(),
                                         createdOrUpdatedPost.getSiteId());
+                if(priority){   //send an email for a new priority post.
+                    sendPriorityEmail(siteId, content);
+                }
             } else {
                 sakaiProxy.postEvent(CommonsEvents.POST_UPDATED,
                                         createdOrUpdatedPost.getReference(),
@@ -540,5 +557,33 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
 
     private String escape(String unescaped) {
         return StringEscapeUtils.escapeJava(unescaped);
+    }
+
+    private void sendPriorityEmail(String siteId, String postContent){
+        try{
+            Set<String> siteUserIds = siteService.getSite(siteId).getUsers();
+            Set<User> siteUsers = new HashSet<>();  //will be list of users to email
+            for(String id: siteUserIds){
+                try{
+                    siteUsers.add(userDirectoryService.getUser(id));
+                } catch (UserNotDefinedException u){
+                    log.error("No user found with ID {} while sending Commons Priority email.", id);
+                }
+            }
+            List<String> headers = new ArrayList<>();
+            headers.add("Subject: " + rl.getFormattedMessage("priority_email_subject", siteService.getSite(siteId).getTitle()));
+            headers.add("From: " + "\"" + userDirectoryService.getCurrentUser().getDisplayName() + "\" <" + userDirectoryService.getCurrentUser().getEmail() + ">");
+            headers.add("Reply-To: " + userDirectoryService.getCurrentUser().getEmail());
+            headers.add("Content-Type: text/html");
+            StringBuilder messageText = new StringBuilder();    //make message body
+            messageText.append(rl.getFormattedMessage("priority_email_added", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
+            messageText.append("<br><br>" + postContent);
+            messageText.append("<br><br><hr><em>");
+            messageText.append(rl.getFormattedMessage("priority_email_forwarded", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
+            messageText.append("</em>");
+            emailService.sendToUsers(siteUsers, headers, messageText.toString());
+        } catch (IdUnusedException e){
+            log.error("Cannot send email; no site with ID {}", siteId);
+        }
     }
 }

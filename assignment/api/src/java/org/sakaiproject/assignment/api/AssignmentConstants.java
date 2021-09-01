@@ -315,4 +315,25 @@ public final class AssignmentConstants {
     public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
 
     public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+
+	/**
+	 * Sakai property key to change the default value for the 'Add due date to calendar' checkbox
+	 */
+	public static final String SAK_PROP_DUE_DATE_TO_CALENDAR_DEFAULT = "asn.due.date.to.calendar.default";
+
+	/**
+	 * Sakai.property for enable/disable anonymous grading
+	 */
+	public static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
+
+	/**
+	 * Site property for forcing anonymous grading in a site
+	 */
+	public static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
+
+	/*
+	 * Sakai property for allowing the ability for an assignment to send grades to an existing gradebook item
+	 */
+	public static final String SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM = "assignment.allowLinkToExistingGBItem";
+	public static final boolean SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT = true;
 }
