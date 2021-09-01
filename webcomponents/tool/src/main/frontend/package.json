@@ -56,7 +56,7 @@
     "@ckeditor/ckeditor5-theme-lark": "20.0.0",
     "@ckeditor/ckeditor5-upload": "19.0.0",
     "@storybook/addon-actions": "^6.3.7",
-    "@storybook/addon-cssresources": "5.3.19",
+    "@storybook/addon-cssresources": "6.2.9",
     "@storybook/addon-essentials": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
     "@storybook/web-components": "^6.3.7",
