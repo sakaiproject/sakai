@@ -30,6 +30,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
     return [
       ...super.styles,
       css`
+
         #total {
           flex: 1;
           margin-bottom: 10px;
@@ -67,7 +68,7 @@ export class SakaiGradesWidget extends SakaiDashboardWidget {
             .new-count {
               font-size: var(--sakai-grades-count-font-size, 10px);
               font-weight: bold;
-              color: #262626;
+              color: var(--sakai-text-color-dimmed, #262626);
             }
             .title {
               font-size: var(--sakai-grades-title-font-size, 12px);

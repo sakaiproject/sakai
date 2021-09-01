@@ -282,7 +282,8 @@
 }
 
 .#{$namespace}html.sakaiUserTheme-dark {
-    .ui-button .ui-icon {
+    .ui-button .ui-icon,
+    .ui-widget-header .ui-icon {
         background-image: url("/library/webjars/jquery-ui/1.12.1/images/ui-icons_ffffff_256x240.png");
     }
 }
