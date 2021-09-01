@@ -16,7 +16,7 @@
   "license": "ECL-2.0",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.14.0",
-    "@fortawesome/fontawesome-svg-core": "1.2.30",
+    "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
     "@lion/calendar": "0.15.0",
     "@lion/dialog": "0.7.13",
