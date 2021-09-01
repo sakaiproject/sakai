@@ -7245,7 +7245,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         Integer assignmentType = params.getInt(NEW_ASSIGNMENT_SUBMISSION_TYPE);
-        if ( assignmentType == 6 ) {
+        if ( assignmentType != null && assignmentType == 6 ) {
             Integer contentId = params.getInt(NEW_ASSIGNMENT_CONTENT_ID);
             if ( contentId < 1 ) {
                 addAlert(state, rb.getString("pleaseselectlti"));
