@@ -34,7 +34,9 @@
 	</f:subview>
 
 	<h:form id="sitelistform" rendered="#{SiteListBean.allowed}">
-		<h3><h:outputText value="#{msgs.title_sitelist} (#{SiteListBean.userDisplayId})"/></h3>
+		<t:div styleClass="page-header">
+			<h1><h:outputText value="#{msgs.title_sitelist} (#{SiteListBean.userDisplayId})"/></h1>
+		</t:div>
 		<sakai:instruction_message value="#{msgs.instructions_sitelist}" />
 
 		<t:dataTable
