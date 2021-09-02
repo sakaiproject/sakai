@@ -1028,6 +1028,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        String context = assignment.getContext();
+
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
@@ -1052,6 +1054,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (AuthzRealmLockException arle) {
             log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
+
+        // clean up content-review items
+        contentReviewService.deleteAssignment(context, reference);
     }
 
     @Override

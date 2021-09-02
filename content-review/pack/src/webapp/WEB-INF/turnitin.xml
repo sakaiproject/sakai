@@ -26,7 +26,6 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" />
-		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
 	</bean>
 
 	<!-- Default to allow all sites to use Turnitin regardless of site type or property -->
