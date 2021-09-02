@@ -7,6 +7,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <script type="importmap">
+        {
+            "imports": {
+                "@popperjs/core/dist/esm/popper.js": "/webcomponents/assets/@popperjs/core/dist/esm/popper.js"
+            }
+        }
+        </script>
+
         <script> ## Include this at the top so tool markup and headscripts.js can use it
             ## SAK-16484 Allow Javascript to easily get at user details.
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer

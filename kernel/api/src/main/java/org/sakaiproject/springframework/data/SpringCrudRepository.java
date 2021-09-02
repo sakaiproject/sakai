@@ -16,6 +16,7 @@
 package org.sakaiproject.springframework.data;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * This is modeled after Spring's CrudRepository. The idea here is using this api will
@@ -87,7 +88,16 @@ public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extend
      * @return the entity with the given id or {@literal null} if none found
      * @throws IllegalArgumentException if {@code id} is {@literal null}
      */
-    T findById(ID id);
+    Optional<T> findById(ID id);
+
+    /**
+     * Retrieves a reference to an entity by its id.
+     *
+     * @param id must not be {@literal null}.
+     * @return the entity reference with the given id or {@literal null} if none found
+     * @throws IllegalArgumentException if {@code id} is {@literal null}
+     */
+    T getById(ID id);
 
     /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

@@ -1,7 +1,11 @@
-import {LitElement} from "./assets/lit-element/lit-element.js";
+import { LitElement } from "./assets/@lion/core/index.js";
 import {loadProperties, tr} from "./sakai-i18n.js";
 
-class SakaiElement extends LitElement {
+export class SakaiElement extends LitElement {
+
+  constructor() {
+    super();
+  }
 
   /**
    * Convenience wrapper for sakai-18n.tr.
@@ -64,6 +68,3 @@ class SakaiElement extends LitElement {
     }
   }
 }
-
-
-export {SakaiElement};

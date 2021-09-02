@@ -41,14 +41,18 @@ public interface Statisticable extends EntityProvider {
      * 
      * @return the tool id (example: "sakai.messages")
      */
-    public String getAssociatedToolId();
+    default public String getAssociatedToolId() {
+        return "";
+    }
 
     /**
      * Return an array of all the event keys which should be tracked for statistics
      * 
      * @return an array if event keys (example: "message.new" , "message.delete")
      */
-    public String[] getEventKeys();
+    default public String[] getEventKeys() {
+        return new String [] {};
+    }
 
     /**
      * OPTIONAL: return null if you do not want to implement this<br/>
@@ -58,6 +62,8 @@ public interface Statisticable extends EntityProvider {
      * @param locale the locale to return the names for
      * @return the map of event key => event name (example: for a 'en' locale: {"message.new","A new message"}) OR null to use the event keys
      */
-    public Map<String, String> getEventNames(Locale locale);
+    default public Map<String, String> getEventNames(Locale locale) {
+        return null;
+    }
 
 }
