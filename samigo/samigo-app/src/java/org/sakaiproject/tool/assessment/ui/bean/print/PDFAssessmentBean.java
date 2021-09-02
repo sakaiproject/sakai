@@ -84,7 +84,7 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static FormattedText formattedText = ComponentManager.get(FormattedText.class);
+	private static final FormattedText formattedText = ComponentManager.get(FormattedText.class);
 	
 	private static final ResourceLoader printMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.PrintMessages");
 

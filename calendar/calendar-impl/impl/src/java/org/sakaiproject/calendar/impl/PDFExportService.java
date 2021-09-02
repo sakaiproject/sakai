@@ -23,13 +23,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -41,6 +48,7 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -159,7 +167,6 @@ public class PDFExportService {
     private ResourceLoader rb;
     private FopFactory fopFactory;
 
-
     public PDFExportService(TimeService timeService, ResourceLoader rb) {
         this.timeService = timeService;
         this.rb = rb;
@@ -256,38 +263,37 @@ public class PDFExportService {
      * @param doc
      *        XML output document
      * @param timeRange
-     *        this is the overall time range. For example, for a weekly schedule, it would be the start/end times for the currently selected week period.
-     * @param dailyTimeRange
-     *        On a weekly time schedule, even if the overall time range is for a week, you're only looking at a portion of the day (e.g., 8 AM to 6 PM, etc.)
+     *        this is the overall time range. It's only used by the old list of events view, not used by any of the new viees.
+     * @param selectedCalendarInstant
+     *        The instant selected in the Calendar UI when the user is browsing between dates.
      * @param calendarReferenceList
      * @param userID
      * @param baseCalendarService
      */
-    void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange, List calendarReferenceList, String userID, BaseCalendarService baseCalendarService, boolean reverseOrder) {
-
+    void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, Instant selectedCalendarInstant, List calendarReferenceList, String userID, BaseCalendarService baseCalendarService, boolean reverseOrder) {
         // This list will have an entry for every week day that we care about.
         List<TimeRange> timeRangeList = null;
         TimeRange actualTimeRange = timeRange;
         Element topLevelMaxConcurrentEvents = null;
+        LocalDateTime selectedCalendarLocalDate = LocalDateTime.now();
+        if (selectedCalendarInstant != null) {
+            selectedCalendarLocalDate = LocalDateTime.ofInstant(selectedCalendarInstant, ZoneId.of("UTC"));
+        }
 
         switch (scheduleType) {
-            case CalendarService.WEEK_VIEW:
             case CalendarService.LIST_VIEW:
                 actualTimeRange = timeRange;
                 timeRangeList = makeTimeRangeList(actualTimeRange, calendarReferenceList, baseCalendarService, reverseOrder);
                 break;
+            case CalendarService.LIST_SUBVIEW:
+            case CalendarService.WEEK_VIEW:
+                timeRangeList = makeWeekTimeRangeList(selectedCalendarLocalDate);
+                break;
             case CalendarService.MONTH_VIEW:
-                // Make sure that we trim off the days of the previous and next
-                // month. The time range that we're being passed is "padded"
-                // with extra days to make up a full block of an integral number
-                // of seven day weeks.
-                actualTimeRange = shrinkTimeRangeToCurrentMonth(timeRange);
-                timeRangeList = splitTimeRangeIntoListOfSingleDayTimeRanges(actualTimeRange);
+                timeRangeList = makeMonthTimeRangeList(selectedCalendarLocalDate);
                 break;
             case CalendarService.DAY_VIEW:
-                timeRangeList = new ArrayList<>();
-                actualTimeRange = dailyTimeRange;
-                timeRangeList.add(actualTimeRange);
+                timeRangeList = makeDayTimeRangeList(selectedCalendarLocalDate);
                 break;
             default:
                 log.warn(".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
@@ -308,7 +314,7 @@ public class PDFExportService {
             topLevelMaxConcurrentEvents = writeStringNodeToDom(doc, root, MAX_CONCURRENT_EVENTS_NAME, "1");
 
             // Add a start time node.
-            writeStringNodeToDom(doc, root, START_TIME_ATTRIBUTE_NAME, getTimeString(dailyTimeRange.firstTime()));
+            writeStringNodeToDom(doc, root, START_TIME_ATTRIBUTE_NAME, getTimeString(timeRange.firstTime()));
 
             // Add the Root Element to Document
             doc.appendChild(root);
@@ -474,29 +480,24 @@ public class PDFExportService {
     /**
      * Given a schedule type, the appropriate XSLT file is returned
      */
-    String getXSLFileNameForScheduleType(int scheduleType)
-    {
+    String getXSLFileNameForScheduleType(int scheduleType) {
         // get a relative path to the file
         String baseFileName = "";
 
-        switch (scheduleType)
-        {
+        switch (scheduleType) {
             case BaseCalendarService.WEEK_VIEW:
                 baseFileName = WEEK_VIEW_XSLT_FILENAME;
                 break;
-
             case BaseCalendarService.DAY_VIEW:
                 baseFileName = DAY_VIEW_XSLT_FILENAME;
                 break;
-
             case BaseCalendarService.MONTH_VIEW:
                 baseFileName = MONTH_VIEW_XSLT_FILENAME;
                 break;
-
             case BaseCalendarService.LIST_VIEW:
+            case BaseCalendarService.LIST_SUBVIEW:
                 baseFileName = LIST_VIEW_XSLT_FILENAME;
                 break;
-
             default:
                 log.debug("PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = " + scheduleType);
                 break;
@@ -663,15 +664,13 @@ public class PDFExportService {
      * @param baseCalendarService
      */
     private void generateXMLEvent(Document doc, Element parent, CalendarEvent event, String eventNodeName,
-                                  TimeRange containingTimeRange, boolean forceMinimumTime, boolean hideGroupIfNoSpace, boolean performEndTimeKludge, BaseCalendarService baseCalendarService)
-    {
+                                  TimeRange containingTimeRange, boolean forceMinimumTime, boolean hideGroupIfNoSpace, boolean performEndTimeKludge, BaseCalendarService baseCalendarService) {
         Element eventElement = doc.createElement(eventNodeName);
 
         TimeRange trimmedTimeRange = trimTimeRange(containingTimeRange, event.getRange());
 
         // Optionally force the event to have a minimum time slot.
-        if (forceMinimumTime)
-        {
+        if (forceMinimumTime) {
             trimmedTimeRange = roundRangeToMinimumTimeInterval(trimmedTimeRange);
         }
 
@@ -682,12 +681,10 @@ public class PDFExportService {
         Time endTime = null;
 
         // Optionally adjust the end time
-        if (performEndTimeKludge)
-        {
+        if (performEndTimeKludge) {
             endTime = performEndMinuteKludge(trimmedTimeRange.lastTime().breakdownLocal());
         }
-        else
-        {
+        else {
             endTime = trimmedTimeRange.lastTime();
         }
 
@@ -697,8 +694,7 @@ public class PDFExportService {
         // Add the group (really "site") node
         // Provide that we have space or if we've been told we need to display it.
         //
-        if (!hideGroupIfNoSpace || trimmedTimeRange.duration() > MINIMUM_EVENT_LENGTH_IN_MSECONDS)
-        {
+        if (!hideGroupIfNoSpace || trimmedTimeRange.duration() > MINIMUM_EVENT_LENGTH_IN_MSECONDS) {
             writeStringNodeToDom(doc, eventElement, GROUP_NODE, event.getSiteName());
         }
 
@@ -724,20 +720,16 @@ public class PDFExportService {
      * Gets a standard time string give the time parameter.
      * @param time
      */
-    private String getTimeString(Time time)
-    {
+    private String getTimeString(Time time) {
         TimeBreakdown timeBreakdown = time.breakdownLocal();
-
         DecimalFormat twoDecimalDigits = new DecimalFormat("00");
-
         return timeBreakdown.getHour() + HOUR_MINUTE_SEPARATOR + twoDecimalDigits.format(timeBreakdown.getMin());
     }
 
     /**
      * Trim the range that is passed in to the containing time range.
      */
-    private TimeRange trimTimeRange(TimeRange containingRange, TimeRange rangeToTrim)
-    {
+    private TimeRange trimTimeRange(TimeRange containingRange, TimeRange rangeToTrim) {
         long containingRangeStartTime = containingRange.firstTime().getTime();
         long containingRangeEndTime = containingRange.lastTime().getTime();
 
@@ -757,19 +749,16 @@ public class PDFExportService {
      * but the user will expect to see the end time on the hour. For example, an event that ends at 10:00 is
      * actually stored at 9:59. This code should really be in a central place so that the velocity template can see it as well.
      */
-    private Time performEndMinuteKludge(TimeBreakdown breakDown)
-    {
+    private Time performEndMinuteKludge(TimeBreakdown breakDown) {
         int endMin = breakDown.getMin();
         int endHour = breakDown.getHour();
 
         int tmpMinVal = endMin % TIMESLOT_FOR_OVERLAP_DETECTION_IN_MINUTES;
 
-        if (tmpMinVal == 4 || tmpMinVal == 9)
-        {
+        if (tmpMinVal == 4 || tmpMinVal == 9) {
             endMin = endMin + 1;
 
-            if (endMin == 60)
-            {
+            if (endMin == 60)  {
                 endMin = 00;
                 endHour = endHour + 1;
             }
@@ -782,8 +771,7 @@ public class PDFExportService {
     /**
      * Utility routine to write a string node to the DOM.
      */
-    private Element writeStringNodeToDom(Document doc, Element parent, String nodeName, String nodeValue)
-    {
+    private Element writeStringNodeToDom(Document doc, Element parent, String nodeName, String nodeValue) {
         if (nodeValue != null && nodeValue.length() != 0)
         {
             Element name = doc.createElement(nodeName);
@@ -798,12 +786,10 @@ public class PDFExportService {
     /**
      * Rounds a time range up to a minimum interval.
      */
-    private TimeRange roundRangeToMinimumTimeInterval(TimeRange timeRange)
-    {
+    private TimeRange roundRangeToMinimumTimeInterval(TimeRange timeRange) {
         TimeRange roundedTimeRange = timeRange;
 
-        if (timeRange.duration() < MINIMUM_EVENT_LENGTH_IN_MSECONDS)
-        {
+        if (timeRange.duration() < MINIMUM_EVENT_LENGTH_IN_MSECONDS) {
             roundedTimeRange = timeService.newTimeRange(timeRange.firstTime().getTime(), MINIMUM_EVENT_LENGTH_IN_MSECONDS);
         }
 
@@ -813,49 +799,40 @@ public class PDFExportService {
     /**
      * Gets the standard date string from the time parameter
      */
-    private String getDateFromTime(Time time)
-    {
+    private String getDateFromTime(Time time) {
         TimeBreakdown timeBreakdown = time.breakdownLocal();
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT,rb.getLocale());
         return dateFormat.format(new Date(time.getTime()));
 
     }
 
-    private String getDayOfMonthFromTime(Time time)
-    {
+    private String getDayOfMonthFromTime(Time time) {
         TimeBreakdown timeBreakdown = time.breakdownLocal();
         return Integer.toString(timeBreakdown.getDay());
     }
 
-    private String getEventDescription(String type){
-        if ((type!=null) && (type.trim()!="")){
-            return CalendarEventType.getLocalizedLegendFromEventType(type);
-        }else{
-            return CalendarEventType.getLocalizedLegendFromEventType("Activity");
-        }
+    private String getEventDescription(String type) {
+    	return CalendarEventType.getLocalizedLegendFromEventType(StringUtils.isNotBlank(type) ? type : "Activity");
     }
 
     /**
      * This is a container for a list of columns, plus the timerange for all the events contained in the row. This time range is a union of all the separate time ranges.
      */
-    protected static class LayoutRow extends ArrayList
-    {
+    protected static class LayoutRow extends ArrayList {
         // Union of all event time ranges in this row.
         private TimeRange rowTimeRange;
 
         /**
          * Gets the union of all event time ranges in this row.
          */
-        public TimeRange getRowTimeRange()
-        {
+        public TimeRange getRowTimeRange() {
             return rowTimeRange;
         }
 
         /**
          * Sets the union of all event time ranges in this row.
          */
-        public void setRowTimeRange(TimeRange range)
-        {
+        public void setRowTimeRange(TimeRange range) {
             rowTimeRange = range;
         }
     }
@@ -863,8 +840,7 @@ public class PDFExportService {
     /**
      * Table used to layout a single day, with potentially overlapping events.
      */
-    protected class SingleDayLayoutTable
-    {
+    protected class SingleDayLayoutTable {
         protected long millisecondsPerTimeslot;
 
         protected int numCols;
@@ -879,8 +855,7 @@ public class PDFExportService {
         /**
          * Constructor for SingleDayLayoutTable
          */
-        public SingleDayLayoutTable(TimeRange timeRange, int maxNumberOverlappingEvents, int timeslotInMinutes)
-        {
+        public SingleDayLayoutTable(TimeRange timeRange, int maxNumberOverlappingEvents, int timeslotInMinutes) {
             this.timeRange = timeRange;
             numCols = maxNumberOverlappingEvents;
 
@@ -890,14 +865,12 @@ public class PDFExportService {
 
             rows = new ArrayList(numRows);
 
-            for (int i = 0; i < numRows; i++)
-            {
+            for (int i = 0; i < numRows; i++)  {
                 ArrayList newRow = new ArrayList(numCols);
 
                 rows.add(i, newRow);
 
-                for (int j = 0; j < numCols; j++)
-                {
+                for (int j = 0; j < numCols; j++) {
                     newRow.add(j, new LayoutTableCell());
                 }
             }
@@ -906,10 +879,8 @@ public class PDFExportService {
         /**
          * Adds an event to the SingleDayLayoutTable
          */
-        public void addEvent(CalendarEvent calendarEvent)
-        {
-            if (calendarEvent == null)
-            {
+        public void addEvent(CalendarEvent calendarEvent) {
+            if (calendarEvent == null) {
                 return;
             }
 
@@ -918,8 +889,7 @@ public class PDFExportService {
             int numRowsNeeded = getNumberOfRowsNeeded(roundRangeToMinimumTimeInterval(calendarEvent.getRange()));
 
             // Trim to the end of the table.
-            if (startingRow + numRowsNeeded >= getNumRows())
-            {
+            if (startingRow + numRowsNeeded >= getNumRows()) {
                 numRowsNeeded = getNumRows() - startingRow;
             }
 
@@ -927,18 +897,15 @@ public class PDFExportService {
             // contain this event.
             int columnNumber = getFreeColumn(startingRow, numRowsNeeded);
 
-            if (columnNumber != -1)
-            {
-                for (int i = startingRow; i < startingRow + numRowsNeeded; i++)
-                {
+            if (columnNumber != -1)  {
+                for (int i = startingRow; i < startingRow + numRowsNeeded; i++) {
                     LayoutTableCell cell = getCell(i, columnNumber);
 
                     // All cells have the calendar event information.
                     cell.setCalendarEvent(calendarEvent);
 
                     // Only the first cell is marked as such.
-                    if (i == startingRow)
-                    {
+                    if (i == startingRow) {
                         cell.setFirstCell(true);
                     }
 
@@ -956,28 +923,23 @@ public class PDFExportService {
         /**
          * Convert the time range to fall entirely within the time range of the layout table.
          */
-        protected TimeRange adjustTimeRangeToLayoutTable(TimeRange eventTimeRange)
-        {
+        protected TimeRange adjustTimeRangeToLayoutTable(TimeRange eventTimeRange) {
             Time lowerBound = null, upperBound = null;
 
             //
             // Make sure that the upper/lower bounds fall within the layout table.
             //
-            if (this.timeRange.firstTime().compareTo(eventTimeRange.firstTime()) > 0)
-            {
+            if (this.timeRange.firstTime().compareTo(eventTimeRange.firstTime()) > 0)  {
                 lowerBound = this.timeRange.firstTime();
             }
-            else
-            {
+            else {
                 lowerBound = eventTimeRange.firstTime();
             }
 
-            if (this.timeRange.lastTime().compareTo(eventTimeRange.lastTime()) < 0)
-            {
+            if (this.timeRange.lastTime().compareTo(eventTimeRange.lastTime()) < 0) {
                 upperBound = this.timeRange.lastTime();
             }
-            else
-            {
+            else {
                 upperBound = eventTimeRange.lastTime();
             }
 
@@ -987,23 +949,18 @@ public class PDFExportService {
         /**
          * Returns true if there are any events in this or other rows that overlap the event associated with this cell.
          */
-        protected boolean cellHasOverlappingEvents(int rowNum, int colNum)
-        {
+        protected boolean cellHasOverlappingEvents(int rowNum, int colNum) {
             LayoutTableCell cell = this.getFirstCell(rowNum, colNum);
 
             // Start at the first cell of this event and check every row
             // to see if we find any cells in that row that are not empty
             // and are not one of ours.
-            if (cell != null && !cell.isEmptyCell())
-            {
-                for (int i = cell.getFirstCellRow(); i < (cell.getFirstCellRow() + cell.getNumCellsInEvent()); i++)
-                {
-                    for (int j = 0; j < this.numCols; j++)
-                    {
+            if (cell != null && !cell.isEmptyCell()) {
+                for (int i = cell.getFirstCellRow(); i < (cell.getFirstCellRow() + cell.getNumCellsInEvent()); i++) {
+                    for (int j = 0; j < this.numCols; j++) {
                         LayoutTableCell curCell = this.getCell(i, j);
 
-                        if (curCell != null && !curCell.isEmptyCell() && curCell.getCalendarEvent() != cell.getCalendarEvent())
-                        {
+                        if (curCell != null && !curCell.isEmptyCell() && curCell.getCalendarEvent() != cell.getCalendarEvent()) {
                             return true;
                         }
                     }
@@ -1016,15 +973,12 @@ public class PDFExportService {
         /**
          * Get a particular cell. Returns a reference to the actual cell and not a copy.
          */
-        protected LayoutTableCell getCell(int rowNum, int colNum)
-        {
-            if (rowNum < 0 || rowNum >= this.numRows || colNum < 0 || colNum >= this.numCols)
-            {
+        protected LayoutTableCell getCell(int rowNum, int colNum) {
+            if (rowNum < 0 || rowNum >= this.numRows || colNum < 0 || colNum >= this.numCols) {
                 // Illegal cell indices
                 return null;
             }
-            else
-            {
+            else {
                 ArrayList row = (ArrayList) rows.get(rowNum);
                 return (LayoutTableCell) row.get(colNum);
             }
@@ -1033,16 +987,13 @@ public class PDFExportService {
         /**
          * Gets the first cell associated with the event that's stored at this row/column
          */
-        protected LayoutTableCell getFirstCell(int rowNum, int colNum)
-        {
+        protected LayoutTableCell getFirstCell(int rowNum, int colNum) {
             LayoutTableCell cell = this.getCell(rowNum, colNum);
 
-            if (cell == null || cell.isEmptyCell())
-            {
+            if (cell == null || cell.isEmptyCell()) {
                 return null;
             }
-            else
-            {
+            else {
                 return getCell(cell.getFirstCellRow(), cell.getFirstCellColumn());
             }
         }
@@ -1050,33 +1001,27 @@ public class PDFExportService {
         /**
          * Looks for a column where the whole event can be placed.
          */
-        protected int getFreeColumn(int rowNum, int numberColumnsNeeded)
-        {
+        protected int getFreeColumn(int rowNum, int numberColumnsNeeded) {
             // Keep going through the columns until we hit one that has
             // enough empty cells to accomodate our event.
-            for (int i = 0; i < this.numCols; i++)
-            {
+            for (int i = 0; i < this.numCols; i++) {
                 boolean foundOccupiedCell = false;
 
-                for (int j = rowNum; j < rowNum + numberColumnsNeeded; j++)
-                {
+                for (int j = rowNum; j < rowNum + numberColumnsNeeded; j++) {
                     LayoutTableCell cell = getCell(j, i);
 
-                    if (cell == null)
-                    {
+                    if (cell == null) {
                         // Out of range.
                         return -1;
                     }
 
-                    if (!cell.isEmptyCell())
-                    {
+                    if (!cell.isEmptyCell()) {
                         foundOccupiedCell = true;
                         break;
                     }
                 }
 
-                if (!foundOccupiedCell)
-                {
+                if (!foundOccupiedCell) {
                     return i;
                 }
             }
@@ -1087,17 +1032,14 @@ public class PDFExportService {
         /**
          * Creates a list of lists of lists. The outer list is a list of rows. Each row is a list of columns. Each column is a list of column values.
          */
-        public List getLayoutRows()
-        {
+        public List getLayoutRows() {
             List allRows = new ArrayList();
 
             // Scan all rows in the table.
-            for (int mainRowIndex = 0; mainRowIndex < this.getNumRows(); mainRowIndex++)
-            {
+            for (int mainRowIndex = 0; mainRowIndex < this.getNumRows(); mainRowIndex++) {
                 // If we hit a starting row, then iterate through all rows of the
                 // event group.
-                if (isStartingRowOfGroup(mainRowIndex))
-                {
+                if (isStartingRowOfGroup(mainRowIndex)) {
                     LayoutRow newRow = new LayoutRow();
                     allRows.add(newRow);
 
@@ -1105,25 +1047,21 @@ public class PDFExportService {
 
                     newRow.setRowTimeRange(getTimeRangeForEventGroup(mainRowIndex, numRowsInGroup));
 
-                    for (int columnIndex = 0; columnIndex < this.getNumCols(); columnIndex++)
-                    {
+                    for (int columnIndex = 0; columnIndex < this.getNumCols(); columnIndex++) {
                         List columnList = new ArrayList();
                         boolean addedCell = false;
 
-                        for (int eventGroupRowIndex = mainRowIndex; eventGroupRowIndex < mainRowIndex + numRowsInGroup; eventGroupRowIndex++)
-                        {
+                        for (int eventGroupRowIndex = mainRowIndex; eventGroupRowIndex < mainRowIndex + numRowsInGroup; eventGroupRowIndex++) {
                             LayoutTableCell cell = getCell(eventGroupRowIndex, columnIndex);
 
-                            if (cell.isFirstCell())
-                            {
+                            if (cell.isFirstCell()) {
                                 columnList.add(cell.getCalendarEvent());
                                 addedCell = true;
                             }
                         }
 
                         // Don't add to our list unless we actually added a cell.
-                        if (addedCell)
-                        {
+                        if (addedCell) {
                             newRow.add(columnList);
                         }
                     }
@@ -1137,8 +1075,7 @@ public class PDFExportService {
             return allRows;
         }
 
-        protected int getNumberOfRowsNeeded(TimeRange eventTimeRange)
-        {
+        protected int getNumberOfRowsNeeded(TimeRange eventTimeRange) {
             TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(eventTimeRange);
 
             // Use the ceiling function to obtain the next highest integral number of time slots.
@@ -1148,18 +1085,15 @@ public class PDFExportService {
         /**
          * Gets the number of rows in an event group. This function assumes that the row that it starts on is the starting row of the group.
          */
-        protected int getNumberRowsInEventGroup(int rowNum)
-        {
+        protected int getNumberRowsInEventGroup(int rowNum) {
             int numEventRows = 0;
 
-            if (isStartingRowOfGroup(rowNum))
-            {
+            if (isStartingRowOfGroup(rowNum)) {
                 numEventRows++;
 
                 // Keep going unless we see an all empty row
                 // or another starting row.
-                for (int i = rowNum + 1; i < this.getNumRows() && !isEmptyRow(i) && !isStartingRowOfGroup(i); i++)
-                {
+                for (int i = rowNum + 1; i < this.getNumRows() && !isEmptyRow(i) && !isStartingRowOfGroup(i); i++) {
                     numEventRows++;
                 }
             }
@@ -1170,24 +1104,21 @@ public class PDFExportService {
         /**
          * Gets the total number of columns in the layout table.
          */
-        public int getNumCols()
-        {
+        public int getNumCols()  {
             return this.numCols;
         }
 
         /**
          * Gets the total number of rows in the layout table.
          */
-        public int getNumRows()
-        {
+        public int getNumRows() {
             return rows.size();
         }
 
         /**
          * Given a time range, returns the starting row number in the layout table.
          */
-        protected int getStartingRow(TimeRange eventTimeRange)
-        {
+        protected int getStartingRow(TimeRange eventTimeRange) {
             TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(eventTimeRange);
 
             TimeRange timeRangeToStart = timeService.newTimeRange(this.timeRange.firstTime(), adjustedTimeRange.firstTime(), true,
@@ -1204,20 +1135,16 @@ public class PDFExportService {
         /**
          * Returns the earliest/latest times for events in this group. This function assumes that the row that it starts on is the starting row of the group.
          */
-        public TimeRange getTimeRangeForEventGroup(int rowNum, int numRowsInThisEventGroup)
-        {
+        public TimeRange getTimeRangeForEventGroup(int rowNum, int numRowsInThisEventGroup) {
             Time firstTime = null;
             Time lastTime = null;
 
-            for (int i = rowNum; i < rowNum + numRowsInThisEventGroup; i++)
-            {
-                for (int j = 0; j < this.getNumCols(); j++)
-                {
+            for (int i = rowNum; i < rowNum + numRowsInThisEventGroup; i++) {
+                for (int j = 0; j < this.getNumCols(); j++) {
                     LayoutTableCell cell = getCell(i, j);
                     CalendarEvent event = cell.getCalendarEvent();
 
-                    if (event != null)
-                    {
+                    if (event != null) {
                         TimeRange adjustedTimeRange = adjustTimeRangeToLayoutTable(roundRangeToMinimumTimeInterval(cell
                                 .getCalendarEvent().getRange()));
 
@@ -1226,16 +1153,13 @@ public class PDFExportService {
                         // time from the event, if the time from the
                         // event is earlier.
                         //
-                        if (firstTime == null)
-                        {
+                        if (firstTime == null) {
                             firstTime = adjustedTimeRange.firstTime();
                         }
-                        else
-                        {
+                        else {
                             Time eventFirstTime = adjustedTimeRange.firstTime();
 
-                            if (eventFirstTime.compareTo(firstTime) < 0)
-                            {
+                            if (eventFirstTime.compareTo(firstTime) < 0)  {
                                 firstTime = eventFirstTime;
                             }
                         }
@@ -1245,16 +1169,13 @@ public class PDFExportService {
                         // time from the event, if the time from the
                         // event is later.
                         //
-                        if (lastTime == null)
-                        {
+                        if (lastTime == null) {
                             lastTime = adjustedTimeRange.lastTime();
                         }
-                        else
-                        {
+                        else  {
                             Time eventLastTime = adjustedTimeRange.lastTime();
 
-                            if (eventLastTime.compareTo(lastTime) > 0)
-                            {
+                            if (eventLastTime.compareTo(lastTime) > 0) {
                                 lastTime = eventLastTime;
                             }
                         }
@@ -1268,16 +1189,13 @@ public class PDFExportService {
         /**
          * Returns true if this row has only empty cells.
          */
-        protected boolean isEmptyRow(int rowNum)
-        {
+        protected boolean isEmptyRow(int rowNum)  {
             boolean sawNonEmptyCell = false;
 
-            for (int i = 0; i < this.getNumCols(); i++)
-            {
+            for (int i = 0; i < this.getNumCols(); i++) {
                 LayoutTableCell cell = getCell(rowNum, i);
 
-                if (!cell.isEmptyCell())
-                {
+                if (!cell.isEmptyCell()) {
                     sawNonEmptyCell = true;
                     break;
                 }
@@ -1288,22 +1206,18 @@ public class PDFExportService {
         /**
          * Returns true if this row has only starting cells and no continuation cells.
          */
-        protected boolean isStartingRowOfGroup(int rowNum)
-        {
+        protected boolean isStartingRowOfGroup(int rowNum) {
             boolean sawContinuationCells = false;
             boolean sawFirstCell = false;
 
-            for (int i = 0; i < this.getNumCols(); i++)
-            {
+            for (int i = 0; i < this.getNumCols(); i++) {
                 LayoutTableCell cell = getCell(rowNum, i);
 
-                if (cell.isContinuationCell())
-                {
+                if (cell.isContinuationCell()) {
                     sawContinuationCells = true;
                 }
 
-                if (cell.isFirstCell)
-                {
+                if (cell.isFirstCell)  {
                     sawFirstCell = true;
                 }
             }
@@ -1318,12 +1232,9 @@ public class PDFExportService {
         /**
          * Returns true if there are any cells in this row associated with events which overlap each other in this row or any other row.
          */
-        public boolean rowHasOverlappingEvents(int rowNum)
-        {
-            for (int i = 0; i < this.getNumCols(); i++)
-            {
-                if (cellHasOverlappingEvents(rowNum, i))
-                {
+        public boolean rowHasOverlappingEvents(int rowNum) {
+            for (int i = 0; i < this.getNumCols(); i++) {
+                if (cellHasOverlappingEvents(rowNum, i))  {
                     return true;
                 }
             }
@@ -1334,8 +1245,7 @@ public class PDFExportService {
     /**
      * This is a single cell in a layout table (an instance of SingleDayLayoutTable).
      */
-    protected static class LayoutTableCell
-    {
+    protected static class LayoutTableCell {
         protected CalendarEvent calendarEvent = null;
 
         protected int firstCellColumn = -1;
@@ -1353,144 +1263,126 @@ public class PDFExportService {
         /**
          * Gets the calendar event associated with this cell.
          */
-        public CalendarEvent getCalendarEvent()
-        {
+        public CalendarEvent getCalendarEvent() {
             return calendarEvent;
         }
 
         /**
          * Gets the first column associated with this cell.
          */
-        public int getFirstCellColumn()
-        {
+        public int getFirstCellColumn() {
             return firstCellColumn;
         }
 
         /**
          * Gets the first row associated with this cell.
          */
-        public int getFirstCellRow()
-        {
+        public int getFirstCellRow() {
             return firstCellRow;
         }
 
         /**
          * Get the number of cells in this event.
          */
-        public int getNumCellsInEvent()
-        {
+        public int getNumCellsInEvent() {
             return numCellsInEvent;
         }
 
         /**
          * Gets the column associated with this particular cell.
          */
-        public int getThisCellColumn()
-        {
+        public int getThisCellColumn() {
             return thisCellColumn;
         }
 
         /**
          * Gets the row associated with this cell.
          */
-        public int getThisCellRow()
-        {
+        public int getThisCellRow() {
             return thisCellRow;
         }
 
         /**
          * Returns true if this cell is a continuation of an event and not the first cell in the event.
          */
-        public boolean isContinuationCell()
-        {
+        public boolean isContinuationCell() {
             return !isFirstCell() && !isEmptyCell();
         }
 
         /**
          * Returns true if this cell is not associated with any events.
          */
-        public boolean isEmptyCell()
-        {
+        public boolean isEmptyCell() {
             return calendarEvent == null;
         }
 
         /**
          * Returns true if this is the first cell in a column of cells associated with an event.
          */
-        public boolean isFirstCell()
-        {
+        public boolean isFirstCell() {
             return isFirstCell;
         }
 
         /**
          * Set the calendar event associated with this cell.
          */
-        public void setCalendarEvent(CalendarEvent event)
-        {
+        public void setCalendarEvent(CalendarEvent event) {
             calendarEvent = event;
         }
 
         /**
          * Set flag indicating that this is the first cell in column of cells associated with an event.
          */
-        public void setFirstCell(boolean b)
-        {
+        public void setFirstCell(boolean b) {
             isFirstCell = b;
         }
 
         /**
          * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
          */
-        public void setFirstCellColumn(int i)
-        {
+        public void setFirstCellColumn(int i) {
             firstCellColumn = i;
         }
 
         /**
          * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
          */
-        public void setFirstCellRow(int i)
-        {
+        public void setFirstCellRow(int i) {
             firstCellRow = i;
         }
 
         /**
          * Gets the number of cells (if any) in the group of cells associated with this cell by event.
          */
-        public void setNumCellsInEvent(int i)
-        {
+        public void setNumCellsInEvent(int i) {
             numCellsInEvent = i;
         }
 
         /**
          * Sets the actual column index for this cell.
          */
-        public void setThisCellColumn(int i)
-        {
+        public void setThisCellColumn(int i) {
             thisCellColumn = i;
         }
 
         /**
          * Sets the actual row index for this cell.
          */
-        public void setThisCellRow(int i)
-        {
+        public void setThisCellRow(int i) {
             thisCellRow = i;
         }
     }
     /**
      ** Internal class for resolving stylesheet URIs
      **/
-    protected static class MyURIResolver implements URIResolver
-    {
+    protected static class MyURIResolver implements URIResolver {
 
         ClassLoader classLoader = null;
 
         /**
          ** Constructor: use BaseCalendarService ClassLoader
          **/
-        public MyURIResolver( ClassLoader classLoader )
-        {
+        public MyURIResolver( ClassLoader classLoader ) {
             this.classLoader = classLoader;
         }
         /**
@@ -1501,9 +1393,7 @@ public class PDFExportService {
          ** @param base base URI in affect when href attribute encountered
          ** @return Source object for requested XSLT file
          **/
-        public Source resolve( String href, String base )
-                throws TransformerException
-        {
+        public Source resolve( String href, String base ) throws TransformerException {
             InputStream in = classLoader.getResourceAsStream(href);
             return (Source)(new StreamSource(in));
         }
@@ -1527,5 +1417,44 @@ public class PDFExportService {
             return new Resource(inputStream);
         }
     }
+
+    private List<TimeRange> makeDayTimeRangeList(LocalDateTime value) {
+        return Arrays.asList(this.getFullDayTimeRangeFromYMD(value.getYear(), value.getMonthValue(), value.getDayOfMonth()));
+    }
+
+    private List<TimeRange> makeWeekTimeRangeList(LocalDateTime value) {
+        LocalDateTime weekStartLocalDateTime = LocalDateTime.of(value.getYear(), value.getMonthValue(), value.getDayOfMonth(), 0, 0, 0);
+        // If the selected date is not the first day of the week, then go to the first day of the week.
+        if (weekStartLocalDateTime.getDayOfWeek().getValue() != 7) {
+            weekStartLocalDateTime = weekStartLocalDateTime.minusDays(weekStartLocalDateTime.getDayOfWeek().getValue());    		
+        }
+        LocalDateTime weekEndtLocalDateTime = weekStartLocalDateTime.plusDays(7);
+        return toTimeRangeList(weekStartLocalDateTime, weekEndtLocalDateTime);
+    }
+
+    private List<TimeRange> makeMonthTimeRangeList(LocalDateTime value) {
+        LocalDateTime monthStartLocalDateTime = LocalDateTime.of(value.getYear(), value.getMonthValue(), 1, 0, 0, 0);    	
+        LocalDateTime monthEndLocalDateTime = monthStartLocalDateTime.plusMonths(1);
+        return toTimeRangeList(monthStartLocalDateTime, monthEndLocalDateTime);
+    }
+
+    private List<TimeRange> toTimeRangeList(LocalDateTime startLocalDatetime, LocalDateTime endLocalDatetime) {
+        List<TimeRange> timeRangesList = new ArrayList<>();
+        long numOfDaysBetween = ChronoUnit.DAYS.between(startLocalDatetime, endLocalDatetime);
+        if (numOfDaysBetween < 1) {
+            return Arrays.asList(this.getFullDayTimeRangeFromYMD(startLocalDatetime.getYear(), startLocalDatetime.getMonthValue(), startLocalDatetime.getDayOfMonth()));
+        } else {
+            List<LocalDateTime> localDateList = IntStream.iterate(0, i -> i + 1)
+                    .limit(numOfDaysBetween)
+                    .mapToObj(i -> startLocalDatetime.plusDays(i))
+                    .collect(Collectors.toList());
+             localDateList.forEach(item -> {
+                timeRangesList.add(this.getFullDayTimeRangeFromYMD(item.getYear(), item.getMonthValue(), item.getDayOfMonth()));
+             });
+        }
+
+        return timeRangesList;
+    }
+    
 
 }

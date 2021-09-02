@@ -770,7 +770,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					// double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
 					final List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
 
-					applyDropScores(studentGradeRecs);
+					applyDropScores(studentGradeRecs, gradebook.getCategory_type());
 					final List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs,
 							countedAssigns);
 					final double totalPointsEarned = ((Double) totalEarned.get(0));
@@ -2588,7 +2588,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 *
 	 *            NOTE: When the UI changes, this needs to be made private again
 	 */
-	public void applyDropScores(final Collection<AssignmentGradeRecord> gradeRecords) {
+	public void applyDropScores(final Collection<AssignmentGradeRecord> gradeRecords, int categoryType) {
 		if (gradeRecords == null || gradeRecords.size() < 1) {
 			return;
 		}
@@ -2608,6 +2608,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			// reset
 			gradeRecord.setDroppedFromGrade(false);
+
+			if (categoryType == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
+				continue;
+			}
 
 			final GradebookAssignment assignment = gradeRecord.getAssignment();
 			if (assignment.getUngraded() // GradebookService.GRADE_TYPE_LETTER
@@ -2638,7 +2642,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		}
 
-		if (categories.size() < 1) {
+		if (categories.size() < 1 || categoryType == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
 			return;
 		}
 		for (final Category cat : categories) {
@@ -3008,11 +3012,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		}
 
-		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords, includeNonReleasedItems);
+		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords, includeNonReleasedItems, gb.getCategory_type());
 	}
 
 	@Override
-	public Optional<CategoryScoreData> calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId, final boolean includeNonReleasedItems) {
+	public Optional<CategoryScoreData> calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId, final boolean includeNonReleasedItems, int categoryType) {
 
 		// get all grade records for the student
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -3027,7 +3031,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// apply the settings
 		final List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
 
-		return calculateCategoryScore(studentUuid, categoryId, gradeRecords, includeNonReleasedItems);
+		return calculateCategoryScore(studentUuid, categoryId, gradeRecords, includeNonReleasedItems, categoryType);
 	}
 
 	/**
@@ -3039,7 +3043,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @return
 	 */
 	private Optional<CategoryScoreData> calculateCategoryScore(final String studentUuid, final Long categoryId,
-			final List<AssignmentGradeRecord> gradeRecords, final boolean includeNonReleasedItems) {
+			final List<AssignmentGradeRecord> gradeRecords, final boolean includeNonReleasedItems, final int categoryType) {
 
 		// validate
 		if (gradeRecords == null) {
@@ -3061,7 +3065,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		Category category = getCategory(categoryId);
 
 		// apply any drop/keep settings for this category
-		applyDropScores(gradeRecords);
+		applyDropScores(gradeRecords, categoryType);
 
 		// find the records marked as dropped (highest/lowest) before continuing,
 		// as gradeRecords will be modified in place after this and these records will be removed

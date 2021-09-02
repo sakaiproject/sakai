@@ -43,9 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.api.FormattedText;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,8 +63,6 @@ import lombok.extern.slf4j.Slf4j;
  public class StudentScoreListener
   implements ActionListener
 {
-  private static EvaluationListenerUtil util;
-  private static BeanSort bs;
 
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 

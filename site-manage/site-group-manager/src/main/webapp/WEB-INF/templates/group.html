@@ -76,27 +76,12 @@
         </div>
       </div>
       <div class="form-group row">
-          <div class="col-sm-3">
-            <label for="groupMembersFrom" class="form-control-label block" th:text="#{groups.available.members}">Available Members</label>
-            <select name="groupMembersFrom" id="groupMembersFrom" class="form-control" multiple="multiple" size="8">
-              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
-              <option th:if="${groupForm.groupMembers == null || !groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
-            </select>
-          </div>
-          <div class="col-sm-2">
-            <label for="groupMembersFrom_rightAll" class="form-control-label block" th:text="#{groups.membership.controls}">Membership controls</label>
-            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.all.right}" type="button" id="groupMembersFrom_rightAll" class="btn btn-block"><i class="glyphicon glyphicon-forward"></i></button>
-            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.selected.right}" type="button" id="groupMembersFrom_rightSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-right"></i></button>
-            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.selected.left}" type="button" id="groupMembersFrom_leftSelected" class="btn btn-block"><i class="glyphicon glyphicon-chevron-left"></i></button>
-            <button data-toggle="tooltip" th:title="#{groups.multiselect.move.all.left}" type="button" id="groupMembersFrom_leftAll" class="btn btn-block"><i class="glyphicon glyphicon-backward"></i></button>
-          </div>
-          <div class="col-sm-3">
-            <label for="groupMembersFrom_to" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
-            <select name="groupMembers" th:field="*{groupMembers}" id="groupMembersFrom_to" class="form-control" multiple="multiple" size="8">
-              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
-              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
-              <option th:if="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+          <div class="col-sm-8">
+            <label for="groupMembers" class="form-control-label block" th:text="#{groups.assigned.members}">Assigned Members</label>
+            <select name="groupMembers" th:field="*{groupMembers}" id="groupMembers" class="form-control" multiple="multiple">
+              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
+              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
+              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
       </div>

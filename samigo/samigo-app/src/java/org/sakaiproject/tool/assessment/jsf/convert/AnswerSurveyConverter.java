@@ -10,7 +10,7 @@ import org.sakaiproject.util.ResourceLoader;
 @FacesConverter("org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter")
 public class AnswerSurveyConverter implements Converter {
 
-	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	
 	public Object getAsObject(FacesContext arg0, UIComponent arg1, String arg2) {
 		

@@ -131,9 +131,9 @@ public class QuestionPoolServiceImpl
   }
 
   /**
-   * Get a list of pools that have a specific Agent
+   * Get a list of pools that have a specific item
    */
-  public List getPoolIdsByItem(String itemId)
+  public List getPoolIdsByItem(Long itemId)
   {
     try
     {
@@ -146,7 +146,7 @@ public class QuestionPoolServiceImpl
     }
   }
 
-  public boolean hasItem(String itemId, Long poolId)
+  public boolean hasItem(Long itemId, Long poolId)
   {
     try
     {

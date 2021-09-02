@@ -50,6 +50,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
 
 /**
  * Handles most aspects of the 'My Official Course Enrolments' page in the Membership tool.
@@ -421,6 +422,7 @@ public class EnrolmentsHandler
             this.sectionTitle = sectionTitle;
             this.sessionEID = sessionEID;
             this.siteWrappers = siteWrappers;
+            Collections.sort( siteWrappers, Comparator.comparing( SiteTitleUrlWrapper::getSiteTitle, new AlphaNumericComparator() ) );
         }
 
         // Getters

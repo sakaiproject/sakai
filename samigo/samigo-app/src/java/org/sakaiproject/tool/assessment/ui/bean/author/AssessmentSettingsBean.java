@@ -198,7 +198,7 @@ public class AssessmentSettingsBean implements Serializable {
   private boolean noTemplate;
   private String publishedUrl;
   private String alias;
-  private static boolean error;
+  private boolean error;
 
   private List attachmentList;
 
@@ -240,6 +240,7 @@ public class AssessmentSettingsBean implements Serializable {
   private SimpleDateFormat displayFormat;
 
   private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+  private static final ResourceLoader authorMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
   private GradebookService gradebookService;
@@ -1471,11 +1472,10 @@ public class AssessmentSettingsBean implements Serializable {
 
     public String checkDate(){
   FacesContext context=FacesContext.getCurrentInstance();
-  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
         String err;
-  if(AssessmentSettingsBean.error)
+  if(error)
       {
-	err=rb.getString("deliveryDate_error");
+	err=authorMessages.getString("deliveryDate_error");
     context.addMessage(null,new FacesMessage(err));
     log.error("START DATE ADD MESSAGE");
     return "deliveryDate_error";

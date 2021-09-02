@@ -31,14 +31,6 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
-<!-- This exists strictly so we can control logging
-    	levels in Maven-executed unit tests -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -49,7 +41,7 @@
           <systemProperties>
             <property>
               <name>log4j.configuration</name>
-              <value>log4j.properties</value>
+              <value>log4j2.properties</value>
             </property>
           </systemProperties>
         </configuration>

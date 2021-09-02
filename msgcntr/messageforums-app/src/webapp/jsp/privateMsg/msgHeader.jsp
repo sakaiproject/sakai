@@ -128,7 +128,7 @@
  		<h:graphicImage value="/../../library/image/silk/email_open.png" />
  		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
 	</h:commandLink> 	
-	<span class="ToggleBulkDisabled" style="color:grey">
+	<span class="ToggleBulkDisabled">
 		<h:graphicImage value="/../../library/image/silk/email_open.png" />
  		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
 	</span>
@@ -139,7 +139,7 @@
   		<h:graphicImage value="/../../library/image/silk/email.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_unread}" />		
  	</h:commandLink>
- 	<span class="ToggleBulkDisabled" style="color:grey">
+ 	<span class="ToggleBulkDisabled">
 		<h:graphicImage value="/../../library/image/silk/email.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_unread}" />	
 	</span>
@@ -157,7 +157,7 @@
  		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
   	</h:commandLink>
-  	<span class="ToggleBulkDisabled" style="color:grey">
+  	<span class="ToggleBulkDisabled">
 		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
 	</span>
@@ -168,7 +168,7 @@
 		<h:graphicImage value="/images/page_move.png" alt="#{msgs.msg_is_unread}"  />
 		<h:outputText value=" #{msgs.cdfm_mark_check_move_to_folder}" />
 	</h:commandLink>
-	<span class="ToggleBulkDisabled" style="color:grey">
+	<span class="ToggleBulkDisabled">
 		<h:graphicImage value="/images/page_move.png" alt="#{msgs.msg_is_unread}"  />
 		<h:outputText value=" #{msgs.cdfm_mark_check_move_to_folder}" />
 	</span>

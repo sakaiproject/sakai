@@ -72,7 +72,7 @@ public class ExportPanel extends BasePanel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
-	boolean includeStudentNumber = false;
+	boolean includeStudentNumber = true;
 	private boolean includeSectionMembership = false;
 	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
@@ -319,8 +319,8 @@ public class ExportPanel extends BasePanel {
 				if (isCustomExport && this.includeStudentDisplayId) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
 				}
-				if (isCustomExport && this.includeStudentNumber) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.studentNumber")));
+				if (!isCustomExport || this.includeStudentNumber) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.section")));
@@ -355,11 +355,15 @@ public class ExportPanel extends BasePanel {
 						final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
 
 						final String assignmentPoints = FormatHelper.formatGradeForDisplay(a1.getPoints().toString());
+						String externalPrefix = "";
+						if (a1.isExternallyMaintained()) {
+							externalPrefix = IGNORE_COLUMN_PREFIX;
+						}
 						if (!isCustomExport || this.includeGradeItemScores) {
-							header.add(a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
+							header.add(externalPrefix + a1.getName() + " [" + StringUtils.removeEnd(assignmentPoints, formattedText.getDecimalSeparator() + "0") + "]");
 						}
 						if (!isCustomExport || this.includeGradeItemComments) {
-							header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, a1.getName()));
+							header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, a1.getName()));
 						}
 						
 						if (isCustomExport && this.includeCategoryAverages
@@ -420,7 +424,7 @@ public class ExportPanel extends BasePanel {
 					if (isCustomExport && this.includeStudentDisplayId) {
 						line.add(studentGradeInfo.getStudentDisplayId());
 					}
-					if (isCustomExport && this.includeStudentNumber)
+					if (!isCustomExport || this.includeStudentNumber)
 					{
 						line.add(studentGradeInfo.getStudentNumber());
 					}

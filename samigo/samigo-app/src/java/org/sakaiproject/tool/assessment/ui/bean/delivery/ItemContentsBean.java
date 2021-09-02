@@ -72,7 +72,7 @@ public class ItemContentsBean implements Serializable {
 
 	private static final long serialVersionUID = 6270034338280029897L;
 
-	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
 	// private static ContextUtil cu;
 

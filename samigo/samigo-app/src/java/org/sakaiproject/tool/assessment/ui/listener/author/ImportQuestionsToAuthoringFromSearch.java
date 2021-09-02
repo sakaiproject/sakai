@@ -123,7 +123,7 @@ public class ImportQuestionsToAuthoringFromSearch implements ActionListener
             QuestionPoolService qpdelegate = new QuestionPoolService();
 
             //Save the question in the pool
-            if (!qpdelegate.hasItem(itemfacade.getItemIdString(),
+            if (!qpdelegate.hasItem(itemfacade.getItemId(),
                     Long.valueOf(searchQuestionBean.getSelectedQuestionPool()))) {
               qpdelegate.addItemToPool(itemfacade.getItemId(),
                       Long.valueOf(searchQuestionBean.getSelectedQuestionPool()));

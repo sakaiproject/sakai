@@ -18,7 +18,7 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
-		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,html5video,wordcount,notification,autosave,bt_table</ckeditor-extra-plugins>
+		<ckeditor-extra-plugins>sakaipreview,</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
@@ -69,8 +69,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>ckeditor</artifactId>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>ckeditor4</artifactId>
 			<version>${ckeditor.version}</version>
 			<scope>runtime</scope>
 		</dependency>
@@ -84,12 +84,6 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-wordcount</artifactId>
 			<version>${ckeditor.wordcount.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>ckeditor-image2</artifactId>
-			<version>${ckeditor.image2.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -221,7 +215,7 @@
 			<version>4.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups) -->
+		<!--Used in Private messages, Tests&Quizzes, selector of multiple items (users, groups), group manager tool -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
@@ -232,7 +226,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>fullcalendar</artifactId>
-			<version>5.8.0</version>
+			<version>5.9.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->
@@ -301,12 +295,6 @@
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>multifile</artifactId>
 			<version>2.2.2</version>
-		</dependency>
-		<!--Used in the site group manager helper-->
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>multiselect-two-sides</artifactId>
-			<version>2.5.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -629,12 +617,6 @@
 					<groupId>org.sakaiproject.webjars</groupId>
 					<artifactId>ckeditor-a11ychecker</artifactId>
 					<version>${ckeditor.a11ychecker.version}</version>
-					<scope>runtime</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.webjars</groupId>
-					<artifactId>ckeditor-balloonpanel</artifactId>
-					<version>${ckeditor.balloonpanel.version}</version>
 					<scope>runtime</scope>
 				</dependency>
 			</dependencies>

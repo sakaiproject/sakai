@@ -130,7 +130,10 @@ commons.switchState = function (state, arg) {
                 commons.selectedText = (document.selection) ? sel.createRange().htmlText : sel.toString();
                 commons.currentRange = sel.getRangeAt(0);
             });
-
+            if(commons.currentUserPermissions.postDeleteAny){   //if the user can delete any post, we will give them access to Hi-Priority posting too.
+                document.getElementById('commons-editor-priority-container').removeAttribute('style');
+                $('[data-toggle="popover"]').popover(); //we need the popover to work only when Hi-Priority is exposed.
+            }
             editorPostButton.click(function (e) {
 
                 commons.utils.savePost('', editor.html(), function (post) {

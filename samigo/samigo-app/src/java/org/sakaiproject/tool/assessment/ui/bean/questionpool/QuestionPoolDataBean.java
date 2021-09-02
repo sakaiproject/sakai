@@ -21,8 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
-//import org.sakaiproject.tool.assessment.business.entity.questionpool.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;

@@ -102,7 +102,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		ValueChangeListener {
 
 	// private static EvaluationListenerUtil util;
-	private static BeanSort bs;
+	private BeanSort bs;
 
 	private static final ResourceLoader evaluationMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final String noAnswer = evaluationMessages.getString("no_answer");
@@ -594,7 +594,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				}
 				Iterator iter2 = answerList.iterator();
 				List<ItemGradingAttachment> itemGradingAttachmentList = new ArrayList<>();
-				Map<Long, Set<String>> fibmap = new HashMap<Long, Set<String>>();
 				int i = 1;
 				Map<Integer, String> answersMap = new HashMap<Integer, String>();
 				while (iter2.hasNext()) {
@@ -771,7 +770,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
 								if (bean.getTypeId().equals("8")) {
-									result = delegate.getFIBResult(gdata, fibmap, item, publishedAnswerHash);
+									result = delegate.getFIBResult(gdata, new HashMap<Long, Set<String>>(), item, publishedAnswerHash);
 								}
 								else {
 									result = delegate.getFINResult(gdata, item, publishedAnswerHash);
