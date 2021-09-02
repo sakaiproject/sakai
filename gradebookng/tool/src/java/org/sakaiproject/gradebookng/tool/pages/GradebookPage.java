@@ -368,11 +368,9 @@ public class GradebookPage extends BasePage {
 				final String siteId = GradebookPage.this.businessService.getCurrentSiteId();
 
 				window.setTitle(getString("bulkedit.heading"));
-				BulkEditItemsPanel panel = new BulkEditItemsPanel(window.getContentId(), Model.of(siteId), window);
-				window.setContent(panel.setOutputMarkupId(true));
+				window.setContent(new BulkEditItemsPanel(window.getContentId(), Model.of(siteId), window));
 				window.setComponentToReturnFocusTo(this);
 				window.show(target);
-				target.appendJavaScript("GBBE.init('" + panel.getMarkupId() + "');");
 			}
 
 			@Override
