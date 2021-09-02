@@ -545,6 +545,11 @@ div.wicket-modal div.w_blue a.w_close {
 	}
 }
 
+.text-default,
+.bg-default {
+	color: var(--sakai-text-color-1);
+	background-color: var(--sakai-background-color-1);
+}
 .text-primary,
 .bg-primary {
 	color: var(--sakai-brand);

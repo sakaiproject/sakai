@@ -35,6 +35,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.event.api.ActivityService;
+import org.sakaiproject.log.api.LogConfigurationManager;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -64,13 +65,13 @@ import javax.servlet.http.HttpServletRequest;
 @WebService
 public class AbstractWebService {
     protected SessionManager sessionManager;
-
     protected AssignmentService assignmentService;
     protected AuthenticationManager authenticationManager;
     protected AuthzGroupService authzGroupService;
     protected CalendarService calendarService;
     protected EventTrackingService eventTrackingService;
     protected GradebookService gradebookService;
+    protected LogConfigurationManager logConfigurationManager;
     protected SecurityService securityService;
     protected ServerConfigurationService serverConfigurationService;
     protected SiteService siteService;
@@ -153,6 +154,11 @@ public class AbstractWebService {
         this.gradebookService = gradebookService;
     }
     
+    @WebMethod(exclude = true)
+    public void setLogConfigurationManager(LogConfigurationManager logConfigurationManager) {
+        this.logConfigurationManager = logConfigurationManager;
+    }
+
     @WebMethod(exclude = true)
     public void setSecurityService(SecurityService securityService) {
         this.securityService = securityService;

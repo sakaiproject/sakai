@@ -126,10 +126,14 @@
                     <th>
                         $tlang.getString("gen.gra")
                     </th>
-                    <td class="highlight">
+                    <td class="highlight text-default">
                         <strong>
                             #if ($!assignment.TypeOfGrade.ordinal() != 1)
-                                $!grade
+                                #if ($!grade == $tlang.getString("pass"))
+                                    <span class="text-success">$!grade</span>
+                                #elseif ($!grade == $tlang.getString("fail"))
+                                    <span class="text-danger">$!grade</span>
+                                #end
                             #else
                                 $tlang.getString("gen.nograd")
                             #end

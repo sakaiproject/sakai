@@ -72,7 +72,7 @@
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
-    <sakai.log4j.version>1.2.17</sakai.log4j.version>
+    <sakai.log4j.version>2.14.1</sakai.log4j.version>
     <sakai.slf4j.version>1.7.32</sakai.slf4j.version>
     <sakai.poi.version>5.0.0</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
@@ -98,7 +98,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.8</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
-    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+    <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
     <random-source></random-source>
 
@@ -822,34 +822,26 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${sakai.log4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- slf4j-log4j12 binds slf4j to log4j impl, this can be changed to another logging impl-->
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${sakai.slf4j.version}</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${sakai.log4j.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- log4j is the actual logger used by slf4j, this would be removed if using a different logging impl -->
       <!-- change to scope runtime once all sakai log4j code is switched to slf4j -->
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
         <version>${sakai.log4j.version}</version>
         <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.jms</groupId>
-            <artifactId>jms</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jdmk</groupId>
-            <artifactId>jmxtools</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jmx</groupId>
-            <artifactId>jmxri</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- jcl-over-slf4j is providing the redirection from jcl to slf4j -->
       <!-- change to scope runtime once all sakai jcl code is switched to slf4j -->
@@ -857,6 +849,12 @@
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
         <version>${sakai.slf4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
         <scope>provided</scope>
       </dependency>
       <!-- JCL (commons-logging) is declared here as provided, it is important to
@@ -977,7 +975,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.29</version>
+        <version>3.1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2016,16 +2014,20 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -2271,6 +2273,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>3.0.0-M5</version>
         </plugin>
         <plugin>
           <groupId>net.sourceforge.maven-taglib</groupId>

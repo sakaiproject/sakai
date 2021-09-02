@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -53,7 +52,6 @@ import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -192,8 +190,6 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	@Setter protected ToolManager toolManager;
 	@Setter protected UserDirectoryService userDirectoryService;
 	@Setter protected ContentHostingService contentHostingService;
-	@Setter protected EntityManager entityManager;
-	@Setter protected AssignmentService assignmentService;
 	@Setter protected CompilatioAccountConnection compilatioConn;
 	@Setter protected CompilatioContentValidator compilatioContentValidator;
 	@Setter protected ContentReviewSiteAdvisor siteAdvisor;
