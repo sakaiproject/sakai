@@ -9,7 +9,7 @@
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
 		utils.setupUtils();
 
-		$("#accordion").accordion({
+		$(".info-accordion").accordion({
 			header: 'h4',
 			active: false,
 			collapsible: true,
@@ -318,9 +318,8 @@
 				<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
 			</div>
 		#end
-		#if ($!groups.size() > 0 || $!joinableGroups.size() > 0 || $!sections.size() > 0)
-		<div id="accordion">
-			#if ($!sections.size() > 0)
+		#if ($!sections.size() > 0)
+		<div class="info-accordion">
 			<h4 class="toggleAnchor specialLink">
 				<span>#if ($!viewRoster) $tlang.getString("sinfo.list.sections")#else $tlang.getString("sinfo.list.sections.student") #end</span>
 			</h4>
@@ -367,8 +366,10 @@
 					</tbody>
 				</table>
 			</div>
-			#end
-			#if ($!groups.size() > 0)
+		</div>
+		#end
+		#if ($!groups.size() > 0)
+		<div class="info-accordion">
 			<h4 class="toggleAnchor specialLink">
 				<span>#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
 			</h4>
@@ -417,73 +418,74 @@
 					</tbody>
 				</table>
 			</div>
-			#end
-			#if ($!joinableGroups.size() > 0)
-				<h4 class="toggleAnchor specialLink">
-					<span>#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
-				</h4>
-				<div class="toggledContent">
-					<table class="table table-striped table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>
-									$tlang.getString("sinfo.list.joinable.title")
-								</th>
-								<th>
-									$tlang.getString("sinfo.list.joinable.joinable-set")
-								</th>
-								<th>
-									$tlang.getString("sinfo.list.joinable.size")
-								</th>
-								<th>
-									$tlang.getString("sinfo.list.joinable.members")
-								</th>
-								<th>
-									$tlang.getString("sinfo.list.joinable.join")
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-						#foreach ($g in $!joinableGroups)
-							#set ($full = $g.size >= $g.max)
-							<tr>
-								<td>
-									<span>$formattedText.escapeHtml($g.title)</span>
-								</td>
-								<td>
-									<span>$formattedText.escapeHtml($g.joinableSet)</span>
-								</td>
-								<td>
-									<span>$g.size ($g.max)</span>
-								</td>
-								<td>
-									#if ($g.preview)
-									<span>$formattedText.escapeHtml($g.members)</span>
-									#else
-									<span>$tlang.getString("sinfo.list.joinable.na")</span>
-									#end
-								</td>
-
-								<td>
-									#if ($full)
-									<span>$tlang.getString("sinfo.list.joinable.full")</span>
-									#else
-									<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
-										<input type="hidden" name="joinable-group-ref" value="$g.reference" />
-										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-									</form>
-									#end
-								</td>
-							</tr>
-						#end
-						</tbody>
-					</table>
-				</div>
-			#end
 		</div>
-		<div style="clear:both"> </div>
 		#end
+		#if ($!joinableGroups.size() > 0)
+		<div class="info-accordion">
+			<h4 class="toggleAnchor specialLink">
+				<span>#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
+			</h4>
+			<div class="toggledContent">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>
+								$tlang.getString("sinfo.list.joinable.title")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.joinable-set")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.size")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.members")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.join")
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+					#foreach ($g in $!joinableGroups)
+						#set ($full = $g.size >= $g.max)
+						<tr>
+							<td>
+								<span>$formattedText.escapeHtml($g.title)</span>
+							</td>
+							<td>
+								<span>$formattedText.escapeHtml($g.joinableSet)</span>
+							</td>
+							<td>
+								<span>$g.size ($g.max)</span>
+							</td>
+							<td>
+								#if ($g.preview)
+								<span>$formattedText.escapeHtml($g.members)</span>
+								#else
+								<span>$tlang.getString("sinfo.list.joinable.na")</span>
+								#end
+							</td>
+
+							<td>
+								#if ($full)
+								<span>$tlang.getString("sinfo.list.joinable.full")</span>
+								#else
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
+									<input type="hidden" name="joinable-group-ref" value="$g.reference" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+									<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</form>
+								#end
+							</td>
+						</tr>
+					#end
+					</tbody>
+				</table>
+			</div>
+		</div>
+		#end
+		<div style="clear:both"> </div>
 	#if ($!viewRoster && !$!isMyWorkspace) 
 		<div class="sak-banner-info"> 
 			$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
