@@ -55,7 +55,6 @@ import org.sakaiproject.contentreview.advisors.ContentReviewSiteAdvisor;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -140,7 +139,6 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	@Setter	protected UrkundAccountConnection urkundConn;
 	@Setter	protected UrkundContentValidator urkundContentValidator;
 	@Setter protected ContentReviewSiteAdvisor siteAdvisor;
-	@Setter	protected ContentReviewQueueService crqs;
 	
 	public void init() {
 		maxRetry = Long.valueOf(serverConfigurationService.getInt("urkund.maxRetry", 20));

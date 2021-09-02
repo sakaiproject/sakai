@@ -167,6 +167,11 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 		getSelectedProvider().createAssignment(arg0, arg1, arg2);
 	}
 
+	@Override
+	public void deleteAssignment(String siteId, String taskId) {
+		getSelectedProvider().deleteAssignment(siteId, taskId);
+	}
+
 	public List<ContentReviewItem> getAllContentReviewItems(String arg0, String arg1)
 			throws QueueException, SubmissionException, ReportException {
 		return getSelectedProvider().getAllContentReviewItems(arg0, arg1);

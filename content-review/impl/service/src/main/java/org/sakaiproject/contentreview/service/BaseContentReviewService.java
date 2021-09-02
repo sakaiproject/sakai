@@ -30,6 +30,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -58,6 +59,8 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 
 	@Setter
 	protected AssignmentService assignmentService;
+	@Setter
+	protected ContentReviewQueueService crqs;
 	@Setter
 	protected EntityManager entityManager;
 	@Setter
@@ -174,6 +177,23 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 		{
 			log.error("Unknown excpetion queueing submissions for assessment " + taskId, e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteAssignment(String siteId, String taskId) {
+		deleteAllSubmissionsForAssignment(siteId, taskId);
+	}
+
+	protected void deleteAllSubmissionsForAssignment(String siteId, String taskId) {
+		Integer providerId = getProviderId();
+		List<ContentReviewItem> items = crqs.getContentReviewItems(providerId, siteId, taskId);
+		// Can't do this because it opens a new transaction, causing an IAE - "Removing a detached instance":
+		// items.forEach(item -> crqs.delete(item));
+		// So delete them via removeFromQueue:
+		items.forEach(item -> crqs.removeFromQueue(providerId, item.getContentId()));
 	}
 	
 	@Override

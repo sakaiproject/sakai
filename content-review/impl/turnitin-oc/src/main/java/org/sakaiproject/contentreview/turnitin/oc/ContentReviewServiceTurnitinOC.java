@@ -72,7 +72,6 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -108,9 +107,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	
 	@Setter
 	private SiteService siteService;
-
-	@Setter
-	private ContentReviewQueueService crqs;
 
 	@Setter
 	private ContentHostingService contentHostingService;
