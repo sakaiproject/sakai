@@ -80,6 +80,8 @@ public class UserListBean {
 	private static final String				CFG_USER_TYPE_LIMIT_TO_SELF		= "userType.limitToSelf";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
 
+	private static final int 				MAX_SEARCH_SIZE = 1000;
+
 	/** Resource bundle */
 	private static final ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 
@@ -327,9 +329,9 @@ public class UserListBean {
 				//SAK-20857 if empty search, return all users, otherwise only those that match.
 				List<User> users;
 				if(StringUtils.isBlank(searchKeyword)) {
-					users = M_uds.getUsers();
+					users = Collections.emptyList();
 				} else {
-					users = M_uds.searchUsers(searchKeyword, 1, Integer.MAX_VALUE);
+					users = M_uds.searchUsers(searchKeyword, 1, MAX_SEARCH_SIZE);
 				}
 				
 				for(User u : users) {
