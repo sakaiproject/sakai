@@ -36,46 +36,44 @@
 		</t:div>
 		<sakai:instruction_message value="#{msgs.instructions_userlist}" />
 
-		<t:div styleClass="form-group row">
-			<t:div styleClass="col-sm-4">
-				<h:outputLabel for="selectType" value="#{msgs.combo_user_type}"/>
-				<t:selectOneMenu styleClass="form-control" id="selectType" immediate="true" value="#{UserListBean.selectedUserType}" title="#{msgs.combo_user_type_title}">
-					<f:selectItems value="#{UserListBean.userTypes}"/> 
-				</t:selectOneMenu>
-				<h:outputLabel for="selectAuthority" value="#{msgs.combo_user_ext}"/>
-				<t:selectOneMenu styleClass="form-control" id="selectAuthority" immediate="true" value="#{UserListBean.selectedAuthority}" title="#{msgs.combo_user_ext_title}">
-					<f:selectItems value="#{UserListBean.userAuthorities}"/> 
-				</t:selectOneMenu>
-			</t:div>
-			<t:div styleClass="col-sm-8">
-				<h:outputLabel for="inputSearchBox" value="#{msgs.bar_input_search_title}"/>
-				<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}"
-					valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
-					size="20" title="#{msgs.bar_input_search_title}" styleClass="form-control"
-					onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"
-				/>
-				<t:div styleClass="act">
-					<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
-						onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
-						styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
-						rendered="#{UserListBean.renderClearSearch}"
-						onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
-						onclick="SPNR.disableControlsAndSpin( this, null );" />
+		<t:div styleClass="sakai-table-toolBar">
+			<t:div styleClass="sakai-table-filterContainer">
+				<t:div styleClass="sakai-table-viewFilter">
+					<h:outputLabel for="selectType" value="#{msgs.combo_user_type}"/>
+					<t:selectOneMenu id="selectType" styleClass="form-control" immediate="true" value="#{UserListBean.selectedUserType}" title="#{msgs.combo_user_type_title}">
+						<f:selectItems value="#{UserListBean.userTypes}"/> 
+					</t:selectOneMenu>
+				</t:div>
+				<t:div styleClass="sakai-table-viewFilter">
+					<h:outputLabel for="selectAuthority" value="#{msgs.combo_user_ext}"/>
+					<t:selectOneMenu id="selectAuthority" styleClass="form-control" immediate="true" value="#{UserListBean.selectedAuthority}" title="#{msgs.combo_user_ext_title}">
+						<f:selectItems value="#{UserListBean.userAuthorities}"/> 
+					</t:selectOneMenu>
+				</t:div>
+				<t:div styleClass="sakai-table-searchFilter">
+					<h:outputLabel for="inputSearchBox" value="#{msgs.bar_input_search_title}"/>
+					<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}" styleClass="sakai-table-searchFilter-searchField form-control"
+						valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
+						size="20" title="#{msgs.bar_input_search_title}"
+						onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"
+					/>
+					<t:div styleClass="act">
+						<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
+							onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
+							styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
+							rendered="#{UserListBean.renderClearSearch}"
+							onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
+							onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</t:div>
 				</t:div>
 			</t:div>
+			<t:div styleClass="sakai-table-pagerContainer">
+				<sakai:pager id="pager" totalItems="#{UserListBean.totalItems}" firstItem="#{UserListBean.firstItem}"
+					pageSize="#{UserListBean.pageSize}" accesskeys="true" immediate="true"
+					rendered="#{UserListBean.renderPager}" textItem="#{msgs.users}" />
+			</t:div>
 		</t:div>
-
-		<sakai:pager
-				id="pager" 
-				totalItems="#{UserListBean.totalItems}"
-				firstItem="#{UserListBean.firstItem}"
-				pageSize="#{UserListBean.pageSize}"
-				accesskeys="true"
-				immediate="true"
-				rendered="#{UserListBean.renderPager}"
-				textItem="#{msgs.users}" />
-		
 	 	<t:dataTable 
 			value="#{UserListBean.userRows}"
 			var="row"
