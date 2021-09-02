@@ -17,7 +17,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script src="/library/js/spinner.js"></script>
+	<script src="/sakai-usermembership-tool/usermembership/js/usermembership.js"></script>
 	<%/*<sakai:flowState bean="#{UserListBean}"/>*/%>
 	<h:outputText value="#{UserListBean.initValues}"/>
 	
@@ -174,5 +175,6 @@
 		</t:div>	
 
 	</h:form>
+	<script>sakaiUserMembership.bindInputSearchChange();</script>
 </sakai:view>
 </f:view>
