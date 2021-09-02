@@ -75,14 +75,15 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
 
 .checklist-checkbox-label {
     padding: 0.5em 0.5em 0.5em 0;
-    display: inline-block;
 }
+
 label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label, label.checklistLabel.disabled input.checklist-checkbox ~ span.link-broken {
     background-image: none;
     cursor: not-allowed;
     vertical-align: top;
     padding-bottom: 13px;
 }
+
 span.link-broken-icon {
     line-height: .5em;
     padding-top: 2.5%;
