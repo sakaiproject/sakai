@@ -252,7 +252,7 @@ public class Assignment {
     private Boolean contentReview = Boolean.FALSE;
 
     @Column(name = "IS_REQUIRED_ESTIMATE", length = 1, nullable = false)
-    private Boolean reqEstimate;
+    private Boolean reqEstimate = Boolean.FALSE;
 
     @Column(name = "ESTIMATE", length = 255)
     private String estimate;
