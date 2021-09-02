@@ -282,7 +282,6 @@ public class UserListBean {
 	public String getInitValues() {
 		if(searchKeyword == null){
 			renderClearSearch = false;
-			searchKeyword = msgs.getString("bar_input_search_inst");
 		}else
 			renderClearSearch = true;
 		
