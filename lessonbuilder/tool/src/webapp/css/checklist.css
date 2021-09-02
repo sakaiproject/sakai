@@ -61,6 +61,7 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
 }
 #name{
     vertical-align: middle;
+    max-width: 500px;
 }
 .checklistFormInput input, .checklistFormInput textarea {
     margin-left: 2em;
