@@ -319,9 +319,9 @@
 							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("peerassessment.removereview")" />
 						#end
 					#else
+						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" class="active" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
 						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.sav")" />
 						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade_review', null, null ); return false;" />
-						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$formattedText.escapeUrl($submissionReference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
 					#end
 					#if ($!prevSubmissionId)
 						<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />
