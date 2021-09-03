@@ -107,7 +107,6 @@
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 					var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
 					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
-	  				//fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');

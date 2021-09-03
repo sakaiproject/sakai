@@ -12,7 +12,6 @@
   <artifactId>textarea-base</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>FCKeditor/connector</module>
     <module>calendar</module>
     <module>elfinder-sakai</module>
   </modules>
