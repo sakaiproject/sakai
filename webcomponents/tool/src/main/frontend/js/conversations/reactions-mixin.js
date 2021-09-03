@@ -16,8 +16,14 @@ export const reactionsMixin = Base => class extends Base {
         <div class="${pair[1] ? "reaction-on": ""}">
           <div>
             <a href="javascript:;"
-                @click=${this.toggleReaction}>
-              <sakai-icon type="${reactionIcons[pair[0]]}" data-reaction="${pair[0]}" size="small" class="${reactionIcons[pair[0]]}"></sakai-icon>
+                @click=${this.toggleReaction}
+                title="${this.i18n[pair[0]]}"
+                aria-label="${this.i18n[pair[0]]}">
+              <sakai-icon type="${reactionIcons[pair[0]]}"
+                  data-reaction="${pair[0]}"
+                  size="small"
+                  class="${reactionIcons[pair[0]]}">
+              </sakai-icon>
             </a>
           </div>
         </div>
