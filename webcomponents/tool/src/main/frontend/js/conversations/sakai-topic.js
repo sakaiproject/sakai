@@ -505,33 +505,35 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         <div class="topic-message">${unsafeHTML(this.topic.message)}</div>
         ${this.topic.draft ? "" : html`
         <div class="topic-message-bottom-bar">
+          ${this.topic.canBookmark ? html`
           <div>
-          <a href="javascript:;"
-              @click=${this.toggleBookmarked}
-              aria-label="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
-              title="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
-          >
-            <div class="topic-option">
-              <div><sakai-icon type="favourite" size="small"></sakai-icon></div>
-              <div>
+            <a href="javascript:;"
+                @click=${this.toggleBookmarked}
+                aria-label="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
+                title="${this.i18n[this.topic.bookmarked ? "unbookmark_tooltip" : "bookmark_tooltip"]}"
+            >
+              <div class="topic-option">
+                <div><sakai-icon type="favourite" size="small"></sakai-icon></div>
+                <div>
                   ${this.i18n[this.topic.bookmarked ? "unbookmark" : "bookmark"]}
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
           </div>
+          ` : ""}
           ${this.topic.canPin ? html`
           <div>
-          <a href="javascript:;"
-              @click=${this.togglePinned}
-              aria-label="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}"
-              title="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}">
-            <div class="topic-option">
-              <div><sakai-icon type="pin" size="small"></sakai-icon></div>
-              <div>
+            <a href="javascript:;"
+                @click=${this.togglePinned}
+                aria-label="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}"
+                title="${this.topic.pinned ? this.i18n.unpin_tooltip : this.i18n.pin_tooltip}">
+              <div class="topic-option">
+                <div><sakai-icon type="pin" size="small"></sakai-icon></div>
+                <div>
                   ${this.i18n[this.topic.pinned ? "unpin" : "pin"]}
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
           </div>
           ` : ""}
           ${this.topic.type === QUESTION ? html`
