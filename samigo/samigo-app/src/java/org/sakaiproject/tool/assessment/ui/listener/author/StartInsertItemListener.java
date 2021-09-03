@@ -31,8 +31,8 @@ import javax.faces.event.ValueChangeListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -107,7 +107,6 @@ public class StartInsertItemListener implements ValueChangeListener {
       itemauthorbean.setTagsList(null);
       itemauthorbean.setResourceHash(null);
       itemauthorbean.setItemId("");
-      itemauthorbean.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
       itemauthorbean.setRubricStateDetails("");
 
       StartCreateItemListener listener = new StartCreateItemListener();

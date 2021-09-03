@@ -49,7 +49,8 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
@@ -358,9 +359,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 							sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
-							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
@@ -377,7 +378,17 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							final WebMarkupContainer sakaiRubricButton = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
-							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+							sakaiRubricButton.add(AttributeModifier.append("site-id", getCurrentSiteId()));
+
+							 try {
+								Optional<AssociationTransferBean> optAssociation
+									= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+								if (optAssociation.isPresent()) {
+									sakaiRubricButton.add(AttributeModifier.append("rubric-id", optAssociation.get().rubricId));
+								}
+							} catch (Exception e) {
+								log.error("Failed to get association", e);
+							}
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
@@ -409,8 +420,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 									} catch (Exception e) {
 										log.error("Failed to determine ownerId for submission", e);
 									}
-
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT, getCurrentSiteId());
 									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
 									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
 								} else {

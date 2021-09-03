@@ -53,7 +53,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.messaging.api.MessagingService;
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
@@ -291,7 +291,7 @@ public class AssignmentTestConfiguration {
         return mock(PreferencesService.class);
     }
 
-    @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+    @Bean(name = "org.sakaiproject.rubrics.api.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
     }

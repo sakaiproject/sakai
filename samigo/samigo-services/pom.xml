@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-service-api</artifactId>
+            <artifactId>rubrics-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -159,6 +159,10 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <!-- Unit test dependencies -->

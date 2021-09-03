@@ -372,7 +372,7 @@
 			
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
-			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+            site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'

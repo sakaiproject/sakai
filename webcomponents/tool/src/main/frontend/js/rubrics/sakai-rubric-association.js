@@ -16,32 +16,19 @@ class SakaiRubricAssociation extends RubricsElement {
     this.i18nPromise.then(r => this.i18n = r);
   }
 
-  set token(newValue) {
+  set siteId(value) {
 
-    this.i18nPromise.then(r => this.initLightbox(newValue, r));
-    this._token = `Bearer ${  newValue}`;
-    if (this.toolId) {
-      this.getAssociation();
-    }
+    this._siteId = value;
+    this.i18nPromise.then(r => this.initLightbox(r, value));
+    this.getRubrics();
   }
 
-  get token() { return this._token; }
-
-  set toolId(value) {
-
-    this._toolId = value;
-    if (this.token) {
-      this.getAssociation();
-    }
-  }
-
-  get toolId() { return this._toolId; }
+  get siteId() { return this._siteId; }
 
   set entityId(value) {
 
     this._entityId = value;
-
-    if (this.token && this.toolId) {
+    if (this.toolId) {
       this.getAssociation();
     }
   }
@@ -52,9 +39,10 @@ class SakaiRubricAssociation extends RubricsElement {
 
     return {
       association: { type: Object },
-      token: String,
+      associationId: { attribute: "association-id", type: String },
       isAssociated: Boolean,
       entityId: { attribute: "entity-id", type: String },
+      siteId: { attribute: "site-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       selectedRubric: { type: String },
       dontAssociateLabel: { attribute: "dont-associate-label", type: String },
@@ -157,19 +145,23 @@ class SakaiRubricAssociation extends RubricsElement {
 
   getAssociation() {
 
-    let url = `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}`;
-    if (this.entityId) url += `&itemId=${this.entityId}`;
+    let url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}`;
+    if (this.entityId) url += `/items/${this.entityId}`;
 
-    $.ajax({
-      url,
-      headers: {"authorization": this.token},
-      contentType: "application/json"
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .done(data => {
+    .then(r => {
 
-      const associations = data._embedded['rubric-associations'];
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting association");
+    })
+    .then(assoc => {
 
-      this.association = associations.length ? associations[0] : false;
+      this.association = assoc;
       if (this.association) {
         this.isAssociated = 1;
         this.selectedRubric = this.association.rubricId;
@@ -178,31 +170,33 @@ class SakaiRubricAssociation extends RubricsElement {
       }
       this.getRubrics();
     })
-    .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });
+    .catch (error => console.error(error));
   }
 
-  getRubrics(params = {}) {
+  getRubrics() {
 
-    $.ajax({
-      url: "/rubrics-service/rest/rubrics",
-      headers: {"authorization": this.token},
-      data: params,
+    const url = `/api/sites/${this.siteId}/rubrics?withshared=true`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .done(data => this.handleRubrics(data))
-    .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while requesting rubrics");
+    })
+    .then(data => this.handleRubrics(data))
+    .catch (error => console.error(error));
   }
 
   handleRubrics(data) {
 
-    this.rubrics = data._embedded.rubrics;
-
-    if (data.page.size <= this.rubrics.length) {
-      this.getRubrics({"size": this.rubrics.length + 25});
-      return;
-    }
+    this.rubrics = data;
 
     if (this.rubrics.length) {
-      this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
+      //this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
       if (!this.isAssociated) {
         this.selectedRubric = this.rubrics[0].id;
       }
