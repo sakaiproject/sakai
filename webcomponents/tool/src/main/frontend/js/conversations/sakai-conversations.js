@@ -509,7 +509,7 @@ export class SakaiConversations extends SakaiElement {
 
     return html`
       <conversations-statistics
-          site-url="${this.data.links.find(l => l.rel === "stats").href}"
+          stats-url="${this.data.links.find(l => l.rel === "stats").href}"
       >
       </conversations-statistics>
     `;
