@@ -35,8 +35,8 @@
                         const config = {attributes: true, childList: false, subtree: false}
                         const observer = new MutationObserver(function(mutations) {
                             mutations.forEach(function(mutation) {
-                                if (mutation.type == "attributes" && mutation.attributeName == "style") {
-                                    if (toolboxMain.style.display == "none") {
+                                if (mutation.type === "attributes" && mutation.attributeName === "style") {
+                                    if (toolboxMain.style.display === "none") {
                                         toolboxMain.style.display = "block";
                                     } else {
                                         top.classList.toggle('min');
