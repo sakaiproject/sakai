@@ -50,7 +50,7 @@ public class EditorConfiguration
 
 	/**
 	 * Get the file browser that should be used when picking a file in CKEditor.
-	 * @return The file browser, i.e. fckeditor, elfinder
+	 * @return The file browser, i.e. elfinder
 	 */
 	public static String getCKEditorFileBrowser()
 	{

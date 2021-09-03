@@ -25,7 +25,6 @@
 		class="org.sakaiproject.contentreview.urkund.UrkundReviewServiceImpl"
 		parent="org.sakaiproject.contentreview.service.BaseContentReviewService"
 		init-method="init">
-		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
 
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />

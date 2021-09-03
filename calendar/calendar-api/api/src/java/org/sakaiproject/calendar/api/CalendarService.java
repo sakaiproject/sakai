@@ -152,6 +152,7 @@ public interface CalendarService
 	/** Calendar Printing Views. */
 	public static final int UNKNOWN_VIEW = -1;
 	public static final int DAY_VIEW = 0;
+	public static final int LIST_SUBVIEW = 1;
 	public static final int WEEK_VIEW = 2;
 	public static final int MONTH_VIEW = 3;
 	public static final int LIST_VIEW = 5;
@@ -289,8 +290,7 @@ public interface CalendarService
 	* @param reverseOrder to order the event list as in ListView
 	* @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	*/
-	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
-			String userName, TimeRange dailyTimeRange, boolean reverseOrder);
+	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString, String userName, boolean reverseOrder);
 
 	/**
 	* Access the internal reference which can be used to access the calendar-in-ical format from within the system.

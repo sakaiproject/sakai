@@ -572,16 +572,6 @@ $(document).ready(function() {
 			return false;
 		});
 
-		$('#export-cc-v11').change(function(){		
-			if ($("#export-cc-v11").prop('checked'))
-			    $("#export-cc-v13").prop('checked',false);
-		    });
-
-		$('#export-cc-v13').change(function(){		
-			if ($("#export-cc-v13").prop('checked'))
-			    $("#export-cc-v11").prop('checked',false);
-		    });
-
 		$('#delete-orphan-link').click(function(){
 			if (delete_orphan_enabled) {
 			    delete_orphan_enabled = false;
@@ -598,24 +588,22 @@ $(document).ready(function() {
 			return false;
 		});
 
-		$('#export-cc-submit').click(function(){
-			// jquery click doesn't actually click, so get the js object and do a native click call
-                        if ($('#export-cc-v11').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.1"));
-			} else if ($('#export-cc-v13').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.3"));
-                        } else {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
-                        }
-                        if ($('#export-cc-bank').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=1"));
-                        } else {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=0"));
-                        }
-			$("#export-cc-link").get(0).click();
-			closeExportCcDialog();
-			return false;
-		    });
+        $('#export-cc-submit').click(function(){
+            // Get the checkbox value for bank option.
+            const exportCCBank = document.getElementById('export-cc-bank').checked;
+            // Get the selected CC version.
+            const exportCCVersion = document.querySelector('input[name="export-cc"]:checked').value;
+            const exportCCLink = document.getElementById('export-cc-link');
+            const exportCCUrl = new URL(exportCCLink.href);
+            // Update the request parameters with the selected options.
+            exportCCUrl.searchParams.set('version', exportCCVersion);
+            exportCCUrl.searchParams.set('bank', exportCCBank ? 1 : 0);
+            // Replace the link
+            exportCCLink.href = exportCCUrl.href;
+            exportCCLink.click();
+            closeExportCcDialog();
+            return false;
+        });
 
 		$('#import-cc-submit').click(function() {
 			// prevent double clicks

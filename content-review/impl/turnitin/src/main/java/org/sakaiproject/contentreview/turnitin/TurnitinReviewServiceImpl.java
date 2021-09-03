@@ -58,10 +58,8 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.contentreview.turnitin.util.TurnitinAPIUtil;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -218,9 +216,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	private TurnitinAccountConnection turnitinConn;
 
 	@Setter
-	private EntityManager entityManager;
-
-	@Setter
 	private ContentHostingService contentHostingService;
 
 	@Setter
@@ -255,9 +250,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	
 	@Setter
 	private ToolManager toolManager;
-
-	@Setter
-	ContentReviewQueueService crqs;
 
 	public void init() {
 

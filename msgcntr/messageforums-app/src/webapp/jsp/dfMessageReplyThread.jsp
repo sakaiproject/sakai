@@ -141,13 +141,6 @@
 		<script>
 			var textareas = document.getElementsByTagName("textarea");
 			var rteId = textareas.item(1).id;
-			
-//	        function FCKeditor_OnComplete( editorInstance )
-//	        {
-//	          // clears the FCK editor after initial loading
-//	          editorInstance.SetHTML( "" );
-//	        }
-	        
 	        // set the previous message variable
 	        var messagetext = document.forms['dfCompose'].elements['dfCompose:msgHidden'].value;
 	        var titletext = document.forms['dfCompose'].elements['dfCompose:titleHidden'].value;

@@ -125,6 +125,11 @@
 		}
 	}
 
+	#dateShifterDays {
+		box-sizing: content-box;
+		width: 5ch;
+	}
+
   /*Start of Site Group Manager*/
   .wizard-step-active {
     background-color: var(--sakai-primary-color-1);
@@ -135,12 +140,12 @@
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    background: none repeat scroll 0 0 #EEEEEE;
+    background: none repeat scroll 0 0 var(--sakai-background-color-2);
     padding: 0.5em;
   }
 
   .optGroupSelectSelected {
-    background: none repeat scroll 0 0 #ccc;
+    background: none repeat scroll 0 0 var(--sakai-active-color-1);
   }
 
   .group-locked-info.collapsed::before {

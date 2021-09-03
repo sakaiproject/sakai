@@ -69,7 +69,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
-import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
@@ -975,6 +974,31 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
 
+                // Copy model answer
+                AssignmentModelAnswerItem existingModelAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
+                if (existingModelAnswer != null) {
+                    AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+                    copy.setAssignmentId(assignment.getId());
+                    copy.setText(existingModelAnswer.getText());
+                    copy.setShowTo(existingModelAnswer.getShowTo());
+
+                    // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+                    assignmentSupplementItemService.saveModelAnswer(copy);
+
+                    Set<AssignmentSupplementItemAttachment> attachments = new HashSet<>();
+                    List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(existingModelAnswer);
+                    for (String attachmentID : attachmentIDs) {
+                        AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                        attachment.setAssignmentSupplementItemWithAttachment(copy);
+                        attachment.setAttachmentId(attachmentID);
+                        assignmentSupplementItemService.saveAttachment(attachment);
+                        attachments.add(attachment);
+                    }
+
+                    copy.setAttachmentSet(attachments);
+                    assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
+                }
+
                 //copy rubric
                 try {
                     Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
@@ -1004,6 +1028,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        String context = assignment.getContext();
+
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
@@ -1028,6 +1054,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (AuthzRealmLockException arle) {
             log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
+
+        // clean up content-review items
+        contentReviewService.deleteAssignment(context, reference);
     }
 
     @Override
@@ -3751,6 +3780,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    @Transactional
     public String createContentReviewAssignment(Assignment assignment, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime) {
         Map<String, Object> opts = new HashMap<>();
         Map<String, String> p = assignment.getProperties();
@@ -4539,9 +4569,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     /**
-     * Gets all attachments in the submission that are acceptable to the content review service
+     * {@inheritDoc}
      */
-    private List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
+    @Override
+    public List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
         List<ContentResource> attachments = new ArrayList<>();
         for (String attachment : s.getAttachments()) {
             Reference attachmentRef = entityManager.newReference(attachment);

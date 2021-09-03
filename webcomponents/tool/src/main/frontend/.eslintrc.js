@@ -10,9 +10,10 @@ module.exports = {
     "confirmDatePlugin": "readonly",
     "flatpickr": "readonly",
     "jQuery": "readonly",
+    "MathJax": "readonly",
   },
   "extends": "eslint:recommended",
-  "parserOptions": { "ecmaVersion": 12, "sourceType": "module" },
+  "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
   "rules": {
     "indent": ["warn", 2, { "SwitchCase": 1, "MemberExpression": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
     "linebreak-style": ["warn","unix"],

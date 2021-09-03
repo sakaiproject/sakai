@@ -42,9 +42,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.ApiOperation;
-
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,7 +68,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@Resource
 	private UserDirectoryService userDirectoryService;
 
-    @ApiOperation(value = "Get a particular user's announcements data")
 	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
 
@@ -93,7 +89,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
             .flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
-    @ApiOperation(value = "Get a particular site's announcements data")
 	@GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getSiteAnnouncements(@PathVariable String siteId) throws UserNotDefinedException {
 

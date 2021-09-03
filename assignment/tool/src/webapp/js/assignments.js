@@ -397,12 +397,6 @@ ASN.highlightSelectedAttachment = function()
 
 ASN.saveChanges = function(formName, textAreaId) {
     var _textArea = document.getElementById(textAreaId);
-    if (_textArea !== null) {
-        if (typeof FCKeditorAPI !== "undefined") {
-            var editor = FCKeditorAPI.GetInstance(textAreaId);
-            document[formName].savedText.value = editor.GetXHTML(false);
-        }
-    }
 };
 
 ASN.allowClick = function(object)

@@ -518,13 +518,7 @@ public class LTI13Util {
     }
 
     public static String toNull(String str) {
-        if (str == null) {
-            return null;
-        }
-        if (str.trim().length() < 1) {
-            return null;
-        }
-        return str;
+        return BasicLTIUtil.toNull(str);
     }
 
     public static int getInt(Object o) {

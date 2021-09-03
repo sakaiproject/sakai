@@ -245,6 +245,11 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 	}
 
 	@Override
+	public void deleteAssignment(String siteId, String taskId) {
+		log.debug("void deleteAssignment {} {}", siteId, taskId);
+	}
+
+	@Override
 	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
 		ContentReviewItem ret = null;
 		log.debug("{} getContentReviewItemByContentId {}", ret, contentId);

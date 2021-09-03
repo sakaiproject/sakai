@@ -688,6 +688,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.COURSE_GRADE_COLUMN_INDEX = GbGradeTable.FIXED_COLUMN_OFFSET - 1; // course grade is always the last fixed column
   GbGradeTable.domElement.addClass('gb-fixed-columns-' + GbGradeTable.FIXED_COLUMN_OFFSET);
 
+  if (sakai && sakai.locale && sakai.locale.userLanguage) {
+    GbGradeTable.numFmt = new Intl.NumberFormat(sakai.locale.userLanguage);
+  }
+
   GbGradeTable.grades = GbGradeTable.mergeColumns(GbGradeTable.unpack(tableData.serializedGrades,
                                                                       tableData.rowCount,
                                                                       tableData.columnCount),
@@ -1740,6 +1744,9 @@ GbGradeTable.applyStudentFilter = function(data) {
 
       var student = row[GbGradeTable.STUDENT_COLUMN_INDEX];
       var searchableFields = [student.firstName, student.lastName, student.eid];
+      if (GbGradeTable.settings.isStudentNumberVisible) {
+          searchableFields.push(student.studentNumber);
+      }
       var studentSearchString = searchableFields.join(";")
 
       for (var i=0; i<queryStrings.length; i++) {
@@ -2163,7 +2170,19 @@ GbGradeTable.setupColumnSorting = function() {
   $table.on("click", ".gb-title", function() {
     var $handle = $(this);
 
-    var colIndex = $handle.closest("th").index();
+    let colIndex = -1;
+    const $colHeader = $handle.closest("th").find(".colHeader");
+    if ($colHeader.length > 0 && "colIndex" in $colHeader[0].dataset) {
+        const index = parseInt($colHeader[0].dataset.colIndex, 10);
+        if (!isNaN(index)) {
+            colIndex = index;
+        }
+    }
+
+    if (colIndex < 0) {
+        log.error("Unable to find column index for sorting.");
+        return;
+    }
 
     if (GbGradeTable.currentSortColumn != colIndex) {
       GbGradeTable.currentSortColumn = colIndex;
@@ -3106,8 +3125,8 @@ GbGradeTable.localizeNumber = function(number) {
         return;
     }
 
-    if (sakai && sakai.locale && sakai.locale.userLanguage) {
-        return parseFloat(number).toLocaleString(sakai.locale.userLanguage);
+    if (GbGradeTable.numFmt) {
+        return GbGradeTable.numFmt.format(parseFloat(number));
     }
 
     return '' + number;

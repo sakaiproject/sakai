@@ -119,14 +119,6 @@
             <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 			</sakai:inputRichText>
 			<script>
-				<%-- pre-morpheus would need this: CKEDITOR.on('instanceReady', function() {resizeFrame('grow')}); --%>
-	        
-//	        function FCKeditor_OnComplete( editorInstance )
-//	        {
-//	          // clears the FCK editor after initial loading
-//	          editorInstance.SetHTML( "" );
-//	        }
-	        
 	        // set the previous message variable
 				var textareas = document.getElementsByTagName("textarea");
 				var rteId = textareas.item(1).id;

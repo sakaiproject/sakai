@@ -34,6 +34,7 @@ public class WebAppConfiguration implements WebApplicationInitializer {
 		AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
 		rootContext.setServletContext(servletContext);
 		rootContext.register(ThymeleafConfig.class);
+		rootContext.register(MvcConfig.class);
 
 		servletContext.addListener(new ToolListener());
 		servletContext.addListener(new SakaiContextLoaderListener(rootContext));

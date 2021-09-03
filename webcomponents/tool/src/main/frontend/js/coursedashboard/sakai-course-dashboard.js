@@ -66,7 +66,7 @@ export class SakaiCourseDashboard extends LitElement {
 
   overviewChanged(e) {
 
-    this.data.overview = e.detail.overview;
+    this.data.overview = e.detail.content;
     this.requestUpdate();
   }
 

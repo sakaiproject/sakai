@@ -139,6 +139,18 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
+        a {
+          color: var(--link-color);
+        }
+        a:hover { 
+          color: var(--link-hover-color);
+        }
+        a:active {
+          color: var(--link-active-color);
+        }
+        a:visited {
+          color: var(--link-visited-color);
+        }
         #filter {
           flex: 1;
         }
@@ -167,7 +179,7 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           }
             .header a {
               text-decoration: none;
-              color: black;
+              color: var(--sakai-text-color-1, #000);
             }
           .title {
             flex: 2;

@@ -4,11 +4,12 @@
 	<h3>
 		$tlang.getString("import.reuse")
 	</h3>
-	<p class="step">
-		$tlang.getString("import.reuse2")
-	</p>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
+	#end
+	<div class="sak-banner-warn">$tlang.getString("import.links.warning")</div>
+	#if ($addMissingTools)
+		<p class="sak-banner-info">$tlang.getString("import.newtool")</p>
 	#end
 	<p class="instruction">
 	$tlang.getString("sitinfimp.choose")
@@ -121,11 +122,7 @@
 				#end
 			</table>
 		</div>
-		
-		#if ($addMissingTools)
-			<p class="sak-banner-warn">$tlang.getString("import.newtool")</p>
-		#end
-		
+
 		<input type="hidden" name="back" value="59" />
 		<input type="hidden" name="templateIndex" value="60" />
 		<input type="hidden" name="continue" value="$continue" />
@@ -133,9 +130,6 @@
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
-		</p>
-		<p class="alertMessageInline">
-		$tlang.getString("import.links.warning")
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

@@ -4838,10 +4838,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(tofill, "export-cc-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export-cc-title")));
 
 		UIForm form = UIForm.make(tofill, "export-cc-form");
-
-		UIOutput.make(form, "export-cc-v11"); // value is handled by JS, so RSF doesn't need to treat it as input
-		UIOutput.make(form, "export-cc-v13"); // value is handled by JS, so RSF doesn't need to treat it as input
-		UIOutput.make(form, "export-cc-bank"); // value is handled by JS, so RSF doesn't need to treat it as input
 		UICommand.make(form, "export-cc-submit", messageLocator.getMessage("simplepage.exportcc-download"), "#{simplePageBean.importCc}");
 		UICommand.make(form, "export-cc-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 
