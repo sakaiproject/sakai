@@ -16,13 +16,16 @@
 		padding: 1px;
 		color: $text-color;
 		border-color: var(--sakai-border-color);
+
 		&:hover,
 		&:focus {
 			background: var(--button-hover-background);
 		}
+
 		&:active {
 			background: var(--button-active-background);
 		}
+
 		.cke_arrow {
 			border-width: 6px;
 			border-top-color: $text-color;
@@ -33,6 +36,7 @@
 			left: 0;
 		}
 	}
+
 	a.cke_toolbox_collapser_min {
 		.cke_arrow {
 			border-left-color: $text-color;
@@ -42,11 +46,13 @@
 			top:-2px;
 		}
 	}
+
 	.cke_combo__format .cke_combo_button,
 	.cke_combo__styles .cke_combo_button {
 		border: 1px solid var(--sakai-border-color);
 		padding: 0;
 	}
+
 	a.cke_button.cke_button__templates {
 		padding: 4px 14px 4px 6px;
 
@@ -55,10 +61,12 @@
 		&:active {
 			padding: 3px 13px 3px 5px;
 		}
+
 		&.cke_button_disabled {
 			.cke_button_label {
 				opacity: .3;
 			}
+
 			&:hover,
 			&:focus,
 			&:active {
@@ -76,28 +84,35 @@
 			padding: 3px 30px 3px 5px;
 		}
 	}
+
 	a.cke_button_on.cke_button__source {
 		padding: 3px 30px 3px 5px;
 
 	}
+
 	.cke_toolbox_main {
 		display: block;
 		order: 2;
 	}
+
 	.cke_top.min,
 	.cke_toolbox.min,
 	.cke_toolbox_main.min {
 		height: 32px !important; //!important to override inline styles set by ckeditor
 		display: block !important;
 	}
+
 	.cke_combo__format .cke_combo_text {
 		width: 45px; //adjust width to make icons line up across mutliple lines
 	}
+
 	.cke_contents {
 		background: var(--sakai-background-color-1);
 	}
 }
+
 #ckeditorPreview.modal {
+
 	.modal-dialog {
 		width: 94%;
 		max-width: 1200px;
@@ -122,9 +137,11 @@
 .cke_inner.cke_reset.cke_maximized {
 	position: fixed !important;
 }
+
 .cke_button_label.cke_button__templates_label {
 	display: inline;
 }
+
 .cke_dialog_contents_body .cke_tpl_list {
 	height: 430px !important;
 	background: var(--sakai-background-color-1);
@@ -138,19 +155,23 @@
 	a:focus,
 	a:hover,
 	a:active {
+
 		.cke_tpl_item {
 			border-color: var(--sakai-border-color);
 			background: var(--sakai-background-color-2);
 		}
 	}
 }
+
 .cke_dialog_body .cke_dialog_close_button {
 	filter: var(--sakai-image-invert);
 }
 .cke_tpl_preview .cke_tpl_preview_img {
 	width: 50px !important;
 }
+
 .cke_tpl_preview span{
+
 	&.template-icon{
 		font-family: FontAwesome;
 		font-size: 3em;
@@ -160,6 +181,7 @@
 		text-align: center;
 	}
 }
+
 .cke_dialog_container {
 	z-index: 100010 !important;
 }
