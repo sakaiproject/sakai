@@ -4826,17 +4826,16 @@ public class DiscussionForumTool {
     if (displayPendingMsgQueue == null) {
       List<Topic> moderatedTopics = forumManager.getModeratedTopicsInSite();
 
+      // Avoid the expensive queries below if there are no moderated topics
       if (moderatedTopics != null && !moderatedTopics.isEmpty()) {
-        // This is pointless if there are no moderated topics in the site
         List<String> membershipList = uiPermissionsManager.getCurrentUserMemberships();
         int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList, moderatedTopics);
 
         if (numModTopicWithPerm < 1) {
           numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevelName(membershipList, moderatedTopics);
-          displayPendingMsgQueue = numModTopicWithPerm > 0;
-        } else {
-          displayPendingMsgQueue = true;
         }
+
+        displayPendingMsgQueue = numModTopicWithPerm > 0;
       }
     }
 
