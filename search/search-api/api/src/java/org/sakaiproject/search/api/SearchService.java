@@ -276,7 +276,7 @@ public interface SearchService extends Diagnosable
 	 * 
 	 * @return
 	 */
-	int getNDocs();
+	long getNDocs();
 
 	/**
 	 * get the number of pending documents in the search index

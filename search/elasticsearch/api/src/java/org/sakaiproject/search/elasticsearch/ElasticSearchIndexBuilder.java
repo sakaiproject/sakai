@@ -16,7 +16,6 @@
 package org.sakaiproject.search.elasticsearch;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -64,7 +63,7 @@ public interface ElasticSearchIndexBuilder extends SearchIndexBuilder {
 
     StringBuilder getStatus(StringBuilder into);
 
-    int getNDocs();
+    long getNDocs();
 
     SearchStatus getSearchStatus();
 }

@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,9 +47,9 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
+import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.node.InternalSettingsPreparer;
@@ -83,7 +83,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -211,7 +210,8 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     protected Node initializeElasticSearchNode(Settings settings) {
-        Node node = new EmbeddedElasticSearchNode(settings, Collections.singletonList(Netty4Plugin.class));
+        Collection<Class<? extends Plugin>> plugins = Arrays.asList(Netty4Plugin.class, CommonAnalysisPlugin.class);
+        Node node = new EmbeddedElasticSearchNode(settings, plugins);
 
         try {
             node.start();
@@ -276,7 +276,7 @@ import lombok.extern.slf4j.Slf4j;
                 indexBuilder.initialize(eventRegistrar, client);
                 indexBuilders.put(indexBuilderName, registration);
             } catch ( Exception e ) {
-                log.error("Failed to initialize index builder [" + indexBuilderName + "]", e);
+                log.error("Failed to initialize index builder [{}]", indexBuilderName, e);
                 indexBuilders.remove(indexBuilderName);
             } finally {
                 threadLocalManager.set(PENDING_INDEX_BUILDER_REGISTRATION, null);
@@ -644,8 +644,8 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     @Override
-    public int getNDocs() {
-        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getNDocs(), Integer::sum);
+    public long getNDocs() {
+        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getNDocs(), Long::sum);
     }
 
     @Override
@@ -980,7 +980,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public int getNDocs() {
+        public long getNDocs() {
             return 0;
         }
 

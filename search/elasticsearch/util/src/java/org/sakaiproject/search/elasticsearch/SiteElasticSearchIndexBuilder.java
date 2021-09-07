@@ -362,7 +362,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     protected void deleteAllDocumentForSite(String siteId) {
-        getLog().debug("removing all documents from search index for siteId: " + siteId);
+        getLog().debug("removing all documents from search index for siteId: {}", siteId);
 
         DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
         request.setQuery(termQuery(SearchService.FIELD_SITEID, siteId));
@@ -382,7 +382,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
      */
     @Override
     public void refreshIndex(String siteId) {
-        getLog().info("Refreshing the index for '" + siteId + "'");
+        getLog().info("Refreshing the index for '{}'", siteId);
         //Get the currently indexed resources for this site
 
         Site site = null;

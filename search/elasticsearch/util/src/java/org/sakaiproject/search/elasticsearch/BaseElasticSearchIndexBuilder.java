@@ -1304,16 +1304,16 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     }
 
     @Override
-    public int getNDocs() {
+    public long getNDocs() {
         assureIndex();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(boolQuery()
                 .must(matchAllQuery())
-                .filter(termsQuery(SearchService.FIELD_INDEXED, false)));
+                .filter(termsQuery(SearchService.FIELD_INDEXED, true)));
         CountRequest countRequest = new CountRequest(indexName).source(searchSourceBuilder);
         try {
             CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
-            return (int) countResponse.getCount();
+            return countResponse.getCount();
         } catch (IOException ioe) {
             getLog().error("Problem getting docs for index builder [" + getName() + "]", ioe);
         }

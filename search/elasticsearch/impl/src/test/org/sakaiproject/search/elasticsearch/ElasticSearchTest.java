@@ -16,6 +16,7 @@
 package org.sakaiproject.search.elasticsearch;
 
 import com.github.javafaker.Faker;
+import com.github.javafaker.Lorem;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
@@ -102,24 +103,17 @@ public class ElasticSearchTest {
     @Mock
     EntityContentProducer entityContentProducer;
 
-
-
     @Mock
     Site site;
 
-    List<String> siteIds = new ArrayList<String>();
+    private final Map<String, Resource> resources = new HashMap<>();
+    private final List<Event> events = new ArrayList<>();
 
+    List<String> siteIds = new ArrayList<>();
+    List<Site> sites = new ArrayList<>();
     Faker faker = new Faker();
-
-    String siteId = faker.phoneNumber();
-
-     String resourceName = faker.name() + " key keyboard";
-    String url = "http://localhost/test123";
-
-    private Map<String, Resource> resources = new HashMap();
-    private List<Event> events = new ArrayList();
-
-    List<Site> sites = new ArrayList<Site>();
+    String siteId = faker.phoneNumber().phoneNumber();
+    String resourceName = faker.name() + " key keyboard";
     SearchSecurityFilter filter = new SearchSecurityFilter();
 
     @After
@@ -135,22 +129,20 @@ public class ElasticSearchTest {
         resources.put(resourceName, resource);
 
         when(event.getResource()).thenReturn(resource.getName());
-        events.add(event);
         when(entityContentProducer.matches(event)).thenReturn(true);
         when(entityContentProducer.matches(resourceName)).thenReturn(true);
-
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(event)).thenReturn(SearchBuilderItem.ACTION_ADD);
         when(entityContentProducer.getContent(resourceName)).thenReturn(content);
         when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
         when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
+        events.add(event);
 
-
-        for (int i=0;i<105;i++) {
-            String name = faker.name();
+        for (int i = 0; i < 105; i++) {
+            String name = faker.name().name();
             Event newEvent = mock(Event.class);
-            Resource resource1 = new Resource(generateContent(), faker.phoneNumber(), name);
+            Resource resource1 = new Resource(generateContent(), faker.phoneNumber().phoneNumber(), name);
             resources.put(name, resource1);
             events.add(newEvent);
             when(newEvent.getResource()).thenReturn(resource1.getName());
@@ -169,7 +161,7 @@ public class ElasticSearchTest {
     private String generateContent() {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < 10; i++) {
-            sb.append(faker.paragraph(10) + " ");
+            sb.append(faker.lorem().paragraph(10) + " ");
         }
         return sb.toString();
     }
@@ -182,7 +174,7 @@ public class ElasticSearchTest {
         when(siteService.getSite(site.getId())).thenReturn(site);
         sites.add(site);
         when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
-        when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
+        when(serverConfigurationService.getConfigData().getItems()).thenReturn(Collections.emptyList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
         when(serverConfigurationService.getString("elasticsearch.http.host", "localhost")).thenReturn("localhost");
@@ -276,6 +268,10 @@ public class ElasticSearchTest {
                 "    }\n" +
                 "}");
         elasticSearchIndexBuilder.setIndexSettingsConfig("{\n" +
+                "    \"number_of_shards\": 1,\n" +
+                "    \"index\": {\n" +
+                "        \"max_ngram_diff\": 20" +
+                "    },\n" +
                 "    \"analysis\": {\n" +
                 "        \"filter\": {\n" +
                 "            \"substring\": {\n" +
@@ -351,8 +347,8 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         elasticSearchIndexBuilder.refreshIndex();
-        assertTrue("the number of docs is " + elasticSearchService.getNDocs() + " expecting 106.",
-                elasticSearchService.getNDocs() == 106);
+        long numberOfDocs = elasticSearchService.getNDocs();
+        assertTrue("The number of docs is " + numberOfDocs + " expecting 106.", numberOfDocs == 106);
     }
 
     @Test
@@ -421,6 +417,7 @@ public class ElasticSearchTest {
 
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
+            assertNotEquals(0, list.size());
             assertNotNull(list.get(0) ) ;
             assertEquals(list.get(0).getReference(),resourceName);
             SearchResult result = list.get(0);
@@ -492,46 +489,38 @@ public class ElasticSearchTest {
     public void testRebuild(){
         elasticSearchIndexBuilder.setContentIndexBatchSize(200);
         elasticSearchIndexBuilder.setBulkRequestSize(400);
-
-
         elasticSearchIndexBuilder.addResource(notification, event);
 
         // add in a resource with no content
         String resourceName = "billy bob";
         Resource resource = new Resource(null, siteId, resourceName);
         resources.put(resourceName, resource);
+
         Event newEvent = mock(Event.class);
-
         when(newEvent.getResource()).thenReturn(resource.getName());
-        events.add(newEvent);
         when(entityContentProducer.matches(newEvent)).thenReturn(true);
-
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
         when(entityContentProducer.getContent(resourceName)).thenReturn(null);
         when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
         when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
+        events.add(newEvent);
 
         addResources();
 
         when(entityContentProducer.getSiteContentIterator(siteId)).thenReturn(resources.keySet().iterator());
-
-
         elasticSearchService.rebuildInstance();
-
-        //assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
         elasticSearchIndexBuilder.refreshIndex();
-
         elasticSearchIndexBuilder.processContentQueue();
-
         elasticSearchIndexBuilder.refreshIndex();
-
 
         verify(entityContentProducer, atLeast(106)).getContent(any(String.class));
-        assertTrue("pending doc=" + elasticSearchIndexBuilder.getPendingDocuments() + ", expecting 0",
-                elasticSearchIndexBuilder.getPendingDocuments() == 0);
-        assertTrue("num doc=" + elasticSearchService.getNDocs() + ", expecting 106.", elasticSearchService.getNDocs() == 106);
+
+        int pendingDocs = elasticSearchIndexBuilder.getPendingDocuments();
+        long indexedDocs = elasticSearchService.getNDocs();
+        assertTrue("pending doc=" + pendingDocs + ", expecting 0", pendingDocs == 0);
+        assertTrue("num doc=" + indexedDocs + ", expecting 106.", indexedDocs == 106);
     }
 
     public class Resource {

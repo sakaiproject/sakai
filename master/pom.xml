@@ -1196,7 +1196,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-codecs</artifactId>
+        <artifactId>lucene-backward-codecs</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>      
@@ -1262,32 +1262,26 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-spatial</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-join</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-expressions</artifactId>
+        <artifactId>lucene-spatial</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy-all</artifactId>
-        <version>${sakai.groovy.version}</version>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-spatial-extras</artifactId>
+        <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.yaml</groupId>
-        <artifactId>snakeyaml</artifactId>
-        <version>1.29</version>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-spatial3d</artifactId>
+        <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Sakai apis -->
