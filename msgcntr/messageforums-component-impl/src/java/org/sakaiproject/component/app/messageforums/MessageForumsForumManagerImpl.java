@@ -661,7 +661,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return getHibernateTemplate().execute(hcb);
     }
     
-    public List getModeratedTopicsInSite(final String contextId) {
+    public List<Topic> getModeratedTopicsInSite(final String contextId) {
 
         if (contextId == null) {
             throw new IllegalArgumentException("Null Argument");
@@ -676,7 +676,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         };
         
         Topic tempTopic = null;
-        Set resultSet = new HashSet();      
+        Set<Topic> resultSet = new HashSet<>();
         List temp = getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
@@ -1362,14 +1362,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		return resultList;
 	}
 	
-		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
+		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List<String> membershipList, final List<Topic> moderatedTopics)
 		{
 			if (membershipList == null) {
 	            log.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevel failed with membershipList: null");
 	            throw new IllegalArgumentException("Null Argument");
 	        }
 
-	        log.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: " + membershipList);
+	        log.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: {}", membershipList);
 
 	        // hibernate will not like an empty list so return 0
 	        if (membershipList.isEmpty()) return 0;
@@ -1377,6 +1377,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        HibernateCallback<Number> hcb = session -> {
                 Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
                 q.setParameterList("membershipList", membershipList);
+                q.setParameterList("topicList", moderatedTopics);
                 q.setParameter("contextId", getContextId(), StringType.INSTANCE);
                 return (Number) q.uniqueResult();
             };
@@ -1384,7 +1385,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        return getHibernateTemplate().execute(hcb).intValue();
 		}
 		
-		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List membershipList)
+		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List<String> membershipList, final List<Topic> moderatedTopics)
 		{
 			if (membershipList == null) {
 	            log.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName failed with membershipList: null");
@@ -1397,24 +1398,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        if (membershipList.isEmpty()) return 0;
 
 	        HibernateCallback<Number> hcb = session -> {
-                Query q = null;
-                if ("mysql".equals(serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"))) {
-                    q = session.createSQLQuery("select straight_join count(*) as NBR " +
-                            "from MFR_AREA_T area " +
-                            "inner join MFR_OPEN_FORUM_T openforum on openforum.surrogateKey=area.ID inner " +
-                            "join MFR_TOPIC_T topic on topic.of_surrogateKey=openforum.ID " +
-                            "inner join MFR_MEMBERSHIP_ITEM_T membership on topic.ID=membership.t_surrogateKey, " +
-                            "MFR_PERMISSION_LEVEL_T permission " +
-                            "where area.CONTEXT_ID = :contextId " +
-                            "and topic.MODERATED = true " +
-                            "and (membership.NAME in ( :membershipList ) " +
-                            "and permission.MODERATE_POSTINGS = true " +
-                            "and permission.TYPE_UUID <> :customTypeUuid " +
-                            "and permission.NAME=membership.PERMISSION_LEVEL_NAME)");
-                } else {
-                    q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
-                }
+                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
                 q.setParameterList("membershipList", membershipList);
+	            q.setParameterList("topicList", moderatedTopics);
                 q.setParameter("contextId", getContextId(), StringType.INSTANCE);
                 q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
                 return (Number) q.uniqueResult();
