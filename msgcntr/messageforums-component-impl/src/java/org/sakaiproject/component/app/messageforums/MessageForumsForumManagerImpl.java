@@ -1378,7 +1378,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
                 Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
                 q.setParameterList("membershipList", membershipList);
                 q.setParameterList("topicList", moderatedTopics);
-                q.setParameter("contextId", getContextId(), StringType.INSTANCE);
                 return (Number) q.uniqueResult();
             };
 
@@ -1401,7 +1400,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
                 Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
                 q.setParameterList("membershipList", membershipList);
                 q.setParameterList("topicList", moderatedTopics);
-                q.setParameter("contextId", getContextId(), StringType.INSTANCE);
                 q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
                 return (Number) q.uniqueResult();
             };
