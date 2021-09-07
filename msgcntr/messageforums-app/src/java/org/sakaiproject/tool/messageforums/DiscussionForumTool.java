@@ -4837,6 +4837,9 @@ public class DiscussionForumTool {
 
         displayPendingMsgQueue = numModTopicWithPerm > 0;
       }
+      else {
+        displayPendingMsgQueue = false;
+      }
     }
 
     if (refreshPendingMsgs && displayPendingMsgQueue.booleanValue()) {
