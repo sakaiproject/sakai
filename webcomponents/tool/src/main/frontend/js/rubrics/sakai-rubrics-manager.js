@@ -145,9 +145,22 @@ class SakaiRubricsManager extends RubricsElement {
 
   sortRubrics(event) {
 
-    const sortInput = event.target.className.toLowerCase();
+    let sortInput = event.target.className.toLowerCase();
 
     if (!sortInput) {
+      return;
+    }
+
+    // If the user clicks on an arrow, it provides all the classes including the icons, we must cleanup the class list.
+    if (sortInput.includes('name')){
+      sortInput = sortInput.includes('shared') ? 'shared-name' : 'site-name';
+    } else if (sortInput.includes('title')){
+      sortInput = sortInput.includes('shared') ? 'shared-title' : 'site-title';
+    } else if (sortInput.includes('creator')){
+      sortInput = sortInput.includes('shared') ? 'shared-creator' : 'site-creator';
+    } else if (sortInput.includes('modified')){
+      sortInput = sortInput.includes('shared') ? 'shared-modified' : 'site-modified';
+    } else {
       return;
     }
 
