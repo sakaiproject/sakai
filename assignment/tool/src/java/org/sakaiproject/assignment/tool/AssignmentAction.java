@@ -4925,6 +4925,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Long contentKey = assignment.getContentId().longValue();
             if ( contentKey < 1 ) return;
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+			if ( content == null ) return;
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
