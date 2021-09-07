@@ -173,21 +173,8 @@ $(document).ready(function(){
 					</div>
 				</div>
 			</div>
-			#if ($submissionType == 6)
-			<div class="row">
-				<div class="col-lg-4 col-sm-6 col-xs-12">
-					<div class="itemSummaryHeader">$tlang.getString("external.tool.header")</div>
-				</div>
-				<div class="col-lg-4 col-sm-6 col-xs-12">
-                    ## TODO: Make this be something other than the number
-					<div class="itemSummaryValue">
-						$assignment.ContentId
-					</div>
-				</div>
-			</div>
-            #end
 			##resubmit number
-			#if ($submissionType != 4)
+			#if ($submissionType != 4 && $submissionType != 6 )
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.number")</div>
@@ -223,7 +210,7 @@ $(document).ready(function(){
 				#end
 			#end
 			## no need to show status if this is for an non-electronic submission type of assignment
-			#if (!$!nonElectronicType)
+			#if ((!$!nonElectronicType) && $submissionType != 6)
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("gen.status")</div>
@@ -353,10 +340,6 @@ $(document).ready(function(){
 			<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
 
-		#if ($submissionType==6)
-		<a href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
-		#end
-
 		## Assignment Attachments
 		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
 
@@ -404,7 +387,13 @@ $(document).ready(function(){
 		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
-		#if ($!nonElectronicType)
+        #if ($submissionType==6)
+			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+		        <a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		#elseif ($!nonElectronicType)
 			<p class="instruction">
 				$tlang.getString("nonelec_instruction")
 			</p>

@@ -60,11 +60,27 @@
 		if(document.getElementById('subType').value == 6)
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
+			document.getElementById('assignToSection').style.display = 'none';
+			document.getElementById('site').checked = true;
+			document.getElementById('notificationOptions').style.display = 'none';
+			document.getElementById('notsendnotif').checked = true;
+			document.getElementById('releaseGradeNotifications').style.display = 'none';
+			document.getElementById('notsendreleasegradenotif').checked = true;
+			document.getElementById('additionalInformation').style.display = 'none';
+			document.getElementById('peerAssessmentCheckboxLabel').checked = false;
+			document.getElementById('peerAssessmentContainer').style.display = 'none';
+			document.getElementById('allowResubmissionContainer').style.display = 'none';
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
+			document.getElementById('assignToSection').style.display = 'block';
+			document.getElementById('notificationOptions').style.display = 'block';
+			document.getElementById('releaseGradeNotifications').style.display = 'block';
+			document.getElementById('allowResubmissionContainer').style.display = 'block';
+			document.getElementById('additionalInformation').style.display = 'block';
+			document.getElementById('peerAssessmentContainer').style.display = 'block';
         }
 
-		if(document.getElementById('subType').value != 4)
+		if(document.getElementById('subType').value != 4 && document.getElementById('subType').value != 6)
 		{
 			#if ($allowReviewService)
 				reviewSwitchNe1.style.display='none';
@@ -409,7 +425,7 @@
 				</select>
 			#end
 		</div>
-		<div class="checkbox">
+		<div class="checkbox" id="div_$name_CheckEmailReminder">
 			<label for="$name_CheckEmailReminder">
 				<input type="checkbox" name="$name_CheckEmailReminder" id="$name_CheckEmailReminder" value="true" 
 				#if ($!value_CheckEmailReminder)
@@ -444,7 +460,7 @@
 		#end
 
 		#if ($!name_CheckAutoAnnounce)
-			<div class="checkbox">
+			<div class="checkbox" id="div_$name_CheckAutoAnnounce">
 				<label for="$name_CheckAutoAnnounce">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceOptions(this.checked)" />
@@ -470,8 +486,10 @@
 			</div>
 		#end
 
+        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
 		<h4>$!tlang.getString('accessSectionHeader')</h4>
 		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
+		</fieldset>
 
 		#if ($!isTimesheet)
 		<div id="timesheetsetupsection" style="display: block">
@@ -555,7 +573,7 @@
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
+		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4 || $value_SubmissionType == 6) style = "display:none"#end>
 			<label class="col-sm-2 control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
@@ -627,8 +645,8 @@
 			</div>
 		</div>
 
-		<div #if ($value_SubmissionType != 6) style = "display:none"#end  id="External_Tool_Fieldset">
-		<fieldset>
+		<div id="External_Tool_Fieldset" #if ($value_SubmissionType != 6) style = "display:none"#end>
+        <fieldset>
 		<h4>
 			$tlang.getString("external.tool.label")
 		</h4>
@@ -743,7 +761,7 @@
 			</label>
 		</div>
 		</fieldset>
-		</div>
+        </div>
         <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
             <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
         </div>
@@ -791,7 +809,7 @@ function showExternalIframe(title, doreload) {
 
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
-		<fieldset>
+		<fieldset id="notificationOptions" #if ($value_SubmissionType == 6) style = "display:none"#end>
 			<h4>
 				$tlang.getString("receive.confirm.submission.email.options")
 			</h4>
@@ -1241,7 +1259,7 @@ function showExternalIframe(title, doreload) {
 		#parse("vm/assignment/instructor_new_edit/grading_section.vm")
 
 		## whether to notify student about released grade
-		<fieldset>
+		<fieldset id="releaseGradeNotifications" #if ($value_SubmissionType == 6) style = "display:none"#end>
 			<h4>
 				$tlang.getString("send.submission.releasegrade.email.options")
 			</h4>
@@ -1260,6 +1278,8 @@ function showExternalIframe(title, doreload) {
 		</fieldset>
 
 	<a name="extraNodesTop"></a>
+
+    <div id="additionalInformation" #if ($value_SubmissionType == 6) style = "display:none"#end>
 	<h4>
 		$tlang.getString("additional_information")
 	</h4>
@@ -1704,6 +1724,7 @@ function showExternalIframe(title, doreload) {
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
+</div> <!-- id="additionalInformation" -->
 		<div class="row col-sm-12">
 			#buttonBar()
 		</div>
