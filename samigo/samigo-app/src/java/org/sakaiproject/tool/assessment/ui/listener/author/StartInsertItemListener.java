@@ -22,9 +22,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.List;
 
-import javax.faces.component.UIComponent;
 import javax.faces.component.UISelectItem;
-import javax.faces.component.UISelectItems;
 import javax.faces.component.UISelectOne;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
@@ -56,10 +54,8 @@ public class StartInsertItemListener implements ValueChangeListener {
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException {
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
-    String olditemtype = (String) ae.getOldValue();
-    log.debug("StartInsertItemListener olditemtype ." + olditemtype);
-    String selectedvalue= (String) ae.getNewValue();
-    log.debug("StartInsertItemListener selecteevalue." + selectedvalue);
+    String selectedvalue = (String) ae.getNewValue();
+    log.debug("StartInsertItemListener selectedvalue " + selectedvalue);
     String newitemtype = null;
     String insertItemPosition = null;
     String insertToSection = null;
@@ -70,6 +66,11 @@ public class StartInsertItemListener implements ValueChangeListener {
 
       try {
         newitemtype = strArray[0].trim();
+
+        if (strArray.length >= 2) {//SAK-44981 skipping default selections
+          return;
+        }
+
         ///////// SAK-3114: ///////////////////////////////////////////
         // note: you must include at least one selectItem in the form
         // type#,p#,q#
@@ -83,16 +84,13 @@ public class StartInsertItemListener implements ValueChangeListener {
           if (children.get(i) instanceof UISelectItem) {
               UISelectItem selectItem = (UISelectItem) children.get(i);
               log.debug("selectItem.getItemValue()="+selectItem.getItemValue());
-              String itemValue =  (String) selectItem.getItemValue();
+              String itemValue = (String) selectItem.getItemValue();
               log.debug("itemValue ="+ itemValue);
               String[] insertArray = itemValue.split(",");
               // add in p#,q#
               insertToSection = insertArray[1].trim();
-
+              insertItemPosition = insertArray[2].trim();
               break;
-          }
-          if (ContextUtil.lookupParam("itemSequence") != null && !ContextUtil.lookupParam("itemSequence").trim().equals("")) {
-        	insertItemPosition = ContextUtil.lookupParam("itemSequence");
           }
         }
       } catch (Exception ex) {
