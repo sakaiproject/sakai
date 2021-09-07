@@ -529,8 +529,8 @@ public interface DiscussionForumManager
    * has moderate permission for, given the user's memberships
    * by permissionLevel (custom permissions)
    * @param contextId
-   * @param list
    * @param membershipList
+   * @param moderatedTopics
    * @return
    */
   public int getNumModTopicsWithModPermissionByPermissionLevel(List<String> membershipList, List<Topic> moderatedTopics);
@@ -540,8 +540,8 @@ public interface DiscussionForumManager
    * has moderate permission for, given the user's memberships
    * based on permissionLevel (non-custom permissions)
    * @param contextId
-   * @param list
    * @param membershipList
+   * @param moderatedTopics
    * @return
    */
   public int getNumModTopicsWithModPermissionByPermissionLevelName(List<String> membershipList, List<Topic> moderatedTopics);

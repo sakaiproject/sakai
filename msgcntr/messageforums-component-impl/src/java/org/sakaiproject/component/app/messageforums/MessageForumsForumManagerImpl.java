@@ -1400,7 +1400,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        HibernateCallback<Number> hcb = session -> {
                 Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
                 q.setParameterList("membershipList", membershipList);
-	            q.setParameterList("topicList", moderatedTopics);
+                q.setParameterList("topicList", moderatedTopics);
                 q.setParameter("contextId", getContextId(), StringType.INSTANCE);
                 q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
                 return (Number) q.uniqueResult();
