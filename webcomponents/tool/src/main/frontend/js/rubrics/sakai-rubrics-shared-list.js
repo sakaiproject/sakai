@@ -54,7 +54,21 @@ export class SakaiRubricsSharedList extends RubricsElement {
     const params = {"projection": "inlineRubric"};
 
     SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics/search/shared-only", token, { params })
-      .then(data => this.rubrics = data._embedded.rubrics );
+    .then( (data) => {
+       this.rubrics = data._embedded.rubrics 
+
+       // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
+       this.rubrics = this.rubrics.map( (rubric) => {
+         const metadata = rubric.metadata;
+         const creatorId = metadata.creatorId;
+         const siteId = metadata.ownerId;
+         SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
+         SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
+         rubric.metadata = metadata;
+         return rubric;
+       });
+
+    });
   }
 
   copyToSite(e) {
@@ -70,10 +84,10 @@ export class SakaiRubricsSharedList extends RubricsElement {
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
         break;
       case rubricTitle:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.ownerId.localeCompare(b.metadata.ownerId) : b.metadata.ownerId.localeCompare(a.metadata.ownerId));
+        this.rubrics.sort((a, b) => ascending ? a.metadata.siteName.localeCompare(b.metadata.siteName) : b.metadata.siteName.localeCompare(a.metadata.siteName));
         break;
       case rubricCreator:
-        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorId.localeCompare(b.metadata.creatorId) : b.metadata.creatorId.localeCompare(a.metadata.creatorId));
+        this.rubrics.sort((a, b) => ascending ? a.metadata.creatorName.localeCompare(b.metadata.creatorName) : b.metadata.creatorName.localeCompare(a.metadata.creatorName));
         break;
       case rubricModified:
         this.rubrics.sort((a, b) => ascending ? a.metadata.modified.localeCompare(b.metadata.modified) : b.metadata.modified.localeCompare(a.metadata.modified));
