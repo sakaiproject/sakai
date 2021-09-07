@@ -2267,9 +2267,9 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
+        context.put("text", state.getAttribute(VIEW_SUBMISSION_TEXT));
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
-        stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
+        stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
         context.put("contentTypeImageService", contentTypeImageService);
 
