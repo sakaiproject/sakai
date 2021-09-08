@@ -109,7 +109,10 @@ public class SpreadsheetDataFileWriterOpenCsv implements SpreadsheetDataFileWrit
 	 */
 	private void writeData(List<List<Object>> data, OutputStream out) throws IOException {
 		BufferedWriter buff = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-		ICSVWriter writer = new CSVWriterBuilder(buff).withSeparator(separatorChar).build();
+		ICSVWriter writer = new CSVWriterBuilder(buff)
+				.withSeparator(separatorChar)
+				.withLineEnd(System.getProperty("line.separator"))
+				.build();
 
 		for (List<Object> row : data) {
 			writer.writeNext(convertList(row), false);

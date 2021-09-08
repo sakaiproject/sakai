@@ -10,6 +10,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -51,13 +52,13 @@ public class SpreadsheetDataFileWriterOpenCsvTest {
     @Test
     public void testDownloadWithNull() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv();
-        testDownload(sdfw, "/fileWithNull.csv");
+        testDownload(sdfw, File.separator + "fileWithNull.csv");
     }
 
     @Test
     public void testDownloadWithEmpty() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv(SpreadsheetDataFileWriterOpenCsv.NULL_AS.EMPTY, ',');
-        testDownload(sdfw, "/fileWithEmptyString.csv");
+        testDownload(sdfw, File.separator + "fileWithEmptyString.csv");
     }
 
     private String readResourceToString(String resource) throws IOException {
