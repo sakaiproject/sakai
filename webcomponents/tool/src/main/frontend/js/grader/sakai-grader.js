@@ -52,7 +52,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       // State vars we want to trigger a render
       submittedTextMode: Boolean,
       submission: Object,
-      nonEditedSubmission: Object,
+      nonEditedSubmission: { attribute: false, type: Object },
       graderOnLeft: Boolean,
       selectedAttachment: { type: Object },
       saveSucceeded: Boolean,
