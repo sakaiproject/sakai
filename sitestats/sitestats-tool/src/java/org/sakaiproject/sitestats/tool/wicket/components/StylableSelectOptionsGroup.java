@@ -26,12 +26,15 @@ import org.apache.wicket.model.IModel;
 public class StylableSelectOptionsGroup extends Border {
 	private static final long	serialVersionUID	= 1L;
 
-	public StylableSelectOptionsGroup(String id, IModel model, IModel style) {
+	public StylableSelectOptionsGroup(String id, IModel model, IModel style, IModel<String> hclass) {
 		super(id);
 		WebMarkupContainer optgroup = new WebMarkupContainer("optgroup");
 		optgroup.add(new AttributeModifier("label", model));
 		if(style != null && !"null".equals((String) style.getObject())) {
 			optgroup.add(new AttributeModifier("style", style));
+		}
+		if(hclass != null && !"null".equals(hclass.getObject())) {
+			optgroup.add(new AttributeModifier("class", hclass));
 		}
 		addToBorder(optgroup);
 		optgroup.add(getBodyContainer());
