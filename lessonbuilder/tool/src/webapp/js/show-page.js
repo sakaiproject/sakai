@@ -3672,13 +3672,9 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#shortanswerSelect").prop("checked") && $("#question-graded").prop("checked") &&
-		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!=="";}).length < 1) {
-	    $('#question-error').text(msg("simplepage.question-need-1"));
-	    $('#question-error-container').show();
-	    return false;
-	} else
+	} else {
 	    $('#question-error-container').hide();
+	}
 
 	updateMultipleChoiceAnswers();
 	updateShortanswers();
