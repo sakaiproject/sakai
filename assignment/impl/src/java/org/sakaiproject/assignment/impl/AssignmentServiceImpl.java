@@ -998,6 +998,41 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
                 }
 
+                // Copy All Purpose
+                AssignmentAllPurposeItem existingAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
+                if (existingAllPurposeItem != null) {
+                    AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
+                    nAllPurposeItem.setAssignmentId(assignment.getId());
+                    nAllPurposeItem.setTitle(existingAllPurposeItem.getTitle());
+                    nAllPurposeItem.setText(existingAllPurposeItem.getText());
+                    nAllPurposeItem.setHide(existingAllPurposeItem.getHide());
+                    nAllPurposeItem.setReleaseDate(existingAllPurposeItem.getReleaseDate());
+                    nAllPurposeItem.setRetractDate(existingAllPurposeItem.getRetractDate());
+                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                    Set<AssignmentSupplementItemAttachment> attachments = new HashSet<>();
+                    List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(existingAllPurposeItem);
+                    for (String attachmentID : attachmentIDs) {
+                        AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                        attachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
+                        attachment.setAttachmentId(attachmentID);
+                        assignmentSupplementItemService.saveAttachment(attachment);
+                        attachments.add(attachment);
+                    }
+                    nAllPurposeItem.setAttachmentSet(attachments);
+                    assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                    Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
+                    Set<AssignmentAllPurposeItemAccess> existingAccessSet = existingAllPurposeItem.getAccessSet();
+                    for (AssignmentAllPurposeItemAccess assignmentAllPurposeItemAccess : existingAccessSet) {
+                        AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
+                        access.setAccess(assignmentAllPurposeItemAccess.getAccess());
+                        access.setAssignmentAllPurposeItem(nAllPurposeItem);
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                        accessSet.add(access);
+                    }
+                    nAllPurposeItem.setAccessSet(accessSet);
+                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                }
+
                 //copy rubric
                 try {
                     Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
