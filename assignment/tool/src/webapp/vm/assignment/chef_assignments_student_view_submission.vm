@@ -53,6 +53,13 @@ $(document).ready(function(){
 	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) )
 		<div class="sak-banner-error">$tlang.getString("stuviewsubm.theclodat")</div>
 	#end
+	#if ($submissionType == 6 )
+        #if ( $value_ContentId && $value_ContentLaunchURL )
+            ## It is all good
+        #else
+		    <div class="sak-banner-error">$tlang.getString("external.tool.missing")</div>
+        #end
+	#end
 
 	#if ($!canSubmit)
 		#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end

@@ -1706,7 +1706,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-				// TODO: Is there an error path in the case that this is ill-constructed?
                 putExternalToolIntoContext(context, assignment, state);
                 context.put("externalTool", Boolean.TRUE);
             }
