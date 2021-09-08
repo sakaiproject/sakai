@@ -142,7 +142,7 @@ export class SakaiRubricGrading extends RubricsElement {
             <sakai-rubric-grading-comment id="comment-for-${c.id}" @comment-shown=${this.commentShown} @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
             <div>
               <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                ${c.selectedvalue}
+                ${c.selectedvalue.toLocaleString(this.locale)}
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
@@ -152,7 +152,7 @@ export class SakaiRubricGrading extends RubricsElement {
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                     class="fine-tune-points form-control hide-input-arrows"
                     @input=${this.fineTuneRating}
-                    .value="${c.pointoverride}"
+                    .value="${c.pointoverride.toLocaleString(this.locale)}"
                 />
               ` : ""}
             <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
