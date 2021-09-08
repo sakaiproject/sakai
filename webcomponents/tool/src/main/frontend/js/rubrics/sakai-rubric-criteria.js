@@ -274,8 +274,8 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (e.target.value == '') {
       e.target.value = 0;
     }
-    e.target.value = e.target.value.replace(',', '.');
-    let value = parseFloat(e.target.value);
+    let value = e.target.value.replace(',', '.');
+    value = parseFloat(value);
     if (isNaN(value)) {
       value = 0;
     }
