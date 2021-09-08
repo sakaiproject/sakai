@@ -3537,14 +3537,13 @@ function unhideMultimedia() {
 // Clones one of the multiplechoice answers in the Question dialog and appends it to the end of the list
 function addMultipleChoiceAnswer() {
 	var clonedAnswer = $("#copyableMultipleChoiceAnswerDiv").clone(true);
-	var num = $("#extraMultipleChoiceAnswers").find("div").length + 2; // Should be currentNumberOfAnswers + 1
-	
+	var num = $("#multipleChoiceAnswersBody").find("tr").length + 2; // Should be currentNumberOfAnswers + 1
 	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
 	clonedAnswer.find(".question-multiplechoice-answer-correct").prop("checked", false);
 	clonedAnswer.find(".question-multiplechoice-answer").val("");
-	
+
 	clonedAnswer.attr("id", "multipleChoiceAnswerDiv" + num);
-	
+
 	// Each input has to be renamed so that RSF will recognize them as distinct
 	clonedAnswer.find("[name='question-multiplechoice-answer-complete']")
 		.attr("name", "question-multiplechoice-answer-complete" + num);
@@ -3560,17 +3559,26 @@ function addMultipleChoiceAnswer() {
 		.attr("for", "question-multiplechoice-answer" + num);
 	clonedAnswer.find("[name='question-multiplechoice-answer']")
 		.attr("name", "question-multiplechoice-answer" + num);
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
-	clonedAnswer.appendTo("#extraMultipleChoiceAnswers");
-	
+	clonedAnswer.appendTo("#multipleChoiceAnswersBody");
+
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
+
 	return clonedAnswer;
 }
 
+function reassignAnswerOptions() {
+	const capitalLettersIndex = 65; // 65 corresponds to A.
+	document.querySelectorAll('.question-multiplechoice-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
+}
 // Clones one of the shortanswers in the Question dialog and appends it to the end of the list
 function addShortanswer() {
 	var clonedAnswer = $("#copyableShortanswerDiv").clone(true);
@@ -3617,7 +3625,8 @@ function updateShortanswers() {
 }
 
 function deleteAnswer(el) {
-	el.parent('div').remove();
+	el.parent('td').parent('tr').remove();
+	reassignAnswerOptions();
 }
 
 // Enabled or disables the subfields under grading in the question dialog
@@ -3675,7 +3684,6 @@ function resetMultipleChoiceAnswers() {
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
 	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
-	$("#extraMultipleChoiceAnswers").empty();
 }
 
 //Reset the shortanswers to prevent problems when submitting a multiple choice
