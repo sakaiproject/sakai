@@ -36,6 +36,7 @@
       
       <!-- AUTHORING -->
       <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/library/js/spinner.js"></script>
 <%--
 <script>
 <!--
