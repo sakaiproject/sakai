@@ -61,7 +61,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       ungradedOnly: Boolean,
       submissionsOnly: Boolean,
       showResubmission: Boolean,
-      isChecked: Boolean,
+      isChecked: { attribute: false, type: Boolean },
       totalGraded: Number,
       token: { type: String },
       rubric: { type: Object },
