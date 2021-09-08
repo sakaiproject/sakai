@@ -15,17 +15,25 @@ If you want to further change the configuration in _defaults.scss to customize y
 
 For example:
 
- - To generate without icons: 
+- To generate without icons:
  `mvn clean install -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
- - To generate with another google font: 
+- To generate with another google font:
  `mvn clean install -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_typography.scss`
 
 By default source is morpheus-master and target is morpheus-default, but you can change these folders typing:
 
 `mvn clean install -Dsakai.skin.source=<morpheus-source> -Dsakai.skin.target=<morpheus-target>`
 
+By default the skin CSS output is compressed, but you can change this by typing:
+
+`mvn clean install -Dsakai.skin.outputStyle=expanded`
+
 We have uploaded a non-icons version compiled by:
 
 `mvn clean install -Dsakai.skin.target=morpheus-default-noicons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
+
+We have uploaded a custom colors version compiled by:
+
+`mvn clean install -Dsakai.skin.target=morpheus-custom-colors -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_colors.scss`
 
 Feel free to repeat these commands to generate as many skins as you want.
