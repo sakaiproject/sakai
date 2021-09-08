@@ -35,7 +35,8 @@
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       
       <!-- AUTHORING -->
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/library/js/spinner.js"></script>
 <%--
 <script type="text/JavaScript">
 <!--
