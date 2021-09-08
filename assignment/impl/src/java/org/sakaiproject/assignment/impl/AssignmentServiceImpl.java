@@ -999,6 +999,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
                 }
 
+                // Copy Private Note
+                AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(assignmentId);
+                if (oNoteItem != null) {
+                    AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+                    nNoteItem.setAssignmentId(assignment.getId());
+                    nNoteItem.setNote(oNoteItem.getNote());
+                    nNoteItem.setShareWith(oNoteItem.getShareWith());
+                    nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
+                    assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                }
+
                 // Copy All Purpose
                 AssignmentAllPurposeItem existingAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
                 if (existingAllPurposeItem != null) {
