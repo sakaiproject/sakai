@@ -81,7 +81,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   set submission(newValue) {
-    if(!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id){
+    if (!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id) {
       this.nonEditedSubmission = {};
       Object.assign(this.nonEditedSubmission, newValue);
     }
