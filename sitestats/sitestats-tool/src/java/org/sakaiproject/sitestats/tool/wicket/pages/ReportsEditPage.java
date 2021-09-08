@@ -124,7 +124,10 @@ public class ReportsEditPage extends BasePage {
 	private boolean					usersLoaded		= false;
 
 	private ZonedDateTime startDate, endDate;
-	
+
+	// namespace for sakai icons see _icons.scss
+	public static final String ICON_SAKAI = "icon-sakai--";
+
 	public ReportsEditPage() {
 		this(null, null, null);
 	}
@@ -904,7 +907,7 @@ public class ReportsEditPage extends BasePage {
 		IStylableOptionRenderer optionRenderer = new IStylableOptionRenderer() {
 			public String getDisplayValue(Object object) {
 				SelectOption opt = (SelectOption) object;
-				return ((ToolModel) opt.getDefaultModel()).getToolName();				
+				return " " + ((ToolModel) opt.getDefaultModel()).getToolName();
 			}
 			public IModel getModel(Object value) {
 				SelectOption opt = (SelectOption) value;
@@ -914,13 +917,16 @@ public class ReportsEditPage extends BasePage {
 				SelectOption opt = (SelectOption) object;
 				ToolModel toolModel = (ToolModel) opt.getDefaultModel();
 				String toolId = toolModel.getToolId();
-				if(!ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
-					String toolIconPath = "background-image: url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ");";
-					String style = "background-position:left center; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
-					return style;
-				}
-				return null;
-			}		
+				String style = "display:block;";
+				return style;
+			}
+			public String getIconClass(Object object) {
+				SelectOption opt = (SelectOption) object;
+				ToolModel toolModel = (ToolModel) opt.getDefaultModel();
+				String toolId = toolModel.getToolId();
+				String hclass = ICON_SAKAI + toolId.replace('.', '-');
+				return hclass;
+			}
 		};
 		Collections.sort(tools, Comparators.getOptionRendererComparator(optionRenderer));
 		// "all" tools (insert in position 0
@@ -950,10 +956,11 @@ public class ReportsEditPage extends BasePage {
 				WebMarkupContainer optgroupItem = new WebMarkupContainer(rv.newChildId());
 				optgroupItem.setRenderBodyOnly(true);
 				rv.add(optgroupItem);
-				String toolIconPath = "background-image: url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolInfo.getToolId()) + ");";
-				String style = "background-position:left top; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
-				String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolInfo.getToolId());
-				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolName), new Model(style));
+				String style = "display:block;";
+				String toolId = toolInfo.getToolId();
+				String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
+				String hclass = ICON_SAKAI + toolId.replace('.', '-');
+				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolName), new Model(style), new Model(hclass));
 				optgroupItem.add(group);
 				SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {
 					public String getDisplayValue(Object object) {
