@@ -226,6 +226,22 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
+			#if ($submissionType == 6)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("external.tool.header")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+                            #if ( $value_ContentId && $value_ContentLaunchURL )
+                                $!value_ContentTitle
+                            #else
+                                $tlang.getString("external.tool.missing")
+                            #end
+						</div>
+					</div>
+				</div>
+			#end
 			#if ($withGrade)
 				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 				#if ($submission.Graded && $submission.GradeReleased)
@@ -389,7 +405,9 @@ $(document).ready(function(){
 		## show special instruction if this is for an non-electronic submission type of assignment
         #if ($submissionType==6)
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+                #if ( $!value_ContentId > 0 && $!value_ContentLaunchURL)
 		        <a class="btn btn-primary" href="#toolLinkParam("$action" "doView_external_tool_launch" "assignmentId=$formattedText.escapeUrl($assignmentReference)")">$tlang.getString("external.tool.goto")</a>
+                #end
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.can')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
