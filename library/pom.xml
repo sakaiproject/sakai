@@ -17,13 +17,15 @@
 		<ckeditor.version>4.16.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
+		<node-version>v16.8.0</node-version>
+		<npm-version>7.21.1</npm-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 		<sakai.skin.source>morpheus-master</sakai.skin.source>
 		<sakai.skin.target>morpheus-default</sakai.skin.target>
-		<sakai.skin.customization.file>src/${sakai.skin.source}/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
+		<sakai.skin.customization.file>src/morpheus-master/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
 		<sakai.skin.customization.js.lib>_custom.lib.js</sakai.skin.customization.js.lib>
 		<sakai.skin.customization.js.main>_custom.main.js</sakai.skin.customization.js.main>
 		<sakai.skin.outputStyle>compressed</sakai.skin.outputStyle>
@@ -677,6 +679,24 @@
 							</execution>
 						</executions>
                     </plugin>
+					<plugin>
+						<groupId>com.coderplus.maven.plugins</groupId>
+						<artifactId>copy-rename-maven-plugin</artifactId>
+						<version>1.0</version>
+						<executions>
+							<execution>
+								<id>copy-customizations</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<sourceFile>${sakai.skin.customization.file}</sourceFile>
+									<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization.scss</destinationFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
                     <plugin>
                         <groupId>com.samaxes.maven</groupId>
                         <artifactId>minify-maven-plugin</artifactId>
@@ -740,7 +760,7 @@
 								</goals>
 								<configuration>
 									<ignoreMissingFile>false</ignoreMissingFile>
-                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
+									<file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
 									<replacements>
 										<replacement>
 											<token>morpheus-default</token>
@@ -757,7 +777,7 @@
 								</goals>
 								<configuration>
 									<ignoreMissingFile>false</ignoreMissingFile>
-                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
+									<file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
 									<replacements>
 										<replacement>
 											<token>${sakai.skin.target}</token>
@@ -784,8 +804,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>v14.10.1</nodeVersion>
-									<npmVersion>6.14.8</npmVersion>
+									<nodeVersion>${node-version}</nodeVersion>
+									<npmVersion>${npm-version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -818,7 +838,7 @@
 							</execution>
 							<execution>
 								<id>npm stylelint</id>
-								<phase>compile</phase>
+								<phase>test</phase>
 								<goals>
 									<goal>npm</goal>
 								</goals>
@@ -850,24 +870,7 @@
 							</filesets>
 						</configuration>
 					</plugin>
-					<plugin>
-						<groupId>com.coderplus.maven.plugins</groupId>
-						<artifactId>copy-rename-maven-plugin</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>copy-customizations</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<sourceFile>${sakai.skin.customization.file}</sourceFile>
-									<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization.scss</destinationFile>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+					
 					<plugin>
 						<groupId>com.github.jknack</groupId>
 						<artifactId>handlebars-maven-plugin</artifactId>
@@ -883,76 +886,6 @@
 									<output>${basedir}/src/webapp/templates.js</output>
 									<prefix>${basedir}/src/templates</prefix>
 									<amd>false</amd>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>eslint</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-				<property>
-					<name>eslint</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.eirslett</groupId>
-						<artifactId>frontend-maven-plugin</artifactId>
-						<version>1.8.0</version>
-						<configuration>
-							<installDirectory>target</installDirectory>
-							<workingDirectory>src/${sakai.skin.source}</workingDirectory>
-						</configuration>
-						<executions>
-							<execution>
-								<id>install node and npm</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>install-node-and-npm</goal>
-								</goals>
-								<configuration>
-									<nodeVersion>v14.10.1</nodeVersion>
-									<npmVersion>6.14.8</npmVersion>
-								</configuration>
-							</execution>
-							<execution>
-								<id>npm install dependencies</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>npm</goal>
-								</goals>
-								<configuration>
-									<arguments>
-										ci --unsafe-perm --save-dev
-										eslint
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>npm build-js</id>
-								<phase>compile</phase>
-								<goals>
-									<goal>npm</goal>
-								</goals>
-								<configuration>
-									<arguments>
-										run build-js
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>eslint</id>
-								<phase>test</phase>
-								<goals>
-									<goal>npm</goal>
-								</goals>
-								<configuration>
-									<arguments>run eslint</arguments>
 								</configuration>
 							</execution>
 						</executions>
@@ -985,8 +918,8 @@
 									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<nodeVersion>v14.10.1</nodeVersion>
-									<npmVersion>6.14.8</npmVersion>
+									<nodeVersion>${node-version}</nodeVersion>
+									<npmVersion>${npm-version</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
