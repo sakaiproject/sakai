@@ -807,6 +807,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   clearSubmission() {
+  
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions[currentIndex] = this.nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
