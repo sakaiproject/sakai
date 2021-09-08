@@ -2312,18 +2312,33 @@
                             <div id="multipleChoiceDialogDiv">
                                 <fieldset>
                                     <legend><h4 rsf:id="msg=simplepage.answers"></h4></legend>
-                                    <div id="multipleChoiceAnswers">
-                                        <div id="copyableMultipleChoiceAnswerDiv">
-                                            <input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
-                                            <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
-                                            <label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
-                                            <input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
-                                            <label for="question-multiplechoice-answer"><span rsf:id="msg=simplepage.question-possible-answer"></span></label>
-                                            <input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
-                                            <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
-                                        </div>
-                                        <div id="extraMultipleChoiceAnswers"></div>
-                                    </div>
+                                    <table id="multipleChoiceAnswers" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-selectcorrect">Select Correct Answer(s)</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-answeroption">Answer Option</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-answertext">Answer Text</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="multipleChoiceAnswersBody">
+                                            <tr id="copyableMultipleChoiceAnswerDiv">
+                                                <input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
+                                                <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
+                                                <td>
+                                                    <label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
+                                                    <input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
+                                                </td>
+                                                <td class="question-multiplechoice-answer-option">A</td>
+                                                <td>
+                                                    <input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
+                                                </td>
+                                                <td>
+                                                    <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                     <button onclick="addMultipleChoiceAnswer(); return false;" rsf:id="msg=simplepage.addAnswer"/>
                                 </fieldset>
                                 <p></p>

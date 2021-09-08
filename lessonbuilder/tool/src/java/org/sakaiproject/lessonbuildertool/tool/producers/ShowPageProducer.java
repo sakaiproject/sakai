@@ -3217,9 +3217,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						for(int j = 0; j < answers.size(); j++) {
 							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "multipleChoiceAnswer:", String.valueOf(j));
 							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
-							
 							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
-							UIOutput.make(answerContainer, "multipleChoiceAnswerText", Integer.toString(j+1) + " : " + answers.get(j).getText())
+							char answerOption = (char) (j + 65); // 65 Corresponds to A
+							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answerOption + " : " + answers.get(j).getText())
 								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
 							
 							if(!isAvailable || response != null) {
