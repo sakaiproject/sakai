@@ -9,12 +9,26 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [8, 11]
-    runs-on: ${{ matrix.os }}
+        jdk: [8]
+        experimental: [false]
+        include:
+          - jdk: 11
+            os: ubuntu-latest
+            experimental: true
+            name: Ubuntu JDK 11
+          - jdk: 11
+            os: windows-latest
+            experimental: true
+            name: Windows JDK 11
+          - jdk: 11
+            os: macos-latest
+            experimental: true
+            name: MacOS JDK 11
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
 
@@ -22,18 +36,7 @@ jobs:
       # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
       - name: Git Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Git Pull
-        run: |
-          GIT_MERGE_BASE_SHA=$(git merge-base origin/$GITHUB_BASE_REF $GITHUB_SHA)
-          echo "Commits before pull"
-          git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
-          echo "Pull with fast forward only"
-          git pull --ff-only origin $GITHUB_BASE_REF
-          echo "Commits after pull"
-          git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
-      - name: JDK 8
+      - name: JDK Setup
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
