@@ -6483,12 +6483,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // SAK-26322 - add inline as an attachment for the content review service
-                if (post && a.getContentReview()) {
+                if (post) {
                     if (!isHtmlEmpty(text)) {
+                        /* prepares a file representing the inline content;
+                         * needed whether or not content review is used - it will be queued retroactively if we enable content review on the assignment in the future */
                         prepareInlineForContentReview(text, submission, state, u);
                     }
+
                     // Check if we need to post the attachments
-                    if (!submission.getAttachments().isEmpty()) {
+                    if (a.getContentReview() && !submission.getAttachments().isEmpty()) {
                         assignmentService.postReviewableSubmissionAttachments(submission);
                     }
                 }
@@ -7246,6 +7249,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (validify && state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY) != null) {
             addAlert(state, rb.getString("thiasshas"));
+        }
+
+        Integer assignmentType = params.getInt(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+        if ( assignmentType != null && assignmentType == 6 ) {
+            Integer contentId = params.getInt(NEW_ASSIGNMENT_CONTENT_ID);
+            if ( contentId < 1 ) {
+                addAlert(state, rb.getString("pleaseselectlti"));
+            }
         }
 
         // allow resubmission numbers

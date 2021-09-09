@@ -56,7 +56,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -73,8 +72,6 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -106,19 +103,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private UserDirectoryService userDirectoryService;
 
 	@Setter
-	private EntityManager entityManager;
-
-	@Setter
 	private SecurityService securityService;
 	
 	@Setter
-	private AssignmentService assignmentService;
-
-	@Setter
 	private SiteService siteService;
-
-	@Setter
-	private ContentReviewQueueService crqs;
 
 	@Setter
 	private ContentHostingService contentHostingService;
@@ -486,12 +474,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	@Override
 	public void syncRosters() {
-		// Auto-generated method stub
-	}
-
-	@Override
-	public void createAssignment(final String contextId, final String assignmentRef, final Map opts)
-			throws SubmissionException, TransientSubmissionException {
 		// Auto-generated method stub
 	}
 

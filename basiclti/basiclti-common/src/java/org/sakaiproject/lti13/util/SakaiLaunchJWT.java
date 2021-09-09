@@ -17,5 +17,11 @@ public class SakaiLaunchJWT extends LaunchJWT {
 	@JsonProperty("https://www.sakailms.org/spec/lti/claim/extension")
     public SakaiExtension sakai_extension;
 
+    @JsonProperty("https://purl.sakailms.org/spec/lti/claim/origin")
+    public String origin;
+
+    @JsonProperty("https://purl.sakailms.org/spec/lti/claim/postverify")
+    public String postverify;
+
 }
 

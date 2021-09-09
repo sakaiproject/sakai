@@ -31,7 +31,7 @@
 
 // need a delay to allow dynamic things like inserting the html editor
 function resizeiframe1() {
-setTimeout("resizeiframe()",1000);
+    setTimeout("resizeiframe()",1000);
 }
 
 function resizeiframe() {
@@ -190,11 +190,13 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 			scrolling="auto">
 		</iframe>
 		<script>
+//<![CDATA[
 		window.addEventListener('message', function(e) {
 			try {
-				var message = JSON.parse(e.data);
+				var message = e.data;
+				if ( typeof message == 'string' ) message = JSON.parse(e.data);
 				var idval = 'iframe1';
-				if ( message.subject == 'lti.frameResize' ) {
+				if ( message.subject == 'lti.frameResize' && typeof(message.height) == 'number' ) {
 					var height = message.height;
 					document.getElementById(idval).height = height;
 					console.debug('Reveived lti.frameResize height='+height);
@@ -207,6 +209,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 				console.debug(e.data);
 			}
 		});
+//]]>
 		</script>
 
 	</div>	

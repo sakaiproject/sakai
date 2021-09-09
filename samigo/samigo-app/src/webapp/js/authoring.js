@@ -671,24 +671,54 @@ function initTimedCheckBox(){
 		if((timedHoursVal != "0") || (timedMinutesVal != "0")) document.getElementById("assessmentSettingsAction\:selTimeAssess").checked=true;
 }
 
-function lockdownAnonyGrading(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', '');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', '');
+const ANON_USERS = "Anonymous Users";
+function lockdownAnonyGrading(value, prevValue) {
+	const ag = document.getElementById("assessmentSettingsAction:anonymousGrading");
+	if (ag === null) {
+		return;
 	}
+
+	if (value === ANON_USERS) {
+		ag.checked = true;
+	} 
+	else if (prevValue === ANON_USERS) {
+		ag.checked = false;
+	}
+
+	ag.disabled = value === ANON_USERS;
 }
 
 function lockdownGradebook(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
+	const gb = document.getElementById("assessmentSettingsAction:toDefaultGradebook");
+	if (gb === null) {
+		return;
+	}
+
+	if (value === ANON_USERS && gb.checked) {
+		gb.click();  // there is an event handler on the checkbox so we need to click it
+	}
+
+	gb.disabled = value === ANON_USERS;
+}
+
+function handleAnonymousUsers(value, prevValue) {
+	lockdownAnonyGrading(value, prevValue);
+	lockdownGradebook(value);
+	const msg = document.getElementById("assessmentSettingsAction:gradingOptionsDisabledInfo");
+	if (msg !== null) {
+		msg.style.display = value === ANON_USERS ? "block" : "none";
+	}
+}
+
+function handleAnonymousUsersChange(element)
+{
+	const value = element.value; 	// possible values are Anonymous Users, <site title>, Specific Groups
+	const prevValue = "prevValue" in element ? element.prevValue : [...element.options].filter(o => o.defaultSelected)[0].label;
+	element.prevValue = value;
+
+	// only if switching to or from Anonymous Users do we need to take action
+	if (value !== prevValue && (value === ANON_USERS || prevValue === ANON_USERS)) {
+		handleAnonymousUsers(value, prevValue);
 	}
 }
 

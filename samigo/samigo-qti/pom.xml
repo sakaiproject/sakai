@@ -116,7 +116,7 @@
 				<directory>src/test</directory>
 				<includes>
 					<include>**/*.xml</include>
-					<include>**/log4j.properties</include>
+					<include>**/log4j2.properties</include>
 				</includes>
 				<excludes>
 					<exclude>**/*.java</exclude>

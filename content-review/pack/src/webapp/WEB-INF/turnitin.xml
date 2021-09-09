@@ -17,7 +17,6 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
 		<property name="turnitinContentValidator" ref="org.sakaiproject.contentreview.turnitin.TurnitinContentValidator" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
@@ -27,7 +26,6 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" />
-		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
 	</bean>
 
 	<!-- Default to allow all sites to use Turnitin regardless of site type or property -->

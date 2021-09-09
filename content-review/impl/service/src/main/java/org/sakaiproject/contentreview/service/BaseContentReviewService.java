@@ -17,18 +17,32 @@ package org.sakaiproject.contentreview.service;
 
 import java.time.Instant;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.contentreview.exception.SubmissionException;
+import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.ContentReviewProviderException;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
@@ -42,7 +56,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class BaseContentReviewService implements ContentReviewService{
-	
+
+	@Setter
+	protected AssignmentService assignmentService;
+	@Setter
+	protected ContentReviewQueueService crqs;
+	@Setter
+	protected EntityManager entityManager;
 	@Setter
 	protected PreferencesService preferencesService;
 	@Setter
@@ -113,6 +133,67 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}	
+	}
+
+	@Override
+	public void createAssignment(final String contextId, final String taskId, final Map opts)
+		throws SubmissionException, TransientSubmissionException {
+		queueAllSubmissionsForAssignment(taskId);
+	}
+
+	protected void queueAllSubmissionsForAssignment(final String taskId) {
+		try {
+			Assignment assignment;
+			try {
+				// Assume it's from the Assignments tool, support can be added to other tools in the future if there is a need to integrate with content-review
+				assignment = assignmentService.getAssignment(entityManager.newReference(taskId));
+			}
+			catch (IdUnusedException | PermissionException e) {
+				return;
+			}
+
+			Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
+			if (submissions != null) {
+				submissions.stream().filter(AssignmentSubmission::getSubmitted).forEach(sub -> {
+					List<ContentResource> attachments = assignmentService.getAllAcceptableAttachments(sub);
+					if (!attachments.isEmpty()) {
+						Optional<AssignmentSubmissionSubmitter> submitter = assignmentService.getSubmissionSubmittee(sub);
+						if (!submitter.isPresent() && allowSubmissionsOnBehalf()) {
+							submitter = sub.getSubmitters().stream().findAny();
+						}
+						if (submitter.isPresent()) {
+							try {
+								queueContent(submitter.get().getSubmitter(), assignment.getContext(), taskId, attachments);
+							}
+							catch (QueueException e) {
+								// Already queued most likely
+							}
+						}
+					}
+				});
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Unknown excpetion queueing submissions for assessment " + taskId, e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteAssignment(String siteId, String taskId) {
+		deleteAllSubmissionsForAssignment(siteId, taskId);
+	}
+
+	protected void deleteAllSubmissionsForAssignment(String siteId, String taskId) {
+		Integer providerId = getProviderId();
+		List<ContentReviewItem> items = crqs.getContentReviewItems(providerId, siteId, taskId);
+		// Can't do this because it opens a new transaction, causing an IAE - "Removing a detached instance":
+		// items.forEach(item -> crqs.delete(item));
+		// So delete them via removeFromQueue:
+		items.forEach(item -> crqs.removeFromQueue(providerId, item.getContentId()));
 	}
 	
 	@Override

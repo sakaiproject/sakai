@@ -140,15 +140,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             flashBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=flash'
         };
 
-    } else {
-        var fckeditorUrl = '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html' +
-            '?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector';
-
-        var filebrowser = {
-            browseUrl : fckeditorUrl + collectionId + '&' + folder,
-            imageBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Image",
-            flashBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Flash"
-        };
     }
 
     let siteId = "";
@@ -188,7 +179,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
         // TODO Get this to work with elfinder.
-        fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
+        // TODO May be a problem after SAK-44872
+        fileConnectorUrl : '',
 
         // These are the general URLs for browsing generally and specifically for images/flash object.
         filebrowserBrowseUrl :      filebrowser.browseUrl,

@@ -105,6 +105,15 @@
 
 		}
 
+		@media #{$phone} {
+			.table-datemanager {
+				min-width: 1000px;
+			}
+			.panel-collapse > .panel-body {
+				overflow-x: auto;
+			}
+		}
+
 		.modal {
 			.modal-header {
 				.close {
@@ -140,12 +149,12 @@
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    background: none repeat scroll 0 0 #EEEEEE;
+    background: none repeat scroll 0 0 var(--sakai-background-color-2);
     padding: 0.5em;
   }
 
   .optGroupSelectSelected {
-    background: none repeat scroll 0 0 #ccc;
+    background: none repeat scroll 0 0 var(--sakai-active-color-1);
   }
 
   .group-locked-info.collapsed::before {

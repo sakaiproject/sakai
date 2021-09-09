@@ -20,14 +20,12 @@
                             <th th:text="${heading}"></th>
                         </span>
                     </span>
-                    <th th:text="#{student_lastchecked}"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td th:text="${student?.username}"></td>
                     <td th:text="${grade}" th:each="grade : ${student?.grades}"></td>
-                    <td th:text="${student?.checkDateTime}"></td>
                 </tr>
             </tbody>
         </table>
