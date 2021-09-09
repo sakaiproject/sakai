@@ -545,12 +545,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
 
-        String regTime = (String) params.get("regTime");
+        String duration = (String) params.get("duration");
         
-        if (!assignmentService.timeHasCorrectFormat(regTime)) {
+        if (!assignmentService.timeHasCorrectFormat(duration)) {
 
             log.warn("Wrong time format. Must be XXHXXM");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.regTime");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
 
         String asnComment = (String) params.get("regComment");
@@ -586,7 +586,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
         timeSheet.setAsnComment(asnComment);
         timeSheet.setRegDate(regDate);
-        timeSheet.setRegTime(regTime);
+        timeSheet.setDuration(duration);
         timeSheet.setSubmitter(ass);
         
         try {

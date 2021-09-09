@@ -52,7 +52,7 @@ ASN_TS_API.addTimeSheet = function(button, onSuccess, onError)
     var new_ts_record_minute = document.getElementById("new_ts_record_minute").value;
 
     var tsComment = document.getElementById("regComment").value;
-    var tsTime = document.getElementById("regTime").value;
+    var tsTime = document.getElementById("duration").value;
 
     params.assignmentId = tsassignmentId;
     params.regDate = tsDate;
@@ -64,7 +64,7 @@ ASN_TS_API.addTimeSheet = function(button, onSuccess, onError)
     params.new_ts_record_minute = new_ts_record_minute;
 
     params.regComment = tsComment;
-    params.regTime = tsTime;
+    params.duration = tsTime;
     button.classList.add("spinButton");
     button.disabled = true;
 
