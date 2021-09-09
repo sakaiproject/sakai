@@ -4928,7 +4928,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return dupes;
     }
 
-    public boolean correctTime(String timeSheet) {
+    public boolean timeHasCorrectFormat(String timeSheet) {
         Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
         Matcher match = pattern.matcher(timeSheet);
 
