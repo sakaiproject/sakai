@@ -547,7 +547,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String regTime = (String) params.get("regTime");
         
-        if (!assignmentService.correctTime(regTime)) {
+        if (!assignmentService.timeHasCorrectFormat(regTime)) {
 
             log.warn("Wrong time format. Must be XXHXXM");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.regTime");

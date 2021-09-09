@@ -818,7 +818,7 @@ public interface AssignmentService extends EntityProducer {
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
 
-    public boolean correctTime(String timeSheet);
+    public boolean timeHasCorrectFormat(String timeSheet);
 
     public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
 

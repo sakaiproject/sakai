@@ -6932,11 +6932,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if(StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getReqEstimate()) {
     	        if (StringUtils.isBlank(timeSheet)) {
     	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.correctTime(timeSheet)) {
+    	        } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
     	            addAlert(state, rb.getFormattedMessage("timeformat"));
     	        }
             }
-            if (StringUtils.isNotBlank(timeSheet) && !assignmentService.correctTime(timeSheet)) {
+            if (StringUtils.isNotBlank(timeSheet) && !assignmentService.timeHasCorrectFormat(timeSheet)) {
             	addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7126,7 +7126,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String timeSheet = params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
             if (StringUtils.isBlank(timeSheet)) {
                 addAlert(state, rb.getString("timeempty"));
-            } else if (!assignmentService.correctTime(timeSheet)) {
+            } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
                 addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
