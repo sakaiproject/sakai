@@ -80,5 +80,5 @@ public class AssignmentTimeSheet {
     private String duration;
 
     @Column(name = "ASN_COMMENT", length = 255)
-    private String asnComment;
+    private String comment;
 }

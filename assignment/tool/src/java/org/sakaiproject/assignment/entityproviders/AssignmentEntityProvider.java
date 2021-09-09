@@ -553,9 +553,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
 
-        String asnComment = (String) params.get("regComment");
+        String comment = (String) params.get("regComment");
         StringBuilder alertMsg = new StringBuilder();
-        asnComment = formattedText.processFormattedText(asnComment, alertMsg);
+        comment = formattedText.processFormattedText(comment, alertMsg);
         if (alertMsg.length() > 0) {
             log.warn("Comment field format is not valid");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.regComment");
@@ -584,7 +584,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String context = ass.getSubmission().getAssignment().getContext();
         
         AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
-        timeSheet.setAsnComment(asnComment);
+        timeSheet.setComment(comment);
         timeSheet.setRegDate(regDate);
         timeSheet.setDuration(duration);
         timeSheet.setSubmitter(ass);
