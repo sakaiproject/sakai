@@ -1418,7 +1418,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 timeSheet.setId(null);
                 timeSheet.setAsnComment(ts.getAsnComment());
                 timeSheet.setRegDate(ts.getRegDate());
-                timeSheet.setRegTime(ts.getRegTime());
+                timeSheet.setDuration(ts.getDuration());
                 timeSheet.setSubmitter(submitter);
                 submitter.getTimeSheet().add(timeSheet);
             });

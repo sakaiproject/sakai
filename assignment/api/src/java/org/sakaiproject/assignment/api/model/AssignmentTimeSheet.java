@@ -77,7 +77,7 @@ public class AssignmentTimeSheet {
     private Instant regDate;
 
     @Column(name = "REG_TIME", length = 255)
-    private String regTime;
+    private String duration;
 
     @Column(name = "ASN_COMMENT", length = 255)
     private String asnComment;

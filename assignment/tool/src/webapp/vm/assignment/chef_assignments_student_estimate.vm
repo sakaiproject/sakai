@@ -5,7 +5,7 @@
     window.i18nProgresa['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
     window.i18nProgresa['ts.add.err.regDate']=" $tlang.getString('ts.add.err.regDate')";
     window.i18nProgresa['ts.add.err.regComment']=" $tlang.getString('ts.add.err.regComment')";
-    window.i18nProgresa['ts.add.err.regTime']=" $tlang.getString('ts.add.err.regTime')";
+    window.i18nProgresa['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
     window.i18nProgresa['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
     window.i18nProgresa['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
     window.i18nProgresa['ts.rem.err.empty']=" $tlang.getString('ts.rem.err.empty')";
@@ -51,7 +51,7 @@
                     $timeSheetSubmit.asnComment
                 </td>
                 <td>
-                    $timeSheetSubmit.regTime
+                    $timeSheetSubmit.duration
                 </td>
                 #if ($!timeSheetSource == "submission")
                     <td>
@@ -85,7 +85,7 @@
     #end
 
     ##BOOTSTRAP SMALL_MODAL
-    ##content: regDate - regComment - regTime - submitterId
+    ##content: regDate - regComment - duration - submitterId
     <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -136,7 +136,7 @@
                                     <label for="timesheet_record_time_spent" class="col-form-label">$!tlang.getString("ts.modal.field.tspent")</label>
                                 </div>
                                 <div class="col-8">
-                                    <input type="text" class="form-control" id="regTime" name="regTime" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
+                                    <input type="text" class="form-control" id="duration" name="duration" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
                                 </div>
                             </div>
                         </form>

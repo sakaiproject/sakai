@@ -15608,7 +15608,7 @@ public class AssignmentAction extends PagedResourceActionII {
         private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
             int totalTime = 0;
             for (AssignmentTimeSheet assignmentTimeSheet : ats) {
-                totalTime = totalTime + timeToInt(assignmentTimeSheet.getRegTime());	
+                totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
             }
             return intToTime(totalTime);
         }
@@ -15882,7 +15882,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
         int totalTime = 0;
         for (AssignmentTimeSheet assignmentTimeSheet : ats) {
-            totalTime = totalTime + timeToInt(assignmentTimeSheet.getRegTime());	
+            totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
         }
         return intToTime(totalTime);
     }
