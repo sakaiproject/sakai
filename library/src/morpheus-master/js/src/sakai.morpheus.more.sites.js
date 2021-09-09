@@ -509,7 +509,7 @@ $PBJQ(document).ready(function($){
   }
   
   /**
-   * @func syncFavoritesToServer
+   * @function syncFavoritesToServer
    * @desc Reusable method to sync fav changes to the server
    * @param {Array} favs  - List of SiteIds to be used as favourites
    * @param {Function} onError  - Error function to be called on AJAX failure 
@@ -539,7 +539,7 @@ $PBJQ(document).ready(function($){
   }
         
   /**
-   * @func topNavFavorite
+   * @function topNavFavorite
    * @desc Toggles favouriting from the top navigation
    * @param {*} event  - jQuery Event for item clicked
    */

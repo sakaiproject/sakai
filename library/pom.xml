@@ -18,7 +18,7 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<node-version>v16.8.0</node-version>
-		<npm-version>7.21.1</npm-version>
+		<npm-version>6.14.15</npm-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
@@ -26,8 +26,11 @@
 		<sakai.skin.source>morpheus-master</sakai.skin.source>
 		<sakai.skin.target>morpheus-default</sakai.skin.target>
 		<sakai.skin.customization.file>src/morpheus-master/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
-		<sakai.skin.customization.js.lib>_custom.lib.js</sakai.skin.customization.js.lib>
-		<sakai.skin.customization.js.main>_custom.main.js</sakai.skin.customization.js.main>
+		<sakai.skin.customization.scss.lib>src/morpheus-master/sass/examples/_customization_example_empty.scss</sakai.skin.customization.scss.lib>
+		<!-- Backwards compatability with -Dsakai.skin.customization.file -->
+		<sakai.skin.customization.scss.main>${sakai.skin.customization.file}</sakai.skin.customization.scss.main>
+		<sakai.skin.customization.js.lib>src/morpheus-master/js/examples/_example.empty.js</sakai.skin.customization.js.lib>
+		<sakai.skin.customization.js.main>src/morpheus-master/js/examples/_example.empty.js</sakai.skin.customization.js.main>
 		<sakai.skin.outputStyle>compressed</sakai.skin.outputStyle>
 	</properties>
 	<dependencies>
@@ -569,8 +572,24 @@
 									<goal>copy</goal>
 								</goals>
 								<configuration>
-									<sourceFile>${sakai.skin.customization.file}</sourceFile>
-									<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization.scss</destinationFile>
+									<fileSets>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.lib.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.main.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-lib.scss</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
+										</fileSet>
+									</fileSets>
 								</configuration>
 							</execution>
 						</executions>
@@ -691,8 +710,24 @@
 									<goal>copy</goal>
 								</goals>
 								<configuration>
-									<sourceFile>${sakai.skin.customization.file}</sourceFile>
-									<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization.scss</destinationFile>
+									<fileSets>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.lib.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.main.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-lib.scss</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
+										</fileSet>
+										</fileSets>
 								</configuration>
 							</execution>
 						</executions>
@@ -712,8 +747,8 @@
                                         <jsSourceInclude>src/*.js</jsSourceInclude>
                                     </jsSourceIncludes>
                                     <jsSourceFiles>
-                                        <jsSourceFile>${sakai.skin.customization.js.lib}</jsSourceFile>
-                                        <jsSourceFile>${sakai.skin.customization.js.main}</jsSourceFile>
+                                        <jsSourceFile>_custom.lib.js</jsSourceFile>
+                                        <jsSourceFile>_custom.main.js</jsSourceFile>
                                     </jsSourceFiles>
                                     <jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
                                     <jsFinalFile>morpheus.scripts.js</jsFinalFile>
@@ -817,10 +852,6 @@
 								<configuration>
 									<arguments>
 										ci --unsafe-perms --save-dev
-										sass
-										stylelint
-										stylelint-config-standard
-										stylelint-scss
 									</arguments>
 								</configuration>
 							</execution>
@@ -919,7 +950,7 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${node-version}</nodeVersion>
-									<npmVersion>${npm-version</npmVersion>
+									<npmVersion>${npm-version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
@@ -930,7 +961,6 @@
 								<configuration>
 									<arguments>
 										ci --unsafe-perm --save-dev
-										sass
 									</arguments>
 								</configuration>
 							</execution>

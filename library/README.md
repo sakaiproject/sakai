@@ -17,7 +17,7 @@
 
 1. If you want to add your own SCSS customizations file to morpheus and include that as part of the skin you have to run the command .
 
-    ```mvn clean install -Dsakai.skin.customization.file=/folder/to/your/file.scss```
+    ```mvn clean install -Dsakai.skin.customization.scss.main=/folder/to/your/file.scss```
 
     ***Note the profile ```-P compile-skin``` is active by default and need not be added as a command line option.***
 
@@ -36,7 +36,7 @@
     mvn clean install \
     -Dsakai.skin.customization.js.lib=/folder/to/your/file.js \
     -Dsakai.skin.customization.js.main=/folder/to/your/file.js \
-    -Dsakai.skin.customization.file=/folder/to/your/file.scss
+    -Dsakai.skin.customization.scss.main=/folder/to/your/file.scss
     ```
 
 More commands are listed here:  *[https://github.com/sakaiproject/sakai/blob/master/library/src/morpheus-master/compile-skin.md](https://github.com/sakaiproject/sakai/blob/master/library/src/morpheus-master/compile-skin.md)*
@@ -81,9 +81,3 @@ NOTE: Any changes or additions in one section should be changed or added in othe
     3. All necessary documentation related to the variables is located at the variable definition itself.
 
 * **More involved:** Explaining SASS and Morpheus folder structure ( [https://github.com/sakaiproject/sakai/blob/master/library/src/morpheus-master/customization-tool.md](https://github.com/sakaiproject/sakai/blob/master/library/src/morpheus-master/customization-tool.md) )
-
-    1. Tool customizations:
-
-    2. Best Practices :
-
-* **How to replace Font-awesome or Bootstrap with other frameworks.**

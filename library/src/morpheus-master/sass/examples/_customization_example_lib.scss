@@ -1,0 +1,12 @@
+// Lib to share styles across multiple skins
+$colors: (
+    "mybrand": #703b0f,
+    "mybrand2": #00807a
+);
+
+$theme-colors: map-merge($theme-colors, $colors);
+
+:root {
+    --sakai-primary-color-1: var(--mybrand-80);
+    --sakai-active-color-1: var(--mybrand2-20);
+}

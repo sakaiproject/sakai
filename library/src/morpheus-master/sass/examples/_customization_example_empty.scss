@@ -1,182 +1,795 @@
-// Typography
+// // Global namespace
 
-//Google family Fonts URL
-//$font-family-url: "//fonts.googleapis.com/css?family=Noto+Sans" !default;
-//$header-font-family-url: "//fonts.googleapis.com/css?family=Raleway:300" !default;
+// $namespace : "Mrphs-" !default;
 
-//Typography variables
-//$font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
-//$default-font-size: 15px !default;
-//Font weight: 300, 400 or 700 as you wish, 300 is light, 700 is bold.
-//$default-font-weight: 400 !default;										
-//$header-font-family: "Raleway", Arial, sans-serif !default;
-//Header font weight: 300, 400 or 700 as you wish, 300 is light, 700 is bold
-//$header-font-weight: 300 !default;
+// $break-tiny-end:	400px !default;
+// $break-small-end: 	800px !default;
+// $break-medium-end: 	1030px !default;
 
-//  Main Menu 
-//$header-size : 3.1em !default;
+// $smallPhone:    "only screen and (max-width : #{$break-tiny-end})" !default;
+// $phone  :       "only screen and (max-width : #{$break-small-end})" !default;
+// $tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
+// $desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
+// $nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default;
 
-//  Tool Menu 
-//$tool-menu-width: 14.5em !default;
+// // The standard spacing for items in Sakai
+// $standard-spacing: 16px !default;
+// $standard-space: 4px !default; // the width of a keyboard space
+// $standard-space-2x: 8px !default;
+// $standard-space-3x: 12px !default;
+// $standard-space-4x: 16px !default;
+// // For the "More Sites" drawer, just use one column if there's not
+// // enough room to show two side-by-side.
+// $break-more-sites-single-column: 1200px !default;
+// $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-single-column})" !default;
 
-//  Golden Ratio width for 16px font http://www.pearsonified.com/typography/ 
-//$measure: 960px !default;
+// // Typography
 
-//  Tool icons 
-//$skin-with-icons: true !default;
-//$icon-size: 20px !default;
+// //Google family Fonts URL
+// $font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" !default;
+// @import url(#{$font-family-url});
 
-//@import url( #{$font-family-url}    );
-//@import url( #{$header-font-family-url} );
+// //Typography variables
+// $default-font-size: 14px !default;
+// $default-font-size-small: 12px !default;
+// $default-font-weight: 400 !default;										// 400 or 700 as you wish
+// $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
-// Custom Theme
-// Uncomment and add custom properties to the :root selector
-// :root { 
-    /////////////////////////////////////////////////////////////
-    // Color palette generation
-    // Use defineColorHSL to generate an 11 shade palette for a color.
-    // @include defineColorHSL(colorname, hue, saturation, lightness)
-    // @param colorname
-    //      Type: string
-    //      expects a CSS custom property name starting with --
-    // @param hue
-    //      Type: integer
-    //      expects an integer 0-255
-    // @param saturation
-    //      Type: percentage
-    //      expects a percentage 0-100%
-    // @param lightness
-    //      Type: percentage
-    //      expects a percentage 0-100%
-    // @returns 11 CSS Custom Properties available in :root
-    //      named colorname-0 through colorname-10
-    //      The HSL you provide in the parameters will be in the
-    //      middle of the range at -5.
-    // Example 
-    // @include defineColorHSL(--myschool-gray, 214, 3%, 55%);
-    //      returns --myschool-gray-5: hsl(214, 3%, 55%;
-    //
-    // In addition to the primary branding color defined here, Sakai comes 
-    // predefined with gray, blue, teal, gold, green, orange,
-    // purple, and red palettes available for you to use.
-    // More info about defineColorHSL in sass/themes/_base.scss
+// ////////////////////////////////////////////////////////////////////////////////////////
+// // SAK-43981 ALL THEME RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes
+// // This includes variables related to the following:
+// // 1. background color
+// // 2. border color
+// // 3. box-shadow
+// // 4. color
+// // 5. logo
+// ////////////////////////////////////////////////////////////////////////////////////////
 
-    // Uncomment below to define a custom color
-    // @include defineColorHSL(--custom, 173, 46%, 35%);
+// //Built to be used for padding
+// //https://material-components.github.io/material-components-web-catalog/#/component/menu
+// $material-menu-padding: calc(#{$standard-spacing} / 2) 0 !default;
+// $material-menu-item-padding: calc(#{$standard-spacing} / 2) $standard-spacing !default;
 
-    /////////////////////////////////////////////////////////////
+// // Tool tabs
+// $tool-tab-height:                                         32px !default;
+// $tool-tab-text-size:                                      12px !default;
+// $tool-tab-text-weight:                                    normal !default;
+// $tool-tab-text-transform:                                 none !default;
+// $tool-tab-text-letter-spacing:                            normal !default;
+// $tool-tab-active-text-size:                               12px !default;
 
-    /////////////////////////////////////////////////////////////
-    // Main theme definition
-    // Start by defining the variables below to create
-    // your theme. If advanced customization is necessary,
-    // continue to the remaining variables.
-    /////////////////////////////////////////////////////////////
+// $top-header-separators-thickness: 0 !default;
+// $top-header-item-spacing: calc(#{$standard-spacing} / 2) !default;
+// $top-header-text-display: none !default;
+// $top-header-icon-size: calc(#{$standard-spacing} * 2) !default;
+// $top-header-sites-padding-top: 6px !default;
+// $top-header-profile-border-thickness: 2px !default;
 
-    // Primary branding color. 
-    // Suggested: Your institution's main branding color.
-    // Used in the top header, action buttons, etc. Commonly used as the background
-    // color with white text color.
-    // Uncomment below to set --sakai-primary-color-1
-    // --sakai-primary-color-1:var(--custom);
+// // General button design
+// $button-radius: 4px !default;
+// $button-text-transform: none !default;
+// $button-radius-pill:            16px !default;
 
-    // Default: A slightly darker shade of --sakai-primary-color-1
-    // Used for hover effects and higher contrast with white text color
-    // Uncomment below to set --sakai-primary-color-2
-    // --sakai-primary-color-2: var(--custom-60);
+// // Default (non-primary) button design:
+// $button-font-weight: 400 !default;
+// $button-disabled-font-weight:   300 !default;
 
-    // Default: A slightly darker shade of --sakai-primary-color-2
-    // Used for active, focus, selected effects
-    // Uncomment below to set --sakai-primary-color-3
-    // --sakai-primary-color-3: var(--custom-65);
+// // Primary action button design:
+// $button-primary-text-transform: none !default;
+// $button-primary-font-weight: 600 !default;
 
-    // Default: A very light tint of --sakai-primary-color-1. 
-    // Suggested: A light tint of your institution's main branding color.
-    // Used to highlight active/current site in favorites and active/current tool in toolmenu
-    // Commonly used with white background color with white text color.
-    // Uncomment below to set --sakai-active-color-1
-    // --sakai-active-color-1: var(--custom-25);
+// // end of General button design
 
-    // Default: A slightly darker shade of --sakai-active-color-1
-    // Used for hover effects and higher contrast with --sakai-text-color-3
-    // Uncomment below to set --sakai-active-color-2
-    // --sakai-active-color-2: var(--custom-25);
+// $instruction-size:          $default-font-size-small !default;
 
-    // Default: A slightly darker shade of --sakai-active-color-2
-    // Used for active, focus, selected effects with --sakai-text-color-3
-    // Uncomment below to set --sakai-active-color-3
-    // --sakai-active-color-3: var(--custom-30);
+// // Sakai Banners
+// $infoBanner-icon: ".fa-info-circle";
+// $successBanner-icon: ".fa-check-circle";
+// $warnBanner-icon: ".fa-exclamation-circle";
+// $errorBanner-icon: ".fa-ban";
+// // end of Sakai Banners
 
-    // Primary background color. 
-    // Suggested: white
-    // Used on the body and main content containers
-    // Uncomment below to set --sakai-background-color-1
-    // --sakai-background-color-1: var(--sakai-white);
+// // Swapped 'View As' view
+// $swapped-view-enabled: false !default;
 
-    // Default: A slightly darker shade of --sakai-background-color-1
-    // Used in hover effects of white backgrounds, alternating table rows
-    // Uncomment below to set --sakai-background-color-2
-    // --sakai-background-color-2: var(--sakai-gray-20);
+// // Favorites
+// $sites-nav-menu-item-border-thickness: 1px !default;
+// $sites-nav-menu-item-border-radius: $button-radius-pill !default;
 
-    // Default: A slightly darker shade of --sakai-primary-color-2
-    // Used for active, focus, selected effects of white backgrounds
-    // and hover effects of --sakai-background-color-2
-    // Uncomment below to set --sakai-background-color-3
-    // --sakai-background-color-3: var(--sakai-gray-25);
+// // Favorites - item
+// $sites-nav-menu-item-border-top:            $sites-nav-menu-item-border-thickness solid !default;
+// $sites-nav-menu-item-border-right:          $sites-nav-menu-item-border-top !default;
+// $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default;
+// $sites-nav-menu-item-border-left:           $sites-nav-menu-item-border-top !default;
 
-    // Default: A slightly darker shade of --sakai-primary-color-2
-    // Used for active, focus, selected effects of --sakai-background-color-3
-    // Uncomment below to set --sakai-background-color-4
-    // --sakai-background-color-4: var(--sakai-gray-30);
+// // Favorites - item hovered
+// $sites-nav-menu-item-hover-border-top:      $sites-nav-menu-item-border-thickness solid !default;
+// $sites-nav-menu-item-hover-border-right:    $sites-nav-menu-item-hover-border-top !default;
+// $sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top !default;
+// $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top !default;
 
-    // Secondary branding color. 
-    // Suggested: An alterate branding color distinct from
-    // what you select for --sakai-primary-color-1
-    // Used in new user tutorial, user profile image border
-    // Uncomment below to set --sakai-secondary-color-1
-    // --sakai-secondary-color-1: var(--custom-60);
+// // Favorites - item selected
+// $sites-nav-menu-item-selected-font-weight:  600 !default;
+// $sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid !default;
+// $sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
+// $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default;
+// $sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top !default;
 
-    // Tertiary branding color. 
-    // Suggested: A third branding color distinct from
-    // what you selected for --sakai-primary-color-1 and --sakai-secondary-color-1
-    // Used in user profile image border
-    // Uncomment below to set --sakai-tertiary-color-1
-    // --sakai-tertiary-color-1: var(--sakai-orange-40);
+// // Favorites - item selected and hovered
+// $sites-nav-menu-item-selected-hover-border-top:   $sites-nav-menu-item-border-thickness solid !default;
+// $sites-nav-menu-item-selected-hover-border-right: $sites-nav-menu-item-selected-hover-border-top !default;
+// $sites-nav-menu-item-selected-hover-border-bottom:$sites-nav-menu-item-selected-hover-border-top !default;
+// $sites-nav-menu-item-selected-hover-border-left:  $sites-nav-menu-item-selected-hover-border-top !default;
 
-    // Primary border color used across sakai. 
-    // Suggested: light gray
-    // Uncomment below to set --sakai-border-color
-    // --sakai-border-color: var(--sakai-gray-20);
+// // Favorites - tool submenu
+// $sites-nav-submenu-border: 1px solid !default;
+// $sites-nav-submenu-top: $standard-spacing !default;
+// $sites-nav-submenu-padding: $material-menu-padding !default;
 
-    // Primary text color used across sakai. 
-    // Suggested: dark gray, near black
-    // Most commonly used against --sakai-background-color-1
-    // Uncomment below to set --sakai-text-color-1
-    // --sakai-text-color-1: var(--sakai-gray-60);
+// // Favorites - tool submenu items
+// $sites-nav-submenu-item-text-size:          13px !default;
+// $sites-nav-submenu-item-left-border: none !default;
+// $sites-nav-submenu-item-padding: $material-menu-item-padding !default;
 
-    // Default: A slightly darker shade of --sakai-text-color-1
-    // Used in certain hover effects, but NOT a[href] elements
-    // Uncomment below to set --sakai-text-color-2
-    // --sakai-text-color-2: var(--sakai-gray-65);
+// // All Sites menu
+// $all-sites-title-text-size:                               18px !default;
+// $all-sites-title-text-weight:                             normal !default;
+// $all-sites-button-height:                                 30px !default;
+// $all-sites-button-text-size:                              13px !default;
+// $all-sites-button-text-weight:                            normal !default;
+// $all-sites-button-border-radius:                          3px !default;
+// $all-sites-button-selected-text-size:                     13px !default;
+// $all-sites-button-selected-text-weight:                   medium !default;
+// $all-sites-button-selected-border-radius:                 3px !default;
+// $all-sites-button-hover-text-size:                        13px !default;
+// $all-sites-button-hover-text-weight:                      normal !default;
+// $all-sites-tool-menu-text-size:                           12px !default;
+// $all-sites-tool-menu-text-weight:                         normal !default;
+// $all-sites-tool-menu-left-border:                         4px solid !default;
+// $all-sites-tool-menu-hover-left-border:                   4px solid !default;
 
-    // Default: A much darker shade of --sakai-primary-color-1
-    // Used as text color of active site in favorites, active tool in toolmenu
-    // Uncomment below to set --sakai-text-color-3
-    // --sakai-text-color-3: var(--custom-65);
+// // Tool Menu
 
-    // Default: A lighter shade of --sakai-text-color-1
-    // Used to make elements appear disabled or "grayed out"
-    // Uncomment below to set --sakai-text-color-disabled
-    // --sakai-text-color-disabled: var(--sakai-gray-45);
+// // Wide tool menu, icons on left
+// $tool-menu-icon-on-left: true !default;
+// $tool-menu-width: 200px + $standard-spacing !default;
+// $tool-menu-padding: calc(#{$standard-spacing} / 2) 0 0 0 !default;
+// $tool-menu-width-collapsed: 52px !default;
+// $tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
 
-    // Default: --sakai-white
-    // Used for text color on saturated color backgrounds like primary button, header bar icons
-    // Uncomment below to set --sakai-text-color-inverted
-    // --sakai-text-color-inverted: var(--sakai-background-color-1);
+// // Narrow tool menu, icons centered
+// @if not($tool-menu-icon-on-left) {
+//     $tool-menu-width: 8em;
+//     $tool-menu-width-collapsed: 42px;
+//     $tool-menu-collapseButton-height: $tool-menu-width-collapsed;
+// }
+
+// // Tool Menu
+// $tool-menu-item-text-weight:                               normal !default;
+// $tool-menu-item-border-left: none !default;
+// $tool-menu-item-border-radius: 0 calc(#{$button-radius-pill} * 1.5) calc(#{$button-radius-pill} * 1.5) 0 !default;
+// $tool-menu-item-padding: calc(#{$standard-spacing} / 2) 0 calc(#{$standard-spacing} / 2) $standard-spacing !default;
+// $tool-menu-item-margin-right: calc(#{$standard-spacing} / 2) !default;
+// $tool-menu-item-hover-border-left: $tool-menu-item-border-left !default;
+// $tool-menu-item-collapsed-border-radius:                   0 !default;
+// $tool-menu-item-collapsed-margin:                          0 !default;
+// $tool-menu-item-collapsed-padding: $tool-menu-item-padding !default;
+// $tool-menu-item-hidden-border-left:                        $tool-menu-item-border-left !default;
+// $tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
+// $tool-menu-item-hidden-active-border-left: $tool-menu-item-border-left !default;
+// $tool-menu-item-selected-border-left: $tool-menu-item-border-left !default;
+// $tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left !default;
+// $tool-menu-item-selected-active-border-left: $tool-menu-item-border-left !default;
+// $tool-menu-collapse-border-top:                            1px solid var(--sakai-border-color) !default;
+// $tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-border-top !default;
+// $tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
+// $tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-border-top !default;
+
+// // Tool menu - lessons subpage menu enabled - top level pages
+// $tool-lessons-toplevel-menu-icon-padding: $material-menu-item-padding !default;
+// $tool-lessons-toplevel-menu-text-padding: $material-menu-item-padding !default;
+// $tool-lessons-subpage-menu-text-padding: calc(#{$standard-spacing} / 2) $standard-spacing calc(#{$standard-spacing} / 2) calc(#{$standard-spacing} * 2) !default;
+
+// // Tool menu - lessons subpage menu enabled - sub pages
+// $tool-lessons-subpage-menu-fontsize: 0.9em !default;
+// $tool-lessons-subpage-menu-border-radius: 0 $button-radius-pill $button-radius-pill 0 !default;
+
+// // Lessons tool
+// $lessons-column-border:1px solid !default;
+// $lessons-item-border-top: 1px solid !default;
+// $lessons-item-border-right: none !default;
+// $lessons-item-border-bottom: none !default;
+// $lessons-item-border-left: none !default;
+// $lessons-item-edit-display: none !default;
+// $lessons-item-edit-hover-display: inline-block !default;
+// // Navigation Hierarchy
+// $hierarchy-size: 3.5em !default;
+
+// // Golden Ratio width for 16px font http://www.pearsonified.com/typography/
+// $measure: 960px !default;
+
+// $banner-height: 52px !default;
+
+// // Tool icons
+// $skin-with-icons: true !default;
+// $icon-size: 20px !default;
+
+// // Unpublished Banner
+// $siteUnpublish-border: 1px solid !default;
+
+// // Site Deletion Banner
+// $siteDelete-border: 1px solid !default;
+
+// // Icon Overrides
+// //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
+
+// // Footer
+// $footer-font-size: 12px;
+
+// // Overview page column widths. Total to add up to 96% as the columns have a margin.
+// $col1of2-width: 48% !default;
+
+// $overview-portlet-border: none !default;
+// $overview-portlet-border-radius: $button-radius !default;
+
+// // focus styles for all control elements (e.g. buttons, form controls, links, etc)
+// $focus-outline-width: 3px !default;
+// $focus-outline-style: solid !default;
+// $sakai-focus-outline: $focus-outline-width $focus-outline-style !default;
+// $focus-outline-offset: 2px !default;
+
+// //Used to give round elements an round focus and not square
+// $sakai-box-shadow-emulate-focus: 0 0 0 $focus-outline-width !default;
+
+// $font-family: "Open Sans",sans-serif !default;
+// $header-font-family: $font-family !default;
+// $header-font-weight: 700 !default;										// 400 or 700 as you wish
+
+// $skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
+// $skin-path: if($skin-name, "/library/skin/" + $skin-name + "/", "");
+
+// $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
+
+// // Used in toolmenu and favorites to add microtransitions on hover/active
+// // Accompanyied with an elevation change
+// $active-transition-hover: box-shadow 100ms ease-out !default;
+// $active-transition-active: box-shadow 100ms ease-in !default;
+
+// :root {
+//     // topNav Main Menu
+//     --header-size: 50px;
+
+//     //Dashboard
+//     --sakai-course-card-border-radius: #{$button-radius};
+//     --sakai-title-bar-font-weight: #{$button-font-weight};
+
+//     --sakai-font-family: #{$font-family};
+// }
+
+// /* Light Theme */
+// /////////////////////////////////////////////////////////////
+// // Color palette generation
+// // Add any colors to the SASS map below in key/value pairs
+// // Example
+// //
+// // $light-theme-colors: (
+// //     "sakai-brand": #0f4b70
+// // );
+// //
+// // In addition to any colors defined here, Sakai comes 
+// // predefined with gray, blue, teal, gold, green, orange,
+// // purple, red, and navy palettes available for you to use.
+// // More info .sass/themes/_base.scss
+// /////////////////////////////////////////////////////////////
+
+// $light-theme-colors: (
+//     "sakai-brand": #0f4b70
+// );
+
+// // Merge the $light-theme-colors map into the global $theme-colors map
+// $theme-colors: map-merge($theme-colors, $light-theme-colors);
+
+// /////////////////////////////////////////////////////////////
+// // Main theme definition
+// // Start by defining the variables below to create
+// // your theme. If advanced customization is necessary,
+// // continue to the remaining variables.
+// /////////////////////////////////////////////////////////////
+// :root{
+
+//     // Logo
+//     --logo: url(#{$skin-path}images/logo-jewel.png);
+//     --logo-height: 36px;
+//     --logo-width: 126px;
+//     --logo-opacity: 1;
+
+//     // Primary branding color. 
+//     // Suggested: Your institution's main branding color.
+//     // Used in the top header, action buttons, etc. Commonly used as the background
+//     // color with white text color.
+//     --sakai-primary-color-1: var(--sakai-brand-50);
+
+//     // Default: A slightly darker shade of --sakai-primary-color-1
+//     // Used for hover effects and higher contrast with white text color
+//     --sakai-primary-color-2: var(--sakai-brand-60);
+
+//     // Default: A slightly darker shade of --sakai-primary-color-2
+//     // Used for active, focus, selected effects
+//     --sakai-primary-color-3: var(--sakai-brand-65);
+
+//     // Default: A very light tint of --sakai-primary-color-1. 
+//     // Suggested: A light tint of your institution's main branding color.
+//     // Used to highlight active/current site in favorites and active/current tool in toolmenu
+//     // Commonly used with white background color with white text color.
+//     --sakai-active-color-1: var(--sakai-brand-20);
+
+//     // Default: A slightly darker shade of --sakai-active-color-1
+//     // Used for hover effects and higher contrast with --sakai-text-color-3
+//     --sakai-active-color-2: var(--sakai-brand-25);
+
+//     // Default: A slightly darker shade of --sakai-active-color-2
+//     // Used for active, focus, selected effects with --sakai-text-color-3
+//     --sakai-active-color-3: var(--sakai-brand-30);
+
+//     // Default: A very light tint of gray. 
+//     // Suggested: --sakai-gray-20.
+//     // Used as background for non-active/current site in favorites and buttons
+//     // Commonly used with dark text color.
+//     --sakai-passive-color-1: var(--sakai-gray-20);
+
+//     // Default: A slightly darker shade of --sakai-passive-color-1
+//     // Used for hover effects and higher contrast with --sakai-text-color-1
+//     --sakai-passive-color-2: var(--sakai-gray-25);
+
+//     // Default: A slightly darker shade of --sakai-passive-color-2
+//     // Used for active, focus, selected effects with --sakai-text-color-1
+//     --sakai-passive-color-3: var(--sakai-gray-30);
+
+//     // Primary background color. 
+//     // Suggested: white
+//     // Used on the body and main content containers
+//     --sakai-background-color-1: var(--sakai-white);
+
+//     // Default: A slightly darker shade of --sakai-background-color-1
+//     // Used in hover effects of --sakai-background-color-1, alternating table rows
+//     --sakai-background-color-2: var(--sakai-gray-10);
+
+//     // Default: A slightly darker shade of --sakai-primary-color-2
+//     // Used for active, focus, selected effects of --sakai-background-color-1
+//     // and hover effects of --sakai-background-color-2
+//     --sakai-background-color-3: var(--sakai-gray-20);
+
+//     // Default: A slightly darker shade of --sakai-primary-color-2
+//     // Used for active, focus, selected effects of --sakai-background-color-3
+//     --sakai-background-color-4: var(--sakai-gray-25);
+
+//     // Secondary color. 
+//     // Suggested: An alterate branding color distinct from
+//     // what you select for --sakai-primary-color-1
+//     // Used in href, new user tutorial, user profile image border
+//     --sakai-secondary-color-1: var(--sakai-blue-60);
+
+//     // Tertiary branding color. 
+//     // Suggested: A third branding color distinct from
+//     // what you selected for --sakai-primary-color-1 and --sakai-secondary-color-1
+//     // Used in user profile image border, swapped view
+//     --sakai-tertiary-color-1: var(--sakai-orange-70);
+
+//     // Primary border color used across sakai.
+//     // Suggested: light gray
+//     --sakai-border-color: var(--sakai-gray-20);
+
+//     // Primary text color used across sakai.
+//     // Suggested: dark gray, near black
+//     // Most commonly used against --sakai-background-color-1
+//     --sakai-text-color-1: var(--sakai-gray-75);
+
+//     // Default: A slightly darker shade of --sakai-text-color-1
+//     // Used in certain hover effects, but NOT a[href] elements
+//     --sakai-text-color-2: var(--sakai-gray-80);
+
+//     // Default: A much darker shade of --sakai-primary-color-1
+//     // Used as text color of active site in favorites, active tool in toolmenu
+//     --sakai-text-color-3: var(--sakai-brand-65);
+
+//     // Default: A slightly lighter shade of --sakai-text-color-1
+//     // Used to reduce attention of text
+//     --sakai-text-color-dimmed: var(--sakai-gray-70);
+
+//     // Default: A lighter shade of --sakai-text-color-1
+//     // Used to make elements appear disabled or "grayed out"
+//     --sakai-text-color-disabled: var(--sakai-gray-60);
+
+//     // Default: --sakai-white
+//     // Used for text color on saturated color backgrounds like primary button, header bar icons
+//     --sakai-text-color-inverted: var(--sakai-background-color-1);
+
+//     /////////////////////End main theme definition/////////////////////
+
+//     //Built to be used for box-shadow
+//     //https://material-components.github.io/material-components-web-catalog/#/component/elevation
+//     --elevation-0dp: none;
+//     --elevation-1dp: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+//     --elevation-2dp: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+//     --elevation-3dp: 0 3px 3px -2px rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 1px 8px 0 rgba(0,0,0,.12);
+//     --elevation-4dp: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+//     --elevation-5dp: 0 3px 5px -1px rgba(0,0,0,.2), 0 5px 8px 0 rgba(0,0,0,.14), 0 1px 14px 0 rgba(0,0,0,.12);
+//     --elevation-6dp: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+//     --elevation-7dp: 0 4px 5px -2px rgba(0,0,0,.2), 0 7px 10px 1px rgba(0,0,0,.14), 0 2px 16px 1px rgba(0,0,0,.12);
+//     --elevation-8dp: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
+
+//     --portal-background-color: var(--sakai-background-color-1);
+//     --portal-mask-background: rgba(0,0,0,0.5);
+
+//     /* Tool tabs */
+//     --tool-background-color: var(--sakai-background-color-1);
+//     --tool-menu-background-color: var(--sakai-background-color-1);
+//     --tool-menu-hover-background-color: var(--sakai-background-color-2);
+//     --tool-menu-color: var(--sakai-text-color-1);
+//     --tool-border-color: var(--sakai-border-color);
+//     --tool-tab-text-color: var(--tool-menu-color);
+//     --tool-tab-background-color: var(--tool-menu-background-color);
+//     --tool-tab-border-color: var(--sakai-border-color);
+//     --tool-tab-hover-text-color: var(--sakai-text-color-3);
+//     --tool-tab-hover-background-color: var(--sakai-background-color-3);
+//     --tool-tab-hover-highlight-color: var(--sakai-active-color-2);
+//     --tool-tab-active-text-color: var(--sakai-text-color-3);
+//     --tool-tab-active-background-color: var(--sakai-background-color-1);
+//     --tool-tab-active-highlight-color:var(--sakai-active-color-3);
+
+//     --top-header-background: var(--sakai-primary-color-1);
+//     --top-header-profile-border-color-top: var(--sakai-secondary-color-1);
+//     --top-header-profile-border-color-right: var(--sakai-secondary-color-1);
+//     --top-header-profile-border-color-bottom: var(--sakai-tertiary-color-1);
+//     --top-header-profile-border-color-left: var(--sakai-tertiary-color-1);
+//     --top-header-profile-border-color-inner: var(--sakai-background-color-1);
+
+//     --sites-nav-background: var(--sakai-background-color-1);
+
+//     --breadcrumbs-color: var(--sakai-text-color-1);
+//     --breadcrumbs-tool-color: var(--sakai-primary-color-1);
+//     --breadcrumbs-hover-color: var(--sakai-primary-color-1);
+
+//     /* Link colors */
+//     --link-color: var(--sakai-primary-color-1);
+//     --link-active-color: var(--sakai-primary-color-3);
+//     --link-hover-color: var(--sakai-primary-color-2);
+//     --link-visited-color: var(--sakai-color-purple);
+//     --link-background-color: transparent;
+//     --link-active-background-color: transparent;
+//     --link-hover-background-color: transparent;
+
+//     // Default (non-primary) button design:
+//     --button-text-color: var(--sakai-text-color-2);
+//     --button-background: var(--sakai-passive-color-1);
+//     --button-border-color: var(--sakai-passive-color-2);
+//     --button-shadow: none;
+//     // hover and focus states:
+//     --button-hover-text-color: var(--button-text-color);
+//     --button-hover-background: var(--sakai-passive-color-2);
+//     --button-hover-border-color: var(--sakai-passive-color-3);
+//     --button-hover-shadow: none;
+//     // active state:
+//     --button-active-text-color:var(--button-text-color);
+//     --button-active-background: var(--sakai-passive-color-3);
+//     --button-active-border-color: var(--button-active-background);
+//     --button-active-shadow-color: rgba(0,0,0,0);
+//     --button-active-shadow: none;
+//     // disabled state:
+//     --button-disabled-text-color: var(--sakai-text-color-disabled);
+//     --button-disabled-background: var(--sakai-background-color-2);
+//     --button-disabled-border-color: var(--sakai-border-color);
+//     --button-disabled-shadow: none;
+
+//     // Primary action button design:
+//     --button-primary-text-color: var(--sakai-text-color-inverted);
+//     --button-primary-background: var(--sakai-primary-color-1);
+//     --button-primary-border-color: var(--button-primary-background);
+//     --button-primary-shadow: var(--elevation-2dp);
+//     // hover and focus states for primary action button:
+//     --button-primary-hover-text-color: var(--button-primary-text-color);
+//     --button-primary-hover-background: var(--sakai-primary-color-2);
+//     --button-primary-hover-border-color: var(--button-primary-hover-background);
+//     --button-primary-hover-shadow: var(--elevation-4dp);
+//     // active state for primary action button:
+//     --button-primary-active-text-color: var(--button-primary-text-color);
+//     --button-primary-active-background: var(--sakai-primary-color-3);
+//     --button-primary-active-border-color: var(--button-primary-active-background);
+//     --button-primary-active-shadow: var(--elevation-4dp);
+
+//     --instruction-color: var(--sakai-text-color-disabled);
+
+//     // Information (info) banner
+//     --infoBanner-bordercolor: var(--sakai-blue-40);
+//     --infoBanner-bgcolor: var(--sakai-blue-10);
+//     --infoBanner-color: var(--sakai-blue-65);
+//     // Success banner
+//     --successBanner-bordercolor: var(--sakai-green-40);
+//     --successBanner-bgcolor: var(--sakai-green-10);
+//     --successBanner-color: var(--sakai-green-65);
+//     // Warning (warn) banner
+//     --warnBanner-bordercolor: var(--sakai-gold-40);
+//     --warnBanner-bgcolor: var(--sakai-gold-10);
+//     --warnBanner-color: var(--sakai-gold-70);
+//     // Error banner
+//     --errorBanner-bordercolor: var(--sakai-red-40);
+//     --errorBanner-bgcolor: var(--sakai-red-10);
+//     --errorBanner-color: var(--sakai-red-60);
+
+//     /* Swapped 'View As' view */
+//     --swapped-view-primary: var(--warnBanner-bgcolor);
+//     /* Admin Become User view */
+//     --become-user-primary: var(--sakai-purple-55);
+
+//     --topNav-text-color: var(--sakai-text-color-inverted); // used for links and text in the topNav
+//     --topNav-border-color: var(--sakai-border-color); // used for topNav spacers
+
+//     /* Favorites */
+//     --sites-nav-background: var(--sakai-background-color-1);
+
+//     /* Default state - not selected */
+//     --sites-nav-menu-item-background: var(--sakai-passive-color-1);
+//     --sites-nav-menu-item-color: var(--sakai-text-color-1);
+//     --sites-nav-menu-item-border-color: var(--sites-nav-menu-item-background);
+//     // Hover
+//     --sites-nav-menu-item-hover-background: var(--sakai-passive-color-2);
+//     --sites-nav-menu-item-hover-color: var(--sakai-text-color-2);
+//     --sites-nav-menu-item-hover-border-color: var(--sites-nav-menu-item-hover-background);
+//     --sites-nav-menu-item-hover-icon-background: var(--sakai-passive-color-3);
+//     --sites-nav-menu-item-hover-icon-border-color: var( --sites-nav-menu-item-hover-icon-background);
+//     // Active
+//     --sites-nav-menu-item-active-background: var(--sakai-passive-color-3);
+//     --sites-nav-menu-item-active-border-color: var(--sites-nav-menu-item-active-background);
+//     --sites-nav-menu-item-active-icon-background: var(--sites-nav-menu-item-active-background);
+//     --sites-nav-menu-item-active-icon-border-color: var(--sites-nav-menu-item-active-background);
+//     // Tool menu dropdown
+//     --sites-nav-submenu-border-color: transparent;
+//     --sites-nav-submenu-background: var(--sites-nav-menu-item-background);
+//     --sites-nav-submenu-item-color: var(--sites-nav-menu-item-color);
+//     --sites-nav-submenu-item-divider-color: var(--sites-nav-submenu-item-color);
+//     // Hover
+//     --sites-nav-submenu-item-hover-background: var(--sites-nav-menu-item-hover-background);
+//     --sites-nav-submenu-item-hover-color: var(--sites-nav-menu-item-hover-color);
+//     --sites-nav-submenu-item-hover-icon-color: var(--sites-nav-menu-item-hover-color);
+//     // Active
+//     --sites-nav-submenu-item-active-background: var(--sites-nav-menu-item-active-background);
+//     /* End Default state */
+//     /* Active/Current site */
+//     --sites-nav-menu-item-selected-background: var(--sakai-active-color-1);
+//     --sites-nav-menu-item-selected-color: var(--sakai-text-color-3);
+//     --sites-nav-menu-item-selected-border-color: var(--sites-nav-menu-item-selected-background);
+//     // Hover
+//     --sites-nav-menu-item-selected-hover-background: var(--sakai-active-color-2);
+//     --sites-nav-menu-item-selected-hover-color: var(--sakai-text-color-3);
+//     --sites-nav-menu-item-selected-hover-border-color: var(--sites-nav-menu-item-selected-hover-background);
+//     --sites-nav-menu-item-selected-hover-icon-background: var(--sakai-active-color-3);
+//     --sites-nav-menu-item-selected-hover-icon-border-color: var(--sites-nav-menu-item-selected-hover-icon-background);
+//     // Active
+//     --sites-nav-menu-item-selected-active-background: var(--sakai-active-color-3);
+//     --sites-nav-menu-item-selected-active-border-color: var(--sites-nav-menu-item-selected-active-background);
+//     --sites-nav-menu-item-selected-active-icon-background: var(--sites-nav-menu-item-selected-active-background);
+//     --sites-nav-menu-item-selected-active-icon-border-color: var(--sites-nav-menu-item-selected-active-background);
+//     // Tool menu dropdown
+//     --sites-nav-submenu-selected-border-color: transparent;
+//     --sites-nav-submenu-selected-background: var(--sites-nav-menu-item-selected-background);
+//     --sites-nav-submenu-item-selected-divider-color: var(--sites-nav-menu-item-selected-color);
+//     // Hover
+//     --sites-nav-submenu-item-selected-hover-background: var(--sites-nav-menu-item-selected-hover-background);
+//     --sites-nav-submenu-item-selected-hover-color: var(--sites-nav-menu-item-selected-hover-color);
+//     --sites-nav-submenu-item-selected-hover-icon-color: var(--sites-nav-menu-item-selected-hover-color);
+//     // Active
+//     --sites-nav-submenu-item-selected-active-background: var(--sites-nav-menu-item-selected-active-background);
+//     /* End Favorites */
+
+//     /* All Sites */
+//     --all-sites-background-color: var(--sakai-background-color-1);
+//     --all-sites-drop-shadow: var(--elevation-8dp);
+
+//     --all-sites-tab-text-color: var(--tool-menu-color);
+//     --all-sites-tab-background-color: var(--tool-tab-background-color);
+//     --all-sites-tab-border-color: var(--tool-tab-border-color);
+
+//     --all-sites-tab-hover-text-color: var(--tool-tab-hover-text-color);
+//     --all-sites-tab-hover-background-color: var(--tool-tab-hover-background-color);
+//     --all-sites-tab-hover-highlight: var(--tool-tab-hover-highlight-color);
+
+//     --all-sites-tab-active-text-color: var(--tool-tab-active-text-color);
+//     --all-sites-tab-active-background-color: var(--tool-tab-active-background-color);
+//     --all-sites-tab-active-highlight-color: var(--tool-tab-active-highlight-color);
+
+//     --all-sites-title-text-color: var(--sakai-text-color-1);
+
+//     --all-sites-button-text-color: var(--sakai-text-color-1);
+//     --all-sites-button-background-color: var(--sakai-background-color-2);
+//     --all-sites-button-border-color: var(--sakai-border-color);
+//     --all-sites-button-star-full-color: var(--sakai-gold-50);
+//     --all-sites-button-star-empty-color: var(--sakai-text-color-1);
+
+//     --all-sites-button-selected-text-color: var(--sakai-text-color-3);
+//     --all-sites-button-selected-background-color: var(--sakai-active-color-1);
+//     --all-sites-button-selected-border-color: var(--all-sites-button-selected-background-color);
+//     --all-sites-button-selected-dropdown-color: var(--all-sites-button-selected-text-color);
+//     --all-sites-button-selected-star-full-color: var(--all-sites-button-star-full-color);
+//     --all-sites-button-selected-star-empty-color: var(--all-sites-button-star-empty-color);
+
+//     --all-sites-button-hover-text-color: var(--sakai-text-color-1);
+//     --all-sites-button-hover-background-color: var(--sakai-background-color-3);
+//     --all-sites-button-hover-border-color: var(--all-sites-button-hover-background-color);
+//     --all-sites-button-hover-dropdown-color: var(--all-sites-button-hover-text-color);
+//     --all-sites-button-hover-star-full-color: var(--all-sites-button-star-full-color);
+//     --all-sites-button-hover-star-empty-color: var(--all-sites-button-star-empty-color);
+
+//     --all-sites-button-drag-icon-color: var(--sakai-text-color-1);
+//     --all-sites-button-drag-icon-hover-color: var(--sakai-text-color-1);
+
+//     --all-sites-tool-menu-divider-color: var(--sakai-border-color);
+//     --all-sites-tool-menu-background-color: var(--all-sites-button-background-color);
+//     --all-sites-tool-menu-text-color: var(--all-sites-button-text-color);
+//     --all-sites-tool-menu-icon-color: var(--all-sites-button-text-color);
+//     --all-sites-tool-menu-left-border-color: var(--all-sites-tool-menu-background-color);
+
+//     --all-sites-tool-menu-hover-background-color: var(--all-sites-button-hover-background-color);
+//     --all-sites-tool-menu-hover-text-color: var(--all-sites-button-hover-text-color);
+//     --all-sites-tool-menu-hover-icon-color: var(--all-sites-button-hover-text-color);
+//     --all-sites-tool-menu-hover-left-border-color: var(--all-sites-tool-menu-hover-background-color);
+
+//     --all-sites-close-action-color: var(--button-text-color);
+//     --all-sites-close-action-hover-color: var(--button-hover-text-color);
+
+//     //Tool menu
+//     --tool-menu-item-separator-color: transparent;
+
+//     //Normal state
+//     --tool-menu-item-text-color: var(--sakai-text-color-2);
+//     --tool-menu-item-icon-color: var(--sakai-text-color-1);
+//     --tool-menu-item-background-color: var(--sakai-background-color-1);
+//     //Hover
+//     --tool-menu-item-hover-text-color: var(--tool-menu-item-text-color);
+//     --tool-menu-item-hover-icon-color: var(--tool-menu-item-icon-color);
+//     --tool-menu-item-hover-background-color: var(--sakai-background-color-2);
+//     //Active
+//     --tool-menu-item-active-text-color: var(--tool-menu-item-text-color);
+//     --tool-menu-item-active-icon-color: var(--tool-menu-item-icon-color);
+//     --tool-menu-item-active-background-color: var(--sakai-background-color-3);
+//     //Hidden - normal state
+//     --tool-menu-item-hidden-text-color: var(--tool-menu-item-text-color);
+//     --tool-menu-item-hidden-icon-color: var(--tool-menu-item-icon-color);
+//     --tool-menu-item-hidden-background-color: var(--tool-menu-item-background-color);
+//     //Hidden - hover
+//     --tool-menu-item-hidden-hover-text-color: var(--tool-menu-item-hover-text-color);
+//     --tool-menu-item-hidden-hover-icon-color: var(--tool-menu-item-hover-icon-color);
+//     --tool-menu-item-hidden-hover-background-color: var(--tool-menu-item-hover-background-color);
+//     //Hidden - active
+//     --tool-menu-item-hidden-active-text-color: var(--tool-menu-item-active-text-color);
+//     --tool-menu-item-hidden-active-icon-color: var(--tool-menu-item-active-icon-color);
+//     --tool-menu-item-hidden-active-background-color: var(--tool-menu-item-active-background-color);
+//     //Selected - normal state
+//     --tool-menu-item-selected-text-color: var(--sakai-text-color-3);
+//     --tool-menu-item-selected-icon-color: var(--sakai-text-color-3);
+//     --tool-menu-item-selected-background-color: var(--sakai-active-color-1);
+//     //Selected - hover
+//     --tool-menu-item-selected-hover-text-color: var(--tool-menu-item-selected-text-color);
+//     --tool-menu-item-selected-hover-icon-color: var(--tool-menu-item-selected-icon-color);
+//     --tool-menu-item-selected-hover-background-color: var(--sakai-active-color-2);
+//     //Selected - active
+//     --tool-menu-item-selected-active-text-color: var(--tool-menu-item-selected-text-color);
+//     --tool-menu-item-selected-active-icon-color: var(--tool-menu-item-selected-icon-color);
+//     --tool-menu-item-selected-active-background-color: var(--sakai-active-color-3);
+//     //Tool menu collapse button - normal state
+//     --tool-menu-collapse-text-color: var(--tool-menu-item-text-color);
+//     --tool-menu-collapse-icon-color: var(--tool-menu-item-text-color);
+//     --tool-menu-collapse-background-color: var(--tool-menu-item-background-color);
+//     --tool-menu-collapse-shadow: var(--elevation-4dp);
+//     //Tool menu collapse - hover
+//     --tool-menu-collapse-hover-text-color: var(--tool-menu-item-hover-text-color);
+//     --tool-menu-collapse-hover-background-color: var(--tool-menu-item-hover-background-color);
+//     --tool-menu-collapse-hover-shadow: var(--elevation-6dp);
+//     //Tool menu collapse - active
+//     --tool-menu-collapse-active-text-color: var(--tool-menu-item-active-text-color);
+//     --tool-menu-collapse-active-background-color: var(--tool-menu-item-active-background-color);
+//     --tool-menu-collapse-active-shadow: var(--elevation-5dp);
+//     //Tool menu collapse - minimized
+//     --tool-menu-collapse-min-text-color: var(--tool-menu-collapse-text-color);
+//     --tool-menu-collapse-min-background-color: var(--tool-menu-collapse-background-color);
+//     --tool-menu-collapse-min-shadow: var(--tool-menu-collapse-shadow);
+//     //Tool menu collapse - minimized - hover
+//     --tool-menu-collapse-min-hover-text-color: var(--tool-menu-collapse-hover-text-color);
+//     --tool-menu-collapse-min-hover-background-color: var(--tool-menu-collapse-hover-background-color);
+//     --tool-menu-collapse-min-hover-shadow: var(--tool-menu-collapse-hover-shadow);
+//     //Tool menu collapse - minimized - active
+//     --tool-menu-collapse-min-active-text-color: var(--tool-menu-collapse-active-text-color);
+//     --tool-menu-collapse-min-active-background-color: var(--tool-menu-collapse-active-background-color);
+//     --tool-menu-collapse-min-active-shadow: var(--tool-menu-collapse-active-shadow);
+
+//     //Tool menu - sub menu
+//     --tool-sub-menu-border-color: var(--sakai-border-color);
+//     --tool-sub-menu-background-color: var(--tool-menu-item-background-color);
+
+//     --tool-sub-menu-hover-color: var(--tool-menu-item-hover-text-color);
+//     --tool-sub-menu-hover-background-color: var(--tool-menu-item-hover-background-color);
+
+//     --tool-sub-menu-current-color: var(--tool-menu-item-selected-text-color);
+//     --tool-sub-menu-current-background-color: var(--tool-menu-item-selected-background-color);
+
+//     --tool-sub-menu-current-hover-color: var(--tool-menu-item-selected-hover-text-color);
+//     --tool-sub-menu-current-hover-background-color: var(--tool-menu-item-selected-hover-background-color);
+
+//     //Tool menu - lessons subpages enabled
+//     --tool-lessons-toplevel-menu-selected-background-color: var(--tool-menu-item-background-color); //not used??
+
+//     --tool-lessons-toplevel-menu-expanded-background-color: var(--tool-menu-item-background-color);
+//     --tool-lessons-toplevel-menu-expanded-hover-background-color: var(--tool-menu-item-hover-background-color);
+//     --tool-lessons-toplevel-menu-expanded-selected-background-color: var(--tool-menu-item-selected-background-color);
+//     --tool-lessons-toplevel-menu-expanded-selected-color: var(--tool-menu-item-selected-color);
+
+//     --tool-lessons-toplevel-menu-sliding-background-color: var(--tool-menu-item-background-color);
+
+//     --tool-lessons-subpage-menu-selected-background-color: var(--tool-menu-item-selected-background-color);
+//     --tool-lessons-subpage-menu-selected-parent-background-color: var(--tool-menu-item-background-color);
+
+//     --tool-lessons-subpage-menu-expanded-background-color: var(--tool-menu-item-background-color);
+
+//     --lessons-item-border-top-color: var(--sites-nav-menu-item-background);
+//     --lessons-column-border-color: var(--sakai-border-color);
+//     --lessons-item-hover-background: var(--sakai-background-color-2);
+//     --lessons-item-hover-shadow: var(--elevation-4dp);
+
+//     --siteUnpublish-background: var(--warnBanner-bgcolor);
+//     --siteUnpublish-color: var(--warnBanner-color);
+//     --siteUnpublish-border-color:  var(--warnBanner-bordercolor);
+
+//     --siteDelete-background: var(--infoBanner-bgcolor);
+//     --siteDelete-color: var(--infoBanner-color);
+//     --siteDelete-border-color: var(--infoBanner-bordercolor);
+
+//     --footer-background-color: var(--sakai-background-color-1); //not used??
+//     --footer-border-color: var(--tool-border-color); //not used??
+
+//     --footer-color: var(--sakai-text-color-1);
+//     --footer-link-separator: var(--sakai-border-color);
+
+//     --divider-shadow: var(--elevation-2dp);
+//     --divider-shadow-fixed: 0 1px 0 var(--tool-border-color);
+
+//     --overview-portlet-shadow: var(--elevation-2dp);
+//     --overview-portlet-title-background-color: var(--tool-tab-background-color);
+
+//     --focus-outline-color: var(--sakai-blue-35);
+
+//     // Dashboard
+//     --sakai-dashboard-widget-bg-color: var(--sakai-background-color-1);
+//     --sakai-dashboard-widget-border-color: var(--sakai-border-color);
+//     --sakai-title-bar-bg-color: var(--sakai-background-color-2);
+//     --sakai-close-icon-color: var(--errorBanner-color);
+//     --sakai-table-even-color: var(--sakai-background-color-2);
+//     --sakai-separator-color: var(--sakai-border-color);
+//     --sakai-calendar-button-background-color: #FFFFFF;
+//     --sakai-calendar-button-color: var(--button-text-color);
+//     --sakai-calendar-button-disabled-color: var(--button-disabled-text-color);
+//     --sakai-calendar-button-disabled-bg-color: var(--button-disabled-background);
+//     --sakai-calendar-today-bg-color: var(--sakai-primary-color-1);
+//     --sakai-calendar-today-fg-color: var(--sakai-text-color-inverted);
+//     --sakai-calendar-has-events-bg-color: var(--sakai-green-70);
+//     --sakai-calendar-has-events-fg-color: var(--sakai-text-color-inverted);
+//     --sakai-grades-count-color: var(--sakai-text-color-dimmed);
+
+//     // sakai-options-menu
+//     --sakai-options-menu-background-color: #D4EBF9;
+//     --sakai-options-menu-color: black;
+
+//     --sakai-user-status-online: var(--sakai-green-40);
+
+//     --sakai-popover-background: var(--sakai-background-color-1);
+//     --sakai-popover-title-background: var(--sakai-background-color-1);
+//     --sakai-hightlight-color: var(--errorBanner-color);
+
+//     --progress-bar-bg: var(--infoBanner-bordercolor);
+
+//     --sakai-theme-switch-ease: background-color 0.6s cubic-bezier(0.76, 0, 0.24, 1);
 
 // }
 
-// Uncomment and add custom properties to customize dark theme
-// :root.sakaiUserTheme-dark {
-
-// }
+// // Tables
+// $table-bg-accent: var(--sakai-background-color-2);
+// $sakai-table-bg-hover: var(--sakai-background-color-2);
+// $table-border-color: var(--sakai-border-color);

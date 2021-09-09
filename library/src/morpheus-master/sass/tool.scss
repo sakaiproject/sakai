@@ -4,7 +4,8 @@
 @import "themes/light";
 @import "themes/dark";
 //customization is copied from the user supplied file by maven
-@import "customization";
+@import "customization-lib";
+@import "customization-main";
 @import "themes/generate";
 
 @import "base/bootstrap-defaults";
