@@ -5359,7 +5359,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 return;
             } else {
                 state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentReference);
-                state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE);
+                if (assignmentService.canSubmit(assignment)) {
+                    state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE);
+                } else {
+                    doView_submission(data);
+                    return;
+                }
             }
         } else {
             // if no assignment add alert and return to assignment list
@@ -5657,6 +5662,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     log.warn("User {} could not update submission {}", user.getId(), submission.getId(), pe);
                     doView_assignment_honorPledge(data);
                 }
+            } else {
+                doView_submission(data);
             }
         }
     }

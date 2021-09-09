@@ -384,7 +384,7 @@
 												#end
 											#else
 												<strong>#assignmentTitleIcon($assignment)
-													#if ($assignment.HonorPledge)
+													#if ($assignment.HonorPledge && $service.canSubmit($assignment))
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
                                                     	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
