@@ -55,13 +55,17 @@
         padding-left: 10px;
         overflow: auto;
     }
-        .commons-editor-text {
-            overflow: auto;
-        }
-            #commons-post-creator-editor {
-                min-height: 32px;
-                height: auto;
-            }
+
+    .commons-editor-text {
+        overflow: auto;
+    }
+
+    #commons-post-creator-editor {
+        min-height: 32px;
+        height: auto;
+        display: block;
+        padding-left: 1px;
+    }
 
     .commons-post-author {
         font-weight: bold;
