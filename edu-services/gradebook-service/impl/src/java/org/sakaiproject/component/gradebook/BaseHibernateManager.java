@@ -537,7 +537,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     public List<GradebookAssignment> getAssignmentsForCategory(final Long categoryId) throws HibernateException{
     	final HibernateCallback<List<GradebookAssignment>> hc = session -> session
-                .createQuery("from GradebookAssignment as assign where assign.category = :categoryid and assign.removed is false")
+                .createQuery("from GradebookAssignment as assign where assign.category.id = :categoryid and assign.removed is false")
                 .setParameter("categoryid", categoryId)
                 .list();
     	return getHibernateTemplate().execute(hc);
