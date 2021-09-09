@@ -1143,7 +1143,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
 				return getHtmlBody();
 			else 
-				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText( m_formattedText.decodeNumericCharacterReferences(m_body)));
+				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText( m_formattedText.decodeNumericCharacterReferences(m_body)) );
 				
 		} // getHtmlBody
 
