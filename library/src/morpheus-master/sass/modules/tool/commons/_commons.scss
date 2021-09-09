@@ -271,3 +271,9 @@ span.commons-high-priority {
     float: right;
 }
 
+.commons-post-content[contenteditable="true"] {
+    display: inline-block;
+    min-width: 100%;
+    border: 1px solid black;
+    overflow: hidden;
+}
