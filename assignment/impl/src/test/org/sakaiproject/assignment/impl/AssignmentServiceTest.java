@@ -1416,7 +1416,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                 AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
                 BeanUtils.copyProperties(ts, timeSheet);
                 timeSheet.setId(null);
-                timeSheet.setAsnComment(ts.getAsnComment());
+                timeSheet.setComment(ts.getComment());
                 timeSheet.setRegDate(ts.getRegDate());
                 timeSheet.setDuration(ts.getDuration());
                 timeSheet.setSubmitter(submitter);

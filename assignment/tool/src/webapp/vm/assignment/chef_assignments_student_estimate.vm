@@ -48,7 +48,7 @@
                     $!service.getUsersLocalDateTimeString($timeSheetSubmit.regDate)
                 </td>
                 <td>
-                    $timeSheetSubmit.asnComment
+                    $timeSheetSubmit.comment
                 </td>
                 <td>
                     $timeSheetSubmit.duration
