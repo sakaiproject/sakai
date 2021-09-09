@@ -110,13 +110,13 @@ commons.switchState = function (state, arg) {
             }
 
             editor.click(function (e) {
-
                 if (this.innerHTML == commons.i18n['post_editor_initial_text']) {
                     this.innerHTML = '';
                     $('#commons-editor-post-button').prop('disabled', false);
                     editorPostButton.prop('disabled', false);
                     editorCancelButton.prop('disabled', false);
                 }
+                editor.focus();
             }).on('paste', function (e) {
 
                 var cd = e.originalEvent.clipboardData;
