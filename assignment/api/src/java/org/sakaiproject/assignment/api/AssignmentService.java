@@ -822,7 +822,7 @@ public interface AssignmentService extends EntityProducer {
 
     public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
 
-    public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
+    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException;
 	
     public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
 
