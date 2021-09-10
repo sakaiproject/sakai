@@ -87,14 +87,15 @@ public class StylableSelectOptions extends RepeatingView {
 					String text = renderer.getDisplayValue(value);
 					IModel model = renderer.getModel(value);
 					String style = renderer.getStyle(value);
-					row.add(newOption(text, model, style));
+					String iconClass = renderer.getIconClass(value);
+					row.add(newOption(text, model, style, iconClass));
 				}
 			}
 		}
 	}
 	
-	protected SelectOption newOption(String text, IModel model, String style) {
-		return new StylableSelectOption("option", model, text, style);
+	protected SelectOption newOption(String text, IModel model, String style, String iconClass) {
+		return new StylableSelectOption("option", model, text, style, iconClass);
 	}
 	
 	private static class StylableSelectOption extends SelectOption {
@@ -102,16 +103,18 @@ public class StylableSelectOptions extends RepeatingView {
 
 		private final String		text;
 		private final String		style;
+		private final String		iconClass;
 
 		/**
 		 * @param id
 		 * @param model
 		 * @param text
 		 */
-		public StylableSelectOption(String id, IModel model, String text, String style) {
+		public StylableSelectOption(String id, IModel model, String text, String style, String hclass) {
 			super(id, model);
 			this.text = text;
 			this.style = style;
+			this.iconClass = hclass;
 			setIgnoreAttributeModifier(false);
 		}
 
@@ -123,6 +126,9 @@ public class StylableSelectOptions extends RepeatingView {
 		protected void onComponentTag(ComponentTag tag) {
 			if(style != null && !"null".equals(style)) {
 				tag.put("style", style);
+			}
+			if(iconClass != null && !"null".equals(iconClass)) {
+				tag.put("class", iconClass);
 			}
 			super.onComponentTag(tag);
 		}

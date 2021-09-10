@@ -10,6 +10,12 @@
             <button id="commons-editor-cancel-button" disabled="true">{{tr 'cancel'}}</button>
             <button id="commons-editor-link-button" class="commons-editor-special-button" title="{{tr 'link_button_tooltip'}}"><span class="fa fa-link"></span></button>
             <button id="commons-editor-image-button" class="commons-editor-special-button" title="{{tr 'image_button_tooltip'}}"><span class="fa fa-picture-o"></span></button>
+            <span id="commons-editor-priority-container" style="display:none;">
+                <input type="checkbox" id="commons-editor-priority" class="commons-editor-priority"></input>
+                <label for="commons-editor-priority" class="commons-editor-priority-label">{{tr 'priority'}}</label>
+                <a href="javascript://" data-toggle="popover" data-placement="top" data-trigger="focus" data-html="true" data-content="{{tr 'priorityHelp'}}" id="commons-editor-priority-help" class="fa fa-question-circle" ></a>
+                <br>
+            </span>
         </div>
     </div>
 

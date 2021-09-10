@@ -30,13 +30,15 @@
 				<p class="instruction">
 					<h:outputText escape="false" value="#{msgs.watch_forums_options_instruction}" />
 				</p>
-				  <h:panelGroup>
-					  <h:selectOneRadio layout="pageDirection" id="emailNotificationOption"  value="#{ForumTool.watchSettingsBean.emailNotification.notificationLevel}">
-    					<f:selectItem itemValue="2" itemLabel="#{msgs.notify_for_all_postings}"/>
-    					<f:selectItem itemValue="1" itemLabel="#{msgs.notify_for_postings_to_my_thread}"/>
-    					<f:selectItem itemValue="0" itemLabel="#{msgs.notify_none}"/>
-  					</h:selectOneRadio>
-				  </h:panelGroup>
+				<h:panelGroup layout="block" styleClass="indnt1">
+					<h:panelGroup styleClass="checkbox">
+						<h:selectOneRadio layout="pageDirection" id="emailNotificationOption"  value="#{ForumTool.watchSettingsBean.emailNotification.notificationLevel}">
+							<f:selectItem itemValue="2" itemLabel="#{msgs.notify_for_all_postings}"/>
+							<f:selectItem itemValue="1" itemLabel="#{msgs.notify_for_postings_to_my_thread}"/>
+							<f:selectItem itemValue="0" itemLabel="#{msgs.notify_none}"/>
+						</h:selectOneRadio>
+					</h:panelGroup>
+				</h:panelGroup>
 
         <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveEmailNotificationOption}" 

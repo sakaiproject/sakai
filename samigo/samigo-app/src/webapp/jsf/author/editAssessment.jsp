@@ -321,7 +321,7 @@ $(window).load( function() {
         <!-- each selectItem stores the itemtype, current sequence -->
         <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
+             <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
         </h:selectOneMenu>
       </div>
     </div>
@@ -374,8 +374,8 @@ $(window).load( function() {
 	</h:panelGroup>
 
 	<!--Rubrics icon-->
-	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
-	<h:outputText styleClass="fa fa-table" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 
 
         </h:panelGroup>
@@ -464,7 +464,7 @@ $(window).load( function() {
           <!-- each selectItem stores the itemtype, current sequence -->
           <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-            <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
+            <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
           </h:selectOneMenu>
           <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
             <f:param name="itemSequence" value="#{question.itemData.sequence}"/>

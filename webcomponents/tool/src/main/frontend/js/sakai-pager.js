@@ -100,6 +100,5 @@ export class SakaiPager extends LionPagination {
   }
 }
 
-if (!customElements.get("sakai-pager")) {
-  customElements.define("sakai-pager", SakaiPager);
-}
+const tagName = "sakai-pager";
+!customElements.get(tagName) && customElements.define(tagName, SakaiPager);

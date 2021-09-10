@@ -75,18 +75,8 @@ function resetWysiwygi(hDiv)
  else 
  {
     var tas = hDiv.getElementsByTagName("textarea");
-    for (j=0; j<tas.length; j++)
-    {
+    for (j=0; j<tas.length; j++) {
        var childId = tas[j].id;
-       if (document.wysiwyg == "FCKeditor")
-       {
-           editor = FCKeditorAPI.GetInstance(childId);
-           if (editor && editor.EditorDocument && editor.EditMode == FCK_EDITMODE_WYSIWYG) {
-              editor.SwitchEditMode()
-              editor.SwitchEditMode()
-           }
-       }  
-
     }
     return;
  }

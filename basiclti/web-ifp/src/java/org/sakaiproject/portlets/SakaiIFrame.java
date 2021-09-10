@@ -188,7 +188,6 @@ public class SakaiIFrame extends GenericPortlet {
 				if ( content == null ) {
 					content = patchContentItem(contentId, placement);
 					source = placement.getPlacementConfig().getProperty(SOURCE);
-					contentId = getContentIdFromSource(source);
 				}
 
 				// If content is still null after patching, let the NPE happen
@@ -199,6 +198,12 @@ public class SakaiIFrame extends GenericPortlet {
 					tool = m_ltiService.getTool(tool_id, placement.getContext());
 					m_ltiService.filterContent(content, tool);
 				}
+
+				// Prefer frameheight from the lti tool / content configuration vs the placement
+				if (content.get(LTIService.LTI_FRAMEHEIGHT) instanceof Integer) {
+					height = content.get(LTIService.LTI_FRAMEHEIGHT) + "px";
+				}
+
 				Object popupValue = content.get("newpage");
 				popup = getLongNull(popupValue) == 1;
 				if ( oldPopup != popup ) {

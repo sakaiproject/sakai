@@ -232,15 +232,20 @@ public class BasePage extends WebPage {
 	 * Helper to build a notification flag with a Bootstrap popover
 	 */
 	public WebMarkupContainer buildFlagWithPopover(final String componentId, final String message) {
+		return buildFlagWithPopover(componentId, message, "manual", "#gradebookGrades");
+	}
+
+	public WebMarkupContainer buildFlagWithPopover(final String componentId, final String message,
+			final String trigger, final String container) {
 		final WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("aria-label", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
-		flagWithPopover.add(new AttributeModifier("data-trigger", "manual"));
+		flagWithPopover.add(new AttributeModifier("data-trigger", trigger));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
-		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
+		flagWithPopover.add(new AttributeModifier("data-container", container));
 		flagWithPopover.add(new AttributeModifier("data-template",
 				"<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));

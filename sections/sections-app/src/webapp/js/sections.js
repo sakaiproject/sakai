@@ -61,8 +61,8 @@ function reEnableLimits(component) {
 
 function updateOptionBoxes(externallyManaged) {
 	if(externallyManaged == null) {
-		var external = document.optionsForm[0];
-		var internal = document.optionsForm[1];
+		var external = document.optionsForm[1];
+		var internal = document.optionsForm[2];
 		if(external.checked) {
 			externallyManaged = external;
 		} else {
@@ -283,20 +283,18 @@ function initManuallyManageDialog() {
 	});
 }
 
-function update(management) {	
-	if(document.optionsForm[1].checked){		
-		if(management == 'external'){			
-			initManuallyManageDialog(); 
+function update(management) {
+	if(document.optionsForm[2].checked){
+		if(management == 'external'){
+			initManuallyManageDialog();
 			return false;
 		}
-	}else{		
-		if(management == 'internal'){						
-			document.getElementById('optionsForm:updateSectionsButton').click();			
+	}else{
+		if(management == 'internal'){
+			document.getElementById('optionsForm:updateSectionsButton').click();
 			return false;
 		}
 	}
-	document.getElementById('optionsForm:confirmExternallyManagedButton').click(); 
-	return false;
 }
 
 function submitSearchText(event) {

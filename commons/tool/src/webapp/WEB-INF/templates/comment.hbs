@@ -3,6 +3,17 @@
     <span id="commons-comment-author-name-{{id}}"><a id="commons-author-name-{{id}}" href="javascript:;" class="commons-comment-author-name profile-popup-trigger" data-user-id="{{creatorId}}">{{creatorDisplayName}}</a></span>
     <span id="commons-comment-content-{{id}}" class="commons-comment-content">{{{content}}}</span>
     <div id="commons-comment-options-{{id}}" class="commons-comment-options">
+        <span id="commons-like-section" >
+            <a href="javascript:;" id="commons-like-link-{{id}}" class="commons-like-link" data-post-id="{{id}}" >
+                <span id="commons-like-icon-{{id}}" class="fa fa-thumbs-o-up" ></span>
+                {{tr 'like'}}
+            </a>
+            <a href="javascript://" data-toggle="popover" data-html="true" data-content="" id="commons-likes-count-{{id}}" class="commons-likes-count" data-post-id="{{id}}" >
+                (<span id="commons-likes-count-number-{{id}}" data-count="0">0</span>
+                <span id="commons-likes-people-{{id}}" >{{tr 'people'}}</span>
+                <span id="commons-likes-person-{{id}}" style="display:none;">{{tr 'person'}}</span>)
+            </a>
+        </span>
         {{#if canEdit}}
         <a href="javascript:;" id="commons-comment-edit-link-{{id}}" class="commons-comment-edit-link" data-comment-id="{{id}}" data-creator-id="{{creatorId}}">{{tr 'edit'}}</a>
         {{/if}}

@@ -448,6 +448,11 @@ div.wicket-modal .w_blue div.w_content
 .gb-summary-grade-panel .gb-summary-category-toggle:active {
   text-decoration: none;
   display: flex;
+  flex-grow: 2;
+}
+.gb-summary-grade-panel .gb-summary-category-toggle-container {
+  display: flex;
+  justify-content: space-between;
 }
 .gb-summary-grade-title {
   font-weight: normal;

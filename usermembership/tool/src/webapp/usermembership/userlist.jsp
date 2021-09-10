@@ -17,7 +17,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script src="/library/js/spinner.js"></script>
+	<script src="/sakai-usermembership-tool/usermembership/js/usermembership.js"></script>
 	<%/*<sakai:flowState bean="#{UserListBean}"/>*/%>
 	<h:outputText value="#{UserListBean.initValues}"/>
 	
@@ -30,59 +31,49 @@
 	</style>
 
 	<h:form id="userlistForm" rendered="#{UserListBean.allowed}">
-		<h3><h:outputText value="#{msgs.title_userlist}"/></h3>
-	  	<sakai:instruction_message value="#{msgs.instructions_userlist}" />
-	
-		<t:div style="width:100%">
-		<h:panelGrid styleClass="sectionContainerNav" style="width: 100%;vertical-align:bottom;" columns="2" columnClasses="left,right">
-			<h:panelGrid styleClass="sectionContainerNav" columns="2">
-				<h:outputLabel for="selectType" value="#{msgs.combo_user_type}"/>
-				<t:selectOneMenu 
-	    	            id="selectType"
-			           	immediate="true"
-			           	value="#{UserListBean.selectedUserType}"
-			           	title="#{msgs.combo_user_type_title}"
-			       		style="width: 160px;">
-	    	        <f:selectItems value="#{UserListBean.userTypes}"/> 
-		        </t:selectOneMenu> 	
-	            <h:outputLabel for="selectAuthority" value="#{msgs.combo_user_ext}"/>
-	            <t:selectOneMenu 
-	    	           	id="selectAuthority"
-			       		immediate="true"
-			       		value="#{UserListBean.selectedAuthority}"
-			       		title="#{msgs.combo_user_ext_title}"
-			       		style="width: 160px;">
-	    	        <f:selectItems value="#{UserListBean.userAuthorities}"/> 
-		        </t:selectOneMenu>
-			</h:panelGrid>
-			
-			<t:div styleClass="act" style="padding: 0em;">
-				<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}"
-					valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
-					size="20" title="#{msgs.bar_input_search_title}"
-					onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"/>
-				<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
-					onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
-					styleClass="active" style="margin-left: 3px !important;"
-					onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
-					onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
-					rendered="#{UserListBean.renderClearSearch}" style="margin-left: 3px !important;"
-					onclick="SPNR.disableControlsAndSpin( this, null );" />					
-	        </t:div>
-	 	</h:panelGrid>
-		
+		<t:div styleClass="page-header">
+			<h1><h:outputText value="#{msgs.title_userlist}"/></h1>
+		</t:div>
+		<sakai:instruction_message value="#{msgs.instructions_userlist}" />
 
-		<sakai:pager
-				id="pager" 
-				totalItems="#{UserListBean.totalItems}"
-				firstItem="#{UserListBean.firstItem}"
-				pageSize="#{UserListBean.pageSize}"
-				accesskeys="true"
-				immediate="true"
-				rendered="#{UserListBean.renderPager}"
-				textItem="#{msgs.users}" />
-		
+		<t:div styleClass="sakai-table-toolBar">
+			<t:div styleClass="sakai-table-filterContainer">
+				<t:div styleClass="sakai-table-viewFilter">
+					<h:outputLabel for="selectType" value="#{msgs.combo_user_type}"/>
+					<t:selectOneMenu id="selectType" styleClass="form-control" immediate="true" value="#{UserListBean.selectedUserType}" title="#{msgs.combo_user_type_title}">
+						<f:selectItems value="#{UserListBean.userTypes}"/> 
+					</t:selectOneMenu>
+				</t:div>
+				<t:div styleClass="sakai-table-viewFilter">
+					<h:outputLabel for="selectAuthority" value="#{msgs.combo_user_ext}"/>
+					<t:selectOneMenu id="selectAuthority" styleClass="form-control" immediate="true" value="#{UserListBean.selectedAuthority}" title="#{msgs.combo_user_ext_title}">
+						<f:selectItems value="#{UserListBean.userAuthorities}"/> 
+					</t:selectOneMenu>
+				</t:div>
+				<t:div styleClass="sakai-table-searchFilter">
+					<h:outputLabel for="inputSearchBox" value="#{msgs.bar_input_search_title}"/>
+					<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}" styleClass="sakai-table-searchFilter-searchField form-control"
+						valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
+						size="20" title="#{msgs.bar_input_search_title}"
+						onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"
+					/>
+					<t:div styleClass="act">
+						<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
+							onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
+							styleClass="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<h:commandButton id="clearSearchButton" action="#{UserListBean.processActionClearSearch}"
+							rendered="#{UserListBean.renderClearSearch}"
+							onkeypress="document.forms[0].submit;" value="#{msgs.bar_clear_search}"
+							onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</t:div>
+				</t:div>
+			</t:div>
+			<t:div styleClass="sakai-table-pagerContainer">
+				<sakai:pager id="pager" totalItems="#{UserListBean.totalItems}" firstItem="#{UserListBean.firstItem}"
+					pageSize="#{UserListBean.pageSize}" accesskeys="true" immediate="true"
+					rendered="#{UserListBean.renderPager}" textItem="#{msgs.users}" />
+			</t:div>
+		</t:div>
 	 	<t:dataTable 
 			value="#{UserListBean.userRows}"
 			var="row"
@@ -171,8 +162,8 @@
 			<h:commandButton id="exportCsv" actionListener="#{UserListBean.exportAsCsv}" value="#{msgs.export_csv_button}"/>
 			<h:commandButton id="exportXls" actionListener="#{UserListBean.exportAsXls}" value="#{msgs.export_excel_button}"/>
 		</t:div>
-		</t:div>	
 
 	</h:form>
+	<script>sakaiUserMembership.bindInputSearchChange();</script>
 </sakai:view>
 </f:view>

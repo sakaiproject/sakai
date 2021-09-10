@@ -5,9 +5,11 @@
 	<h3>
 		$tlang.getString("action.props") 
 	</h3>
-	
+
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
+		<div id="resourceAlert" class="sak-banner-error">$tlang.getString("label.alert") $formattedText.escapeHtml($alertMessage)</div>
+	#else
+		<div id="resourceAlert" class="sak-banner-error hide"></div>
 	#end
 
 	<p class="instruction">
@@ -37,38 +39,36 @@
 			</div>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />
-		</div>			
+		</div>
 	
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			#if($model.isDropbox())
-			 	## SAK-18932 show email checkbox only when possible to use it
-				#if($dropboxNotificationAllowed)
-					<p class="act">
-						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
-						<label for="notify_dropbox">
-							#if($model.isCourseSite())
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.student")
-								#else
-									$tlang.getString("notify.instructor")
-								#end
+		<p class="act">
+			<input type="button" class="active" id="finish_button" value="$tlang.getString("label.update")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+
+			#if ($model.resourceTypeDef.hasNotificationDialog())
+				## SAK-18932 show email checkbox only when possible to use it
+				#if($model.isDropbox() && $dropboxNotificationAllowed)
+					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
+					<label for="notify_dropbox">
+						#if($model.isCourseSite())
+							#if($model.userIsMaintainer())
+								$tlang.getString("notify.student")
 							#else
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.access")
-								#else
-									$tlang.getString("notify.maintain")
-								#end
+								$tlang.getString("notify.instructor")
 							#end
-						</label>
-					</p>
-				#end
-			#elseif($model.isUserSite())
-			#elseif (!$item.isCollection())
-				<p>
+						#else
+							#if($model.userIsMaintainer())
+								$tlang.getString("notify.access")
+							#else
+								$tlang.getString("notify.maintain")
+							#end
+						#end
+					</label>
+				#elseif (!$model.isCollection())
 					<label for="notify">
 						$tlang.getString("gen.email1")
-					</label>	
-					<select name="notify" id="notify">
+					</label>
+					<select name="notify" id="notify" title="$tlang.getString("gen.email.help")" aria-label="$tlang.getString("gen.email.help")">
 						#if ($noti)
 							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
 							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
@@ -77,15 +77,10 @@
 							<option value="r">$tlang.getString("gen.email2")</option>
 							<option value="o">$tlang.getString("gen.email3")</option>
 							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-						#end							
+						#end
 					</select>
-				</p>	
+				#end
 			#end
-		#end
-	
-		<p class="act">
-			<input type="button" class="active" id="finish_button" value="$tlang.getString("label.update")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

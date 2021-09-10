@@ -181,22 +181,12 @@ public class MembershipAction extends PagedResourceActionII
 		}
 		else if( JOINABLE_MODE.equals( mode ) )
 		{
-			if (sortAsc)
-			{
-				List<Site> sites = SITE_SERV.getSites(SelectionType.JOINABLE, null, search, null, SortType.TITLE_ASC, page);
+			SortType sort = sortAsc ? SortType.TITLE_ASC : SortType.TITLE_DESC;
+			List<Site> sites = SITE_SERV.getSites(SelectionType.JOINABLE, null, search, null, sort, page);
 
-				// SAK-24423 - filter sites taking into account 'exclude from public list' setting and global toggle
-				JoinableSiteSettings.filterSitesListForMembership( sites );
-				rv = sites;
-			}
-			else
-			{
-				List<Site> sites = SITE_SERV.getSites(SelectionType.JOINABLE, null, search, null, SortType.TITLE_DESC, page);
-
-				// SAK-24423 - filter sites taking into account 'exclude from public list' setting and global toggle
-				JoinableSiteSettings.filterSitesListForMembership( sites );
-				rv = sites;
-			}
+			// SAK-24423 - filter sites taking into account 'exclude from public list' setting and global toggle
+			JoinableSiteSettings.filterSitesListForMembership( sites );
+			rv = sites;
 		}
 		else
 		{

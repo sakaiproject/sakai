@@ -52,6 +52,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       // State vars we want to trigger a render
       submittedTextMode: Boolean,
       submission: Object,
+      nonEditedSubmission: { attribute: false, type: Object },
       graderOnLeft: Boolean,
       selectedAttachment: { type: Object },
       saveSucceeded: Boolean,
@@ -60,6 +61,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       ungradedOnly: Boolean,
       submissionsOnly: Boolean,
       showResubmission: Boolean,
+      isChecked: { attribute: false, type: Boolean },
       totalGraded: Number,
       token: { type: String },
       rubric: { type: Object },
@@ -79,13 +81,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   set submission(newValue) {
-
+    if (!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id) {
+      this.nonEditedSubmission = {};
+      Object.assign(this.nonEditedSubmission, newValue);
+    }
     this._submission = newValue;
     this.saveSucceeded = false;
     this.saveFailed = false;
     this.modified = false;
     this.rubricParams = new Map();
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
+    this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"];
 
     this.submittedTextMode = this._submission.submittedText;
 
@@ -290,8 +296,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     type="checkbox"
                     aria-label="${this.i18n["checkgrade_label"]}"
                     @click=${this.gradeSelected}
-                    value="Checked"
-                    .checked=${this.submission.grade === this.assignmentsI18n["gen.checked"]}>
+                    value="${this.assignmentsI18n["gen.checked"]}"
+                    .checked=${this.isChecked}>
             </input>
             <span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
             ${this.renderSaved()}
@@ -800,8 +806,20 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
 
+  clearSubmission() {
+  
+    const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
+    this.submissions[currentIndex] = this.nonEditedSubmission;
+    this.querySelector("sakai-grader-file-picker").reset();
+    return true;
+  }
+
   canNavigate() {
-    return this.modified ? confirm(this.i18n["confirm_discard_changes"]) : true;
+    const nFiles = this.querySelector("sakai-grader-file-picker").files.length;
+    return this.modified || nFiles > 0 ?
+              confirm(this.i18n["confirm_discard_changes"]) ?
+                this.clearSubmission() : false
+              : true;
   }
 
   validateGradeInput(e) {
@@ -835,6 +853,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       } else {
         this.submission.grade = "Unchecked";
       }
+      this.isChecked = e.target.checked;
     } else {
       this.submission.grade = e.target.value;
     }

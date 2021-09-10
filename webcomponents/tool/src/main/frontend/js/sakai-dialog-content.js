@@ -67,18 +67,31 @@ class SakaiDialogContent extends LitElement {
   static get styles() {
 
     return css`
+    a {
+      color: var(--link-color);
+    }
+    a:hover { 
+      color: var(--link-hover-color);
+    }
+    a:active {
+      color: var(--link-active-color);
+    }
+    a:visited {
+      color: var(--link-visited-color);
+    }
       #container {
-        background-color: white;
+        background-color: var(--sakai-background-color-2);
         font-family: var(--sakai-font-family);
         min-width: 400px;
+        box-shadow: var(--elevation-8dp);
       }
         #titlebar {
           padding: 14px;
           display: flex;
           font-size: 16px;
           align-items: center;
-          background-color: white;
-          border-bottom: black solid 1px;
+          background-color: var(--sakai-background-color-3);
+          border-bottom: var(--sakai-border-color) solid 1px;
         }
           #title {
             flex: 2;

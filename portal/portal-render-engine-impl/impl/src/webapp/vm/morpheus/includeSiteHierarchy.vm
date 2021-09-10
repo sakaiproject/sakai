@@ -18,8 +18,11 @@
         #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
         
         #set ($tabCountBread = 0)
-        
-        <div class="Mrphs-hierarchy--parent-sites">
+
+        #set ($hasSubsitesClass      = "#if($portalPwd.size() > 1)phone-hidden#{else}#end")
+        #set ($hasSubsitesPhoneClass = "#if($portalPwd.size() > 1)phone-only#{else}#end")
+
+        <div class="Mrphs-hierarchy--parent-sites $hasSubsitesClass">
             #foreach ( $pwd in $portalPwd )
 
                 #set ($tabCountBread = $tabCountBread + 1)
@@ -48,7 +51,7 @@
     #set($index = 0)
     #foreach( $page in $sitePages.pageNavTools )
         #if ( $index == 0 )
-            <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
+            <span class="Mrphs-hierarchy--siteName $hasSubsitesClass" title="${siteTitle}">
                 <a href="${page.pageResetUrl}">
                     #if (${isUserSite})
                         <i class='fa fa-home' aria-hidden="true"></i>
@@ -62,6 +65,43 @@
         #end
         #set($index = $index + 1 )
     #end
+
+    #if ($tabCountBread > 1 )
+        #set($index = 0)
+        #set ($tabCountBread = 0)
+        <div class="Mrphs-hierarchy--parent-sites $hasSubsitesPhoneClass">
+            <ul class="nav nav-tabs" id="mobile-breadcrumb" role="tablist">
+                <li role="presentation" class="dropdown">
+                    #foreach( $page in $sitePages.pageNavTools )
+                        #if ( $index == 0 )
+                            <a href="#" class="dropdown-toggle" id="current-site-tab" data-toggle="dropdown" aria-controls="subsites-breadcrumb" aria-expanded="false" title="${siteTitle}">
+                                #if (${isUserSite})
+                                    <i class='fa fa-home' aria-hidden="true"></i>
+                                #end
+                                <span>
+                                    ${siteTitleTruncated}
+                                </span>
+                            </a>
+
+                        #end
+                        #set($index = $index + 1 )
+                    #end
+                    <ul class="dropdown-menu" aria-labelledby="current-site-tab" id="subsites-breadcrumb">
+                        #foreach ( $pwd in $portalPwd )
+                            #set ($tabCountBread = $tabCountBread + 1)
+                            <li>
+                                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" role="tab" id="breadbrumb-dropdown-item-${$tabCountBread}" data-toggle="tab">
+                                    <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end</span>
+                                    <i class="fa fa-level-up" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                        #end ## END of FOREACH ( $pwd in $portalPwd )
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    #end
+
     </div>
 
     

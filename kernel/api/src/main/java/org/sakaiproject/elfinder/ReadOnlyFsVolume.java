@@ -56,7 +56,7 @@ public abstract class ReadOnlyFsVolume  implements SakaiFsVolume {
 
     @Override
     public void filterOptions(SakaiFsItem item, Map<String, Object> map) {
-        map.put("disabled", Arrays.asList(new String[]{"create", "rm", "duplicate", "rename", "mkfile", "mkdir", "search", "zipdl"}));
+        map.put("disabled", Arrays.asList(new String[]{"create", "rm", "duplicate", "rename", "mkfile", "mkdir", "search", "zipdl", "download"}));
         // Disable chunked uploads.
         map.put("uploadMaxConn", "-1");
     }

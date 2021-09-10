@@ -111,7 +111,7 @@
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>test-components.xml</include>
-                    <include>log4j.properties</include>
+                    <include>log4j2.properties</include>
                 </includes>
             </testResource>
         </testResources>

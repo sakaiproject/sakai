@@ -29,15 +29,15 @@
                         <%@ include file="toolbar.jspf"%>
 
                         <div class="page-header">
-                                <h1><h:outputText rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" value="#{msgs.prefs_editor_tab_title}" /></h1>
+                                <h1><h:outputText value="#{msgs.prefs_editor_tab_title}" /></h1>
                         </div>
 
                         <t:div rendered="#{UserPrefsTool.editorUpdated}">
                                 <jsp:include page="prefUpdatedMsg.jsp"/>
                         </t:div>
 
-                        <p class="instruction"><h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/></p>
-                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" styleClass="addRadioLabelPadding">
+                        <p class="instruction"><h:outputText value="#{msgs.editor_prompt}" /></p>
+                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection" styleClass="addRadioLabelPadding">
                                                 <f:selectItem itemValue="auto" itemLabel="#{msgs.editor_auto}"/>
                                                 <f:selectItem itemValue="basic" itemLabel="#{msgs.editor_basic}"/>
                                                 <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>

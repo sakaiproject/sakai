@@ -23,6 +23,7 @@ sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
 // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
 sakai.editor.enableResourceSearch = false;
+sakai.editor.enableSakaiPreview = true;
 
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
@@ -139,15 +140,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             flashBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=flash'
         };
 
-    } else {
-        var fckeditorUrl = '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html' +
-            '?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector';
-
-        var filebrowser = {
-            browseUrl : fckeditorUrl + collectionId + '&' + folder,
-            imageBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Image",
-            flashBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Flash"
-        };
     }
 
     let siteId = "";
@@ -160,7 +152,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     }
 
     var ckconfig = {
-	//Some defaults for audio recorder
+    //Some defaults for audio recorder
         audiorecorder : {
             "maxSeconds" : 180,
             "attemptAllowed" : Number.MAX_VALUE,
@@ -187,30 +179,124 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
         // TODO Get this to work with elfinder.
-        fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
+        // TODO May be a problem after SAK-44872
+        fileConnectorUrl : '',
 
         // These are the general URLs for browsing generally and specifically for images/flash object.
         filebrowserBrowseUrl :      filebrowser.browseUrl,
         filebrowserImageBrowseUrl : filebrowser.imageBrowseUrl,
         filebrowserFlashBrowseUrl : filebrowser.flashBrowseUrl,
 
-        filebrowserUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
-        uploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
-        imageUploadUrl: '/direct/content/direct-upload.json?context=${siteId}',
+        filebrowserUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
+        uploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
+        imageUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
 
-        extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
-
-
+        extraPlugins: [
+            //These plugins are included in the ckeditor4 webjar
+            // 'a11yhelp',
+            'about',
+            // 'adobeair',
+            // 'autocomplete',
+            // 'autoembed',
+            // 'autogrow',
+            // 'autolink',
+            // 'balloonpanel',
+            // 'balloontoolbar',
+            // 'bbcode',
+            'bidi',
+            'clipboard',
+            // 'cloudservices',
+            // 'codesnippet',
+            // 'codesnippetgeshi',
+            'colorbutton',
+            'colordialog',
+            'copyformatting',
+            // 'devtools',
+            // 'dialog',
+            // 'dialogadvtab',
+            'div',
+            // 'divarea',
+            // 'docprops',
+            // 'easyimage',
+            // 'editorplaceholder',
+            // 'embed',
+            // 'embedbase',
+            // 'embedsemantic',
+            // 'emoji',
+            // 'exportpdf',
+            'find',
+            // 'flash',
+            'font',
+            // 'forms',
+            'iframe',
+            'iframedialog',
+            // 'image',
+            'image2',
+            // 'imagebase',
+            'indentblock',
+            'justify',
+            'language',
+            'link',
+            'liststyle',
+            // 'magicline',
+            // 'mathjax',
+            // 'mentions',
+            // 'newpage',
+            // 'pagebreak',
+            // 'panelbutton',
+            // 'pastefromgdocs',
+            // 'pastefromlibreoffice',
+            // 'pastefromword',
+            'pastetools',
+            // 'placeholder',
+            // 'preview',
+            'print',
+            // 'save',
+            // 'scayt',
+            'selectall',
+            // 'sharedspace',
+            'showblocks',
+            'smiley',
+            'sourcedialog',
+            'specialchar',
+            // 'stylesheetparser',
+            // 'table',
+            // 'tableresize',
+            // 'tableselection',
+            // 'tabletools',
+            'templates',
+            // 'textmatch',
+            // 'textwatcher',
+            'uicolor',
+            'uploadfile',
+            'widget',
+            // 'wsc',
+            
+            //These are additional plugins not included in the ckeditor4 webjar
+            'audiorecorder',
+            'autosave',
+            'bt_table',
+            'contentitem',
+            'html5video',
+            'indentlist',
+            'notification',
+            'removeformat',
+            'wordcount',
+            (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
+            (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
+            `${ckeditor-extra-plugins}`,
+            `${ckeditor-a11y-extra-plugins}`
+        ].join(','),
         // These two settings enable the browser's native spell checking and context menus.
         // Control-Right-Click (Windows/Linux) or Command-Right-Click (Mac) on highlighted words
         // will cause the CKEditor menu to be suppressed and display the browser's standard context
         // menu. In some cases (Firefox and Safari, at least), this supplies corrections, suggestions, etc.
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
-
+        
         // Fix the smileys to a single location
-        smiley_path: "/library/editor/ckeditor/plugins/smiley/images/",
-
+        smiley_path: `/library/webjars/ckeditor4/${ckeditor.version}/plugins/smiley/images/`,
+        
         toolbar_Basic:
         [
             ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']
@@ -227,27 +313,22 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-						['atd-ckeditor'],
+            ['atd-ckeditor'],
             ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
-            (sakai.editor.enableResourceSearch
-                ? ( sakai.editor.contentItemUrl
-                    ? ['ContentItem', 'AudioRecorder','ResourceSearch', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                    : ['AudioRecorder','ResourceSearch', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                  )
-		: ( sakai.editor.contentItemUrl
-                    ? ['ContentItem', 'AudioRecorder', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                    : ['AudioRecorder', 'Image','Html5video','Table','HorizontalRule','Smiley','SpecialChar']
-                  )
-            ),
+            [ 'AudioRecorder', 'Image', 'Html5video','Table','HorizontalRule','Smiley','SpecialChar'],
+            [(sakai.editor.contentItemUrl ? 'ContentItem' : undefined),(sakai.editor.enableResourceSearch ? 'ResourceSearch' : undefined)],
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
             ['Maximize', 'ShowBlocks']
             ,['A11ychecker']
-        ],
+        ].filter(el => el !== undefined),
         toolbar: 'Full',
+        removeButtons: '',
+        removeDialogTabs: 'image:advanced;link:advanced',
+        removePlugins: 'image',
         resize_dir: 'both',
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
@@ -309,21 +390,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         }
         //These could be applicable to the basic toolbar
         CKEDITOR.plugins.addExternal('lineutils',basePath+'lineutils/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js');
         CKEDITOR.plugins.addExternal('html5video',webJars+'github-com-bahriddin-ckeditor-html5-video/${ckeditor.html5video.version}/html5video/', 'plugin.js');
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
-        CKEDITOR.plugins.addExternal('image2',webJars+'ckeditor-image2/${ckeditor.image2.version}/', 'plugin.js');
-
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/${ckeditor.wordcount.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
-        CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/${ckeditor.balloonpanel.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/${ckeditor.a11ychecker.version}/', 'plugin.js');
         /*
            To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
@@ -340,8 +416,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
         //ckconfig.extraPlugins+="atd-ckeditor,";
         //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
-
-        ckconfig.extraPlugins += "${ckeditor-extra-plugins}${ckeditor-a11y-extra-plugins}, uploadimage";
 
         // Load FontAwesome CSS in case a user wants to manually add FA markup
         ckconfig.contentsCss.push(webJars+'fontawesome/4.7.0/css/font-awesome.min.css');

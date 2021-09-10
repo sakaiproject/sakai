@@ -8,6 +8,9 @@
 		<property name="commonsManager"><ref bean="org.sakaiproject.commons.api.CommonsManager"/></property>
         <property name="commonsSecurityManager"><ref bean="org.sakaiproject.commons.api.CommonsSecurityManager"/></property>
         <property name="sakaiProxy"><ref bean="org.sakaiproject.commons.api.SakaiProxy"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
     </bean>
 
 </beans>

@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -210,7 +211,7 @@ public abstract class DbSiteService extends BaseSiteService
 		protected SqlReader lightSiteReader = new SiteSqlReader(false);
 
 		/** SqlReader for reading just the Site IDs, used for tuning getSites performance. */
-		protected SqlReader siteIdReader = new SiteIdSqlReader();
+		protected SqlReader<String> siteIdReader = new SiteIdSqlReader();
 
 		/**
 		 * The sizes of parameters to use for IN clauses padded with NULLs; up to Oracle maximum.
@@ -1097,8 +1098,8 @@ public abstract class DbSiteService extends BaseSiteService
 
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, propertyRestrictions, userId, excludedSites );
-			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, excludedSites);
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, propertyRestrictions, userId, null);
+			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, null);
 
 			String sql;
 			if (page != null)
@@ -1115,9 +1116,13 @@ public abstract class DbSiteService extends BaseSiteService
 
 			log.debug("getSiteIds SQL: {}, values: {}", sql, java.util.Arrays.toString(values));
 
-			@SuppressWarnings("unchecked")
-			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
-			return siteIds;
+			List<String> results = sqlService().dbRead(sql, values, siteIdReader);
+			Set<String> siteIds = new LinkedHashSet<>();
+			if (results != null) siteIds.addAll(results);
+			Set<String> excludedSiteIds = new LinkedHashSet<>();
+			if (excludedSites != null) excludedSiteIds.addAll(excludedSites);
+			siteIds.removeAll(excludedSiteIds);
+			return new ArrayList<>(siteIds);
 		}
 
 		/**
