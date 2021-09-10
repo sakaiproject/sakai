@@ -1413,7 +1413,7 @@ $(document).ready(function() {
 				for(var index = 0; index < questionAnswers.length - 1; index++) {
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableShortanswerDiv").first();
+						answerSlot = $("#copyableShortanswer").first();
 					}else {
 						answerSlot = addShortanswer();
 					}
@@ -1432,7 +1432,7 @@ $(document).ready(function() {
 					
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableMultipleChoiceAnswerDiv").first();
+						answerSlot = $("#copyableMultipleChoiceAnswer").first();
 					}else {
 						answerSlot = addMultipleChoiceAnswer();
 					}
@@ -3537,7 +3537,7 @@ function unhideMultimedia() {
 
 // Clones one of the multiplechoice answers in the Question dialog and appends it to the end of the list
 function addMultipleChoiceAnswer() {
-	var clonedAnswer = $("#copyableMultipleChoiceAnswerDiv").clone(true);
+	var clonedAnswer = $("#copyableMultipleChoiceAnswer").clone(true);
 	var num = $("#multipleChoiceAnswersBody").find("tr").length + 2; // Should be currentNumberOfAnswers + 1
 	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
 	clonedAnswer.find(".question-multiplechoice-answer-correct").prop("checked", false);
@@ -3579,29 +3579,31 @@ function reassignAnswerOptions() {
 	document.querySelectorAll('.question-multiplechoice-answer-option').forEach( (item, index) => {
 		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
 	});
+	document.querySelectorAll('.question-showans-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
 }
 // Clones one of the shortanswers in the Question dialog and appends it to the end of the list
 function addShortanswer() {
-	var clonedAnswer = $("#copyableShortanswerDiv").clone(true);
-	
+	var clonedAnswer = $("#copyableShortanswer").clone(true);
 	clonedAnswer.find(".question-shortanswer-answer").val("");
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
 	// have to make name unique, so append a count
-	var n = $("#extraShortanswers div").length;
+	var n = $("#shortAnswersTableBody tr").length;
 	var elt = clonedAnswer.find("label");
 	elt.attr("for", elt.attr("for") + n);
 	elt = clonedAnswer.find("input");
 	elt.attr("name", elt.attr("name") + n);
-	
-	clonedAnswer.appendTo("#extraShortanswers");
 
+	clonedAnswer.appendTo("#shortAnswersTableBody");
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
 
-	
 	return clonedAnswer;
 }
 
@@ -3681,7 +3683,7 @@ function prepareQuestionDialog() {
 
 // Reset the multiple choice answers to prevent problems when submitting a shortanswer
 function resetMultipleChoiceAnswers() {
-	var firstMultipleChoice = $("#copyableMultipleChoiceAnswerDiv");
+	var firstMultipleChoice = $("#copyableMultipleChoiceAnswer");
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
 	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
@@ -3689,8 +3691,7 @@ function resetMultipleChoiceAnswers() {
 
 //Reset the shortanswers to prevent problems when submitting a multiple choice
 function resetShortanswers() {
-	$("#copyableShortanswerDiv").find(".question-shortanswer-answer").val("");
-	$("#extraShortanswers").empty();
+	$("#copyableShortanswer").find(".question-shortanswer-answer").val("");
 }
 
 
