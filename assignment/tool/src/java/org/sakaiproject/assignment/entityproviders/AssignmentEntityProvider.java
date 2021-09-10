@@ -631,21 +631,21 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
         }
 
-        final List<String> timeSheetIds;
+        final List<Long> timeSheetIds;
         Object ts = params.get("selectedTimeSheets[]");
-        if (ts != null && ts instanceof String[]) {
-            timeSheetIds = Arrays.asList((String[]) ts);
-        } else if (ts != null && ts instanceof String) {
-            timeSheetIds = Collections.singletonList((String) ts);
+        if (ts != null && ts instanceof Long[]) {
+            timeSheetIds = Arrays.asList((Long[]) ts);
+        } else if (ts != null && ts instanceof Long) {
+            timeSheetIds = Collections.singletonList((Long) ts);
         } else {
             log.warn("Selected time sheet must be provided.");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.empty");
         }
 
         if (timeSheetIds != null) {
-            for (String timeSheetId : timeSheetIds) {
+            for (Long timeSheetId : timeSheetIds) {
 
-                if (StringUtils.isBlank(timeSheetId)) {
+                if (null == timeSheetId) {
                     log.warn("Selected time sheet must be provided.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.submitterId");
                 }

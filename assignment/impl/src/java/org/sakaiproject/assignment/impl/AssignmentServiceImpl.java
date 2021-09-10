@@ -1652,7 +1652,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException {
+    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException {
         AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
         if (timeSheet != null) {
             String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getSubmitter().getSubmission()).reckon().getReference();

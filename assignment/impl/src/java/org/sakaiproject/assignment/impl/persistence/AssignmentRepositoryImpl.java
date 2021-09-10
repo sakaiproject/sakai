@@ -168,8 +168,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
     
     @Override
-    public AssignmentTimeSheet findTimeSheet(String timeSheetId) {
-        return (AssignmentTimeSheet) sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, Long.parseLong(timeSheetId));
+    public AssignmentTimeSheet findTimeSheet(Long timeSheetId) {
+        return (AssignmentTimeSheet) sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheetId);
     }
     
     @Override
