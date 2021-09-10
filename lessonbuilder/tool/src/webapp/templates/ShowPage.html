@@ -2293,15 +2293,33 @@
                             <div id="shortanswerDialogDiv">
                                  <fieldset>
                                     <legend><h4 rsf:id="msg=simplepage.answers"></h4></legend>
-                                    <input type="hidden" rsf:id="question-answer-full-shortanswer" id="question-answer-full-shortanswer" />
-                            
+                                    
                                     <div id="shortanswers">
                                         <div id="copyableShortanswerDiv">
                                             <label for="question-showans-alt"><span rsf:id="msg=simplepage.question-possible-answer" class="offscreen"></span></label>                                          
-                                            <input type="text" name="question-showans-alt" class="question-shortanswer-answer" />
-                                            <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-shortans-del"></img></a>
                                         </div>
                                         <div id="extraShortanswers"></div>
+                                        <table id="shortAnswersTable" class="table table-striped table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th><span rsf:id="msg=simplepage.question-possible-answer">Possible Answer</span></th>
+                                                    <th><span rsf:id="msg=simplepage.question-tableheader-answertext">Answer Text</span></th>
+                                                    <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="shortAnswersTableBody">
+                                                <tr id="copyableShortanswer">
+                                                    <input type="hidden" rsf:id="question-answer-full-shortanswer" id="question-answer-full-shortanswer" />
+                                                    <td class="question-showans-answer-option">A</td>
+                                                    <td>
+                                                        <input type="text" name="question-showans-alt" class="question-shortanswer-answer" />
+                                                    </td>
+                                                    <td>
+                                                        <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-shortans-del"></img></a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                   </fieldset>
                                 <button onclick="addShortanswer(); return false;" rsf:id="msg=simplepage.addAnswer"/><br /><br />
@@ -2320,7 +2338,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="multipleChoiceAnswersBody">
-                                            <tr id="copyableMultipleChoiceAnswerDiv">
+                                            <tr id="copyableMultipleChoiceAnswer">
                                                 <input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
                                                 <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
                                                 <td>
