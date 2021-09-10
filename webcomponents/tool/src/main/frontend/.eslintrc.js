@@ -20,7 +20,7 @@ module.exports = {
     "arrow-spacing": "warn",
     "block-spacing": "warn",
     "comma-spacing": "warn",
-    "dot-notation": "error",
+    "dot-notation": "warn",
     "indent": ["warn", 2, { "SwitchCase": 1, "MemberExpression": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
     "linebreak-style": ["warn", "unix"],
     "no-array-constructor": "error",
