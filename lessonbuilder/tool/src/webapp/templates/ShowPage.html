@@ -519,7 +519,7 @@
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
-                            <img class="status-image icon-image" rsf:id="status" />
+                            <span rsf:id="status" aria-hidden="true"></span>
                         </div>
                       <div rsf:id="contentCol" class="contentCol">
                         <div rsf:id="link-div:" class="link-div">
@@ -947,14 +947,12 @@
 
                     <div rsf:id="questiongroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-question"><span rsf:id="icon-question"></span></a></div></div>
                     <div rsf:id="questionSpan" class="right-col">
-
-
                         <div class="questionDiv" rsf:id="questionDiv">
-			    <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
+                            <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
                             <div class="statusCol">
-                                <img class="status-image icon-image" rsf:id="questionStatus" />
+                                <span rsf:id="questionStatus" aria-hidden="ture"></span>
                             </div>
-                        
+
                             <div class="contentCol">
                                 <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image"/>
                                 <span class="offscreen" rsf:id="questionNote"></span>
@@ -962,32 +960,30 @@
                                 <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                                 <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                                     <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
-				      <input type="hidden" rsf:id="csrf4" />
+                                        <input type="hidden" rsf:id="csrf4" />
                                         <input type="hidden" rsf:id="multipleChoiceId" />
                                         <span rsf:id="multipleChoiceSelect:"></span>
                                         <div rsf:id="multipleChoiceAnswer:" class="multipleChoiceAnswer">
                                             <input type="radio" rsf:id="multipleChoiceAnswerRadio" name="multipleChoiceAnswerRadio" />
                                             <label rsf:id="multipleChoiceAnswerText" />
                                         </div>
-                                        
                                         <input class="question-submit" type="submit" value="Answer!" rsf:id="answerMultipleChoice" />
-					<input class="showPollGraph question-submit" type="submit" rsf:id="showPollGraph" onclick="return false;"/>
-
+                                        <input class="showPollGraph question-submit" type="submit" rsf:id="showPollGraph" onclick="return false;"/>
                                     </form>
                                 </div>
-                                
+
                                 <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                                     <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
-				      <input type="hidden" rsf:id="csrf5" />
+                                        <input type="hidden" rsf:id="csrf5" />
                                         <input type="hidden" rsf:id="shortanswerId" />
                                         <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
                                         <textarea rsf:id="shortanswerInput" aria-labelledby="answerInput" class="shortAnswerInput" rows="4"></textarea>
                                         <input class="bold question-submit" type="submit" value="Answer!" rsf:id="answerShortanswer" />
                                     </form>
                                 </div>
-                                
+
                                 <div rsf:id="questionStatusText" class="questionStatusText"></div>
-                                
+
                                 <div style="display:none" rsf:id="questionPollData:" class="questionPollData">
                                     <span rsf:id="questionPollText" class="questionPollText"></span>
                                     <span rsf:id="questionPollLegend" class="questionPollLegend"></span>
