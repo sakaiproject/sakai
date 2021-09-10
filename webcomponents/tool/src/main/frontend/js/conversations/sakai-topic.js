@@ -395,10 +395,10 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         <div class="sak-banner-warn">${this.i18n.topic_locked}</div>
         ` : ""}
         ${this.topic.visibility === INSTRUCTORS ? html`
-        <div class="sak-banner-warn">${this.i18n["topic_instructors_only_tooltip"]}</div>
+        <div class="sak-banner-warn">${this.i18n.topic_instructors_only_tooltip}</div>
         ` : ""}
         ${this.topic.visibility === GROUP ? html`
-        <div class="sak-banner-warn">${this.i18n["topic_groups_only_tooltip"]}</div>
+        <div class="sak-banner-warn">${this.i18n.topic_groups_only_tooltip}</div>
         ` : ""}
         <div class="topic-tags">
           ${this.topic.tags.map(tag => html`
