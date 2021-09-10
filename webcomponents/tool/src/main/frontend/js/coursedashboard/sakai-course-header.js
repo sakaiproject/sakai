@@ -38,7 +38,7 @@ class SakaiCourseHeader extends LitElement {
           ${this.editing ? html`
             <lion-dialog>
               <sakai-image-editor slot="content" image-url="${this.site.image}" @image-edited=${this.imageEdited}></sakai-image-editor>
-              <sakai-button slot="invoker">${this.i18n["change_this_image"]}</sakai-button>
+              <sakai-button slot="invoker">${this.i18n.change_this_image}</sakai-button>
             </lion-dialog>
           ` : ""}
         </div>

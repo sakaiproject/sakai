@@ -128,9 +128,9 @@ export class SakaiCourseCard extends LitElement {
     loadProperties("toolname-mappings").then((r) => {
 
       this.toolnameMap = {
-        assignments: r["assignments"],
-        gradebook: r["gradebook"],
-        forums: r["forums"],
+        assignments: r.assignments,
+        gradebook: r.gradebook,
+        forums: r.forums,
       };
     });
 
@@ -193,25 +193,25 @@ export class SakaiCourseCard extends LitElement {
     return html`
       <div class="info-block" style="background-image: ${this._courseData.image ? `url(${this._courseData.image})` : ""}">
         <div class="top-bar">
-          <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+          <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
             <div class="title-block">
               ${this._courseData.favourite ? html`<sakai-icon class="favourite" type="favourite" size="small"></sakai-icon>` : ""}
               <span>${this.courseData.title}</span>
             </div>
           </a>
-          <sakai-options-menu invoker-tooltip="${this.i18n["options_menu_tooltip"]}">
+          <sakai-options-menu invoker-tooltip="${this.i18n.options_menu_tooltip}">
             <div slot="content" id="course-options">
-              <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} .checked=${this._courseData.favourite}>${this.i18n["favourite_this_course"]}</label></div>
+              <div id="favourite-block"><label><input type="checkbox" @click=${this._toggleFavourite} .checked=${this._courseData.favourite}>${this.i18n.favourite_this_course}</label></div>
             </div>
           </sakai-options-menu>
         </div>
-        <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+        <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
           <div class="code-block">${this._courseData.code}</div>
         </a>
       </div>
-      <a href="${this._courseData.url}" title="${this.i18n["visit"]} ${this._courseData.title}">
+      <a href="${this._courseData.url}" title="${this.i18n.visit} ${this._courseData.title}">
         <div class="tool-alerts-block">
-          ${this._courseData.alerts.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[t + "_tooltip"]}"><sakai-icon type="${t}" size="small" has-alerts></a></div>`)}
+          ${this._courseData.alerts.map(t => html`<div><a href="${this._toolUrls[t]}" title="${this.i18n[`${t  }_tooltip`]}"><sakai-icon type="${t}" size="small" has-alerts></a></div>`)}
         </div>
       </a>
     `;

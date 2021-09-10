@@ -20,9 +20,9 @@ export class SakaiGrades extends SakaiPageableElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get grades from ${url}`);
         }
+        throw new Error(`Failed to get grades from ${url}`);
+
       })
       .then(data => this.data = data)
       .catch (error => console.error(error));
@@ -72,34 +72,34 @@ export class SakaiGrades extends SakaiPageableElement {
       <div id="topbar">
         <div id="filter">
           <select @change=${this.sortChanged}
-              title="${this.i18n["sort_tooltip"]}"
-              aria-label="${this.i18n["sort_tooltip"]}">
-            <option value="new_low_to_high">${this.i18n["sort_new_low_to_high"]}</option>
-            <option value="new_high_to_low">${this.i18n["sort_new_high_to_low"]}</option>
-            <option value="average_low_to_high">${this.i18n["sort_average_low_to_high"]}</option>
-            <option value="average_high_to_low">${this.i18n["sort_average_high_to_low"]}</option>
-            <option value="assignment_a_to_z">${this.i18n["sort_assignment_a_to_z"]}</option>
-            <option value="assignment_z_to_a">${this.i18n["sort_assignment_z_to_a"]}</option>
-            <option value="course_a_to_z">${this.i18n["sort_course_a_to_z"]}</option>
-            <option value="course_z_to_a">${this.i18n["sort_course_z_to_a"]}</option>
+              title="${this.i18n.sort_tooltip}"
+              aria-label="${this.i18n.sort_tooltip}">
+            <option value="new_low_to_high">${this.i18n.sort_new_low_to_high}</option>
+            <option value="new_high_to_low">${this.i18n.sort_new_high_to_low}</option>
+            <option value="average_low_to_high">${this.i18n.sort_average_low_to_high}</option>
+            <option value="average_high_to_low">${this.i18n.sort_average_high_to_low}</option>
+            <option value="assignment_a_to_z">${this.i18n.sort_assignment_a_to_z}</option>
+            <option value="assignment_z_to_a">${this.i18n.sort_assignment_z_to_a}</option>
+            <option value="course_a_to_z">${this.i18n.sort_course_a_to_z}</option>
+            <option value="course_z_to_a">${this.i18n.sort_course_z_to_a}</option>
           </select>
         </div>
       </div>
 
       <div id="grades">
-        <div class="header">${this.i18n["course_assignment"]}</div>
-        <div class="header">${this.i18n["course_average"]}</div>
-        <div class="header">${this.i18n["view"]}</div>
+        <div class="header">${this.i18n.course_assignment}</div>
+        <div class="header">${this.i18n.course_average}</div>
+        <div class="header">${this.i18n.view}</div>
         ${this.dataPage.map((a, i) => html`
         <div class="assignment cell ${i % 2 === 0 ? "even" : "odd"}">
-          <div class="new-count">${a.ungraded} ${this.i18n["new_submissions"]}</div>
+          <div class="new-count">${a.ungraded} ${this.i18n.new_submissions}</div>
           <div class="title">${a.siteTitle} / ${a.name}</div>
         </div>
         <div class="average cell ${i % 2 === 0 ? "even" : "odd"}">${a.averageScore.toFixed(2)}</div>
         <div class="next cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
-              aria-label="${this.i18n["url_tooltip"]}"
-              title="${this.i18n["url_tooltip"]}">
+              aria-label="${this.i18n.url_tooltip}"
+              title="${this.i18n.url_tooltip}">
             <sakai-icon type="right" size="small">
           </a>
         </div>

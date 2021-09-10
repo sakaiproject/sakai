@@ -1,6 +1,4 @@
-function getViewPreferences(tool, options) {
-
-  if (!options) options = {debug: false};
+function getViewPreferences(tool, options = { debug: false }) {
 
   const url = `/direct/userPrefs/key/${portal.user.id}/viewpreferences.json`;
 
@@ -10,11 +8,11 @@ function getViewPreferences(tool, options) {
 
   return new Promise((resolve) => {
 
-    fetch(url, { cache: "no-store", headers: { "Content-Type": "application/json" },})
+    fetch(url, { cache: "no-store", headers: { "Content-Type": "application/json" }, })
     .then(d => d.json())
     .then(json => {
 
-      var preferencesString = decodeURIComponent(json.data[tool]);
+      const preferencesString = decodeURIComponent(json.data[tool]);
       if (preferencesString && preferencesString !== "undefined") {
         if (options.debug) {
           console.debug(`getViewPreferences: resolving with "${preferencesString}"`);
@@ -31,9 +29,7 @@ function getViewPreferences(tool, options) {
   });
 }
 
-function updateViewPreferences(tool, value, options) {
-
-  if (!options) options = {debug: false};
+function updateViewPreferences(tool, value, options = { debug: false }) {
 
   const url = `/direct/userPrefs/updateKey/${portal.user.id}/viewpreferences?${tool}=${encodeURIComponent(value)}`;
 
