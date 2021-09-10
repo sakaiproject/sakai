@@ -12,54 +12,66 @@ $.ajaxSetup({
  args:class of trigger, id of dialog, message strings
  */
 sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-    utils.startDialog(dialogTarget);
-    $("." + trigger).click(function(e){
-        var siteURL = '/direct/site/' + $(this).attr('id') + '/info.json';
-        jQuery.getJSON(siteURL, function(data){
-            var desc = '', shortdesc = '', title = '', owner = '', email = '';
-            if (data.description) {
-                desc = unescape(data.description);
-            }
-            else {
-                desc = nold;
-            }
-            if (data.shortDescription) {
-                shortdesc = data.shortDescription;
-            }
-            else {
-                shortdesc = nosd;
-            }
+	$("." + trigger).click(function(e){
+		e.preventDefault();
+		$("#" + dialogTarget).modal('show');
+	});
 
-            if (data.contactName) {
-                owner = data.contactName;
-            }
+	var siteURL = '/direct/site/' + $("." + trigger).attr('id') + '/info.json';
+	jQuery.getJSON(siteURL, function(data){
+		var desc = '', shortdesc = '', title = '', owner = '', email = '';
+		if (data.description) {
+			desc = unescape(data.description);
+		}
+		else {
+			desc = nold;
+		}
+		if (data.shortDescription) {
+			shortdesc = data.shortDescription;
+		}
+		else {
+			shortdesc = nosd;
+		}
 
-            if (data.contactEmail) {
-                email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-            }
-            
-            if (data.props) {
-                if (data.props['contact-name']) {
-                    owner = data.props['contact-name'];
-                }
-                
-                if (data.props['contact-email']) {
-                    email = " (<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
-                }
-            }
+		if (data.contactName) {
+			owner = data.contactName;
+		}
 
-            sitetitle = data.title.escapeHTML();
-            content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + shortdesc.escapeHTML() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
-            $("#" + dialogTarget).html(content);
-            $("#" + dialogTarget + ' #shortdesc').text(shortdesc);
-            $("#" + dialogTarget + ' #owner').text(owner);
-            $("#" + dialogTarget).dialog('option', 'title', sitetitle);
-            utils.endDialog(e, dialogTarget);
-            return false;
-        });
-        
-        
-    });
+		if (data.contactEmail) {
+			email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+		}
+
+		if (data.props) {
+			if (data.props['contact-name']) {
+				owner = data.props['contact-name'];
+			}
+
+			if (data.props['contact-email']) {
+				email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+			}
+		}
+
+		sitetitle = data.title.escapeHTML();
+		content = (
+			'<div class="modal-dialog modal-md">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
+						'<h4 class="modal-title">' + sitetitle + '</h4>' +
+					'</div>' +
+					'<div class="modal-body">' +
+						'<p>' + shortdesc + '</p>' +
+						'<div>' + desc + '</div>' +
+					'</div>' +
+				'</div>' +
+			'</div>'
+		);
+		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+//		$("#" + dialogTarget + ' #shortdesc').text(shortdesc);
+//		$("#" + dialogTarget + ' #owner').text(owner);
+//		$("#" + dialogTarget).dialog('option', 'title', sitetitle);
+		return false;
+	});
 };
 
 
@@ -68,30 +80,50 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
  args:class of trigger, id of dialog, message strings
  */
 sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
-    utils.startDialog(dialogTarget);
 	$('.' + trigger).click(function(e){
-		
-        var id = $(this).attr('id');
-        var title = $('#group' + id).html();
-        var groupURL = '/direct/membership/group/' + id + '.json';
-        var list = "";
-        var count = 1;
-        
-        jQuery.getJSON(groupURL, function(data){
-            $.each(data.membership_collection, function(i, item){
-                var sortName = $('<div>').text(item.userSortName).html();
-                var role = $('<div>').text(item.memberRole).html();
-                var email = $('<div>').text(item.userEmail).html();
-                list = list + "<tr><td>" + count + ")&nbsp;" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
-                count = count + 1;
-            });
-            content = ("<h4>(<a  href=\"#\" id=\'printme\' class=\'print-window\' onclick=\'printPreview(\"/direct/membership/group/" + id + ".json\")\'>" + printstr + "</a>)</h4>" + "<p class=\'textPanelFooter\'></p>" + "<div class=\'textPanel\'><div id=\'groupListContent\'><table class=\'listHier lines nolines\' border=\'0\'><tr><th>" + tablestr1 + "</th><th>" + tablestr2 + "</th><th>" + tablestr3 + "</th>" + list + "</table></div>");
-            $("#" + dialogTarget).html(content);
-            $("#" + dialogTarget).dialog('option', 'title', memberstr + ': ' + title);
-            utils.endDialog(e, dialogTarget);
-            return false;
-        });
-    });
+		e.preventDefault();
+		$("#" + dialogTarget).modal('show');
+	});
+
+	var id = $("." + trigger).attr('id');
+	var title = $('#group' + id).html();
+	var groupURL = '/direct/membership/group/' + id + '.json';
+	var list = "";
+
+	jQuery.getJSON(groupURL, function(data){
+		$.each(data.membership_collection, function(i, item){
+			var sortName = $('<div>').text(item.userSortName).html();
+			var role = $('<div>').text(item.memberRole).html();
+			var email = $('<div>').text(item.userEmail).html();
+			list = list + "<tr><td>" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
+		});
+		content = (
+			'<div class="modal-dialog modal-md">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
+						'<button type="button" id="printme" class="print-window close" onclick="printPreview(\'/direct/membership/group/' + id + '.json\')" aria-label="' + printstr + '"><span class="fa fa-print" aria-hidden="true"></span></button>' +
+						'<h4 class="modal-title">' + title + '</h4>' +
+					'</div>' +
+					'<div class="modal-body" id="groupListContent">' +
+						'<table class="table table-striped table-bordered table-hover">' +
+						'<tr>' +
+							'<th>' + tablestr1 + '</th>' +
+							'<th>' + tablestr2 + '</th>' +
+							'<th>' + tablestr3 + '</th>' +
+						'</tr>' +
+							list +
+						'</table>' +
+					'</div>' +
+				'</div>' +
+			'</div>'
+		);
+		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+//			$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+//			$("#" + dialogTarget).html(content);
+//			$("#" + dialogTarget).dialog('option', 'title', memberstr + ': ' + title);
+			return false;
+	});
 };
 
 /*
@@ -1193,7 +1225,7 @@ function toggleSelectAll(caller, elementName) {
 
 function printPreview(target) {
 
-  var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+  var w = window.open('', 'printwindow', 'scrollbars=yes,toolbar=yes,resizable=yes');
   var content=  "";
   var content=  document.getElementById('groupListContent').innerHTML;
   w.document.writeln(
