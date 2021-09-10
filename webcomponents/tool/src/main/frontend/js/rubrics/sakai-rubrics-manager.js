@@ -96,9 +96,9 @@ class SakaiRubricsManager extends RubricsElement {
 
   toggleSiteRubrics() {
 
-    var siteRubrics = $("#site_rubrics");
+    const siteRubrics = $("#site_rubrics");
     siteRubrics.toggle();
-    var icon = $("#site-rubrics-title .collpase-icon");
+    const icon = $("#site-rubrics-title .collpase-icon");
     if (siteRubrics.is(":visible")) {
       this.siteRubricsExpanded = "true";
       icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
@@ -110,9 +110,9 @@ class SakaiRubricsManager extends RubricsElement {
 
   toggleSharedRubrics() {
 
-    var sharedRubrics = $("#shared_rubrics");
+    const sharedRubrics = $("#shared_rubrics");
     sharedRubrics.toggle();
-    var icon = $("#shared-rubrics-title .collpase-icon");
+    const icon = $("#shared-rubrics-title .collpase-icon");
     if (sharedRubrics.is(":visible")) {
       this.sharedRubricsExpanded = "true";
       icon.removeClass("fa-chevron-right").addClass("fa-chevron-down");
@@ -130,9 +130,9 @@ class SakaiRubricsManager extends RubricsElement {
     this.querySelectorAll('sakai-rubrics-list, sakai-rubrics-shared-list').forEach(rubricList => {
       rubricList.querySelectorAll('.rubric-item').forEach(rubricItem => {
         rubricItem.classList.remove('hidden');
-        var rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
-        var rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
-        var rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
+        const rubricTitle = rubricItem.querySelector('.rubric-name').textContent;
+        const rubricAuthor = rubricItem.querySelector('sakai-rubric-creator-name').textContent;
+        const rubricSite = rubricItem.querySelector('sakai-rubric-site-title').textContent;
         if (!rubricAuthor.toLowerCase().includes(searchInputValue) &&
             !rubricTitle.toLowerCase().includes(searchInputValue) &&
             !rubricSite.toLowerCase().includes(searchInputValue)
@@ -144,7 +144,7 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   sortRubrics(event) {
-	
+
     const sortInput = event.target.className.toLowerCase();
 
     if (!sortInput) {

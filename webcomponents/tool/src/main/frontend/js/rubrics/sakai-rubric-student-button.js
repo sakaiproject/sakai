@@ -61,7 +61,7 @@ class SakaiRubricStudentButton extends RubricsElement {
 
     const token = `Bearer ${this.token}`;
 
-    const url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
+    let url = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
     return fetch(url, {
       credentials: "same-origin",
       headers: {
@@ -74,7 +74,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       const evaluation = data._embedded.evaluations[0];
       if (evaluation) {
         evaluation.status = 2;
-        const url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
+        url = `/rubrics-service/rest/evaluations/${evaluation.id}`;
         await fetch(url, {
           body: JSON.stringify(evaluation),
           credentials: "same-origin",
@@ -100,7 +100,7 @@ class SakaiRubricStudentButton extends RubricsElement {
       this.hidden = true;
     } else {
       SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment"
-        , "Bearer " + this.token, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
+        , `Bearer ${  this.token}`, { params: { toolId: this.toolId, itemId: this.entityId } }).then(data => {
 
         const association = data._embedded["rubric-associations"][0];
 

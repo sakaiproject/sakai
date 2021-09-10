@@ -26,7 +26,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
   shouldUpdate() {
     return this.i18n;
   }
-  
+
   createTags() {
 
     const field = this.querySelector("#tag-creation-field");
@@ -34,14 +34,14 @@ export class SakaiConversationsTagManager extends SakaiElement {
 
     if (!tagLabels?.length) return;
 
-    const tags = tagLabels.map(label => ({ label, siteId: this.siteId })); 
+    const tagsData = tagLabels.map(label => ({ label, siteId: this.siteId }));
 
     const url = `/api/sites/${this.siteId}/conversations/tags`;
     fetch(url, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(tags),
+      body: JSON.stringify(tagsData),
     })
     .then(r => {
 
@@ -53,7 +53,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
     .then(tags => {
 
       field.value = "";
-      this.dispatchEvent(new CustomEvent("tags-created", { detail: { tags: tags }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("tags-created", { detail: { tags }, bubbles: true }));
     })
     .catch (error => {
       console.error(error);
@@ -94,7 +94,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
         throw new Error("Network error while saving tag.");
       } else {
         this.cancelTagEditing(e);
-        this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag: tag }, bubbles: true }));
+        this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
       }
     })
     .catch (error => {
@@ -140,7 +140,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
             <div id="tag-creation-instruction" class="topic-option-label-text">Add multiple tags separated by a comma</div>
           </div>
           <div class="act" style="white-space: nowrap;">
-            <input type="button" @click=${this.cancel} value="${this.i18n["cancel"]}" ?disabled=${!this.saveable}>
+            <input type="button" @click=${this.cancel} value="${this.i18n.cancel}" ?disabled=${!this.saveable}>
             <input type="button" class="active" @click=${this.createTags} value="Add New Tags" ?disabled=${!this.saveable}>
           </div>
         </div
@@ -150,8 +150,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
             <div class="tag-label">${tag.label}</div>
             <div>
               <div class="tag-buttons">
-                <input type="button" data-tag-id="${tag.id}" @click=${this.editTag} value="${this.i18n["edit"]}">
-                <input type="button" data-tag-id="${tag.id}" @click=${this.deleteTag} value="${this.i18n["delete"]}">
+                <input type="button" data-tag-id="${tag.id}" @click=${this.editTag} value="${this.i18n.edit}">
+                <input type="button" data-tag-id="${tag.id}" @click=${this.deleteTag} value="${this.i18n.delete}">
               </div>
             </div>
           </div>
@@ -160,8 +160,8 @@ export class SakaiConversationsTagManager extends SakaiElement {
           <div class="tag-editor">
             <div><input id="tag-${tag.id}-editor" type="text" value="${tag.label}"></div>
             <div class="act">
-              <input type="button" class="active" data-tag-id="${tag.id}" @click=${this.saveTag} value="${this.i18n["save"]}">
-              <input type="button" data-tag-id="${tag.id}" @click=${this.cancelTagEditing} value="${this.i18n["cancel"]}">
+              <input type="button" class="active" data-tag-id="${tag.id}" @click=${this.saveTag} value="${this.i18n.save}">
+              <input type="button" data-tag-id="${tag.id}" @click=${this.cancelTagEditing} value="${this.i18n.cancel}">
             </div>
           </div>
           ` : ""}

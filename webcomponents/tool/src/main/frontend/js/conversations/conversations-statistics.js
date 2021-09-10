@@ -38,7 +38,7 @@ export class ConversationsStatistics extends SakaiElement {
   loadStatsPage(page) {
 
     const options = {
-      page: page,
+      page,
       sort: this.sort,
       interval: typeof(this.interval) === "undefined" ? "THIS_WEEK" : this.interval,
     };
@@ -53,9 +53,9 @@ export class ConversationsStatistics extends SakaiElement {
 
       if (r.ok) {
         return r.json();
-      } else {
-        throw new Error(`Network error while getting statistics from ${this.siteUrl}`);
       }
+      throw new Error(`Network error while getting statistics from ${this.siteUrl}`);
+
     })
     .then(data => {
 
@@ -127,7 +127,7 @@ export class ConversationsStatistics extends SakaiElement {
   shouldUpdate() {
     return this.i18n && this.stats;
   }
-  
+
   render() {
 
     return html`
@@ -146,46 +146,46 @@ export class ConversationsStatistics extends SakaiElement {
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_NAME}"
-                    title="${this.i18n["sort_by_author"]}"
-                    aria-label="${this.i18n["sort_by_author"]}"
+                    title="${this.i18n.sort_by_author}"
+                    aria-label="${this.i18n.sort_by_author}"
                     @click=${this.toggleSort}>
-                  ${this.i18n["name_header"]}
+                  ${this.i18n.name_header}
                 </a>
               </th>
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_TOPICS_CREATED}"
-                    title="${this.i18n["sort_by_created_topics"]}"
-                    aria-label="${this.i18n["sort_by_created_topics"]}"
+                    title="${this.i18n.sort_by_created_topics}"
+                    aria-label="${this.i18n.sort_by_created_topics}"
                     @click=${this.toggleSort}>
-                  ${this.i18n["topics_created_header"]}
+                  ${this.i18n.topics_created_header}
                 </a>
               </th>
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_TOPICS_VIEWED}"
-                    title="${this.i18n["sort_by_viewed_topics"]}"
-                    aria-label="${this.i18n["sort_by_viewed_topics"]}"
+                    title="${this.i18n.sort_by_viewed_topics}"
+                    aria-label="${this.i18n.sort_by_viewed_topics}"
                     @click=${this.toggleSort}>
-                  ${this.i18n["topics_read_header"]}
+                  ${this.i18n.topics_read_header}
                 </a>
               </th>
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_REACTIONS_MADE}"
-                    title="${this.i18n["sort_by_reactions_made"]}"
-                    aria-label="${this.i18n["sort_by_reactions_made"]}"
+                    title="${this.i18n.sort_by_reactions_made}"
+                    aria-label="${this.i18n.sort_by_reactions_made}"
                     @click=${this.toggleSort}>
-                  ${this.i18n["reactions_header"]}
+                  ${this.i18n.reactions_header}
                 </a>
               </th>
               <th>
                 <a href="javascript:;"
                     data-sort="${SORT_POSTS_CREATED}"
-                    title="${this.i18n["sort_by_created_posts"]}"
-                    aria-label="${this.i18n["sort_by_created_posts"]}"
+                    title="${this.i18n.sort_by_created_posts}"
+                    aria-label="${this.i18n.sort_by_created_posts}"
                     @click=${this.toggleSort}>
-                  ${this.i18n["posts_header"]}
+                  ${this.i18n.posts_header}
                 </a>
               </th>
             </tr

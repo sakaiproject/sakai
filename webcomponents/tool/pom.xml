@@ -151,7 +151,6 @@
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3
-                                puppeteer
                                 raw-loader@3
                                 style-loader@1
                                 webpack@4
@@ -159,7 +158,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!--execution>
+                    <execution>
                         <id>eslint</id>
                         <goals>
                             <goal>npm</goal>
@@ -167,7 +166,7 @@
                         <configuration>
                             <arguments>run eslint</arguments>
                         </configuration>
-                    </execution-->
+                    </execution>
                     <execution>
                         <id>npm empathise</id>
                         <goals>

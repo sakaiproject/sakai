@@ -46,7 +46,7 @@ class OptionsMenu extends LitElement {
   }
 
   static get styles() {
-    
+
     return [
       css`
         .content {

@@ -24,7 +24,7 @@ export class SakaiRubricsList extends RubricsElement {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ("token" === name) {
+    if (name === "token") {
       this.getRubrics(newValue);
     }
   }
@@ -61,7 +61,7 @@ export class SakaiRubricsList extends RubricsElement {
 
   getRubrics(token, extraParams = {}) {
 
-    var params = {"projection": "inlineRubric"};
+    const params = {"projection": "inlineRubric"};
     Object.assign(params, extraParams);
 
     SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics", token, { params })
@@ -86,7 +86,7 @@ export class SakaiRubricsList extends RubricsElement {
 
     this.rubrics.push(nr);
 
-    var tmp = this.rubrics;
+    const tmp = this.rubrics;
     this.rubrics = [];
     this.rubrics = tmp;
 
@@ -102,7 +102,7 @@ export class SakaiRubricsList extends RubricsElement {
     e.stopPropagation();
     this.rubrics.splice(this.rubrics.map(r => r.id).indexOf(e.detail.id), 1);
 
-    var tmp = this.rubrics;
+    const tmp = this.rubrics;
     this.rubrics = [];
     this.rubrics = tmp;
 
@@ -129,11 +129,11 @@ export class SakaiRubricsList extends RubricsElement {
 
   get createRubricUpdateComplete() {
     return (async () => {
-      return await this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
+      return this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
     })();
   }
 
- sortRubrics(rubricType, ascending) {
+  sortRubrics(rubricType, ascending) {
     switch (rubricType) {
       case rubricName:
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));

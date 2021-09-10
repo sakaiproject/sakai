@@ -10,7 +10,7 @@ import "./sakai-group-picker.js";
  * <sakai-permissions tool="roster" />
  *
  * Other attributes:
- * 
+ *
  * bundle-key: Allows to set the bundle name (f.ex: "announcement" or "org.sakaiproject.api.app.messagecenter.bundle.Messages"). By default, it will take the tool attribute value.
  * on-refresh: Allows to set the return page location. By default, it will refresh the current URL.
  * group-reference: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}". Order is important. This attribute must be set before the tool attribute.
@@ -100,7 +100,7 @@ class SakaiPermissions extends SakaiElement {
           </div>
         ` : ""}
         <div class="permissions-undo-button">
-          <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n["undo"]}" @click=${this.resetPermissions} />
+          <input type="button" value="${this.i18n["per.lis.restoredef"]}" aria-label="${this.i18n.undo}" @click=${this.resetPermissions} />
         </div>
         <table id="${this.tool}-permissions-table" class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary="${this.i18n["per.lis"]}" border="0">
           <tr>
@@ -135,9 +135,9 @@ class SakaiPermissions extends SakaiElement {
           <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["per.error.save"]}</span>
         </div>
       `;
-    } else {
-      return html`Waiting for permissions`;
     }
+    return html`Waiting for permissions`;
+
   }
 
   loadPermissions() {
@@ -162,14 +162,14 @@ class SakaiPermissions extends SakaiElement {
     document.body.style.cursor = "wait";
 
     const boxes = this.querySelectorAll(`#${this.tool.replace('.', '\\.')}-permissions-table input[type="checkbox"]`);
-    const params = `ref=${this.groupReference}&` + Array.from(boxes).reduce((acc,b) => {
+    const params = `ref=${this.groupReference}&${  Array.from(boxes).reduce((acc, b) => {
 
       if (b.checked) {
-        return acc + `${encodeURIComponent(b.id)}=true&`;
-      } else {
-        return acc + `${encodeURIComponent(b.id)}=false&`;
+        return `${acc  }${encodeURIComponent(b.id)}=true&`;
       }
-    }, "");
+      return `${acc  }${encodeURIComponent(b.id)}=false&`;
+
+    }, "")}`;
 
     fetch(`/direct/permissions/${portal.siteId}/setPerms`, {method: "POST", credentials: "same-origin", body: new URLSearchParams(params), timeout: 30000})
       .then(res => {
@@ -183,7 +183,7 @@ class SakaiPermissions extends SakaiElement {
       .catch(error => {
 
         document.querySelector(`#${this.tool.replace('.', '\\.')}-failure-message`).style.display = "inline-block";
-        console.error(`Failed to save permissions for tool ${this.tool}`, error)
+        console.error(`Failed to save permissions for tool ${this.tool}`, error);
       })
       .finally(() => document.body.style.cursor = "default");
   }
@@ -195,16 +195,16 @@ class SakaiPermissions extends SakaiElement {
       const inputs = this.renderRoot.querySelectorAll("input[type='checkbox']");
       inputs.forEach(elem => {
 
-          const role = elem.getAttribute('data-role');
-          const perm = elem.getAttribute('data-perm');
-          if (role && perm) {
-            const elemChanged = (elem.checked != this.on[role].includes(perm));
-            elem.checked = this.on[role].includes(perm);
-            if (elemChanged) {
-              elem.dispatchEvent(new Event("change"));
-            }
+        const role = elem.getAttribute('data-role');
+        const perm = elem.getAttribute('data-perm');
+        if (role && perm) {
+          const elemChanged = (elem.checked != this.on[role].includes(perm));
+          elem.checked = this.on[role].includes(perm);
+          if (elemChanged) {
+            elem.dispatchEvent(new Event("change"));
           }
-      })
+        }
+      });
     });
   }
 
@@ -221,50 +221,50 @@ class SakaiPermissions extends SakaiElement {
 
   attachHandlers() {
 
-    $('.permissions-table input:checkbox').change(function (e) {
+    $('.permissions-table input:checkbox').change((e) => {
       $(e.target).parents('td').toggleClass('active', e.target.checked);
     }).change();
     $(".permissions-table tr:even").addClass("evenrow");
     // Save the default selected
     $('.permissions-table :checked').parents('td').addClass('defaultSelected');
 
-    $('.permissions-table .permissionDescription').hover(function (e) {
+    $('.permissions-table .permissionDescription').hover((e) => {
       $(e.target).parents('tr').children('td').toggleClass('rowHover', e.type === "mouseenter");
     });
 
-    $('.permissions-table th').hover(function (e) {
+    $('.permissions-table th').hover((e) => {
 
       if (e.target.dataset.role) {
-        const role = e.target.dataset.role.replace("\.", "\\.");
-        $('.' + role.replace(" ", "_") + "-checkbox-cell").add(e.target).toggleClass('rowHover', e.type === "mouseenter");
+        const role = e.target.dataset.role.replace(".", "\\.");
+        $(`.${  role.replace(" ", "_")  }-checkbox-cell`).add(e.target).toggleClass('rowHover', e.type === "mouseenter");
       }
     });
 
-    $('.permissions-table th#permission').hover(function (event) {
+    $('.permissions-table th#permission').hover((event) => {
       $('.permissions-table td.checkboxCell').toggleClass('rowHover', event.type === "mouseenter");
     });
 
-    $('.permissions-table th#permission a').click(function (e) {
+    $('.permissions-table th#permission a').click((e) => {
 
       $('.permissions-table input').prop('checked', ($('.permissions-table :checked').length === 0)).change();
       e.preventDefault();
     });
-    $('.permissions-table .permissionDescription a').click(function (e) {
+    $('.permissions-table .permissionDescription a').click((e) => {
 
-      var anyChecked = $(e.target).parents('tr').find('input:checked').not('[disabled]').length > 0;
+      const anyChecked = $(e.target).parents('tr').find('input:checked').not('[disabled]').length > 0;
       $(e.target).parents('tr').find('input:checkbox').not('[disabled]').prop('checked', !anyChecked).change();
       e.preventDefault();
     });
-    $('.permissions-table th.role a').click(function (e) {
+    $('.permissions-table th.role a').click((e) => {
 
-      const role = e.target.dataset.role.replace("\.", "\\.");
+      const role = e.target.dataset.role.replace(".", "\\.");
 
-      var anyChecked = $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input:checked').not('[disabled]').length > 0;
-      $('.permissions-table .' + role.replace(" ", "_") + '-checkbox-cell input').not('[disabled]').prop('checked', !anyChecked).change();
+      const anyChecked = $(`.permissions-table .${  role.replace(" ", "_")  }-checkbox-cell input:checked`).not('[disabled]').length > 0;
+      $(`.permissions-table .${  role.replace(" ", "_")  }-checkbox-cell input`).not('[disabled]').prop('checked', !anyChecked).change();
       e.preventDefault();
     });
 
-    $('#clearall').click(function (e) {
+    $('#clearall').click((e) => {
 
       $(".permissions-table input").not('[disabled]').prop("checked", false).change();
       e.preventDefault();

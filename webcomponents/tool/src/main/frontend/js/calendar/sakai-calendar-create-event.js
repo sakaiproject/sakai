@@ -131,7 +131,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         ` : ""}
       </div>
     `;
-        //<sakai-editor editor-id="editor-classic"></sakai-editor>
+    //<sakai-editor editor-id="editor-classic"></sakai-editor>
   }
 
   buttons() {
