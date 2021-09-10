@@ -90,40 +90,49 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function() {
+	$("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
-                if ($(this).attr('defaultsize') === 'true' ||
-		    (typeof width !== 'undefined' && width !== '' &&
-		     (typeof height === 'undefined' || height =='')))
-                    $(this).height($(this).width() * 0.75);
-            });
+		if ($(this).attr('defaultsize') === 'true' ||
+			(typeof width !== 'undefined' && width !== '' &&
+			(typeof height === 'undefined' || height =='')))
+			$(this).height($(this).width() * 0.75);
+	});
 
-        $("div.multimediaType img").each(function() {
+	$("div.multimediaType img").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
 		// if just width specified, we're fine. it will scale. But if height is specified narrow windows
 		// will give us the wrong aspect ration
-                if (typeof height !== 'undefined' && height !== '') {
-		    if (typeof width !== 'undefined' && width !== '') {
-			// both specified. use specified aspect ratio
-			if ($(this).width() != width) {
-			    var aspect = height / width;
-			    $(this).height($(this).width() * aspect);
+		if (typeof height !== 'undefined' && height !== '') {
+			if (typeof width !== 'undefined' && width !== '') {
+				// both specified. use specified aspect ratio
+				if ($(this).width() != width) {
+					var aspect = height / width;
+					$(this).height($(this).width() * aspect);
+				}
+			} else {
+				var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
+				// -1 to avoid triggering because of rounding
+				if ($(this).width() *  aspect < (height-1)) {
+				// width has been reduced because of max-width 100%
+					$(this).height($(this).width() * aspect);
+				}
 			}
-		    } else {
-			var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
-			// -1 to avoid triggering because of rounding
-			if ($(this).width() *  aspect < (height-1)) {
-			    // width has been reduced because of max-width 100%
-			    $(this).height($(this).width() * aspect);			    
-			}
-		    }
-                }
-            });
+		}
+	});
+
+	$('.is-linked').click(function (e) {
+		e.preventDefault();
+	});
+
+	$('.is-linked').each(function () {
+		box = $(this).children().first();
+		box.attr('title', $(this).children().nextAll('.tooltip-content').html())
+		box.tooltip();
+	});
 
 	$("input[type=checkbox].checklist-checkbox").on("change", function(){
-
 		$(this).next("span").addClass("savingChecklistItem");
 		$(this).parent().nextAll(".saveChecklistSaving").show();
 		$("#saveChecklistForm-checklistId").val($(this).closest(".checklistItemForm").find(".checklistId").val()).change();

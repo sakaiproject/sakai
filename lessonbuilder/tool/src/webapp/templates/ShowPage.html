@@ -793,38 +793,31 @@
                         <span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
                     </div>
 
-
                     <div rsf:id="checklistItemContainer" class="right-col">
                         <div class="checklistDiv" rsf:id="checklistDiv">
-                            <div>
-                                <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
-                                <p class="checklistDescription" rsf:id="checklistDescription"></p>
-                                <div class="checklistItemDiv" rsf:id="checklistItemDiv">
-                                    <form action="#" rsf:id="checklistItemForm" class="checklistItemForm">
-                                        <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
-                                            <span rsf:id="checklist-span"/>
-                                            <div rsf:id="select-checklistitem-list:">
-                                                <label class="checklistLabel">
-                                                    <input type="checkbox" rsf:id="select-checklistitem" />
-                                                    <span class="fa fa-link fa-lg externally-linked" rsf:id="select-checklistitem-linked-icon"></span>
-                                                    <span class="fa fa-chain-broken fa-lg link-broken link-broken-icon" rsf:id="select-checklistitem-link-broken"></span>
-                                                    <span rsf:id="select-checklistitem-name"></span>
-                                                </label>
-                                                <span class="tooltip-content" rsf:id="select-checklistitem-linked-details" ></span>
-                                                <span class="saveChecklistSuccess checklistSaveMessage" style="display: none;">Save successful!</span>
-                                                <span class="saveChecklistError checklistSaveMessage" style="display: none;">Unable to save checklist item</span>
-                                                <span class="saveChecklistSaving checklistSaveMessage" style="display: none;"><img src="../images/loading.gif" alt="Saving checklist..."/></span>
-                                            </div>
+                            <h3 class="checklistTitle" rsf:id="checklistTitle"></h3><span rsf:id="item-groups-titles-checklist" class="item-group-titles"></span>
+                            <p class="checklistDescription" rsf:id="checklistDescription"></p>
+                            <div rsf:id="error-checklist-not-saved" id="saveChecklistError" class="sak-banner-error" style="display: none;"></div>
+                            <div class="checklistItemDiv" rsf:id="checklistItemDiv">
+                                <form action="#" rsf:id="checklistItemForm" class="checklistItemForm">
+                                    <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
+                                        <span rsf:id="checklist-span"/>
+                                        <div rsf:id="select-checklistitem-list:">
+                                            <input type="checkbox" rsf:id="select-checklistitem"/>
+                                            <label class="checklistLabel" rsf:id="select-checklistitem-name"></label>
+                                            <span class="tooltip-content" rsf:id="select-checklistitem-linked-details"></span>
+                                            <span class="fa fa-link" aria-hidden="true" rsf:id="linked-checklistitem-linked-icon"></span>
+                                            <span class="fa fa-chain-broken" aria-hidden="true" rsf:id="linked-checklistitem-broken-link-icon"></span>
                                         </div>
-                                        <input type="hidden" rsf:id="checklistId" id="checklistId" class="checklistId"/>
-                                        <input type="hidden" rsf:id="checklistItemId" />
-                                    </form>
-                                </div>
+                                    </div>
+                                    <input type="hidden" rsf:id="checklistId" id="checklistId" class="checklistId"/>
+                                    <input type="hidden" rsf:id="checklistItemId" />
+                                </form>
                             </div>
                         </div>
                         <div rsf:id="editchecklist-td" role="toolbar" class="edit-col"><div><a role="button" href="#" class="usebutton itemLink" rsf:id="edit-checklistProgress"><span aria-hidden="true" class="fa-list-ul fa-edit-icon"></span></a><a role="button" href="#" class="usebutton itemLink" rsf:id="edit-checklist"><span aria-hidden="true" class="fa-edit fa-edit-icon fa-edit-icon"></span></a><a role="button" href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a role="button" aria-haspopup="dialog" aria-controls="addContentDiv" href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus plus-edit-icon fa-edit-icon"></span></a></div></div>
                     </div>
-                    
+
                     <div rsf:id="studentgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-student"><span rsf:id="icon-student"></span></a></div></div>
                     <div rsf:id="studentSpan" class="right-col">
                             <span rsf:id="student-missing-prereqs" class="sak-banner-warn narrow-instruction"></span>
