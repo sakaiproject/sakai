@@ -394,6 +394,12 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         ${this.topic.locked ? html`
         <div class="sak-banner-warn">${this.i18n.topic_locked}</div>
         ` : ""}
+        ${this.topic.visibility === INSTRUCTORS ? html`
+        <div class="sak-banner-warn">${this.i18n["topic_instructors_only_tooltip"]}</div>
+        ` : ""}
+        ${this.topic.visibility === GROUP ? html`
+        <div class="sak-banner-warn">${this.i18n["topic_groups_only_tooltip"]}</div>
+        ` : ""}
         <div class="topic-tags">
           ${this.topic.tags.map(tag => html`
             <div class="tag">${tag.label}</div>
@@ -407,20 +413,6 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
                 <div class="topic-creator-name">${this.topic.creatorDisplayName}</div>
                 <div class="topic-question-asked">${this.topic.type === QUESTION ? this.i18n.asked : this.i18n.posted}</div>
                 <div class="topic-created-date">${this.topic.formattedCreatedDate}</div>
-                ${this.topic.visibility === INSTRUCTORS ? html`
-                <div class="topic-status"
-                    title="${this.i18n.topic_instructors_only_tooltip}"
-                    aria-label="${this.i18n.topic_instructors_only_tooltip}">
-                  <sakai-icon type="teacher" size="small"></sakai-icon></div>
-                </div>
-                ` : ""}
-                ${this.topic.visibility === GROUP ? html`
-                <div class="topic-status"
-                    title="${this.i18n.topic_groups_only_tooltip}"
-                    aria-label="${this.i18n.topic_groups_only_tooltip}">
-                  <sakai-icon type="users" size="small"></sakai-icon></div>
-                </div>
-                ` : ""}
               </div>
             </div>
           </div>
