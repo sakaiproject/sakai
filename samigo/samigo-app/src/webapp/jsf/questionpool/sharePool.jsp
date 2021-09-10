@@ -36,7 +36,6 @@
 	
 function flagFolders() {
     collapseAllRows();
-    flagRows();
 }
 
 function initPage()
@@ -55,7 +54,7 @@ function checkUpdate()
 </script>
 <script src="/library/js/spinner.js"></script>
       </head>
-<body onload="collapseAllRows();flagRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
+<body onload="collapseAllRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
 <!-- content... -->
 <h:form id="questionpoolshare">
