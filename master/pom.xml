@@ -76,7 +76,7 @@
     <sakai.log4j.version>2.14.1</sakai.log4j.version>
     <sakai.slf4j.version>1.7.32</sakai.slf4j.version>
     <sakai.poi.version>5.0.0</sakai.poi.version>
-    <sakai.mockito.version>3.11.2</sakai.mockito.version>
+    <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.10.10</joda.time.version>

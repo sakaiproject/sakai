@@ -3,7 +3,9 @@ package org.sakaiproject.jsf2.spreadsheet;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -19,6 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SpreadsheetDataFileWriterOpenCsvTest {
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
     public void setup() {
@@ -46,19 +51,19 @@ public class SpreadsheetDataFileWriterOpenCsvTest {
 
         String expected = readResourceToString(resourceFileName);
         String fileAsString = response.getContentAsString();
-        Assert.assertEquals("content doesn't match", expected, fileAsString);
+        Assert.assertEquals("content doesn't match", expected.replaceAll("[\\r\\n]+", ""), fileAsString.replaceAll("[\\r\\n]+", ""));
     }
 
     @Test
     public void testDownloadWithNull() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv();
-        testDownload(sdfw, File.separator + "fileWithNull.csv");
+        testDownload(sdfw, "fileWithNull.csv");
     }
 
     @Test
     public void testDownloadWithEmpty() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv(SpreadsheetDataFileWriterOpenCsv.NULL_AS.EMPTY, ',');
-        testDownload(sdfw, File.separator + "fileWithEmptyString.csv");
+        testDownload(sdfw, "fileWithEmptyString.csv");
     }
 
     private String readResourceToString(String resource) throws IOException {

@@ -112,9 +112,6 @@
         <testResources>
             <testResource>
                 <directory>${basedir}/src/test/resources</directory>
-                <includes>
-                    <include>*.csv</include>
-                </includes>
             </testResource>
         </testResources>
     </build>
