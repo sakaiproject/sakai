@@ -2238,120 +2238,120 @@ public class SakaiBLTIUtil {
 			return handleGradebook(sourcedid, request, ltiService, false, true, null, null);
 		}
 
-		// Quite a long bit of code
-		private static Object handleGradebook(String sourcedid, HttpServletRequest request,
-				LTIService ltiService, boolean isRead, boolean isDelete,
-				Double theGrade, String comment) {
-			// Truncate this to the maximum length to insure no cruft at the end
-			if (sourcedid.length() > 2048) {
-				sourcedid = sourcedid.substring(0, 2048);
+	// Quite a long bit of code
+	private static Object handleGradebook(String sourcedid, HttpServletRequest request,
+			LTIService ltiService, boolean isRead, boolean isDelete,
+			Double theGrade, String comment) {
+		// Truncate this to the maximum length to insure no cruft at the end
+		if (sourcedid.length() > 2048) {
+			sourcedid = sourcedid.substring(0, 2048);
+		}
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+			int pos = sourcedid.indexOf(":::");
+			if (pos > 0) {
+				signature = sourcedid.substring(0, pos);
+				String dec2 = sourcedid.substring(pos + 3);
+				pos = dec2.indexOf(":::");
+				user_id = dec2.substring(0, pos);
+				placement_id = dec2.substring(pos + 3);
 			}
+		} catch (Exception e) {
+			return "Unable to decrypt result_sourcedid=" + sourcedid;
+		}
 
-			// Attempt to parse the sourcedid, any failure is fatal
-			String placement_id = null;
-			String signature = null;
-			String user_id = null;
-			try {
-				int pos = sourcedid.indexOf(":::");
-				if (pos > 0) {
-					signature = sourcedid.substring(0, pos);
-					String dec2 = sourcedid.substring(pos + 3);
-					pos = dec2.indexOf(":::");
-					user_id = dec2.substring(0, pos);
-					placement_id = dec2.substring(pos + 3);
-				}
-			} catch (Exception e) {
-				return "Unable to decrypt result_sourcedid=" + sourcedid;
+		log.debug("signature={} user_id={} placement_id={}", signature, user_id, placement_id);
+
+		Properties normalProps = normalizePlacementProperties(placement_id, ltiService);
+		if (normalProps == null) {
+			return "Error retrieving result_sourcedid information";
+		}
+
+		String siteId = normalProps.getProperty(LTIService.LTI_SITE_ID);
+		Site site;
+		try {
+			site = SiteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			return "Error retrieving result_sourcedid site: " + e.getLocalizedMessage();
+		}
+
+		// Check the message signature using OAuth
+		String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
+		log.debug("oauth_secret: {}", oauth_secret);
+		oauth_secret = decryptSecret(oauth_secret);
+		log.debug("oauth_secret (decrypted): {}", oauth_secret);
+
+		String oauth_consumer_key = normalProps.getProperty(LTIService.LTI_CONSUMERKEY);
+		log.debug("oauth_consumer_key: {}", oauth_consumer_key);
+
+		String URL = getOurServletPath(request);
+
+		// Validate the incoming message
+		Object retval = validateMessage(request, URL, oauth_secret, oauth_consumer_key);
+		if (retval instanceof String) {
+			return retval;
+		}
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret = normalProps.getProperty(LTIService.LTI_PLACEMENTSECRET);
+		if (placement_secret == null) {
+			return "Could not find placement secret";
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+		log.debug("Received signature={} received={}", signature, received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret = normalProps.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+		if (old_placement_secret != null && !matched) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
+			log.debug("Received signature II={} received={}", signature, received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		if (!matched) {
+			return "Sourcedid signature did not match";
+		}
+
+		// If we are not supposed to lookup or set the grade, we are done
+		if (isRead == false && isDelete == false && theGrade == null) {
+			return new Boolean(matched);
+		}
+
+		// Look up the gradebook column so we can find the max points
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		// Make sure the user exists in the site
+		boolean userExistsInSite = false;
+		try {
+			Member member = site.getMember(user_id);
+			if (member != null) {
+				userExistsInSite = true;
 			}
+		} catch (Exception e) {
+			log.warn("{} siteId={}, {}", e.getLocalizedMessage(), siteId, e);
+			return "User not found in site";
+		}
 
-			log.debug("signature={} user_id={} placement_id={}", signature, user_id, placement_id);
+		// Make sure the placement is configured to receive grades
+		String title = normalProps.getProperty(BASICLTI_PORTLET_ASSIGNMENT);
+		log.debug("Column Title={}", title);
+		if (title == null) {
+			return "Gradebook column not set in placement";
+		}
 
-			Properties normalProps = normalizePlacementProperties(placement_id, ltiService);
-			if (normalProps == null) {
-				return "Error retrieving result_sourcedid information";
-			}
-
-			String siteId = normalProps.getProperty(LTIService.LTI_SITE_ID);
-			Site site;
-			try {
-				site = SiteService.getSite(siteId);
-			} catch (IdUnusedException e) {
-				return "Error retrieving result_sourcedid site: " + e.getLocalizedMessage();
-			}
-
-			// Check the message signature using OAuth
-			String oauth_secret = normalProps.getProperty(LTIService.LTI_SECRET);
-			log.debug("oauth_secret: {}", oauth_secret);
-			oauth_secret = decryptSecret(oauth_secret);
-			log.debug("oauth_secret (decrypted): {}", oauth_secret);
-
-			String oauth_consumer_key = normalProps.getProperty(LTIService.LTI_CONSUMERKEY);
-			log.debug("oauth_consumer_key: {}", oauth_consumer_key);
-
-			String URL = getOurServletPath(request);
-
-			// Validate the incoming message
-			Object retval = validateMessage(request, URL, oauth_secret, oauth_consumer_key);
-			if (retval instanceof String) {
-				return retval;
-			}
-
-			// Check the signature of the sourcedid to make sure it was not altered
-			String placement_secret = normalProps.getProperty(LTIService.LTI_PLACEMENTSECRET);
-			if (placement_secret == null) {
-				return "Could not find placement secret";
-			}
-
-			String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-			String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-			log.debug("Received signature={} received={}", signature, received_signature);
-			boolean matched = signature.equals(received_signature);
-
-			String old_placement_secret = normalProps.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
-			if (old_placement_secret != null && !matched) {
-				pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-				received_signature = LegacyShaUtil.sha256Hash(pre_hash);
-				log.debug("Received signature II={} received={}", signature, received_signature);
-				matched = signature.equals(received_signature);
-			}
-
-			if (!matched) {
-				return "Sourcedid signature did not match";
-			}
-
-			// If we are not supposed to lookup or set the grade, we are done
-			if (isRead == false && isDelete == false && theGrade == null) {
-				return new Boolean(matched);
-			}
-
-			// Look up the gradebook column so we can find the max points
-			GradebookService g = (GradebookService) ComponentManager
-					.get("org.sakaiproject.service.gradebook.GradebookService");
-
-			// Make sure the user exists in the site
-			boolean userExistsInSite = false;
-			try {
-				Member member = site.getMember(user_id);
-				if (member != null) {
-					userExistsInSite = true;
-				}
-			} catch (Exception e) {
-				log.warn("{} siteId={}, {}", e.getLocalizedMessage(), siteId, e);
-				return "User not found in site";
-			}
-
-			// Make sure the placement is configured to receive grades
-			String title = normalProps.getProperty(BASICLTI_PORTLET_ASSIGNMENT);
-			log.debug("Column Title={}", title);
-			if (title == null) {
-				return "Gradebook column not set in placement";
-			}
-
-			SakaiLineItem lineItem = new SakaiLineItem();
-			lineItem.scoreMaximum = 100.0D;
-			Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
-			if (gradebookColumn == null) {
-				log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
+		SakaiLineItem lineItem = new SakaiLineItem();
+		lineItem.scoreMaximum = 100.0D;
+		Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+		if (gradebookColumn == null) {
+			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
 		}
 
@@ -2395,6 +2395,16 @@ public class SakaiBLTIUtil {
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, theGrade);
+
+				// Inform Assignments of a Submission if needed
+				String contentKeyStr = normalProps.getProperty("contentKey");
+				Long contentKey = getLongKey(contentKeyStr);
+				if (contentKey > 0) {
+					Map<String, Object> content = new TreeMap<String, Object> ();
+					content.put(LTIService.LTI_ID, contentKey);
+					org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content, title);
+					if ( assignment != null ) markSubmission(assignment, user_id, gradeI18n, comment );
+				}
 				message = "Result replaced";
 				retval = Boolean.TRUE;
 			}
@@ -2499,7 +2509,7 @@ public class SakaiBLTIUtil {
 				message = "Result replaced";
 				// Inform Assignments of a Submission if needed
 				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content, title);
-				markSubmission(assignment, user_id, assignedGrade.toString(), comment );
+				if ( assignment != null ) markSubmission(assignment, user_id, assignedGrade.toString(), comment );
 				retval = Boolean.TRUE;
 			}
 		} catch (NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
