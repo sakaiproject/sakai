@@ -69,18 +69,16 @@
 			document.getElementById('additionalInformation').style.display = 'none';
 			document.getElementById('peerAssessmentCheckboxLabel').checked = false;
 			document.getElementById('peerAssessmentContainer').style.display = 'none';
-			document.getElementById('allowResubmissionContainer').style.display = 'none';
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
 			document.getElementById('assignToSection').style.display = 'block';
 			document.getElementById('notificationOptions').style.display = 'block';
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
-			document.getElementById('allowResubmissionContainer').style.display = 'block';
 			document.getElementById('additionalInformation').style.display = 'block';
 			document.getElementById('peerAssessmentContainer').style.display = 'block';
         }
 
-		if(document.getElementById('subType').value != 4 && document.getElementById('subType').value != 6)
+		if(document.getElementById('subType').value != 4 )
 		{
 			#if ($allowReviewService)
 				reviewSwitchNe1.style.display='none';
@@ -573,7 +571,7 @@
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4 || $value_SubmissionType == 6) style = "display:none"#end>
+		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
 			<label class="col-sm-2 control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>

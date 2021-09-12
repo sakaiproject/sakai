@@ -181,7 +181,7 @@ $(document).ready(function(){
 				</div>
 			</div>
 			##resubmit number
-			#if ($submissionType != 4 && $submissionType != 6 )
+			#if ($submissionType != 4)
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.number")</div>
@@ -217,7 +217,7 @@ $(document).ready(function(){
 				#end
 			#end
 			## no need to show status if this is for an non-electronic submission type of assignment
-			#if ((!$!nonElectronicType) && $submissionType != 6)
+			#if (!$!nonElectronicType)
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$tlang.getString("gen.status")</div>
