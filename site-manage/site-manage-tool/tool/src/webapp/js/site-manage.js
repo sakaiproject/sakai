@@ -116,10 +116,7 @@ sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tables
 			'</div>'
 		);
 		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-//			$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-//			$("#" + dialogTarget).html(content);
-//			$("#" + dialogTarget).dialog('option', 'title', memberstr + ': ' + title);
-			return false;
+		return false;
 	});
 };
 
