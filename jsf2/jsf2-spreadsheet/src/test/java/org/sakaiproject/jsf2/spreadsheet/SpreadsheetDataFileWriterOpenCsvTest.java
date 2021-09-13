@@ -1,29 +1,24 @@
 package org.sakaiproject.jsf2.spreadsheet;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SpreadsheetDataFileWriterOpenCsvTest {
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
     public void setup() {
@@ -49,26 +44,33 @@ public class SpreadsheetDataFileWriterOpenCsvTest {
         String contentDisposition = response.getHeader("Content-Disposition");
         Assert.assertEquals("content disposition wrong", "attachment; filename*=utf-8''testFile.csv", contentDisposition);
 
-        String expected = readResourceToString(resourceFileName);
-        String fileAsString = response.getContentAsString();
-        Assert.assertEquals("content doesn't match", expected.replaceAll("[\\r\\n]+", ""), fileAsString.replaceAll("[\\r\\n]+", ""));
+        String expectedFromFile[] = readResourceToString(resourceFileName);
+        String mockServletResponse[] = response.getContentAsString(StandardCharsets.US_ASCII).split("\\r?\\n");
+        for (int x = 0; x < expectedFromFile.length; x++) {
+            System.out.println(mockServletResponse[x]);
+            Assert.assertEquals("content doesn't match", expectedFromFile[x], mockServletResponse[x]);
+        }
+
     }
 
     @Test
     public void testDownloadWithNull() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv();
-        testDownload(sdfw, "fileWithNull.csv");
+        testDownload(sdfw, "/fileWithNull.csv");
     }
 
     @Test
     public void testDownloadWithEmpty() throws IOException {
         SpreadsheetDataFileWriterOpenCsv sdfw = new SpreadsheetDataFileWriterOpenCsv(SpreadsheetDataFileWriterOpenCsv.NULL_AS.EMPTY, ',');
-        testDownload(sdfw, "fileWithEmptyString.csv");
+        testDownload(sdfw, "/fileWithEmptyString.csv");
     }
 
-    private String readResourceToString(String resource) throws IOException {
+    private String[] readResourceToString(String resource) throws IOException {
         InputStream is = getClass().getResourceAsStream(resource);
-        return IOUtils.toString(is, StandardCharsets.UTF_8);
+        return new BufferedReader(
+                new InputStreamReader(is, StandardCharsets.US_ASCII))
+                .lines()
+                .toArray(String[]::new);
     }
 
 }

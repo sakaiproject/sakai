@@ -1,6 +1,5 @@
 package org.sakaiproject.jsf2.spreadsheet;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +14,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,14 +58,17 @@ public class SpreadsheetDataFileWriterCsvTest {
         String contentDisposition = response.getHeader("Content-Disposition");
         Assert.assertEquals("content disposition wrong", "attachment; filename*=utf-8''testFile.csv", contentDisposition);
 
-        String expected = readResourceToString("/fileWithEmptyString.csv");
-        String fileAsString = response.getContentAsString();
-        Assert.assertEquals("content doesn't match", expected, fileAsString);
+        String expected[] = readResourceToString("/fileWithEmptyString.csv");
+        String fileAsString[] = response.getContentAsString(StandardCharsets.US_ASCII).split("\\r?\\n");;
+        Assert.assertArrayEquals("content doesn't match", expected, fileAsString);
     }
 
-    private String readResourceToString(String resource) throws IOException {
+    private String[] readResourceToString(String resource) throws IOException {
         InputStream is = getClass().getResourceAsStream(resource);
-        return IOUtils.toString(is, StandardCharsets.UTF_8);
+        return new BufferedReader(
+                new InputStreamReader(is, StandardCharsets.US_ASCII))
+                .lines()
+                .toArray(String[]::new);
     }
 
 }
