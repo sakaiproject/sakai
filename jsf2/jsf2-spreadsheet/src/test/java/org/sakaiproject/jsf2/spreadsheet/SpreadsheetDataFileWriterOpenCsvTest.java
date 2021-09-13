@@ -46,11 +46,7 @@ public class SpreadsheetDataFileWriterOpenCsvTest {
 
         String expectedFromFile[] = readResourceToString(resourceFileName);
         String mockServletResponse[] = response.getContentAsString(StandardCharsets.US_ASCII).split("\\r?\\n");
-        for (int x = 0; x < expectedFromFile.length; x++) {
-            System.out.println(mockServletResponse[x]);
-            Assert.assertEquals("content doesn't match", expectedFromFile[x], mockServletResponse[x]);
-        }
-
+        Assert.assertArrayEquals("content doesn't match", expectedFromFile, mockServletResponse);
     }
 
     @Test
