@@ -1255,6 +1255,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			errors.add(new DateManagerError("announcement", rb.getString("error.update.permission.denied"), "announcements", toolTitle, 0));
 		}*/
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
+		AnnouncementMessageEdit announcement = null;
 		for (int i = 0; i < announcements.size(); i++) {
 			JSONObject jsonAnnouncement = (JSONObject)announcements.get(i);
 			int idx = Integer.parseInt(jsonAnnouncement.get("idx").toString());
@@ -1271,33 +1272,35 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAnnouncement.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
-					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "announcements", toolTitle, idx));
-					errored = true;
+					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "announcements", toolTitle, idx));
 				}
 				if (dueDate == null) {
-					errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "announcements", toolTitle, idx));
-					errored = true;
+					errored = errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "announcements", toolTitle, idx));
+				}
+				if (!openDate.isBefore(dueDate)) {
+					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "announcements", toolTitle, idx));
+					continue;
 				}
 				if (errored) {
 					continue;
 				}
 
 				AnnouncementChannel aChannel = announcementService.getAnnouncementChannel(anncRef);
-				AnnouncementMessageEdit announcement = aChannel.editAnnouncementMessage(announcementId);
+				announcement = aChannel.editAnnouncementMessage(announcementId);
 				if (announcement == null) {
 					errors.add(new DateManagerError("announcement", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.announcements.item.name")}), "announcements", toolTitle, idx));
 					continue;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(announcement, openDate, dueDate, null);
-				if (!update.openDate.isBefore(update.dueDate)) {
-					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "announcements", toolTitle, idx));
-					continue;
-				}
-				updates.add(update);
+				updates.add(new DateManagerUpdate(announcement, openDate, dueDate, null));
 			} catch(Exception e) {
 				errors.add(new DateManagerError("open_date", rb.getString("error.uncaught"), "announcements", toolTitle, idx));
 				log.error("Error trying to validate Announcements {}", e);
+
+				// Clear out the lock
+				if (announcement != null) {
+					announcementService.cancelMessage(announcement);
+				}
 			}
 		}
 		announcementValidate.setErrors(errors);
