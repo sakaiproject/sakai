@@ -67,9 +67,6 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
 			'</div>'
 		);
 		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-//		$("#" + dialogTarget + ' #shortdesc').text(shortdesc);
-//		$("#" + dialogTarget + ' #owner').text(owner);
-//		$("#" + dialogTarget).dialog('option', 'title', sitetitle);
 		return false;
 	});
 };
