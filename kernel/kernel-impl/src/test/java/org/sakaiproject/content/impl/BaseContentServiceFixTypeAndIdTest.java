@@ -53,7 +53,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentNoExtensionSimpleId() throws Exception {
-        id = "/attachment/foobarbaz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
+        id = "/attachment/foobarbaz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id + ".wav", extType.get("id"));        // append extension
@@ -62,7 +62,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentNoExtensionDashId() throws Exception {
-        id = "/attachment/foo-bar-baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
+        id = "/attachment/foo-bar-baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id + ".wav", extType.get("id"));        // append extension
@@ -71,7 +71,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentNoExtensionUnderscore() throws Exception {
-        id = "/attachment/foo_bar_baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
+        id = "/attachment/foo_bar_baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id + ".wav", extType.get("id"));        // append extension
@@ -81,7 +81,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentNoExtensionDots() {
-        id = "/attachment/foo.bar.baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
+        id = "/attachment/foo.bar.baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id + ".wav", extType.get("id"));        // append extension
@@ -126,7 +126,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentSimpleId() {
-        id = "/attachment/foobarbaz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
+        id = "/attachment/foobarbaz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id, extType.get("id"));        // don't append extension to id
@@ -135,7 +135,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentDashId() {
-        id = "/attachment/foo-bar-baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
+        id = "/attachment/foo-bar-baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id, extType.get("id"));        // don't append extension to id
@@ -144,7 +144,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentUnderscore() {
-        id = "/attachment/foo_bar_baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
+        id = "/attachment/foo_bar_baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id, extType.get("id"));        // don't append extension to id
@@ -153,7 +153,7 @@ public class BaseContentServiceFixTypeAndIdTest {
 
     @Test
     public void testAttachmentDots() {
-        id = "/attachment/foo.bar.baz/fckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
+        id = "/attachment/foo.bar.baz/ckeditor/e3ec10b2-62de-4492-bb39-c582249269e0/9dcf51f8-8889-4ad3-b430-f8ddaaaea461.wav";
         type = "audio/wav";
         extType = contentHostingService.fixTypeAndId(id, type);
         assertEquals(id, extType.get("id"));        // don't append extension to id

@@ -567,7 +567,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		}
 		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
-		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
+		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
 		for(org.sakaiproject.service.gradebook.shared.Assignment gbitem : gbitems) {
 			if(!gbitem.isExternallyMaintained()) {
 				JSONObject gobj = new JSONObject();
@@ -742,6 +742,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (update.signupDeadline.isAfter(update.dueDate)) {
 					errors.add(new DateManagerError("signup_deadline", rb.getString("error.signup.deadline.after.due.date"), "signupMeetings", toolTitle, idx));
+					continue;
+				}
+				if (update.signupBegins.isAfter(update.signupDeadline)) {
+					errors.add(new DateManagerError("signup_begins", rb.getString("error.signup.begins.after.signup.deadline"), "signupMeetings", toolTitle, idx));
 					continue;
 				}
 				updates.add(update);

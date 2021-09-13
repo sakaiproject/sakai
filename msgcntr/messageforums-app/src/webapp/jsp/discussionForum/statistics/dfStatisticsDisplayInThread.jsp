@@ -18,7 +18,7 @@
 				$(".messageBody").each(function(index){
 					var msgBody = $(this).html();
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-	  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan');
+	  				msgcntr_word_count(msgBody);
 				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');

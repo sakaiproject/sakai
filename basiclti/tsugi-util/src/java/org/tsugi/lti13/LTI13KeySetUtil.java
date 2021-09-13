@@ -38,6 +38,19 @@ public class LTI13KeySetUtil {
 		return new Integer(publicEncoded.hashCode()).toString();
 	}
 
+	public static boolean addPublicKey(Map<String, RSAPublicKey> keys, String publicSerialized)
+	{
+		if (publicSerialized == null || publicSerialized.trim().length() < 1 ) return false;
+		Key publicKey = LTI13Util.string2PublicKey(publicSerialized);
+		if (publicKey == null) return false;
+		// Cast should work :)
+		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
+		String kid = LTI13KeySetUtil.getPublicKID(rsaPublic);
+		// Duplicates witll just work out
+		keys.put(kid, rsaPublic);
+		return true;
+	}
+
 	public static String getKeySetJSON(Map<String, RSAPublicKey> keys)
 			throws java.security.NoSuchAlgorithmException {
 		JSONArray jar = new JSONArray();

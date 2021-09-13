@@ -508,23 +508,8 @@ function togglePresence(target) {
 
 #macro (chef_setupformattedtextarea $textarea_id)
 <script type="text/javascript">
-	function chef_setupformattedtextarea(textarea_id)
-	{
-        		var oFCKeditor = new FCKeditor(textarea_id);
-				oFCKeditor.BasePath = "#libraryLink("editor/FCKeditor/")";
-
-                var courseId = "$collectionId";
-
-                oFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Image&CurrentFolder=" + courseId;
-                oFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Link&CurrentFolder=" + courseId;
-                oFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Flash&CurrentFolder=" + courseId;
-                oFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=" + courseId;
-                oFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=" + courseId;
-                oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
-				oFCKeditor.Width  = "700" ;
-				oFCKeditor.Height = "500" ;
-				oFCKeditor.Config['CustomConfigurationsPath'] = "#configLink("fckrwikiconfig.js")";
-    		    oFCKeditor.ReplaceTextarea() ;
+	function chef_setupformattedtextarea(textarea_id) {
+		alert('The FCKEditor is not supported anymore and should be updated to use the new editor, if you see this message please report this problem to your system administrator, thanks');
 	}
 
 

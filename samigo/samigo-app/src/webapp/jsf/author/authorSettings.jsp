@@ -44,7 +44,6 @@
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
       <script src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
-      <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
 
@@ -170,9 +169,8 @@
           });
           
           var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-          if (releaseToVal == 'Anonymous Users') {
-              lockdownAnonyGrading(releaseToVal);
-              lockdownGradebook(releaseToVal);
+          if (releaseToVal === 'Anonymous Users') {
+              handleAnonymousUsers(releaseToVal, "");
           }
           showHideReleaseGroups();
           initTimedCheckBox();
@@ -356,9 +354,11 @@
   <div class="form-group row">
       <h:outputLabel for="releaseTo" styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
-          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
+          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();" onchange="handleAnonymousUsersChange(this);showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
+          <h:outputLabel rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                         styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
        </div>
   </div>
 
@@ -580,7 +580,13 @@
         </t:selectOneRadio>
       </div>
     </h:panelGroup>
-  
+
+    <!-- info message about the anonymous and gradebook options below, will be shown only if quiz released to "Anonymous Users" -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                  layout="block" id="gradingOptionsDisabledInfo" styleClass="row sak-banner-info" style="display: none">
+        <h:outputText value="#{assessmentSettingsMessages.grading_options_disabled_info}" />
+    </h:panelGroup>
+
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>

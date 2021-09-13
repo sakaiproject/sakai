@@ -101,7 +101,7 @@ export class SakaiRubricGrading extends RubricsElement {
                   <span>
                     <sr-lang key="weight">Weight</sr-lang>
                   </span>
-                  <span>${c.weight}</span>
+                  <span>${c.weight.toLocaleString(this.locale)}</span>
                   <span>
                     <sr-lang key="percent_sign">%</sr-lang>
                   </span>
@@ -126,7 +126,7 @@ export class SakaiRubricGrading extends RubricsElement {
                     ${this.rubric.weighted && r.points > 0 ?
                       html`
                         <b>
-                          (${(r.points * (c.weight / 100)).toFixed(2)})
+                          (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                         </b>`
                       : ""
                     }
@@ -142,7 +142,7 @@ export class SakaiRubricGrading extends RubricsElement {
             <sakai-rubric-grading-comment id="comment-for-${c.id}" @comment-shown=${this.commentShown} @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
             <div>
               <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                ${c.selectedvalue}
+                ${c.selectedvalue.toLocaleString(this.locale)}
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
@@ -152,7 +152,7 @@ export class SakaiRubricGrading extends RubricsElement {
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                     class="fine-tune-points form-control hide-input-arrows"
                     @input=${this.fineTuneRating}
-                    .value="${c.pointoverride}"
+                    .value="${c.pointoverride.toLocaleString(this.locale)}"
                 />
               ` : ""}
             <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
@@ -240,9 +240,9 @@ export class SakaiRubricGrading extends RubricsElement {
 
     const value = e.target.value;
 
-    const parsed = parseFloat(value.replace(/,/g, "."));
+    const parsed = value.replace(/,/g, ".");
 
-    if (isNaN(parsed)) {
+    if (isNaN(parseFloat(parsed))) {
       return;
     }
 
@@ -274,7 +274,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
       return {
         criterionId: c.id,
-        points: c.pointoverride || c.selectedvalue,
+        points: c.pointoverride ? parseFloat(c.pointoverride) : c.selectedvalue,
         comments: c.comments,
         pointsAdjusted: c.pointoverride !== c.selectedvalue,
         selectedRatingId: c.selectedRatingId

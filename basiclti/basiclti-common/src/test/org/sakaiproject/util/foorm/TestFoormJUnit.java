@@ -36,20 +36,32 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 import java.util.Properties;
+import java.util.TimeZone;
+
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.TemporalAccessor;
 
 import lombok.extern.slf4j.Slf4j;
 
-/* 
+/*
  * This is originally based on the FoormTest.java file but modified to use JUnit
  * code and conventions. It is targeted for a change to address the issue tested
  * testIntegerField.  Most code that did not address the parsing issue has been deleted.
  *
  * Sample code for testing hsql and oracle databases has been kept.  It is not yet
- * suitable for actual junit testing since it creates direct output rather than 
+ * suitable for actual junit testing since it creates direct output rather than
  * allowing testing assertions but it seems a shame to have to recreate the functionality
  * later from scratch.
  *
@@ -61,36 +73,36 @@ import lombok.extern.slf4j.Slf4j;
 public class TestFoormJUnit {
     static Connection conn = null;
 
-     static String [] test_form = { 
+     static String [] test_form = {
      	"id:key",
      	"title:text:maxlength=80",
      	"preferheight:integer:label=bl_preferheight:maxlength=80",
      	"sendname:radio:label=bl_sendname:choices=off,on,content",
-     	"acceptgrades:radio:label=bl_acceptgrades:choices=off,on", 
+     	"acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
      	"homepage:url:maxlength=100",
      	"webpage:url:maxlength=100",
      	"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
      	"created_at:autodate",
-     	"updated_at:autodate"  
+     	"updated_at:autodate"
      };
 
      // Add two fields
-     static String [] test_form_2 = { 
+     static String [] test_form_2 = {
      	"id:text:maxlength=80", // Trigger severe error
      	"title:text:maxlength=80",
      	"stuff:text:maxlength=80",
      	"preferheight:integer:label=bl_preferheight:maxlength=80",
      	"sendname:radio:label=bl_sendname:choices=off,on,content",
-     	"acceptgrades:radio:label=bl_acceptgrades:choices=off,on", 
+     	"acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
      	"webpage:url:maxlength=256",
      	"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
      	"created_at:autodate",
-     	"updated_at:autodate"  
+     	"updated_at:autodate"
      };
 
 	
     // For integer field test
-    static String [] test_integer = { 
+    static String [] test_integer = {
 	"preferheight:integer:label=bl_preferheight:maxlength=80"
     };
 
@@ -99,12 +111,12 @@ public class TestFoormJUnit {
 	public void testBasicFormExtraction() {
 
 	Foorm foorm = new Foorm();
-	Properties pro = new Properties(); 
+	Properties pro = new Properties();
 
 	pro.setProperty("title","blah");
-	//pro.setProperty("acceptgrades","blah"); 
-	pro.setProperty("acceptgrades","1"); 
-	pro.setProperty("preferheight","1"); 
+	//pro.setProperty("acceptgrades","blah");
+	pro.setProperty("acceptgrades","1");
+	pro.setProperty("preferheight","1");
 	pro.setProperty("homepage","http://www.cnn.com/");
 	pro.setProperty("webpage","http://www.cnn.com/");
 
@@ -227,10 +239,10 @@ public class TestFoormJUnit {
     }
 
     /************* database tests **********************/
-    /* 
+    /*
      *  These database tests are currently commented out as:
 
-     * - they require having the db drivers available in the pom and having the 
+     * - they require having the db drivers available in the pom and having the
      * user / password in the java file.
      *
      * - The tests print a lot but do very little junit assertion testing.
@@ -242,13 +254,13 @@ public class TestFoormJUnit {
     /*
      @Test
      public void testCreateHsqlSchema() {
-     
+
          createAndTestVendorSchema(getHSqlDatabase(),"hsqldb");
      }
      */
 
 
-    /* 
+    /*
     @Test
     	public void testCreateOracleSchema() {
     	createAndTestVendorSchema(getOracleDatabase(),"oracle");
@@ -279,7 +291,7 @@ public class TestFoormJUnit {
 	    log.debug("db error : {}", expression);
 	}
 	st.close();
-    } 
+    }
 
     public static void dump(ResultSet rs) throws SQLException {
 	ResultSetMetaData meta   = rs.getMetaData();
@@ -348,7 +360,7 @@ public class TestFoormJUnit {
 
 
     public void createAndTestVendorSchema(Connection vendorConnection, String vendorName) {
-	    
+
 	boolean doReset = true;
 	Foorm foorm = new Foorm();
 	String[] sqls = foorm.formSqlTable("lti_content", test_form,vendorName, doReset);
@@ -376,7 +388,7 @@ public class TestFoormJUnit {
 	log.debug("Second time...");
 	try {
 	    doReset = false;
-	    Statement st = conn.createStatement(); 
+	    Statement st = conn.createStatement();
 	    ResultSet rs =  st.executeQuery("SELECT * FROM lti_content");
 	    ResultSetMetaData md   = rs.getMetaData();
 	    sqls = foorm.formAdjustTable("lti_content", test_form_2, vendorName, md);
@@ -397,5 +409,53 @@ public class TestFoormJUnit {
 
 
     }
+
+    @Test
+	public void testGetInstantUTC() {
+		String instantStr = "2021-08-17T15:15:55.138Z";
+		Instant instant = Instant.parse(instantStr);
+		assertEquals(instant.toString(), instantStr);
+
+		Instant tested = Foorm.getInstantUTC(instantStr);
+		assertEquals(tested.toString(), instantStr);
+
+		Date myDate = Date.from(instant);
+		tested = Foorm.getInstantUTC(myDate);
+		assertEquals(tested.toString(), instantStr);
+		// Round trip
+		tested = Foorm.getInstantUTC(tested.toString());
+		assertEquals(tested.toString(), instantStr);
+
+		// Bad funky dates
+		tested = Foorm.getInstantUTC(null); // Tue Aug 17 11:15:55 EDT 2021
+		assertNull(tested);
+		tested = Foorm.getInstantUTC(myDate.toString()); // Tue Aug 17 11:15:55 EDT 2021
+		assertNull(tested);
+		tested = Foorm.getInstantUTC("sakai");
+		assertNull(tested);
+		tested = Foorm.getInstantUTC("4995409505954540540495409549");
+		assertNull(tested);
+
+		// https://mincong.io/2017/02/16/convert-date-to-string-in-java/
+		SimpleDateFormat sdf;
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String text = sdf.format(myDate);
+		tested = Foorm.getInstantUTC(text);
+		assertEquals(tested.toString(), instantStr);
+
+		// https://mkyong.com/java8/java-convert-instant-to-localdatetime/
+		LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+		tested = Foorm.getInstantUTC(ldt);
+		assertEquals(tested.toString(), instantStr);
+		text = ldt.toString();
+		tested = Foorm.getInstantUTC(text);
+		assertEquals(tested.toString(), instantStr);
+
+		// https://stackoverflow.com/questions/38365130/timestamp-to-instant-in-java
+		Timestamp t=Timestamp.from(instant);
+		tested = Foorm.getInstantUTC(t);
+		assertEquals(tested.toString(), instantStr);
+	}
 
 }

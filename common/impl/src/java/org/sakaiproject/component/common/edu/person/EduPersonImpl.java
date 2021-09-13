@@ -26,6 +26,9 @@ import org.sakaiproject.api.common.edu.person.InetOrgPerson;
 import org.sakaiproject.api.common.edu.person.OrganizationalPerson;
 import org.sakaiproject.api.common.edu.person.Person;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
  */
@@ -33,6 +36,12 @@ public class EduPersonImpl extends InetOrgPersonImpl implements Person, Organiza
 {
 
 	protected String affiliation;
+	@Setter @Getter protected String principalNamePrior;
+	@Setter @Getter protected String scopedAffiliation;
+	@Setter @Getter protected String targetedID;
+	@Setter @Getter protected String assurance;
+	@Setter @Getter protected String uniqueId;
+	@Setter @Getter protected String orcid;
 
 	/**
 	 * @see org.sakaiproject.service.profile.EduPerson#getAffiliation()

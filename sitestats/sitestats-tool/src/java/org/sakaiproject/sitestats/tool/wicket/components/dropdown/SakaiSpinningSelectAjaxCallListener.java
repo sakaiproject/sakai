@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components.dropdown;
 
-import org.sakaiproject.sitestats.tool.wicket.components.AbstractSakaiSpinnerAjaxCallListener;
+import org.sakaiproject.wicket.component.AbstractSakaiSpinnerAjaxCallListener;
 
 /**
  * Adds the Sakai overlay spinner to the component

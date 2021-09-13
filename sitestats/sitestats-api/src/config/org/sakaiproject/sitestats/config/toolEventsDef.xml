@@ -125,6 +125,12 @@
 		<event eventId="gradebook.importEntire" selected="true"/>
 		<event eventId="gradebook.importItem" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="2"/>
+    </tool>
+
+    <tool toolId="sakai.conversations" selected="true">
+		<event eventId="conversations.topic.created" selected="true"/>
+		<event eventId="conversations.post.created" selected="true"/>
+		<event eventId="conversations.topic.reacted" selected="true"/>
 	</tool>
 
 	<!-- lessons -->

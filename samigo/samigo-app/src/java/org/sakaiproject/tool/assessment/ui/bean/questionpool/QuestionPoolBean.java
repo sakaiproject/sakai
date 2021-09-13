@@ -2045,7 +2045,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 			itemauthorbean.setQpoolId(poolid);
 			itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
 
-			itemauthorbean.setItemType("");
+			itemauthorbean.setItemType(String.valueOf(TypeIfc.MULTIPLE_CHOICE));
 			itemauthorbean.setItemTypeString("");
 
 			//QuestionPoolDataBean pool = new QuestionPoolDataBean();

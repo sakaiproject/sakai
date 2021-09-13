@@ -5835,8 +5835,13 @@ extends VelocityPortletStateAction
 		
 		// groups awareness - filtering
 		String calId = state.getPrimaryCalendarReference();
+
 		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 		
+		boolean showAllEvents   = StringUtils.isBlank(scheduleTo) || "all".equalsIgnoreCase(scheduleTo);
+		boolean showSiteEvents  = "site".equalsIgnoreCase(scheduleTo);
+		boolean showGroupEvents = "groups".equalsIgnoreCase(scheduleTo);
+
 		try
 		{
 			Calendar calendarObj = CalendarService.getCalendar(calId);
@@ -5850,8 +5855,8 @@ extends VelocityPortletStateAction
 			{
 				if (calendarObj.allowGetEvents())
 				{
-					// default to make site selection
-					context.put("scheduleTo", "site");
+					// default to all events selection
+					context.put("scheduleTo", "all");
 				}
 				else if (calendarObj.getGroupsAllowGetEvent().size() > 0)
 				{
@@ -5870,39 +5875,42 @@ extends VelocityPortletStateAction
 			context.put("scheduleToGroups", schToGroups);
 			
 			CalendarEventVector newEventVectorObj = new CalendarEventVector();
-			newEventVectorObj.addAll(masterEventVectorObj);
-			
-			for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
-			{
-				CalendarEvent e = (CalendarEvent)(i.next());
-				
-				String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
-				if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
+			if (showAllEvents) {
+				newEventVectorObj.addAll(masterEventVectorObj);
+			} else {
+				for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
 				{
-					context.put("fromColExist", Boolean.TRUE);
-				}
-				
-				if ((schToGroups != null) && (schToGroups.size()>0))
-				{
-					boolean eventInGroup = false;
-					for (Iterator j = schToGroups.iterator(); j.hasNext();)
+					CalendarEvent e = (CalendarEvent)(i.next());
+
+					String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
+					if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
 					{
-						String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
-						String groupId = j.next().toString();
-						Site site = SiteService.getSite(calendarObj.getContext());
-						Group group = site.getGroup(groupId);
-						if (groupRangeForDisplay.equals("")||groupRangeForDisplay.equals("site")) 
-							eventInGroup = true;
-						if (groupRangeForDisplay.equals(group.getTitle()))
-							eventInGroup = true;
+						context.put("fromColExist", Boolean.TRUE);
 					}
-					if ( ! eventInGroup )
-						newEventVectorObj.remove(e);
+
+					if (showGroupEvents && schToGroups != null && !schToGroups.isEmpty())
+					{
+						boolean eventInGroup = false;
+						for (Iterator j = schToGroups.iterator(); j.hasNext();)
+						{
+							String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
+							String groupId = j.next().toString();
+							Site site = SiteService.getSite(calendarObj.getContext());
+							Group group = site.getGroup(groupId);
+							if (groupRangeForDisplay.equals(group.getTitle()))
+								eventInGroup = true;
+						}
+						if (eventInGroup){
+							newEventVectorObj.add(e);
+						}
+					}
+					if(showSiteEvents){
+						String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
+						if(StringUtils.isBlank(groupRangeForDisplay) || "site".equalsIgnoreCase(groupRangeForDisplay)){
+							newEventVectorObj.add(e);
+						}
+					}
 				}
-			}
-				
-			if ((schToGroups != null) && (schToGroups.size()>0))
-			{
 				masterEventVectorObj.clear();
 				masterEventVectorObj.addAll(newEventVectorObj);
 			}
@@ -5919,85 +5927,47 @@ extends VelocityPortletStateAction
 		boolean dateDsc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 		context.put("currentDateSortAsc", Boolean.valueOf(!dateDsc));
 		
-		if (!dateDsc)
-		{
-			for (yearInt = CalendarFilter.LIST_VIEW_STARTING_YEAR;
-				yearInt <= CalendarFilter.LIST_VIEW_ENDING_YEAR;
-				yearInt++)
-			{
-				Vector arrayOfMonths = new Vector(20);
-				for(monthInt = 1; monthInt <13; monthInt++)
+		boolean dateAsc = !dateDsc;
+		
+		for (yearInt = dateAsc ? CalendarFilter.LIST_VIEW_STARTING_YEAR : CalendarFilter.LIST_VIEW_ENDING_YEAR;
+			dateAsc ? yearInt <= CalendarFilter.LIST_VIEW_ENDING_YEAR : yearInt >= CalendarFilter.LIST_VIEW_STARTING_YEAR ;
+			yearInt = yearInt + (dateAsc ? 1 : -1)
+		){
+			ArrayList<MyMonth> arrayOfMonths = new ArrayList(20);
+			for(
+					monthInt = dateAsc ? 1 : 12;
+					dateAsc ? monthInt <13 : monthInt >=1;
+					monthInt = monthInt + (dateAsc ? 1 : -1)
+			){
+				CalendarUtil AcalObj = new CalendarUtil();
+
+				monthObj2 = new MyMonth();
+				AcalObj.setDay(yearInt, monthInt, dayInt);
+
+				dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
+
+				// Get the events for the particular month from the
+				// master list of events.
+				calendarEventVectorObj =
+					new CalendarEventVector(
+						state.getCalendarFilter().filterEvents(
+							masterEventVectorObj.getEvents(
+								getMonthTimeRange((CalendarUtil) AcalObj))));
+
+				if (!calendarEventVectorObj.isEmpty())
 				{
-					CalendarUtil AcalObj = new CalendarUtil();
-					
-					monthObj2 = new MyMonth();
-					AcalObj.setDay(yearInt, monthInt, dayInt);
-					
-					dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
-					
-					// Get the events for the particular month from the
-					// master list of events.
-					calendarEventVectorObj =
-						new CalendarEventVector(
-							state.getCalendarFilter().filterEvents(
-								masterEventVectorObj.getEvents(
-									getMonthTimeRange((CalendarUtil) AcalObj))));
-					
+					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
+
+					monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
+
+					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
+
 					if (!calendarEventVectorObj.isEmpty())
-					{
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
-						
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						if (!calendarEventVectorObj.isEmpty())
-							arrayOfMonths.addElement(monthObj2);
-					}
+						arrayOfMonths.add(monthObj2);
 				}
-				if (!arrayOfMonths.isEmpty())
-					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 			}
-		}
-		else
-		{
-			for (yearInt = CalendarFilter.LIST_VIEW_ENDING_YEAR;
-			yearInt >= CalendarFilter.LIST_VIEW_STARTING_YEAR;
-			yearInt--)
-			{
-				Vector arrayOfMonths = new Vector(20);
-				for(monthInt = 12; monthInt >=1; monthInt--)
-				{
-					CalendarUtil AcalObj = new CalendarUtil();
-					
-					monthObj2 = new MyMonth();
-					AcalObj.setDay(yearInt, monthInt, dayInt);
-					
-					dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
-					
-					// Get the events for the particular month from the
-					// master list of events.
-					calendarEventVectorObj =
-						new CalendarEventVector(
-							state.getCalendarFilter().filterEvents(
-								masterEventVectorObj.getEvents(
-									getMonthTimeRange((CalendarUtil) AcalObj))));
-					
-					if (!calendarEventVectorObj.isEmpty())
-					{
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
-						
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						if (!calendarEventVectorObj.isEmpty())
-							arrayOfMonths.addElement(monthObj2);
-					}
-				}
-				if (!arrayOfMonths.isEmpty())
-					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
-			}
+			if (!arrayOfMonths.isEmpty())
+				yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 		}
 		
 		context.put("yearMap", yearMap);
@@ -6049,28 +6019,7 @@ extends VelocityPortletStateAction
 		
 		if (StringUtils.equalsAny(stateName, CALENDAR_INIT_PARAMETER, LIST_VIEW)) {
 			int printType = CalendarService.UNKNOWN_VIEW;
-
-			String timeRangeString = "";
-			int startHour = 0, startMinute = 0;
-			int endHour = 23, endMinute = 59;
-			int endSeconds = 59, endMSeconds = 999;
-			TimeRange dailyStartTime = TimeService.newTimeRange(
-					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), startHour, startMinute, 00, 000),
-					TimeService.newTimeLocal(state.getcurrentYear(), state.getcurrentMonth(), state.getcurrentDay(), endHour, endMinute, endSeconds, endMSeconds)
-			);
-			ZonedDateTime currentZonedDateTime = ZonedDateTime.now();
-			int stateYear = currentZonedDateTime.get(ChronoField.YEAR);
-			int stateMonth = currentZonedDateTime.get(ChronoField.MONTH_OF_YEAR);
-			int stateDay = currentZonedDateTime.get(ChronoField.DAY_OF_MONTH);
-			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null)) {
-				stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
-				stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
-				stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
-			}
-
-			CalendarUtil calObj = new CalendarUtil();
-			calObj.setDay(stateYear, stateMonth, stateDay);
-			
+			String timeRangeString;
 			switch (stateName) {
 				case LIST_VIEW:
 					printType = CalendarService.LIST_VIEW;
@@ -6079,7 +6028,7 @@ extends VelocityPortletStateAction
 				case CALENDAR_INIT_PARAMETER:
 				default:
 					printType = CalendarService.WEEK_VIEW;
-					timeRangeString = getWeekTimeRange(calObj).toString();
+					timeRangeString = "";
 					break;			
 			}
 
@@ -6091,7 +6040,7 @@ extends VelocityPortletStateAction
 			boolean dateDesc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 			String userDisplayName = UserDirectoryService.getCurrentUser().getDisplayName();
-			String calendarPdfReference = CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(), printType, timeRangeString, userDisplayName, dailyStartTime, dateDesc);
+			String calendarPdfReference = CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(), printType, timeRangeString, userDisplayName, dateDesc);
 			String printableVersionUrl = String.format("%s%s", ServerConfigurationService.getAccessUrl(), calendarPdfReference);			
 			context.put("printableVersionUrl", printableVersionUrl);
 		}

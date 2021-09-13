@@ -24,24 +24,34 @@ body.is-logged-out{
 }
 
 .#{$namespace}mainHeader{
-		border-bottom:1px solid var(--sakai-border-color);
-		position: relative;
+	border-bottom:1px solid var(--sakai-border-color);
+	position: relative;
 
-		.#{$namespace}headerLogo{
+	.#{$namespace}headerLogo{
+		display: flex;
+		justify-content: space-between;
 		width: 100%;
-		padding: 0 $standard-spacing;
+		padding: 0;
 		height: $banner-height;
 		background: var(--top-header-background);
 		text-align: center;
-		@include transition( width 0.5s linear 0s );
+		@media #{$phone}{
+			display: inline-block;
+		}
 
 		.#{$namespace}headerLogo--institution{
-			background: var(--logo) no-repeat center center;
-			width: var(--logo-width);
+			width: $tool-menu-width;
 			height: 100%; // align vertically center
-			float: left;
+			background: var(--logo) no-repeat center center;
 			background-size: var(--logo-width) var(--logo-height);
+			background-color: var(--logo-background-color);
 			opacity: var(--logo-opacity);
+
+			@media #{$phone}{
+				float: left;
+				width: calc(#{$standard-spacing} + #{var(--logo-width)});
+				margin-right: $standard-space-2x;
+			}
 		}
 	}
 
@@ -104,7 +114,7 @@ body.is-logged-out{
 		position: fixed;
 		top: 0;
 		width: 100%;
-		z-index: 20;
+		z-index: 97;
 	}
 }
 
@@ -244,6 +254,10 @@ body.is-logged-out{
 		@include display-flex;
 		@include align-items( center );
 		@include justify-content( flex-end );
+		margin-right: $standard-spacing;
+		@media #{$phone}{
+			margin-right: $standard-space-2x;
+		}
 
 		#roleSwitch {
 			@include display-flex;
@@ -381,7 +395,6 @@ body.is-logged-out{
 			top: -4.2em;
 		}
 	}
-
 }
 
 #mastLogin{
@@ -392,10 +405,6 @@ body.is-logged-out{
 		line-height: 2.3em;
 	}
 
-	@media #{$phone}{
-		width: calc(100% - #{var(--logo-width)});
-	}
-
 	ul{
 		display: inline-block;
 		text-align: left;
@@ -403,11 +412,9 @@ body.is-logged-out{
 		margin-bottom:0px;
 	}
 
-
 	.is-hidden{
 		display: none;
 	}
-
 
 	#loginForm{
 

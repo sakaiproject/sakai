@@ -1,5 +1,10 @@
 const sakaiVideoRecorder = {
   recorder: null,
+  // Chrome, Safari and Firefox compatibility is related to the mime type and the codec used.
+  // See https://caniuse.com/webm for more information.
+  // vp8 codec is not supported by firefox for recording.
+  // vp9 codec is supported by firefox for recording and playing.
+  mimeType: 'video/webm;codecs=vp9',
   player: document.getElementById('submission-preview-player'),
   recordingHiddenInput: document.getElementById('video-submission'),
   recorderSubmissionMimetype: document.getElementById('video-submission-mimetype'),
@@ -32,7 +37,7 @@ const sakaiVideoRecorder = {
 
     // TODO: Ideally we want a different mechanism to send the file to the backend as it's sent by a classic form post.
     // Would be good to work on formats and browser support, this could be a serious problem with Safari.
-    let fileObject = new File([sakaiVideoRecorder.recorder.getBlob()], "video.webm", {type: 'video/webm'});
+    let fileObject = new File([sakaiVideoRecorder.recorder.getBlob()], "video.webm", {type: sakaiVideoRecorder.mimeType});
     sakaiVideoRecorder.getBase64(fileObject).then(
       (data) => sakaiVideoRecorder.recordingHiddenInput.value = data
     );
@@ -54,11 +59,10 @@ const sakaiVideoRecorder = {
         sakaiVideoRecorder.player.muted = true;
         sakaiVideoRecorder.player.volume = 0;
         sakaiVideoRecorder.player.srcObject = camera;
-        const mimeType = 'video/webm';
-        sakaiVideoRecorder.recorderSubmissionMimetype.value = mimeType;
+        sakaiVideoRecorder.recorderSubmissionMimetype.value = sakaiVideoRecorder.mimeType;
         sakaiVideoRecorder.recorder = RecordRTC(camera, {
           type: 'video',
-          mimeType: mimeType
+          mimeType: sakaiVideoRecorder.mimeType
         });
         sakaiVideoRecorder.recorder.startRecording();
         // release camera on stopRecording

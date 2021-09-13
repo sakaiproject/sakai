@@ -205,7 +205,7 @@
         </div>
         <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
          <div class="col-md-10">
-            <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control"/>
+            <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control" maxlength="254"/>
         </div>
     </div>
   

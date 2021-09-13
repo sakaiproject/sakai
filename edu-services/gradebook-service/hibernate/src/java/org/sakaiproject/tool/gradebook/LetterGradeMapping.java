@@ -64,7 +64,7 @@ public class LetterGradeMapping extends GradeMapping {
 
 	@Override
 	public String getName() {
-		return "Letter Grades";
+		return "letter_grades";
 	}
 }
 

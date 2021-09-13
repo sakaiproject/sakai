@@ -34,10 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,13 +48,9 @@ public class SitesController extends AbstractSakaiApiController {
 	@Resource
 	private SiteService siteService;
 
-    @ApiOperation(value = "Get all the Sakai sites a user can access")
 	@GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getSites(
-            @ApiParam(value = "The user whose sites we want to retrieve", required = true)
-            @PathVariable
-            String userId
-        ) throws UserNotDefinedException {
+    public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId)
+        throws UserNotDefinedException {
 
 		Session session = checkSakaiSession();
 

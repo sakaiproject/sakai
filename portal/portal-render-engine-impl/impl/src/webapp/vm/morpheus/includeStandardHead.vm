@@ -7,6 +7,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <script type="importmap">
+        {
+            "imports": {
+                "@popperjs/core/dist/esm/popper.js": "/webcomponents/assets/@popperjs/core/dist/esm/popper.js"
+            }
+        }
+        </script>
+
         <script> ## Include this at the top so tool markup and headscripts.js can use it
             ## SAK-16484 Allow Javascript to easily get at user details.
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
@@ -75,8 +83,12 @@
         <link href="${pageWebjarsPath}fontawesome/4.7.0/css/font-awesome.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script>
+            moment.locale(window.portal.locale);
+        </script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
     #end
@@ -99,5 +111,4 @@
         #if ($faviconURL && !$faviconURL.empty)
                 <link rel="icon" href="$!{faviconURL}" type="image/x-icon">
         #end
-
     </head>

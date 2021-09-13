@@ -107,7 +107,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
-                  ${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
+                  ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
                 <div class="add-criterion-item">
@@ -274,8 +274,8 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (e.target.value == '') {
       e.target.value = 0;
     }
-    e.target.value = e.target.value.replace(',', '.');
-    let value = parseFloat(e.target.value);
+    let value = e.target.value.replace(',', '.');
+    value = parseFloat(value);
     if (isNaN(value)) {
       value = 0;
     }

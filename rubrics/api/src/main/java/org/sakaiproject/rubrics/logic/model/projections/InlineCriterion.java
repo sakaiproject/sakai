@@ -41,7 +41,7 @@ public interface InlineCriterion {
 
     String getDescription();
 
-    double getWeight();
+    float getWeight();
 
     List<Rating> getRatings();
 

@@ -52,7 +52,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
       ${this.display === "button" ?
       html`<h3><sr-lang key="grading_rubric" /></h3>
       <button aria-haspopup="dialog" @click="${this.showRubric}"><sr-lang key="preview_rubric" /></button>`
-      : html`<span class="fa fa-table" style="cursor: pointer;" title="${tr("preview_rubric")}" @click="${this.showRubric}" />`
+      : html`<span class="fa icon-sakai--sakai-rubrics" style="cursor: pointer;" title="${tr("preview_rubric")}" @click="${this.showRubric}" />`
       }
     `;
   }

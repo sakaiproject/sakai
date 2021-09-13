@@ -36,11 +36,9 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -84,6 +82,7 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 /**
  * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
@@ -310,7 +309,7 @@ public class GradebookPage extends BasePage {
 
 		this.tableArea.add(this.gradeTable);
 
-		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
+		final SakaiAjaxButton toggleCategoriesToolbarItem = new SakaiAjaxButton("toggleCategoriesToolbarItem") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -318,10 +317,11 @@ public class GradebookPage extends BasePage {
 					add(new AttributeAppender("class", " on"));
 				}
 				add(new AttributeModifier("aria-pressed", settings.isGroupedByCategory()));
+				setWillRenderOnClick(true);
 			}
 
 			@Override
-			public void onSubmit() {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				settings.setGroupedByCategory(!settings.isGroupedByCategory());
 				setUiSettings(settings, true);
 
@@ -368,9 +368,11 @@ public class GradebookPage extends BasePage {
 				final String siteId = GradebookPage.this.businessService.getCurrentSiteId();
 
 				window.setTitle(getString("bulkedit.heading"));
-				window.setContent(new BulkEditItemsPanel(window.getContentId(), Model.of(siteId), window));
+				BulkEditItemsPanel panel = new BulkEditItemsPanel(window.getContentId(), Model.of(siteId), window);
+				window.setContent(panel.setOutputMarkupId(true));
 				window.setComponentToReturnFocusTo(this);
 				window.show(target);
+				target.appendJavaScript("GBBE.init('" + panel.getMarkupId() + "');");
 			}
 
 			@Override
@@ -546,6 +548,7 @@ public class GradebookPage extends BasePage {
 
 		if (settings == null) {
 			settings = new GradebookUiSettings();
+			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
 			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
@@ -554,10 +557,7 @@ public class GradebookPage extends BasePage {
 		// See if the user has a database-persisted preference for Group by Category
 		String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
 		if (StringUtils.isNotBlank(userGbUiCatPref)) {
-			settings.setCategoriesEnabled(new Boolean(userGbUiCatPref));
-		}
-		else {
-			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
+			settings.setGroupedByCategory(Boolean.valueOf(userGbUiCatPref));
 		}
  
 		return settings;

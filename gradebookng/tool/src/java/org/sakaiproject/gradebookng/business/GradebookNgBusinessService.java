@@ -238,7 +238,8 @@ public class GradebookNgBusinessService {
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
 			// users are provided
-			final Set<String> userUuids = this.siteService.getSite(givenSiteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
+			Site site = siteService.getSite(givenSiteId);
+			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -295,13 +296,18 @@ public class GradebookNgBusinessService {
 						}
 					}
 
+					// If all group IDs in perms are null, this means TA has permission to view/grade All Sections/Groups.
+					// In this situation, we should add non-provided site members to their viewable list
+					List<String> nonProvidedMembers = site.getMembers().stream().filter(m -> !m.isProvided()).map(Member::getUserId).collect(Collectors.toList());
+					if (perms.stream().allMatch(p -> p.getGroupReference() == null)) {
+						viewableStudents.addAll(nonProvidedMembers);
+					}
+
 					if (!viewableStudents.isEmpty()) {
-						userUuids.retainAll(viewableStudents); // retain only
-																// those that
-																// are visible
-																// to this TA
+						userUuids.retainAll(viewableStudents); // retain only those that are visible to this TA
 					} else {
 						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
+						userUuids.removeAll(nonProvidedMembers); // Filter out non-provided users
 					}
 				}
 			}
@@ -834,7 +840,7 @@ public class GradebookNgBusinessService {
 			final Double newGradePoints = FormatHelper.validateDouble(newGradeAdjusted);
 
 			// if over limit, still save but return the warning
-			if (newGradePoints.compareTo(maxPoints) > 0) {
+			if (newGradePoints != null && newGradePoints.compareTo(maxPoints) > 0) {
 				log.debug("over limit. Max: {}", maxPoints);
 				rval = GradeSaveResponse.OVER_LIMIT;
 			}
@@ -2247,48 +2253,44 @@ public class GradebookNgBusinessService {
 	public boolean updateUngradedItems(final long assignmentId, final double grade, final GbGroup group) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
+		final Assignment assignment = getAssignment(assignmentId);
 
 		// get students
 		final List<String> studentUuids = (group == null) ? this.getGradeableUsers() : this.getGradeableUsers(group);
 
-		// get grades (only returns those where there is a grade)
-		final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(),
-				assignmentId, studentUuids);
+		// get grades (only returns those where there is a grade, or comment; does not return those where there is no grade AND no comment)
+		final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId, studentUuids);
 
-		// iterate and trim the studentUuids list down to those that don't have
-		// grades
-		for (final GradeDefinition def : defs) {
+		// Remove students who already have a grade
+		studentUuids.removeIf(studentUUID -> defs.stream().anyMatch(def -> studentUUID.equals(def.getStudentUid()) && StringUtils.isNotBlank(def.getGrade())));
+		defs.removeIf(def -> StringUtils.isNotBlank(def.getGrade()));
 
-			// don't remove those where the grades are blank, they need to be
-			// updated too
-			if (StringUtils.isNotBlank(def.getGrade())) {
-				studentUuids.remove(def.getStudentUid());
+		// Create new GradeDefinition objects for those students who do not have one
+		for (String studentUUID : studentUuids) {
+			if (defs.stream().noneMatch(def -> studentUUID.equals(def.getStudentUid()))) {
+				GradeDefinition def = new GradeDefinition();
+				def.setStudentUid(studentUUID);
+				def.setGradeEntryType(gradebook.getGrade_type());
+				def.setGradeReleased(gradebook.isAssignmentsDisplayed() && assignment.isReleased());
+				defs.add(def);
 			}
 		}
 
-		if (studentUuids.isEmpty()) {
+		// Short circuit
+		if (defs.isEmpty()) {
 			log.debug("Setting default grade. No students are ungraded.");
 		}
 
+		// Apply the new grade to the GradeDefinitions to be updated
+		for (GradeDefinition def : defs) {
+			def.setGrade(Double.toString(grade));
+			log.debug("Setting default grade. Values of assignmentId: {}, studentUuid: {}, grade: {}", assignmentId, def.getStudentUid(), grade);
+		}
+
+		// Batch update the GradeDefinitions, and post an event on completion
 		try {
-			// for each student remaining, add the grade
-			for (final String studentUuid : studentUuids) {
-
-				log.debug("Setting default grade. Values of assignmentId: {}, studentUuid: {}, grade: {}", assignmentId, studentUuid, grade);
-
-				// TODO if this is slow doing it one by one, might be able to
-				// batch it
-
-				// The service needs it otherwise it will assume 'null'
-				// so pull it back from the service and poke it in there!
-				final String comment = getAssignmentGradeComment(Long.valueOf(assignmentId), studentUuid);
-
-				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
-						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), comment);
-			}
-
+			gradebookService.saveGradesAndComments(gradebook.getUid(), assignmentId, defs);
 			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
-
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);

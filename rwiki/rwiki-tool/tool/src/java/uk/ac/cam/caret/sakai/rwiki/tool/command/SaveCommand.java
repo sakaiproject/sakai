@@ -24,6 +24,8 @@ package uk.ac.cam.caret.sakai.rwiki.tool.command;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -211,12 +212,36 @@ public class SaveCommand implements HttpCommand
 		// Successful update
 		vphb.setSaveState(ViewParamsHelperBean.SAVE_OK);
 		this.successfulUpdateDispatch(dispatcher,request, response);
+
+		// Strip comment numbers off the page name if we're creating/editing a comment
+		// This is to ensure that the redirect refreshes the page the comment exists on, rather than rendering a page for the comment itself
+		if (this instanceof CommentSaveCommand || this instanceof CommentNewCommand)
+		{
+			// We can't have repeating capture groups, so we have to iterate.
+			// There could be any number of ".###" group occurances at the end of the name, ex:
+			// /site/e990d9a6-fdae-4126-b8a8-4a9994642bb9/home.005.006
+			// Which indicates this is a comment reply (id 006) to a comment (id 005) on the "home" page
+			Pattern pattern = Pattern.compile("^(.*)(\\.\\d\\d\\d)");
+			Matcher matcher;
+			do
+			{
+				matcher = pattern.matcher(name);
+				if (matcher.matches())
+				{
+					name = matcher.group(1);
+				}
+				else
+				{
+					break;
+				}
+			} while (matcher.matches());
+		}
+
 		ViewBean vb = new ViewBean(name, realm);
 		String requestURL = request.getRequestURL().toString();
-		sessionManager.getCurrentToolSession().setAttribute(
-				RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getViewUrl());
-		return;
 
+		// Use PRG pattern to avoid problems of refreshing the page submitting the form again, duplicating the comment.
+		response.sendRedirect(requestURL + vb.getViewUrl());
 	}
 
 	protected void doUpdate(String name, String realm, Date versionDate,

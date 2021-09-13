@@ -77,33 +77,6 @@
 		<url-pattern>*.eot</url-pattern>
 	</filter-mapping>
 
-	<!-- 
-	<filter-mapping>
-		<filter-name>CacheFilterForWeek</filter-name>
-		<url-pattern>/skin/*</url-pattern>
-	</filter-mapping>	
-	<filter-mapping>
-		<filter-name>CacheFilterForWeek</filter-name>
-		<url-pattern>/image/*</url-pattern>
-	</filter-mapping>	
-	<filter-mapping>
-		<filter-name>CacheFilterForWeek</filter-name>
-		<url-pattern>/js/*</url-pattern>
-	</filter-mapping>	
-	<filter-mapping>
-		<filter-name>CacheFilterForWeek</filter-name>
-		<url-pattern>/editor/*</url-pattern>
-	</filter-mapping>	
-	 -->
-	 
-	<filter-mapping>
-		<filter-name>sakai.request</filter-name>
-		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-
 	<filter-mapping>
 		<filter-name>UrlRewriteFilter</filter-name>
 		<url-pattern>/*</url-pattern>
@@ -112,16 +85,5 @@
 		     when an upgrade is done. Once we're off ckeditor 4.5.7 we can re-enable this. -->
 		<!-- <dispatcher>FORWARD</dispatcher> -->
 	</filter-mapping>
-
-	<servlet>
-		<servlet-name>Connector</servlet-name>
-		<servlet-class>org.sakaiproject.connector.fck.FCKConnectorServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>Connector</servlet-name>
-		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
-	</servlet-mapping>
 
 </web-app>
