@@ -12174,9 +12174,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// if the site was created from template
 					rp.addProperty(TEMPLATE_USED, templateSite.getId());
 				}
-
-				// Enable MathJax, if applies
-				MathJaxEnabler.prepareMathJaxForNewSite(site, state);
 				
 				// SAK-24423 - update site properties for joinable site settings
 				JoinableSiteSettings.updateSitePropertiesFromSiteInfoOnAddNewSite( siteInfo, rp );
