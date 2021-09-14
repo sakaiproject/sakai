@@ -484,65 +484,6 @@
 			</div>
 		#end
 
-        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
-		<h4>$!tlang.getString('accessSectionHeader')</h4>
-		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
-		</fieldset>
-
-		#if ($!isTimesheet)
-		<div id="timesheetsetupsection" style="display: block">
-			<h4>
-				$tlang.getString("gen.estimate")
-			</h4>
-	
-			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-				<div class="checkbox">
-					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#end
-						$tlang.getString("gen.isestimate")
-					</label>
-				</div>
-	
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="checkestimaterequired" class="checkbox">
-				#else
-					<div id="checkestimaterequired" style="display:none" class="checkbox">
-				#end
-					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" checked="checked" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" />
-					#end
-						$tlang.getString("gen.reqestimate")
-					</label>
-				</div>
-				
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="inputtimestimate" class="form-group row form-required">
-				#else
-					<div id="inputtimestimate" style="display:none" class="form-group row form-required">
-				#end
-						<label for="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" class="col-sm-2 form-required">
-							$tlang.getString("gen.timestimate")
-						</label>
-						<div class="col-sm-2">
-							<input name="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" id="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" type="text" value="$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)" size="20" maxlength="20" class="form-control" placeholder="$!tlang.getString('ts.modal.field.tspent.format')" />
-						</div>
-					</div>
-			#end
-				</div>
-			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
-			<script>
-				ASN.disableTimesheetSetupSection();
-			</script>
-			#end
-		#end
-
 		<h4>
 			$tlang.getString("gen.stusub")
 		</h4>
@@ -564,90 +505,14 @@
 			<div id="review.switch.ne.2" class="sak-banner-info" style="display:none;">$reviewSwitchNe2</div>
 		</div>
 
-		##show it only for those assignments not of type non-electronic submission
-		#if($!value_allowResubmitNumber && $value_SubmissionType != 4)
-			#set($resubmitStyle="display:block")
-		#else
-			#set($resubmitStyle="display:none")
-		#end
-
-		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<label class="col-sm-2 control-label" for="allowResToggle">
-				$tlang.getString("allowResubmit")
-			</label>
-			<div class="col-sm-10">
-				<div id="tempAllowRes">
-					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
-				</div>
-			</div>
-		</div>
-
-		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
-			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
-				$tlang.getString("allow.resubmit.number")
-			</label>
-			<div class="col-sm-9">
-				<select name="$name_allowResubmitNumber" id="allowResubmitNumber" title="$tlang.getString("allow.resubmit.number")">
-					#foreach ($i in [1..10])
-						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
-							$i
-						</option>
-					#end
-					<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
-				</select>
-			</div>
-		</div>
-
-		## only show date selection when allowed to resubmit
-		<div class="form-group row" id="allowResubmitTime" style="$!resubmitStyle">
-			<label for="$name_ResubmitMonth" class="col-sm-offset-1 col-sm-2 control-label">
-				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
-			</label>
-			<div class="col-sm-6 form-inline">
-				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
-			</div>
-
-			<script>
-			      localDatePicker({
-			      	input:'#resubmit',
-			      	useTime:1,
-			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
-			      	parseFormat: 'YYYY-MM-DD HH:mm',
-			      	ashidden:{
-			      		month:"allow_resubmit_closeMonth",
-			      		day:"allow_resubmit_closeDay",
-			      		year:"allow_resubmit_closeYear",
-			      		hour:"allow_resubmit_closeHour",
-			      		minute:"allow_resubmit_closeMin"
-			      	}
-			      });
-			</script>
-		</div>
-
-		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
-			<label>
-				$tlang.getString("send.submission.releasereturn.email.options")
-			</label>
-			## whether to notify student about released grade and resubmission is available
-			<div class="radio">
-				<label>
-					<input type="radio" name="$!name_assignment_releasereturn_notification" id="notsendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_none" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_none))checked="checked" #end />
-					$tlang.getString('send.submission.releasereturn.email.none')
-				</label>
-			</div>
-			<div class="radio">
-				<label>
-					<input type="radio" name="$!name_assignment_releasereturn_notification" id="sendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_each" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_each))checked="checked" #end />
-					$tlang.getString('send.submission.releasereturn.email')
-				</label>
-			</div>
-		</div>
-
 		<div id="External_Tool_Fieldset" #if ($value_SubmissionType != 6) style = "display:none"#end>
         <fieldset>
 		<h4>
 			$tlang.getString("external.tool.label")
 		</h4>
+        <p>
+			$tlang.getString("external.tool.detail")
+        </p>
 		<div class="form-group row">
 			<label class="col-sm-12 control-label block" for="tempContentId">
 				$tlang.getString("launchContentId")
@@ -804,6 +669,143 @@ function showExternalIframe(title, doreload) {
 //]]>
 </script>
 
+		#if ($!isTimesheet)
+		<div id="timesheetsetupsection" style="display: block">
+			<h4>
+				$tlang.getString("gen.estimate")
+			</h4>
+	
+			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+				<div class="checkbox">
+					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE">
+					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
+					#else
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
+					#end
+						$tlang.getString("gen.isestimate")
+					</label>
+				</div>
+	
+				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+					<div id="checkestimaterequired" class="checkbox">
+				#else
+					<div id="checkestimaterequired" style="display:none" class="checkbox">
+				#end
+					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
+					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" checked="checked" />
+					#else
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" />
+					#end
+						$tlang.getString("gen.reqestimate")
+					</label>
+				</div>
+				
+				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+					<div id="inputtimestimate" class="form-group row form-required">
+				#else
+					<div id="inputtimestimate" style="display:none" class="form-group row form-required">
+				#end
+						<label for="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" class="col-sm-2 form-required">
+							$tlang.getString("gen.timestimate")
+						</label>
+						<div class="col-sm-2">
+							<input name="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" id="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" type="text" value="$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)" size="20" maxlength="20" class="form-control" placeholder="$!tlang.getString('ts.modal.field.tspent.format')" />
+						</div>
+					</div>
+			#end
+				</div>
+			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
+			<script>
+				ASN.disableTimesheetSetupSection();
+			</script>
+			#end
+		#end
+
+        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
+		<h4>$!tlang.getString('accessSectionHeader')</h4>
+		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
+		</fieldset>
+
+		##show it only for those assignments not of type non-electronic submission
+		#if($!value_allowResubmitNumber && $value_SubmissionType != 4)
+			#set($resubmitStyle="display:block")
+		#else
+			#set($resubmitStyle="display:none")
+		#end
+
+		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<label class="col-sm-2 control-label" for="allowResToggle">
+				$tlang.getString("allowResubmit")
+			</label>
+			<div class="col-sm-10">
+				<div id="tempAllowRes">
+					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
+			<label for="allowResubmitNumber" class="col-sm-offset-1 col-sm-2 control-label">
+				$tlang.getString("allow.resubmit.number")
+			</label>
+			<div class="col-sm-9">
+				<select name="$name_allowResubmitNumber" id="allowResubmitNumber" title="$tlang.getString("allow.resubmit.number")">
+					#foreach ($i in [1..10])
+						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
+							$i
+						</option>
+					#end
+					<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
+				</select>
+			</div>
+		</div>
+
+		## only show date selection when allowed to resubmit
+		<div class="form-group row" id="allowResubmitTime" style="$!resubmitStyle">
+			<label for="$name_ResubmitMonth" class="col-sm-offset-1 col-sm-2 control-label">
+				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
+			</label>
+			<div class="col-sm-6 form-inline">
+				<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
+			</div>
+
+			<script>
+			      localDatePicker({
+			      	input:'#resubmit',
+			      	useTime:1,
+			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
+			      	parseFormat: 'YYYY-MM-DD HH:mm',
+			      	ashidden:{
+			      		month:"allow_resubmit_closeMonth",
+			      		day:"allow_resubmit_closeDay",
+			      		year:"allow_resubmit_closeYear",
+			      		hour:"allow_resubmit_closeHour",
+			      		minute:"allow_resubmit_closeMin"
+			      	}
+			      });
+			</script>
+		</div>
+
+		<div class="col-sm-offset-1 row" id="resubmitNotification" style="$!resubmitStyle">
+			<label>
+				$tlang.getString("send.submission.releasereturn.email.options")
+			</label>
+			## whether to notify student about released grade and resubmission is available
+			<div class="radio">
+				<label>
+					<input type="radio" name="$!name_assignment_releasereturn_notification" id="notsendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_none" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_none))checked="checked" #end />
+					$tlang.getString('send.submission.releasereturn.email.none')
+				</label>
+			</div>
+			<div class="radio">
+				<label>
+					<input type="radio" name="$!name_assignment_releasereturn_notification" id="sendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_each" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_each))checked="checked" #end />
+					$tlang.getString('send.submission.releasereturn.email')
+				</label>
+			</div>
+		</div>
 
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
