@@ -329,7 +329,7 @@
 						<span style="width: 80%;">
 							<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">($tlang.getString("sinfo.list.groups.memb"))</a></span>
 							#end
 							#if ($g.Description)
 								<br/>
@@ -366,7 +366,7 @@
 							<div class="col-lg-10 col-sm-10 col-xs-12">
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">($tlang.getString("sinfo.list.groups.memb"))</a></span>
 								#end
 								#if ($g.Description)
 									<br/>
