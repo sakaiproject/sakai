@@ -1175,37 +1175,37 @@
 					<div class="sak-banner-error" id="subpage-error">
 					</div>
 				</div>
-				
+
                 <form action="#" rsf:id="subpage-form" class="controlsPanel">
-                  <input type="hidden" rsf:id="csrf7" />
-                    <p class="shorttext required">
-                        <span class="reqStar">*</span>
-                        <label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
-                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="255" length="30" />
-                        <label>*<span rsf:id="msg=simplepage.subpage_invalid_chars"></span></label><br />
-                    </p>
-                
-                    <p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-                      <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" ><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-                    </p>
+                    <input type="hidden" rsf:id="csrf7" />
+                    <div class="form-group">
+                        <label rsf:id="subpage-label" for="subpage-title"></label>
+                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" aria-describredby="invalid-chars" maxlength="255" length="30" />
+                        <div class="sak-banner-info"><span id="invalid-chars" rsf:id="msg=simplepage.subpage_invalid_chars"></span></div>
+                    </div>
 
-                    <p class="checkbox"><input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
-                    <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label></p>
-                    <p class="checkbox"><input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
-                    <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label></p>
-                    <label for="subpage-btncolor" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
-                    <select rsf:id="subpage-btncolor" id="subpage-btncolor">
-                    </select>
-                    <p rsf:id="msg=simplepage.needbtn" id="subpage-needbtn" style="display: none"></p>
-
-		    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
+                    <div class="form-group">
+                        <input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+                        <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+                        <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+                    </div>
+                    <div class="form-group" id="subpage-button-color-group">
+                        <label for="subpage-btncolor-selection" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
+                        <select rsf:id="subpage-btncolor" id="subpage-btncolor"></select>
+                    </div>
+                    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
                     <div class="act">
-                        <input class="bold" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
+                        <input class="active" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
+                        <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
+                        <button id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
                         <input type="submit" rsf:id="cancel-subpage" onclick="closeSubpageDialog(); return false" />
                     </div>
                 </form>
-			</div>
-			
+                </div>
+
 			<div id="edit-item-dialog" rsf:id="edit-item-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-item-error-container">
 					<div class="sak-banner-error" id="edit-item-error">
