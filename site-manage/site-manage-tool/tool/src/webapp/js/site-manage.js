@@ -16,8 +16,11 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
 		e.preventDefault();
 		$("#" + dialogTarget).modal('show');
 	});
-
-	var siteURL = '/direct/site/' + $("." + trigger).attr('id') + '/info.json';
+	const siteId = $("." + trigger).attr('id');
+	if (!siteId) {
+		return;
+	}
+	const siteURL = `/direct/site/${siteId}/info.json`;
 	jQuery.getJSON(siteURL, function(data){
 		var desc = '', shortdesc = '', title = '', owner = '', email = '';
 		if (data.description) {
@@ -82,9 +85,12 @@ sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tables
 		$("#" + dialogTarget).modal('show');
 	});
 
-	var id = $("." + trigger).attr('id');
+	const id = $("." + trigger).attr('id');
+	if (!id) {
+		return;
+	}
 	var title = $('#group' + id).html();
-	var groupURL = '/direct/membership/group/' + id + '.json';
+	const groupURL = `/direct/membership/group/${id}.json`;
 	var list = "";
 
 	jQuery.getJSON(groupURL, function(data){
