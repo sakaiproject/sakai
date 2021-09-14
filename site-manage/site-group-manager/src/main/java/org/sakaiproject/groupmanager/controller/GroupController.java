@@ -175,8 +175,8 @@ public class GroupController {
         });
         Collections.sort(joinableSetList, new AlphaNumericComparator());
 
-        // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
-        for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {
+        // For every member of the site, add it to the selector except if they were provided by a role.
+        for (Member member : site.getMembers()) {
             if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId()))) {
                 Optional<User> memberUserOptional = sakaiService.getUser(member.getUserId());
                 if (memberUserOptional.isPresent()) {
