@@ -27,7 +27,6 @@
 
         <configuration name="renderInline" value="true" />
         <configuration name="reset.button" value="false" />
-        <configuration name="help.button" value="false" />
         <configuration name="sakai:tool-directurl-enabled" value="false" />
 
     </tool>
