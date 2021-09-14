@@ -1684,24 +1684,25 @@ $(document).ready(function() {
 			return false;
 		});
 
-        $("#subpage-button").click(function(){
-            if($(this).is(":checked")){
-                if($("#subpage-btncolor-forced").is(":visible")){
-                    //do nothing, color selector still needs hidden.
-                }else{
-                    $("#subpage-buttonColorLabel").removeClass("disabled");
-                    $("#subpage-btncolor-selection").removeClass("disabled");
-                }
-                //remove button warning regardless
-                $("#subpage-needbtn").hide();
-            }else{
-                //if its not checked, make sure "disabled" class is there.
+		$("#subpage-button-color-group").hide();
+		$("#subpage-button").click(function(){
+			if ($(this).is(":checked")) {
+				if( $("#subpage-btncolor-forced").is(":visible")) {
+					//do nothing, color selector still needs to be hidden.
+				} else {
+					$("#subpage-button-color-group").show();
+				}
+			} else {
+				$("#subpage-button-color-group").hide();
+			}
+		});
 
-                $("#subpage-buttonColorLabel").addClass("disabled");
-                $("#subpage-btncolor-selection").addClass("disabled");
-                $("#subpage-needbtn").show();
-            }
-        });
+		$("#subpage-choose-button").tooltip();
+		$("#subpage-choose-button").attr("title", $('#subpage-choose').html());
+		$("#subpage-choose-button").click(function(e) {
+			e.preventDefault();
+			window.location = $('#subpage-choose').attr('href');
+		});
 
 		$("#item-button").click(function(){
 			if($(this).is(":checked")){
