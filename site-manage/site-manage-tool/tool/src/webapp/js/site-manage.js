@@ -1312,10 +1312,12 @@ function limitByAccountTypesValidation() {
 
   // Control the visibility of the "You must select at least one account type below" message
   var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
-  if (displayJoinLimitInfo) {
-    joinLimitInfoDiv.removeAttribute("style");
-  } else {
-    joinLimitInfoDiv.setAttribute("style", "display:none;");
+  if (joinLimitInfoDiv) {
+    if (displayJoinLimitInfo) {
+      joinLimitInfoDiv.removeAttribute("style");
+    } else {
+      joinLimitInfoDiv.setAttribute("style", "display:none;");
+    }
   }
 
   return valid;
