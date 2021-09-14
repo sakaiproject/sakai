@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Account Validation</title>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="screen, tty, tv, handheld, projection"/>
+<link href="content/css/requestAccount.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+<body>
+    <div class="wrapper">
+        <h4 th:text="#{error.title}">Error message</h4>
+        <div class="sak-banner-error" th:text="${warnMsg}">Account validation warning message</div>   
+            
+        <div th:if="${requestPass} != null" class="instruction">
+            <span th:utext="${requestPass}">Forgot your password? Request again.</span>
+        </div>
+    </div>
+</body>
+</html>

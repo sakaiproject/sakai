@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title th:text="#{transferMemberships.title}">Accept invitation</title>
+        <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+        <link href="/library/skin/morpheus-default/portal.css" type="text/css" rel="stylesheet" media="screen, tty, tv, handheld, projection"/>
+        <link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="screen, tty, tv, handheld, projection"/>
+        <link href="/library/skin/morpheus-default/print.css" type="text/css" rel="stylesheet" media="print"/>
+        <link href="/library/skin/morpheus-default/properties.css" type="text/css" rel="stylesheet" media="screen, tty, tv, handheld, projection"/>
+        <link href="content/css/transferMemberships.css" type="text/css" rel="stylesheet" media="all" />
+        <script id="portal-matter"></script>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+        <script type='text/javascript'>includeLatestJQuery('accountvalidator');</script>
+        <script type="text/javascript" language="JavaScript" src="content/js/accountValidator.js"></script>
+	</head>
+	<body>
+	<div class="wrapper">
+        <h2 class="topheading" th:text="#{validate.welcome1}">Welcome to Sakai!</h2>
+        <div class="logo"></div>
+        <div class="instruction">
+            <span th:text="${welcome}">You have been invited to the following sites:</span>
+            <ul class="siteList" th:each="site : ${siteTitles}">
+                <li th:text="${site}"></li>
+            </ul>
+        </div>
+        <h3 th:text="#{transferMemberships.title}" class="header">Accept invitation</h3>
+        <div class="instruction" th:text="#{validate.loginexisting.transfer(${uiService})}"></div>
+        <form id="claimAccountForm" class="form-horizontal" name="mergeForm" method="post">
+            <div id="banner" class="sak-banner-info">
+                <p class="fit" th:text="#{validate.loginexisting.accountReserved(${userId})}">Discard the account...</p>
+            </div>
+            <div class="sak-banner-warn">
+                <span class="fit" th:text="#{validate.wait.transfer.1}">Wait!</span>
+                <span th:utext="${labelLink}">I changed my mind</span>
+            </div>
+            <div class="spacer"></div>
+                <div class="form-group">
+                    <label for="userName" class="col-sm-3">
+                        <span th:text="#{username}">Username</span>
+                        <span class="reqStar">*</span>
+                    </label>
+                    <div class="col-xs-5">
+                        <input id="userName" class="form-control" type="text" name="userName" onfocus="VALIDATOR.checkTransferStatus();" onkeyup="VALIDATOR.checkTransferStatus();" oninput="VALIDATOR.checkTransferStatus()" required="required"/>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <div class="form-group">
+                    <label for="password" class="col-sm-3">
+                        <span th:text="#{password}">Password</span>
+                        <span class="reqStar">*</span>
+                    </label>
+                    <div class="col-xs-5">
+                        <input id="password" class="form-control" type="password" autocomplete="off" name="userpass" onfocus="VALIDATOR.checkTransferStatus();" onkeyup="VALIDATOR.checkTransferStatus();" oninput="VALIDATOR.checkTransferStatus();" required="required"/>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+            <input id="transferMemberships" th:value="#{validate.loginexisting.transferMemberships}" class="submit" type="submit" disabled="true" />
+            <div class="spacer"></div>
+        </form>
+        <div th:utext="${requestPass}">Forgot your password? Request again.</div>
+    </div>
+    <script>
+        document.getElementById('claimAccountForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const data = {
+                "userEid": document.getElementById('userName').value,
+                "password1": document.getElementById('password').value
+            };
+
+            fetch(window.location.href, {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: JSON.stringify(data)
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json().then(function (response) {
+
+                    const banner = document.getElementById("banner");
+
+                    if (response.error !== undefined) {
+                        banner.classList.remove("sak-banner-info");
+                        banner.classList.add("sak-banner-error");
+                        const message = response.error;
+                        banner.textContent = message;
+                    } else if (response.success !== undefined) {
+                        window.location.replace(location.origin + '/portal');
+                    }
+                });
+            });
+        });
+    </script>
+    </body>
+</html>

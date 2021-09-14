@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title th:text="#{validate.title}">Account Validation</title>
+        <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+        <link href="/library/skin/morpheus-default/portal.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/morpheus-default/print.css" type="text/css" rel="stylesheet" media="print"/>
+        <link href="/library/skin/morpheus-default/properties.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="content/css/accountvalidator.css" type="text/css" rel="stylesheet" media="all" />
+        <script id="portal-matter"></script>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+        <script type='text/javascript'>includeLatestJQuery('accountvalidator');</script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                if ($('form').length === 0) {
+                    $('table').remove();
+                    return false;
+                }
+                var css_invalidField = {'border':'1px solid red'};
+                $("input.inputBox").bind('keyup', function(){
+                    $(this).removeAttr("style");
+                });
+                $("input[type=checkbox]").click(function() {
+                    $(this).parents(".required").removeAttr("style");
+                });
+                $("input.submit").bind('click', function() {
+                    var that = $(this),
+                            form = that.parents('form:eq(0)'),
+                            errors = 0;
+                    $('form .required').removeAttr("style");
+                    $.each(form.find('.required'), function(i, _this) {
+                        var field = $(_this);
+                        if (field.attr('type') === 'text') {
+                            if (_isEmpty(field)) {
+                                field.css(css_invalidField);
+                                errors ++;
+                            }
+                        } else if (field.attr('type') === 'password') {
+                            if (field.attr('class').search('password2') === -1) {
+                                if (_isEmpty(field)) {
+                                    field.css(css_invalidField);
+                                    errors ++;
+                                }
+                            }
+                        // This is for the checkbox as we can't add a border to it.
+                        } else if (field.is("div")) {
+                            $("input[type=checkbox]", field).each(function(j, checkbox) {
+                                if (!$(checkbox).is(":checked")) {
+                                    field.css(css_invalidField);
+                                    errors ++;
+                                }
+                            });
+                        }
+                    });
+                    if (form.find('input.password2').length > 0) {
+                        var p1 = form.find('input.password1'),
+                                p2 = form.find('input.password2');
+                        if (!_isEmpty(p1)) {
+                            if (p1.val() !== p2.val()) {
+                                p1.css(css_invalidField);
+                                p2.css(css_invalidField);
+                                errors ++;
+                            }
+                        }
+                    }
+                    return errors === 0;
+                });
+                var _isEmpty = function(field) {
+                    return field.val() === null || field.val().length === 0 ||
+                           field.val().replace(/^\s*/, "").replace(/\s*$/, "") === "";
+                };
+            });
+        </script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <div class="stylized">
+                    <h3 th:text="${welcome1}">first part</h3>
+                    <div class="logo"></div>
+                    <span th:text="${welcome}" class="instruction">Welcome message goes here!</span>
+                    <ul class="siteList" th:each="site : ${siteTitles}">
+                        <li th:text="${site}"></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="banner" class="hidden">
+                <p class="fit" th:text="#{username.new}">errors</p>
+            </div>
+            <table>
+               <tr>
+                    <td valign="top">
+                        <div class="container-fluid">
+                            <h3 th:text="${imnew}">I am new to Sakai</h3>
+                            <form id="setDetailsForm" class="form-horizontal" name="form" method="post">
+                                <p class="dialog" th:text="${claim}">Claim your new Sakai account.</p>
+                                <div class="sak-banner-info">
+                                    <span class="fit" th:text="#{username.new}">Your new username will be:</span>
+                                    <span th:text="${eid}" class="username">User ID</span>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="form-group">
+                                    <label for="firstName" class="col-sm-4">
+                                        <span th:text="#{firstname}">First name</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input type="text" class="form-control" th:value="${firstName}" id="firstName" required/>
+                                    </div>
+                                </div>    
+                                <div class="spacer"></div>
+                                <div class="form-group">
+                                    <label for="surName" class="col-sm-4">
+                                        <span th:text="#{lastname}">Last name</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input type="text" class="form-control" th:value="${surName}" id="surName" required/>
+                                    </div>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="form-group">
+                                    <label for="password1" class="col-sm-4">
+                                        <span th:text="#{password}">Password</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input type="password" class="form-control" id="password1" required/>
+                                    </div>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="form-group" th:if="${renderPassBox} == true">
+                                    <label for="password2" class="col-sm-4">
+                                        <span th:text="#{password2}">Confirm password</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input type="password" class="form-control" id="password2" required/>
+                                    </div>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="terms" th:if="${termsLabel != null}">
+                                    <input id="termsCheck" type="checkbox" onclick="VALIDATOR.validateTermsChecked();" required/>
+                                    <label id="termsLabel" for="termsCheck" th:utext="#{terms(${termsLabel})}">I accept the terms and conditions</label>
+                                    <span class="reqStar">*</span>
+                                </div>
+                                <div id="myModal" class="modal">
+                                    <!-- Modal content -->
+                                    <div class="modal-content">
+                                        <span class="close">&times;</span>
+                                        <h5 th:text="#{terms.link}">Terms and conditions</h5>
+                                        <div class="spacer"></div>
+                                        <p class="dialog" th:text="${termsText}">Explanation..</p>
+                                    </div>
+                                </div>
+                                <input class="submit" type="submit" id="addDetailsSub" th:value="${addDetailsSub}"/>
+                            </form>
+                        </div>
+                    </td>
+                    <td width="2px" valign="middle" align="center">
+                        <div class="spacerVertical"></div>
+                        <span th:text="#{validate.or}" class="or">OR</span>
+                        <div class="spacerVertical"></div>
+                    </td>
+                    <td valign="top">
+                        <div class="container-fluid">
+                            <h3 th:text="${alreadyhave}">I already have a Sakai account</h3>
+                            <form id="claimAccountForm" class="form-horizontal" name="form" method="post">
+                                <p class="dialog" th:text="${loginexisting}">Login with your existing Sakai account.</p>
+                                <div class="spacer"></div>
+                                <div class="form-group">
+                                    <label for="userName" class="col-sm-4">
+                                        <span th:text="#{username}">Last name</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input id="userName" type="text" class="form-control" name="userName" required/>
+                                    </div>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="form-group">
+                                    <label for="passClaim" class="col-sm-4">
+                                        <span th:text="#{password}">Password</span>
+                                        <span class="reqStar">*</span>
+                                    </label>
+                                    <div class="col-xs-7">
+                                        <input id="passClaim" type="password" class="form-control" name="userpass" required/>
+                                    </div>
+                                </div>
+                                <div class="spacer"></div>
+                                <input id="submitClaim" th:value="#{submit.login}" class="submit" type="submit"/>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script>
+            var modal = document.getElementById("myModal");
+            var closeBtn = document.getElementsByClassName("close")[0];
+
+            function showModal() {
+                modal.style.display = "block";
+            };
+            // Close the modal when the user clicks on <span> (x)
+            closeBtn.onclick = function () {
+                modal.style.display = "none";
+            };
+            // Close the modal When the user clicks anywhere outside 
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            var banner = document.getElementById("banner");
+
+            document.getElementById('setDetailsForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                let terms = "false";
+                const checkBox = document.getElementById('termsCheck');
+
+                const data = {
+                    "firstName": document.getElementById('firstName').value,
+                    "surname": document.getElementById('surName').value,
+                    "password": document.getElementById('password1').value,
+                    "password2": document.getElementById('password2').value,
+                    "terms": terms = (checkBox == null ?
+                            'false' : checkBox.checked ?
+                            'true' : 'false')
+                };
+
+                fetch(window.location.href, {
+                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST',
+                    body: JSON.stringify(data)
+
+                }).then(function (response) {
+
+                    if (!response.ok) {
+                        throw response;
+                    }
+                    return response.json().then(function (response) {
+
+                        if (response.error !== undefined) {
+                            banner.classList.remove("hidden");
+                            banner.classList.add("sak-banner-error");
+                            var message = response.error;
+                            banner.textContent = message;
+                        } else if (response.success !== undefined) {
+                            window.location.replace(location.origin + '/portal');
+                        }
+                    });
+                });
+
+            });
+
+            document.getElementById('claimAccountForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const data = {
+                    "userEid": document.getElementById('userName').value,
+                    "password1": document.getElementById('passClaim').value
+                };
+
+                const url = window.location.origin+"/accountvalidator/claim"+location.search;
+                fetch(url, {
+                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw response;
+                    }
+                    return response.json().then(function (response) {
+
+                        if (response.error !== undefined) {
+                            banner.classList.remove("hidden");
+                            banner.classList.add("sak-banner-error");
+                            const message = response.error;
+                            banner.textContent = message;
+                        } else if (response.success !== undefined) {
+                            window.location.replace(location.origin + '/portal');
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

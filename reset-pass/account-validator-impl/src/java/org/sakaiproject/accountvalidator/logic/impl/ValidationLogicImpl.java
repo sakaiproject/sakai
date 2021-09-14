@@ -512,7 +512,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		///we want a direct tool url
 		String page = getPageForAccountStatus(account.getAccountStatus());
 		String serverUrl = serverConfigurationService.getServerUrl();
-		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + account.getValidationToken();
+		String url = serverUrl + "/accountvalidator/" + page + "?tokenId=" + account.getValidationToken();
 
 		replacementValues.put("expireTime", getFormattedExpirationMinutes());
 
