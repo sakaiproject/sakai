@@ -61,7 +61,9 @@
 					<div class="form-group">
 						<span class="reqStar">*</span>
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
-						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512"/>
+						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512" 
+							pattern="[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?"
+						/>
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
 							<span class="fa fa-times" aria-hidden="true"></span>
