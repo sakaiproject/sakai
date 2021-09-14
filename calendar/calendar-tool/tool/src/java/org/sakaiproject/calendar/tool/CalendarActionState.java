@@ -78,7 +78,6 @@ public class CalendarActionState
 	private LocalEvent savedData = new LocalEvent();
 	private boolean m_IsPastAlertOff = true;
 
-	private boolean m_DelfieldAlertOff = true;
 
 	private String m_state = "";
 	private String currentpage = "second";
@@ -225,16 +224,6 @@ public class CalendarActionState
 	}	//	getIsPastAlertOff
 
 	/**
-	 * Get the status of delfield alert off: true - no alert shown; false - alert shown
-	 * @return DelfieldAlertOff
-	 */
-	public boolean getDelfieldAlertOff()
-	{
-		return m_DelfieldAlertOff;
-
-	}	//	getDelfieldAlertOff
-
-	/**
 	 * Gets the main calendar ID associated with the event list.  Many calendars may be merged into this list, but there is only one one calendar that is used for adding/modifying events.
 	 */
 	public String getPrimaryCalendarReference()
@@ -251,16 +240,6 @@ public class CalendarActionState
 		m_IsPastAlertOff = IsPastAlertOff;
 
 	}	// setIsPastAlertOff
-
-	/**
-	 * Set the status of delfield alert off: true - no alert shown; false - alert shown
-	 * @param DelfieldAlertOff The status of delfield alert off: true - no alert shown; false - alert shown
-	 */
-	public void setDelfieldAlertOff(boolean DelfieldAlertOff)
-	{
-		m_DelfieldAlertOff = DelfieldAlertOff;
-
-	}	// setDelfieldAlertOff
 
 	/**
 	 * Sets the main calendar ID associated with the event list.  Many calendars may be merged into this
