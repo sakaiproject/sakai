@@ -536,7 +536,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     as.setSubmitted(true);
                     as.setUserSubmission(false);
                     as.setDateModified(Instant.now());
-                    as.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findFirst().ifPresent(sb -> sb.setSubmittee(false));
+                    as.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
                     assignmentService.updateSubmission(as);
                 }
             } catch (PermissionException e) {

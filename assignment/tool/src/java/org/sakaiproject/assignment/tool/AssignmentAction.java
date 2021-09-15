@@ -1735,7 +1735,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         s.setSubmitted(true);
                         s.setUserSubmission(false);
                         s.setDateModified(Instant.now());
-                        s.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findFirst().ifPresent(sb -> sb.setSubmittee(false));
+                        s.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
                         assignmentService.updateSubmission(s);
                     }
                 } catch (PermissionException e) {
@@ -6546,8 +6546,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
-                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true)); 
-                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setTimeSpent(saveSpent));
+                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findAny().ifPresent(s -> s.setSubmittee(true)); 
+                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findAny().ifPresent(s -> s.setTimeSpent(saveSpent));
 
                     // for resubmissions
                     // when resubmit, keep the Returned flag on till the instructor grade again.
@@ -6664,7 +6664,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setDateSubmitted(Instant.now());
                         submission.setSubmitted(post);
                         
-                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitterId)).findFirst().ifPresent(s -> s.setTimeSpent(saveSpent));
+                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitterId)).findAny().ifPresent(s -> s.setTimeSpent(saveSpent));
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
                     } catch (PermissionException e) {
