@@ -251,8 +251,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
-    
-    private Pattern pattern;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -294,6 +292,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         userMessagingService.importTemplateFromResourceXmlFile("templates/releaseResubmission.xml", AssignmentConstants.TOOL_ID + ".releaseresubmission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/submission.xml", AssignmentConstants.TOOL_ID + ".submission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/dueReminder.xml", AssignmentConstants.TOOL_ID + ".duereminder");
+
+        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
     }
 
     @Override
@@ -4948,6 +4948,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     public boolean timeHasCorrectFormat(String timeSheet) {
-        return pattern.matcher(timeSheet).matches();
+        Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
+        Matcher match = pattern.matcher(timeSheet);
+
+        if (!match.matches()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
