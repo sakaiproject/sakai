@@ -249,6 +249,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
+    
+    private Pattern pattern;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -279,6 +281,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
+        
+        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
     }
 
     @Override
@@ -4929,7 +4933,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     public boolean timeHasCorrectFormat(String timeSheet) {
-        Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
         Matcher match = pattern.matcher(timeSheet);
 
         if (!match.matches()) {
