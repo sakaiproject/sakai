@@ -1941,6 +1941,21 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     /**
+     * Filters the submission's attachments to include only attachments that should be displayed in the UI,
+     * then returns as a map of attachment reference IDs to their associated references
+     */
+    private Map<String, Reference> getVisibleAttachmentIdsToReferences(AssignmentSubmission submission) {
+        Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
+        submission.getAttachments().forEach(refId -> {
+            Reference reference = entityManager.newReference(refId);
+            if (!"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+                submissionAttachmentReferences.put(refId, reference);
+            }
+        });
+        return submissionAttachmentReferences;
+    }
+
+    /**
      * Get a list of accepted mime types suitable for an 'accept' attribute in an html file picker
      *
      * @throws IllegalArgumentException if the assignment accepts all attachments
@@ -2093,9 +2108,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 context.put("submission", s);
 
-                Map<String, Reference> attachmentReferences = new HashMap<>();
-                s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
-                context.put("attachmentReferences", attachmentReferences);
+                context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(s));
 
                 context.put("submit_text", StringUtils.trimToNull(s.getSubmittedText()));
                 context.put("email_confirmation", serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true));
@@ -2267,9 +2280,9 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
+        context.put("text", state.getAttribute(VIEW_SUBMISSION_TEXT));
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
-        stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
+        stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
         context.put("contentTypeImageService", contentTypeImageService);
 
@@ -2459,9 +2472,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
 
             context.put("submission", submission);
-            Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
-            submission.getAttachments().forEach(r -> submissionAttachmentReferences.put(r, entityManager.newReference(r)));
-            context.put("submissionAttachmentReferences", submissionAttachmentReferences);
+            context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(submission));
 
             Map<String, Reference> submissionFeedbackAttachmentReferences = new HashMap<>();
             submission.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
@@ -3644,9 +3655,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("isAdditionalNotesEnabled", false);
             }
 
-            Map<String, Reference> attachmentReferences = new HashMap<>();
-            s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
-            context.put("submissionAttachmentReferences", attachmentReferences);
+            context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(s));
 
             putSubmissionLogMessagesInContext(context, s);
             rangeAndGroups.buildInstructorGradeSubmissionContextGroupCheck(assignment, s.getGroupId(), state);
@@ -4298,9 +4307,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (submission != null) {
             context.put("submission", submission);
 
-            Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
-            submission.getAttachments().forEach(r -> submissionAttachmentReferences.put(r, entityManager.newReference(r)));
-            context.put("submissionAttachmentReferences", submissionAttachmentReferences);
+            context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(submission));
 
             Assignment assignment = submission.getAssignment();
             context.put("assignment", assignment);
@@ -4902,9 +4909,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_feedback_attachment", v);
             state.setAttribute(ATTACHMENTS, v);
 
-            Map<String, Reference> attachmentReferences = new HashMap<>();
-            s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
-            context.put("submissionAttachmentReferences", attachmentReferences);
+            context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(s));
         }
         if (peerAssessmentItems != null && submissionId != null) {
             //find the peerAssessmentItem for this submission:
@@ -6494,6 +6499,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     properties.remove(AssignmentConstants.SUBMITTER_USER_ID);
                 }
 
+                // SAK-26322 - add inline as an attachment for the content review service
+                if (post && !isHtmlEmpty(text)) {
+                    /* prepares a file representing the inline content;
+                     * needed whether or not content review is used - it will be queued retroactively if we enable content review on the assignment in the future */
+                    prepareInlineForContentReview(text, submission, state, u);
+                }
+
                 // submission log
                 StringBuilder logEntry = new StringBuilder();
                 DateTimeFormatter dtf = DateTimeFormatter.RFC_1123_DATE_TIME
@@ -6524,18 +6536,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     return;
                 }
 
-                // SAK-26322 - add inline as an attachment for the content review service
-                if (post) {
-                    if (!isHtmlEmpty(text)) {
-                        /* prepares a file representing the inline content;
-                         * needed whether or not content review is used - it will be queued retroactively if we enable content review on the assignment in the future */
-                        prepareInlineForContentReview(text, submission, state, u);
-                    }
-
-                    // Check if we need to post the attachments
-                    if (a.getContentReview() && !submission.getAttachments().isEmpty()) {
-                        assignmentService.postReviewableSubmissionAttachments(submission);
-                    }
+                // Check if we need to post the attachments
+                if (post && a.getContentReview() && !submission.getAttachments().isEmpty()) {
+                    assignmentService.postReviewableSubmissionAttachments(submission);
                 }
             }
 
@@ -6619,7 +6622,6 @@ public class AssignmentAction extends PagedResourceActionII {
             try {
                 Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
                 attachments.add(ref.getReference());
-                assignmentService.updateSubmission(submission);
             } catch (Exception e) {
                 log.warn(this + "prepareInlineForContentReview() cannot find reference for " + attachment.getId() + e.getMessage());
             }

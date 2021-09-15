@@ -252,14 +252,7 @@
         #set($hasInline = !$value_feedback_text.isEmpty())
         #set($size = 0)
         #if ($!submission.Submitted || !$alertGradeDraft)
-            #set ($props = false)
-            #set ($size = $submission.Attachments.size())
-            #foreach ($attachmentReference in $submission.Attachments)
-                #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
-                #if ($reference)
-                    #set ($props = $reference.Properties)
-                #end
-            #end
+            #set ($size = $submissionAttachmentReferences.size())
         #end
         #if ($submissionType == 4 && !$hasInline && $size == 0)
             ## if this is non-electronic submission

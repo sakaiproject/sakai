@@ -129,12 +129,13 @@
 					<h3>$tlang.getString("gen.stuatt")</h3>
 					#set ($attachments = $submission.Attachments)
 					#if ($attachments)
-						#set ($size = $attachments.size())
+						#set ($size = $submissionAttachmentReferences.size())
 						#if ($size == 0)
 							<p class="instruction">$tlang.getString("gen.noattsubmitted")</p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachmentReference in $attachments)
+									#set ($reference = false)
 									#set ($reference = $submissionAttachmentReferences.get($attachmentReference))
 									#if ($reference)
 										#set ($props = false)
