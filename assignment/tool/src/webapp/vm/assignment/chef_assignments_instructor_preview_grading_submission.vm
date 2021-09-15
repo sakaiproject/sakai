@@ -79,7 +79,7 @@
         ## Submission Attachments
         #set ($sAttachments = $!submission.Attachments)
         #if ($sAttachments)
-            #set ($size = $sAttachments.size())
+            #set ($size = $submissionAttachmentReferences.size())
             #if ($size > 0)
                 <h4>
                     #if ($!assignment.TypeOfSubmission.ordinal() == 5)
@@ -90,6 +90,7 @@
                 </h4>
                 <ul class="attachList indnt1">
                     #foreach ($attachmentReference in $sAttachments)
+                        #set ($reference = false)
                         #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
                         #if ($reference)
                             #set ($props = false)
