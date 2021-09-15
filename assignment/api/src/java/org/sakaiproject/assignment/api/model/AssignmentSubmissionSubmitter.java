@@ -93,7 +93,7 @@ public class AssignmentSubmissionSubmitter {
     @Column(name = "FEEDBACK", length = 65535)
     private String feedback;
     
-    @Column(name = " TIME_SPENT", length = 255)
+    @Column(name = "TIME_SPENT", length = 255)
     private String timeSpent;
 
     @OneToMany(mappedBy = "submitter", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -76,9 +76,9 @@ public class AssignmentTimeSheet {
     @Column(name = "REG_DATE", nullable = false)
     private Instant regDate;
 
-    @Column(name = "REG_TIME", length = 255)
+    @Column(name = "DURATION", length = 255)
     private String duration;
 
-    @Column(name = "ASN_COMMENT", length = 255)
+    @Column(name = "COMMENT", length = 4096)
     private String comment;
 }
