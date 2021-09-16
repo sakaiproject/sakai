@@ -522,8 +522,8 @@ public class AssignmentToolUtils {
                             try {
                                 gradebookColumn = new org.sakaiproject.service.gradebook.shared.Assignment();
                                 gradebookColumn.setPoints(newAssignment_maxPoints / (double) a.getScaleFactor());
-                                gradebookColumn.setExternallyMaintained(false);
-                                gradebookColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+                                gradebookColumn.setExternallyMaintained(true);
+                                gradebookColumn.setExternalAppName(assignmentService.getToolTitle());
                                 gradebookColumn.setName(newAssignment_title);
                                 gradebookColumn.setReleased(true); // default true
                                 gradebookColumn.setUngraded(false); // default false
@@ -545,6 +545,7 @@ public class AssignmentToolUtils {
                                         }
                                    }
                                    String external_id = LineItemUtil.constructExternalId(content, lineItem);
+                                   external_id = external_id + "|" + assignmentRef;
                                    gradebookColumn.setExternalId(external_id);
                                 }
 

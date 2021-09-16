@@ -59,6 +59,7 @@ import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 public class LineItemUtil {
 
 	public static final String GB_EXTERNAL_APP_NAME = "IMS-AGS";
+	public static final String ASSIGNMENTS_EXTERNAL_APP_NAME = "Assignments"; // Avoid circular references
 
 	public final static String ID_SEPARATOR = "|";
 	public final static String ID_SEPARATOR_REGEX = "\\|";
@@ -132,6 +133,34 @@ public class LineItemUtil {
 			}
 		}
 		return retval;
+	}
+
+	/*
+	 *     /assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3
+	 */
+	public static String getAssignmentIdFromExternalId(String external_id, String siteId)
+	{
+		if ( external_id == null ) return null;
+		if ( siteId == null ) return null;
+		String assignmentRef = getAssignmentRefFromExternalId(external_id);
+		if ( assignmentRef == null ) return null;
+		if ( siteId == null ) return null;
+		String[] parts = assignmentRef.split("/");
+		if ( parts.length < 5 ) return null;
+		if ( !siteId.equals(parts[3]) ) return null;
+		return parts[4];
+	}
+
+	/**
+	 *     tool_id|content_id|resourceId|tag|assignmentRef
+	 *     1|16||/assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3
+	 */
+	public static String getAssignmentRefFromExternalId(String external_id)
+	{
+		if ( external_id == null ) return null;
+		String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+		if ( parts.length < 4 || ! parts[3].startsWith("/assignment/a/") ) return null;
+		return parts[3];
 	}
 
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
@@ -404,6 +433,17 @@ public class LineItemUtil {
 
 		return true;
 	}
+
+	/**
+	 * Determine if a grade book column is relevant to LTI
+	 */
+	public static boolean isGradebookColumnLTI(Assignment gradebookColumn) {
+		// if (gradebookColumn.isExternallyMaintained()) return false;
+		if ( GB_EXTERNAL_APP_NAME.equals(gradebookColumn.getExternalAppName()) ) return true;
+		if ( ASSIGNMENTS_EXTERNAL_APP_NAME.equals(gradebookColumn.getExternalAppName())) return true;
+		return false;
+	}
+
 	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
@@ -426,23 +466,18 @@ public class LineItemUtil {
 		try {
 			List gradebookAssignments = g.getAssignments(context_id);
 			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if ( ! GB_EXTERNAL_APP_NAME.equals(gAssignment.getExternalAppName()) ) {
-					continue;
-				}
+				Assignment gbColumn = (Assignment) i.next();
+				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
 
 				// Parse the external_id
-				// tool_id|content_id|resourceLink|tag|
-				String external_id = gAssignment.getExternalId();
+				// tool_id|content_id|resourceLink|tag|assignmentRef (optional)
+				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
-				SakaiLineItem item = getLineItem(signed_placement, gAssignment);
+				SakaiLineItem item = getLineItem(signed_placement, gbColumn);
 				if ( parts.length > 1 ) {
 					item.resourceLinkId = "content:" + parts[1];
 				}

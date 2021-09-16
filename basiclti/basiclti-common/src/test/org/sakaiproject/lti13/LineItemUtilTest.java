@@ -40,5 +40,30 @@ public class LineItemUtilTest {
 		li = LineItemUtil.extractLineItem(fakeContentItem);
 		assertEquals(li.scoreMaximum, new Double(8675));
 	}
+
+	@Test
+	public void testTwo() {
+		String external_id = "1|16||/assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3";
+		String siteId = "08af6eae-81ea-485c-94ba-a4a98fca7141";
+		String assignmentRef = "/assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3";
+		String assignmentId = "1539956f-031d-4014-8f6b-403b5b15c0f3";
+
+		String ar = LineItemUtil.getAssignmentRefFromExternalId(external_id);
+		assertEquals(ar,assignmentRef);
+		String id = LineItemUtil.getAssignmentIdFromExternalId(external_id, siteId);
+		assertEquals(id,assignmentId);
+
+		ar = LineItemUtil.getAssignmentRefFromExternalId(null);
+		assertNull(ar);
+		id = LineItemUtil.getAssignmentIdFromExternalId(external_id, null);
+		assertNull(id);
+		id = LineItemUtil.getAssignmentIdFromExternalId(null, siteId);
+		assertNull(id);
+
+		ar = LineItemUtil.getAssignmentRefFromExternalId(siteId);
+		assertNull(ar);
+		id = LineItemUtil.getAssignmentIdFromExternalId(siteId, external_id);
+		assertNull(id);
+	}
 	
 }
