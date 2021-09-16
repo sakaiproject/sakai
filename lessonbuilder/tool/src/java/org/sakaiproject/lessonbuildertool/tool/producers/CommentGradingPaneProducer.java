@@ -191,6 +191,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 					}
 					
 					users.put(comment.getAuthor(), user);
+					userIds.add(comment.getAuthor());
 				}catch(Exception ex) {}
 			}else {
 				SimpleUser user = users.get(comment.getAuthor());
