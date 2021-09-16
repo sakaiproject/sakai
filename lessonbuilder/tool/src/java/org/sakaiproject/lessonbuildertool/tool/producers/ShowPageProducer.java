@@ -2195,7 +2195,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             // ability.
                             boolean useEmbed = ieVersion > 0 && !mimeType.equals("application/x-shockwave-flash");
 
-                            if (useEmbed) {
+                            boolean isPDF = simplePageBean.isPDFType(i);
+
+                            if (isPDF) {
+                                String pdfSRC = String.format("/library/webjars/pdf-js/2.9.359/web/viewer.html?file=%s", movieUrl);
+                                item2 = UIOutput.make(tableRow, "pdfEmbed").decorate(new UIFreeAttributeDecorator("src", pdfSRC)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+                            } else if (useEmbed) {
                                 item2 = UIOutput.make(tableRow, "movieEmbed").decorate(new UIFreeAttributeDecorator("src", movieUrl)).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
                             } else {
                                item2 = UIOutput.make(tableRow, "movieObject").decorate(new UIFreeAttributeDecorator("data", movieUrl)).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
