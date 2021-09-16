@@ -181,7 +181,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 				try {
 					SimpleUser user = new SimpleUser();
 					user.displayName = UserDirectoryService.getUser(comment.getAuthor()).getDisplayName();
-					user.postCount = user.postCount + 1;
+					user.postCount++;
 					user.userId = comment.getAuthor();
 					user.grade = comment.getPoints();
 					user.uuid = comment.getUUID();
@@ -196,7 +196,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 			}else {
 				SimpleUser user = users.get(comment.getAuthor());
 				if(user != null) {
-					user.postCount = user.postCount + 1;
+					user.postCount++;
 					if(params.studentContentItem && !user.pages.contains(comment.getPageId())) {
 						user.pages.add(comment.getPageId());
 					}
