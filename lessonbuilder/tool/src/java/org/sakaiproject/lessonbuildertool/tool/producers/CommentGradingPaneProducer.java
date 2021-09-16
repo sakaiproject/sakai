@@ -197,6 +197,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 				SimpleUser user = users.get(comment.getAuthor());
 				if(user != null) {
 					user.postCount++;
+
 					if(params.studentContentItem && !user.pages.contains(comment.getPageId())) {
 						user.pages.add(comment.getPageId());
 					}
