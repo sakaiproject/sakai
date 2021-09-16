@@ -92,8 +92,6 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     String findAssignmentIdForGradebookLink(String context, String linkId);
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
-    
-    AssignmentSubmissionSubmitter findSubmissionSubmitter(String submitterId);
 
     public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
 
