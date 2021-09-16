@@ -826,7 +826,7 @@ public interface AssignmentService extends EntityProducer {
 	
     public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException;
 
-    public void deleteTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException;
+    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException;
 
     /**
      * Returns true if the content review implementation successfully created the assignment

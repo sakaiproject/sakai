@@ -663,10 +663,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
                 }
 
-                String context = timeSheet.getSubmitter().getSubmission().getAssignment().getContext();
-                
                 try {
-                    assignmentService.deleteTimeSheet(timeSheet, context);
+                    assignmentService.deleteTimeSheet(timeSheet);
                 } catch (PermissionException e) {
                     log.warn("Selected time sheet must be provided.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");

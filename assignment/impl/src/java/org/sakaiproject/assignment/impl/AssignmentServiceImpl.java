@@ -856,9 +856,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void deleteTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
+    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException {
         // security check
-        if (!allowAddSubmission(siteId)) {
+        if (!allowAddSubmission(timeSheet.getSubmitter().getSubmission().getAssignment().getContext())) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
         }
         assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
