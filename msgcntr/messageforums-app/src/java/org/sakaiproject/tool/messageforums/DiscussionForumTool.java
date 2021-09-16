@@ -7076,7 +7076,7 @@ public class DiscussionForumTool {
 	}
 	
    private String gotoMain() {
-     return (isForumsTool() ? FORUMS_MAIN : MAIN) + "?faces-redirect=true";
+     return (isForumsTool() ? FORUMS_MAIN : MAIN);
    }
    
 	/**
