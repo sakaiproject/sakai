@@ -820,8 +820,6 @@ public interface AssignmentService extends EntityProducer {
 
     public boolean timeHasCorrectFormat(String timeSheet);
 
-    public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
-
     public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException;
 	
     public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException;

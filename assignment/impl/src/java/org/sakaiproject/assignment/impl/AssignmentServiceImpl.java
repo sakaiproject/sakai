@@ -1639,23 +1639,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException {
-        AssignmentSubmissionSubmitter submitter = assignmentRepository.findSubmissionSubmitter(submitterId);
-        if (submitter != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submitter.getSubmission()).reckon().getReference();
-            if (allowGetSubmission(reference)) {
-                return submitter;
-            } else {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-            }
-        } else {
-            // submission not found
-            log.debug("Submission ID does not exist {}", submitterId);
-        }
-        return null;
-    }
-
-    @Override
     public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException {
         AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
         if (timeSheet != null) {

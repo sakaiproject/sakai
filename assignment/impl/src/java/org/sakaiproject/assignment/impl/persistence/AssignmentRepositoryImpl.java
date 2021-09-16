@@ -163,11 +163,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public AssignmentSubmissionSubmitter findSubmissionSubmitter(String submitterId) {
-        return (AssignmentSubmissionSubmitter) sessionFactory.getCurrentSession().get(AssignmentSubmissionSubmitter.class, Long.parseLong(submitterId));
-    }
-    
-    @Override
     public AssignmentTimeSheet findTimeSheet(Long timeSheetId) {
         return (AssignmentTimeSheet) sessionFactory.getCurrentSession().get(AssignmentTimeSheet.class, timeSheetId);
     }
