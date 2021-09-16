@@ -284,6 +284,35 @@ public final class AssignmentConstants {
         GRADED
     }
 
+	// IMS Score Publishing Service - states
+	// https://www.imsglobal.org/spec/lti-ags/v2p0/#score-publish-service
+	// 2.4.6. activityProgress
+	// activityProgress MUST be used to indicate to the tool platform the status of the user towards the activity's completion.
+
+	// Please leave the capitalization as is on this as we use Enum.name() to match incoming JSON values
+	public enum IMSActivityProgress {
+		Initialized,     // the user has not started the activity, or the activity has been reset for that student.
+		Started,         // the activity associated with the line item has been started by the user to which the result relates.
+		InProgress,      // the activity is being drafted and is available for comment.
+		Submitted,       // the activity has been submitted at least once by the user but the user is still able make further submissions.
+		Completed        // the user has completed the activity associated with the line item.
+	}
+
+	// 2.4.7 gradingProgress
+	// gradingProgress MUST be used to indicate to the platform the status of the grading process, including allowing
+	// to inform when human intervention is needed.
+
+	// Please leave the capitalization as is on this as we use Enum.name() to match incoming JSON values
+	public enum IMSGradingProgress {
+		FullyGraded,    // The grading process is completed; the score value, if any, represents the current Final Grade;
+		Pending,        // Final Grade is pending, but does not require manual intervention; if a Score value is present,
+						// it indicates the current value is partial and may be updated.
+		PendingManual,  // Final Grade is pending, and it does require human intervention; if a Score value is present,
+						// it indicates the current value is partial and may be updated during the manual grading.
+		Failed,         // The grading could not complete.
+		NotReady        // There is no grading process occurring; for example, the student has not yet made any submission.
+	}
+
     public static final String SUBMISSION_OPTION_RELEASE = "release";
     public static final String SUBMISSION_OPTION_RETURN = "return";
     public static final String SUBMISSION_OPTION_SAVE = "save";

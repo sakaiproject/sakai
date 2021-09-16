@@ -510,7 +510,7 @@
 		<h4>
 			$tlang.getString("external.tool.label")
 		</h4>
-        <p>
+		<p class="sak-banner-info">
 			$tlang.getString("external.tool.detail")
         </p>
 		<div class="form-group row">
