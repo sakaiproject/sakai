@@ -590,7 +590,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         timeSheet.setSubmitter(ass);
         
         try {
-            assignmentService.addAssignmentTimeSheet(timeSheet, context);
+            assignmentService.setTimeSheet(timeSheet, context);
         } catch (PermissionException e) {
             log.warn("You can't modify this sumbitter");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
@@ -666,7 +666,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 String context = timeSheet.getSubmitter().getSubmission().getAssignment().getContext();
                 
                 try {
-                    assignmentService.removeAssignmentTimeSheet(timeSheet, context);
+                    assignmentService.deleteTimeSheet(timeSheet, context);
                 } catch (PermissionException e) {
                     log.warn("Selected time sheet must be provided.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");

@@ -845,9 +845,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException {
+    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
         // security check
-        if (!allowAddSubmission(context)) {
+        if (!allowAddSubmission(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
         }
         assignmentRepository.newAssignmentTimeSheet(timeSheet);
@@ -856,9 +856,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException {
+    public void deleteTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
         // security check
-        if (!allowAddSubmission(context)) {
+        if (!allowAddSubmission(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
         }
         assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
