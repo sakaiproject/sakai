@@ -112,8 +112,8 @@ public class ElasticSearchTest {
     List<String> siteIds = new ArrayList<>();
     List<Site> sites = new ArrayList<>();
     Faker faker = new Faker();
-    String siteId = faker.phoneNumber().phoneNumber();
-    String resourceName = faker.name() + " key keyboard";
+    String siteId = faker.bothify("########-????????-########");
+    String resourceName = faker.name().name() + " key keyboard";
     SearchSecurityFilter filter = new SearchSecurityFilter();
 
     @After
@@ -142,7 +142,7 @@ public class ElasticSearchTest {
         for (int i = 0; i < 105; i++) {
             String name = faker.name().name();
             Event newEvent = mock(Event.class);
-            Resource resource1 = new Resource(generateContent(), faker.phoneNumber().phoneNumber(), name);
+            Resource resource1 = new Resource(generateContent(), faker.bothify("########-????????-########"), name);
             resources.put(name, resource1);
             events.add(newEvent);
             when(newEvent.getResource()).thenReturn(resource1.getName());
@@ -204,70 +204,63 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setPeriod(10);
         elasticSearchIndexBuilder.setContentIndexBatchSize(50);
         elasticSearchIndexBuilder.setBulkRequestSize(20);
-        elasticSearchIndexBuilder.setMappingConfig("{\n" +
-                "    \"sakai_doc\": {\n" +
-                "        \"_source\": {\n" +
-                "            \"enabled\": false\n" +
+        elasticSearchIndexBuilder.setMappingConfig(
+                "\n{\n" +
+                "    \"properties\": {\n" +
+                "        \"siteid\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
                 "        },\n" +
-                "\n" +
-                "        \"properties\": {\n" +
-                "            \"siteid\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"title\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"store\": \"yes\",\n" +
-                "                \"term_vector\" : \"with_positions_offsets\",\n" +
-                "                \"search_analyzer\": \"str_search_analyzer\",\n" +
-                "                \"index_analyzer\": \"str_index_analyzer\"\n" +
-                "            },\n" +
-                "            \"url\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"reference\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"id\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"tool\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"container\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"type\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"subtype\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"contents\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"analyzer\": \"snowball\",\n" +
-                "                \"index\": \"analyzed\",\n" +
-                "                \"store\": \"no\"\n" +
-                "            }\n" +
+                "        \"title\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"store\": \"true\",\n" +
+                "            \"term_vector\" : \"with_positions_offsets\",\n" +
+                "            \"search_analyzer\": \"str_search_analyzer\",\n" +
+                "            \"analyzer\": \"str_index_analyzer\"\n" +
+                "        },\n" +
+                "        \"url\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"reference\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"id\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"tool\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"container\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"type\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"subtype\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"indexed\": {\n" +
+                "            \"type\": \"boolean\",\n" +
+                "            \"null_value\": \"false\",\n" +
+                "            \"store\": \"false\"\n" +
+                "        },\n" +
+                "        \"contents\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"analyzer\": \"snowball\",\n" +
+                "            \"index\": \"true\",\n" +
+                "            \"store\": \"false\"\n" +
                 "        }\n" +
                 "    }\n" +
-                "}");
-        elasticSearchIndexBuilder.setIndexSettingsConfig("{\n" +
+                "}\n");
+        elasticSearchIndexBuilder.setIndexSettingsConfig(
+                "\n{\n" +
                 "    \"number_of_shards\": 1,\n" +
                 "    \"index\": {\n" +
                 "        \"max_ngram_diff\": 20" +
@@ -281,9 +274,9 @@ public class ElasticSearchTest {
                 "            }\n" +
                 "        },\n" +
                 "        \"analyzer\": {\n" +
-                "            \"snowball\": {\n" +
-                "                \"type\": \"snowball\",\n" +
-                "                \"language\": \"english\"\n" +
+                "            \"standard\": {\n" +
+                "                \"type\": \"standard\",\n" +
+                "                \"max_token_length\": \"255\"\n" +
                 "            },\n" +
                 "            \"str_search_analyzer\": {\n" +
                 "                \"tokenizer\": \"keyword\",\n" +
@@ -295,8 +288,7 @@ public class ElasticSearchTest {
                 "            }\n" +
                 "        }\n" +
                 "    }\n" +
-                "}\n" +
-                "\n");
+                "}\n");
 
         filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
 
@@ -418,15 +410,16 @@ public class ElasticSearchTest {
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
             assertNotEquals(0, list.size());
-            assertNotNull(list.get(0) ) ;
-            assertEquals(list.get(0).getReference(),resourceName);
             SearchResult result = list.get(0);
+            assertNotNull(result);
+            assertEquals(result.getReference(), resourceName);
             assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
 
             // Searching the title of the file should also return results
             list = elasticSearchService.search("keyboard", siteIds, 0, 10);
-            assertNotNull(list.get(0) ) ;
-            assertEquals(list.get(0).getReference(),resourceName);
+            assertNotEquals(0, list.size());
+            assertNotNull(list.get(0));
+            assertEquals(list.get(0).getReference(), resourceName);
         } catch (InvalidSearchQueryException e) {
             log.error(e.getMessage(), e);
             fail();

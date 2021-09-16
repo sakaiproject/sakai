@@ -74,7 +74,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder implements SiteSearchIndexBuilder {
 
     protected static final String SEARCH_TOOL_ID = "sakai.search";
-    protected static final String SAKAI_DOC_TYPE = "sakai_doc";
+    protected static final String SAKAI_DOC_TYPE = "_doc";
 
     protected static final String ADD_RESOURCE_VALIDATION_KEY_SITE_ID = "SITE_ID";
     protected static final String DELETE_RESOURCE_KEY_SITE_ID = "SITE_ID";
@@ -457,13 +457,12 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
 
     @Override
-    protected Pair<SearchRequest, QueryBuilder> addSearchSiteIds(Pair<SearchRequest, QueryBuilder> builders, List<String> siteIds) {
+    protected void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds) {
 
-        SearchRequest searchRequest = builders.getLeft();
-        BoolQueryBuilder queryBuilder = (BoolQueryBuilder)builders.getRight();
+        BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
         // if we have sites filter results to include only the sites included
         if (siteIds.size() > 0) {
-            searchRequest = searchRequest.routing(siteIds.toArray(new String[0]));
+            // searchRequest.routing(siteIds.toArray(new String[]{}));
 
             // creating config whether or not to use filter, there are performance and caching differences that
             // maybe implementation decisions
@@ -471,32 +470,24 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                 QueryBuilder siteFilter = boolQuery().filter(termsQuery(SearchService.FIELD_SITEID, siteIds));
                 searchRequest.source().postFilter(siteFilter);
             } else {
-                queryBuilder = queryBuilder.must(termsQuery(SearchService.FIELD_SITEID, siteIds));
+                queryBuilder.must(termsQuery(SearchService.FIELD_SITEID, siteIds));
             }
         }
-
-        return pairOf(searchRequest, queryBuilder);
     }
 
     @Override
-    protected Pair<SearchRequest, QueryBuilder> completeSearchRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
-                                                                              String searchTerms, List<String> references,
-                                                                              List<String> siteIds) {
-        return builders;
+    protected void completeSearchRequestBuilders(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
     }
 
     @Override
-    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsTerms(Pair<SearchRequest, QueryBuilder> builders, String searchString) {
+    protected void addSearchSuggestionsTerms(SearchRequest searchRequest, String searchString) {
         // no-op. taken care of in newSearchSuggestionsRequestAndQueryBuilders() because of the
         // way TermQueryBuilders have to be constructed (no default constructor so have to be
         // given the search field and term at instantiation)
-        return builders;
     }
 
     @Override
-    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsSites(Pair<SearchRequest, QueryBuilder> builders,
-                                                                          String currentSite, boolean allMySites) {
-
+    protected void addSearchSuggestionsSites(SearchRequest searchRequest, String currentSite, boolean allMySites) {
         String currentUser = "";
         User user = userDirectoryService.getCurrentUser();
         if (user != null)  {
@@ -510,9 +501,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
         }
 
         QueryBuilder siteFilter = boolQuery().filter(termsQuery(SearchService.FIELD_SITEID, sites));
-        builders.getLeft().routing(sites).source().postFilter(siteFilter);
-
-        return pairOf(builders.getLeft(), builders.getRight());
+        searchRequest.routing(sites).source().postFilter(siteFilter);
     }
 
     /**
@@ -529,10 +518,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     @Override
-    protected Pair<SearchRequest, QueryBuilder> completeSearchSuggestionsRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
-                                                                                         String searchString, String currentSite,
-                                                                                         boolean allMySites) {
-        return builders;
+    protected void completeSearchSuggestionsRequestBuilders(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites) {
     }
 
     /**

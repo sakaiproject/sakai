@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.plugin</groupId>
@@ -116,7 +116,6 @@
             <groupId>org.sakaiproject.search.elasticsearch</groupId>
             <artifactId>elasticsearch-util</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.search.elasticsearch</groupId>

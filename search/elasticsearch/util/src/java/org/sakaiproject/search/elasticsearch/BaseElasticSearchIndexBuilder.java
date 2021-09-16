@@ -27,6 +27,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +75,7 @@ import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.rest.RestStatus;
@@ -244,7 +246,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected Settings indexSettings;
 
-    protected String indexedDocumentType = null;
+    protected String indexedDocumentType = "_doc";
 
     /**
      * indexing thread that performs loading the actual content into the index.
@@ -687,7 +689,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected void createIndex() {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
             createIndexRequest.settings(indexSettings);
-            // createIndexRequest.mapping(indexedDocumentType, mappingMerged);
+            createIndexRequest.mapping(mapping, XContentType.JSON);
         try {
             CreateIndexResponse createIndexResponse = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
             if (!createIndexResponse.isAcknowledged()) {
@@ -1057,73 +1059,61 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     @Override
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
 
-        final Pair<SearchRequest, QueryBuilder> searchBuilders = prepareSearchRequest(searchTerms, references, siteIds, start, end);
-        final SearchRequest searchRequest = searchBuilders.getLeft();
-        final QueryBuilder queryBuilder = searchBuilders.getRight();
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end);
 
-        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequest.toString());
+        getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().getMillis());
-            eventTrackingService.post(eventTrackingService.newEvent(SearchService.EVENT_SEARCH,
-                    SearchService.EVENT_SEARCH_REF + queryBuilder.toString(), true,
-                    NotificationService.PREF_IMMEDIATE));
+            getLog().debug("Search request from index builder [{}] took: {}", getName(), response.getTook().getMillis());
+            eventTrackingService.post(
+                    eventTrackingService.newEvent(
+                            SearchService.EVENT_SEARCH,
+                            SearchService.EVENT_SEARCH_REF + searchRequest.source().query().toString(),
+                            true,
+                            NotificationService.PREF_IMMEDIATE));
             return response;
         } catch (IOException ioe) {
-            getLog().debug("Error for search request from index builder [" + getName() + "], " + ioe);
+            getLog().debug("Error for search request from index builder [{}], {}", getName(), ioe.toString());
         }
         return null;
     }
 
     @Override
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
-        //The additional information will be used in specific indexes, so this method can be overrided in the index
-        // to make use of that field.
-        return search(searchTerms,references,siteIds,start,end);
-
+        // additional information will be used in specific indexes,
+        // so this method can be overridden in the index to make use of that field.
+        return search(searchTerms, references, siteIds, start, end);
     }
 
-    protected Pair<SearchRequest, QueryBuilder> prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
-        // All this Pair<SearchRequestBuilder,QueryBuilder> business b/c:
-        //    a) Legacy eventing in search() needs the QueryBuilder, not just the SearchRequestBuilder, and
-        //    b) SiteId handling entails manipulation of both objects, so presumably completeSearchRequestBuilders()
-        //       would as well
-        //    c) There is no getQuery() on SearchRequestBuilder
-        Pair<SearchRequest, QueryBuilder> builders = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
-        builders = addSearchCoreParams(builders, searchTerms, references, siteIds);
-        builders = addSearchQuery(builders, searchTerms, references, siteIds);
-        builders = pairOf(addSearchResultFields(builders.getLeft()), builders.getRight());
-        builders = pairOf(addSearchPagination(builders.getLeft(), start, end), builders.getRight());
-        builders = pairOf(addSearchFacetting(builders.getLeft()), builders.getRight());
-        return completeSearchRequestBuilders(builders, searchTerms, references, siteIds);
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+        SearchRequest searchRequest = newSearchRequestAndQueryBuilders();
+        addSearchCoreParams(searchRequest);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds);
+        addSearchResultFields(searchRequest);
+        addSearchPagination(searchRequest, start, end);
+        addSearchFacetting(searchRequest);
+        completeSearchRequestBuilders(searchRequest, searchTerms, references, siteIds);
+        return searchRequest;
     }
 
-    protected Pair<SearchRequest, QueryBuilder> newSearchRequestAndQueryBuilders(String searchTerms,
-                                                                                 List<String> references,
-                                                                                 List<String> siteIds) {
-        return pairOf(new SearchRequest(indexName), boolQuery());
+    protected SearchRequest newSearchRequestAndQueryBuilders() {
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.source().query(boolQuery());
+        return searchRequest;
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchCoreParams(Pair<SearchRequest, QueryBuilder> builders,
-                                                                    String searchTerms, List<String> references,
-                                                                    List<String> siteIds) {
-        final SearchRequest searchRequest = builders.getLeft();
-        return pairOf(searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType), builders.getRight());
+    protected void addSearchCoreParams(SearchRequest searchRequest) {
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchQuery(Pair<SearchRequest, QueryBuilder> builders,
-                                                                     String searchTerms, List<String> references,
-                                                                     List<String> siteIds) {
-        builders = addSearchTerms(builders, searchTerms);
-        builders = addSearchReferences(builders, references);
-        builders = addSearchSiteIds(builders, siteIds);
-        builders.getLeft().source().query(builders.getRight());
-        return pairOf(builders.getLeft(), builders.getRight());
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
+        addSearchTerms(searchRequest, searchTerms);
+        addSearchReferences(searchRequest, references);
+        addSearchSiteIds(searchRequest, siteIds);
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchTerms(Pair<SearchRequest, QueryBuilder> builders,
-                                                               String searchTerms) {
-        BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
+    protected void addSearchTerms(SearchRequest searchRequest, String searchTerms) {
+        BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
 
         if (searchTerms.contains(":")) {
             String[] termWithType = searchTerms.split(":");
@@ -1131,50 +1121,40 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             String termValue = termWithType[1];
             // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
             // without a handle to a reference.
-            query = query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
-            query = query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
+            query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
+            query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
         } else {
-            query = query.must(simpleQueryStringQuery(searchTerms));
+            query.must(simpleQueryStringQuery(searchTerms));
         }
-
-        return pairOf(builders.getLeft(), query);
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchReferences(Pair<SearchRequest, QueryBuilder> builders,
-                                                                    List<String> references) {
-        BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
+    protected void addSearchReferences(SearchRequest searchRequest, List<String> references) {
+        BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
         if (references.size() > 0){
-            query = query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
+            query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
-        return pairOf(builders.getLeft(), query);
     }
 
-    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSiteIds(Pair<SearchRequest, QueryBuilder> builders,
-                                                                          List<String> siteIds);
+    protected abstract void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds);
 
-    protected  SearchRequest addSearchResultFields(SearchRequest searchRequest) {
+    protected void addSearchResultFields(SearchRequest searchRequest) {
         if (!ArrayUtils.isEmpty(searchResultFieldNames)) {
             searchRequest.source().storedFields(Arrays.asList(searchResultFieldNames));
         }
-        return searchRequest;
     }
 
-    protected SearchRequest addSearchPagination(SearchRequest searchRequest, int start, int end) {
+    protected void addSearchPagination(SearchRequest searchRequest, int start, int end) {
         searchRequest.source().from(start).size(end - start);
-        return searchRequest;
     }
 
-    protected SearchRequest addSearchFacetting(SearchRequest searchRequest) {
+    protected void addSearchFacetting(SearchRequest searchRequest) {
         if (useFacetting) {
             TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(facetName).field("contents.lowercase").size(facetTermSize);
             searchRequest.source().aggregation(termsAggregationBuilder);
         }
-        return searchRequest;
     }
 
-    protected abstract Pair<SearchRequest, QueryBuilder> completeSearchRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
-                                                                                       String searchTerms, List<String> references,
-                                                                                       List<String> siteIds);
+    protected abstract void completeSearchRequestBuilders(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds);
 
 
     @Override
@@ -1183,11 +1163,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             return new String[0];
         }
 
-        final Pair<SearchRequest, QueryBuilder> builders = prepareSearchSuggestionsRequest(searchString, currentSite, allMySites);
-
-        final SearchRequest searchRequest = builders.getLeft();
-
-        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequest);
+        SearchRequest searchRequest = prepareSearchSuggestionsRequest(searchString, currentSite, allMySites);
+        getLog().debug("Search request from index builder [{}]: {}", getName(), searchRequest);
 
         List<String> suggestions = Lists.newArrayList();
         SearchResponse response = null;
@@ -1205,54 +1182,46 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
         return suggestions.toArray(new String[0]);
     }
 
-    protected Pair<SearchRequest, QueryBuilder> prepareSearchSuggestionsRequest(String searchString, String currentSite, boolean allMySites) {
-        Pair<SearchRequest, QueryBuilder> builders = newSearchSuggestionsRequestAndQueryBuilders(searchString, currentSite, allMySites);
-        builders = addSearchSuggestionsCoreParams(builders, searchString, currentSite, allMySites);
-        builders = addSearchSuggestionsQuery(builders, searchString, currentSite, allMySites);
-        builders = pairOf(addSearchSuggestionResultFields(builders.getLeft()), builders.getRight());
-        builders = pairOf(addSearchSuggestionsPagination(builders.getLeft()), builders.getRight());
-        return completeSearchSuggestionsRequestBuilders(builders, searchString, currentSite, allMySites);
+    protected SearchRequest prepareSearchSuggestionsRequest(String searchString, String currentSite, boolean allMySites) {
+        SearchRequest searchRequest = newSearchSuggestionsRequestAndQueryBuilders(searchString);
+        addSearchSuggestionsCoreParams(searchRequest);
+        addSearchSuggestionsQuery(searchRequest, searchString, currentSite, allMySites);
+        addSearchSuggestionResultFields(searchRequest);
+        addSearchSuggestionsPagination(searchRequest);
+        completeSearchSuggestionsRequestBuilders(searchRequest, searchString, currentSite, allMySites);
+        return searchRequest;
     }
 
-    protected abstract Pair<SearchRequest, QueryBuilder> completeSearchSuggestionsRequestBuilders(Pair<SearchRequest, QueryBuilder> builders,
-                                                                                                  String searchString, String currentSite,
-                                                                                                  boolean allMySites);
+    protected abstract void completeSearchSuggestionsRequestBuilders(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites);
 
-    protected Pair<SearchRequest, QueryBuilder> newSearchSuggestionsRequestAndQueryBuilders(String searchString, String currentSite, boolean allMySites) {
+    protected SearchRequest newSearchSuggestionsRequestAndQueryBuilders(String searchString) {
 
-        return pairOf(new SearchRequest(indexName), termQuery(suggestionMatchingFieldName, searchString));
+        SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.source().query(termQuery(suggestionMatchingFieldName, searchString));
+        return searchRequest;
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsCoreParams(Pair<SearchRequest, QueryBuilder> builders, String searchString, String currentSite, boolean allMySites) {
-        final SearchRequest searchRequest = builders.getLeft();
+    protected void addSearchSuggestionsCoreParams(SearchRequest searchRequest) {
         searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
-        return pairOf(searchRequest, builders.getRight());
     }
 
-    protected Pair<SearchRequest, QueryBuilder> addSearchSuggestionsQuery(Pair<SearchRequest, QueryBuilder> builders,
-                                                                          String searchString, String currentSite,
-                                                                          boolean allMySites) {
-        builders = addSearchSuggestionsTerms(builders, searchString);
-        builders = addSearchSuggestionsSites(builders, currentSite, allMySites);
-        SearchRequest searchRequest = builders.getLeft();
-        searchRequest.source().query(builders.getRight());
-        return pairOf(searchRequest, builders.getRight());
+    protected void addSearchSuggestionsQuery(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites) {
+        addSearchSuggestionsTerms(searchRequest, searchString);
+        addSearchSuggestionsSites(searchRequest, currentSite, allMySites);
     }
 
-    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSuggestionsTerms(Pair<SearchRequest, QueryBuilder> builders, String searchString);
+    protected abstract void addSearchSuggestionsTerms(SearchRequest searchRequest, String searchString);
 
-    protected abstract Pair<SearchRequest, QueryBuilder> addSearchSuggestionsSites(Pair<SearchRequest, QueryBuilder> builders, String currentSite, boolean allMySites);
+    protected abstract void addSearchSuggestionsSites(SearchRequest searchRequest, String currentSite, boolean allMySites);
 
-    protected SearchRequest addSearchSuggestionResultFields(SearchRequest searchRequest) {
+    protected void addSearchSuggestionResultFields(SearchRequest searchRequest) {
         if (!ArrayUtils.isEmpty(suggestionResultFieldNames)) {
             searchRequest.source().storedFields(Arrays.asList(suggestionResultFieldNames));
         }
-        return searchRequest;
     }
 
-    protected SearchRequest addSearchSuggestionsPagination(SearchRequest searchRequest) {
+    protected void addSearchSuggestionsPagination(SearchRequest searchRequest) {
         searchRequest.source().size(maxNumberOfSuggestions);
-        return searchRequest;
     }
 
     public List<String> getIndices() {
