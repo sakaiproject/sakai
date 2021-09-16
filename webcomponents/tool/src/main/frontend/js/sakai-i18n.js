@@ -26,8 +26,9 @@ function loadProperties(options) {
     return;
   }
 
+  const lang = window.parent.portal.locale ? window.parent.portal.locale : "";
   const defaults = {
-    lang: (window.portal && window.portal.locale) ? window.portal.locale : "",
+    lang: (window.portal && window.portal.locale) ? window.portal.locale : lang,
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     cache: true,
   };
