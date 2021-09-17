@@ -39,8 +39,8 @@ import javax.faces.el.ValueBinding;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

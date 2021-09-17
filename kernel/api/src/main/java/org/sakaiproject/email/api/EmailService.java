@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 
 import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;

@@ -19,8 +19,8 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>jakarta.activation</groupId>
-      <artifactId>jakarta.activation-api</artifactId>
+      <groupId>javax.activation</groupId>
+      <artifactId>javax.activation-api</artifactId>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>

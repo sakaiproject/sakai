@@ -113,10 +113,6 @@
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
         </dependency>
-        <dependency>
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>org.mockito</groupId>
