@@ -7076,6 +7076,8 @@ public class DiscussionForumTool {
 	}
 	
    private String gotoMain() {
+     // ern believes the faces-redirect=true is crucial to carry over the error message to new page
+     // return (isForumsTool() ? FORUMS_MAIN : MAIN) + "?faces-redirect=true";
      return (isForumsTool() ? FORUMS_MAIN : MAIN);
    }
    
