@@ -1182,7 +1182,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  selectedComposeToList = selectedLists.to;
 	  selectedComposeBccList = selectedLists.bcc;
 
-	  setBooleanEmailOut(draft.getExternalEmail());
+	  if (draft.getExternalEmail() != null) {
+		  setBooleanEmailOut(draft.getExternalEmail());
+	  }
 
 	  //go to compose page
 	  setFromMainOrHp();
