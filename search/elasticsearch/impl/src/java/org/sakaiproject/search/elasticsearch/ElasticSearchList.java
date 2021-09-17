@@ -15,17 +15,22 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
 import com.google.common.collect.ForwardingList;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.sakaiproject.search.api.*;
-import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 
 /**
  * Created by IntelliJ IDEA.

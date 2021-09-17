@@ -34,9 +34,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -60,6 +59,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class QuestionPoolFacadeQueries
