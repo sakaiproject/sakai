@@ -81,21 +81,37 @@ h4.samigo-category-subhead-2 {
 }
 
 .treefolder:before {
+  content: "\f061";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+}
+
+.treefolder:after {
   content: "\f07b";
   position: absolute;
   top: 0;
   font-family: FontAwesome;
+  margin-left: -15px;
 }
 
 .treefolder-open:before {
-  content: "\f07c";
+  content: "\f063";
   position: absolute;
   top: 0;
   font-family: FontAwesome;
 }
 
+.treefolder-open:after {
+  content: "\f07c";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+  margin-left: -15px;
+}
+
 .treedoc:before {
-  content: "\f016";
+  content: "\f114";
   position: absolute;
   top: 0;
   font-family: FontAwesome;
