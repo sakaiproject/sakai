@@ -638,7 +638,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         try {
             final DeleteResponse deleteResponse = deleteDocumentWithRequest(request);
             if (getLog().isDebugEnabled()) {
-                if (!(RestStatus.NOT_FOUND == deleteResponse.status())) {
+                if (RestStatus.NOT_FOUND == deleteResponse.status()) {
                     getLog().debug("Could not delete doc with by id: "
                             + deleteParams.get(DELETE_RESOURCE_KEY_ITEM)
                             + " in index builder ["
@@ -898,7 +898,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             }
         }
 
-        final BoolQueryBuilder tagsQuery = QueryBuilders.boolQuery();
+        final BoolQueryBuilder tagsQuery = boolQuery();
         final boolean logicalOr = "or".equals(additionalSearchInformation.get("logic")) ? true : false;
 
         // the tags are in the form of tag_1 / tag value, tag_2..., tag_n...
