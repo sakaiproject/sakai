@@ -380,8 +380,8 @@ public class ElasticSearchTest {
     public void deleteAllDocumentForSite(){
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
         elasticSearchIndexBuilder.refreshIndex();
+        elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
 
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);

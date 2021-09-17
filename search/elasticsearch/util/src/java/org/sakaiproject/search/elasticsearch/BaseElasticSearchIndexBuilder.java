@@ -27,7 +27,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +76,6 @@ import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -1115,7 +1113,9 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     protected void addSearchTerms(SearchRequest searchRequest, String searchTerms) {
         BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
 
-        if (searchTerms.contains(":")) {
+        if (searchTerms == null) {
+            query.must(matchAllQuery());
+        } else if (searchTerms.contains(":")) {
             String[] termWithType = searchTerms.split(":");
             String termType = termWithType[0];
             String termValue = termWithType[1];
@@ -1130,7 +1130,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected void addSearchReferences(SearchRequest searchRequest, List<String> references) {
         BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
-        if (references.size() > 0){
+        if (references != null && !references.isEmpty()) {
             query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
     }

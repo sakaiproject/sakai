@@ -38,12 +38,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
@@ -52,6 +50,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
@@ -233,7 +232,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     }
 
     protected void rebuildSiteIndex(String siteId)  {
-        getLog().info("Rebuilding the index for '" + siteId + "'");
+        getLog().info("Rebuilding the index for '{}'", siteId);
 
         try {
             enableAzgSecurityAdvisor();
@@ -278,8 +277,6 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
             getLog().info("Queued " + numberOfDocs + " docs for indexing from site: " + siteId + " in " + (System.currentTimeMillis() - start) + " ms");
 
-            //flushIndex();
-            //refreshIndex();
         } catch (Exception e) {
             getLog().error("An exception occurred while rebuilding the index of '" + siteId + "'", e);
         } finally {
@@ -364,14 +361,29 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
     protected void deleteAllDocumentForSite(String siteId) {
         getLog().debug("removing all documents from search index for siteId: {}", siteId);
 
-        DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
-        request.setQuery(termQuery(SearchService.FIELD_SITEID, siteId));
-        request.setDocTypes(indexedDocumentType);
-        request.setRefresh(true);
-        try {
-            client.deleteByQuery(request, RequestOptions.DEFAULT);
-        } catch (IOException ioe) {
-            log.warn("Could not delete all documents in index {} for site {}, {}", indexName, siteId, ioe.toString());
+        // TODO get DeleteByQuery working in embedded ES
+        // DeleteByQueryRequest request = new DeleteByQueryRequest(indexName);
+        // request.setQuery(termQuery(SearchService.FIELD_SITEID, siteId));
+        // request.setDocTypes(indexedDocumentType);
+        // request.setRefresh(true);
+        // try {
+        //     client.deleteByQuery(request, RequestOptions.DEFAULT);
+        // } catch (IOException ioe) {
+        //     getLog().warn("Could not delete all documents in index {} for site {}, {}", indexName, siteId, ioe.toString());
+        // }
+
+        int maxHits = 999;
+        long hitCount = maxHits + 1;
+
+        while (hitCount >= maxHits) {
+            SearchResponse response = search(null, null, Collections.singletonList(siteId), 0, maxHits);
+            SearchHits hits = response.getHits();
+            hitCount = hits.getTotalHits();
+            getLog().info("Deleting {} docs from site {}", hitCount, siteId);
+            for (SearchHit hit : hits) {
+                deleteDocument(hit);
+            }
+            refreshIndex();
         }
     }
 
@@ -461,7 +473,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
 
         BoolQueryBuilder queryBuilder = (BoolQueryBuilder) searchRequest.source().query();
         // if we have sites filter results to include only the sites included
-        if (siteIds.size() > 0) {
+        if (siteIds != null && !siteIds.isEmpty()) {
             // searchRequest.routing(siteIds.toArray(new String[]{}));
 
             // creating config whether or not to use filter, there are performance and caching differences that

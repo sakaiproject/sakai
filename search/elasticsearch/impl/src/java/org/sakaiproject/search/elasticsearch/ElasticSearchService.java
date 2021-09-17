@@ -210,7 +210,10 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     protected Node initializeElasticSearchNode(Settings settings) {
-        Collection<Class<? extends Plugin>> plugins = Arrays.asList(Netty4Plugin.class, CommonAnalysisPlugin.class);
+        Collection<Class<? extends Plugin>> plugins = Arrays.asList(
+                Netty4Plugin.class,
+                CommonAnalysisPlugin.class);
+
         Node node = new EmbeddedElasticSearchNode(settings, plugins);
 
         try {
