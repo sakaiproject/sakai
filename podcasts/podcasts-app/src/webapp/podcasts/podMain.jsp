@@ -97,6 +97,12 @@
 
 		<h:column>
 			<f:facet name="header"><h:outputText value="#{msgs.actions}"/></f:facet>
+			<%--  go to Listen page --%>
+			<f:verbatim><i class="fa fa-volume-up" aria-hidden="true"></i></f:verbatim>
+			<h:commandLink action="podcastListen" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.listen}">
+				<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
+			</h:commandLink>
+			<f:verbatim></br></f:verbatim>
 			<f:verbatim><i class="fa fa-download" aria-hidden="true"></i></f:verbatim>
 			<h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" target="#{eachPodcast.newWindow}">
 				 <h:outputText value="#{msgs.download}" />

@@ -848,8 +848,7 @@ public class podHomeBean {
 	 */
 	public void podMainListener(ActionEvent e) {
 		FacesContext context = FacesContext.getCurrentInstance();
-		Map requestParams = context.getExternalContext()
-				.getRequestParameterMap();
+		Map requestParams = context.getExternalContext().getRequestParameterMap();
 		final String resourceId = (String) requestParams.get(RESOURCEID);
 
 		setPodcastSelected(resourceId);
@@ -1780,6 +1779,13 @@ public class podHomeBean {
 	         rb = new ResourceLoader(bundle);
 	    }
 	    return rb.getString(key);
+	}
+
+	/**
+	 * Goes to the main screen
+	 */
+	public String processBackListen() {
+		return "cancel";
 	}
 
 }
