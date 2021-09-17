@@ -98,7 +98,7 @@
 		<h:column>
 			<f:facet name="header"><h:outputText value="#{msgs.actions}"/></f:facet>
 			<f:verbatim><i class="fa fa-download" aria-hidden="true"></i></f:verbatim>
-			<h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" target="#{eachPodcast.newWindow}">
+			<h:outputLink value="#{eachPodcast.fileURL}" target="#{eachPodcast.newWindow}">
 				 <h:outputText value="#{msgs.download}" />
 			</h:outputLink>
 			<h:outputText value=" #{msgs.open_paren}#{eachPodcast.size} #{eachPodcast.type}#{msgs.close_paren}" />
@@ -106,7 +106,7 @@
 			<%--  go to Revise page --%>
 			<h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}">
 				<f:verbatim><i class="fa fa-pencil-square-o" aria-hidden="true"></i></f:verbatim>
-				<h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
+				<h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" 
 					rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
 				<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
 				</h:commandLink>
@@ -115,7 +115,7 @@
 			<%--  go to Delete page --%> 
 			<h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}">
 				<f:verbatim><i class="fa fa-trash" aria-hidden="true"></i></f:verbatim>
-				<h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
+				<h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" 
 					rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
 				<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
 				</h:commandLink>
