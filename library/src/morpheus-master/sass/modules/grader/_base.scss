@@ -244,6 +244,8 @@ sakai-grader {
 
   .submitted-time {
     font-style: italic;
+    display: flex;
+    flex-direction: column;
   }
 
   .draft-time {
@@ -323,7 +325,8 @@ sakai-grader {
   .grader-returned {
     font-size: 24px;
     font-weight: bold;
-    color: green;
+    color: var(--successBanner-color);
+    margin-top: auto;
   }
 
   .action-button-block {
