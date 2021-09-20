@@ -25,15 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
-import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.assessment.entity.impl.PublishedItemEntityProviderImpl;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -48,17 +45,11 @@ import net.htmlparser.jericho.Source;
 @Slf4j
 public class PublishedItemContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
-	@Setter @Getter private SearchService searchService;
-    @Setter @Getter private SearchIndexBuilder searchIndexBuilder;
     @Setter @Getter private EntityManager entityManager = null;
     @Setter EntityProviderManager entityProviderManager;
-    @Setter private ServerConfigurationService serverConfigurationService;
     PublishedAssessmentService publishedAssessmentService  = new PublishedAssessmentService();
 
     protected void init() throws Exception {
-        if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            getSearchIndexBuilder().registerEntityContentProducer(this);
-        }
     }
 
     @Override

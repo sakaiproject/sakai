@@ -2770,8 +2770,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public List getQuestionsIdList(final Long publishedAssessmentId) {
 		return getHibernateTemplate().execute(session -> session
-				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=?1")
-				.setParameter(1, publishedAssessmentId)
+				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=:publishedAssessmentId")
+				.setParameter("publishedAssessmentId", publishedAssessmentId)
 				.list());
 	}
 

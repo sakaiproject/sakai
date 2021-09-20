@@ -47,7 +47,6 @@ import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -81,7 +80,6 @@ public class SearchQuestionBean   implements Serializable {
     private static final SiteService siteService= (SiteService) ComponentManager.get( SiteService.class );
     private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
     private ItemService itemService = new ItemService();
-    private ItemFacadeQueriesAPI itemFacadeQueries;
     private AssessmentService assessmentService = new AssessmentService();
     private QuestionPoolService questionPoolService = new QuestionPoolService();
     private String tagToSearchLabel;
@@ -474,16 +472,6 @@ public class SearchQuestionBean   implements Serializable {
         }
         return getOutcome();
     }
-
-    public ItemFacadeQueriesAPI getItemFacadeQueries() {
-        return itemFacadeQueries;
-    }
-
-    public void setItemFacadeQueries(
-            ItemFacadeQueriesAPI itemFacadeQueries) {
-        this.itemFacadeQueries = itemFacadeQueries;
-    }
-
 
     public class ItemSearchResult {
 
