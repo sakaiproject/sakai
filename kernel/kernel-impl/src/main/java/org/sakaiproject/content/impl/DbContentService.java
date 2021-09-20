@@ -1976,7 +1976,7 @@ public class DbContentService extends BaseContentService
 			   }
 			   else
 			   {
-				   rv = m_resourceDeleteStore.getAllResourcesWhereLike("IN_COLLECTION", StorageUtils.escapeSqlLike(getId()) + "%");
+				   rv = m_resourceDeleteStore.getAllResourcesWhereLike("IN_COLLECTION", StorageUtils.escapeSqlLike(collection.getId()) + "%");
 			   }
 			   return rv;
 		   }
