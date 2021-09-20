@@ -24,6 +24,7 @@ sakai.editor.editors = sakai.editor.editors || {};
 // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
 sakai.editor.enableResourceSearch = false;
 sakai.editor.enableSakaiPreview = true;
+sakai.editor.enableSakaiOpenLink = true;
 
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
@@ -193,6 +194,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         sakaiDropdownToolbar: true,
         toolbarCanCollapse: true,
         toolbarStartupExpanded: false,
+        sakaiOpenLink: true,
         extraPlugins: [
             //These plugins are included in the ckeditor4 webjar
             // 'a11yhelp',
@@ -201,9 +203,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             // 'autocomplete',
             // 'autoembed',
             // 'autogrow',
-            // 'autolink',
+            'autolink',
             // 'balloonpanel',
-            // 'balloontoolbar',
+            'balloontoolbar',
             // 'bbcode',
             'bidi',
             'clipboard',
@@ -287,6 +289,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             (sakai.editor.sakaiDropdownToolbar ? 'sakaidropdowntoolbar' : ''),
             (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
+            (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
             `${ckeditor-extra-plugins}`,
             `${ckeditor-a11y-extra-plugins}`
         ].join(','),
@@ -399,6 +402,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaiopenlink',basePath+'sakaiopenlink/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
         //Autosave has a dependency on notification
