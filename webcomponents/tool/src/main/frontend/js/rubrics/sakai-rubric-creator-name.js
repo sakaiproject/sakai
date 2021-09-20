@@ -30,12 +30,12 @@ export class SakaiRubricCreatorName extends RubricsElement {
 
   setCreatorName() {
 
-    var self = this;
+    const self = this;
     jQuery.ajax({
-      url: '/sakai-ws/rest/sakai/getUserDisplayName?sessionid=' + sakaiSessionId + '&eid=' + this.creatorId
-    }).done(function (response) {
+      url: `/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${  sakaiSessionId  }&eid=${  this.creatorId}`
+    }).done((response) => {
       self.creatorName = response;
-    }).fail(function () {
+    }).fail(() => {
       self.creatorName = self.creatorId;
     });
   }

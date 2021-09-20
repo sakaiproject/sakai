@@ -19,9 +19,9 @@ export class SakaiRubricModifiedDate extends RubricsElement {
     if (moment(this.modified).isValid()) {
       const formatted = moment(this.modified).locale(this.locale).format('LLLL');
       return html`${formatted}`;
-    } else {
-      return html`${this.modified}`;
     }
+    return html`${this.modified}`;
+
   }
 }
 

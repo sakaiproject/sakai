@@ -1,6 +1,7 @@
 <nav class="Mrphs-siteHierarchy">
     <div class="Mrphs-hierarchy--sites">
 
+    #set ($tabCountBread = 0)
     #if ( $portalBreadCrumbs or $portalPwd ) 
 
         #set ($tabTotal = 0)
@@ -17,8 +18,6 @@
 
         #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
         
-        #set ($tabCountBread = 0)
-
         #set ($hasSubsitesClass      = "#if($portalPwd.size() > 1)phone-hidden#{else}#end")
         #set ($hasSubsitesPhoneClass = "#if($portalPwd.size() > 1)phone-only#{else}#end")
 

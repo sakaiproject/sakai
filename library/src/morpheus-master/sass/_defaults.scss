@@ -260,6 +260,8 @@ $sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$d
 $active-transition-hover: box-shadow 100ms ease-out !default;
 $active-transition-active: box-shadow 100ms ease-in !default;
 
+$scroll-behavior: smooth;
+
 :root {
     /* topNav Main Menu */
     --header-size: 50px;

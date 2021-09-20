@@ -31,7 +31,7 @@ export class SakaiToggle extends LitElement {
   render() {
 
     return html`
-      <div aria-checked="${this.on ? "true" : "false"}" id="toggle" @focus=${e => console.log("focus")} @click=${this.toggle} @keyup=${this.keyup} tabindex="0">
+      <div aria-checked="${this.on ? "true" : "false"}" id="toggle" @click=${this.toggle} @keyup=${this.keyup} tabindex="0">
           <div>${this.offText}</div>
           <div>${this.onText}</div>
       </div>

@@ -28,7 +28,7 @@ const gradableDataMixin = Base => class extends Base {
           this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
           this.submissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));
 
-          this.submissions.sort((a,b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
+          this.submissions.sort((a, b) => a.firstSubmitterName.localeCompare(b.firstSubmitterName));
 
           this.hasUnsubmitted = this.submissions.some(s => s.submittedTime == "");
 
@@ -40,7 +40,7 @@ const gradableDataMixin = Base => class extends Base {
             .then(gradesData => {
 
               this.students = gradesData.students;
-              this.grades = gradesData.grades
+              this.grades = gradesData.grades;
 
               this.totalGraded = 0;
               this.submissions.forEach(s => {
@@ -69,6 +69,6 @@ const gradableDataMixin = Base => class extends Base {
         }).catch(e => console.error(`Failed to load gradable data for ${gradableId}`, e));
     });
   }
-}
+};
 
 export {gradableDataMixin};

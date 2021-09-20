@@ -42,11 +42,11 @@ export class SakaiCommentEditor extends SakaiElement {
 
     this.comment.message = editor.getContent();
 
-    const isNew = this.comment.id ? false : true;
+    const isNew = !this.comment.id;
 
     const postId = this.postId || this.comment.post;
 
-    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments` + (this.comment.id ? `/${this.comment.id}` : "");
+    const url = `/api/sites/${this.siteId}/topics/${this.topicId}/posts/${postId}/comments${  this.comment.id ? `/${this.comment.id}` : ""}`;
     fetch(url, {
       method: this.comment.id ? "PUT" : "POST",
       headers: {
@@ -64,7 +64,7 @@ export class SakaiCommentEditor extends SakaiElement {
     })
     .then(comment => {
 
-      this.dispatchEvent(new CustomEvent(isNew ? "comment-created" : "comment-updated", { detail: { comment: comment }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent(isNew ? "comment-created" : "comment-updated", { detail: { comment }, bubbles: true }));
       this.editing = false;
       this.comment.message = "";
     })
@@ -91,11 +91,11 @@ export class SakaiCommentEditor extends SakaiElement {
         ${this.editing ? html`
         <sakai-editor content=${ifDefined(this.comment ? this.comment.message : undefined)} set-focus></sakai-editor>
         <div class="act">
-          <input type="button" class="active" @click=${this.commentOnPost} value="${this.i18n["publish"]}">
-          <input type="button" @click=${this.cancelEditing} value="${this.i18n["cancel"]}">
+          <input type="button" class="active" @click=${this.commentOnPost} value="${this.i18n.publish}">
+          <input type="button" @click=${this.cancelEditing} value="${this.i18n.cancel}">
         </div>
         ` : html`
-        <input class="comment-editor-input" value="${this.i18n["add_a_comment"]}" @click=${() => this.editing = true} @keydown=${() => this.editing = true}/>
+        <input class="comment-editor-input" value="${this.i18n.add_a_comment}" @click=${() => this.editing = true} @keydown=${() => this.editing = true}/>
         `}
       </div>
     `;

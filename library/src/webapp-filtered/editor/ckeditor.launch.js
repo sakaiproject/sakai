@@ -190,7 +190,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
         uploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
         imageUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
-
+        sakaiDropdownToolbar: true,
+        toolbarCanCollapse: true,
+        toolbarStartupExpanded: false,
         extraPlugins: [
             //These plugins are included in the ckeditor4 webjar
             // 'a11yhelp',
@@ -282,6 +284,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'notification',
             'removeformat',
             'wordcount',
+            (sakai.editor.sakaiDropdownToolbar ? 'sakaidropdowntoolbar' : ''),
             (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
             `${ckeditor-extra-plugins}`,
@@ -311,6 +314,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+            // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
             ['atd-ckeditor'],
@@ -382,6 +386,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             else if (portal.editor.type == "full") {
                 ckconfig.toolbar = "Full";
                 detectWidth = false;
+                ckconfig.toolbarStartupExpanded = true;
             }
         }
 
@@ -394,6 +399,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');

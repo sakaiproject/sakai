@@ -11,23 +11,22 @@
  *
  * For a real world example of how to use this, see sakai-permissions.js.
  */
-function loadProperties(options) {
+function loadProperties(suppliedOptions) {
 
   window.sakai = window.sakai || {};
   window.sakai.translations = window.sakai.translations || {};
   window.sakai.translations.existingPromises = window.sakai.translations.existingPromises || {};
 
-  if (typeof options === "string") {
-    options = { bundle: options };
-  }
+  let options = typeof suppliedOptions === "string" ? { bundle: suppliedOptions } : suppliedOptions;
 
   if (!options.bundle) {
     console.error("You must supply at least a bundle. Doing nothing ...");
     return;
   }
 
+  const lang = window.parent.portal.locale ? window.parent.portal.locale : "";
   const defaults = {
-    lang: (window.portal && window.portal.locale) ? window.portal.locale : "",
+    lang: (window.portal && window.portal.locale) ? window.portal.locale : lang,
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     cache: true,
   };
@@ -47,49 +46,49 @@ function loadProperties(options) {
   }
 
   if (options.debug) {
-    console.debug('lang: ' + options.lang);
-    console.debug('resourceClass: ' + options.resourceClass);
-    console.debug('bundle: ' + options.bundle);
-    console.debug('cache: ' + options.cache);
+    console.debug(`lang: ${  options.lang}`);
+    console.debug(`resourceClass: ${  options.resourceClass}`);
+    console.debug(`bundle: ${  options.bundle}`);
+    console.debug(`cache: ${  options.cache}`);
   }
 
   window.sakai.translations[options.bundle] = window.sakai.translations[options.bundle] || {};
 
-  var storageKey = options.lang + options.bundle;
+  const storageKey = options.lang + options.bundle;
   if (options.cache && window.sessionStorage.getItem(storageKey) !== null) {
     if (options.debug) {
-      console.debug("Returning " + storageKey + " from sessions storage ...");
+      console.debug(`Returning ${  storageKey  } from sessions storage ...`);
     }
     window.sakai.translations[options.bundle] = JSON.parse(window.sessionStorage[storageKey]);
     return Promise.resolve(window.sakai.translations[options.bundle]);
-  } else {
+  }
+  if (options.debug) {
+    console.debug(`${storageKey  } not in sessions storage or cache is false. Pulling from webservice ...`);
+  }
+
+  const params = new URLSearchParams();
+  params.append("locale", options.lang);
+  params.append("resourceclass", options.resourceClass);
+  params.append("resourcebundle", options.bundle);
+
+  const existingPromise = window.sakai.translations.existingPromises[options.bundle];
+  if (existingPromise && options.cache) {
+    if (options.debug) console.debug("Returning existing promise ...");
+    return existingPromise;
+  }
+  return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
+
+    const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;
     if (options.debug) {
-      console.debug(storageKey + " not in sessions storage or cache is false. Pulling from webservice ...");
+      console.debug(url);
     }
-
-    var params = new URLSearchParams();
-    params.append("locale", options.lang);
-    params.append("resourceclass", options.resourceClass);
-    params.append("resourcebundle", options.bundle);
-
-    const existingPromise = window.sakai.translations.existingPromises[options.bundle];
-    if (existingPromise && options.cache) {
-      if (options.debug) console.debug("Returning existing promise ...");
-      return existingPromise;
-    } else {
-      return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
-
-        const url = `/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`;
-        if (options.debug) {
-          console.debug(url);
-        }
-        fetch(url, { headers: { "Content-Type": "application/text" }})
+    fetch(url, { headers: { "Content-Type": "application/text" }})
         .then(r => r.text())
         .then(data => {
 
-          data.split("\n").forEach(function (pair) {
+          data.split("\n").forEach((pair) => {
 
-            var keyValue = pair.split('=');
+            const keyValue = pair.split('=');
             if (keyValue.length == 2) {
               window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
             }
@@ -109,9 +108,9 @@ function loadProperties(options) {
           }
           resolve(window.sakai.translations[options.bundle]);
         }).catch(error => { console.error(error); resolve(false); } );
-      });
-    }
-  }
+  });
+
+
 } // loadProperties
 
 function tr(namespace, key, options) {
@@ -121,10 +120,10 @@ function tr(namespace, key, options) {
     return;
   }
 
-  var ret = window.sakai.translations[namespace][key];
+  let ret = window.sakai.translations[namespace][key];
 
   if (!ret) {
-    console.warn(namespace + '#key ' + key + ' not found. Returning key ...');
+    console.warn(`${namespace  }#key ${  key  } not found. Returning key ...`);
     return key;
   }
 
@@ -132,7 +131,7 @@ function tr(namespace, key, options) {
     if (Array.isArray(options)) {
       options.forEach(o => ret = ret.replace("{}", o));
     } else if (typeof options === "object") {
-      Object.keys(options).forEach(k => ret = ret.replace('{' + k + '}', options[k]));
+      Object.keys(options).forEach(k => ret = ret.replace(`{${  k  }}`, options[k]));
     }
   }
   return ret;

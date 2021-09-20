@@ -41,6 +41,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.comparators.NullComparator;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -50,6 +51,7 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.NullPrecedence;
 import org.hibernate.query.Query;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -154,9 +156,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 Criteria q = session.createCriteria(AssessmentGradingData.class)
                         .add(Restrictions.eq("publishedAssessmentId", publishedId))
                         .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
-                        .addOrder(Order.asc("agentId"))
-                        .addOrder(Order.desc("finalScore"))
-                        .addOrder(Order.desc("submittedDate"));
+                        .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                        .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
+                        .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
 
                 if (getSubmittedOnly) {
                     q.add(Restrictions.eq("forGrade", true));
@@ -186,8 +188,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     Criteria q = session.createCriteria(AssessmentGradingData.class)
                             .add(Restrictions.eq("publishedAssessmentId", publishedId))
                             .add(Restrictions.gt("status", AssessmentGradingData.REMOVED))
-                            .addOrder(Order.asc("agentId"))
-                            .addOrder(Order.desc("submittedDate"));
+                            .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                            .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
 
                     if (getSubmittedOnly) {
                         q.add(Restrictions.eq("forGrade", true));
@@ -300,8 +302,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     criteria.add(Expression.and(pubCriterion, disjunction));
                     //criteria.add(Expression.isNotNull("submittedDate"));
                 }
-                criteria.addOrder(Order.asc("agentId"));
-                criteria.addOrder(Order.desc("submittedDate"));
+                criteria.addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST));
+                criteria.addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
                 return criteria.list();
                 //large list cause out of memory error (java heap space)
                 //return criteria.setMaxResults(10000).list();
@@ -327,6 +329,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 thisone.add(data);
                 map.put(data.getPublishedItemId(), thisone);
             }
+            map.forEach((k, v) -> {
+                Collections.sort(v, new Comparator<ItemGradingData>() {
+                    public int compare(ItemGradingData itg1, ItemGradingData itg2) {
+                        return new NullComparator().compare(itg1.getPublishedAnswerId(), itg2.getPublishedAnswerId());
+                    }
+                });
+            });
             return map;
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
@@ -1252,8 +1261,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         Restrictions.and(
                                 Restrictions.eq("forGrade", false),
                                 Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId"))
-                .addOrder(Order.desc("submittedDate"))
+                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST))
                 .list();
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
 
@@ -1289,8 +1298,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         Restrictions.and(
                                 Restrictions.eq("forGrade", false),
                                 Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId"))
-                .addOrder(Order.desc("finalScore"))
+                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
                 .list();
 
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);

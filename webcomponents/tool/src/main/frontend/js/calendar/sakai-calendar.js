@@ -84,9 +84,9 @@ export class SakaiCalendar extends LionCalendar {
 
     this.readOnly = true;
 
-    this.addEventListener("user-selected-date-changed", e => {
+    this.addEventListener("user-selected-date-changed", event => {
 
-      const time = e.detail.selectedDate.getTime();
+      const time = event.detail.selectedDate.getTime();
       this.daysEvents = this.events.filter(e => e.start > time && e.start < (time + 24*60*60*1000));
       this.selectedDate = time;
     });
@@ -135,10 +135,10 @@ export class SakaiCalendar extends LionCalendar {
       c.classList.remove("deadline");
 
       const time = c.date.getTime();
-      const e = this.events.find(e => e.start > time && e.start < (time + 24*60*60*1000));
-      if (e) {
+      const matchingEvent = this.events.find(e => e.start > time && e.start < (time + 24*60*60*1000));
+      if (matchingEvent) {
         c.classList.add("has-events");
-        if (e.type === "deadline") {
+        if (matchingEvent.type === "deadline") {
           c.classList.add("deadline");
         }
       }
@@ -151,7 +151,7 @@ export class SakaiCalendar extends LionCalendar {
       <div class="sakai-calendar__navigation-wrapper">
         ${super.__renderNavigation()}
         <div class="sakai-calendar__navigation__today">
-          <a href="javascript:;" @click=${() => { this.selectedDate = null; this.initCentralDate(); } }>${this.i18n["today"]}</a>
+          <a href="javascript:;" @click=${() => { this.selectedDate = null; this.initCentralDate(); } }>${this.i18n.today}</a>
         </div>
       </div>
     `;
@@ -178,7 +178,7 @@ export class SakaiCalendar extends LionCalendar {
         ${this.selectedDate && this.daysEvents.length > 0 ? html`
         <div id="days-events">
           <div id="days-events-title">
-            ${this.i18n["events_for"]} ${moment(this.selectedDate).format("LL")}
+            ${this.i18n.events_for} ${moment(this.selectedDate).format("LL")}
           </div>
           ${this.daysEvents.map(e => html`
             <div>

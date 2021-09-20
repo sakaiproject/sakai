@@ -31,12 +31,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Internal dependencies -->
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>${sakai.elasticsearch.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>

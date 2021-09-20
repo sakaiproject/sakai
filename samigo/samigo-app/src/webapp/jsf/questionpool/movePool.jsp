@@ -37,13 +37,12 @@
 <%@ include file="/js/samigotree.js" %>
               function flagFolders() {
 	          collapseAllRowsForSelectList();
-                  flagRows();
               }
               window.onload = flagFolders;
 </script>
 <script src="/library/js/spinner.js"></script>
       </head>
-<body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
+<body onload="collapseAllRowsForSelectList();<%= request.getAttribute("html.body.onload") %>">
   
 <!-- content... -->
  <div class="portletBody">
