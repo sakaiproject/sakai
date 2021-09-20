@@ -3,7 +3,7 @@ package org.sakaiproject.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-class StorageUtilsTest {
+public class StorageUtilsTest {
 
     @Test
     public void testEscapeSql() {
