@@ -322,11 +322,9 @@ public class StorageUtils {
 	 * @param value
 	 * @return string with escaped wildcards
 	 */
-	public static String escapeSqlLike(final String value) {
-    	if (value == null) return "";
-    	return value
-				.replaceAll("_", "\\_")
-				.replaceAll("%", "\\%");
-	}
+    public static String escapeSqlLike(final String value) {
+        if (value == null) return "";
+        return value.replaceAll("_", "\\_").replaceAll("%", "\\%");
+    }
 
 }
