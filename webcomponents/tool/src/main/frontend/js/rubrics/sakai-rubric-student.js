@@ -81,23 +81,25 @@ class SakaiRubricStudent extends RubricsElement {
     return html`
       <hr class="itemSeparator" />
 
-      <h3>${this.rubric.title}</h3>
+      <div class="rubric-details student-view">
+        <h3>${this.rubric.title}</h3>
 
-      ${this.preview || this.forcePreview ? html`
-        <sakai-rubric-criterion-preview
-          criteria="${JSON.stringify(this.rubric.criterions)}"
-          .weighted=${this.rubric.weighted}
-        ></sakai-rubric-criterion-preview>
-        ` : html`
-        <sakai-rubric-criterion-student
-          criteria="${JSON.stringify(this.rubric.criterions)}"
-          rubric-association="${JSON.stringify(this.association)}"
-          evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
-          ?preview="${this.preview}"
-          entity-id="${this.entityId}"
-          .weighted=${this.rubric.weighted}
-        ></sakai-rubric-criterion-student>
-      `}
+        ${this.preview || this.forcePreview ? html`
+          <sakai-rubric-criterion-preview
+            criteria="${JSON.stringify(this.rubric.criterions)}"
+            .weighted=${this.rubric.weighted}
+          ></sakai-rubric-criterion-preview>
+          ` : html`
+          <sakai-rubric-criterion-student
+            criteria="${JSON.stringify(this.rubric.criterions)}"
+            rubric-association="${JSON.stringify(this.association)}"
+            evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+            ?preview="${this.preview}"
+            entity-id="${this.entityId}"
+            .weighted=${this.rubric.weighted}
+          ></sakai-rubric-criterion-student>
+        `}
+      </div>
     `;
   }
 
