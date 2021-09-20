@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.util.StorageUtils;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -1624,7 +1625,7 @@ public class DbContentService extends BaseContentService
                 }
                 else
                 {
-                    rv = m_resourceStore.getAllResourcesWhereLike("IN_COLLECTION", collectionId + "%");
+                    rv = m_resourceStore.getAllResourcesWhereLike("IN_COLLECTION", StorageUtils.escapeSqlLike(collectionId) + "%");
                 }
                 return rv;
             }
@@ -1975,7 +1976,7 @@ public class DbContentService extends BaseContentService
 			   }
 			   else
 			   {
-				   rv = m_resourceDeleteStore.getAllResourcesWhereLike("IN_COLLECTION", collection.getId() + "%");
+				   rv = m_resourceDeleteStore.getAllResourcesWhereLike("IN_COLLECTION", StorageUtils.escapeSqlLike(getId()) + "%");
 			   }
 			   return rv;
 		   }
