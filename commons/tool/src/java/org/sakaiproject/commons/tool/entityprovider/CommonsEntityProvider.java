@@ -51,6 +51,7 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.commons.api.datamodel.PostsData;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -94,6 +95,8 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
     private EmailService emailService;
     private SiteService siteService;
     private UserDirectoryService userDirectoryService;
+    private ServerConfigurationService serverConfigurationService;
+
     private static final ResourceLoader rl = new ResourceLoader("commons");
 
     private final static List<String> contentTypes
@@ -548,7 +551,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
 
     private String getCheckedUser() throws EntityException {
 
-        String userId = developerHelperService.getCurrentUserId();
+        String userId = userDirectoryService.getCurrentUser().getId();
         if (userId == null) {
             throw new EntityException("You must be logged in", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
@@ -570,6 +573,8 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
                     log.error("No user found with ID {} while sending Commons Priority email.", id);
                 }
             }
+            final String serverName = serverConfigurationService.getServerName();
+            final String portalURL = serverConfigurationService.getPortalUrl();
             List<String> headers = new ArrayList<>();
             headers.add("Subject: " + rl.getFormattedMessage("priority_email_subject", siteService.getSite(siteId).getTitle()));
             headers.add("From: " + "\"" + userDirectoryService.getCurrentUser().getDisplayName() + "\" <" + userDirectoryService.getCurrentUser().getEmail() + ">");
@@ -579,7 +584,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
             messageText.append(rl.getFormattedMessage("priority_email_added", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
             messageText.append("<br><br>" + postContent);
             messageText.append("<br><br><hr><em>");
-            messageText.append(rl.getFormattedMessage("priority_email_forwarded", "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
+            messageText.append(rl.getFormattedMessage("priority_email_forwarded", serverName, portalURL, portalURL, "<a href=\"" + siteService.getSite(siteId).getUrl() + "\" >" + siteService.getSite(siteId).getTitle() + "</a> "));
             messageText.append("</em>");
             emailService.sendToUsers(siteUsers, headers, messageText.toString());
         } catch (IdUnusedException e){
