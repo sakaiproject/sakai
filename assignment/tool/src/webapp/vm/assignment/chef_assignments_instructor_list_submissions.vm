@@ -308,9 +308,9 @@ function printView(url) {
 							#end
 							#if ($sortedBy.equals($!sort_lastName)) 
 								#if ($sortedAsc.equals("true")) 
-									<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									<i id="sortascendinglastname" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else 
-									<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+									<i id="sortdescendinglastname" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end 
 							#end 
 						</a>
@@ -325,9 +325,9 @@ function printView(url) {
 							$tlang.getString("gen.subm5")
 							#if ($sortedBy.equals($!sort_submitTime)) 
 								#if ($sortedAsc.equals("true")) 
-									<img id="sort_ascending_submittime" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									<i id="sort_ascending_submittime" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else 
-									<img id="sort_descending_submit_time" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+									<i id="sort_descending_submit_time" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end 
 							#end 
 						</a>
@@ -337,10 +337,10 @@ function printView(url) {
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals($!sort_submitStatus)) 
 								#if ($sortedAsc.equals("true")) 
-									<img id="sort_ascending_status" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									<i id="sort_ascending_status" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else 
-									<img id="sort_descending_status" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-								#end 
+									<i id="sort_descending_status" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+								#end
 							#end 
 						</a>
 					</th>
@@ -358,9 +358,9 @@ function printView(url) {
 								$tlang.getString("gen.gra")
 								#if ($sortedBy.equals($!sort_submitGrade)) 
 									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_grade" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+										<i id="sort_ascending_grade" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 									#else 
-										<img id="sort_descending_grade" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+										<i id="sort_descending_grade" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 									#end 
 								#end 
 							</a>
@@ -372,9 +372,9 @@ function printView(url) {
 								$tlang.getString("gen.spenttime")
 								#if ($sortedBy.equals($!sort_estimate)) 
 									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_estimate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+										<i id="sort_ascending_estimate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 									#else 
-										<img id="sort_descending_estimate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+										<i id="sort_descending_estimate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 									#end 
 								#end 
 							</a>
@@ -386,9 +386,9 @@ function printView(url) {
 								$reviewServiceName
 								#if ($sortedBy.equals($!sort_submitReview)) 
 									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_review" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+										<i id="sort_ascending_review" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 									#else 
-										<img id="sort_descending_review" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+										<i id="sort_descending_review" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 									#end 
 								#end 
 							</a>
@@ -399,9 +399,9 @@ function printView(url) {
 							$tlang.getString("gen.relea")
 							#if ($sortedBy.equals($!sort_submitReleased)) 
 								#if ($sortedAsc.equals("true")) 
-									<img id="sort_ascending_released" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									<i id="sort_ascending_released" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else 
-									<img id="sort_descending_released" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+									<i id="sort_descending_released" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end 
 							#end 
 						</a>
