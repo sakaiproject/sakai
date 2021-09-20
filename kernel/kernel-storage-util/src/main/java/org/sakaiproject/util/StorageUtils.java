@@ -324,7 +324,9 @@ public class StorageUtils {
 	 */
     public static String escapeSqlLike(final String value) {
         if (value == null) return "";
-        return value.replaceAll("_", "\\_").replaceAll("%", "\\%");
+        return value
+            .replaceAll("\\_", "\\\\_")
+            .replaceAll("\\%", "\\\\%");
     }
 
 }
