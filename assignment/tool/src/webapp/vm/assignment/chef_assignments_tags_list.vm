@@ -39,9 +39,9 @@
 											$!column.getDisplayName()
 									#if ($provider.getSort().getSort().equals($!column.getName()))
 										#if ($provider.getSort().isAscending())
-											<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+											<i id="sortascendinglastname" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<img id="sortdescendinglastname" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+											<i id="sortdescendinglastname" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 										#end
 									#end
 										</a>
