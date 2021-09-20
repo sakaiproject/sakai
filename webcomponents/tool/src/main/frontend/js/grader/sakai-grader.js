@@ -232,9 +232,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 ` : ""}
                 <div class="submitted-time ${this.submission.draft ? "draft-time" : ""}">${this.submission.submittedTime}</div>
                 ${this.submission.late ? html`<span class="grader-late">${this.assignmentsI18n["grades.lateness.late"]}</span>` : ""}
-                ${this.submission.returned ? html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />` : ""}
+                ${this.submission.returned ? this.renderGraderReturned() : ""}
               ` : html`
-                <span>${this.i18n["no_submission_for"]} ${this.renderSubmitter()}</span>
+                <span>${this.i18n.no_submission_for} ${this.renderSubmitter()}</span>
+                ${this.submission.returned ? this.renderGraderReturned() : ""}
               `}
             </div>
           </div>
@@ -428,6 +429,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       ${this.submission.groupId ? html`${this.submission.groupTitle}` : html`${this.submission.firstSubmitterName}`}
     `;
+  }
+
+  renderGraderReturned() {
+    return html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />`;
   }
 
   render() {
