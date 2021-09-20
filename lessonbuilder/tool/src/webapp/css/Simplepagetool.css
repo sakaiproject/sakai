@@ -661,6 +661,7 @@ div.layout-option > div {
 }
 #layoutReorderer .reordItemContainer > .reorder-icon {
     font-size: 1.3em;
+    color: var(--sakai-text-color-1);
 }
 .reordItemContainer {
      padding: 0 20px 0 0;
@@ -689,8 +690,8 @@ div.layout-option > div {
 
 .reordDeleteContainer {
     position: absolute;
-    top:1px;
-    right:5px;
+    top:-6px;
+    right:0px;
     font-size: 1.35em;
 }
 #reorderCol1 .import-indicator {
@@ -750,12 +751,10 @@ span.reorder-icon {
 .deleteListMessage {
     padding:5px;
     padding-left: 25px;
-    background: var(--sakai-background-color-1) url(/library/image/silk/bin.png) 5px 5px no-repeat;
 }
 .deleteListMessageEmpty {
     padding:5px;
     padding-left: 25px;
-    background: var(--sakai-background-color-1) url(/library/image/silk/bin_empty.png) 5px 5px no-repeat;
     
 }
 .deleteListMessage.panel-heading, .deleteListMessageEmpty.panel-heading {
@@ -795,6 +794,7 @@ h3.section-label {
     font-size: 20px;
     top: 6px;
     position: relative;
+    padding: 10px 16px 9px;
 }
 
 .section-delete-icon {
@@ -1461,7 +1461,7 @@ margin-left: 5px;
 padding: 10px 15px 0 15px
 }
 .returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
-  font-size: .75em;
+  font-size: 14px;
 }
 #content{
   padding-top: 1px;
@@ -2101,7 +2101,8 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     color: var(--sakai-color-green--darker-3);
 }
 .redLessonsIcon {
-    color: var(--sakai-color-red--darker-3);
+    color: var(--errorBanner-color);
+    background: var(--errorBanner-bgcolor);
 }
 .orangeLessonsIcon {
     color: var(--sakai-color-orange--darker-3);

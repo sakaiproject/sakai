@@ -37,15 +37,11 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.shared.MediaService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /**
  * <p>
@@ -59,8 +55,6 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 public class GrantSubmissionListener
   implements ActionListener
 {
-  private static EvaluationListenerUtil util;
-  private static BeanSort bs;
   private final EventTrackingService eventTrackingService = ComponentManager.get( EventTrackingService.class );
 
   /**

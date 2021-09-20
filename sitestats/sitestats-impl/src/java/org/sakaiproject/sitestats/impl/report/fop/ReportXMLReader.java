@@ -331,21 +331,11 @@ public class ReportXMLReader extends AbstractObjectReader {
             	EventStat es = (EventStat) cs;
             	String toolId = es.getToolId();
             	handler.element("tool", M_ers.getToolName(toolId == null? "" : toolId));
-            	handler.element("showToolIcon", "true");
-            	handler.element("toolicon", "sitestats://" + M_ers.getToolIcon(toolId));            	
             }
             if(showEvent) {
             	EventStat es = (EventStat) cs;
             	String eventRef = es.getEventId();
             	handler.element("event", M_ers.getEventName(eventRef == null? "" : eventRef));
-            	ToolInfo toolInfo = eventIdToolMap.get(eventRef);
-            	if(toolInfo != null && !showTool) {
-            		handler.element("showToolEventIcon", "true");
-            		String toolId = toolInfo.getToolId();
-            		handler.element("tooleventicon", "sitestats://" + M_ers.getToolIcon(toolId));
-            	}else{
-            		handler.element("showToolEventIcon", "false");
-            	}
             }
             if(showResource) {
             	ResourceStat rs = (ResourceStat) cs;

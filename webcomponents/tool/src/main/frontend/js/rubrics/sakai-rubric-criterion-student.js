@@ -61,7 +61,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                         <span>
                           <sr-lang key="weight">Weight</sr-lang>
                         </span>
-                        <span>${c.weight}</span>
+                        <span>${c.weight.toLocaleString(this.locale)}</span>
                         <span>
                           <sr-lang key="percent_sign">%</sr-lang>
                         </span>
@@ -79,7 +79,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
                     <span class="points">
                       ${this.weighted && r.points > 0 ? html`
                         <b>
-                            (${(r.points * (c.weight / 100)).toFixed(2)})
+                            (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
                         </b>`
                         : ""
                       }
@@ -94,13 +94,13 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
             <div class="criterion-actions">
             ${!this.preview ? html`
               <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
-              <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
-                ${c.selectedvalue}
+              <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
+                ${c.selectedvalue.toLocaleString(this.locale)}
                 ${!c.selectedRatingId ? "0" : ""}
                 &nbsp;
               </strong>
-              ${this.isOverridden(c.pointoverride,c.selectedvalue) ?
-                html`<strong class="points-display">${c.pointoverride}</strong>`
+              ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
+                html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
                 : html``}
             ` : html``}
             </div>
@@ -162,9 +162,9 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     if ((pointoverride || pointoverride === 0) && (parseFloat(pointoverride) !== parseFloat(selected))) {
       return true;
-    } else {
-      return false;
     }
+    return false;
+
   }
 
   updateTotalPoints() {
@@ -175,15 +175,15 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);
-      } else {
-        return a;
       }
+      return a;
+
     }, 0);
 
     this.ready = true;
   }
 
-  getOverriddenClass(ovrdvl,selected) {
+  getOverriddenClass(ovrdvl, selected) {
 
     if (!this.rubricAssociation.parameters.fineTunePoints) {
       return '';
@@ -191,9 +191,9 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     if ((ovrdvl || ovrdvl === 0) && (parseFloat(ovrdvl) !== parseFloat(selected))) {
       return 'strike';
-    } else {
-      return '';
     }
+    return '';
+
   }
 }
 

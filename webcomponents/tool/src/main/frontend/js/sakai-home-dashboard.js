@@ -45,9 +45,9 @@ export class SakaiHomeDashboard extends LitElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get dashboard data from ${url}`);
         }
+        throw new Error(`Failed to get dashboard data from ${url}`);
+
       })
       .then(r => this.data = r)
       .catch(error => console.error(error));
@@ -99,28 +99,28 @@ export class SakaiHomeDashboard extends LitElement {
 
       <div id="container">
         <div id="welcome-and-edit-block">
-          <div id="welcome">${this.i18n["welcome"]} ${this.data.givenName}</div>
+          <div id="welcome">${this.i18n.welcome} ${this.data.givenName}</div>
           <div id="edit-block">
           ${this.editing ? html`
             <div id="save">
-              <sakai-button @click=${this.save} title="${this.i18n["save_tooltip"]}" aria-label="${this.i18n["save_tooltip"]}">${this.i18n["save"]}</sakai-button>
+              <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}">${this.i18n.save}</sakai-button>
             </div>
             <div id="cancel">
-              <sakai-button @click=${this.cancel} title="${this.i18n["cancel_tooltip"]}" aria-label="${this.i18n["cancel_tooltip"]}">${this.i18n["cancel"]}</sakai-button>
+              <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
             </div>
           ` : html`
             <div id="edit">
-              <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n["edit_tooltip"]}" arial-label="${this.i18n["edit_tooltip"]}">${this.i18n["edit"]}</sakai-button>
+              <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
             </div>
           `}
           </div>
         </div>
         ${this.data.worksiteSetupUrl ? html`
           <div id="toolbar">
-            <sakai-button href="${this.data.worksiteSetupUrl}" title="${this.i18n["worksite_setup_tooltip"]}" aria-label="${this.i18n["worksite_setup_tooltip"]}">
+            <sakai-button href="${this.data.worksiteSetupUrl}" title="${this.i18n.worksite_setup_tooltip}" aria-label="${this.i18n.worksite_setup_tooltip}">
               <div id="add-worksite">
                 <div><sakai-icon type="add" size="small"></sakai-icon></div>
-                <div>${this.i18n["worksite_setup"]}</div>
+                <div>${this.i18n.worksite_setup}</div>
               </div>
             </sakai-button>
           </div>
@@ -128,11 +128,11 @@ export class SakaiHomeDashboard extends LitElement {
         ${this.data.motd ? html`
           <div id="motd">
             <div id="motd-title-block" @click=${() => this.showMotd = !this.showMotd}>
-              <div id="motd-title">${this.i18n["motd"]}</div>
+              <div id="motd-title">${this.i18n.motd}</div>
               <div id="motd-icon">
                 <a href="javascript:;"
-                  title="${this.showMotd ? this.i18n["hide_motd_tooltip"] : this.i18n["show_motd_tooltip"]}"
-                  aria-label="${this.showMotd ? this.i18n["hide_motd_tooltip"] : this.i18n["show_motd_tooltip"]}">
+                  title="${this.showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}"
+                  aria-label="${this.showMotd ? this.i18n.hide_motd_tooltip : this.i18n.show_motd_tooltip}">
                   <sakai-icon type="${this.showMotd ? "up" : "down"}" size="small"></sakai-icon>
                 </a>
               </div>

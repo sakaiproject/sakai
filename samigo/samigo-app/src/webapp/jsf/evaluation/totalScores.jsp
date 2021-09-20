@@ -276,7 +276,7 @@ $(document).ready(function(){
        <h:outputText value="\"></a>" escape="false" />
 
        <h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true" >
-         <h:panelGroup rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}">
+         <h:panelGroup rendered="#{description.assessmentGradingId ne '-1'}">
 	     <span class="fa fa-trash" aria-hidden="true"></span>
 	     <span class="sr-only"><h:outputText value="#{commonMessages.delete}" /></span>
          </h:panelGroup>

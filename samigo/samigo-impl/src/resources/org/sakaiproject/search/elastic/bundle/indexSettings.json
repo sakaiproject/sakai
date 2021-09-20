@@ -1,4 +1,8 @@
 {
+    "number_of_shards": 5,
+    "index": {
+        "max_ngram_diff": 20
+    },
     "analysis": {
         "filter": {
             "substring": {

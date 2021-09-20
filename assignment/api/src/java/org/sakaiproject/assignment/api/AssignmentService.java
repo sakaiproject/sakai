@@ -32,6 +32,7 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -757,10 +758,16 @@ public interface AssignmentService extends EntityProducer {
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
-    * This will return the internationalized title of the tool.
-    * This is used when creating a new gradebook item.
-    */
+     * This will return the internationalized title of the tool.
+     * This is used when creating a new gradebook item.
+     */
     public String getToolTitle();
+
+    /**
+     * This will return the reference removing from it the auxiliar prefix.
+     * This is used when interacting with the ContentHostingService.
+     */
+    public String removeReferencePrefix(String referenceId);
 
     String getUsersLocalDateTimeString(Instant date);
 
@@ -775,6 +782,11 @@ public interface AssignmentService extends EntityProducer {
      * @return true if content review results for the given submission can be displayed.
      */
     public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission);
+
+    /**
+     * Gets all attachments in the submission that are acceptable to the content review service
+     */
+    public List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission submission);
 
     /**
      * Get an assignment that is linked with a gradebook item
@@ -804,4 +816,15 @@ public interface AssignmentService extends EntityProducer {
      * @return list of submission group users with multiple group memberships and the groups they belong to
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
+
+    /**
+     * Returns true if the content review implementation successfully created the assignment
+     * @param a
+     * @param assignmentRef
+     * @param openTime
+     * @param dueTime
+     * @param closeTime
+     * @return
+     */
+    public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
 }

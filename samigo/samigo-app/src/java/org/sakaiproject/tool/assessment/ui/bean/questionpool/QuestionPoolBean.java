@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -706,11 +707,11 @@ public class QuestionPoolBean implements Serializable {
 		sourcePart = s;
 	}
 
-	public List getCurrentItemIds() {
+	public List<Long> getCurrentItemIds() {
 		return currentItemIds;
 	}
 
-	public void setCurrentItemIds(List pstr) {
+	public void setCurrentItemIds(List<Long> pstr) {
 		currentItemIds = pstr;
 	}
 
@@ -1262,29 +1263,26 @@ public String getAddOrEdit()
 	}
   
      public String moveQuestion() {
-		String sourceId = "";
-		String destId = "";
-		sourceId = this.getCurrentPool().getId().toString();
-		List sourceItemIds = this.getCurrentItemIds();
+		Long sourceId = getCurrentPool().getId();
+		List<Long> sourceItemIds = getCurrentItemIds();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 
-		destId = ContextUtil.lookupParam("movePool:selectedRadioBtn");
+		Long destId = NumberUtils.toLong(ContextUtil.lookupParam("movePool:selectedRadioBtn"), -1L);
 
-		if ((sourceId != null) && (destId != null) && (sourceItemIds != null)) {
+		if (sourceId != null && !destId.equals(-1L) && sourceItemIds != null) {
 			try {
 				QuestionPoolService delegate = new QuestionPoolService();
 
-				Iterator iter = sourceItemIds.iterator();
+				Iterator<Long> iter = sourceItemIds.iterator();
 				while (iter.hasNext()) {
-					String sourceItemId = (String) iter.next();
+					Long sourceItemId = iter.next();
 					// originally this returned "movePool" if we found it
 					// in dest. This seems wrong. No error message, just
 					// return to an irrelevant screen. I think it's better
 					// just to skip that item. One could argue for a warning
 					// message.
 					if (!hasItemInDestPool(sourceItemId, destId)) {
-						delegate.moveItemToPool(new Long(sourceItemId),
-								new Long(sourceId), new Long(destId));
+						delegate.moveItemToPool(sourceItemId, sourceId, destId);
 					}
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
 				}
@@ -1362,11 +1360,11 @@ public String getAddOrEdit()
 		return EDIT_ASSESSMENT;
 	}
      
-  public boolean hasItemInDestPool(String sourceItemId, String destId){
+  public boolean hasItemInDestPool(Long sourceItemId, Long destId){
   
               QuestionPoolService delegate = new QuestionPoolService();
               // check if the item already exists in the destPool
-              if (delegate.hasItem(sourceItemId, new Long(destId))){
+              if (delegate.hasItem(sourceItemId, destId)){
                 // we do not want to add duplicated items, show message
 
                 FacesContext context=FacesContext.getCurrentInstance();
@@ -1385,18 +1383,16 @@ public String getAddOrEdit()
 		if (getSourcePart() != null)
 			return copyQuestionsFromPart();
 
-		// Long sourceId = new Long(0);
-		String destId = "";
 		List sourceItems = this.getCurrentItems();
 
-		List destpools = ContextUtil.paramArrayValueLike("checkboxes");
+		List<String> destpools = ContextUtil.paramArrayValueLike("checkboxes");
 		// sourceId = this.getCurrentPool().getId();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
-		Iterator iter = destpools.iterator();
+		Iterator<String> iter = destpools.iterator();
 		while (iter.hasNext()) {
 
-			destId = (String) iter.next();
-			if ((sourceItems != null) && (destId != null)) {
+			Long destId = NumberUtils.toLong(iter.next(), -1L);
+			if (sourceItems != null && !destId.equals(-1L)) {
 
 				try {
 					QuestionPoolService questionPoolService = new QuestionPoolService();
@@ -1405,7 +1401,7 @@ public String getAddOrEdit()
 					Iterator iter2 = sourceItems.iterator();
 					while (iter2.hasNext()) {
 						ItemFacade sourceItem = (ItemFacade) iter2.next();
-						String sourceItemId = sourceItem.getItemIdString();
+						Long sourceItemId = sourceItem.getItemId();
 						// originally this returned "copyPool" if we found it
 						// in dest. This seems wrong. No error message, just
 						// return to an irrelevant screen. I think it's better
@@ -1484,7 +1480,7 @@ public String getAddOrEdit()
 
 
        // check to see if any pools are linked to this item
-       List poollist = delegate.getPoolIdsByItem(itemfacade.getItemIdString());
+       List poollist = delegate.getPoolIdsByItem(itemfacade.getItemId());
        if (poollist.isEmpty()) {
 
 	 if (itemfacade.getSection() == null) {
@@ -1525,10 +1521,10 @@ public String getAddOrEdit()
 
   public void getCheckedQuestion()
   {
-	String itemId= ContextUtil.lookupParam("itemid");
+	Long itemId = NumberUtils.toLong(ContextUtil.lookupParam("itemid"), -1L);
 	ItemService delegate = new ItemService();
-	ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-	List itemIds = new ArrayList();
+	ItemFacade itemfacade= delegate.getItem(itemId, AgentFacade.getAgentString());
+	List<Long> itemIds = new ArrayList<>();
 	itemIds.add(itemId);
 	setCurrentItemIds(itemIds);
 	 
@@ -1539,18 +1535,17 @@ public String getAddOrEdit()
   }
 
   public void getCheckedQuestions() {
-		// String itemId= ContextUtil.lookupParam("itemid");
 
-		List destItems = ContextUtil.paramArrayValueLike("removeCheckbox");
-		List itemIds = new ArrayList();
+		List<String> destItems = ContextUtil.paramArrayValueLike("removeCheckbox");
+		List<Long> itemIds = new ArrayList<>();
 		List itemFacades = new ArrayList();
 
 		ItemService delegate = new ItemService();
-		Iterator iter = destItems.iterator();
+		Iterator<String> iter = destItems.iterator();
 
 		while (iter.hasNext()) {
-			String itemId = (String) iter.next();
-			ItemFacade itemfacade = delegate.getItem(new Long(itemId),
+			Long itemId = NumberUtils.toLong(iter.next(), -1L);
+			ItemFacade itemfacade = delegate.getItem(itemId,
 					AgentFacade.getAgentString());
 			itemFacades.add(itemfacade);
 			itemIds.add(itemId);
@@ -2050,7 +2045,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 			itemauthorbean.setQpoolId(poolid);
 			itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
 
-			itemauthorbean.setItemType("");
+			itemauthorbean.setItemType(String.valueOf(TypeIfc.MULTIPLE_CHOICE));
 			itemauthorbean.setItemTypeString("");
 
 			//QuestionPoolDataBean pool = new QuestionPoolDataBean();

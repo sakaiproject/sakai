@@ -124,19 +124,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 
 		toevolve.ID = SEED_ID; // must change ID while unattached
 		joint.addComponent(toevolve);
-		String js = null;
-		if ("ckeditor".equals(editor)) {
-			js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID() });
-		} else {
-			String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
-			if (sizeset)
-				js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor",
-						new String[] { toevolve.getFullID(), collectionID, height, width });
-			else
-				js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor",
-						new String[] { toevolve.getFullID(), collectionID });
-
-		}
+		String js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID() });
 		UIVerbatim.make(joint, "textarea-js", js);
 
 		return joint;

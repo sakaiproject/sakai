@@ -189,41 +189,41 @@ public class MainController {
         boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
         if (!validatingAccounts) {
             resetPassClassic(email);
-        }
-
-        // SAK-26189 record event in similar way to resetPassClassic()
-        Collection<User> users = userDirectoryService.findUsersByEmail(email);
-        User user = (User) users.iterator().next();
-        String userId = user.getId();
-        eventService.post(eventService.newEvent("user.resetpass", user.getReference() , true));
-
-        if (!validationLogic.isAccountValidated(userId)) {
-            log.debug("account is not validated");
-            //its possible that the user has an outstanding Validation
-            ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
-            if (va == null) {
-                //we need to validate the account.
-                log.debug("This is a legacy user to validate!");
-                validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-            } else {
-                log.debug("resending validation");
-                validationLogic.resendValidation(va.getValidationToken());
-            }
-
         } else {
-            //there may be a pending VA that needs to be verified
-            ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
+            // SAK-26189 record event in similar way to resetPassClassic()
+            Collection<User> users = userDirectoryService.findUsersByEmail(email);
+            User user = (User) users.iterator().next();
+            String userId = user.getId();
+            eventService.post(eventService.newEvent("user.resetpass", user.getReference() , true));
 
-            if (va == null ) {
-                //the account is validated we need to send a password reset
-                log.info("no account found!");
-                validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-            } else if (va.getValidationReceived() == null) {
-                log.debug("no response on validation!");
-                validationLogic.resendValidation(va.getValidationToken());
+            if (!validationLogic.isAccountValidated(userId)) {
+                log.debug("account is not validated");
+                //its possible that the user has an outstanding Validation
+                ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
+                if (va == null) {
+                    //we need to validate the account.
+                    log.debug("This is a legacy user to validate!");
+                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                } else {
+                    log.debug("resending validation");
+                    validationLogic.resendValidation(va.getValidationToken());
+                }
+
             } else {
-                log.debug("creating a new validation for password reset");
-                validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                //there may be a pending VA that needs to be verified
+                ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
+
+                if (va == null ) {
+                    //the account is validated we need to send a password reset
+                    log.info("no account found!");
+                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                } else if (va.getValidationReceived() == null) {
+                    log.debug("no response on validation!");
+                    validationLogic.resendValidation(va.getValidationToken());
+                } else {
+                    log.debug("creating a new validation for password reset");
+                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                }
             }
         }
     }

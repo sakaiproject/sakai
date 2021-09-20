@@ -52,6 +52,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       // State vars we want to trigger a render
       submittedTextMode: Boolean,
       submission: Object,
+      nonEditedSubmission: { attribute: false, type: Object },
       graderOnLeft: Boolean,
       selectedAttachment: { type: Object },
       saveSucceeded: Boolean,
@@ -60,6 +61,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       ungradedOnly: Boolean,
       submissionsOnly: Boolean,
       showResubmission: Boolean,
+      isChecked: { attribute: false, type: Boolean },
       totalGraded: Number,
       token: { type: String },
       rubric: { type: Object },
@@ -79,13 +81,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   set submission(newValue) {
-
+    if (!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id) {
+      this.nonEditedSubmission = {};
+      Object.assign(this.nonEditedSubmission, newValue);
+    }
     this._submission = newValue;
     this.saveSucceeded = false;
     this.saveFailed = false;
     this.modified = false;
     this.rubricParams = new Map();
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
+    this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"];
 
     this.submittedTextMode = this._submission.submittedText;
 
@@ -135,16 +141,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div class="assessment-title">${this.gradableTitle}</div>
         </div>
         <div id="grader-settings-wrapper">
-          <a id="settings-link" href="javascript;" @click=${this.toggleSettings} title="${this.i18n["settings"]}">
+          <a id="settings-link" href="javascript;" @click=${this.toggleSettings} title="${this.i18n.settings}">
             <fa-icon size="1.3em" i-class="fas cogs" path-prefix="/webcomponents/assets" />
           </a>
           <div id="grader-settings" @keydown=${this.onSettingsKeydown} class="settings">
             <div><label><input type="checkbox" ?disabled=${!this.hasUnsubmitted} @change=${this.submittedOnlyChanged} .checked=${this.submittedOnly} />${this.assignmentsI18n["nav.view.subsOnly"]}</label></div>
-            <div><label><input type="checkbox" ?disabled=${!this.hasUngraded} @change=${this.ungradedOnlyChanged} .checked=${this.ungradedOnly} />${this.i18n["only_ungraded"]}</label></div>
-            <div><label><input type="checkbox" @change=${this.graderOnLeftChanged} .checked=${this.graderOnLeft} />${this.i18n["grader_on_left"]}</label></div>
+            <div><label><input type="checkbox" ?disabled=${!this.hasUngraded} @change=${this.ungradedOnlyChanged} .checked=${this.ungradedOnly} />${this.i18n.only_ungraded}</label></div>
+            <div><label><input type="checkbox" @change=${this.graderOnLeftChanged} .checked=${this.graderOnLeft} />${this.i18n.grader_on_left}</label></div>
             ${this.isGroupGradable ? "" : html`
               <div class="grader-groups">
-                <span>${this.assignmentsI18n["please_select_group"]}</span>
+                <span>${this.assignmentsI18n.please_select_group}</span>
                 <sakai-group-picker groups="${JSON.stringify(this.groups)}" @group-selected=${this.groupSelected}></sakai-group-picker>
               </div>
             `}
@@ -153,7 +159,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       </div>
       <div class="total-block">
         <div>
-          <div class="total-label">${this.assignmentsI18n["grad3"]}</div>
+          <div class="total-label">${this.assignmentsI18n.grad3}</div>
           <div class="total-graded">${this.totalGraded} / ${this.submissions.length}</div>
         </div>
       </div>
@@ -161,12 +167,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <div><a class="user-list-link" href="${this.userListUrl}" title="${this.assignmentsI18n["nav.list"]}">${this.assignmentsI18n["nav.list"]}</a></div>
         <div>
           <a href="javascript:;" @click=${this.previous}><fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
-          <select aria-label="${this.i18n["student_selector_label"]}" @change=${this.studentSelected}>
+          <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected}>
             ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
           </select>
           ${this.showPhoto() ? html`
             <span class="profile-image">
-              <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}"/>
+              <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}"/>
             </span>
           ` : ""}
           <a href="javascript:;" @click=${this.next}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
@@ -182,10 +188,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="gradable">
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
-            <div class="sak-banner-info">${unsafeHTML(this.i18n["inline_feedback_instruction"])}</div>
+            <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
             <textarea id="grader-feedback-text-editor" style="display: none">${this.submission.feedbackText}</textarea>
             <div id="grader-feedback-text">${unsafeHTML(this.submission.feedbackText)}</div>
-            <button id="edit-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true">${this.assignmentsI18n["addfeedback"]}</button>
+            <button id="edit-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true">${this.assignmentsI18n.addfeedback}</button>
             <button id="show-inline-feedback-button" class="inline-feedback-button" @click=${this.toggleInlineFeedback} aria-haspopup="true" style="display: none;">${this.assignmentsI18n["gen.don"]}</button>
           ` : html`
             ${this.selectedAttachment ? html`
@@ -199,14 +205,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   renderSaved() {
     return html`<span class="saved fa fa-check-circle"
-                  title="${this.i18n["saved_successfully"]}"
+                  title="${this.i18n.saved_successfully}"
                   style="display: ${this.saveSucceeded ? "inline" : "none"};">
                 </span>`;
   }
 
   renderFailed() {
     return html`<span class="saved failed fa fa-times-circle"
-                  title="${this.i18n["failed_save"]}"
+                  title="${this.i18n.failed_save}"
                   style="display: ${this.saveFailed ? "inline" : "none"};">
                 </span>`;
   }
@@ -221,20 +227,21 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.showPhoto() ? html`
               <div class="profile-image" style="flex: 1;">
                 <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}"
-                      alt="${this.submission.firstSubmitterName}${this.i18n["profile_image"]}" />
+                      alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}" />
               </div>
             ` : ""}
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
                 <span class="submitter-name">${this.renderSubmitter()}</span>
                 ${this.submission.draft && this.submission.visible ? html`
-                <span class="draft-submission">(${this.i18n["draft_submission"]})</span>
+                <span class="draft-submission">(${this.i18n.draft_submission})</span>
                 ` : ""}
                 <div class="submitted-time ${this.submission.draft ? "draft-time" : ""}">${this.submission.submittedTime}</div>
                 ${this.submission.late ? html`<span class="grader-late">${this.assignmentsI18n["grades.lateness.late"]}</span>` : ""}
-                ${this.submission.returned ? html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />` : ""}
+                ${this.submission.returned ? this.renderGraderReturned() : ""}
               ` : html`
-                <span>${this.i18n["no_submission_for"]} ${this.renderSubmitter()}</span>
+                <span>${this.i18n.no_submission_for} ${this.renderSubmitter()}</span>
+                ${this.submission.returned ? this.renderGraderReturned() : ""}
               `}
             </div>
           </div>
@@ -252,7 +259,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.gradeScale === "LETTER_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
             <select id="letter-grade-selector"
-                      aria-label="${this.i18n["lettergrade_selector_label"]}"
+                      aria-label="${this.i18n.lettergrade_selector_label}"
                       @change=${this.gradeSelected}>
               <option value="">${this.assignmentsI18n["non.submission.grade.select"]}</option>
               ${this.letterGradeOptions.map(grade => html`<option value="${grade}" .selected=${this.submission.grade === grade}>${grade}</option>`)}
@@ -262,7 +269,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ` : ""}
           ${this.gradeScale === "SCORE_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
-            <input id="score-grade-input" aria-label="${this.i18n["number_grade_label"]}"
+            <input id="score-grade-input" aria-label="${this.i18n.number_grade_label}"
               @keydown=${this.validateGradeInput}
               @keyup=${this.gradeSelected}
               type="text"
@@ -277,10 +284,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ` : ""}
           ${this.gradeScale === "PASS_FAIL_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
-            <select id="pass-fail-selector" aria-label="${this.i18n["passfail_selector_label"]}" @change=${this.gradeSelected} .value=${this.submission.grade}>
+            <select id="pass-fail-selector" aria-label="${this.i18n.passfail_selector_label}" @change=${this.gradeSelected} .value=${this.submission.grade}>
               <option value="ungraded" .selected=${this.submission.grade.match(/^ungraded$/i)}>${this.assignmentsI18n["non.submission.grade.select"]}</option>
-              <option value="pass" .selected=${this.submission.grade.match(/^pass$/i)}>${this.assignmentsI18n["pass"]}</option>
-              <option value="fail" .selected=${this.submission.grade.match(/^fail$/i)}>${this.assignmentsI18n["fail"]}</option>
+              <option value="pass" .selected=${this.submission.grade.match(/^pass$/i)}>${this.assignmentsI18n.pass}</option>
+              <option value="fail" .selected=${this.submission.grade.match(/^fail$/i)}>${this.assignmentsI18n.fail}</option>
             </select>
             ${this.renderSaved()}
             ${this.renderFailed()}
@@ -288,10 +295,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.gradeScale === "CHECK_GRADE_TYPE" ? html`
             <input id="check-grade-input"
                     type="checkbox"
-                    aria-label="${this.i18n["checkgrade_label"]}"
+                    aria-label="${this.i18n.checkgrade_label}"
                     @click=${this.gradeSelected}
-                    value="Checked"
-                    .checked=${this.submission.grade === this.assignmentsI18n["gen.checked"]}>
+                    value="${this.assignmentsI18n["gen.checked"]}"
+                    .checked=${this.isChecked}>
             </input>
             <span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
             ${this.renderSaved()}
@@ -301,14 +308,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           ${this.hasAssociatedRubric === "true" ? html`
             <sakai-rubric-grading-button
               id="grader-rubric-link"
-              title="${this.assignmentsI18n["grading_rubric"]}"
+              title="${this.assignmentsI18n.grading_rubric}"
               token="${this.token}"
               tool-id="${this.toolId}"
               entity-id="${this.entityId}"
               evaluated-item-id="${this.submission.id}"
               evaluated-item-owner-id="${this.submission.firstSubmitterId}"
               @click=${this.toggleRubric}></sakai-rubric-grading-button>
-            <div id="rubric-panel" title="${this.i18n["rubric"]}" style="display: none;">
+            <div id="rubric-panel" title="${this.i18n.rubric}" style="display: none;">
               <sakai-rubric-grading
                 token="${this.token}"
                 tool-id="${this.toolId}"
@@ -327,16 +334,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <!-- end hasAssociatedRubric -->
         </div>
         <div class="feedback-label grader-label content-button-block">
-          <button id="grader-feedback-button" @click=${this.toggleFeedback} aria-haspopup="true" title="${this.i18n["add_feedback_tooltip"]}" >${this.assignmentsI18n["feedbackcomment"]}</button>
+          <button id="grader-feedback-button" @click=${this.toggleFeedback} aria-haspopup="true" title="${this.i18n.add_feedback_tooltip}" >${this.assignmentsI18n.feedbackcomment}</button>
           ${this.submission.feedbackComment ? html`
-            <div class="active-indicator" aria-label="${this.i18n["comment_present"]}" title="${this.i18n["comment_present"]}"></div>` : ""}
+            <div class="active-indicator" aria-label="${this.i18n.comment_present}" title="${this.i18n.comment_present}"></div>` : ""}
         </div>
-        <div id="feedback-panel" class="grader-panel" title="${this.assignmentsI18n["feedbackcomment"]}" style="display: none;">
+        <div id="feedback-panel" class="grader-panel" title="${this.assignmentsI18n.feedbackcomment}" style="display: none;">
           <div class="feedback-title">${this.assignmentsI18n["gen.instrcomment"]}</div>
           <div class="feedback-instruction sak-banner-info">${this.assignmentsI18n["gradingsub.usethebel1"]}</div>
           <textarea id="grader-feedback-comment" .value=${this.submission.feedbackComment}></textarea>
           <div class="media-feedback grader-label">
-            <span class="feedback-label">${this.i18n["recorded_feedback_label"]}</span>
+            <span class="feedback-label">${this.i18n.recorded_feedback_label}</span>
             <fa-icon size="1.5em" i-class="fas microphone" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
             <fa-icon size="1.5em" i-class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </div>
@@ -348,12 +355,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <div class="current-feedback-attachments">
               ${this.submission.feedbackAttachments.map(att => html`
                 <div class="feedback-attachments-row">
-                <div class="feedback-attachment"><a href="/access${att.ref}" title="${this.i18n["feedback_attachment_tooltip"]}"><span>${att.name}</span></a></div>
+                <div class="feedback-attachment"><a href="/access${att.ref}" title="${this.i18n.feedback_attachment_tooltip}"><span>${att.name}</span></a></div>
                 <div class="feedback-attachment-remove"><a data-ref="${att.ref}" @click=${this.removeAttachment} href="javascript:;">${this.assignmentsI18n["gen.remove"]}</a></div>
                 </div>
               `)}
             </div>` : ""}
-          <sakai-grader-file-picker button-text="${this.assignmentsI18n["gen.addatt"]}" style="display: inline-block;" title="${this.i18n["add_attachments_tooltip"]}">
+          <sakai-grader-file-picker button-text="${this.assignmentsI18n["gen.addatt"]}" style="display: inline-block;" title="${this.i18n.add_attachments_tooltip}">
           </sakai-grader-file-picker>
         </div>
         ${this.submission.hasHistory ? html`
@@ -361,16 +368,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <div id="grader-submission-history-toggle">
               <a href="javascript:;"
                 @click=${() => this.showingHistory = !this.showingHistory}
-                aria-label="${this.showingHistory ? this.i18n["hide_history_tooltip"] : this.i18n["show_history_tooltip"]}"
-                title="${this.showingHistory ? this.i18n["hide_history_tooltip"] : this.i18n["show_history_tooltip"]}"
+                aria-label="${this.showingHistory ? this.i18n.hide_history_tooltip : this.i18n.show_history_tooltip}"
+                title="${this.showingHistory ? this.i18n.hide_history_tooltip : this.i18n.show_history_tooltip}"
               >
-                ${this.showingHistory ? this.i18n["hide_history"] : this.i18n["show_history"]}
+                ${this.showingHistory ? this.i18n.hide_history : this.i18n.show_history}
               </a>
             </div>
             <div id="grader-submission-history" style="display: ${this.showingHistory ? "block" : "none"}">
               ${this.submission.history.comments ? html`
                 <div id="grader-history-comments-wrapper">
-                  <div class="grader-history-title">${this.i18n["feedback_comments"]}</div>
+                  <div class="grader-history-title">${this.i18n.feedback_comments}</div>
                   <div class="grader-history-block">
                     ${unsafeHTML(this.submission.history.comments)}
                   </div>
@@ -378,7 +385,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               ` : ""}
               ${this.submission.history.grades ? html`
                 <div id="grader-history-grades-wrapper">
-                  <div class="grader-history-title">${this.i18n["previous_grades"]}</div>
+                  <div class="grader-history-title">${this.i18n.previous_grades}</div>
                   <div class="grader-history-block">
                     ${unsafeHTML(this.submission.history.grades)}
                   </div>
@@ -388,11 +395,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           </div>
         ` : ""}
         <div class="grader-label content-button-block">
-          <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n["private_notes_tooltip"]}" >${this.assignmentsI18n["note.label"]}</button>
-          ${this.submission.privateNotes ? html`<div class="active-indicator" aria-label="${this.i18n["notes_present"]}" title="${this.i18n["notes_present"]}"></div>` : ""}
+          <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n.private_notes_tooltip}" >${this.assignmentsI18n["note.label"]}</button>
+          ${this.submission.privateNotes ? html`<div class="active-indicator" aria-label="${this.i18n.notes_present}" title="${this.i18n.notes_present}"></div>` : ""}
         </div>
         <div id="private-notes-panel" class="grader-panel" title="${this.assignmentsI18n["note.label"]}" style="display: none;">
-          <div class="sak-banner-info">${unsafeHTML(this.i18n["private_notes_tooltip"])}</div>
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.private_notes_tooltip)}</div>
           <div><textarea id="grader-private-notes" .value=${this.submission.privateNotes}></textarea></div>
           <button @click=${this.doneWithPrivateNotesDialog}>${this.assignmentsI18n["gen.don"]}</button>
         </div>
@@ -402,17 +409,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div class="resubmission-checkbox">
             <label>
               <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
-              <span>${this.assignmentsI18n["allowResubmit"]}</span>
+              <span>${this.assignmentsI18n.allowResubmit}</span>
             </label>
           </div>
           ${this.showResubmission ? html`
             <div class="resubmission-block">
               <span>${this.assignmentsI18n["allow.resubmit.number"]}:</span>
-              <select aria-label="${this.i18n["attempt_selector_label"]}" @change=${e => this.submission.resubmitsAllowed = parseInt(e.target.value)}>
+              <select aria-label="${this.i18n.attempt_selector_label}" @change=${e => this.submission.resubmitsAllowed = parseInt(e.target.value)}>
                 ${Array(10).fill().map((_, i) => html`
                   <option value="${i + 1}" .selected=${this.submission.resubmitsAllowed === (i + 1)}>${i + 1}</option>
                 `)}
-                <option value="-1" .selected=${this.submission.resubmitsAllowed === -1}>${this.i18n["unlimited"]}</option>
+                <option value="-1" .selected=${this.submission.resubmitsAllowed === -1}>${this.i18n.unlimited}</option>
               </select>
               <span>${this.assignmentsI18n["allow.resubmit.closeTime"]}:</span>
               <sakai-date-picker
@@ -427,8 +434,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <button accesskey="d" name="return" @click=${this.saveAndRelease}>${this.assignmentsI18n["gen.retustud"]}</button>
           <button accesskey="x" name="cancel" @click=${this.cancel}>${this.assignmentsI18n["gen.can"]}</button>
         </div>
-        ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n["successful_save"]}</div>` : ""}
-        ${this.saveFailed ? html`<div class="sak-banner-error">${this.i18n["failed_save"]}</div>` : ""}
+        ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n.successful_save}</div>` : ""}
+        ${this.saveFailed ? html`<div class="sak-banner-error">${this.i18n.failed_save}</div>` : ""}
       </div>` : ""}
     `;
   }
@@ -438,6 +445,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       ${this.submission.groupId ? html`${this.submission.groupTitle}` : html`${this.submission.firstSubmitterName}`}
     `;
+  }
+
+  renderGraderReturned() {
+    return html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />`;
   }
 
   render() {
@@ -486,8 +497,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     const editor = CKEDITOR.replace(id, {
       toolbar: [['Bold', 'Italic', 'Underline', 'TextColor'], ['NumberedList', 'BulletedList', 'Blockquote']],
-      width: width,
-      height: height,
+      width,
+      height,
       startupFocus: true
     });
     editor.on("change", () => this.modified = true);
@@ -592,8 +603,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   addRubricParam(e, type) {
 
     let name = `rbcs-${e.detail.evaluatedItemId}-${e.detail.entityId}-${type}`;
-    if ("totalpoints" !== type && "state-details" !== type) name += "-" + e.detail.criterionId;
-    this.rubricParams.set(name, "criterionrating" === type ? e.detail.ratingId : e.detail.value);
+    if ("totalpoints" !== type && "state-details" !== type) name += `-${  e.detail.criterionId}`;
+    this.rubricParams.set(name, type === "criterionrating" ? e.detail.ratingId : e.detail.value);
   }
 
   onTotalPointsUpdated(e) {
@@ -687,7 +698,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (this.debug) {
       // Display the key/value pairs
       for (const pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(`${pair[0]  }: ${  pair[1]}`);
       }
     }
 
@@ -768,9 +779,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancel() {
 
-    const os = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
+    const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
-    this.submissions.splice(i, 1, os);
+    this.submissions.splice(i, 1, originalSubmission);
 
     this.submission = this.submissions[i];
 
@@ -800,8 +811,20 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
   }
 
+  clearSubmission() {
+
+    const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
+    this.submissions[currentIndex] = this.nonEditedSubmission;
+    this.querySelector("sakai-grader-file-picker").reset();
+    return true;
+  }
+
   canNavigate() {
-    return this.modified ? confirm(this.i18n["confirm_discard_changes"]) : true;
+    const nFiles = this.querySelector("sakai-grader-file-picker").files.length;
+    return this.modified || nFiles > 0 ?
+      confirm(this.i18n.confirm_discard_changes) ?
+        this.clearSubmission() : false
+      : true;
   }
 
   validateGradeInput(e) {
@@ -814,19 +837,19 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     } else if (!e.key.match(rgxp)) {
       e.preventDefault();
       return false;
-    } else {
-      const number = e.target.value.replace(",", ".");
-
-      const numDecimals = number.includes(".") ? number.split(".")[1].length : 0;
-
-      // If the user has highlighted the current entry, they want to replace it.
-      if (numDecimals === 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
-        e.preventDefault();
-        return false;
-      }
     }
+    const number = e.target.value.replace(",", ".");
+
+    const numDecimals = number.includes(".") ? number.split(".")[1].length : 0;
+
+    // If the user has highlighted the current entry, they want to replace it.
+    if (numDecimals === 2 && ((e.target.selectionEnd - e.target.selectionStart) < e.target.value.length)) {
+      e.preventDefault();
+      return false;
+    }
+
   }
-  
+
   gradeSelected(e) {
 
     if (this.gradeScale === "CHECK_GRADE_TYPE") {
@@ -835,6 +858,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       } else {
         this.submission.grade = "Unchecked";
       }
+      this.isChecked = e.target.checked;
     } else {
       this.submission.grade = e.target.value;
     }
@@ -946,11 +970,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     e.stopPropagation();
     e.preventDefault();
 
-    if (confirm(this.i18n["confirm_remove_attachment"])) {
+    if (confirm(this.i18n.confirm_remove_attachment)) {
 
       const ref = e.target.dataset.ref;
 
-      fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this.submission.id}&ref=${ref}`).then(r => {
+      fetch(`/direct/assignment/removeFeedbackAttachment?gradableId=${this.gradableId}&submissionId=${this.submission.id}&ref=${encodeURIComponent(ref)}`).then(r => {
 
         if (r.status === 200) {
           this.submission.feedbackAttachments.splice(this.submission.feedbackAttachments.findIndex(fa => fa.ref === ref), 1);

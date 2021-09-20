@@ -3924,4 +3924,21 @@ public abstract class BaseSiteService implements SiteService, Observer
 			return SiteTitleValidationStatus.OK;
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isStealthedToolPresent(Site site, String toolID) {
+		List<SitePage> pages = site.getOrderedPages();
+		for (SitePage page : pages) {
+			List<ToolConfiguration> toolConfigs = page.getTools();
+			for (ToolConfiguration toolConfig : toolConfigs) {
+				if (toolConfig.getToolId().equals(toolID)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }

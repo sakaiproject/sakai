@@ -154,16 +154,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <title>$!{toolTitle}</title>
-    $!sakai_head	
-    
-    	## setup wysiwyg editor
-        ########################### This should already be handled by portal or sakai-editor/editor.js
-    #*
-	#set($editor_path = "vm/editor/$!sakai_editor/sakai_header.vm") 
-	<!-- $editor_path -->
-	#parse("$editor_path")
-    *#
-    
+    $!sakai_head
 #if ($frameRefresh)
 	#foreach ($id in $frameRefresh)
 	<script type="text/javascript">
@@ -571,17 +562,7 @@ ${extra}")
 # $textarea_id - The HTML id of the textarea form element already in the HTML document
 *# ------------------------------------------------------------------
 #macro (chef_setuphtmldocumenttextarea $textarea_id)
-
-	#*
-	## setup wysiwyg editor
-	#set($editor_path = "vm/editor/$!sakai_editor/sakai_body.vm") 
-	<!-- $editor_path -->
-	#parse("$editor_path")
-
-	<script type="text/javascript" defer="1">chef_setuphtmldocumenttextarea('$textarea_id');</script>
-	*#
-	<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>
-	
+	<script defer="1">sakai.editor.launch('$textarea_id');</script>
 #end
 
 

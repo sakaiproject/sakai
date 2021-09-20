@@ -56,12 +56,12 @@ export class SakaiRubricReadonly extends RubricsElement {
 
   toggleRubric() {
 
-    var titlecontainer = this.querySelector(".rubric-title");
+    const titlecontainer = this.querySelector(".rubric-title");
 
-    var collapse = $(`#collapse_shared_${this.rubric.id}`);
+    const collapse = $(`#collapse_shared_${this.rubric.id}`);
     collapse.toggle();
 
-    var icon = $(`#rubric_toggle_shared_${this.rubric.id} span`);
+    const icon = $(`#rubric_toggle_shared_${this.rubric.id} span`);
 
     if (collapse.is(":visible")) {
       this.rubricExpanded = "true";

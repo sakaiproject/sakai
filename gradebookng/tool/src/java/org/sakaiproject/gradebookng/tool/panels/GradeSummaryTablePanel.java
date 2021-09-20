@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -30,6 +32,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -49,6 +52,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.wicket.component.SakaiAjaxButton;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,7 +113,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(categoriesEnabled);
 
-		final GbAjaxLink toggleCategoriesLink = new GbAjaxLink("toggleCategoriesLink") {
+		final SakaiAjaxButton toggleCategoriesBtn = new SakaiAjaxButton("toggleCategoriesBtn") {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -120,7 +124,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 			}
 
 			@Override
-			public void onClick(final AjaxRequestTarget target) {
+			public void onSubmit(final AjaxRequestTarget target, Form<?> form) {
 				if (getPage() instanceof GradebookPage) {
 					final GradebookPage page = (GradebookPage) getPage();
 					final GradebookUiSettings settings = page.getUiSettings();
@@ -137,7 +141,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 								showingStudentView));
 			}
 		};
-		toggleActions.add(toggleCategoriesLink);
+		toggleActions.add(toggleCategoriesBtn);
 		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(this.isGroupedByCategory));
 		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(this.isGroupedByCategory));
 		addOrReplace(toggleActions);
@@ -179,6 +183,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 				categoryRow.setVisible(categoriesEnabled && GradeSummaryTablePanel.this.isGroupedByCategory && !categoryAssignments.isEmpty());
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
+
+				// popover flags
+				final CategoryFlags cf = getCategoryFlags(categoryName, categoriesMap);
+				final WebMarkupContainer flags = new WebMarkupContainer("flags");
+				flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+				flags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
+				categoryRow.add(flags.setVisible(cf.hasFlags()));
 
 				final DropInfoPair pair = getDropInfo(categoryName, categoriesMap);
 				if (!pair.second.isEmpty()) {
@@ -305,31 +316,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(assignment.isExtraCredit()));
-						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(!assignment.isCounted()));
-						flags.add(page.buildFlagWithPopover("isNotReleased", getString("label.gradeitem.notreleased"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(!assignment.isReleased()));
-						flags.add(page.buildFlagWithPopover("isExcused", getString("grade.notifications.excused"))
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(excused));
-						flags.add(page
-								.buildFlagWithPopover("isExternal",
-										new StringResourceModel("label.gradeitem.externalapplabel", null,
-												new Object[] { assignment.getExternalAppName() }).getString())
-								.add(new AttributeModifier("data-trigger", "focus"))
-								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.add(new AttributeModifier("class",
-										"gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment)))
-								.setVisible(assignment.isExternallyMaintained()));
+						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.isExtraCredit()));
+						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.isCounted()));
+						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.isReleased()));
+						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
+						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
+						flags.add(newPopoverFlag("isExternal", extAppName, assignment.isExternallyMaintained())
+								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
 						flags.setVisible(
 								assignment.isExtraCredit() ||
 								!assignment.isCounted() ||
@@ -421,6 +414,13 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						final WebMarkupContainer catCon = new WebMarkupContainer("category");
 						catCon.setVisible(categoriesEnabled && !GradeSummaryTablePanel.this.isGroupedByCategory);
 						catCon.add(new Label("categoryName", assignment.getCategoryName()));
+
+						final CategoryFlags cf = getCategoryFlags(assignment.getCategoryName(), categoriesMap);
+						final WebMarkupContainer cflags = new WebMarkupContainer("cflags");
+						cflags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+						cflags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
+						catCon.add(cflags.setVisible(cf.hasFlags()));
+
 						final DropInfoPair pair = getDropInfo(assignment.getCategoryName(), categoriesMap);
 						catCon.add(new Label("categoryDropInfo", pair.first).setVisible(!pair.first.isEmpty()));
 						catCon.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
@@ -444,7 +444,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		}
 	}
 
-	private final class DropInfoPair {
+	private final class DropInfoPair implements Serializable {
 		public String first = "";
 		public String second = "";
 	}
@@ -476,5 +476,30 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 			"<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
 		response.render(StringHeaderItem.forString(
 			"<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
+	}
+
+	private Component newPopoverFlag(String id, String msg, boolean visible) {
+		final BasePage page = (BasePage) getPage();
+		return page.buildFlagWithPopover(id, msg, "focus", "#gradeSummaryTable").setVisible(visible);
+	}
+
+	private final class CategoryFlags implements Serializable {
+		public boolean extraCredit = false;
+		public boolean equalWeight = false;
+
+		public boolean hasFlags() {
+			return extraCredit || equalWeight;
+		}
+	}
+
+	private CategoryFlags getCategoryFlags(String catName, final Map<String, CategoryDefinition> categoriesMap) {
+		CategoryFlags flags = new CategoryFlags();
+		if (catName != null && !catName.equals(getString(GradebookPage.UNCATEGORISED))) {
+			CategoryDefinition cat = categoriesMap.get(catName);
+			flags.extraCredit = cat != null && Boolean.TRUE.equals(cat.getExtraCredit());
+			flags.equalWeight = cat != null && Boolean.TRUE.equals(cat.getEqualWeight());
+		}
+
+		return flags;
 	}
 }

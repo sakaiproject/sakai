@@ -19,9 +19,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import lombok.Getter;
@@ -34,6 +38,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Commons;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.commons.api.CommonsConstants;
 import org.sakaiproject.commons.api.PersistenceManager;
 import org.sakaiproject.commons.api.QueryBean;
@@ -63,8 +68,14 @@ public class PersistenceManagerImpl implements PersistenceManager {
     private static final String COMMENT_UPDATE = "UPDATE COMMONS_COMMENT SET CONTENT = ?, MODIFIED_DATE = ? WHERE ID = ?";
     private static final String COMMENT_DELETE = "DELETE FROM COMMONS_COMMENT WHERE ID = ?";
     private static final String POST_UPDATE = "UPDATE COMMONS_POST SET CONTENT = ?, MODIFIED_DATE = ?, RELEASE_DATE = ? WHERE ID = ?";
-    private static final String POST_INSERT = "INSERT INTO COMMONS_POST VALUES (?,?,?,?,?,?)";
+    private static final String POST_INSERT = "INSERT INTO COMMONS_POST VALUES (?,?,?,?,?,?,?)";
     private static final String POST_DELETE = "DELETE FROM COMMONS_POST WHERE ID = ?";
+    private static final String POST_LIKE = "INSERT INTO COMMONS_LIKE VALUES (?,?,?,?)";
+    private static final String LIKE_GET = "SELECT * FROM COMMONS_LIKE WHERE POST_ID = ? AND USER_ID=?";
+    private static final String LIKE_UPDATE = "UPDATE COMMONS_LIKE SET VOTE = ?, MODIFIED_DATE = ? WHERE USER_ID = ? AND POST_ID = ?";
+    private static final String LIKE_COUNT = "SELECT COUNT(POST_ID) FROM COMMONS_LIKE WHERE POST_ID = ? AND VOTE = 1";
+    private static final String LIKE_USER = "SELECT * FROM COMMONS_LIKE WHERE USER_ID = ? AND VOTE = 1";
+    private static final String LIKES_FOR_POST = "SELECT * FROM COMMONS_LIKE WHERE POST_ID = ? AND VOTE = 1";
     private static final String COMMONS_POST_DELETE = "DELETE FROM COMMONS_COMMONS_POST WHERE POST_ID = ?";
     private static final String COMMENTS_DELETE = "DELETE FROM COMMONS_COMMENT WHERE POST_ID = ?";
 
@@ -218,7 +229,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
                                             , post.getCreatorId()
                                             , new Timestamp(post.getCreatedDate())
                                             , new Timestamp(post.getModifiedDate())
-                                            , new Timestamp(post.getReleaseDate())});
+                                            , new Timestamp(post.getReleaseDate())
+                                            , post.isPriority()});
                     sqlService.dbWrite(COMMONS_POST_INSERT
                         , new Object [] { post.getCommonsId(), post.getId() });
                 }
@@ -245,6 +257,64 @@ public class PersistenceManagerImpl implements PersistenceManager {
         };
 
         return sqlService.transact(transaction, "COMMONS_POST_DELETION_TRANSACTION");
+    }
+
+    public boolean likePost(String postId, boolean toggle, String userId){
+        PostLike likeNow = getLike(postId, userId);
+        if(likeNow == null){    //if there is no existing Like, write a new one with the information provided
+            sqlService.dbWrite(POST_LIKE,new Object[]{userId, postId, toggle, new Timestamp(new Date().getTime())});
+            return true;
+        }
+        sqlService.dbWrite(LIKE_UPDATE, new Object[]{!likeNow.isLiked(), new Timestamp(new Date().getTime()), userId, postId});
+        return true;
+    }
+
+    public PostLike getLike(String postId, String userId){
+        List<PostLike> results = sqlService.dbRead(LIKE_GET, new Object[]{postId, userId}, new SqlReader<PostLike>(){
+                public PostLike readSqlResultRecord(ResultSet result) {
+                    return loadPostLikeFromResult(result);
+                }
+        });
+        if (results != null && !results.isEmpty()){
+            return null;
+        }
+        return results.get(0);
+    }
+
+    public int countPostLikes(String postId){
+        int likes =  sqlService.dbRead(LIKE_COUNT, new Object[]{postId}, new SqlReader<Integer>(){
+            public Integer readSqlResultRecord(ResultSet result) {
+                try{
+                    return result.getInt("COUNT(POST_ID)");
+                } catch (SQLException s){
+                    return null;
+                }
+            }
+        }).get(0);
+        return likes;
+    }
+
+    public int doesUserLike(String postId, String userId){
+        PostLike likeRecord = getLike(postId, userId);
+        return likeRecord.isLiked() ? 1 : 0;
+    }
+
+    public List<PostLike> getAllUserLikes(String userId){
+        List<PostLike> results = sqlService.dbRead(LIKE_USER, new Object[]{userId}, new SqlReader<PostLike>(){
+            public PostLike readSqlResultRecord(ResultSet result) {
+                return loadPostLikeFromResult(result);
+            }
+        });
+        return results;
+    }
+
+    public List<PostLike> getAllPostLikes(String postId){
+        List<PostLike> results = sqlService.dbRead(LIKES_FOR_POST, new Object[]{postId}, new SqlReader<PostLike>(){
+            public PostLike readSqlResultRecord(ResultSet result) {
+                return loadPostLikeFromResult(result);
+            }
+        });
+        return results;
     }
 
     public Post getPost(String postId, boolean loadComments) {
@@ -319,5 +389,19 @@ public class PersistenceManagerImpl implements PersistenceManager {
             log.error("Failed to read post from DB.", sqle);
             return null;
         }
+    }
+
+    private PostLike loadPostLikeFromResult(ResultSet result){
+        PostLike likeNow = new PostLike();
+        try{
+            likeNow.setModified(new Timestamp(result.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime()));
+            likeNow.setUserId(result.getString("USER_ID"));
+            likeNow.setPostId(result.getString("POST_ID"));
+            likeNow.setLiked(result.getBoolean("VOTE"));
+        } catch (SQLException sqle) {
+            log.error("Failed to read post from DB.", sqle);
+            return null;
+        }
+        return likeNow;
     }
 }

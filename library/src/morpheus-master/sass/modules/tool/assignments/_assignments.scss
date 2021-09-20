@@ -299,14 +299,19 @@
 	  strong {
 	    font-weight: normal;
 	    cursor: pointer;
-	    padding-left: 1em !important;
 	  }
 	  .expand {
-	    background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+		&:before {
+			@extend .fa;
+			@extend .fa-chevron-down;
+		}
 	  }
 	  .collapse {
-	    background: url('/library/image/sakai/expand.gif') no-repeat left !important;
-	    display: block !important;
+		&:before {
+			@extend .fa;
+			@extend .fa-chevron-right;
+		}
+	    display: inline-block;
 	  }
 	}
 

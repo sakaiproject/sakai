@@ -28,7 +28,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
   set token(newValue) {
 
     this.i18nPromise.then(r => this.initLightbox(newValue, r));
-    this._token = "Bearer " + newValue;
+    this._token = `Bearer ${  newValue}`;
   }
 
   get token() { return this._token; }
@@ -52,7 +52,7 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
       ${this.display === "button" ?
       html`<h3><sr-lang key="grading_rubric" /></h3>
       <button aria-haspopup="dialog" @click="${this.showRubric}"><sr-lang key="preview_rubric" /></button>`
-      : html`<span class="fa fa-table" style="cursor: pointer;" title="${tr("preview_rubric")}" @click="${this.showRubric}" />`
+      : html`<span class="fa icon-sakai--sakai-rubrics" style="cursor: pointer;" title="${tr("preview_rubric")}" @click="${this.showRubric}" />`
       }
     `;
   }
@@ -80,8 +80,5 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
   }
 }
 
-try {
-  customElements.define("sakai-rubric-student-preview-button", SakaiRubricStudentPreviewButton);
-} catch (error) {
-  // Can happen when using the same component in a page then a frame.
-}
+const tagName = "sakai-rubric-student-preview-button";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricStudentPreviewButton);

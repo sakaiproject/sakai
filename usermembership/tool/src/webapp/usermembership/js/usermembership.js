@@ -1,56 +1,54 @@
-var USR_MEMBRSHP = {};
+const sakaiUserMembership = {
 
-USR_MEMBRSHP.applyStateToCheckboxes = function( state )
-{
-    $( ".chkStatus" ).prop( "checked", state );
-    $( ".chkStatus" ).attr( "value", state );
-    USR_MEMBRSHP.checkEnableButtons();
-};
+  selectAll () {
+    const selectAllCheckboxes = document.querySelectorAll('.selectAllCheckbox');
+    const siteCheckboxes = document.querySelectorAll('.chkStatus');
+    let selectAllEnabled = true;
+    selectAllCheckboxes.forEach( (selectAllCheckbox) => {
+      selectAllEnabled = selectAllCheckbox.checked;
+    });
+    siteCheckboxes.forEach( (siteCheckbox) => {
+      siteCheckbox.value = selectAllEnabled;
+      siteCheckbox.checked = selectAllEnabled;
+    });
+  },
 
-USR_MEMBRSHP.checkEnableButtons = function()
-{
-    // Enable the buttons if any of the checkboxes are checked
-    var disabled = $( ".chkStatus:checked" ).length > 0 ? false : true;
-    $( "#sitelistform\\:setToInactive1" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:setToActive1" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:exportCsv1" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:exportXls1" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:setToInactive2" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:setToActive2" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:exportCsv2" ).prop( "disabled", disabled );
-    $( "#sitelistform\\:exportXls2" ).prop( "disabled", disabled );
-};
-
-USR_MEMBRSHP.invertSelection = function()
-{
-    // For each checkbox...
-    $( ".chkStatus" ).each( function()
-    {
-        // Invert it's selected state and value
-        var checked = $( this ).prop( "checked" );
-        $( this ).prop( "checked", !checked );
-        $( this ).attr( "value", !checked );
+  checkSiteSelection () {
+    let isAnyEnabled = false;
+    const siteCheckboxes = document.querySelectorAll('.chkStatus');
+    siteCheckboxes.forEach( (siteCheckbox) => {
+      if (siteCheckbox.checked) {
+        isAnyEnabled = true;
+      }
     });
 
-    USR_MEMBRSHP.checkEnableButtons();
-};
+    // Enable or disable the buttons if there's any selection.
+    const buttonArray = [];
+    buttonArray.push(document.getElementById('sitelistform:setToInactive'));
+    buttonArray.push(document.getElementById('sitelistform:setToActive'));
+    buttonArray.push(document.getElementById('sitelistform:exportCsv'));
+    buttonArray.push(document.getElementById('sitelistform:exportXls'));
+    buttonArray.forEach( (buttonItem) => {
+      if (buttonItem) {
+        buttonItem.disabled = !isAnyEnabled;
+      }
+    });
+  },
 
-USR_MEMBRSHP.toggleActions = function( clickedElement )
-{
-    var specifier = clickedElement.parentElement.id === "sitelistform:headerContainer1" ? "1" : "2";
-    var span = $( "#sitelistform\\:actionHeader" + specifier );
-    if( span.attr( "class" ) === "collapsed" )
-    {
-        span.attr( "class", "expanded" );
-        $( "#sitelistform\\:actionContainer" + specifier ).show();
-        $( "#sitelistform\\:actionContainer" + specifier ).css( "display", "inline-flex" );
-    }
-    else
-    {
-        span.attr( "class", "collapsed" );
-        $( "#sitelistform\\:actionContainer" + specifier ).hide();
-        $( "#sitelistform\\:actionContainer" + specifier ).css( "display", "none" );
-    }
+  invertSelection () {
+    const siteCheckboxes = document.querySelectorAll('.chkStatus');
+    siteCheckboxes.forEach( (siteCheckbox) => {
+      siteCheckbox.checked = !siteCheckbox.checked;
+      siteCheckbox.value = !siteCheckbox.checked;
+    });
+  },
 
-    setMainFrameHeight( USR_MEMBRSHP.frameID );
+  bindInputSearchChange () {
+    const inputSearch = document.getElementById('userlistForm:inputSearchBox');
+    const searchButton = document.getElementById('userlistForm:searchButton');
+    searchButton.disabled = inputSearch.value === '';
+    inputSearch.addEventListener('input', (event) => {
+      searchButton.disabled = event.target.value === '';
+    });
+  }
 };

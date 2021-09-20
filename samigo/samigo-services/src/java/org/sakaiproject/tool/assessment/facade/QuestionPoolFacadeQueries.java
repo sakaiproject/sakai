@@ -34,9 +34,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -60,6 +59,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class QuestionPoolFacadeQueries
@@ -87,8 +88,8 @@ public class QuestionPoolFacadeQueries
    * Get a list of all the pools in the site. Note that questions in each pool will not
    * be populated. We must keep this list updated.
    */
-  public List getAllPools() {
-    return getHibernateTemplate().find("from QuestionPoolData");
+  public List<QuestionPoolData> getAllPools() {
+    return (List<QuestionPoolData>) getHibernateTemplate().find("from QuestionPoolData");
   }
 
 
@@ -252,8 +253,7 @@ public class QuestionPoolFacadeQueries
     List newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
-      String itemId = itemdata.getItemId().toString();
-     if (getPoolIdsByItem(itemId).size() == 1) {
+     if (getPoolIdsByItem(itemdata.getItemId()).size() == 1) {
        newlist.add(itemdata);
      }
      else {
@@ -985,7 +985,7 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByItem(final String itemId) {
+  public List getPoolIdsByItem(final Long itemId) {
     List idList = new ArrayList();
     
     final HibernateCallback<List> hcb = session -> {

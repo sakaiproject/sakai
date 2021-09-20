@@ -1,8 +1,10 @@
 package org.sakaiproject.ignite;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +13,6 @@ import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
-import org.apache.ignite.failure.StopNodeFailureHandler;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
 import org.apache.ignite.spi.collision.fifoqueue.FifoQueueCollisionSpi;
@@ -45,7 +46,9 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     private static Boolean configured = Boolean.FALSE;
 
     @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private CacheConfiguration[] cacheConfiguration;
+    @Setter private List<CacheConfiguration> hibernateCacheConfiguration;
+    @Setter private List<CacheConfiguration> requiredCacheConfiguration;
+    @Setter private List<IgniteConditionalCache> conditionalCacheConfiguration;
     @Setter private DataStorageConfiguration dataStorageConfiguration;
 
     @Getter @Setter private String address;
@@ -108,7 +111,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
-            igniteConfiguration.setCacheConfiguration(cacheConfiguration);
+            configureCaches();
 
             igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
 
@@ -216,5 +219,13 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
         // return the absolute path
         home = igniteHome.getAbsolutePath();
+    }
+
+    private void configureCaches() {
+        List<CacheConfiguration> caches = new ArrayList<>();
+        caches.addAll(hibernateCacheConfiguration);
+        caches.addAll(requiredCacheConfiguration);
+        conditionalCacheConfiguration.stream().filter(IgniteConditionalCache::exists).map(IgniteConditionalCache::getCacheConfiguration).forEach(caches::add);
+        igniteConfiguration.setCacheConfiguration(caches.toArray(new CacheConfiguration[]{}));
     }
 }

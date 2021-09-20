@@ -69,6 +69,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
@@ -84,8 +88,8 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>javax.activation-api</artifactId>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -216,7 +220,7 @@
                 <includes>
                     <include>hibernate-test.xml</include>
                     <include>hibernate.properties</include>
-                    <include>log4j.properties</include>
+                    <include>log4j2.properties</include>
                     <include>spring-hibernate.xml</include>
                 </includes>
             </testResource>

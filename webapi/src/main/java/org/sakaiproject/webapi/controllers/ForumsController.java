@@ -39,8 +39,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.ApiOperation;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -96,7 +94,6 @@ public class ForumsController extends AbstractSakaiApiController {
         return map;
     };
 
-    @ApiOperation(value = "Get a particular user's forums data")
 	@GetMapping(value = "/users/{userEid}/forums", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getUserForums(@PathVariable String userEid) throws UserNotDefinedException {
 
@@ -109,7 +106,6 @@ public class ForumsController extends AbstractSakaiApiController {
             //.stream().map(handler).collect(Collectors.toList());
 	}
 
-    @ApiOperation(value = "Get a particular site's forums data")
 	@GetMapping(value = "/sites/{siteId}/forums", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getSiteForums(@PathVariable String siteId) throws UserNotDefinedException {
 

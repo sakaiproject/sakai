@@ -55,9 +55,7 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -94,16 +92,10 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	private UserDirectoryService userDirectoryService;
 	
 	@Setter
-	private EntityManager entityManager;
-	
-	@Setter
 	private SecurityService securityService;
 	
 	@Setter
 	private SiteService siteService;
-	
-	@Setter
-	private ContentReviewQueueService crqs;
 	
 	@Setter
 	private ContentHostingService contentHostingService;

@@ -17,7 +17,8 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sites.size())</a>
+							#set ($sitesSize = $sites.size() - 1)
+							<a data-toggle="collapse" data-parent="#sitesAccordion" href="#mysites">$tlang.getString("sitinfimp.mysites") ($sitesSize)</a>
 						</h4>
 					</div>
 					<div id="mysites" class="panel-collapse collapse in">

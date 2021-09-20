@@ -227,8 +227,8 @@
             <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>javax.activation-api</artifactId>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -312,7 +312,7 @@
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
             <artifactId>antisamy</artifactId>
-            <version>1.5.13</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -338,7 +338,7 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>subethasmtp</artifactId>
-            <version>5.2.8</version>
+            <version>6.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

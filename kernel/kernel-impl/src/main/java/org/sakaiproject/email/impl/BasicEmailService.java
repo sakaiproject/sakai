@@ -27,21 +27,21 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.SendFailedException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeUtility;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
@@ -275,9 +275,7 @@ public class BasicEmailService implements EmailService
 	 * Work interface methods: org.sakai.service.email.EmailService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content, InternetAddress[] headerTo,
 			InternetAddress[] replyTo, List<String> additionalHeaders)
 	{
@@ -290,9 +288,7 @@ public class BasicEmailService implements EmailService
 		sendMail(from, to, subject, content, recipients, replyTo, additionalHeaders, null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) {
@@ -304,6 +300,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
+	
 	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) throws AttachmentSizeException, MessagingException {
@@ -571,16 +568,14 @@ public class BasicEmailService implements EmailService
 					msg.setFrom(from);
 				}
 			}
-	    } catch (javax.mail.internet.AddressException e) {
+	    } catch (jakarta.mail.internet.AddressException e) {
 			log.info("checkfrom address exception " + e);
-	    } catch (javax.mail.MessagingException e) {
+	    } catch (jakarta.mail.MessagingException e) {
 			log.info("checkfrom messaging exception " + e);
 	    }
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void send(String fromStr, String toStr, String subject, String content, String headerToStr, String replyToStr,
 			List<String> additionalHeaders)
 	{
@@ -636,9 +631,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void sendToUsers(Collection<User> users, Collection<String> headers, String message)
 	{
 		if (headers == null)
@@ -887,12 +880,7 @@ public class BasicEmailService implements EmailService
 		return props;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
-	 * For temporary backward compatibility
-	 */
+	@Override
 	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException, NoRecipientsException {
 
 		List<EmailAddress> addresses = new ArrayList<>();
@@ -903,11 +891,8 @@ public class BasicEmailService implements EmailService
 		}
 		return addresses;
 	}
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
-	 */
+	
+	@Override
 	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
 			AttachmentSizeException, NoRecipientsException, MessagingException
 	{
@@ -1022,7 +1007,7 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Converts a {@link java.util.List} of {@link EmailAddress} to
-	 * {@link javax.mail.internet.InternetAddress}.
+	 * {@link jakarta.mail.internet.InternetAddress}.
 	 *
 	 * @param emails
 	 * @return Array will be the same size as the list with converted addresses. If list is null,
@@ -1611,6 +1596,25 @@ public class BasicEmailService implements EmailService
 			{
 				log.warn("Email.MyMessage: exception: " + e.getMessage(), e);
 			}
+		}
+
+		/**
+		 * Override MimeMessage Message-ID to use Sakai serverId instead of hostname
+		 * https://javaee.github.io/javamail/FAQ#msgid
+		 * @throws MessagingException
+		 */
+		protected void updateMessageID() throws MessagingException
+		{
+			StringBuilder s = new StringBuilder();
+			// Unique string is <hashcode>.<id>.<currentTime><suffix>
+			s.append(s.hashCode()).
+					append('.').
+					append(serverConfigurationService.getServerId()).
+					append('.').
+					append(System.currentTimeMillis()).
+					append('@').
+					append(serverConfigurationService.getServerName());
+			setHeader("Message-ID", s.toString());
 		}
 
 		protected void updateHeaders() throws MessagingException

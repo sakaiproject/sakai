@@ -107,7 +107,6 @@
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 					var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
 					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
-	  				//fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
 				});
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
@@ -133,7 +132,7 @@
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
 			      		rendered="#{ForumTool.forumsTool}" />
 			      <h:outputText value=" / "/>
 			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}"/>
@@ -249,37 +248,39 @@
   			</h:column>
   			<h:column>
   				<f:facet name="header">
-				   <h:commandLink action="#{mfStatisticsBean.toggleSubjectSort}" title="#{msgs.stat_forum_subject}">
-					   	<h:outputText value="#{msgs.stat_forum_subject}"  />
+					<h:commandLink action="#{mfStatisticsBean.toggleSubjectSort}" title="#{msgs.stat_forum_subject}">
+						<h:outputText value="#{msgs.stat_forum_subject}"  />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.forumSubjectSort && mfStatisticsBean.ascendingForUser}" alt="#{msgs.stat_forum_subject}"/>
-						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.forumSubjectSort && !mfStatisticsBean.ascendingForUser}" alt="#{msgs.stat_forum_subject}"/>						
+						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.forumSubjectSort && !mfStatisticsBean.ascendingForUser}" alt="#{msgs.stat_forum_subject}"/>
 					</h:commandLink>
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionDisplayMsgBody}" value="#{stat.forumSubject}">
-  							<f:param value="#{stat.msgId}" name="msgId"/> 				  			
-  				 </h:commandLink>
-  				 </h:column>
+  					<f:param value="#{stat.msgId}" name="msgId"/>
+  				</h:commandLink>
+  			</h:column>
 
-  				 <h:column>
-  					<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
-						onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
-						<f:param value="#{stat.forumId}" name="forumId"/>
-						<f:param value="#{stat.topicId}" name="topicId"/>
-						<f:param value="#{stat.msgId}" name="messageId"/>
-						<f:param value="#{mfStatisticsBean.selectedSiteUserId}" name="userId"/>						
-						<f:param value="dialogDiv" name="dialogDivId"/>
-						<f:param value="dialogFrame" name="frameId"/>
-						<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
-						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
-						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
-					</h:outputLink>
-					<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.instructor}" />
-					<h:commandLink action="#{ForumTool.processActionDisplayInThread}" value="#{msgs.stat_display_in_thread}" title=" #{msgs.stat_display_in_thread}">	
-		  				  		<f:param value="#{stat.topicId}" name="topicId"/>
-		  				  		<f:param value="#{stat.forumId}" name="forumId"/>
-		  				  		<f:param value="#{stat.msgId}" name="msgId"/>
-		  				  		
-		  			</h:commandLink>
+  			<h:column>
+				<f:facet name="header">
+					<h:outputText value="#{msgs.stat_forum_more_details}"  />
+				</f:facet>
+				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
+					onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
+					<f:param value="#{stat.forumId}" name="forumId"/>
+					<f:param value="#{stat.topicId}" name="topicId"/>
+					<f:param value="#{stat.msgId}" name="messageId"/>
+					<f:param value="#{mfStatisticsBean.selectedSiteUserId}" name="userId"/>
+					<f:param value="dialogDiv" name="dialogDivId"/>
+					<f:param value="dialogFrame" name="frameId"/>
+					<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
+					<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+					<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
+				</h:outputLink>
+				<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.instructor}" />
+				<h:commandLink action="#{ForumTool.processActionDisplayInThread}" value="#{msgs.stat_display_in_thread}" title=" #{msgs.stat_display_in_thread}">
+								<f:param value="#{stat.topicId}" name="topicId"/>
+								<f:param value="#{stat.forumId}" name="forumId"/>
+								<f:param value="#{stat.msgId}" name="msgId"/>
+				</h:commandLink>
   			</h:column>
   		</h:dataTable>
   		</div>

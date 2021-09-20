@@ -1,10 +1,12 @@
-var rubrics = window.top.rubrics || {};
-rubrics.utils = rubrics.utils || {
+window.top.rubrics = window.top.rubrics || {};
+window.top.rubrics.utils = window.top.rubrics.utils || {
 
   lightbox: null,
   windowRef: window != window.top ? window.top : window,
 
   initLightbox(token, i18n) {
+
+    const rubrics = window.top.rubrics;
 
     if (rubrics.utils.lightbox) {
       return;
@@ -13,11 +15,11 @@ rubrics.utils = rubrics.utils || {
     // appends HTML string as node
     const appendStringAsNodes = function (element, html) {
 
-      var frag = document.createDocumentFragment(), tmp = document.createElement("body"), child;
+      let frag = document.createDocumentFragment(), tmp = document.createElement("body"), child;
       tmp.innerHTML = html;
       // Append elements in a loop to a DocumentFragment, so that the browser does
       // not re-render the document for each node
-      while (child = tmp.firstChild) {
+      while ((child = tmp.firstChild) != null) {
         frag.appendChild(child);
       }
       element.appendChild(frag); // Now, append all elements at once
@@ -27,7 +29,7 @@ rubrics.utils = rubrics.utils || {
     appendStringAsNodes(rubrics.utils.windowRef.document.body, `
       <div class="rubrics-lightbox" tabindex="0" style="display:none">
         <div class="container">
-          <a href="#" aria-label="${i18n["close_dialog"]}">&times;</a>
+          <a href="#" aria-label="${i18n.close_dialog}">&times;</a>
           <sakai-rubric-student token="${token}"></sakai-rubric-student>
         </div>
       </div>
@@ -44,7 +46,9 @@ rubrics.utils = rubrics.utils || {
 
   closeLightbox() {
 
-    var el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
+    const rubrics = window.top.rubrics;
+
+    const el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
 
     el.removeAttribute("rubric-id");
     el.removeAttribute("preview");
@@ -59,14 +63,16 @@ rubrics.utils = rubrics.utils || {
 
   showRubric(id, attributes, launchingElement) {
 
+    const rubrics = window.top.rubrics;
+
     rubrics.utils.windowRef.document.body.style.overflow = "hidden";
-    var scrollTop = rubrics.utils.windowRef.pageYOffset || rubrics.utils.windowRef.document.documentElement.scrollTop;
+    const scrollTop = rubrics.utils.windowRef.pageYOffset || rubrics.utils.windowRef.document.documentElement.scrollTop;
 
-    rubrics.utils.lightbox.style.height = rubrics.utils.windowRef.window.innerHeight + "px";
-    rubrics.utils.lightbox.style.width = rubrics.utils.windowRef.window.innerWidth + "px";
-    rubrics.utils.lightbox.style.top = scrollTop + "px";
+    rubrics.utils.lightbox.style.height = `${rubrics.utils.windowRef.window.innerHeight  }px`;
+    rubrics.utils.lightbox.style.width = `${rubrics.utils.windowRef.window.innerWidth  }px`;
+    rubrics.utils.lightbox.style.top = `${scrollTop  }px`;
 
-    var el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
+    const el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
 
     if (!attributes) {
       el.setAttribute("rubric-id", id);
@@ -85,7 +91,7 @@ rubrics.utils = rubrics.utils || {
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
-      el.setAttribute("instructor", attributes["instructor"]);
+      el.setAttribute("instructor", attributes.instructor);
     }
     rubrics.utils.lightbox.style.display = "block";
     rubrics.utils.lightbox.focus();

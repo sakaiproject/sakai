@@ -26,15 +26,15 @@ package org.sakaiproject.tool.assessment.data.ifc.assessment;
 public interface AssessmentMetaDataIfc
     extends java.io.Serializable
 {
-  public static String AUTHORS = "ASSESSMENT_AUTHORS";
-  public static String KEYWORDS = "ASSESSMENT_KEYWORDS";
-  public static String OBJECTIVES = "ASSESSMENT_OBJECTIVES";
-  public static String RUBRICS = "ASSESSMENT_RUBRICS";
-  public static String BGCOLOR = "ASSESSMENT_BGCOLOR";
-  public static String BGIMAGE = "ASSESSMENT_BGIMAGE";
-  public static String ALIAS = "ALIAS";
+  public static final String AUTHORS = "ASSESSMENT_AUTHORS";
+  public static final String KEYWORDS = "ASSESSMENT_KEYWORDS";
+  public static final String OBJECTIVES = "ASSESSMENT_OBJECTIVES";
+  public static final String RUBRICS = "ASSESSMENT_RUBRICS";
+  public static final String BGCOLOR = "ASSESSMENT_BGCOLOR";
+  public static final String BGIMAGE = "ASSESSMENT_BGIMAGE";
+  public static final String ALIAS = "ALIAS";
 
-  public static String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
+  public static final String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
   
   Long getId();
 

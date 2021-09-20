@@ -39,14 +39,14 @@ export class SakaiRubric extends RubricsElement {
   set token(newValue) {
 
     this._token = newValue;
-    this.updateRubricOptions.headers["Authorization"] = newValue;
+    this.updateRubricOptions.headers.Authorization = newValue;
   }
 
   get token() { return this._token; }
 
   set rubric(newValue) {
 
-    var oldValue = this._rubric;
+    const oldValue = this._rubric;
     this._rubric = newValue;
     if (!this._rubric.criterions) this._rubric.criterions = [];
     this.handleWeightLink();
@@ -151,12 +151,12 @@ export class SakaiRubric extends RubricsElement {
 
     e && e.preventDefault();
 
-    var titlecontainer = this.querySelector(".rubric-title");
+    const titlecontainer = this.querySelector(".rubric-title");
 
-    var collapse = $(`#collapse_${this.rubric.id}`);
+    const collapse = $(`#collapse_${this.rubric.id}`);
     collapse.toggle();
 
-    var icon = $(`#rubric_toggle_${this.rubric.id} span`);
+    const icon = $(`#rubric_toggle_${this.rubric.id} span`);
 
     if (collapse.is(":visible")) {
       this.rubricExpanded = "true";
@@ -179,7 +179,7 @@ export class SakaiRubric extends RubricsElement {
 
   updateRubricTitle(e) {
 
-    this.updateRubricOptions.body = JSON.stringify([{"op":"replace","path":"/title","value": e.detail}]);
+    this.updateRubricOptions.body = JSON.stringify([{"op":"replace", "path":"/title", "value": e.detail}]);
 
     fetch(`/rubrics-service/rest/rubrics/${this.rubric.id}`, this.updateRubricOptions)
       .then(r => {
@@ -196,14 +196,12 @@ export class SakaiRubric extends RubricsElement {
 
   handleSaveWeights() {
 
-    var saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
-    var saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-success`);
+    const saveWeightsBtn = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-weights`);
+    const saveSuccessLbl = document.querySelector(`[rubric-id='${this.rubric.id}'] .save-success`);
 
     if(saveWeightsBtn) saveWeightsBtn.setAttribute('disabled', true);
 
     this.rubric.criterions.forEach(cr => {
-
-      cr.weight = parseFloat(cr.weight);
       $.ajax({
         url: `/rubrics-service/rest/criterions/${cr.id}`,
         headers: { "authorization": this.token },
@@ -228,23 +226,22 @@ export class SakaiRubric extends RubricsElement {
 
   handleCriterionWeightChange(e) {
 
-    var payload = e.detail;
+    const payload = e.detail;
 
     this.rubric.criterions = payload.criteria;
-    var criterionModified = this.rubric.criterions.find(el => el.id === payload.criterionId);
-    var oldValue = criterionModified.weight;
+    const criterionModified = this.rubric.criterions.find(el => el.id === payload.criterionId);
+    const oldValue = criterionModified.weight;
 
-    payload.value = payload.value.toLocaleString(this.locale);
     criterionModified.weight = payload.value;
     if (oldValue === payload.value) {
       return;
     }
 
-    const total = this.rubric.criterions.reduce((acc, el) => acc + parseFloat(el.weight.toLocaleString(this.locale)), 0);
+    const total = this.rubric.criterions.reduce((acc, el) => acc + el.weight, 0);
 
     this.validWeight = total == 100;
 
-    this.totalWeight = total;
+    this.totalWeight = total.toLocaleString(this.locale);
     this.requestUpdate();
   }
 
@@ -255,7 +252,7 @@ export class SakaiRubric extends RubricsElement {
     }
     this.totalWeight = 0;
     this.rubric.criterions.forEach(cr => {
-      this.totalWeight = this.totalWeight + parseFloat(cr.weight);
+      this.totalWeight = this.totalWeight + cr.weight;
     });
     this.validWeight = this.totalWeight == 100;
   }
@@ -288,7 +285,7 @@ export class SakaiRubric extends RubricsElement {
 
     this.rubric.metadata.public = !this.rubric.metadata.public;
 
-    this.updateRubricOptions.body = JSON.stringify([{"op":"replace","path":"/metadata/shared","value": this.rubric.metadata.public}]);
+    this.updateRubricOptions.body = JSON.stringify([{"op":"replace", "path":"/metadata/shared", "value": this.rubric.metadata.public}]);
     fetch(`/rubrics-service/rest/rubrics/${this.rubric.id}`, this.updateRubricOptions)
       .then(r => {
 
@@ -302,11 +299,11 @@ export class SakaiRubric extends RubricsElement {
   handleWeightLink() {
 
     if (this.rubric.weighted) {
-      this.weightedIcon = "fa-percent"
-      this.weightLabel = tr("weighted_label")
+      this.weightedIcon = "fa-percent";
+      this.weightLabel = tr("weighted_label");
     } else {
-      this.weightedIcon = "fa-hashtag"
-      this.weightLabel = tr("standard_label")
+      this.weightedIcon = "fa-hashtag";
+      this.weightLabel = tr("standard_label");
     }
   }
 
@@ -333,7 +330,7 @@ export class SakaiRubric extends RubricsElement {
 
   openEditWithKeyboard(e) {
 
-    const spaceBarKeyCode = (e.keyCode == 32);	
+    const spaceBarKeyCode = (e.keyCode == 32);
 
     if (spaceBarKeyCode && e.target.classList.contains('weighted')) {
       this.weightedChange(e);

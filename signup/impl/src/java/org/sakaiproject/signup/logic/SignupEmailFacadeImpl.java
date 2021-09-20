@@ -37,8 +37,8 @@ package org.sakaiproject.signup.logic;
 import java.io.File;
 import java.util.*;
 
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;

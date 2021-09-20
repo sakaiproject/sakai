@@ -21,23 +21,28 @@
 
 package org.sakaiproject.log.impl;
 
+import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.*;
-import org.apache.log4j.spi.ErrorHandler;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.ErrorHandler;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.log.api.LogConfigurationManager;
 import org.sakaiproject.log.api.LogPermissionException;
-import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -45,71 +50,47 @@ import org.sakaiproject.util.StringUtil;
  * </p>
  */
 @Slf4j
-public abstract class Log4jConfigurationManager implements LogConfigurationManager
-{
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
+public abstract class Log4jConfigurationManager implements LogConfigurationManager {
 
-	/**
-	 * @return the UsageSessionService collaborator.
-	 */
+	// Configuration: enable special log handling or not.
+	protected boolean enabled = true;
+
+	// Map by logger name of set of message string starts to ignore.
+	protected Map<String, Set<String>> ignore = new HashMap<>();
+
+	// Log4j logger context
+	private LoggerContext loggerContext;
+
 	protected abstract ServerConfigurationService serverConfigurationService();
-
-	/**
-	 * @return the SecurityService collaborator.
-	 */
 	protected abstract SecurityService securityService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Configuration: enable special log handling or not. */
-	protected boolean m_enabled = true;
-
-	/**
-	 * Configuration: enable special log handling or not.
-	 * 
-	 * @param value
-	 *        the setting (true of false) for enabled.
-	 */
-	public void setEnabled(String value)
-	{
-		m_enabled = Boolean.valueOf(value).booleanValue();
+	public void setEnabled(String enabled) {
+		this.enabled = Boolean.parseBoolean(enabled);
 	}
 
-	/** Map by logger name of set of message string starts to ignore. */
-	protected Map m_ignore = new HashMap();
-
-	public void setIgnore(Map ignore)
-	{
-		m_ignore = ignore;
+	public void setIgnore(Map<String, Set<String>> ignore) {
+		this.ignore = ignore;
 	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
-	public void init()
-	{
-		if (m_enabled)
-		{
+	public void init() {
+		if (enabled) {
+			if (loggerContext == null) {
+				loggerContext = LoggerContext.getContext(false);
+			}
 		    // Load optional log4j.properties file from sakai home
-		    String log4jConfigFilePath = serverConfigurationService().getSakaiHomePath() + "log4j.properties";
+		    String log4jConfigFilePath = serverConfigurationService().getSakaiHomePath() + "log4j2.properties";
 		    if (StringUtils.isNotEmpty(log4jConfigFilePath)) {
-		        PropertyConfigurator.configureAndWatch(log4jConfigFilePath);
+		    	loggerContext.setConfigLocation(new File(log4jConfigFilePath).toURI());
 		    }
 
 			// slip in our appender
-			Appender a = Logger.getRootLogger().getAppender("Sakai");
-			if (a != null)
-			{
-				Logger.getRootLogger().removeAppender(a);
-				Logger.getRootLogger().addAppender(new SakaiAppender(a));
+			Appender appender = loggerContext.getRootLogger().getAppenders().get("Sakai");
+			if (appender != null) {
+				loggerContext.getRootLogger().removeAppender(appender);
+				loggerContext.getRootLogger().addAppender(new SakaiAppender(appender));
 			}
 
 			// set the log4j logging system with some overrides from sakai.properties
@@ -119,262 +100,143 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 			// log.config.1 = ALL.org.sakaiproject.log.impl
 			// log.config.2 = OFF.org.sakaiproject
 			// log.config.3 = DEBUG.org.sakaiproject.db.impl
-			String configs[] = serverConfigurationService().getStrings("log.config");
-			if (configs != null)
-			{
-				for (int i = 0; i < configs.length; i++)
-				{
-					String parts[] = StringUtil.splitFirst(configs[i], ".");
-					if ((parts != null) && (parts.length == 2))
-					{
+			String[] configs = serverConfigurationService().getStrings("log.config");
+			if (configs != null) {
+				for (String config : configs) {
+					String[] parts = StringUtils.split(config, ".", 2);
+					if ((parts != null) && (parts.length >= 2)) {
 						doSetLogLevel(parts[0], parts[1]);
-					}
-					else
-					{
-						log.warn("invalid log.config entry: ignoring: " + configs[i]);
+					} else {
+						log.warn("Invalid log.config entry: {}, ignoring", config);
 					}
 				}
 			}
 		}
 
-		log.info("init(): enabled: " + m_enabled);
+		log.info("Log4j configuration is enabled: {}", enabled);
 	}
 
 	/**
 	 * Final cleanup.
 	 */
-	public void destroy()
-	{
-		log.info("destroy()");
+	public void destroy() {
+		log.info("Log4j shutdown");
 	}
 
 	/**
 	 * Set the log level
 	 * 
-	 * @param level
+	 * @param levelName
 	 *        The log level string - one of OFF | TRACE | DEBUG | INFO | WARN | ERROR | FATAL | ALL
 	 * @param loggerName
 	 *        The logger name.
 	 */
-	protected boolean doSetLogLevel(String level, String loggerName)
-	{
-		if (level.equals("OFF"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.OFF);
-				log.info("OFF logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
+	protected void doSetLogLevel(String levelName, String loggerName) {
+		Configuration configuration = loggerContext.getConfiguration();
+		Logger logger = loggerContext.getLogger(loggerName);
+		LoggerConfig config = configuration.getLoggerConfig(logger.getName());
+		Level level = Level.toLevel(levelName, Level.INFO);
+		if (config.getName().equals(logger.getName())) {
+			config.setLevel(level);
+			log.info("Logging for [{}] change to level {}", logger.getName(), level.toString());
+		} else {
+			LoggerConfig cfg = new LoggerConfig(logger.getName(), level, true);
+			cfg.setParent(config);
+			configuration.addLogger(logger.getName(), cfg);
+			log.info("Adding logging config for [{}] with level {}", logger.getName(), level.toString());
 		}
-		else if (level.equals("TRACE"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.TRACE);
-				log.info("TRACE logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("DEBUG"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.DEBUG);
-				log.info("DEBUG logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("INFO"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.INFO);
-				log.info("INFO logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("WARN"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.WARN);
-				log.info("WARN logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("ERROR"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.ERROR);
-				log.info("ERROR logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("FATAL"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.FATAL);
-				log.info("FATAL logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else if (level.equals("ALL"))
-		{
-			Logger logger = Logger.getLogger(loggerName);
-			if (logger != null)
-			{
-				logger.setLevel(org.apache.log4j.Level.ALL);
-				log.info("ALL logging for: " + loggerName);
-			}
-			else
-			{
-				log.warn("no logger found: ignoring: " + loggerName);
-			}
-		}
-		else
-		{
-			log.warn("invalid log level: ignoring: " + level);
-			return false;
-		}
-
-		return true;
+		loggerContext.updateLoggers();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Work interface methods: LogConfigurationManager
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean setLogLevel(String level, String loggerName) throws LogPermissionException
-	{
+	@Override
+	public void setLogLevel(String level, String loggerName) throws LogPermissionException {
 		// check that this is a "super" user with the security service
-		if (!securityService().isSuperUser())
-		{
+		if (!securityService().isSuperUser()) {
 			throw new LogPermissionException();
 		}
 
-		return doSetLogLevel(level, loggerName);
+		doSetLogLevel(level, loggerName);
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Our special Appender
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	/**
+	 * An appender that wraps the log4j appender and adds the ability to ignore certain messages
+	 * that start with a specific text
+	 */
+	class SakaiAppender implements Appender {
 
-	class SakaiAppender implements org.apache.log4j.Appender
-	{
-		protected Appender m_other = null;
+		final private Appender originalAppender;
 
-		public SakaiAppender(Appender other)
-		{
-			m_other = other;
+		public SakaiAppender(Appender appender) {
+			originalAppender = appender;
 		}
 
-		public void addFilter(Filter arg0)
-		{
-			m_other.addFilter(arg0);
-		}
+		@Override
+		public void append(LogEvent event) {
+			String logger = event.getLoggerName();
+			String message = event.getMessage().getFormattedMessage();
 
-		public void clearFilters()
-		{
-			m_other.clearFilters();
-		}
-
-		public void close()
-		{
-			m_other.close();
-		}
-
-		public void doAppend(LoggingEvent arg0)
-		{
-			String logger = arg0.getLoggerName();
-			String message = arg0.getRenderedMessage();
-			Level level = arg0.getLevel();
-
-			Set toIgnore = (Set) m_ignore.get(logger);
-			if (toIgnore != null)
-			{
+			Set<String> toIgnore = ignore.get(logger);
+			if (toIgnore != null) {
 				// if any of the strings in the set start our message, skip it
-				for (Iterator i = toIgnore.iterator(); i.hasNext();)
-				{
-					String start = (String) i.next();
-					if (message.startsWith(start)) return;
-				}
+				if (toIgnore.stream().anyMatch(message::startsWith)) return;
 			}
 
-			m_other.doAppend(arg0);
+			originalAppender.append(event);
 		}
 
-		public ErrorHandler getErrorHandler()
-		{
-			return m_other.getErrorHandler();
+		@Override
+		public Layout<? extends Serializable> getLayout() {
+			return originalAppender.getLayout();
 		}
 
-		public Filter getFilter()
-		{
-			return m_other.getFilter();
+		@Override
+		public boolean ignoreExceptions() {
+			return false;
 		}
 
-		public Layout getLayout()
-		{
-			return m_other.getLayout();
+		@Override
+		public ErrorHandler getHandler() {
+			return originalAppender.getHandler();
 		}
 
-		public String getName()
-		{
-			return m_other.getName();
+		@Override
+		public void setHandler(ErrorHandler handler) {
+			originalAppender.setHandler(handler);
 		}
 
-		public boolean requiresLayout()
-		{
-			return m_other.requiresLayout();
+		@Override
+		public String getName() {
+			return originalAppender.getName();
 		}
 
-		public void setErrorHandler(ErrorHandler arg0)
-		{
-			m_other.setErrorHandler(arg0);
+		@Override
+		public State getState() {
+			return originalAppender.getState();
 		}
 
-		public void setLayout(Layout arg0)
-		{
-			m_other.setLayout(arg0);
+		@Override
+		public void initialize() {
+			originalAppender.initialize();
 		}
 
-		public void setName(String arg0)
-		{
-			m_other.setName(arg0);
+		@Override
+		public void start() {
+			originalAppender.start();
+		}
+
+		@Override
+		public void stop() {
+			originalAppender.stop();
+		}
+
+		@Override
+		public boolean isStarted() {
+			return originalAppender.isStarted();
+		}
+
+		@Override
+		public boolean isStopped() {
+			return originalAppender.isStopped();
 		}
 	}
 }

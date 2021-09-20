@@ -195,7 +195,7 @@
                 <includes>
                     <include>hibernate-test.xml</include>
                     <include>hibernate.properties</include>
-                    <include>log4j.properties</include>
+                    <include>log4j2.properties</include>
                 </includes>
             </testResource>
         </testResources>

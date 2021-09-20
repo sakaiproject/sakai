@@ -21,6 +21,7 @@ import io.jsonwebtoken.Jws;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -117,6 +118,7 @@ public class LTI13Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
+	private static final String APPLICATION_JWT = "application/jwt";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
 	protected static LTIService ltiService = null;
 
@@ -263,6 +265,13 @@ public class LTI13Servlet extends HttpServlet {
 		// /imsblis/lti13/proxy
 		if (parts.length == 4 && "proxy".equals(parts[3])) {
 			handleProxy(request, response);
+			return;
+		}
+
+		// /imsblis/lti13/postverify/{signed-placement}
+		if (SakaiBLTIUtil.checkSendPostVerify() && parts.length == 5 && "postverify".equals(parts[3])) {
+			String signed_placement = parts[4];
+			handlePostVerify(signed_placement, request, response);
 			return;
 		}
 
@@ -437,6 +446,98 @@ public class LTI13Servlet extends HttpServlet {
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+
+	// LTI PostVerify
+	protected void handlePostVerify(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
+
+		String callback = request.getParameter("callback");
+		if ( callback == null ) {
+			LTI13Util.return400(response, "Missing callback parameter");
+			return;
+		}
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null || sess.getUserId() == null ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		if (toolKey < 0 ) {
+			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
+			LTI13Util.return400(response, "Content / Tool mismatch");
+			return;
+		}
+
+		Map<String, Object> tool = ltiService.getToolDao(toolKey, site.getId());
+		if (tool == null) {
+			log.error("Could not load tool={}", toolKey);
+			LTI13Util.return400(response, "Missing tool");
+			return;
+		}
+
+		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
+		String platform_private = SakaiBLTIUtil.decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
+
+		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
+		Key publicKey = LTI13Util.string2PublicKey(platform_public);
+
+		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
+
+		String context_id = site.getId();
+
+		String user_id = sess.getUserId();
+		String subject = SakaiBLTIUtil.getSubject(user_id, context_id);
+
+		try {
+			Long issued = new Long(System.currentTimeMillis() / 1000L);
+			String body =
+				"{\n" +
+				"\"iss\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"aud\": \""+SakaiBLTIUtil.getOurServerUrl()+"\",\n" +
+				"\"exp\": \""+(issued+3600L)+"\",\n" +
+				"\"user_id\": \""+user_id+"\",\n" +
+				"\"context_id\": \""+context_id+"\",\n" +
+				"\"sub\": \""+subject+"\"\n" +
+				"}";
+
+			// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
+			String jws = Jwts.builder()
+				.setHeaderParam("kid", kid)
+				.setPayload(body)
+				.signWith(privateKey)
+				.compact();
+
+			// https://stackoverflow.com/questions/3324717/sending-http-post-request-in-java
+			byte [] bytes = jws.getBytes();
+			java.net.URL url = new java.net.URL(callback);
+			java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+			con.setRequestMethod("POST");
+	        con.setDoOutput(true);
+			con.setFixedLengthStreamingMode(bytes.length);
+			con.setRequestProperty( "Content-Type", APPLICATION_JWT );
+	        con.connect();
+			OutputStream os = con.getOutputStream();
+			os.write(bytes);
+			os.flush();
+			os.close();
+
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -635,7 +736,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		pc.lti_platform_configuration = lpc;
 
-
 		response.setContentType(APPLICATION_JSON);
 		try {
 			PrintWriter out = response.getWriter();
@@ -664,35 +764,41 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String publicSerialized = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-		if (publicSerialized == null) {
+		String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+		if (publicSerializedCurrent == null) {
 			response.setHeader(ERROR_DETAIL, "Client has no public key");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} has no public key", tool_id);
 			return;
 		}
 
-		Key publicKey = LTI13Util.string2PublicKey(publicSerialized);
-		if (publicKey == null) {
+		Map<String, RSAPublicKey> keys = new TreeMap<>();
+
+		if (LTI13KeySetUtil.addPublicKey(keys, publicSerializedCurrent) != true ) {
 			response.setHeader(ERROR_DETAIL, "Client public key deserialization error");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} deserialization error", tool_id);
 			return;
 		}
 
-		// Cast should work :)
-		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
+		// Pull in Next and Old if they exist
+		String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
+		LTI13KeySetUtil.addPublicKey(keys, publicSerializedNext);
+		String publicSerializedOld = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_OLD));
+		LTI13KeySetUtil.addPublicKey(keys, publicSerializedOld);
+
 
 		String keySetJSON = null;
 		try {
-			keySetJSON = LTI13KeySetUtil.getKeySetJSON(rsaPublic);
+			keySetJSON = LTI13KeySetUtil.getKeySetJSON(keys);
 		} catch (NoSuchAlgorithmException ex) {
 			response.setHeader(ERROR_DETAIL, "NoSuchAlgorithmException");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			log.error("Client_id={} NoSuchAlgorithmException", tool_id);
 			return;
 		}
-
+		//
+		// Send Response
 		response.setContentType(APPLICATION_JSON);
 		try {
 			out = response.getWriter();
@@ -707,7 +813,17 @@ public class LTI13Servlet extends HttpServlet {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
 		}
+
+		// See if this key needs to be rotated
+		try {
+			SakaiBLTIUtil.rotateToolKeys(toolKey, tool);
+		} catch (Exception e) {
+			// We still return the JSON - just log and go
+			log.error(e.toString(), e);
+		}
+
 	}
 
 	protected void handleTokenPost(String tool_id, HttpServletRequest request, HttpServletResponse response) {

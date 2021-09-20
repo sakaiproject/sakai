@@ -448,9 +448,8 @@ public class AssessmentService {
 				Iterator itemIter = section.getItemSet().iterator();
 				while (itemIter.hasNext()) {
 					ItemDataIfc item = (ItemDataIfc) itemIter.next();
-					List poolIds = qpService.getPoolIdsByItem(item.getItemId()
-							.toString());
-					if (poolIds.size() == 0) {
+					List poolIds = qpService.getPoolIdsByItem(item.getItemId());
+					if (poolIds.isEmpty()) {
 						Long deleteId = item.getItemId();
 						itemService.deleteItem(deleteId, agentId);
 						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));

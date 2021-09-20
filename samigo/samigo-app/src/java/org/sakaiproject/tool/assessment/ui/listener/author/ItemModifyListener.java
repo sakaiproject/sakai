@@ -37,6 +37,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -182,7 +183,7 @@ public class ItemModifyListener implements ActionListener
               UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
               String currentUserId = userDirectoryService.getCurrentUser().getId();
               QuestionPoolService qpdelegate = new QuestionPoolService();
-              List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
+              List<Long> poolIds = qpdelegate.getPoolIdsByItem(NumberUtils.toLong(itemId, -1L));
               boolean authorized = false;
               poolloop:
               for (Long poolId : poolIds) {

@@ -27,9 +27,11 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -67,7 +69,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
-import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
@@ -973,6 +974,77 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
 
+                // Copy model answer
+                AssignmentModelAnswerItem existingModelAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
+                if (existingModelAnswer != null) {
+                    AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+                    copy.setAssignmentId(assignment.getId());
+                    copy.setText(existingModelAnswer.getText());
+                    copy.setShowTo(existingModelAnswer.getShowTo());
+
+                    // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+                    assignmentSupplementItemService.saveModelAnswer(copy);
+
+                    Set<AssignmentSupplementItemAttachment> attachments = new HashSet<>();
+                    List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(existingModelAnswer);
+                    for (String attachmentID : attachmentIDs) {
+                        AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                        attachment.setAssignmentSupplementItemWithAttachment(copy);
+                        attachment.setAttachmentId(attachmentID);
+                        assignmentSupplementItemService.saveAttachment(attachment);
+                        attachments.add(attachment);
+                    }
+
+                    copy.setAttachmentSet(attachments);
+                    assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
+                }
+
+                // Copy Private Note
+                AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(assignmentId);
+                if (oNoteItem != null) {
+                    AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+                    nNoteItem.setAssignmentId(assignment.getId());
+                    nNoteItem.setNote(oNoteItem.getNote());
+                    nNoteItem.setShareWith(oNoteItem.getShareWith());
+                    nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
+                    assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                }
+
+                // Copy All Purpose
+                AssignmentAllPurposeItem existingAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
+                if (existingAllPurposeItem != null) {
+                    AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
+                    nAllPurposeItem.setAssignmentId(assignment.getId());
+                    nAllPurposeItem.setTitle(existingAllPurposeItem.getTitle());
+                    nAllPurposeItem.setText(existingAllPurposeItem.getText());
+                    nAllPurposeItem.setHide(existingAllPurposeItem.getHide());
+                    nAllPurposeItem.setReleaseDate(existingAllPurposeItem.getReleaseDate());
+                    nAllPurposeItem.setRetractDate(existingAllPurposeItem.getRetractDate());
+                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                    Set<AssignmentSupplementItemAttachment> attachments = new HashSet<>();
+                    List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(existingAllPurposeItem);
+                    for (String attachmentID : attachmentIDs) {
+                        AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                        attachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
+                        attachment.setAttachmentId(attachmentID);
+                        assignmentSupplementItemService.saveAttachment(attachment);
+                        attachments.add(attachment);
+                    }
+                    nAllPurposeItem.setAttachmentSet(attachments);
+                    assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                    Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
+                    Set<AssignmentAllPurposeItemAccess> existingAccessSet = existingAllPurposeItem.getAccessSet();
+                    for (AssignmentAllPurposeItemAccess assignmentAllPurposeItemAccess : existingAccessSet) {
+                        AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
+                        access.setAccess(assignmentAllPurposeItemAccess.getAccess());
+                        access.setAssignmentAllPurposeItem(nAllPurposeItem);
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+                        accessSet.add(access);
+                    }
+                    nAllPurposeItem.setAccessSet(accessSet);
+                    assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                }
+
                 //copy rubric
                 try {
                     Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
@@ -1002,6 +1074,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
+        String context = assignment.getContext();
+
         assignmentDueReminderService.removeScheduledReminder(assignment.getId());
         assignmentRepository.deleteAssignment(assignment.getId());
 
@@ -1026,6 +1100,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (AuthzRealmLockException arle) {
             log.warn("GROUP LOCK REGRESSION: {}", arle.toString());
         }
+
+        // clean up content-review items
+        contentReviewService.deleteAssignment(context, reference);
     }
 
     @Override
@@ -3749,6 +3826,85 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    @Transactional
+    public String createContentReviewAssignment(Assignment assignment, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime) {
+        Map<String, Object> opts = new HashMap<>();
+        Map<String, String> p = assignment.getProperties();
+
+        opts.put("submit_papers_to", p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO));
+        opts.put("report_gen_speed", p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO));
+        opts.put("institution_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION)) ? "1" : "0");
+        opts.put("internet_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET)) ? "1" : "0");
+        opts.put("journal_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB)) ? "1" : "0");
+        opts.put("s_paper_check", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN)) ? "1" : "0");
+        opts.put("s_view_report", Boolean.valueOf(p.get("s_view_report")) ? "1" : "0");
+
+        if (serverConfigurationService.getBoolean("turnitin.option.exclude_bibliographic", true)) {
+            //we don't want to pass parameters if the user didn't get an option to set it
+            opts.put("exclude_biblio", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)) ? "1" : "0");
+        }
+        //Rely on the deprecated "turnitin.option.exclude_quoted" setting if set, otherwise use "contentreview.option.exclude_quoted"
+        boolean showExcludeQuoted = serverConfigurationService.getBoolean("turnitin.option.exclude_quoted", serverConfigurationService.getBoolean("contentreview.option.exclude_quoted", Boolean.TRUE));
+        if (showExcludeQuoted) {
+            opts.put("exclude_quoted", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)) ? "1" : "0");
+        } else {
+            Boolean defaultExcludeQuoted = serverConfigurationService.getBoolean("contentreview.option.exclude_quoted.default", true);
+            opts.put("exclude_quoted", defaultExcludeQuoted ? "1" : "0");
+        }
+
+        //exclude self plag
+        if (serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag", true)) {
+            opts.put("exclude_self_plag", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG)) ? "1" : "0");
+        } else {
+            Boolean defaultExcludeSelfPlag = serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag.default", true);
+            opts.put("exclude_self_plag", defaultExcludeSelfPlag ? "1" : "0");
+        }
+
+        //Store institutional Index
+        if (serverConfigurationService.getBoolean("contentreview.option.store_inst_index", true)) {
+            opts.put("store_inst_index", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)) ? "1" : "0");
+        } else {
+            Boolean defaultStoreInstIndex = serverConfigurationService.getBoolean("contentreview.option.store_inst_index.default", true);
+            opts.put("store_inst_index", defaultStoreInstIndex ? "1" : "0");
+        }
+
+        //Student preview
+        if (serverConfigurationService.getBoolean("contentreview.option.student_preview", false)) {
+            opts.put("student_preview", Boolean.valueOf(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW)) ? "1" : "0");
+        } else {
+            Boolean defaultStudentPreview = serverConfigurationService.getBoolean("contentreview.option.student_preview.default", false);
+            opts.put("student_preview", defaultStudentPreview ? "1" : "0");
+        }
+
+        int excludeType = Integer.parseInt(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE));
+        int excludeValue = Integer.parseInt(p.get(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE));
+        if ((excludeType == 1 || excludeType == 2)
+                && excludeValue >= 0 && excludeValue <= 100) {
+            opts.put("exclude_type", Integer.toString(excludeType));
+            opts.put("exclude_value", Integer.toString(excludeValue));
+        }
+        opts.put("late_accept_flag", "1");
+
+        SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
+        dform.applyPattern("yyyy-MM-dd HH:mm:ss");
+        opts.put("dtstart", dform.format(openTime.toEpochMilli()));
+        opts.put("dtdue", dform.format(dueTime.toEpochMilli()));
+        //opts.put("dtpost", dform.format(closeTime.getTime()));
+        opts.put("points", assignment.getMaxGradePoint());
+        opts.put("title", assignment.getTitle());
+        opts.put("instructions", assignment.getInstructions());
+        if (!assignment.getAttachments().isEmpty()) {
+            opts.put("attachments", new ArrayList<>(assignment.getAttachments()));
+        }
+        try {
+            contentReviewService.createAssignment(assignment.getContext(), assignmentRef, opts);
+            return "";
+        } catch (Exception e) {
+            log.error(e.toString());
+            return e.getMessage();
+        }
+    }
+
     @Override
     public String[] myToolIds() {
         return new String[] { "sakai.assignment", "sakai.assignment.grades" };
@@ -3886,9 +4042,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
 
-                    // review service
-                    nAssignment.setContentReview(oAssignment.getContentReview());
-
                     // attachments
                     Set<String> oAttachments = oAssignment.getAttachments();
                     for (String oAttachment : oAttachments) {
@@ -3959,32 +4112,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
                             nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
                         }
-
-                        String openDateAnnounced = StringUtils.trimToNull(oProperties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-                        String fromAnnouncementId = StringUtils.trimToNull(oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
-                        AnnouncementChannel fromChannel = getAnnouncementChannel(oAssignment.getContext());
-                        if (fromChannel != null && fromAnnouncementId != null) {
-                            AnnouncementMessage fromAnnouncement = fromChannel.getAnnouncementMessage(fromAnnouncementId);
-                            AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
-                            if (toChannel == null) {
-                                // Create the announcement channel
-                                String toChannelId = announcementService.channelReference(nAssignment.getContext(), siteService.MAIN_CONTAINER);
-                                announcementService.commitChannel(announcementService.addAnnouncementChannel(toChannelId));
-                                toChannel = getAnnouncementChannel(nAssignment.getContext());
-                            }
-                            AnnouncementMessage toAnnouncement
-                                = toChannel.addAnnouncementMessage(fromAnnouncement.getAnnouncementHeader().getSubject()
-                                    , fromAnnouncement.getAnnouncementHeader().getDraft()
-                                    , fromAnnouncement.getAnnouncementHeader().getAttachments()
-                                    , fromAnnouncement.getBody());
-                            nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-                            nProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, toAnnouncement.getId());
-                            nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
-                        }
                     }
 
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
                     if (StringUtils.isBlank(associatedGradebookAssignment)) {
                         // if the association property is empty then set gradebook integration to not integrated
                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
@@ -4011,15 +4143,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         = createCategoryForGbAssignmentIfNecessary(
                                             gbAssignment, oAssignment.getContext(), nAssignment.getContext());
 
-                                    String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
-
                                     gradebookExternalAssessmentService.addExternalAssessment(nAssignment.getContext()
-                                            , assignmentRef, null, nAssignment.getTitle()
+                                            , nAssignmentRef, null, nAssignment.getTitle()
                                             , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
                                             , Date.from(nAssignment.getDueDate()), this.getToolTitle()
                                             , null, false, categoryId.isPresent() ? categoryId.get() : null);
 
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, assignmentRef);
+                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
                                 }
                             } else {
                                 // if this is an external defined (came from assignment)
@@ -4069,6 +4199,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
 
                     updateAssignment(nAssignment);
+
+                    // review service
+                    if (oAssignment.getContentReview()) {
+                        nAssignment.setContentReview(true);
+                        String errorMsg = createContentReviewAssignment(nAssignment, nAssignmentRef, nAssignment.getOpenDate(), nAssignment.getDueDate(), nAssignment.getCloseDate());
+                        if (StringUtils.isNotBlank(errorMsg)) {
+                            log.warn("Error while copying old assignments and creating content review link: {}", errorMsg);
+                            nAssignment.setDraft(true);
+                            updateAssignment(nAssignment);
+                        }
+                    }
 
                     transversalMap.put("assignment/" + oAssignmentId, "assignment/" + nAssignmentId);
                     log.info("Old assignment id: {} - new assignment id: {}", oAssignmentId, nAssignmentId);
@@ -4391,7 +4532,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return userTimeService.dateTimeFormat(date, null, null);
     }
 
-    private String removeReferencePrefix(String referenceId) {
+    @Override
+    public String removeReferencePrefix(String referenceId) {
         if (referenceId.startsWith(REF_PREFIX)) {
             referenceId = referenceId.replaceFirst(REF_PREFIX, "");
         }
@@ -4473,9 +4615,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     /**
-     * Gets all attachments in the submission that are acceptable to the content review service
+     * {@inheritDoc}
      */
-    private List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
+    @Override
+    public List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
         List<ContentResource> attachments = new ArrayList<>();
         for (String attachment : s.getAttachments()) {
             Reference attachmentRef = entityManager.newReference(attachment);

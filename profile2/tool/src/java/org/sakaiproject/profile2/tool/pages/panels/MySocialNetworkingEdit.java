@@ -170,6 +170,32 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		form.add(myspaceContainer);
 		
+		//instagram
+		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
+		instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram.edit")));
+		final TextField<String> instagramUrl = new TextField<String>("instagramUrl", new PropertyModel<String>(userProfile, "socialInfo.instagramUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void convertInput() {
+				validateUrl(this);
+			}
+		};
+		instagramUrl.setMarkupId("instagramurlinput");
+		instagramUrl.setOutputMarkupId(true);
+		instagramUrl.add(new UrlValidator());
+		instagramContainer.add(instagramUrl);
+		instagramContainer.add(new IconWithToolTip("instagramToolTip", ProfileConstants.INFO_ICON, new ResourceModel("text.profile.instagram.tooltip")));
+		
+		//feedback
+		final FeedbackLabel instagramUrlFeedback = new FeedbackLabel("instagramUrlFeedback", instagramUrl);
+        instagramUrlFeedback.setMarkupId("instagramUrlFeedback");
+		instagramUrlFeedback.setOutputMarkupId(true);
+		instagramContainer.add(instagramUrlFeedback);
+		instagramUrl.add(new ComponentVisualErrorBehaviour("onblur", instagramUrlFeedback));
+		
+		form.add(instagramContainer);
+		
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
@@ -258,6 +284,11 @@ public class MySocialNetworkingEdit extends Panel {
 					target.add(myspaceUrl);
 					target.add(myspaceUrlFeedback);
 				}
+				if(!instagramUrl.isValid()) {
+					instagramUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					target.add(instagramUrl);
+					target.add(instagramUrlFeedback);
+				}
 				if(!twitterUrl.isValid()) {
 					twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
 					target.add(twitterUrl);
@@ -318,15 +349,17 @@ public class MySocialNetworkingEdit extends Panel {
 		String tFacebook = ProfileUtils.truncate(userProfile.getSocialInfo().getFacebookUrl(), 255, false);
 		String tLinkedin = ProfileUtils.truncate(userProfile.getSocialInfo().getLinkedinUrl(), 255, false);
 		String tMyspace = ProfileUtils.truncate(userProfile.getSocialInfo().getMyspaceUrl(), 255, false);
+		String tInstagram = ProfileUtils.truncate(userProfile.getSocialInfo().getInstagramUrl(), 255, false);
 		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
 		String tTwitter = ProfileUtils.truncate(userProfile.getSocialInfo().getTwitterUrl(), 255, false);
 
 		socialNetworkingInfo.setFacebookUrl(tFacebook);
 		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
+		socialNetworkingInfo.setInstagramUrl(tInstagram);
 		socialNetworkingInfo.setMyspaceUrl(tMyspace);
 		socialNetworkingInfo.setSkypeUsername(tSkype);
 		socialNetworkingInfo.setTwitterUrl(tTwitter);
-		
+
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
 		
 	}

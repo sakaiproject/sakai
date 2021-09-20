@@ -61,6 +61,7 @@ public class GradebookUiSettings implements Serializable {
 	private boolean categoriesEnabled;
 
 	@Getter
+	@Setter
 	private boolean groupedByCategory;
 
 	private final Map<Long, Boolean> assignmentVisibility;
@@ -167,11 +168,6 @@ public class GradebookUiSettings implements Serializable {
 	public void setCategoriesEnabled(final boolean categoriesEnabled) {
 		this.categoriesEnabled = categoriesEnabled;
 		this.groupedByCategory = categoriesEnabled;
-		this.gradeSummaryGroupedByCategory = categoriesEnabled;
-	}
-
-	public void setGroupedByCategory(final boolean groupedByCategory) {
-		this.groupedByCategory = groupedByCategory;
 		this.gradeSummaryGroupedByCategory = categoriesEnabled;
 	}
 

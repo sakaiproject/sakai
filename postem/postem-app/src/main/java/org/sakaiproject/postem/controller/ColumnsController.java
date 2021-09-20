@@ -55,10 +55,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class ColumnsController {
 
-    protected ArrayList students;
-    protected Gradebook currentGradebook;
-    protected TreeMap studentMap;
-
     @Autowired
     private PostemSakaiService postemSakaiService;
 
@@ -83,22 +79,17 @@ public class ColumnsController {
     @GetMapping(value = {"/gradebook_view/{gradebookId}"})
     public String getViewGradebook(@PathVariable("gradebookId") Long gradebookId, Model model) {
         log.debug("getViewGradebook");
-
-        currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
-        students = new ArrayList(currentGradebook.getStudents());
-
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("currentGradebook", currentGradebook);
-        model.addAttribute("studentsList", students);
+        model.addAttribute("studentsList", new ArrayList<>(currentGradebook.getStudents()));
         return PostemToolConstants.GRADEBOOK_VIEW;
     }
 
     @GetMapping(value = {"/student_grades_view/{gradebookId}"})
     public String getStudentGradeView(@PathVariable("gradebookId") Long gradebookId, Model model) {
         log.debug("getStudentGradeView");
-
-        currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
-
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
         String userId = sessionManager.getCurrentSessionUserId();
         String userEid = null;
         if (userId != null) {
@@ -112,6 +103,7 @@ public class ColumnsController {
         StudentGrades studentGrades = null;
         if (userEid != null) {
             studentGrades = postemSakaiService.getStudentByGBAndUsername(currentGradebook, userEid);
+            postemSakaiService.registerStudentAccess(studentGrades);
         }
 
         final Locale locale = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
@@ -121,7 +113,7 @@ public class ColumnsController {
             model.addAttribute("literalErrorMessage", literalErrorMessage);
         }
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("currentGradebook", currentGradebook);
         model.addAttribute("student", studentGrades);
         return PostemToolConstants.STUDENT_GRADE_VIEW;
@@ -131,9 +123,8 @@ public class ColumnsController {
     public String getViewStudent(@PathVariable("gradebookId") Long gradebookId, Model model) {
         log.debug("getViewStudent");
 
-        studentMap = postemSakaiService.processGradebookView(gradebookId);
-
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        TreeMap<String, String> studentMap = postemSakaiService.processGradebookView(gradebookId);
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("studentMap", studentMap);
         model.addAttribute("gradebookId", gradebookId);
         return PostemToolConstants.STUDENT_VIEW;
@@ -143,8 +134,8 @@ public class ColumnsController {
     public String getViewStudentResult(@PathVariable("gradebookId") Long gradebookId, @PathVariable("student") String selectedStudent, Model model) {
         log.debug("getViewStudentResult");
 
-        studentMap = postemSakaiService.processGradebookView(gradebookId);
-        currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
+        TreeMap<String, String> studentMap = postemSakaiService.processGradebookView(gradebookId);
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
         StudentGrades selStudent = null;
         String lastSelected = "";
 
@@ -156,7 +147,7 @@ public class ColumnsController {
             }
         }
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("lastSelected", lastSelected);
         model.addAttribute("selStudent", selStudent);
         model.addAttribute("studentMap", studentMap);
@@ -169,9 +160,9 @@ public class ColumnsController {
     public String getDeleteConfirm(@PathVariable("gradebookId") Long gradebookId, Model model) {
         log.debug("getDeleteConfirm");
 
-        currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         model.addAttribute("currentGradebook", currentGradebook);
         return PostemToolConstants.DELETE_CONFIRM;
     }
@@ -186,7 +177,7 @@ public class ColumnsController {
             return PostemToolConstants.PERMISSION_ERROR;
         }
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         return PostemToolConstants.REDIRECT_MAIN_TEMPLATE;
     }
 
@@ -198,7 +189,7 @@ public class ColumnsController {
         if (null == csv) {
             return ResponseEntity.noContent().build();
         }
-        Gradebook currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
         String fileName = "postem_" + currentGradebook.getTitle() + ".csv";
         MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(context, fileName);
 
@@ -216,9 +207,9 @@ public class ColumnsController {
     public String getGradebookUpdate(@PathVariable("gradebookId") Long gradebookId, Model model) {
         log.debug("getGradebookUpdate");
 
-        currentGradebook = postemSakaiService.getGradebookById2(gradebookId);
+        Gradebook currentGradebook = postemSakaiService.getGradebookByIdWithHeadingsAndStudents(gradebookId);
 
-        model.addAttribute("visible", Boolean.toString(postemSakaiService.checkAccess()));
+        model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
         String fileReference = currentGradebook.getFileReference();
         String partFileReference = "";
         if (null != fileReference) {

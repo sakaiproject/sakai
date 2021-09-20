@@ -55,13 +55,17 @@
         padding-left: 10px;
         overflow: auto;
     }
-        .commons-editor-text {
-            overflow: auto;
-        }
-            #commons-post-creator-editor {
-                min-height: 32px;
-                height: auto;
-            }
+
+    .commons-editor-text {
+        overflow: auto;
+    }
+
+    #commons-post-creator-editor {
+        min-height: 32px;
+        height: auto;
+        display: block;
+        padding-left: 1px;
+    }
 
     .commons-post-author {
         font-weight: bold;
@@ -83,10 +87,10 @@
 
     .commons-post-outer-container {
         border-bottom: 1px solid var(--sakai-border-color);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
         .commons-post-inner-container{
-            margin: 5px;
+            padding: 5px;
             overflow: auto;
         }
             .commons-post-body {
@@ -246,4 +250,30 @@
     border: 1px solid var(--sakai-border-color) !important;
     background-color: var(--sakai-background-color-2) !important;
     max-width: 310px;
+}
+
+.likedAlready {
+    font-weight: bold;
+}
+#commons-like-section {
+    margin-right: 1em;
+}
+
+.commons-editor-priority-label {
+    margin-top: 7px;
+}
+
+#commons-editor-priority-help {
+    text-decoration: none;
+}
+
+span.commons-high-priority {
+    float: right;
+}
+
+.commons-post-content[contenteditable="true"] {
+    display: inline-block;
+    min-width: 100%;
+    border: 1px solid black;
+    overflow: hidden;
 }

@@ -1,11 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-list.vm,v 1.6 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 
-<div id="dialog">
-</div>
 <script type="text/javascript">
-    $(document).ready(function(){
-		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
-		sakai.getGroupInfo('moreInfoGroups','dialog','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','&nbsp;');
+	$(document).ready(function(){
+		sakai.getSiteInfo('getSiteDesc','desc-modal','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		sakai.getGroupInfo('moreInfoGroups','group-modal','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','$tlang.getString("sitegen.siteinfolist.email")');
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
 		utils.setupUtils();
 		$("#accordion").accordion({
@@ -20,10 +18,17 @@
 				utils.resizeFrame();
 			}
 		});
+		$("#copyToClipboard").click(function(e) {
+			e.preventDefault();
+			copyToClipboardNoScroll(this, $(this).attr('href'));
+		});
+		$('#publicInfoTooltip').tooltip();
 	});
 </script>
 
 <div class ="portletBody specialLink container-fluid">
+	<div id="desc-modal"></div>
+	<div id="group-modal"></div>
 	#if($menu)#toolbar($menu)#end
 	## header for site info page
 	<div class="page-header">
@@ -80,55 +85,55 @@
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end
-	<table cellpadding="0" border="0" cellspacing="0" class="listHier" id="summary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
+	<table class="table table-striped table-bordered table-hover" summary="$tlang.getString("sitegen.siteinfolist.summary")">
 		<tr>
 			<th>$tlang.getString("sitegen.siteinfolist.title")</th>
 			<td>$formattedText.escapeHtml($!siteTitle)</td>
 		</tr>
 		#if ($!isCourseSite)
-			<tr> 
-				<th>
-					$tlang.getString("sitegen.siteinfolist.term")
-				</th>
-				<td>
-					$!term
-				</td>
-			</tr>
-			#if ($!allowUpdate)
-			<tr> 
-				<th>
-					$tlang.getString("sitegen.siteinfolist.courses")
-				</th>
-				<td>
-					#foreach ($title in $providerCourseTitles)
-						$title<br />
-					#end
-					#foreach($id in $!cmRequestedCourseList)
-						$id.title $tlang.getString("man.requested")<br />
-					#end
-					#foreach($id in $!manualCourseList)
-						$id $tlang.getString("man.requested")<br />
-					#end
-				</td>
-			</tr>
-			#end
+		<tr>
+			<th>
+				$tlang.getString("sitegen.siteinfolist.term")
+			</th>
+			<td>
+				$!term
+			</td>
+		</tr>
+		#if ($!allowUpdate)
+		<tr>
+			<th>
+				$tlang.getString("sitegen.siteinfolist.courses")
+			</th>
+			<td>
+				#foreach ($title in $providerCourseTitles)
+					$title<br />
+				#end
+				#foreach($id in $!cmRequestedCourseList)
+					$id.title $tlang.getString("man.requested")<br />
+				#end
+				#foreach($id in $!manualCourseList)
+					$id $tlang.getString("man.requested")<br />
+				#end
+			</td>
+		</tr>
+		#end
 		#end
 		
 		## As with site email addresses, only show UUID-based site URL if that
 		## is our only option (see http://bugs.sakaiproject.org/jira/browse/SAK-10510)
 		#if ($!siteFriendlyUrls.Empty)
-		<tr> 
+		<tr>
 			<th>
 				$tlang.getString("sitegen.siteinfolist.siteurl")
 			</th>
 			<td>
-				$!siteDefaultUrl
+				<a id="copyToClipboard" href="$!siteDefaultUrl" >$tlang.getString("sitegen.siteinfolist.copy.clip")</a>
 			</td>
 		</tr>
 		#else
 		#set ( $aliasIdx = 0 )
 		#foreach($siteFriendlyUrl in $!siteFriendlyUrls)
-		<tr> 
+		<tr>
 			<th>
 				#if ( $aliasIdx == 0 )
 					$tlang.getString("sitegen.siteinfolist.siteurl")
@@ -143,7 +148,6 @@
 		#set ( $aliasIdx = $aliasIdx + 1 )
 		#end
 		#end
-		
 
 			<tr>
 				<th>
@@ -154,7 +158,7 @@
 				</td>
 			</tr>
 		#if ($!allowUpdate)
-			<tr> 
+			<tr>
 				<th>
 					$tlang.getString("sitegen.siteinfolist.ava")
 				</th>
@@ -222,8 +226,7 @@
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
-					<a href="#" id="displayPublicInfo" class="revealInstructions">$tlang.getString("ediacc.dismysit.h.a")</a>
-					<span class="instruction textPanelFooter" id="displayPublicInfoText" style="display:none">$tlang.getString("ediacc.dismysit.h")</span>
+					<span class="fa fa-info-circle" id="publicInfoTooltip" title='$tlang.getString("ediacc.dismysit.h")'></span>
 				</td>
 			</tr>
 
@@ -307,15 +310,14 @@
 		#set ($ell= $tlang.getString("sinfo.list.desc.ellipse"))
 		#if (!$desc || $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $formattedText.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
 		#else
-
-			<h4>
-				$tlang.getString("sitegen.siteinfolist.sitedes")
-			</h4>
-			<div style="padding:5px 0">
-				## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
-				$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
-				<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
-			</div>
+		<h4>
+			$tlang.getString("sitegen.siteinfolist.sitedes")
+		</h4>
+		<div>
+			## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
+			$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
+			<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
+		</div>
 		#end
 		#if ($!groups.size() > 0 || $!joinableGroups.size() > 0 || $!sections.size() > 0)
 		<div id="accordion">
@@ -331,7 +333,7 @@
 						<span style="width: 80%;">
 							<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">($tlang.getString("sinfo.list.groups.memb"))</a></span>
 							#end
 							#if ($g.Description)
 								<br/>
@@ -368,7 +370,7 @@
 							<div class="col-lg-10 col-sm-10 col-xs-12">
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">($tlang.getString("sinfo.list.groups.memb"))</a></span>
 								#end
 								#if ($g.Description)
 									<br/>
@@ -453,9 +455,4 @@
 		</div>
 		<div style="clear:both"> </div>
 		#end
-	#if ($!viewRoster && !$!isMyWorkspace) 
-		<div class="sak-banner-info"> 
-			$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
-		</div>
-	#end
 </div>

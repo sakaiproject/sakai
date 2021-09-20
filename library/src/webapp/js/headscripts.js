@@ -757,15 +757,17 @@ function includeWebjarLibrary(library) {
 		case 'datatables':
 			libraryVersion = "1.10.25";
 			jsReferences.push('/js/jquery.dataTables.min.js');
+			jsReferences.push('/js/dataTables.bootstrap.min.js');
+			cssReferences.push('/css/dataTables.bootstrap.min.css');
 			break;
 		case 'datatables-rowgroup':
 			libraryVersion = "1.1.3";
 			// This webjar has a different convention without version and library name.
 			document.write(`<script src="${webjars}/datatables.net-rowgroup/js/dataTables.rowGroup.min.js${ver}"></script>`);
 			break;
-		case 'ckeditor':
+		case 'ckeditor4':
 			libraryVersion = "4.16.1";
-			jsReferences.push('/full/ckeditor.js');
+			jsReferences.push('/ckeditor.js');
 			break;
 		case 'awesomplete':
 			libraryVersion = "1.1.5";
@@ -813,7 +815,7 @@ function includeWebjarLibrary(library) {
 			}
 			break;
 		case 'fullcalendar':
-			libraryVersion = "5.8.0";
+			libraryVersion = "5.9.0";
 			jsReferences.push('/main.min.js');
 			jsReferences.push('/locales-all.min.js');
 			cssReferences.push('/main.min.css');
@@ -830,6 +832,10 @@ function includeWebjarLibrary(library) {
 			libraryVersion = "7.14.0";
 			jsReferences.push('/dist/video.min.js');
 			cssReferences.push('/dist/video-js.css');
+			break;
+		case 'wavesurfer.js':
+			libraryVersion = "5.1.0";
+			jsReferences.push('/dist/wavesurfer.min.js');
 			break;
 		default:
 			if (library.endsWith(".js")) {

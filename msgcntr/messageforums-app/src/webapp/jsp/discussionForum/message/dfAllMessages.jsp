@@ -152,7 +152,7 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_message_forums}" rendered="#{ForumTool.messagesandForums}">
 						<h:outputText value="#{msgs.cdfm_message_forums}"/>
 					</h:commandLink>
-			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussion_forums}" rendered="#{ForumTool.forumsTool}" >
+			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussions}" rendered="#{ForumTool.forumsTool}" >
 							<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
 						</h:commandLink>
       			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
@@ -176,9 +176,13 @@
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_componse_message_dfAllMessages" 
 				rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"/>&nbsp;
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}"/>&nbsp;
-			<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" rendered="#{ForumTool.selectedTopic.changeSettings}">&nbsp;
+			<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" rendered="#{ForumTool.selectedTopic.changeSettings}">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<h:outputText value="#{msgs.cdfm_topic_settings}"/>
+			</h:commandLink>&nbsp;
+			<h:commandLink styleClass="button" action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
+				value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 			</h:commandLink>&nbsp;
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />

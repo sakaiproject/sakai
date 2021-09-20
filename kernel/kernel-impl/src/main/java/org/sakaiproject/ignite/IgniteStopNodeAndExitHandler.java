@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteLogger;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.ShutdownPolicy;
 import org.apache.ignite.failure.AbstractFailureHandler;
 import org.apache.ignite.failure.FailureContext;
 import org.apache.ignite.internal.IgnitionEx;
@@ -24,10 +25,10 @@ public class IgniteStopNodeAndExitHandler extends AbstractFailureHandler {
         new Thread(
                 () -> {
                     U.error(log, "Stopping local node on Ignite failure: [failureCtx=" + failureCtx + ']');
-                    IgnitionEx.stop(ignite.name(), false, false);
+                    IgnitionEx.stop(ignite.name(), false, ShutdownPolicy.IMMEDIATE,false);
                     latch.countDown();
                 },
-                "node-stopper"
+                "ignite-node-stop"
         ).start();
 
         new Thread(

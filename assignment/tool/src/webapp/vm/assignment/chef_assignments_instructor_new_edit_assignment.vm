@@ -1141,7 +1141,7 @@ function showExternalIframe(title, doreload) {
 						#end
 						<br/><br/>
 						<p class="text-muted small">
-							<a href="$tlang.getString("turnitinoc.instructions.url")" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
+							<a href="$tlang.getString("turnitinoc.instructions.url")" rel="noreferrer" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
 						</p>
                         <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))

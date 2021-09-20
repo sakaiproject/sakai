@@ -43,7 +43,7 @@
 					});
 					var msgBody = document.getElementById("messageBody").innerHTML;
 					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					fckeditor_word_count_fromMessage(msgBody, "counttotal");
+					msgcntr_word_count(msgBody);
 
 					var menuLink = $('#forumsMainMenuLink');
 					var menuLinkSpan = menuLink.closest('span');
@@ -60,7 +60,7 @@
 					<h3>
 						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 							rendered="#{ForumTool.messagesandForums}" />
-						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
 							rendered="#{ForumTool.forumsTool}" />
 						<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 						<h:commandLink action="#{ForumTool.processActionDisplayForum}" 

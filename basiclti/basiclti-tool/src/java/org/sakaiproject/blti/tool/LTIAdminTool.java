@@ -20,7 +20,6 @@
  ********************************************************************************* */
 package org.sakaiproject.blti.tool;
 
-import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.Date;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.FormatStyle;
 
 import java.net.URLEncoder;
 
@@ -82,6 +86,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.time.api.UserTimeService;
 
 // We need to interact with the RequestFilter
 import org.sakaiproject.util.RequestFilter;
@@ -157,6 +162,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 	protected static ToolManager toolManager = null;
 	protected static LTIService ltiService = null;
 	protected static ServerConfigurationService serverConfigurationService = null;
+	protected static UserTimeService userTimeService = null;
 
 	protected static SakaiFoorm foorm = new SakaiFoorm();
 
@@ -176,6 +182,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		if (serverConfigurationService == null) {
 			serverConfigurationService = (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+		}
+		if (userTimeService == null) {
+			userTimeService = (UserTimeService) ComponentManager.get("org.sakaiproject.time.api.UserTimeService");
 		}
 	}
 
@@ -485,6 +494,23 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					log.error("error getting url for site {}", siteId);
 				}
 
+				// Patch the date type
+				// https://stackoverflow.com/questions/19431234/converting-between-java-time-localdatetime-and-java-util-date
+				Object created_at = content.get("created_at");
+				if ( created_at instanceof Date ) {
+					String output = userTimeService.dateTimeFormat(((Date) created_at), rb.getLocale(), java.text.DateFormat.MEDIUM);
+					content.put("created_at", output);
+				} else if ( created_at instanceof LocalDateTime) {
+					LocalDateTime ldt = (LocalDateTime) created_at;
+					// Foorm stores these as UTC
+					Instant ldtInstant = ldt.toInstant(ZoneOffset.UTC);
+					String output = userTimeService.dateTimeFormat(ldtInstant, FormatStyle.MEDIUM, FormatStyle.SHORT);
+					content.put("created_at", output);
+				} else {
+					String output = created_at.toString();
+					content.put("created_at", output);
+				}
+
 				//get LTI url based on site id and tool id
 				content.put("tool_url", "/access/basiclti/site/" + siteId + "/content:" + content.get(LTIService.LTI_ID));
 			}
@@ -492,10 +518,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("contents", contents);
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
-
-		//put velocity date tool in the context
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
-		context.put("dateTool", df);
 
 		//export csv/excel links
 		context.put("export_url_csv", ltiService.getExportUrl(toolManager.getCurrentPlacement().getContext(), filterId, LTIExportService.ExportType.CSV));
@@ -2374,6 +2396,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		String returnUrl = data.getParameters().getString("returnUrl");
+
 		if (returnUrl == null && previousPost != null) {
 			returnUrl = previousPost.getProperty("returnUrl");
 		}
@@ -2508,7 +2531,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
-		if (!returnUrl.startsWith("about:blank")) {
+		// Assignment flow does not want a cancel button - just close the modal
+		if (!FLOW_PARAMETER_ASSIGNMENT.equals(flow) && !returnUrl.startsWith("about:blank")) {
 			context.put("cancelUrl", returnUrl);
 		}
 		context.put("returnUrl", returnUrl);
