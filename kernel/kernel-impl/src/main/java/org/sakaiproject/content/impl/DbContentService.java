@@ -3347,14 +3347,14 @@ public class DbContentService extends BaseContentService
         long size = 0L;
 
 	String sql = contentServiceSql.getQuotaQuerySql();
-	Object [] fields = new Object[] {context.startsWith(COLLECTION_DROPBOX)?context+"%":context};
+	Object[] fields = new Object[] { context.startsWith(COLLECTION_DROPBOX) ? StorageUtils.escapeSqlLike(context) + "%" : context };
 	if (context.startsWith(COLLECTION_DROPBOX)) {
 	    if (context.split(Entity.SEPARATOR).length == 4) {
 		// User Folder
 		sql = contentServiceSql.getDropBoxQuotaQuerySql();
 	    } else {
 		// Root Folder - KNL-1084, SAK-22169
-		fields = new Object[] {context+"%",context,context};
+		fields = new Object[] { StorageUtils.escapeSqlLike(context) +"%", context, context };
 		sql = contentServiceSql.getDropBoxRootQuotaQuerySql(); 
 	    }
 	}

@@ -454,7 +454,7 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria.toUpperCase() + "%";
+			fields[0] = "%" + StorageUtils.escapeSqlLike(criteria.toUpperCase()) + "%";
 			fields[1] = fields[0];
 			List all = super.getSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields, first,
 					last);
@@ -484,7 +484,7 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria.toUpperCase() + "%";
+			fields[0] = "%" + StorageUtils.escapeSqlLike(criteria.toUpperCase()) + "%";
 			fields[1] = fields[0];
 			int rv = super.countSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields);
 
