@@ -2,8 +2,9 @@
         <div class="selected-threads-to-move">
             <div>
                 <h:outputText value="#{msgs.move_thread_info1}"  />
-                <h:outputText styleClass="sourcetitle" escape="true" value="#{ForumTool.selectedTopic.topic.title}"  /> 
-                 <h:outputText value="#{msgs.move_thread_info2}"  />
+                <h:outputText styleClass="sourcetitle" escape="true" value=" #{ForumTool.selectedTopic.topic.title} "  />
+                <h:outputText value="#{msgs.move_thread_info2}"  />
+                <span id="sourcetopicid" data-id='<h:outputText value="#{ForumTool.selectedTopic.topic.id}" />' hidden></span>
             </div>
             <div class="threads-to-move" escape="true"></div>
             <input class="checkbox-reminder" id="checkbox-reminder" type="checkbox" name="checkbox-reminder"  /> <h:outputText value="#{msgs.leave_reminder}"  />
