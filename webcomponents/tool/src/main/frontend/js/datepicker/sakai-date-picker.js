@@ -1,5 +1,6 @@
 import { LitElement, html, css } from "../assets/lit-element/lit-element.js";
 import "../assets/flatpickr/dist/flatpickr.min.js";
+import moment from "../assets/moment/dist/moment.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { flatpickerStyles } from "./flatpicker-styles.js";
 import "../assets/flatpickr/dist/plugins/confirmDate/confirmDate.js";
@@ -117,8 +118,8 @@ class SakaiDatePicker extends LitElement {
 
     return html`
       <input type="text" id="picker" size="30"
-          placeholder="${this.i18n["input_placeholder"]}"
-          aria-label="${this.i18n["input_placeholder"]}"></input>
+          placeholder="${this.i18n.input_placeholder}"
+          aria-label="${this.i18n.input_placeholder}"></input>
     `;
   }
 
@@ -127,10 +128,10 @@ class SakaiDatePicker extends LitElement {
     if (typeof portal !== "undefined" && portal.user && portal.user.offsetFromServerMillis) {
       const osTzOffset = new Date().getTimezoneOffset();
       return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
-    } else {
-      window.console && window.console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
-      return moment(epochMillis);
     }
+    window.console && window.console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
+    return moment(epochMillis);
+
   }
 
   static get styles() {

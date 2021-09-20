@@ -137,11 +137,13 @@ public class FileConversionServiceImpl implements FileConversionService {
                             // that other workers can see it. This is the mutex, in effect.
                             transactionTemplate.executeWithoutResult(status -> {
                                 log.debug("Setting item with ref {} to IN_PROGRESS ...", ref);
-                                FileConversionQueueItem inProgressItem = repository.findById(item.getId());
-                                inProgressItem.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
-                                inProgressItem.setAttempts(inProgressItem.getAttempts() + 1);
-                                inProgressItem.setLastAttemptStarted(Instant.now());
-                                repository.save(inProgressItem);
+
+                                repository.findById(item.getId()).ifPresent(inProgressItem -> {
+                                    inProgressItem.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
+                                    inProgressItem.setAttempts(inProgressItem.getAttempts() + 1);
+                                    inProgressItem.setLastAttemptStarted(Instant.now());
+                                    repository.save(inProgressItem);
+                                });
                             });
 
                             try {
@@ -168,14 +170,15 @@ public class FileConversionServiceImpl implements FileConversionService {
                                 transactionTemplate.executeWithoutResult(status -> repository.delete(item));
                             } catch (Exception e) {
                                 transactionTemplate.executeWithoutResult(status -> {
-                                    FileConversionQueueItem failedItem = repository.findById(item.getId());
-                                    if (failedItem.getAttempts() > maxAttemptsAllowed) {
-                                        // Too many attempts. Do not try again.
-                                        failedItem.setStatus(FileConversionQueueItem.Status.FAILED);
-                                    } else {
-                                        failedItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
-                                    }
-                                    repository.save(failedItem);
+                                    repository.findById(item.getId()).ifPresent(failedItem -> {
+                                        if (failedItem.getAttempts() > maxAttemptsAllowed) {
+                                            // Too many attempts. Do not try again.
+                                            failedItem.setStatus(FileConversionQueueItem.Status.FAILED);
+                                        } else {
+                                            failedItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                        }
+                                        repository.save(failedItem);
+                                    });
                                 });
                                 log.error("Call to conversion service failed", e);
                             } finally {

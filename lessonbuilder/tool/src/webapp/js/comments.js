@@ -8,7 +8,6 @@ var deleteDialogCommentUrl = null;
 var originalDeleteDialogText = null;
 var noEditor = true;
 var userAgent = navigator.userAgent;
-var fckEditor = false;
 var ckEditor = false;
 var commentsToLoad = 0;
 
@@ -18,27 +17,11 @@ LSNGRD.childClass = ".uuidBox";
 LSNGRD.type = "comment";
 
 $(function() {
-	
 	noEditor = ($(".using-editor").size() === 0);
-	if (!noEditor) {
-	    try {
-		if (sakai.editor.editors.ckeditor===undefined)
-		    fckEditor = true;
-	    } catch (err) {
-		fckEditor = true;
-	    }
-	}
-	if (!noEditor && !fckEditor)
-	    ckEditor = true;
+	if (!noEditor)
+		ckEditor = true;
 
-	if (noEditor) {
-		$(".evolved-box").hide();
-	}else if(fckEditor) {
-		$(".evolved-box :not(textarea)").hide();
-	}else {
-		$(".evolved-box").hide();
-	}
-	
+	$(".evolved-box").hide();
 	$(".submitButton").hide().val(msg("simplepage.save_message"));
 	$(".cancelButton").hide().val(msg("simplepage.cancel_message"));
 	
@@ -135,9 +118,7 @@ function replyToComment(link, replytext) {
 	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
 	    body = replytext + '\n\n' + body.replace(/^/,"|  ").replace(/\n/g,"\n|  ") + '\n\n';
 	    evolved.val(body);
-	} else if(fckEditor) {
-		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML(replytext + '<div style="border-left: 2px solid black; padding-eleft:6px">' + (link).parent().children(".commentBody").html() + '</div>\n<p></p>');
-	}else {
+	} else {
 	    CKEDITOR.instances[evolved.children("textarea").attr("name")].setData(replytext + '<div style="border-left: 2px solid black; padding-left:6px">' + $(link).parent().children(".commentBody").html() + '</div>\n<p></p>', function() {
 		    // this function is called after the insert happens. The goal is to move the cursor to the end
 		    var range = this.createRange();
@@ -166,8 +147,6 @@ function switchEditors(link, show) {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 		evolved.css('width', '600px');
 		evolved.css('height', '175px');
-	}else if(fckEditor) {
-		evolved = $(link).parents(".commentsDiv").find(".evolved-box :not(textarea)");
 	}else {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 	}
@@ -179,10 +158,7 @@ function switchEditors(link, show) {
   
  		if(noEditor) {
  		    evolved.focus();
- 		} else if(fckEditor) {
- 		    var evolvedbox = $(link).parents(".commentsDiv").find(".evolved-box");
- 		    FCKeditorAPI.GetInstance(evolvedbox.children("textarea").attr("name")).Focus();
- 		}else {
+ 		} else {
  		    var frame = $(link).parents(".commentsDiv").find("iframe");
  
  		    // the builtin title is grossly too long, and not internationalized
@@ -217,16 +193,9 @@ function switchEditors(link, show) {
 		$(link).parents(".commentsDiv").find(".switchLink").hide();
 	}else {
 		evolved.hide();
-		
-		if(fckEditor) {
-			evolved = $(link).parents(".commentsDiv").find(".evolved-box");
-		}
-		
 		if (noEditor) {
 			evolved.val("");
-		} else if(fckEditor) {
-			FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML("");
-		}else {
+		} else {
 			CKEDITOR.instances[evolved.children("textarea").attr("name")].setData("");
 		}
 		
@@ -294,9 +263,7 @@ function edit(link, id) {
 	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
 	    evolved.val(body);
 
-	} else if(fckEditor) {
-		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML($(link).parent().children(".commentBody").html());
-	}else {
+	} else {
 		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData($(link).parent().children(".commentBody").html());
 	}
 	

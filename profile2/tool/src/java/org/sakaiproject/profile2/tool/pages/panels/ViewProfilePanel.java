@@ -436,6 +436,7 @@ public class ViewProfilePanel extends Panel {
 		String facebookUsername = socialNetworkingInfo.getFacebookUrl();
 		String linkedinUsername = socialNetworkingInfo.getLinkedinUrl();
 		String myspaceUsername = socialNetworkingInfo.getMyspaceUrl();
+		String instagramUsername = socialNetworkingInfo.getInstagramUrl();
 		String skypeUsername = socialNetworkingInfo.getSkypeUsername();
 		String twitterUsername = socialNetworkingInfo.getTwitterUrl();
 				
@@ -474,6 +475,17 @@ public class ViewProfilePanel extends Panel {
 			visibleFieldCount_socialNetworking++;
 		}
 		
+		//Instagram
+		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
+				instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
+				instagramContainer.add(new ExternalLink("instagramLink", instagramUsername, instagramUsername));
+				socialNetworkingInfoContainer.add(instagramContainer);
+				if(StringUtils.isBlank(instagramUsername)) {
+					instagramContainer.setVisible(false);
+				} else {
+					visibleFieldCount_socialNetworking++;
+				}
+				
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));

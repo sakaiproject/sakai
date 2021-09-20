@@ -28,7 +28,7 @@ export class SakaiRubricPreview extends RubricsElement {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ("rubric-id" == name) {
+    if (name == "rubric-id") {
       this.idChanged();
     }
   }
@@ -54,7 +54,7 @@ export class SakaiRubricPreview extends RubricsElement {
 
   idChanged() {
 
-    setTimeout(function () {
+    setTimeout(() => {
 
       $.ajax({
         url: `/rubrics-service/rest/rubrics/${this.rubricId}?projection=inlineRubric`,
@@ -63,7 +63,7 @@ export class SakaiRubricPreview extends RubricsElement {
       })
       .done(data => this.rubric = data)
       .fail((jqXHR, textStatus, errorThrown) => { console.log(textStatus); console.log(errorThrown); });
-    }.bind(this));
+    });
   }
 }
 

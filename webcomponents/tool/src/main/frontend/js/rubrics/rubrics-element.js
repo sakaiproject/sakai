@@ -34,11 +34,11 @@ class RubricsElement extends SakaiElement {
 
   getHighLow(myArray) {
 
-    var lowest = Number.POSITIVE_INFINITY;
-    var highest = Number.NEGATIVE_INFINITY;
-    var tmp;
+    let lowest = Number.POSITIVE_INFINITY;
+    let highest = Number.NEGATIVE_INFINITY;
+    let tmp;
 
-    for (var i=myArray.length-1; i>=0; i--) {
+    for (let i=myArray.length-1; i>=0; i--) {
       tmp = myArray[i].points;
       if (tmp < lowest) lowest = tmp;
       if (tmp > highest) highest = tmp;
@@ -47,7 +47,7 @@ class RubricsElement extends SakaiElement {
     return {
       high: highest,
       low: lowest
-    }
+    };
   }
 }
 

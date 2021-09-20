@@ -37,9 +37,9 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       .then(r => {
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get announcements from ${url}`);
         }
+        throw new Error(`Failed to get announcements from ${url}`);
+
       })
       .then(data => this.data = data)
       .catch (error => console.error(error));
@@ -86,9 +86,9 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         ${!this.siteId ? html`
           <div id="site-filter">
             <select @change=${this.siteChanged}
-                title="${this.i18n["site_tooltip"]}"
-                aria-label="${this.i18n["site_tooltip"]}">
-              <option value="none">${this.i18n["site"]}</option>
+                title="${this.i18n.site_tooltip}"
+                aria-label="${this.i18n.site_tooltip}">
+              <option value="none">${this.i18n.site}</option>
               ${this.sites.map(s => html`
               <option value="${s.id}">${s.title}</option>
               `)}
@@ -96,27 +96,27 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           </div>
         ` : ""}
       </div>
-      <div id="viewing">${this.i18n["viewing"]}</div>
+      <div id="viewing">${this.i18n.viewing}</div>
       <div class="announcements ${this.siteId === "home" ? "home" : "course"}">
         <div class="header">
           <a href="javascript:;"
-              title="${this.i18n["sort_by_title_tooltip"]}"
-              aria-label="${this.i18n["sort_by_title_tooltip"]}"
+              title="${this.i18n.sort_by_title_tooltip}"
+              aria-label="${this.i18n.sort_by_title_tooltip}"
               @click=${this.sortByTitle}>
-            ${this.i18n["title"]}
+            ${this.i18n.title}
           </a>
         </div>
         ${this.siteId === "home" ? html`
           <div class="header">
             <a href="javascript:;"
-                title="${this.i18n["sort_by_site_tooltip"]}"
-                aria-label="${this.i18n["sort_by_site_tooltip"]}"
+                title="${this.i18n.sort_by_site_tooltip}"
+                aria-label="${this.i18n.sort_by_site_tooltip}"
                 @click=${this.sortBySite}>
-              ${this.i18n["site"]}
+              ${this.i18n.site}
             </a>
           </div>
         ` : ""}
-        <div class="header">${this.i18n["view"]}</div>
+        <div class="header">${this.i18n.view}</div>
       ${this.dataPage.filter(a => a.visible).map((a, i) => html`
         <div class="title cell ${i % 2 === 0 ? "even" : "odd"}">${a.subject}</div>
         ${this.siteId === "home" ? html`
@@ -124,8 +124,8 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         ` : ""}
         <div class="url cell ${i % 2 === 0 ? "even" : "odd"}">
           <a href="${a.url}"
-              title="${this.i18n["url_tooltip"]}"
-              aria-label="${this.i18n["url_tooltip"]}">
+              title="${this.i18n.url_tooltip}"
+              aria-label="${this.i18n.url_tooltip}">
             <sakai-icon type="right" size="small">
           </a>
         </div>

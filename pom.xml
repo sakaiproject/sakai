@@ -54,6 +54,7 @@
                 <module>common</module>
                 <module>commons</module>
                 <module>config</module>
+                <module>conversations</module>
                 <module>cloud-content</module>
                 <module>cloud-storage</module>
                 <module>content</module>

@@ -11,7 +11,7 @@ class SakaiRubricGradingButton extends RubricsElement {
   }
 
   set token(newValue) {
-    this._token = "Bearer " + newValue;
+    this._token = `Bearer ${  newValue}`;
   }
 
   get token() { return this._token; }
@@ -56,6 +56,5 @@ class SakaiRubricGradingButton extends RubricsElement {
   }
 }
 
-try {
-  customElements.define("sakai-rubric-grading-button", SakaiRubricGradingButton);
-} catch (error) { /* That's okay */ }
+const tagName = "sakai-rubric-grading-button";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricGradingButton);

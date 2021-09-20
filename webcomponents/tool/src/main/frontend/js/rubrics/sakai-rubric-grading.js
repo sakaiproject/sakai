@@ -40,7 +40,7 @@ export class SakaiRubricGrading extends RubricsElement {
   set token(newValue) {
 
     if (!newValue.startsWith("Bearer")) {
-      this._token = "Bearer " + newValue;
+      this._token = `Bearer ${  newValue}`;
     } else {
       this._token = newValue;
     }
@@ -142,7 +142,7 @@ export class SakaiRubricGrading extends RubricsElement {
             <sakai-rubric-grading-comment id="comment-for-${c.id}" @comment-shown=${this.commentShown} @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
             <div>
               <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                ${c.selectedvalue}
+                ${c.selectedvalue.toLocaleString(this.locale)}
               </strong>
             </div>
             ${this.association.parameters.fineTunePoints ? html`
@@ -152,7 +152,7 @@ export class SakaiRubricGrading extends RubricsElement {
                     name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                     class="fine-tune-points form-control hide-input-arrows"
                     @input=${this.fineTuneRating}
-                    .value="${c.pointoverride}"
+                    .value="${c.pointoverride.toLocaleString(this.locale)}"
                 />
               ` : ""}
             <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
@@ -190,9 +190,9 @@ export class SakaiRubricGrading extends RubricsElement {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);
-      } else {
-        return a;
       }
+      return a;
+
     }, 0);
   }
 
@@ -240,9 +240,9 @@ export class SakaiRubricGrading extends RubricsElement {
 
     const value = e.target.value;
 
-    const parsed = parseFloat(value.replace(/,/g, "."));
+    const parsed = value.replace(/,/g, ".");
 
-    if (isNaN(parsed)) {
+    if (isNaN(parseFloat(parsed))) {
       return;
     }
 
@@ -262,7 +262,7 @@ export class SakaiRubricGrading extends RubricsElement {
       criterionId: criterion.id,
       value: criterion.pointoverride,
     };
-    this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail, bubbles: true, composed: true }));
 
     this.updateTotalPoints();
     this._dispatchRatingChanged(this.criteria, 1);
@@ -274,7 +274,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
       return {
         criterionId: c.id,
-        points: c.pointoverride || c.selectedvalue,
+        points: c.pointoverride ? parseFloat(c.pointoverride) : c.selectedvalue,
         comments: c.comments,
         pointsAdjusted: c.pointoverride !== c.selectedvalue,
         selectedRatingId: c.selectedRatingId
@@ -289,7 +289,7 @@ export class SakaiRubricGrading extends RubricsElement {
       overallComment: "",
       criterionOutcomes: crit,
       toolItemRubricAssociation: this.association._links.self.href,
-      status: status,
+      status,
     };
 
     if (this.evaluation && this.evaluation.id) {
@@ -318,9 +318,9 @@ export class SakaiRubricGrading extends RubricsElement {
 
     if ((ovrdvl || ovrdvl === 0) && parseFloat(ovrdvl) !== parseFloat(selected)) {
       return 'strike';
-    } else {
-      return '';
     }
+    return '';
+
   }
 
   toggleRating(e) {
@@ -378,7 +378,7 @@ export class SakaiRubricGrading extends RubricsElement {
         entityId: this.entityId,
         value: this.totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 }),
       };
-      this.dispatchEvent(new CustomEvent('total-points-updated', { detail: detail, bubbles: true, composed: true }));
+      this.dispatchEvent(new CustomEvent('total-points-updated', { detail, bubbles: true, composed: true }));
     }
   }
 

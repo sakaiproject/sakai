@@ -80,7 +80,7 @@ public class GradePointsMapping extends GradeMapping {
      */
     @Override
 	public String getName() {
-        return "Grade Points";
+		return "points";
     }
 
 }

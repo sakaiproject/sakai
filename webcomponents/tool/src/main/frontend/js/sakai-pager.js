@@ -1,6 +1,6 @@
 import { css } from "./assets/lit-element/lit-element.js";
 import { loadProperties } from "./sakai-i18n.js";
-import { LionPagination } from "./assets/@lion/pagination/src/LionPagination.js"
+import { LionPagination } from "./assets/@lion/pagination/src/LionPagination.js";
 
 export class SakaiPager extends LionPagination {
 
@@ -100,6 +100,5 @@ export class SakaiPager extends LionPagination {
   }
 }
 
-if (!customElements.get("sakai-pager")) {
-  customElements.define("sakai-pager", SakaiPager);
-}
+const tagName = "sakai-pager";
+!customElements.get(tagName) && customElements.define(tagName, SakaiPager);

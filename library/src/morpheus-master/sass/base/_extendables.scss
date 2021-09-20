@@ -405,6 +405,7 @@ a.noPointers, input.noPointers {
 	
 	> input, > button, > a, > .active {
 		margin-right: $standard-space;
+    margin-top: $standard-space;
 		
 		&:last-child {
 			margin-right: 0;

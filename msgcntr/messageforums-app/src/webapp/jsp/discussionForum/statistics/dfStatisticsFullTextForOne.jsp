@@ -20,7 +20,7 @@
 						var msgBody = $(this).html();
 						msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
 						var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
-		  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
+		  				msgcntr_word_count(msgBody);
 					});
 
                     var menuLink = $('#forumsStatisticsMenuLink');

@@ -12,7 +12,6 @@
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
          <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-         <property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
          <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
     </bean>

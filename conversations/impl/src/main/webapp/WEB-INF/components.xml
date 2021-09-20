@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:component-scan base-package="org.sakaiproject.conversations"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="conversationsHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.conversations.api.model.Comment</value>
+                <value>org.sakaiproject.conversations.api.model.ConvStatus</value>
+                <value>org.sakaiproject.conversations.api.model.Post</value>
+                <value>org.sakaiproject.conversations.api.model.PostReaction</value>
+                <value>org.sakaiproject.conversations.api.model.PostReactionTotal</value>
+                <value>org.sakaiproject.conversations.api.model.PostStatus</value>
+                <value>org.sakaiproject.conversations.api.model.Settings</value>
+                <value>org.sakaiproject.conversations.api.model.Tag</value>
+                <value>org.sakaiproject.conversations.api.model.Topic</value>
+                <value>org.sakaiproject.conversations.api.model.TopicReaction</value>
+                <value>org.sakaiproject.conversations.api.model.TopicReactionTotal</value>
+                <value>org.sakaiproject.conversations.api.model.TopicStatus</value>
+                <value>org.sakaiproject.conversations.api.model.UserStatistics</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.CommentRepository"
+        class="org.sakaiproject.conversations.impl.repository.CommentRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.ConvStatusRepository"
+        class="org.sakaiproject.conversations.impl.repository.ConvStatusRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.SettingsRepository"
+        class="org.sakaiproject.conversations.impl.repository.SettingsRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.TagRepository"
+        class="org.sakaiproject.conversations.impl.repository.TagRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.TopicRepository"
+        class="org.sakaiproject.conversations.impl.repository.TopicRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.TopicReactionRepository"
+        class="org.sakaiproject.conversations.impl.repository.TopicReactionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository"
+        class="org.sakaiproject.conversations.impl.repository.TopicReactionTotalRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.TopicStatusRepository"
+        class="org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.PostRepository"
+        class="org.sakaiproject.conversations.impl.repository.PostRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.PostStatusRepository"
+        class="org.sakaiproject.conversations.impl.repository.PostStatusRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.PostReactionRepository"
+        class="org.sakaiproject.conversations.impl.repository.PostReactionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository"
+        class="org.sakaiproject.conversations.impl.repository.PostReactionTotalRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.conversations.api.ConversationsService"
+        class="org.sakaiproject.conversations.impl.ConversationsServiceImpl" init-method="init">
+
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="commentRepository" ref="org.sakaiproject.conversations.api.repository.CommentRepository"/>
+        <property name="convStatusRepository" ref="org.sakaiproject.conversations.api.repository.ConvStatusRepository"/>
+        <!--property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/-->
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="postRepository" ref="org.sakaiproject.conversations.api.repository.PostRepository"/>
+        <property name="postReactionRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionRepository"/>
+        <property name="postReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository"/>
+        <property name="postStatusRepository" ref="org.sakaiproject.conversations.api.repository.PostStatusRepository"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="settingsRepository" ref="org.sakaiproject.conversations.api.repository.SettingsRepository"/>
+        <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+        <property name="tagRepository" ref="org.sakaiproject.conversations.api.repository.TagRepository"/>
+        <property name="topicRepository" ref="org.sakaiproject.conversations.api.repository.TopicRepository"/>
+        <property name="topicReactionRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionRepository"/>
+        <property name="topicReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository"/>
+        <property name="topicStatusRepository" ref="org.sakaiproject.conversations.api.repository.TopicStatusRepository"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    </bean>
+
+</beans>

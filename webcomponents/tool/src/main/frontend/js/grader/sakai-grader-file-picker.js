@@ -35,12 +35,12 @@ class SakaiGraderFilePicker extends SakaiElement {
       <button title="${this.title}" @click=${this.pickFile}>${this.buttonText}</button>
       <div class="sakai-file-picker-list">
       ${this.files.length > 0 ? html`
-        <div class="sakai-file-picker-list-title">${this.i18n["to_be_added"]}</div>
+        <div class="sakai-file-picker-list-title">${this.i18n.to_be_added}</div>
         ${this.files.map(f => html`
           <div class="file-row">
             <div class="file">${f.name}</div>
             <div class="file-remove">
-              <a @click=${this.removeFile} data-name="${f.name}" href="javascript:;">${this.i18n["remove"]}</a>
+              <a @click=${this.removeFile} data-name="${f.name}" href="javascript:;">${this.i18n.remove}</a>
             </div>
           </div>
         `)}
@@ -51,7 +51,7 @@ class SakaiGraderFilePicker extends SakaiElement {
 
   pickFile() {
 
-    var input = document.createElement("input");
+    const input = document.createElement("input");
     input.type = "file";
     input.multiple = true;
 

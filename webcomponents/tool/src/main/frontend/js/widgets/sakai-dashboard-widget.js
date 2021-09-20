@@ -34,7 +34,7 @@ export class SakaiDashboardWidget extends LitElement {
     const p = loadProperties(options);
     p.then(r => {
       this.i18n = r;
-      this.title = r["widget_title"];
+      this.title = r.widget_title;
     });
     return p;
   }
@@ -50,7 +50,7 @@ export class SakaiDashboardWidget extends LitElement {
   }
 
   move(direction) {
-    this.dispatchEvent(new CustomEvent("move", { detail: { widgetId: this.widgetId, direction: direction }, bubbles: true }));
+    this.dispatchEvent(new CustomEvent("move", { detail: { widgetId: this.widgetId, direction }, bubbles: true }));
   }
 
   moveUp() {
@@ -80,40 +80,40 @@ export class SakaiDashboardWidget extends LitElement {
               <div>
                 <a href="javascript:;"
                     @click=${this.moveUp}
-                    title="${this.baseI18n["up"]}"
-                    arial-label="${this.baseI18n["up"]}">
+                    title="${this.baseI18n.up}"
+                    arial-label="${this.baseI18n.up}">
                   <sakai-icon type="up" size="small">
                 </a>
               </div>
               <div>
                 <a href="javascript:;"
                     @click=${this.moveDown}
-                    title="${this.baseI18n["down"]}"
-                    arial-label="${this.baseI18n["down"]}">
+                    title="${this.baseI18n.down}"
+                    arial-label="${this.baseI18n.down}">
                   <sakai-icon type="down" size="small">
                 </a>
               </div>
               <div>
                 <a href="javascript:;"
                     @click=${this.moveLeft}
-                    title="${this.baseI18n["left"]}"
-                    arial-label="${this.baseI18n["left"]}">
+                    title="${this.baseI18n.left}"
+                    arial-label="${this.baseI18n.left}">
                   <sakai-icon type="left" size="small">
                 </a>
               </div>
               <div>
                 <a href="javascript:;"
                     @click=${this.moveRight}
-                    title="${this.baseI18n["right"]}"
-                    arial-label="${this.baseI18n["right"]}">
+                    title="${this.baseI18n.right}"
+                    arial-label="${this.baseI18n.right}">
                   <sakai-icon type="right" size="small">
                 </a>
               </div>
               <div>
                 <a href="javascript:;"
                     @click=${this.remove}
-                    title="${this.baseI18n["remove"]} ${this.title}"
-                    aria-label="${this.baseI18n["remove"]} ${this.title}">
+                    title="${this.baseI18n.remove} ${this.title}"
+                    aria-label="${this.baseI18n.remove} ${this.title}">
                   <sakai-icon type="close" size="small">
                 </a>
               </div>

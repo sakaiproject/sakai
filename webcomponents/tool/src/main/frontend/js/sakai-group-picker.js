@@ -20,7 +20,7 @@ export class SakaiGroupPicker extends SakaiElement {
       groups: { type: Array },
       formName: { attribute: "form-name", type: String },
       i18n: Object,
-    }
+    };
   }
 
   /**
@@ -49,9 +49,9 @@ export class SakaiGroupPicker extends SakaiElement {
   render() {
 
     return html`
-      <select aria-label="${this.i18n["group_selector_label"]}" @change=${this.groupChanged}>
+      <select aria-label="${this.i18n.group_selector_label}" @change=${this.groupChanged}>
         <option value="/site/${portal.siteId}" ?selected=${this.groupRef === "/site/${portal.siteId}"}>
-          ${this.i18n["site"]}
+          ${this.i18n.site}
         </option>
         ${this.groups.map(g => html`<option value="${g.reference}" ?selected=${this.groupRef === g.reference}>${g.title}</option>`)}
       </select>

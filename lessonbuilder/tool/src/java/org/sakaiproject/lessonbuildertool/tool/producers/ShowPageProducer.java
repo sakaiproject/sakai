@@ -1459,7 +1459,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean notDone = false;
 					Status status = Status.NOT_REQUIRED;
 					if (!navButton) {
-						status = handleStatusImage(tableRow, i);
+						status = handleStatusIcon(tableRow, i);
 						if (status == Status.REQUIRED) {
 							notDone = true;
 						}
@@ -3219,9 +3219,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						for(int j = 0; j < answers.size(); j++) {
 							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "multipleChoiceAnswer:", String.valueOf(j));
 							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
-							
 							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
-							UIOutput.make(answerContainer, "multipleChoiceAnswerText", Integer.toString(j+1) + " : " + answers.get(j).getText())
+							char answerOption = (char) (j + 65); // 65 Corresponds to A
+							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answerOption + " : " + answers.get(j).getText())
 								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
 							
 							if(!isAvailable || response != null) {
@@ -3268,7 +3268,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					
 					Status questionStatus = getQuestionStatus(i, response);
-					addStatusImage(questionStatus, tableRow, "questionStatus", null);
+					addStatusIcon(questionStatus, tableRow, "questionStatus");
 					String statusNote = getStatusNote(questionStatus);
 					if (statusNote != null) // accessibility version of icon
 					    UIOutput.make(tableRow, "questionNote", statusNote);
@@ -3390,7 +3390,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								Status linkedItemStatus = Status.NOT_REQUIRED;
 								if (available) {
 									UIBranchContainer empty = UIBranchContainer.make(tableRow, "non-existent:");
-									linkedItemStatus = handleStatusImage(empty, linkedItem);
+									linkedItemStatus = handleStatusIcon(empty, linkedItem);
 								}
 
 								ChecklistItemStatus status = simplePageToolDao.findChecklistItemStatus(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
@@ -4443,6 +4443,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if(!simplePageBean.isStudentPage(currentPage)) {
 			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
+			UIOutput.make(form, "subpage-choose-button", messageLocator.getMessage("simplepage.page.chooser"));
 		}
 		
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
@@ -4838,10 +4839,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(tofill, "export-cc-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export-cc-title")));
 
 		UIForm form = UIForm.make(tofill, "export-cc-form");
-
-		UIOutput.make(form, "export-cc-v11"); // value is handled by JS, so RSF doesn't need to treat it as input
-		UIOutput.make(form, "export-cc-v13"); // value is handled by JS, so RSF doesn't need to treat it as input
-		UIOutput.make(form, "export-cc-bank"); // value is handled by JS, so RSF doesn't need to treat it as input
 		UICommand.make(form, "export-cc-submit", messageLocator.getMessage("simplepage.exportcc-download"), "#{simplePageBean.importCc}");
 		UICommand.make(form, "export-cc-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 
@@ -5334,16 +5331,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * return true if the item is required and not completed, i.e. if we need to
 	 * update the status after the user views the item
 	 */
-	private Status handleStatusImage(UIContainer container, SimplePageItem i) {
+	private Status handleStatusIcon(UIContainer container, SimplePageItem i) {
 		if (i.getType() != SimplePageItem.TEXT && i.getType() != SimplePageItem.MULTIMEDIA) {
 			if (!i.isRequired()) {
-				addStatusImage(Status.NOT_REQUIRED, container, "status", i.getName());
+				addStatusIcon(Status.NOT_REQUIRED, container, "status");
 				return Status.NOT_REQUIRED;
 			} else if (simplePageBean.isItemComplete(i)) {
-				addStatusImage(Status.COMPLETED, container, "status", i.getName());
+				addStatusIcon(Status.COMPLETED, container, "status");
 				return Status.COMPLETED;
 			} else {
-				addStatusImage(Status.REQUIRED, container, "status", i.getName());
+				addStatusIcon(Status.REQUIRED, container, "status");
 				return Status.REQUIRED;
 			}
 		}
@@ -5395,58 +5392,54 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 	}
 
-        String getStatusNote(Status status) {
-	    if (status == Status.COMPLETED)
-		return messageLocator.getMessage("simplepage.status.completed");
-	    else if (status == Status.REQUIRED)
-		return messageLocator.getMessage("simplepage.status.required");
-	    else if (status == Status.NEEDSGRADING)
-		return messageLocator.getMessage("simplepage.status.needsgrading");
-	    else if (status == Status.FAILED)
-		return messageLocator.getMessage("simplepage.status.failed");
-	    else 
+	private String getStatusNote(Status status) {
+		if (status == Status.COMPLETED)
+			return messageLocator.getMessage("simplepage.status.completed");
+		else if (status == Status.REQUIRED)
+			return messageLocator.getMessage("simplepage.status.required");
+		else if (status == Status.NEEDSGRADING)
+			return messageLocator.getMessage("simplepage.status.needsgrading");
+		else if (status == Status.FAILED)
+			return messageLocator.getMessage("simplepage.status.failed");
+		else
 		return null;
-	}	    
+	}
 
-	// add the checkmark or asterisk. This code supports a couple of other
-	// statuses that we
-	// never ended up using
-	private void addStatusImage(Status status, UIContainer container, String imageId, String name) {
-		String imagePath = "/lessonbuilder-tool/images/";
-		String imageAlt = "";
-
-		// better not to include alt or title. Bundle them with the link. Avoids
-		// complexity for screen reader
-
-		if (status == Status.COMPLETED) {
-			imagePath += "checkmark.png";
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.completed")
-			// + " " + name;
-		} else if (status == Status.DISABLED) {
-			imagePath += "unavailable.png";
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.disabled")
-			// + " " + name;
-		} else if (status == Status.FAILED) {
-			imagePath += "failed.png";
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.failed")
-			// + " " + name;
-		} else if (status == Status.REQUIRED) {
-			imagePath += "available.png";
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.required")
-			// + " " + name;
-		} else if (status == Status.NEEDSGRADING) {
-			imagePath += "blue-question.png";
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.required")
-			// + " " + name;
-		} else if (status == Status.NOT_REQUIRED) {
-			imagePath += "not-required.png";
-			// it's a blank image, no need for screen readers to say anything
-			imageAlt = ""; // messageLocator.getMessage("simplepage.status.notrequired");
+	private void addStatusIcon(Status status, UIContainer container, String iconId) {
+		String iconClass = "fa fa-";
+		String title;
+		switch (status) {
+			case COMPLETED:
+				iconClass += "check";
+				title = messageLocator.getMessage("simplepage.status.completed");
+				break;
+			case DISABLED:
+				iconClass += "circle-o";
+				title = messageLocator.getMessage("simplepage.status.disabled");
+				break;
+			case FAILED:
+				iconClass += "times";
+				title = messageLocator.getMessage("simplepage.status.failed");
+				break;
+			case REQUIRED:
+				iconClass += "asterisk";
+				title = messageLocator.getMessage("simplepage.status.required");
+				break;
+			case NEEDSGRADING:
+				iconClass += "question";
+				title = messageLocator.getMessage("simplepage.status.needsgrading");
+				break;
+			case NOT_REQUIRED:
+				iconClass = "";
+				title = "";
+				break;
+			default:
+				iconClass = "";
+				title = "";
+				break;
 		}
-
 		UIOutput.make(container, "status-td");
-		UIOutput.make(container, imageId).decorate(new UIFreeAttributeDecorator("src", imagePath))
-				.decorate(new UIFreeAttributeDecorator("alt", imageAlt)).decorate(new UITooltipDecorator(imageAlt));
+		UIOutput.make(container, iconId).decorate(new UIStyleDecorator(iconClass)).decorate(new UIFreeAttributeDecorator("title", title));
 	}
 
 	private String getLocalizedURL(String fileName, boolean useDefault) {

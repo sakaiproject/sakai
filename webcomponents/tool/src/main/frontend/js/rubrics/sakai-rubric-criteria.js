@@ -107,7 +107,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
-                  ${r.points.toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
+                  ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
                 <div class="add-criterion-item">
@@ -192,8 +192,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   debounce(fn, delay) {
 
     let timer = null;
-    return function() {
-      const args = arguments;
+    return function (...args) {
       clearTimeout(timer);
       timer = setTimeout(() => {
         fn.apply(this, args);
@@ -274,8 +273,8 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (e.target.value == '') {
       e.target.value = 0;
     }
-    e.target.value = e.target.value.replace(',', '.');
-    let value = parseFloat(e.target.value);
+    let value = e.target.value.replace(',', '.');
+    value = parseFloat(value);
     if (isNaN(value)) {
       value = 0;
     }
@@ -317,11 +316,11 @@ export class SakaiRubricCriteria extends RubricsElement {
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
 
     const getUrl = window.location;
-    const baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/ratings/";
+    const baseUrl = `${getUrl.protocol  }//${  getUrl.host  }/rubrics-service/rest/ratings/`;
 
     let urlList = '';
     for (let i = criterion.ratings.length - 1; i >= 0; i--) {
-      urlList = baseUrl + criterion.ratings[i].id + '\n' + urlList;
+      urlList = `${baseUrl + criterion.ratings[i].id  }\n${  urlList}`;
     }
 
     const url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
@@ -379,8 +378,8 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     // Add the criterion to the rubric
     const getUrl = window.location;
-    const baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
-    const urlList = baseUrl + nc.id + '\n';
+    const baseUrl = `${getUrl.protocol  }//${  getUrl.host  }/rubrics-service/rest/criterions/`;
+    const urlList = `${baseUrl + nc.id  }\n`;
     this.requestUpdate();
 
     $.ajax({
@@ -434,7 +433,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   updateRatings(url, urlList) {
 
     $.ajax({
-      url: url,
+      url,
       headers: {"authorization": this.token},
       method: "PUT",
       contentType: "text/uri-list",
@@ -449,7 +448,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   openEditWithKeyboard(e) {
-	
+
     if (e.keyCode == 32) {
       this.cloneCriterion(e);
     }

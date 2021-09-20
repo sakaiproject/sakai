@@ -223,7 +223,6 @@ $(window).load( function() {
 
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
-  <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -320,13 +319,13 @@ $(window).load( function() {
         <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
         <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
+             <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{partBean.itemContents.size()}"/>
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-             <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
+             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
         </h:selectOneMenu>
       </div>
     </div>
     <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
-      <f:param name="itemSequence" value="#{partBean.itemContentsCount}"/>
     </h:commandLink>
 </h:panelGroup>
 
@@ -464,10 +463,10 @@ $(window).load( function() {
           <!-- each selectItem stores the itemtype, current sequence -->
           <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
-            <f:selectItems value="#{itemConfig.addItemTypeSelectList}" />
+            <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
+            <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
           </h:selectOneMenu>
           <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
-            <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
           </h:commandLink>
         </div>
       </h:panelGroup>
@@ -539,4 +538,3 @@ $(window).load( function() {
       </body>
     </html>
   </f:view>
-
