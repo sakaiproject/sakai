@@ -750,7 +750,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		       if (sakaiId.startsWith(prefix))
 			   sakaiId = "/group/" + siteId + "/" + sakaiId.substring(prefix.length());
 		       else
-			   log.error("sakaiId not recognized: {}", sakaiId);
+			   log.warn("sakaiId not recognized: {}", sakaiId);
 		   } else if (type == SimplePageItem.BLTI) {
 				try {
 					// We need to import the BLTI tool to the new site and update the sakaiid
