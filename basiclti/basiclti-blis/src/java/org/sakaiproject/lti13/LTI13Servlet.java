@@ -1084,12 +1084,12 @@ public class LTI13Servlet extends HttpServlet {
 			log.debug("Lineitem retval={}",retval);
 		} else {
 			// TODO: Could make a new method collapsing these tool calls into a single scan
-			Assignment assnObj = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
-			if ( assnObj == null || assnObj.getName() == null ) {
-				LTI13Util.return400(response, "Unable to load assignment "+assignment_id);
+			Assignment columnObj = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, assignment_id);
+			if ( columnObj == null || columnObj.getName() == null ) {
+				LTI13Util.return400(response, "Unable to load column for assignment_id="+assignment_id);
 				return;
 			}
-			assignment_name = assnObj.getName();
+			assignment_name = columnObj.getName();
 			if ( scoreGiven == null ) {
 				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
 			} else {
@@ -1994,15 +1994,15 @@ public class LTI13Servlet extends HttpServlet {
 		Assignment a;
 
 		if ( assignment_id != null ) {
-			a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+			a = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, assignment_id);
 		} else {
 			String assignment_label = (String) content.get(LTIService.LTI_TITLE);
-			a = LineItemUtil.getAssignmentByLabelDAO(context_id, sat.tool_id, assignment_label);
+			a = LineItemUtil.getColumnByLabelDAO(context_id, sat.tool_id, assignment_label);
 		}
 
 		if ( a == null ) {
-			LTI13Util.return400(response, "Could not load assignment");
-			log.error("Could not load assignment_id={}", assignment_id);
+			LTI13Util.return400(response, "Could not load column");
+			log.error("Could not load column={}", assignment_id);
 			return;
 		}
 

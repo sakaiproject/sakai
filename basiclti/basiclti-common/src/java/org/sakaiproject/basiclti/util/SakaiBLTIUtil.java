@@ -2370,7 +2370,6 @@ public class SakaiBLTIUtil {
 
 		// Now read, set, or delete the grade...
 		Session sess = SessionManager.getCurrentSession();
-		String message = null;
 
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
@@ -2388,7 +2387,6 @@ public class SakaiBLTIUtil {
 					dGrade = dGrade / gradebookColumn.getPoints();
 				}
 				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
-				message = "Result read";
 				Map<String, Object> retMap = new TreeMap<>();
 				retMap.put("grade", dGrade);
 				if (commentDef != null) {
@@ -2399,7 +2397,6 @@ public class SakaiBLTIUtil {
 				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, null, "External Outcome");
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, null);
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
-				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(theGrade, gradebookColumn.getPoints());
@@ -2409,7 +2406,6 @@ public class SakaiBLTIUtil {
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, theGrade);
 
-				message = "Result replaced";
 				retval = Boolean.TRUE;
 			}
 		} catch (Exception e) {
@@ -2462,6 +2458,9 @@ public class SakaiBLTIUtil {
 			return "Grade failure siteId=" + siteId;
 		}
 
+		Map<String, Object> retMap = new TreeMap<>();
+		Object retval;
+
 		// See if this is tightly bound to an *actual* assignment
 		String external_id = gradebookColumn.getExternalId();
 		org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content, title, external_id);
@@ -2469,14 +2468,32 @@ public class SakaiBLTIUtil {
 		// If we are an assignment, we call the AssignmentService to communicate grades, etc and let it
 		// inform the gradebook.
 		if ( assignment != null ) {
+			Integer assignmentScale = assignment.getScaleFactor();
+			Integer assignmentMax = assignment.getMaxGradePoint();
 			if (isRead) {
-				throw new RuntimeException("Need Read");
+				Double dGrade = 0.0;
+				org.sakaiproject.assignment.api.model.AssignmentSubmission submission = getAssignmentSubmission(assignment, user_id);
+				String sGrade = submission.getGrade();
+				String sComment = submission.getFeedbackComment();
+				if (StringUtils.isNotBlank(sGrade) ) {
+					try {
+						dGrade = new Double(sGrade);
+						dGrade = dGrade / assignmentMax.doubleValue();
+					} catch(NumberFormatException e) {
+						dGrade = 0.0;
+					}
+				}
+				retMap.put("grade", dGrade);
+				if (StringUtils.isNotBlank(sComment)) {
+					retMap.put("comment", sComment);
+				}
+				return retMap;
 			} else if (isDelete) {
-				throw new RuntimeException("Need Delete");
+				// Set grade and comment to empty string
+				setAssignmentGrade(assignment, user_id, "", "" );
+				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
+				return Boolean.TRUE;
 			} else {
-				Integer assignmentScale = assignment.getScaleFactor();
-				Integer assignmentMax = assignment.getMaxGradePoint();
-
 				// Scale up the scores
 				Integer incomingScoreGiven = new Double(scoreGiven * assignmentScale).intValue();
 				Integer incomingScoreMax = new Double(scoreMaximum * assignmentScale).intValue();
@@ -2496,9 +2513,6 @@ public class SakaiBLTIUtil {
 		// Fall through to send the grade to a gradebook column
 		// Now read, set, or delete the grade...
 		Session sess = SessionManager.getCurrentSession();
-		String message = null;
-		Map<String, Object> retMap = new TreeMap<>();
-		Object retval;
 
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
@@ -2516,7 +2530,6 @@ public class SakaiBLTIUtil {
 					dGrade = dGrade / gradebookColumn.getPoints();
 				}
 				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
-				message = "Result read";
 				retMap.put("grade", dGrade);
 				if (commentDef != null) {
 					retMap.put("comment", commentDef.getCommentText());
@@ -2528,7 +2541,6 @@ public class SakaiBLTIUtil {
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
 
 				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
-				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
 				Double gradebookColumnPoints = gradebookColumn.getPoints();
@@ -2542,7 +2554,6 @@ public class SakaiBLTIUtil {
 				g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
 
 				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
-				message = "Result replaced";
 				retval = Boolean.TRUE;
 			}
 		} catch (NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
@@ -2582,6 +2593,36 @@ public class SakaiBLTIUtil {
 		}  finally {
 			popAdvisor();
 		}
+	}
+
+	public static org.sakaiproject.assignment.api.model.AssignmentSubmission getAssignmentSubmission(org.sakaiproject.assignment.api.model.Assignment a, String userId) {
+
+		if ( a == null ) return null;
+
+		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+		org.sakaiproject.user.api.PreferencesService preferencesService  = ComponentManager.get(org.sakaiproject.user.api.PreferencesService.class);
+		org.sakaiproject.time.api.UserTimeService userTimeService = ComponentManager.get(org.sakaiproject.time.api.UserTimeService.class);
+
+		User user;
+		try {
+			user = UserDirectoryService.getUser(userId);
+		} catch (org.sakaiproject.user.api.UserNotDefinedException e) {
+			return null;
+		}
+
+		pushAdvisor();
+		try {
+			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = assignmentService.getSubmission(a.getId(), user);
+			if ( submission == null ) {
+				submission = assignmentService.addSubmission(a.getId(), userId);
+			}
+			return submission;
+		} catch (org.sakaiproject.exception.PermissionException e) {
+			log.warn("Could not process submission: {}, {}", a.getId(), e);
+		}  finally {
+			popAdvisor();
+		}
+		return null;
 	}
 
 	public static void setAssignmentGrade(org.sakaiproject.assignment.api.model.Assignment a, String userId, String gradeGiven, String comment ) {
@@ -2631,6 +2672,7 @@ public class SakaiBLTIUtil {
 			submission.setGrade(gradeGiven);
 			submission.setGraded(true);
 			submission.setReturned(false);
+			submission.setFeedbackComment(comment);
 
 			submission.getProperties().put(getNextSubmissionLogKey(submission), logEntry.toString());
 

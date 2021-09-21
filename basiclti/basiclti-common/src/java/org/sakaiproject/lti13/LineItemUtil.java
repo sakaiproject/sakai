@@ -190,15 +190,15 @@ public class LineItemUtil {
 		Assignment assignmentObject = null;
 
 		// Check for duplicate labels
-		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		List<Assignment> assignments = getColumnsForToolDAO(context_id, tool_id);
 		if ( assignments == null ) {
-			throw new RuntimeException("Could not list assignments for "+context_id+" tool="+tool_id);
+			throw new RuntimeException("Could not list columns for "+context_id+" tool="+tool_id);
 		}
 
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
-			Assignment gAssignment = (Assignment) i.next();
+			Assignment gbColumn = (Assignment) i.next();
 
-			if (lineItem.label.equals(gAssignment.getName())) {
+			if (lineItem.label.equals(gbColumn.getName())) {
 				throw new RuntimeException("Duplicate label while adding line item " + lineItem.label);
 			}
 		}
@@ -257,21 +257,21 @@ public class LineItemUtil {
 		return assignmentObject;
 	}
 
-	public static Assignment updateLineItem(Site site, Long tool_id, Long assignment_id, SakaiLineItem lineItem) {
+	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
 		String context_id = site.getId();
 
-		if ( assignment_id == null ) {
-			throw new RuntimeException("assignment_id is required");
+		if ( column_id == null ) {
+			throw new RuntimeException("column_id is required");
 		}
 
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
 		}
 
-		Assignment assignmentObject = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		Assignment assignmentObject = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( assignmentObject == null ) return null;
 
 		/*
@@ -301,7 +301,7 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			g.updateAssignment(context_id, assignment_id, assignmentObject);
+			g.updateAssignment(context_id, column_id, assignmentObject);
 		} finally {
 			popAdvisor();
 		}
@@ -315,7 +315,7 @@ public class LineItemUtil {
 	 * @param tool_id - The tool id
 	 * @return A list of Assignment objects (perhaps empty) or null on failure
 	 */
-	protected static List<Assignment> getAssignmentsForToolDAO(String context_id, Long tool_id) {
+	protected static List<Assignment> getColumnsForToolDAO(String context_id, Long tool_id) {
 		List retval = new ArrayList();
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -324,23 +324,18 @@ public class LineItemUtil {
 		try {
 			List gradebookAssignments = g.getAssignments(context_id);
 			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if ( ! GB_EXTERNAL_APP_NAME.equals(gAssignment.getExternalAppName()) ) {
-					continue;
-				}
+				Assignment gbColumn = (Assignment) i.next();
+				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
 
 				// Parse the external_id
 				// tool_id|content_id|resourceLink|tag|
-				String external_id = gAssignment.getExternalId();
+				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
-				retval.add(gAssignment);
+				retval.add(gbColumn);
 			}
 		} catch (GradebookNotFoundException e) {
 			log.error("Gradebook not found context_id={}", context_id);
@@ -357,15 +352,15 @@ public class LineItemUtil {
 	 * Load a particular assignment by its internal Sakai GB key
 	 * @param context_id
 	 * @param tool_id
-	 * @param assignment_id
+	 * @param column_id
 	 * @return
 	 */
-	protected static Assignment getAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	protected static Assignment getColumnByKeyDAO(String context_id, Long tool_id, Long column_id)
 	{
-		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		List<Assignment> assignments = getColumnsForToolDAO(context_id, tool_id);
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
-			Assignment gAssignment = (Assignment) i.next();
-			if (assignment_id.equals(gAssignment.getId())) return gAssignment;
+			Assignment gbColumn = (Assignment) i.next();
+			if (column_id.equals(gbColumn.getId())) return gbColumn;
 		}
 		return null;
 	}
@@ -374,10 +369,10 @@ public class LineItemUtil {
 	 * Load a particular assignment by its internal Sakai GB key
 	 * @param context_id
 	 * @param tool_id
-	 * @param assignment_id
+	 * @param column_id
 	 * @return
 	 */
-	protected static Assignment getAssignmentByLabelDAO(String context_id, Long tool_id, String assignment_label)
+	protected static Assignment getColumnByLabelDAO(String context_id, Long tool_id, String column_label)
 	{
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -387,12 +382,11 @@ public class LineItemUtil {
 		try {
 			List gradebookAssignments = g.getAssignments(context_id);
 			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if (assignment_label.equals(gAssignment.getName())) {
-					retval = gAssignment;
+				Assignment gbColumn = (Assignment) i.next();
+				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
+
+				if (column_label.equals(gbColumn.getName())) {
+					retval = gbColumn;
 					break;
 				}
 			}
@@ -412,13 +406,13 @@ public class LineItemUtil {
 	 * Load a particular assignment by its internal Sakai GB key
 	 * @param context_id
 	 * @param tool_id
-	 * @param assignment_id
+	 * @param column_id
 	 * @return
 	 */
-	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long column_id)
 	{
 		// Make sure it belongs to us
-		Assignment a = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		Assignment a = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( a == null ) return false;
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -426,7 +420,7 @@ public class LineItemUtil {
 		pushAdvisor();
 		try {
 			// Provides us no return value
-			g.removeAssignment(assignment_id);
+			g.removeAssignment(column_id);
 		} finally {
 			popAdvisor();
 		}
