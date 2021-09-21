@@ -2910,37 +2910,6 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		// Find the longest prefix
-		// https://www.py4e.com/mod/   <-- Selected
-		// https://www.py4e.com/
-		String bestPrefix = "";
-		Map<String,Object> bestTool = null;
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
-
-			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
-			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
-
-			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
-			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
-				bestTool = tool;
-				bestPrefix = prefix;
-			}
-		}
-
-		// We want at least the scheme and domain to match
-		if ( bestTool != null ) {
-			URL launchUrlObj = getUrlOrNull(launchUrl);
-			URL prefixUrlObj = getUrlOrNull(bestPrefix);
-			if ( launchUrlObj != null && prefixUrlObj != null &&
-				 launchUrlObj.getProtocol().equals(prefixUrlObj.getProtocol()) &&
-				 launchUrlObj.getHost().equals(prefixUrlObj.getHost()) ){
-				log.debug("Matched scheme / server {}={}", launchUrl, bestPrefix);
-				return bestTool;
-			}
-		}
-
 		// After all that - still nothing
 		return null;
 
