@@ -322,8 +322,8 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookAssignments = g.getAssignments(context_id);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+			List gradebookColumns = g.getAssignments(context_id);
+			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
 
@@ -380,8 +380,8 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookAssignments = g.getAssignments(context_id);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+			List gradebookColumns = g.getAssignments(context_id);
+			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
 
@@ -458,8 +458,8 @@ public class LineItemUtil {
 
 		pushAdvisor();
 		try {
-			List gradebookAssignments = g.getAssignments(context_id);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+			List gradebookColumns = g.getAssignments(context_id);
+			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
 
