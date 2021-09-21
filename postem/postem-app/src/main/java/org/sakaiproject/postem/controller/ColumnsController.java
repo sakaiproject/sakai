@@ -103,7 +103,6 @@ public class ColumnsController {
         StudentGrades studentGrades = null;
         if (userEid != null) {
             studentGrades = postemSakaiService.getStudentByGBAndUsername(currentGradebook, userEid);
-            postemSakaiService.registerStudentAccess(studentGrades);
         }
 
         final Locale locale = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
@@ -111,6 +110,8 @@ public class ColumnsController {
         if (null == studentGrades) {
             String literalErrorMessage = MessageFormat.format(messageSource.getMessage(PostemToolConstants.NO_GRADES_FOR_USER, null, locale), currentGradebook.getTitle());
             model.addAttribute("literalErrorMessage", literalErrorMessage);
+        } else {
+            postemSakaiService.registerStudentAccess(studentGrades);
         }
 
         model.addAttribute("visible", Boolean.toString(postemSakaiService.canUpdateSite()));
