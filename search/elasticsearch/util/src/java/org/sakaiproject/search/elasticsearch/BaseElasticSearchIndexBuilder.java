@@ -264,8 +264,22 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     @Override
     public void destroy() {
-        this.client = null;
-        this.eventRegistrar = null;
+        if (backgroundScheduler != null) {
+            getLog().info("elasticsearch shutting down index worker for index {}", indexName);
+            backgroundScheduler.cancel();
+            backgroundScheduler = null;
+        }
+
+        if (client != null) {
+            try {
+                getLog().info("elasticsearch closing client for index {}", indexName);
+                client.close();
+                client = null;
+            } catch (IOException ioe) {
+                getLog().warn("Could not close elasticsearch client, {}", ioe.toString());
+            }
+        }
+        eventRegistrar = null;
     }
 
     @Override
