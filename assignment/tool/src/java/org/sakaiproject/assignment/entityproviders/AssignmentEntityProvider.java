@@ -512,9 +512,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
         }
 
-        String assignmentId = (String)params.get("assignmentId");
+        String assignmentId = (String)params.get("tsAssignmentId");
         if (StringUtils.isBlank(assignmentId)) {
-
             log.warn("You need to supply the assignmentId and ref");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
         }
@@ -545,7 +544,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
 
-        String duration = (String) params.get("duration");
+        String duration = (String) params.get("tsTime");
         
         if (!assignmentService.timeHasCorrectFormat(duration)) {
 
@@ -553,7 +552,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
 
-        String comment = (String) params.get("regComment");
+        String comment = (String) params.get("tsComment");
         StringBuilder alertMsg = new StringBuilder();
         comment = formattedText.processFormattedText(comment, alertMsg);
         if (alertMsg.length() > 0) {
@@ -617,7 +616,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
         }
 
-        String assignmentId = (String)params.get("assignmentId");
+        String assignmentId = (String)params.get("tsAssignmentId");
         if (StringUtils.isBlank(assignmentId)) {
             log.warn("You need to supply the assignmentId and ref");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
@@ -633,12 +632,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         final List<Long> timeSheetIds;
         Object ts = params.get("selectedTimeSheets[]");
-        if (ts != null && ts instanceof Long[]) {
-            timeSheetIds = Arrays.asList((Long[]) ts);
-        } else if (ts != null && ts instanceof Long) {
-            timeSheetIds = Collections.singletonList((Long) ts);
+        if (ts != null && ts instanceof String[]) {
+            List <String> aux = Arrays.asList((String[]) ts);
+            timeSheetIds = new ArrayList<>();
+            aux.stream().forEach(a -> timeSheetIds.add(Long.parseLong(a)));
+//            timeSheetIds = Arrays.asList((Long[]) ts);
+        } else if (ts != null && ts instanceof String) {
+            timeSheetIds = Collections.singletonList(Long.parseLong(ts.toString()));
         } else {
-            log.warn("Selected time sheet must be provided.");
+            log.warn("Selected time sheet must be provided a.");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.empty");
         }
 
@@ -646,7 +648,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             for (Long timeSheetId : timeSheetIds) {
 
                 if (null == timeSheetId) {
-                    log.warn("Selected time sheet must be provided.");
+                    log.warn("Selected time sheet must be provided b.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.submitterId");
                 }
 
@@ -654,19 +656,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 try {
                     timeSheet = assignmentService.getTimeSheet(timeSheetId);
                 } catch (PermissionException pe) {
-                    log.warn("Selected time sheet must be provided.");
+                    log.warn("Selected time sheet must be provided c.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
                 }
 
                 if(!timeSheet.getSubmitter().getSubmission().getId().equals(as.getId())) {
-                    log.warn("Selected time sheet must be provided.");
+                    log.warn("Selected time sheet must be provided d.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
                 }
 
                 try {
                     assignmentService.deleteTimeSheet(timeSheet);
                 } catch (PermissionException e) {
-                    log.warn("Selected time sheet must be provided.");
+                    log.warn("Selected time sheet must be provided e.");
                     return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
                 }
             }
