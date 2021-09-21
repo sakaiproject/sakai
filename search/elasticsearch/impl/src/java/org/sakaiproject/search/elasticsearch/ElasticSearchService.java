@@ -18,6 +18,7 @@ package org.sakaiproject.search.elasticsearch;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.ServerSocket;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.network.InetAddresses;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
 import org.elasticsearch.node.InternalSettingsPreparer;
@@ -81,6 +83,8 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.BasicConfigItem;
+import org.springframework.util.SocketUtils;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -162,7 +166,7 @@ import lombok.extern.slf4j.Slf4j;
     protected void initializeElasticSearch() {
         final Settings settings = initializeElasticSearchSettings();
         if (node == null) node = initializeElasticSearchNode(settings);
-        if (client == null) client = initializeElasticSearchClient();
+        if (client == null) client = initializeElasticSearchClient(settings);
     }
 
     protected Settings initializeElasticSearchSettings() {
@@ -196,6 +200,23 @@ import lombok.extern.slf4j.Slf4j;
 
         log.info("Setting ElasticSearch storage area to [" + settingsBuilder.get("path.data") + "]");
 
+        String host = settingsBuilder.get("http.host");
+        String port = settingsBuilder.get("http.port");
+
+        if (StringUtils.isBlank(host)) {
+            host = "127.0.0.1";
+            settingsBuilder.put("http.host", host);
+        }
+
+        if (StringUtils.isBlank(port)) {
+            int availablePort = findAvailableTcpPort(host, 9200);
+            port = Integer.toString(availablePort);
+            settingsBuilder.put("http.port", availablePort);
+        }
+
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("elasticsearch.http.host", host, this.getClass().getName()));
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("elasticsearch.http.port", port, this.getClass().getName()));
+
         settingsBuilder.put("transport.type", "netty4");
 
         return settingsBuilder.build();
@@ -216,19 +237,34 @@ import lombok.extern.slf4j.Slf4j;
         Node node = new EmbeddedElasticSearchNode(settings, plugins);
 
         try {
+            log.info("elasticsearch starting embedded node, {}", node.settings().toString());
             node.start();
         } catch (NodeValidationException nve) {
-            log.error("Could not state embedded elasticsearch node, {}", nve.toString());
+            log.error("Could not start embedded elasticsearch node, {}", nve.toString());
             return null;
         }
 
         return node;
     }
 
-    protected RestHighLevelClient initializeElasticSearchClient() {
-        String host = serverConfigurationService.getString("elasticsearch.http.host", "localhost");
-        int port = serverConfigurationService.getInt("elasticsearch.http.port", 9200);
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(host, port)));
+    protected RestHighLevelClient initializeElasticSearchClient(Settings settings) {
+        String host = settings.get("http.host", "localhost");
+        int port = settings.getAsInt("http.port", 9200);
+        HttpHost httpHost = new HttpHost(host, port);
+        log.info("elasticsearch rest high level client configured with: {}", httpHost.toHostString());
+        return new RestHighLevelClient(RestClient.builder(httpHost));
+    }
+
+    private int findAvailableTcpPort(String host, int port) {
+        try (ServerSocket serverSocket = new ServerSocket(port, 0, InetAddresses.forString(host))) {
+            if (serverSocket.getLocalPort() != port) {
+                throw new IOException("Port " + port + " is in use and can't be used by elasticsearch");
+            }
+            return port;
+        } catch (IOException ioe) {
+            log.warn("Can't use port {}, {}", port, ioe.toString());
+        }
+        return findAvailableTcpPort(host, SocketUtils.findAvailableTcpPort(49152));
     }
 
     public void registerIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {

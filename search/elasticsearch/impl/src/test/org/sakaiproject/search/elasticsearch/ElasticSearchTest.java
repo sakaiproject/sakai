@@ -195,9 +195,6 @@ public class ElasticSearchTest {
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(Collections.emptyList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
-        when(serverConfigurationService.getString("elasticsearch.http.host", "localhost")).thenReturn("localhost");
-        when(serverConfigurationService.getInt("elasticsearch.http.port", 9200)).thenReturn(9200);
-
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         siteIds.add(siteId);
@@ -490,10 +487,8 @@ public class ElasticSearchTest {
     public void testRefresh() {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-
         elasticSearchService.refreshInstance();
         assertTrue(elasticSearchService.getNDocs() == 106);
-
     }
 
     @Test
