@@ -858,6 +858,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                 || (topicBean.isMine && securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef));
             topicBean.canPost = securityService.unlock(Permissions.POST_CREATE.label, siteRef);
             topicBean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
+            topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
             topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
         }

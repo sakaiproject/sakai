@@ -71,6 +71,7 @@ public class TopicTransferBean implements Entity {
     public boolean canDelete;
     public boolean canPost;
     public boolean canPin;
+    public boolean canBookmark;
     public boolean canTag;
     public boolean canReact;
     public boolean canModerate;
