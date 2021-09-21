@@ -65,7 +65,7 @@
           </div>
         </div>
       </div>
-      <div class="form-group row" th:if="${!groupList.isEmpty() || !sectionList.isEmpty()}">
+      <div class="form-group row" th:if="${groupFilterEnabled && (!groupList.isEmpty() || !sectionList.isEmpty())}">
         <div class="col-sm-8">
           <label for="groupMembershipFilter" class="form-control-label block" th:text="#{groups.filter.membership}">Filter membership</label>
           <select class="form-control" id="groupMembershipFilter" th:field="*{filterByGroupId}">

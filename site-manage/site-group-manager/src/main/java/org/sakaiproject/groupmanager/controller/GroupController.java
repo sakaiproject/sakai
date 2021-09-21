@@ -48,6 +48,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteGroupHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
@@ -193,7 +194,8 @@ public class GroupController {
         model.addAttribute("joinableSetList", joinableSetList);
         model.addAttribute("siteMemberList", siteMemberList);
         model.addAttribute("groupList", groupList);
-        model.addAttribute("sectionList", sectionList);        
+        model.addAttribute("sectionList", sectionList);
+        model.addAttribute("groupFilterEnabled", sakaiService.getBooleanProperty(SiteManageConstants.PROP_SITEINFO_GROUP_FILTER_ENABLED, true));
 
         return GroupManagerConstants.GROUP_TEMPLATE;
     }
