@@ -343,7 +343,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         autosave : {
             saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
             //Delay for autosave
-            delay: 120,
+            delay: 5,
             //autosave_messageType can be "no" or "notification"
             messageType : "statusbar"
         },
@@ -406,7 +406,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
         //Autosave has a dependency on notification
-        CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('autosave',basePath+'autosave/', 'plugin.js');
         CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/${ckeditor.wordcount.version}/', 'plugin.js');
         CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
         // Accessibility checker has a dependency on balloonpanel
