@@ -1,17 +1,17 @@
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <script>
-    window.i18nProgresa['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
-    window.i18nProgresa['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
-    window.i18nProgresa['ts.add.err.regDate']=" $tlang.getString('ts.add.err.regDate')";
-    window.i18nProgresa['ts.add.err.regComment']=" $tlang.getString('ts.add.err.regComment')";
-    window.i18nProgresa['ts.add.err.regTime']=" $tlang.getString('ts.add.err.regTime')";
-    window.i18nProgresa['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
-    window.i18nProgresa['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
-    window.i18nProgresa['ts.rem.err.empty']=" $tlang.getString('ts.rem.err.empty')";
-    window.i18nProgresa['ts.rem.err.submitterId']=" $tlang.getString('ts.rem.err.submitterId')";
-    window.i18nProgresa['ts.rem.err.permission']=" $tlang.getString('ts.rem.err.permission')";
-    window.i18nProgresa['ts.add.err.submitter']=" $tlang.getString('ts.add.err.submitter')";
+    window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
+    window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
+    window.i18nWlogTab['ts.add.err.regDate']=" $tlang.getString('ts.add.err.regDate')";
+    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.regComment')";
+    window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
+    window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
+    window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
+    window.i18nWlogTab['ts.rem.err.empty']=" $tlang.getString('ts.rem.err.empty')";
+    window.i18nWlogTab['ts.rem.err.submitterId']=" $tlang.getString('ts.rem.err.submitterId')";
+    window.i18nWlogTab['ts.rem.err.permission']=" $tlang.getString('ts.rem.err.permission')";
+    window.i18nWlogTab['ts.add.err.submitter']=" $tlang.getString('ts.add.err.submitter')";
 </script>
 
 <div id="StudentTimesheetCurrent" class="hidden">
@@ -48,10 +48,10 @@
                     $!service.getUsersLocalDateTimeString($timeSheetSubmit.regDate)
                 </td>
                 <td>
-                    $timeSheetSubmit.asnComment
+                    $timeSheetSubmit.comment
                 </td>
                 <td>
-                    $timeSheetSubmit.regTime
+                    $timeSheetSubmit.duration
                 </td>
                 #if ($!timeSheetSource == "submission")
                     <td>
@@ -85,7 +85,7 @@
     #end
 
     ##BOOTSTRAP SMALL_MODAL
-    ##content: regDate - regComment - regTime - submitterId
+    ##content: regDate - regComment - duration - submitterId
     <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -128,7 +128,7 @@
                                     <label for="timesheet_record_comment" class="col-form-label">$!tlang.getString("ts.modal.field.comment")</label>
                                 </div>
                                 <div class="col-8">
-                                    <textarea class="form-control" id="regComment" name="regComment" maxlength="500"></textarea>
+                                    <textarea class="form-control" id="comment" name="comment" maxlength="4096"></textarea>
                                 </div>
                             </div>
                             <div class="form-group form-required">
@@ -136,7 +136,7 @@
                                     <label for="timesheet_record_time_spent" class="col-form-label">$!tlang.getString("ts.modal.field.tspent")</label>
                                 </div>
                                 <div class="col-8">
-                                    <input type="text" class="form-control" id="regTime" name="regTime" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
+                                    <input type="text" class="form-control" id="duration" name="duration" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
                                 </div>
                             </div>
                         </form>

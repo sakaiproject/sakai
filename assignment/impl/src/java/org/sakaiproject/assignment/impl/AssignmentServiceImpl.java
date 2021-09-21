@@ -249,6 +249,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
+    
+    private Pattern pattern;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -279,6 +281,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
+        
+        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
     }
 
     @Override
@@ -841,9 +845,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException {
+    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
         // security check
-        if (!allowAddSubmission(context)) {
+        if (!allowAddSubmission(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
         }
         assignmentRepository.newAssignmentTimeSheet(timeSheet);
@@ -852,9 +856,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException {
+    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException {
         // security check
-        if (!allowAddSubmission(context)) {
+        if (!allowAddSubmission(timeSheet.getSubmitter().getSubmission().getAssignment().getContext())) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
         }
         assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
@@ -1635,24 +1639,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException {
-        AssignmentSubmissionSubmitter submitter = assignmentRepository.findSubmissionSubmitter(submitterId);
-        if (submitter != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submitter.getSubmission()).reckon().getReference();
-            if (allowGetSubmission(reference)) {
-                return submitter;
-            } else {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-            }
-        } else {
-            // submission not found
-            log.debug("Submission ID does not exist {}", submitterId);
-        }
-        return null;
-    }
-
-    @Override
-    public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException {
+    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException {
         AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
         if (timeSheet != null) {
             String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getSubmitter().getSubmission()).reckon().getReference();
@@ -4872,8 +4859,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return dupes;
     }
 
-    public boolean correctTime(String timeSheet) {
-        Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
+    public boolean timeHasCorrectFormat(String timeSheet) {
         Matcher match = pattern.matcher(timeSheet);
 
         if (!match.matches()) {

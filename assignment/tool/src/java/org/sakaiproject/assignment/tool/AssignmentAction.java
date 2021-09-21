@@ -1735,7 +1735,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         s.setSubmitted(true);
                         s.setUserSubmission(false);
                         s.setDateModified(Instant.now());
-                        s.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findFirst().ifPresent(sb -> sb.setSubmittee(false));
+                        s.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
                         assignmentService.updateSubmission(s);
                     }
                 } catch (PermissionException e) {
@@ -6546,8 +6546,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
-                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setSubmittee(true)); 
-                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findFirst().ifPresent(s -> s.setTimeSpent(saveSpent));
+                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findAny().ifPresent(s -> s.setSubmittee(true)); 
+                    submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(currentUser)).findAny().ifPresent(s -> s.setTimeSpent(saveSpent));
 
                     // for resubmissions
                     // when resubmit, keep the Returned flag on till the instructor grade again.
@@ -6664,7 +6664,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submission.setDateSubmitted(Instant.now());
                         submission.setSubmitted(post);
                         
-                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitterId)).findFirst().ifPresent(s -> s.setTimeSpent(saveSpent));
+                        submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitterId)).findAny().ifPresent(s -> s.setTimeSpent(saveSpent));
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
                     } catch (PermissionException e) {
@@ -6932,11 +6932,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if(StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getReqEstimate()) {
     	        if (StringUtils.isBlank(timeSheet)) {
     	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.correctTime(timeSheet)) {
+    	        } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
     	            addAlert(state, rb.getFormattedMessage("timeformat"));
     	        }
             }
-            if (StringUtils.isNotBlank(timeSheet) && !assignmentService.correctTime(timeSheet)) {
+            if (StringUtils.isNotBlank(timeSheet) && !assignmentService.timeHasCorrectFormat(timeSheet)) {
             	addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7126,7 +7126,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String timeSheet = params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
             if (StringUtils.isBlank(timeSheet)) {
                 addAlert(state, rb.getString("timeempty"));
-            } else if (!assignmentService.correctTime(timeSheet)) {
+            } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
                 addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -15608,7 +15608,7 @@ public class AssignmentAction extends PagedResourceActionII {
         private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
             int totalTime = 0;
             for (AssignmentTimeSheet assignmentTimeSheet : ats) {
-                totalTime = totalTime + timeToInt(assignmentTimeSheet.getRegTime());	
+                totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
             }
             return intToTime(totalTime);
         }
@@ -15882,7 +15882,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
         int totalTime = 0;
         for (AssignmentTimeSheet assignmentTimeSheet : ats) {
-            totalTime = totalTime + timeToInt(assignmentTimeSheet.getRegTime());	
+            totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
         }
         return intToTime(totalTime);
     }

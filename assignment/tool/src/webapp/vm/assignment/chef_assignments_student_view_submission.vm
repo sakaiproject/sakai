@@ -658,7 +658,7 @@ $(document).ready(function(){
 					</div>
 					<div class="col-sm-3">
 						<div class="itemSummaryValue">
-							<input name="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" id="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" type="text" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT)" size="20" maxlength="20" class="form-control" <input type="text" class="form-control" id="regTime" name="regTime" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
+							<input name="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" id="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" type="text" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT)" size="20" maxlength="20" class="form-control" <input type="text" class="form-control" id="duration" name="duration" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
 							<input name="assignment_input_add_submission_time" id="assignment_input_add_submission_time" type="hidden" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT)">
 							##$formattedText.escapeHtml($!assignment.Estimate)
 						</div>

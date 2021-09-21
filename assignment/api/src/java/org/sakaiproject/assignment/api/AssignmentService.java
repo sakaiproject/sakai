@@ -818,15 +818,13 @@ public interface AssignmentService extends EntityProducer {
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
 
-    public boolean correctTime(String timeSheet);
+    public boolean timeHasCorrectFormat(String timeSheet);
 
-    public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
-
-    public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
+    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException;
 	
-    public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException;
 
-    public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
+    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException;
 
     /**
      * Returns true if the content review implementation successfully created the assignment
