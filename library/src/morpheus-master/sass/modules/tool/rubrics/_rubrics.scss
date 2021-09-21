@@ -121,6 +121,84 @@
     }
 
 }
+@media #{$phone} {
+    sakai-rubric,
+    sakai-rubric-readonly,
+    sakai-rubric-grading,
+    sakai-rubric-student {
+        .rubric-title {
+            .actions {
+                @include display-flex;
+                .action-container {
+                    text-align: center;
+                }
+            }
+        }
+        .collapse-details .rubric-details,
+        .rubric-details {
+            .criterion .criterion-row,
+            .criterion.sakai-rubric-criterion-readonly .criterion-row {
+                @include display-flex;
+                @include flex-direction(column);
+                width: 100%;
+                margin-bottom: $standard-spacing;
+                border-width: 1px 0;
+                .criterion-detail {
+                    border-left: 1px solid $rubrics-lightbox-border-color;
+                    width: 100%;
+                    .add-criterion-item {
+                        right: 0px;
+                        top: 8px;
+                    }
+                }
+                .criterion-ratings {
+                    width: 100%;
+                    margin-bottom: 0;
+                    .cr-table,
+                    .cr-table .cr-table-row {
+                        @include display-flex;
+                        @include flex-direction(column);
+                        .rating-item {
+                            border-bottom: 1px solid $rubrics-lightbox-border-color;
+                            border-left: 1px solid $rubrics-lightbox-border-color;
+                            &:last-of-type {
+                                border-bottom: none;
+                            }
+                            .add-criterion-item {
+                                right: 0px;
+                                top: 8px;
+                            }
+                        }
+                    }
+                }
+                .criterion-actions {
+                    width: 100%;
+                    text-align: center;
+                    border-left: 1px solid $rubrics-lightbox-border-color;
+                    border-right: 1px solid $rubrics-lightbox-border-color;
+                    > * {
+                        margin: 0px 8px;
+                    }
+                }
+            }
+            &.grading {
+                .criterion .criterion-row {
+                    .criterion-ratings {
+                        margin-bottom: 0;
+                    }
+                    .criterion-actions {
+                        @include display-flex;
+                        @include flex-direction(row-reverse);
+                        @include align-items(center);
+                        .rubric-grading-points-value {
+                            flex: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 /** External to the tool **/
 .sakai-rubric-association {
@@ -421,6 +499,23 @@
     }
 }
 
+sakai-rubric-grading {
+    .rubric-details.grading {
+        > h3 {
+            margin-bottom: 10px;
+        }
+        .criterion.sakai-rubric-criteria-grading {
+            margin-bottom: 10px;
+            .criterion-ratings {
+                margin-bottom: 15px;
+            }
+        }
+    }
+    .rubric-totals {
+        margin: 10px 0px 10px 0px;
+    }
+}
+
 sakai-rubric-grading-comment,
 sakai-rubric-student-comment {
 
@@ -430,6 +525,7 @@ sakai-rubric-student-comment {
         width: 100%;
         &.active {
             color: var(--sakai-color-orange);
+            background-color: unset;
         }
     }
 }
