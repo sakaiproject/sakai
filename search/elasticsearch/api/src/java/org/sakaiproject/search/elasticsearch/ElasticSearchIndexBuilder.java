@@ -15,23 +15,23 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.search.SearchHit;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
-
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
 
 /**
  *
  */
 public interface ElasticSearchIndexBuilder extends SearchIndexBuilder {
 
-    void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, Client client);
+    void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, RestHighLevelClient client);
 
     Set<String> getTriggerFunctions();
 
@@ -63,7 +63,7 @@ public interface ElasticSearchIndexBuilder extends SearchIndexBuilder {
 
     StringBuilder getStatus(StringBuilder into);
 
-    int getNDocs();
+    long getNDocs();
 
     SearchStatus getSearchStatus();
 }

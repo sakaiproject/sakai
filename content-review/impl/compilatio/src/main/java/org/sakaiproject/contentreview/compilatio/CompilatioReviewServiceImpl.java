@@ -51,7 +51,6 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.service.BaseContentReviewService;
-import org.sakaiproject.contentreview.service.ContentReviewQueueService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -193,7 +192,6 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	@Setter protected CompilatioAccountConnection compilatioConn;
 	@Setter protected CompilatioContentValidator compilatioContentValidator;
 	@Setter protected ContentReviewSiteAdvisor siteAdvisor;
-	@Setter	ContentReviewQueueService crqs;
 	
 	public void init() {		
 	}

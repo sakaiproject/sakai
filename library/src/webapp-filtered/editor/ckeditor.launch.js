@@ -24,6 +24,7 @@ sakai.editor.editors = sakai.editor.editors || {};
 // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
 sakai.editor.enableResourceSearch = false;
 sakai.editor.enableSakaiPreview = true;
+sakai.editor.enableSakaiOpenLink = true;
 
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
@@ -140,15 +141,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             flashBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=flash'
         };
 
-    } else {
-        var fckeditorUrl = '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html' +
-            '?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector';
-
-        var filebrowser = {
-            browseUrl : fckeditorUrl + collectionId + '&' + folder,
-            imageBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Image",
-            flashBrowseUrl : fckeditorUrl + collectionId + '&' + folder + "&Type=Flash"
-        };
     }
 
     let siteId = "";
@@ -188,7 +180,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder plugin.
         // TODO Get this to work with elfinder.
-        fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
+        // TODO May be a problem after SAK-44872
+        fileConnectorUrl : '',
 
         // These are the general URLs for browsing generally and specifically for images/flash object.
         filebrowserBrowseUrl :      filebrowser.browseUrl,
@@ -198,7 +191,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         filebrowserUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
         uploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
         imageUploadUrl: `/direct/content/direct-upload.json?context=${siteId}`,
-
+        sakaiDropdownToolbar: true,
+        toolbarCanCollapse: true,
+        toolbarStartupExpanded: false,
+        sakaiOpenLink: true,
         extraPlugins: [
             //These plugins are included in the ckeditor4 webjar
             // 'a11yhelp',
@@ -207,9 +203,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             // 'autocomplete',
             // 'autoembed',
             // 'autogrow',
-            // 'autolink',
+            'autolink',
             // 'balloonpanel',
-            // 'balloontoolbar',
+            'balloontoolbar',
             // 'bbcode',
             'bidi',
             'clipboard',
@@ -290,8 +286,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             'notification',
             'removeformat',
             'wordcount',
+            (sakai.editor.sakaiDropdownToolbar ? 'sakaidropdowntoolbar' : ''),
             (sakai.editor.enableSakaiPreview ? 'sakaipreview' : 'preview'),
             (sakai.editor.enableResourceSearch ? 'resourcesearch' : ''),
+            (sakai.editor.enableSakaiOpenLink ? 'sakaiopenlink' : ''),
             `${ckeditor-extra-plugins}`,
             `${ckeditor-a11y-extra-plugins}`
         ].join(','),
@@ -319,6 +317,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Cut','Copy','Paste','PasteText','-','Print', 'SakaiPreview'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
+            // //if sakaiDropdownToolbar is true, everything defined after the / will be displayed only after toggle
             '/',
             ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
             ['atd-ckeditor'],
@@ -390,6 +389,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             else if (portal.editor.type == "full") {
                 ckconfig.toolbar = "Full";
                 detectWidth = false;
+                ckconfig.toolbarStartupExpanded = true;
             }
         }
 
@@ -402,6 +402,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaiopenlink',basePath+'sakaiopenlink/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('sakaidropdowntoolbar', basePath+'sakaidropdowntoolbar/', 'plugin.js');
         CKEDITOR.plugins.addExternal('bt_table',basePath+'bt_table/', 'plugin.js');
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');

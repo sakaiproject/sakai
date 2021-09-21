@@ -466,18 +466,8 @@ $(document).ready(function () {
 
 });
 
-function FCKeditor_OnComplete(editorInstance) {
-     
-    fckeditor_word_count(editorInstance);
-    editorInstance.Events.AttachEvent('OnSelectionChange', fckeditor_word_count);
-}
-   
 function ckeditor_word_count() {
      msgcntr_word_count(CKEDITOR.instances[sakaiCKEditorName].getData());
-}
-
-function fckeditor_word_count(editorInstance) {
-     msgcntr_word_count(editorInstance.GetData());
 }
 
 function msgcntr_word_count(forumHtml) {
@@ -486,12 +476,6 @@ function msgcntr_word_count(forumHtml) {
     }
 }
 
- function fckeditor_word_count_fromMessage(msgStr, countSpan){
- 	if (document.getElementById(countSpan)) {
- 	    document.getElementById(countSpan).innerHTML = "<span class='highlight'>(" + getWordCount(msgStr) + ")</span>";
- 	}
- }
- 
  function getWordCount(msgStr) {
  
      var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x').match(/\b/g);
@@ -504,32 +488,18 @@ function msgcntr_word_count(forumHtml) {
 }
 
 function InsertHTML(header) { 
-	// These lines will write to the original textarea and makes the quoting work when FCK is not present
+	// These lines will write to the original textarea and makes the quoting work when ckeditor is not present
 	var finalhtml = header + ' <i>' + titletext + '</i><br/><br/><i>' + messagetext + '</i><br/><br/>';
 
 	document.forms['dfCompose'].elements[rteId].value = finalhtml;
 	// Get the editor instance that we want to interact with.
-	if (typeof(FCKeditorAPI) != 'undefined')
-	{
-		var oEditor = FCKeditorAPI.GetInstance(rteId);
-		// Check the active editing mode.
-		if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
-		{
-			// Insert the desired HTML.
-			oEditor.InsertHtml( finalhtml );
-		}
-		else alert( 'You must be in WYSIWYG mode!' );
-	}
-	else if (typeof(CKEDITOR) != 'undefined')
-	{
+	if (typeof(CKEDITOR) != 'undefined') {
 		var oEditor = CKEDITOR.instances[sakaiCKEditorName];
 		// Check the active editing mode.
-		if ( oEditor.mode == 'wysiwyg' )
-		{
+		if ( oEditor.mode == 'wysiwyg' ) {
 			// Insert the desired HTML.
 			oEditor.insertHtml( finalhtml );
-		}
-		else alert( 'You must be in WYSIWYG mode!' );
+		} else alert( 'You must be in WYSIWYG mode!' );
 	}
   return false;
 }

@@ -25,7 +25,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
@@ -35,11 +34,9 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.apache.lucene.util.Version;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
-import org.elasticsearch.search.facet.terms.InternalTermsFacet;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
@@ -60,12 +57,12 @@ public class ElasticSearchResult implements SearchResult {
     private int index;
     private SearchHit hit;
     private String newUrl;
-    private InternalTermsFacet facet;
+    private Terms facet;
     private ElasticSearchIndexBuilder searchIndexBuilder;
-    private static Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_36, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+    private static Analyzer analyzer = new StandardAnalyzer();
     private String searchTerms;
 
-    public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
+    public ElasticSearchResult(SearchHit hit, Terms facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
         this.hit = hit;
         this.facet = facet;
         this.searchIndexBuilder = searchIndexBuilder;
@@ -93,7 +90,7 @@ public class ElasticSearchResult implements SearchResult {
     public String[] getValues(String string) {
         String[] values = new String[hit.getFields().size()];
         int i=0;
-        for (SearchHitField field: hit.getFields().values()) {
+        for (DocumentField field: hit.getFields().values()) {
             values[i++] = field.getValue();
         }
         return values;
@@ -163,14 +160,14 @@ public class ElasticSearchResult implements SearchResult {
             return new ElasticSearchTermFrequency();
         }
 
-        String[] terms = new String[facet.getEntries().size()];
-        int[] frequencies = new int[facet.getEntries().size()];
+        String[] terms = new String[facet.getBuckets().size()];
+        int[] frequencies = new int[facet.getBuckets().size()];
 
         int i = 0;
 
-        for (TermsFacet.Entry termFacet : facet.getEntries()) {
-            terms[i] = termFacet.getTerm().string();
-            frequencies[i] = termFacet.getCount();
+        for (Terms.Bucket termFacet : facet.getBuckets()) {
+            terms[i] = termFacet.getKeyAsString();
+            frequencies[i] = (int) termFacet.getDocCount();
             i++;
         }
 

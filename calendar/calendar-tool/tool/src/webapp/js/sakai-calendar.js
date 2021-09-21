@@ -160,22 +160,13 @@ const sakaiCalendar = {
     const currentView = this.calendar.currentData.currentViewType.toLowerCase();
 
     /** Calendar Printing Views. */
-    // DAY_VIEW = 0;
     // LIST_SUBVIEW = 1;
-    // WEEK_VIEW = 2;
     // MONTH_VIEW = 3;
-    // Week is the default subview
-    let currentPrintview = 2;
-
+    // List is the default subview for weekly, daily and list views.
+    let currentPrintview = 1;
     // Different views have different time ranges
-    if (currentView.includes('list')) {
-      currentPrintview = 1;
-    } else if (currentView.includes('week')) {
-      currentPrintview = 2;
-    } else if (currentView.includes('month')) {
+    if (currentView.includes('month')) {
       currentPrintview = 3;
-    } else if (currentView.includes('day')) {
-      currentPrintview = 0;
     }
 
     // Now we have the right time ranges, we must replace the query params.

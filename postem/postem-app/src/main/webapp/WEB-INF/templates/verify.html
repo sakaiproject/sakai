@@ -43,7 +43,7 @@
         <form th:action="@{/create_gradebook_ok}" name="addContentForm" id="addContentForm" method="post" th:object="${gradebookForm}">
             <div class="act">
                 <input accesskey="x" type="submit" class="active" id="gradebook-continue-button" th:value="#{bar_post}">
-                <input accesskey="x" type="button" th:onclick="cancelVerify()" id="gradebook-cancel-button" class="btn btn-default" th:value="#{cancel}">
+                <input accesskey="x" type="button" th:onclick="cancelVerify()" id="gradebook-cancel-button" th:value="#{cancel}">
             </div>
         </form>
     </div>

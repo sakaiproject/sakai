@@ -94,6 +94,10 @@
 	        <from-outcome>podcastOptions</from-outcome>
 	        <to-view-id>/podcasts/podOptions.jsp</to-view-id>
 	    </navigation-case>
+	    <navigation-case>  <!-- GOTO podListen -->
+	      <from-outcome>podcastListen</from-outcome>
+	      <to-view-id>/podcasts/podListen.jsp</to-view-id>
+	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podRevise -->
 	      <from-outcome>podcastRevise</from-outcome>
 	      <to-view-id>/podcasts/podRevise.jsp</to-view-id>

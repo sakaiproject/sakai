@@ -184,34 +184,22 @@ function SRC_clearTimedWindowVerification()
 }
 
 /*
- * Find the base (or first established) FCK editor API instance
- */
-function SRC_findBaseFCKEditorApi()
-{
- 	return window.opener.top.document.__editorareas[0];
-}
-
-/*
  * Find the base (or first established) ResourceSearch plugin instance
  */
-function SRC_findBaseResourceSearchCommand()
-{
-  var editorApi = SRC_findBaseFCKEditorApi();
-
- 	return editorApi.__resourceSearch;
+function SRC_findBaseResourceSearchCommand() {
+  var editorApi = window.opener.top.document.__editorareas[0];
+  return editorApi.__resourceSearch;
 }
 
 /*
  * Find the FCK editor API instance for the current edit frame
  */
-function SRC_findEditorInstance()
-{
-	var resourceSearchBase;
-	/*
-	 * Find the unique editor instance for the selected text area
-	 */
- 	resourceSearchBase = SRC_findBaseResourceSearchCommand();
-
+function SRC_findEditorInstance() {
+  var resourceSearchBase;
+  /*
+   * Find the unique editor instance for the selected text area
+   */
+  resourceSearchBase = SRC_findBaseResourceSearchCommand();
   return resourceSearchBase.findEditorInstance();
  }
 

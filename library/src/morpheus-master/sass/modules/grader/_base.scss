@@ -297,6 +297,8 @@ sakai-grader {
 
   .submitted-time {
     font-style: italic;
+    display: flex;
+    flex-direction: column;
   }
 
   .draft-time {
@@ -376,6 +378,7 @@ sakai-grader {
     font-size: 24px;
     font-weight: bold;
     color: var(--successBanner-color);
+    margin-top: auto;
   }
 
   .action-button-block {

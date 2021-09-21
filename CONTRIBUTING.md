@@ -15,7 +15,7 @@ To check the status of a CLA, please visit: http://licensing.apereo.org/
 
 ## JIRA
 
-Bugs and features against Sakai are tracked in our [JIRA instance](https://jira.sakaiproject.org/) and contributions must reflect a JIRA reference number in the messages and git branch names (e.g., SAK-29469), but please don't put these references in the code as over time files become full of them and the same information get be retrieved from git. To file or comment on a bug or feature, you will need a JIRA account.
+Bugs and features against Sakai are tracked in our [JIRA instance](https://jira.sakaiproject.org/) and contributions must reflect a JIRA reference number in the messages and git branch names (e.g., SAK-29469), but please don't put these references in the code as over time files become full of them and the same information can be retrieved from git. To file or comment on a bug or feature, you will need a JIRA account.
 
 ## Overview of Sakai Development
 Please take a look at our [Confluence pages](https://confluence.sakaiproject.org/display/BOOT/Programmer%27s+Cafe) for pointers on getting started with Sakai development.

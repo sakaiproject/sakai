@@ -18,7 +18,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
   set criterion(newValue) {
 
-    var oldValue = this._criterion;
+    const oldValue = this._criterion;
     this._criterion = newValue;
     this._criterion.comments = newValue.comments && newValue.comments.indexOf("null") === 0 ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
@@ -62,13 +62,13 @@ export class SakaiRubricStudentComment extends RubricsElement {
       return;
     }
 
-    var popover = $(`#criterion-comment-viewer-${this.criterion.id}-${this.randombit}`);
+    const popover = $(`#criterion-comment-viewer-${this.criterion.id}-${this.randombit}`);
 
     if (!this.classList.contains("show-tooltip")) {
 
       this.classList.add('show-tooltip');
-      popover[0].style.left = e.target.offsetLeft - 270 + "px";
-      popover[0].style.top = e.target.offsetTop + e.target.offsetHeight / 2 - popover.height() / 2 + "px";
+      popover[0].style.left = `${e.target.offsetLeft - 270  }px`;
+      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 - popover.height() / 2  }px`;
       popover.show();
     } else {
       this.classList.remove('show-tooltip');

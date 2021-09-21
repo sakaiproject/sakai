@@ -6,6 +6,7 @@ body{
 	font-size: $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: $default-line-height;
+	scroll-behavior: $scroll-behavior;
 	&.#{$namespace}portalBody{
 		@media #{$phone}{
 			padding: $banner-height 0 0 0;
@@ -260,4 +261,14 @@ span.marker {
     appearance: none;
     margin: 0;
   }
+}
+
+.sakai-user-photo {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    float: left;
+    background-position: 50%;
+    background-size: auto 100%;
+    border-radius: 50%;
 }

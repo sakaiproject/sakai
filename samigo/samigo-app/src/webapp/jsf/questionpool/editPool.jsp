@@ -51,7 +51,6 @@ function textCounter(field, maxlimit) {
           <script>
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
-                  flagRows();
               }
               function initPage()
               {
@@ -67,7 +66,7 @@ function textCounter(field, maxlimit) {
           </script>
       </head>
 
-<f:verbatim><body onload="checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
+<f:verbatim><body onload="checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
   
 <div class="portletBody container-fluid">
 <h:form id="editform">

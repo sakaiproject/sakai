@@ -1,14 +1,20 @@
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_memory.vm,v 1.2 2005/04/27 16:43:52 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#if($menu)#menu($menu)#end
-	<h3>$tlang.getString("memory.vm.memory")</h3>
+	<div class="page-header">
+		<h1>$tlang.getString("memory.vm.memory")</h1>
+	</div>
 		#if ($alertMessage)
 			<div class="sak-banner-error">
 				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $formattedText.escapeHtml($alertMessage))
 			</div>
 		#end
-	#if ($status)<p class="infoPanel">$formattedText.escapeHtml($status)</p>#end
-	<div class="instruction">$tlang.getFormattedMessage("memory.vm.ava.nosplit", $memory)</div>
+	#if ($status)
+		<button data-toggle="collapse" data-target="#status">Status</button>
+		<div id="status" class="collapse">
+			$formattedText.escapeHtml($status)
+		</div>
+	#end
+	<div class="sak-banner-info">$tlang.getFormattedMessage("memory.vm.ava.nosplit", $memory)</div>
 	<form action="#toolForm("$action")" method="post">
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doReset" value=" $tlang.getString("memory.vm.reset") " />

@@ -135,14 +135,6 @@
 			   </h2>
 		       </div>
 	     <div class="action topaction">
-                 <span id="expandCollapseButtons" style="display:none;">
-                   <a href="#" role="button" id="expandAllSections" class="button menuitem"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
-                   <a href="#" role="button" id="collapseAllSections" style="display:none;" class="button menuitem"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
-		 </span>
-		 <span>
-		   <a role="button" href="#" rsf:id="prev" class="nextprev prev menuitem button">prev</a>
-		   <a role="button" href="#" rsf:id="next" class="nextprev prev menuitem button">next</a>
-		 </span>
 		 <a role="button"  href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
 		 <a role="button"  href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle"></span></a>
 		 <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
@@ -227,7 +219,7 @@
                 <li class="contentButton"><span><a role="button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
-                    <a role="button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="offscreen" rsf:id="edit-title-text"></span></a>
+                    <a role="button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="edit-title-text"></span>&nbsp;&nbsp;<span aria-hidden="true" class="fa-button-text fa-cog"></span></a>
                     </span>
                 </li>
 			</ul>                
@@ -493,6 +485,18 @@
 		<ul id="error-list" rsf:id="error-list:" role="alert">
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
+
+		<ul class="navIntraTool">
+			<li class="bottomButtons">
+				<span id="expandCollapseButtons" style="display:none;">
+					<a href="#" role="button" id="expandAllSections" class="button menuitem"><span class="fa fa-toggle-down" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.expand.all"></span></a>
+					<a href="#" role="button" id="collapseAllSections" style="display:none;" class="button menuitem"><span class="fa fa-toggle-up" aria-hidden="true" style="padding-right:5px;"></span><span rsf:id="msg=simplepage.collapse.all"></span></a>
+				</span>
+				<a role="button" class="nextprev prev menuitem button" href="#" rsf:id="prev">next</a>
+				<a role="button" class="bottomRight nextprev prev menuitem button" href="#" rsf:id="next">next</a>
+			</li>
+		</ul>
+
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 			<input type="hidden" id="activeQuestion" />
             <div style="display:none" rsf:id="current-item-id"></div>
@@ -519,7 +523,7 @@
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
-                            <img class="status-image icon-image" rsf:id="status" />
+                            <span rsf:id="status" aria-hidden="true"></span>
                         </div>
                       <div rsf:id="contentCol" class="contentCol">
                         <div rsf:id="link-div:" class="link-div">
@@ -947,14 +951,12 @@
 
                     <div rsf:id="questiongroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-question"><span rsf:id="icon-question"></span></a></div></div>
                     <div rsf:id="questionSpan" class="right-col">
-
-
                         <div class="questionDiv" rsf:id="questionDiv">
-			    <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
+                            <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
                             <div class="statusCol">
-                                <img class="status-image icon-image" rsf:id="questionStatus" />
+                                <span rsf:id="questionStatus" aria-hidden="ture"></span>
                             </div>
-                        
+
                             <div class="contentCol">
                                 <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image"/>
                                 <span class="offscreen" rsf:id="questionNote"></span>
@@ -962,32 +964,30 @@
                                 <input type="hidden" class="raw-question-text" rsf:id="raw-question-text" />
                                 <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                                     <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
-				      <input type="hidden" rsf:id="csrf4" />
+                                        <input type="hidden" rsf:id="csrf4" />
                                         <input type="hidden" rsf:id="multipleChoiceId" />
                                         <span rsf:id="multipleChoiceSelect:"></span>
                                         <div rsf:id="multipleChoiceAnswer:" class="multipleChoiceAnswer">
                                             <input type="radio" rsf:id="multipleChoiceAnswerRadio" name="multipleChoiceAnswerRadio" />
                                             <label rsf:id="multipleChoiceAnswerText" />
                                         </div>
-                                        
                                         <input class="question-submit" type="submit" value="Answer!" rsf:id="answerMultipleChoice" />
-					<input class="showPollGraph question-submit" type="submit" rsf:id="showPollGraph" onclick="return false;"/>
-
+                                        <input class="showPollGraph question-submit" type="submit" rsf:id="showPollGraph" onclick="return false;"/>
                                     </form>
                                 </div>
-                                
+
                                 <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                                     <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
-				      <input type="hidden" rsf:id="csrf5" />
+                                        <input type="hidden" rsf:id="csrf5" />
                                         <input type="hidden" rsf:id="shortanswerId" />
                                         <div id="answerInput"><span rsf:id="msg=simplepage.answer"></span></div>
                                         <textarea rsf:id="shortanswerInput" aria-labelledby="answerInput" class="shortAnswerInput" rows="4"></textarea>
                                         <input class="bold question-submit" type="submit" value="Answer!" rsf:id="answerShortanswer" />
                                     </form>
                                 </div>
-                                
+
                                 <div rsf:id="questionStatusText" class="questionStatusText"></div>
-                                
+
                                 <div style="display:none" rsf:id="questionPollData:" class="questionPollData">
                                     <span rsf:id="questionPollText" class="questionPollText"></span>
                                     <span rsf:id="questionPollLegend" class="questionPollLegend"></span>
@@ -1144,7 +1144,6 @@
 			  <p rsf:id="msg=simplepage.nothing-over-100-percent" id="simplepage.nothing-over-100-percent"></p>
 			  <p rsf:id="msg=simplepage.missing-question-text" id="simplepage.missing-question-text"></p>
 			  <p rsf:id="msg=simplepage.question-need-2" id="simplepage.question-need-2"></p>
-			  <p rsf:id="msg=simplepage.question-need-1" id="simplepage.question-need-1"></p>
 			  <p rsf:id="msg=simplepage.httphttps" id="simplepage.httphttps"></p>
 			  <p rsf:id="msg=simplepage.edit" id="simplepage.edit"></p>
 			  <p rsf:id="msg=simplepage.addLink_label_add" id="simplepage.addLink_label_add"></p>
@@ -1179,37 +1178,37 @@
 					<div class="sak-banner-error" id="subpage-error">
 					</div>
 				</div>
-				
+
                 <form action="#" rsf:id="subpage-form" class="controlsPanel">
-                  <input type="hidden" rsf:id="csrf7" />
-                    <p class="shorttext required">
-                        <span class="reqStar">*</span>
-                        <label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
-                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" maxlength="255" length="30" />
-                        <label>*<span rsf:id="msg=simplepage.subpage_invalid_chars"></span></label><br />
-                    </p>
-                
-                    <p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-                      <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" ><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
-                    </p>
+                    <input type="hidden" rsf:id="csrf7" />
+                    <div class="form-group">
+                        <label rsf:id="subpage-label" for="subpage-title"></label>
+                        <input type="text" name="subpage-title" id="subpage-title" rsf:id="subpage-title" aria-describredby="invalid-chars" maxlength="255" length="30" />
+                        <div class="sak-banner-info"><span id="invalid-chars" rsf:id="msg=simplepage.subpage_invalid_chars"></span></div>
+                    </div>
 
-                    <p class="checkbox"><input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
-                    <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label></p>
-                    <p class="checkbox"><input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
-                    <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label></p>
-                    <label for="subpage-btncolor" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
-                    <select rsf:id="subpage-btncolor" id="subpage-btncolor">
-                    </select>
-                    <p rsf:id="msg=simplepage.needbtn" id="subpage-needbtn" style="display: none"></p>
-
-		    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
+                    <div class="form-group">
+                        <input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+                        <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+                        <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+                    </div>
+                    <div class="form-group" id="subpage-button-color-group">
+                        <label for="subpage-btncolor-selection" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
+                        <select rsf:id="subpage-btncolor" id="subpage-btncolor"></select>
+                    </div>
+                    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
                     <div class="act">
-                        <input class="bold" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
+                        <input class="active" type="submit" value="Create!" rsf:id="create-subpage" onclick="event.returnValue = checkSubpageForm(); return checkSubpageForm();" />
+                        <a role="button" href="#" id="subpage-choose" rsf:id="subpage-choose" style="display:none;"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
+                        <button id="subpage-choose-button" rsf:id="subpage-choose-button"></button>
                         <input type="submit" rsf:id="cancel-subpage" onclick="closeSubpageDialog(); return false" />
                     </div>
                 </form>
-			</div>
-			
+                </div>
+
 			<div id="edit-item-dialog" rsf:id="edit-item-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-item-error-container">
 					<div class="sak-banner-error" id="edit-item-error">
@@ -1717,30 +1716,33 @@
                 </form>
 			</div>
 
-			<div id="export-cc-dialog" rsf:id="export-cc-dialog" class="lessonsDialog">
-				<form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
-					<div class="">					
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-v11" rsf:id="export-cc-v11"/>
-					    <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label> <br />
-					  </p>
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-v13" rsf:id="export-cc-v13"/>
-					    <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label> <br />
-					  </p>
-					  <p class="required">
-					    <input type="checkbox" id="export-cc-bank" rsf:id="export-cc-bank"/>
-					    <label rsf:id="msg=simplepage.exportcc-includebank" for="export-cc-bank" id="export-cc-bank-label">Include bank</label> <br />
-					  </p>
-					  <a href="#" style="display:none" rsf:id="export-cc-link" id="export-cc-link"></a>
-					  <p>
-					    <input class="bold" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
-					    <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
-					  </p>
-
-					</div>
-				</form>
-			</div>
+            <div id="export-cc-dialog" rsf:id="export-cc-dialog" class="lessonsDialog">
+                <form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
+                    <a href="#" style="display:none" rsf:id="export-cc-link" id="export-cc-link"></a>
+                    <div class="form-group">
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v11" value="1.1"/>
+                            <label rsf:id="msg=simplepage.exportcc-use11" for="export-cc-v11" id="export-cc-v11-label">Use v1.1</label>
+                        </div>
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v12" checked="checked" value="1.2"/>
+                            <label rsf:id="msg=simplepage.exportcc-use12" for="export-cc-v12" id="export-cc-v12-label">Use v1.2</label>
+                        </div>
+                        <div class="radio">
+                            <input type="radio" name="export-cc" id="export-cc-v13" value="1.3"/>
+                            <label rsf:id="msg=simplepage.exportcc-use13" for="export-cc-v13" id="export-cc-v13-label">Use v1.3</label> <br />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="export-cc-bank"/>
+                        <label rsf:id="msg=simplepage.exportcc-includebank" for="export-cc-bank" id="export-cc-bank-label">Include bank</label> <br />
+                    </div>
+                    <p class="act">
+                        <input class="active" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
+                        <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
+                    </p>
+                </form>
+            </div>
 
 			<div id="edit-title-dialog" rsf:id="edit-title-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-title-error-container">
@@ -2290,15 +2292,33 @@
                             <div id="shortanswerDialogDiv">
                                  <fieldset>
                                     <legend><h4 rsf:id="msg=simplepage.answers"></h4></legend>
-                                    <input type="hidden" rsf:id="question-answer-full-shortanswer" id="question-answer-full-shortanswer" />
-                            
+                                    
                                     <div id="shortanswers">
                                         <div id="copyableShortanswerDiv">
                                             <label for="question-showans-alt"><span rsf:id="msg=simplepage.question-possible-answer" class="offscreen"></span></label>                                          
-                                            <input type="text" name="question-showans-alt" class="question-shortanswer-answer" />
-                                            <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-shortans-del"></img></a>
                                         </div>
                                         <div id="extraShortanswers"></div>
+                                        <table id="shortAnswersTable" class="table table-striped table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th><span rsf:id="msg=simplepage.question-possible-answer">Possible Answer</span></th>
+                                                    <th><span rsf:id="msg=simplepage.question-tableheader-answertext">Answer Text</span></th>
+                                                    <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="shortAnswersTableBody">
+                                                <tr id="copyableShortanswer">
+                                                    <input type="hidden" rsf:id="question-answer-full-shortanswer" id="question-answer-full-shortanswer" />
+                                                    <td class="question-showans-answer-option">A</td>
+                                                    <td>
+                                                        <input type="text" name="question-showans-alt" class="question-shortanswer-answer" />
+                                                    </td>
+                                                    <td>
+                                                        <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-shortans-del"></img></a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                   </fieldset>
                                 <button onclick="addShortanswer(); return false;" rsf:id="msg=simplepage.addAnswer"/><br /><br />
@@ -2307,18 +2327,33 @@
                             <div id="multipleChoiceDialogDiv">
                                 <fieldset>
                                     <legend><h4 rsf:id="msg=simplepage.answers"></h4></legend>
-                                    <div id="multipleChoiceAnswers">
-                                        <div id="copyableMultipleChoiceAnswerDiv">
-                                            <input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
-                                            <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
-                                            <label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
-                                            <input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
-                                            <label for="question-multiplechoice-answer"><span rsf:id="msg=simplepage.question-possible-answer"></span></label>
-                                            <input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
-                                            <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
-                                        </div>
-                                        <div id="extraMultipleChoiceAnswers"></div>
-                                    </div>
+                                    <table id="multipleChoiceAnswers" class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-selectcorrect">Select Correct Answer(s)</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-answeroption">Answer Option</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-answertext">Answer Text</span></th>
+                                                <th><span rsf:id="msg=simplepage.question-tableheader-remove">Remove?</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="multipleChoiceAnswersBody">
+                                            <tr id="copyableMultipleChoiceAnswer">
+                                                <input type="hidden" rsf:id="question-multiplechoice-answer-complete" class="question-multiplechoice-answer-complete" />
+                                                <input type="hidden" rsf:id="question-multiplechoice-answer-id" class="question-multiplechoice-answer-id" />
+                                                <td>
+                                                    <label for="question-multiplechoice-answer-correct"><span rsf:id="msg=simplepage.question-correct-answer" class="offscreen"></span></label>
+                                                    <input type="checkbox" name="question-multiplechoice-answer-correct" rsf:id="question-multiplechoice-answer-correct"  class="question-multiplechoice-answer-correct" />
+                                                </td>
+                                                <td class="question-multiplechoice-answer-option">A</td>
+                                                <td>
+                                                    <input type="text" rsf:id="question-multiplechoice-answer" name="question-multiplechoice-answer" class="question-multiplechoice-answer" />
+                                                </td>
+                                                <td>
+                                                    <a role="button" href="#" onclick="deleteAnswer($(this)); return false;" style="display:none" class="deleteAnswerLink"><img src="$context/images/delete.png" rsf:id="question-mc-del"></img></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                     <button onclick="addMultipleChoiceAnswer(); return false;" rsf:id="msg=simplepage.addAnswer"/>
                                 </fieldset>
                                 <p></p>
