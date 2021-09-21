@@ -51,7 +51,7 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
   get current() { return this._current; }
 
   lookupWidgetName(id) {
-    return this.toolnames[id] || this.toolnames["unknown"];
+    return this.toolnames[id] || this.toolnames.unknown;
   }
 
   widgetPicked(e) {
@@ -70,12 +70,12 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
     return html`
       ${this.available.length ? html`
-        <div id="topbar">${this.i18n["pick_instruction"]}</div>
+        <div id="topbar">${this.i18n.pick_instruction}</div>
         ${this.available.map(w => html`
           <div class="widget-option"><a href="javascript:;" id="${w}" @click=${this.widgetPicked}>${this.lookupWidgetName(w)}</a></div>
         `)}
       ` : html`
-        <div class="widget-option">${this.i18n["all_displayed"]}</div>
+        <div class="widget-option">${this.i18n.all_displayed}</div>
       `}
     `;
   }

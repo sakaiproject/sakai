@@ -15,15 +15,14 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +34,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -44,20 +47,21 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Sets;
-import org.elasticsearch.common.lang3.StringUtils;
-import org.elasticsearch.common.lang3.tuple.ImmutablePair;
-import org.elasticsearch.common.lang3.tuple.Pair;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.util.set.Sets;
+import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregations;
-import org.elasticsearch.search.facet.InternalFacets;
-import org.elasticsearch.search.internal.InternalSearchHit;
-import org.elasticsearch.search.internal.InternalSearchHits;
 import org.elasticsearch.search.internal.InternalSearchResponse;
 import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
@@ -79,8 +83,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -110,7 +112,7 @@ import lombok.extern.slf4j.Slf4j;
 
     /* ElasticSearch handles and configs */
     private Node node;
-    private Client client;
+    private RestHighLevelClient client;
 
     private boolean localNode = false;
 
@@ -129,7 +131,7 @@ import lombok.extern.slf4j.Slf4j;
     private SessionManager sessionManager;
 
     /* internal caches and configs */
-    private ConcurrentHashMap<String, ElasticSearchIndexBuilderRegistration> indexBuilders = new ConcurrentHashMap<>();
+    final private ConcurrentHashMap<String, ElasticSearchIndexBuilderRegistration> indexBuilders = new ConcurrentHashMap<>();
     private InternalEventRegistrar eventRegistrar = new InternalEventRegistrar();
     private Set<String> globalContentFunctions = Sets.newConcurrentHashSet();
     /**
@@ -137,10 +139,18 @@ import lombok.extern.slf4j.Slf4j;
      */
     private String sharedKey = null;
 
-    /**
-     * Register a notification action to listen to events and modify the search
-     * index
-     */
+    private static class EmbeddedElasticSearchNode extends Node {
+
+        public EmbeddedElasticSearchNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
+            super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), classpathPlugins, true);
+        }
+
+        @Override
+        protected void registerDerivedNodeNameWithLogger(String nodeName) {
+
+        }
+    }
+
     public void init() {
         if (!isEnabled()) {
             log.info("ElasticSearch is not enabled. Set search.enable=true to change that.");
@@ -150,13 +160,13 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     protected void initializeElasticSearch() {
-        final Map<String,String> properties = initializeElasticSearchSettingsProperties();
-        this.node = initializeElasticSearchNode(properties);
-        this.client = initializeElasticSearchClient(this.node);
+        final Settings settings = initializeElasticSearchSettings();
+        if (node == null) node = initializeElasticSearchNode(settings);
+        if (client == null) client = initializeElasticSearchClient();
     }
 
-    protected Map<String,String> initializeElasticSearchSettingsProperties() {
-        final Map<String,String> properties = Maps.newHashMap();
+    protected Settings initializeElasticSearchSettings() {
+        Settings.Builder settingsBuilder = Settings.builder();
 
         // load anything set into the ServerConfigurationService that starts with "elasticsearch."
         for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
@@ -164,50 +174,61 @@ import lombok.extern.slf4j.Slf4j;
                 continue;
             }
             if (configItem.getName().startsWith(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX)) {
-                properties.put(configItem.getName().replaceFirst(
-                        ElasticSearchConstants.CONFIG_PROPERTY_PREFIX, ""),
-                        configItem.getValue().toString());
+                settingsBuilder.put(configItem.getName().replaceFirst(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX, ""), configItem.getValue().toString());
             }
         }
 
         // these properties are required at an minimum, assure they are set to reasonable defaults.
-        if (!properties.containsKey("node.name")) {
-            properties.put("node.name", serverConfigurationService.getServerId());
+        if (settingsBuilder.get("node.name") == null) {
+            settingsBuilder.put("node.name", serverConfigurationService.getServerId());
         }
-        if (!properties.containsKey("cluster.name")) {
-            properties.put("cluster.name", serverConfigurationService.getServerName());
-        }
-        if (!properties.containsKey("script.disable_dynamic")) {
-            properties.put("script.disable_dynamic", "true");
+        if (settingsBuilder.get("cluster.name") == null) {
+            settingsBuilder.put("cluster.name", serverConfigurationService.getServerName());
         }
 
-        if (!properties.containsKey("path.data")) {
-            properties.put("path.data", serverConfigurationService.getSakaiHomePath() + "/elasticsearch/" + properties.get("node.name"));
+        if (settingsBuilder.get("path.home") == null) {
+            settingsBuilder.put("path.home", serverConfigurationService.getSakaiHomePath() + "/elasticsearch");
         }
 
-        log.info("Setting ElasticSearch storage area to [" + properties.get("path.data") + "]");
+        if (settingsBuilder.get("path.data") == null) {
+            settingsBuilder.put("path.data", serverConfigurationService.getSakaiHomePath() + "/elasticsearch/" + settingsBuilder.get("node.name"));
+        }
 
-        return properties;
+        log.info("Setting ElasticSearch storage area to [" + settingsBuilder.get("path.data") + "]");
+
+        settingsBuilder.put("transport.type", "netty4");
+
+        return settingsBuilder.build();
     }
 
-    protected String getNodeName() {
-        if ( this.node == null ) {
+    public String getNodeName() {
+        if (node != null) {
+            return node.settings().get("node.name");
+        }
+        return null;
+    }
+
+    protected Node initializeElasticSearchNode(Settings settings) {
+        Collection<Class<? extends Plugin>> plugins = Arrays.asList(
+                Netty4Plugin.class,
+                CommonAnalysisPlugin.class);
+
+        Node node = new EmbeddedElasticSearchNode(settings, plugins);
+
+        try {
+            node.start();
+        } catch (NodeValidationException nve) {
+            log.error("Could not state embedded elasticsearch node, {}", nve.toString());
             return null;
         }
-        return this.node.settings().get("node.name");
+
+        return node;
     }
 
-    protected Node initializeElasticSearchNode(Map<String, String> properties) {
-        ImmutableSettings.Builder settings = settingsBuilder().put(properties);
-
-        return nodeBuilder()
-                .client(clientNode)
-                .settings(settings)
-                .local(localNode).node();
-    }
-
-    protected Client initializeElasticSearchClient(Node node) {
-        return node.client();
+    protected RestHighLevelClient initializeElasticSearchClient() {
+        String host = serverConfigurationService.getString("elasticsearch.http.host", "localhost");
+        int port = serverConfigurationService.getInt("elasticsearch.http.port", 9200);
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(host, port)));
     }
 
     public void registerIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {
@@ -218,11 +239,11 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         String indexBuilderName = null;
-        ElasticSearchIndexBuilderRegistration registration = null;
-        synchronized (this.indexBuilders) {
+        ElasticSearchIndexBuilderRegistration registration;
+        synchronized (indexBuilders) {
             try {
                 indexBuilderName = indexBuilder.getName();
-                if ( this.indexBuilders.containsKey(indexBuilderName) ) {
+                if (indexBuilders.containsKey(indexBuilderName)) {
                     log.error("Skipping duplicate registration request from index builder ["
                             + indexBuilder.getName() + "]. Including stack trace for diagnostic purposes",
                             new RuntimeException("Diagnostic"));
@@ -255,9 +276,9 @@ import lombok.extern.slf4j.Slf4j;
                 // in a search request.
                 threadLocalManager.set(PENDING_INDEX_BUILDER_REGISTRATION, registration);
                 indexBuilder.initialize(eventRegistrar, client);
-                this.indexBuilders.put(indexBuilderName, registration);
+                indexBuilders.put(indexBuilderName, registration);
             } catch ( Exception e ) {
-                log.error("Failed to initialize index builder [" + indexBuilderName + "]", e);
+                log.error("Failed to initialize index builder [{}]", indexBuilderName, e);
                 indexBuilders.remove(indexBuilderName);
             } finally {
                 threadLocalManager.set(PENDING_INDEX_BUILDER_REGISTRATION, null);
@@ -625,8 +646,8 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     @Override
-    public int getNDocs() {
-        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getNDocs(), Integer::sum);
+    public long getNDocs() {
+        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getNDocs(), Long::sum);
     }
 
     @Override
@@ -718,8 +739,8 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     protected NodesStatsResponse getNodesStats() {
-        final NodesInfoResponse nodesInfoResponse = client.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
-        final String[] nodes = new String[nodesInfoResponse.getNodes().length];
+        final NodesInfoResponse nodesInfoResponse = node.client().admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
+        final String[] nodes = new String[nodesInfoResponse.getNodes().size()];
 
         int i = 0;
 
@@ -727,7 +748,7 @@ import lombok.extern.slf4j.Slf4j;
             nodes[i++] = nodeInfo.getNode().getName();
         }
 
-        return client.admin().cluster().nodesStats(new NodesStatsRequest(nodes)).actionGet();
+        return node.client().admin().cluster().nodesStats(new NodesStatsRequest(nodes)).actionGet();
     }
 
     protected void forEachRegisteredIndexBuilder(Consumer<ElasticSearchIndexBuilder> consumer) {
@@ -806,8 +827,13 @@ import lombok.extern.slf4j.Slf4j;
     }
 
     public void destroy(){
-        if (node != null) {
-            node.close();
+        if (node != null && !node.isClosed()) {
+            try {
+                node.close();
+            } catch (IOException ioe) {
+                log.error("Error shutting down elasticsearch");
+            }
+            node = null;
         }
     }
 
@@ -889,8 +915,7 @@ import lombok.extern.slf4j.Slf4j;
     private static class NoOpElasticSearchIndexBuilder implements ElasticSearchIndexBuilder {
 
         @Override
-        public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, Client client) {
-            // no-op
+        public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, RestHighLevelClient client) {
         }
 
         @Override
@@ -916,13 +941,14 @@ import lombok.extern.slf4j.Slf4j;
         @Override
         public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
             return new SearchResponse(
-                    new InternalSearchResponse(new InternalSearchHits(new InternalSearchHit[0], 0, 0.0f), new InternalFacets(Collections.EMPTY_LIST), new InternalAggregations(Collections.EMPTY_LIST), new Suggest(), false, false),
+                    new InternalSearchResponse(new SearchHits(new SearchHit[0], 0, 0.0f), new InternalAggregations(Collections.emptyList()), new Suggest(Collections.emptyList()), null, false, false, 1),
                     "no-op",
                     1,
                     1,
                     1,
-                    new ShardSearchFailure[0]
-            );
+                    0,
+                    ShardSearchFailure.EMPTY_ARRAY,
+                    SearchResponse.Clusters.EMPTY);
         }
 
         @Override
@@ -956,7 +982,7 @@ import lombok.extern.slf4j.Slf4j;
         }
 
         @Override
-        public int getNDocs() {
+        public long getNDocs() {
             return 0;
         }
 

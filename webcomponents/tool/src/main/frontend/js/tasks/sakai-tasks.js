@@ -45,6 +45,8 @@ export class SakaiTasks extends SakaiPageableElement {
     this._siteId = value;
   }
 
+  get siteId() { return this._siteId; }
+
   decorateTask(t) {
 
     t.visible = true;
@@ -64,9 +66,9 @@ export class SakaiTasks extends SakaiPageableElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get tasks from ${url}`);
         }
+        throw new Error(`Failed to get tasks from ${url}`);
+
       })
       .then(data => {
 
@@ -103,22 +105,22 @@ export class SakaiTasks extends SakaiPageableElement {
 
     switch (f) {
       case "priority_5":
-        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 5 ? true : false);
+        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 5));
         break;
       case "priority_4":
-        this.data.forEach(t => t.visible = !t.softDeleted && t.priority === 4 ? true : false);
+        this.data.forEach(t => t.visible = !!(!t.softDeleted && t.priority === 4));
         break;
       case "priority_3":
-        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 3 ? true : false);
+        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 3));
         break;
       case "priority_2":
-        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 2 ? true : false);
+        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 2));
         break;
       case "priority_1":
-        this.data.forEach(t => t.visible = !t.softDeleted && !t.complete && t.priority === 1 ? true : false);
+        this.data.forEach(t => t.visible = !!(!t.softDeleted && !t.complete && t.priority === 1));
         break;
       case "overdue":
-        this.data.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now() ? true : false));
+        this.data.forEach(t => t.visible =  !t.complete && t.due && (t.due < Date.now()));
         break;
       case "trash":
         this.data.forEach(t => t.visible = t.softDeleted);
@@ -272,39 +274,39 @@ export class SakaiTasks extends SakaiPageableElement {
 
           </sakai-tasks-create-task>
 
-          <div slot="invoker"><a @click=${this.add} href="javascript:;" title="${this.i18n["add_task"]}" aria-label="${this.i18n["add_task"]}"><sakai-icon type="add" size="small"></a></div>
+          <div slot="invoker"><a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}"><sakai-icon type="add" size="small"></a></div>
 
         </lion-dialog>
       </div>
       <div id="controls">
         <div id="filter">
           <select @change=${this.filterChanged} .value=${this.currentFilter}>
-            <option value="current">${this.i18n["filter_current"]}</option>
-            <option value="priority_5">${this.i18n["filter_priority_5"]}</option>
-            <option value="priority_4">${this.i18n["filter_priority_4"]}</option>
-            <option value="priority_3">${this.i18n["filter_priority_3"]}</option>
-            <option value="priority_2">${this.i18n["filter_priority_2"]}</option>
-            <option value="priority_1">${this.i18n["filter_priority_1"]}</option>
-            <option value="overdue">${this.i18n["filter_overdue"]}</option>
-            <option value="trash">${this.i18n["trash"]}</option>
-            <option value="complete">${this.i18n["completed"]}</option>
+            <option value="current">${this.i18n.filter_current}</option>
+            <option value="priority_5">${this.i18n.filter_priority_5}</option>
+            <option value="priority_4">${this.i18n.filter_priority_4}</option>
+            <option value="priority_3">${this.i18n.filter_priority_3}</option>
+            <option value="priority_2">${this.i18n.filter_priority_2}</option>
+            <option value="priority_1">${this.i18n.filter_priority_1}</option>
+            <option value="overdue">${this.i18n.filter_overdue}</option>
+            <option value="trash">${this.i18n.trash}</option>
+            <option value="complete">${this.i18n.completed}</option>
           </select>
         </div>
         <div id="sort">
           <select @change=${this.sortChanged}>
-            <option value="none">${this.i18n["sort_none"]}</option>
-            <option value="due_latest_first">${this.i18n["sort_due_latest_first"]}</option>
-            <option value="due_earliest_first">${this.i18n["sort_due_earliest_first"]}</option>
-            <option value="priority_lowest_first">${this.i18n["sort_priority_lowest_first"]}</option>
-            <option value="priority_highest_first">${this.i18n["sort_priority_highest_first"]}</option>
+            <option value="none">${this.i18n.sort_none}</option>
+            <option value="due_latest_first">${this.i18n.sort_due_latest_first}</option>
+            <option value="due_earliest_first">${this.i18n.sort_due_earliest_first}</option>
+            <option value="priority_lowest_first">${this.i18n.sort_priority_lowest_first}</option>
+            <option value="priority_highest_first">${this.i18n.sort_priority_highest_first}</option>
           </select>
         </div>
       </div>
       ${this.dataPage.filter(t => t.visible).length > 0 ? html`
         <div id="tasks">
-          <div class="priority-block header">${this.i18n["priority"]}</div>
-          <div class="task-block task-block-header header">${this.i18n["task"]}</div>
-          <div class="link-block header">${this.i18n["options"]}</div>
+          <div class="priority-block header">${this.i18n.priority}</div>
+          <div class="task-block task-block-header header">${this.i18n.task}</div>
+          <div class="link-block header">${this.i18n.options}</div>
         ${this.dataPage.filter(t => t.visible).map((t, i) => html`
           <div class="priority-block priority_${t.priority} cell ${i % 2 === 0 ? "even" : "odd"}">
             <div tabindex="0" title="${this.i18n[`priority_${t.priority}_tooltip`]}" aria-label="${this.i18n[`priority_${t.priority}_tooltip`]}">
@@ -314,14 +316,14 @@ export class SakaiTasks extends SakaiPageableElement {
           <div class="task-block cell ${i % 2 === 0 ? "even" : "odd"}">
             <div class="site-title">${t.siteTitle}</div>
             <div class="description">${t.description}</div>
-            <div class="due-date"><span class="due">${this.i18n["due"]} </span>${t.dueHuman}</div>
+            <div class="due-date"><span class="due">${this.i18n.due} </span>${t.dueHuman}</div>
             ${t.notes ? html`
               <div class="task-text-toggle">
                 <a href="javascript:;"
                     @click=${() => { t.textVisible = !t.textVisible; this.requestUpdate(); }}
-                    title="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}"
-                    arial-label="${t.textVisible ? this.i18n["show_less"] : this.i18n["show_more"]}">
-                  ${t.textVisible ? this.i18n["less"] : this.i18n["more"]}
+                    title="${t.textVisible ? this.i18n.show_less : this.i18n.show_more}"
+                    arial-label="${t.textVisible ? this.i18n.show_less : this.i18n.show_more}">
+                  ${t.textVisible ? this.i18n.less : this.i18n.more}
                 </a>
               </div>
               <div class="task-text" style="${t.textVisible ? "" : "display: none"}">${unsafeHTML(t.notes)}</div>
@@ -332,8 +334,8 @@ export class SakaiTasks extends SakaiPageableElement {
               <a href="javascript:;"
                   data-task-id="${t.taskId}"
                   @click=${this.editTask}
-                  title="${this.i18n["edit"]}"
-                  aria-label="${this.i18n["edit"]}">
+                  title="${this.i18n.edit}"
+                  aria-label="${this.i18n.edit}">
                 <sakai-icon type="edit" size="small"></sakai-icon>
               </a>
             </div>
@@ -342,8 +344,8 @@ export class SakaiTasks extends SakaiPageableElement {
                 <a href="javascript:;"
                     data-task-id="${t.userTaskId}"
                     @click=${this.deleteTask}
-                    title="${this.i18n["hard_delete"]}"
-                    aria-label="${this.i18n["hard_delete"]}">
+                    title="${this.i18n.hard_delete}"
+                    aria-label="${this.i18n.hard_delete}">
                   <sakai-icon type="delete" size="small"></sakai-icon>
                 </a>
               </div>
@@ -351,8 +353,8 @@ export class SakaiTasks extends SakaiPageableElement {
                 <a href="javascript:;"
                     data-task-id="${t.taskId}"
                     @click=${this.restoreTask}
-                    title="${this.i18n["restore"]}"
-                    aria-label="${this.i18n["restore"]}">
+                    title="${this.i18n.restore}"
+                    aria-label="${this.i18n.restore}">
                   <sakai-icon type="restore" size="small"></sakai-icon>
                 </a>
               </div>
@@ -361,8 +363,8 @@ export class SakaiTasks extends SakaiPageableElement {
                 <a href="javascript:;"
                     data-task-id="${t.taskId}"
                     @click=${this.softDeleteTask}
-                    title="${this.i18n["soft_delete"]}"
-                    aria-label="${this.i18n["soft_delete"]}">
+                    title="${this.i18n.soft_delete}"
+                    aria-label="${this.i18n.soft_delete}">
                   <sakai-icon type="delete" size="small"></sakai-icon>
                 </a>
               </div>
@@ -371,8 +373,8 @@ export class SakaiTasks extends SakaiPageableElement {
               ${t.url ? html`
                 <div>
                   <a href="${t.url}"
-                      title="${this.i18n["task_url"]}"
-                      aria-label="${this.i18n["task_url"]}">
+                      title="${this.i18n.task_url}"
+                      aria-label="${this.i18n.task_url}">
                     <sakai-icon type="right" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -381,7 +383,7 @@ export class SakaiTasks extends SakaiPageableElement {
           </div>
         `)}
         </div>
-      ` : html`<div>${this.i18n["no_tasks"]}</div>`
+      ` : html`<div>${this.i18n.no_tasks}</div>`
       }
     `;
   }

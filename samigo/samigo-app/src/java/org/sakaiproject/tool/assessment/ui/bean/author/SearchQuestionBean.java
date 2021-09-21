@@ -34,13 +34,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-import net.htmlparser.jericho.Source;
-import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.SearchService;
@@ -55,6 +52,9 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+import lombok.extern.slf4j.Slf4j;
+import net.htmlparser.jericho.Source;
 
 /* For author: Search Questions backing bean. */
 @Slf4j
@@ -157,7 +157,7 @@ public class SearchQuestionBean   implements Serializable {
             Terms dedup = sr.getAggregations().get("dedup");
 
             for (Terms.Bucket entry : dedup.getBuckets()) {
-                String key = entry.getKey();                    // bucket key
+                String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
 
@@ -227,7 +227,7 @@ public class SearchQuestionBean   implements Serializable {
             // For each entry
             for (Terms.Bucket entry : dedup.getBuckets()) {
 
-                String key = entry.getKey();                    // bucket key
+                String key = entry.getKeyAsString();                    // bucket key
                 long docCount = entry.getDocCount();            // Doc count
                 log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
 
@@ -281,31 +281,31 @@ public class SearchQuestionBean   implements Serializable {
 
     private String origin(SearchHit hit){
         try {
-            if ((hit.field("questionPoolId") != null) && (hit.field("questionPoolId").value()!=null)) {
+            if ((hit.field("questionPoolId") != null) && (hit.field("questionPoolId").getValue() != null)) {
                 //First we check if we have the question pool title in the temporal cache
-                if (qpTitlesCache.containsKey(hit.field("questionPoolId").value())){
-                     return qpTitlesCache.get(hit.field("questionPoolId").value());
+                if (qpTitlesCache.containsKey(hit.field("questionPoolId").getValue())){
+                     return qpTitlesCache.get(hit.field("questionPoolId").getValue());
                 }else {
                     //If not... we retrieve the title and add it to the cache map.
                     //We will do the same with the assessmentTitle and the siteTitle
-                    String qpTitle = questionPoolService.getPool(Long.parseLong(hit.field("questionPoolId").value()), AgentFacade.getAgentString()).getTitle();
-                    qpTitlesCache.put(hit.field("questionPoolId").value(),qpTitle);
+                    String qpTitle = questionPoolService.getPool(Long.parseLong(hit.field("questionPoolId").getValue()), AgentFacade.getAgentString()).getTitle();
+                    qpTitlesCache.put(hit.field("questionPoolId").getValue(), qpTitle);
                     return qpTitle;
                 }
-            }else if ((hit.field("assessmentId") != null) && (hit.field("assessmentId").value() != null) && (hit.field("site") != null) && (hit.field("site").value() != null)) {
+            }else if ((hit.field("assessmentId") != null) && (hit.field("assessmentId").getValue() != null) && (hit.field("site") != null) && (hit.field("site").getValue() != null)) {
                     String assessmentTitle="";
                     String siteTitle="";
-                    if (assessmentTitlesCache.containsKey(hit.field("assessmentId").value())) {
-                        assessmentTitle = assessmentTitlesCache.get(hit.field("assessmentId").value());
+                    if (assessmentTitlesCache.containsKey(hit.field("assessmentId").getValue())) {
+                        assessmentTitle = assessmentTitlesCache.get(hit.field("assessmentId").getValue());
                     }else{
-                        assessmentTitle = assessmentService.getAssessment(hit.field("assessmentId").value().toString()).getTitle();
-                        assessmentTitlesCache.put(hit.field("assessmentId").value(),assessmentTitle);
+                        assessmentTitle = assessmentService.getAssessment(hit.field("assessmentId").getValue().toString()).getTitle();
+                        assessmentTitlesCache.put(hit.field("assessmentId").getValue(), assessmentTitle);
                     }
-                    if (siteTitlesCache.containsKey(hit.field("site").value())) {
-                        siteTitle = siteTitlesCache.get(hit.field("site").value());
+                    if (siteTitlesCache.containsKey(hit.field("site").getValue())) {
+                        siteTitle = siteTitlesCache.get(hit.field("site").getValue());
                     }else{
-                        siteTitle = siteService.getSite(hit.field("site").value().toString()).getTitle();
-                        siteTitlesCache.put(hit.field("site").value(),siteTitle);
+                        siteTitle = siteService.getSite(hit.field("site").getValue().toString()).getTitle();
+                        siteTitlesCache.put(hit.field("site").getValue(), siteTitle);
                     }
 
                     return siteTitle + " : " + assessmentTitle;
@@ -352,7 +352,7 @@ public class SearchQuestionBean   implements Serializable {
             try {
 
                 SearchResponse sr = searchService.searchResponse("", null, 0, 1, "questions", additionalSearchInformation);
-                if (sr.getHits().totalHits() < 1) {
+                if (sr.getHits().totalHits < 1) {
                     questionsIOwn.put(questionId, Boolean.FALSE);
                     return false;
                 } else {

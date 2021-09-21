@@ -26,7 +26,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
   }
 
   title() {
-    return html`${this.i18n["template_picker_title"]}`;
+    return html`${this.i18n.template_picker_title}`;
   }
 
   shouldUpdate() {
@@ -42,7 +42,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
     return html`
 
       <div id="instruction">
-        ${this.i18n["template_picker_instruction"]}
+        ${this.i18n.template_picker_instruction}
       </div>
 
       <div id="template-block">
@@ -50,19 +50,19 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
           <a href="javascript:;" @click=${this.templateSelected} data-template="1">
             <img  data-template="1" src="/webcomponents/images/layout1.png" class="thumbnail" />
           </a>
-          <h2>${this.i18n["option1"]}</h2>
+          <h2>${this.i18n.option1}</h2>
         </div>
         <div id="template2-block" class=${this.template == 2 ? "selected" : ""}>
           <a href="javascript:;" @click=${this.templateSelected} data-template="2">
             <img data-template="2" src="/webcomponents/images/layout2.png" class="thumbnail" />
           </a>
-          <h2>${this.i18n["option2"]}</h2>
+          <h2>${this.i18n.option2}</h2>
         </div>
         <div id="template3-block" class=${this.template == 3 ? "selected" : ""}>
           <a href="javascript:;" @click=${this.templateSelected} data-template="3">
             <img data-template="3" src="/webcomponents/images/layout3.png" class="thumbnail" />
           </a>
-          <h2>${this.i18n["option3"]}</h2>
+          <h2>${this.i18n.option3}</h2>
         </div>
       </div>
     `;
@@ -71,7 +71,7 @@ export class SakaiCourseDashboardTemplatePicker extends SakaiDialogContent {
   buttons() {
 
     return html`
-      <sakai-button @click=${this.select} primary>${this.i18n["select"]}</sakai-button>
+      <sakai-button @click=${this.select} primary>${this.i18n.select}</sakai-button>
     `;
   }
 

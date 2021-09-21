@@ -113,10 +113,6 @@
     width: 100%;
     @include border-radius( 5px );
   }
-  .getSiteDesc {
-    margin-right: 20px;
-    float: right;
-  }
   #templateList {
     margin: 0 !important;
     padding: 0;
@@ -484,18 +480,6 @@
   }
   .unpublishedLabel {
     opacity: 0.2;
-  }
-  #summary {
-    border: none;
-    tr {
-      background: transparent;
-    }
-    td {
-      border: none;
-    }
-    th {
-      font-weight: bold;
-    }
   }
   #removeClass {
     max-width: 800px;

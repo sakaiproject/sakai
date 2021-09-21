@@ -3,10 +3,6 @@ import {loadProperties, tr} from "./sakai-i18n.js";
 
 export class SakaiElement extends LitElement {
 
-  constructor() {
-    super();
-  }
-
   /**
    * Convenience wrapper for sakai-18n.tr.
    *
@@ -46,25 +42,15 @@ export class SakaiElement extends LitElement {
 
   setSetting(component, name, value) {
 
-    var currentString = localStorage.getItem(`${component}-settings`);
-    if (!currentString) {
-      var settings = {};
-      settings[name] = value;
-    } else {
-      var settings = JSON.parse(currentString);
-      settings[name] = value;
-    }
+    const currentString = localStorage.getItem(`${component}-settings`);
+    const settings = currentString ? JSON.parse(currentString) : {};
+    settings[name] = value;
     localStorage.setItem(`${component}-settings`, JSON.stringify(settings));
   }
 
   getSetting(component, name) {
 
-    var currentString = localStorage.getItem(`${component}-settings`);
-    if (!currentString) {
-      return null;
-    } else {
-      var settings = JSON.parse(currentString);
-      return settings[name];
-    }
+    const currentString = localStorage.getItem(`${component}-settings`);
+    return !currentString ? null : JSON.parse(currentString)[name];
   }
 }

@@ -4822,35 +4822,30 @@ public class DiscussionForumTool {
    * Also sets number of pending msgs
    * @return
    */
-  public boolean isDisplayPendingMsgQueue()
-  {
-	  if (displayPendingMsgQueue == null){
-		  List membershipList = uiPermissionsManager.getCurrentUserMemberships();
-		  int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList);
-		  
-		  if (numModTopicWithPerm < 1)
-		  {
-			  numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevelName(membershipList);
-			  
-			  if (numModTopicWithPerm < 1)
-			  {
-				  displayPendingMsgQueue = false;
-			  }
-			  else
-			  {
-				  displayPendingMsgQueue = true;
-			  }
-		  }
-		  else
-		  {		  
-			  displayPendingMsgQueue = true;
-		  }
-	  }
-	  
-	  if (refreshPendingMsgs && displayPendingMsgQueue.booleanValue()) {
-		  refreshPendingMessages();
-	  }
-	  return displayPendingMsgQueue.booleanValue();
+  public boolean isDisplayPendingMsgQueue() {
+    if (displayPendingMsgQueue == null) {
+      List<Topic> moderatedTopics = forumManager.getModeratedTopicsInSite();
+
+      // Avoid the expensive queries below if there are no moderated topics
+      if (moderatedTopics != null && !moderatedTopics.isEmpty()) {
+        List<String> membershipList = uiPermissionsManager.getCurrentUserMemberships();
+        int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList, moderatedTopics);
+
+        if (numModTopicWithPerm < 1) {
+          numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevelName(membershipList, moderatedTopics);
+        }
+
+        displayPendingMsgQueue = numModTopicWithPerm > 0;
+      }
+      else {
+        displayPendingMsgQueue = false;
+      }
+    }
+
+    if (refreshPendingMsgs && displayPendingMsgQueue.booleanValue()) {
+      refreshPendingMessages();
+    }
+    return displayPendingMsgQueue.booleanValue();
   }
   
   /**
@@ -7076,7 +7071,9 @@ public class DiscussionForumTool {
 	}
 	
    private String gotoMain() {
-     return (isForumsTool() ? FORUMS_MAIN : MAIN) + "?faces-redirect=true";
+     // ern believes the faces-redirect=true is crucial to carry over the error message to new page
+     // return (isForumsTool() ? FORUMS_MAIN : MAIN) + "?faces-redirect=true";
+     return (isForumsTool() ? FORUMS_MAIN : MAIN);
    }
    
 	/**

@@ -203,40 +203,40 @@ export class SakaiAddTopic extends SakaiElement {
 
     return html`
       ${this.topic.beingEdited ? html`
-      <div class="sak-banner-info">${this.i18n["editing_topic"]}</div>
+      <div class="sak-banner-info">${this.i18n.editing_topic}</div>
       ` : ""}
       <div class="add-topic-wrapper">
-        <h1>${this.new ? this.i18n["add_a_new_topic"] : this.i18n["edit_topic"]}</h1>
+        <h1>${this.new ? this.i18n.add_a_new_topic : this.i18n.edit_topic}</h1>
 
         <!--div class="add-topic-block">
-          <div id="post-type-label" class="add-topic-label">${this.i18n["topic_type"]}</div>
+          <div id="post-type-label" class="add-topic-label">${this.i18n.topic_type}</div>
           <div id="topic-type-toggle-block">
             <div @click=${this.setType}
                 data-type="${QUESTION}"
                 class="topic-type-toggle ${this.topic.type === QUESTION ? "active" : ""}">
               <sakai-icon type="question" size="medium"></sakai-icon>
-              <div>${this.i18n["type_question"]}</div>
+              <div>${this.i18n.type_question}</div>
             </div>
             <div @click=${this.setType}
                 data-type="${DISCUSSION}"
                 class="topic-type-toggle ${this.topic.type === DISCUSSION ? "active" : ""}">
               <sakai-icon type="forums" size="medium"></sakai-icon>
-              <div>${this.i18n["type_discussion"]}</div>
+              <div>${this.i18n.type_discussion}</div>
             </div>
           </div>
         </div-->
 
         <div class="add-topic-block">
-          <div id="summary-label" class="add-topic-label">${this.i18n["summary"]} *</div>
+          <div id="summary-label" class="add-topic-label">${this.i18n.summary} *</div>
           <input id="summary"
             class="summary-input ${this.titleError ? "error" : ""}"
             @blur=${this.updateSummary}
             @focus=${() => this.titleError = false}
             .value="${this.topic.title}" />
-          <div class="required"><span>* ${this.i18n["required"]}</span></div>
+          <div class="required"><span>* ${this.i18n.required}</span></div>
         </div>
         <div class="add-topic-block">
-          <div id="details-label" class="add-topic-label">${this.i18n["details"]}</div>
+          <div id="details-label" class="add-topic-label">${this.i18n.details}</div>
           <sakai-editor
               toolbar="basic"
               content="${this.topic.message}"
@@ -246,7 +246,7 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="tag-post-block" class="add-topic-block">
-          <div id="tag-post-label" class="add-topic-label">${this.i18n["tag_topic"]}</div>
+          <div id="tag-post-label" class="add-topic-label">${this.i18n.tag_topic}</div>
           ${this.tags.length > 0 ? html`
           <select @change=${e => this.selectedTagId = e.target.value}>
             ${this.tags.map(tag => html`
@@ -275,7 +275,7 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="post-to-block" class="add-topic-block">
-          <div id="post-to-label" class="add-topic-label">${this.i18n["post_to"]}</div>
+          <div id="post-to-label" class="add-topic-label">${this.i18n.post_to}</div>
           <form>
           <div id="topic-visibility-wrapper">
             <div>
@@ -285,7 +285,7 @@ export class SakaiAddTopic extends SakaiElement {
                   name="post-to"
                   data-visibility="${SITE}"
                   @click=${this._setVisibility}
-                  ?checked=${this.topic.visibility === SITE}>${this.i18n["everyone"]}
+                  ?checked=${this.topic.visibility === SITE}>${this.i18n.everyone}
               </label>
             </div>
             <div>
@@ -295,7 +295,7 @@ export class SakaiAddTopic extends SakaiElement {
                   name="post-to"
                   data-visibility="${INSTRUCTORS}"
                   @click=${this._setVisibility}
-                  ?checked=${this.topic.visibility === INSTRUCTORS}>${this.i18n["instructors"]}
+                  ?checked=${this.topic.visibility === INSTRUCTORS}>${this.i18n.instructors}
               </label>
             </div>
             ${this.groups ? html`
@@ -306,7 +306,7 @@ export class SakaiAddTopic extends SakaiElement {
                     name="post-to"
                     data-visibility="${GROUP}"
                     @click=${this._setVisibility}
-                    ?checked=${this.topic.visibility === GROUP}>${this.i18n["groups"]}
+                    ?checked=${this.topic.visibility === GROUP}>${this.i18n.groups}
                 </label>
               </div>
               ${this.topic.visibility === GROUP ? html`
@@ -324,7 +324,7 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="post-options-block" class="add-topic-block">
-          <div id="post-options-label" class="add-topic-label">${this.i18n["post_options"]}</div>
+          <div id="post-options-label" class="add-topic-label">${this.i18n.post_options}</div>
           <div id="topic-options-wrapper">
             ${this.canPin ? html`
             <div>
@@ -333,8 +333,8 @@ export class SakaiAddTopic extends SakaiElement {
                 ?checked=${this.topic.pinned}>
               </input>
               <div class="topic-options-label-block">
-                <div class="topic-option-label">${this.i18n["pinned"]}</div>
-                <div class="topic-option-label-text">${this.i18n["pinned_text"]}</div>
+                <div class="topic-option-label">${this.i18n.pinned}</div>
+                <div class="topic-option-label-text">${this.i18n.pinned_text}</div>
               </div>
             </div>
             ` : ""}
@@ -345,8 +345,8 @@ export class SakaiAddTopic extends SakaiElement {
                 ?checked=${this.topic.anonymous}>
               </input>
               <div class="topic-options-label-block">
-                <div class="topic-option-label">${this.i18n["anonymous"]}</div>
-                <div class="topic-option-label-text">${this.i18n["anonymous_text"]}</div>
+                <div class="topic-option-label">${this.i18n.anonymous}</div>
+                <div class="topic-option-label-text">${this.i18n.anonymous_text}</div>
               </div>
             </div>
             <div>
@@ -355,8 +355,8 @@ export class SakaiAddTopic extends SakaiElement {
                 ?checked=${this.topic.allowAnonymousPosts}>
               </input>
               <div class="topic-options-label-block">
-                <div class="topic-option-label">${this.i18n["anonymous_posts"]}</div>
-                <div class="topic-option-label-text">${this.i18n["anonymous_posts_text"]}</div>
+                <div class="topic-option-label">${this.i18n.anonymous_posts}</div>
+                <div class="topic-option-label-text">${this.i18n.anonymous_posts_text}</div>
               </div>
             </div>
             ` : ""}
@@ -364,9 +364,9 @@ export class SakaiAddTopic extends SakaiElement {
         </div>
 
         <div id="button-block" class="act">
-          <input type="button" class="active" @click=${this.publish} value="${this.i18n["publish"]}">
-          <input type="button" @click=${this.saveAsDraft} value="${this.i18n["save_as_draft"]}">
-          <input type="button" @click=${this.cancel} value="${this.i18n["cancel"]}">
+          <input type="button" class="active" @click=${this.publish} value="${this.i18n.publish}">
+          <input type="button" @click=${this.saveAsDraft} value="${this.i18n.save_as_draft}">
+          <input type="button" @click=${this.cancel} value="${this.i18n.cancel}">
         </div>
 
       </div>

@@ -158,7 +158,7 @@ export class SakaiWidgetPanel extends LitElement {
         this.layout[currentIndex + 1] = tmpWidgetId;
         break;
       case "up":
-        if (this.columns == 1) {
+        if (this.columns === 1) {
           this.layout[currentIndex] = this.layout[currentIndex - 1];
           this.layout[currentIndex - 1] = tmpWidgetId;
         } else {
@@ -167,7 +167,7 @@ export class SakaiWidgetPanel extends LitElement {
         }
         break;
       case "down":
-        if (this.columns == 1) {
+        if (this.columns === 1) {
           this.layout[currentIndex] = this.layout[currentIndex + 1];
           this.layout[currentIndex + 1] = tmpWidgetId;
         } else {
@@ -183,7 +183,7 @@ export class SakaiWidgetPanel extends LitElement {
 
   getWidget(r) {
 
-    const w = this.widgets.find(w => w.id === r);
+    const w = this.widgets.find(widget => widget.id === r);
 
     switch (r) {
       case "tasks":
@@ -271,10 +271,10 @@ export class SakaiWidgetPanel extends LitElement {
           <div>
             <a href="javascript:;"
                 @click=${this.showWidgetPicker}
-                title="${this.i18n["add_a_widget"]}"
-                aria-label="${this.i18n["add_a_widget"]}">
+                title="${this.i18n.add_a_widget}"
+                aria-label="${this.i18n.add_a_widget}">
               <sakai-icon type="add" size="small"></sakai-icon>
-              <div id="add-text">${this.i18n["add_a_widget"]}</div>
+              <div id="add-text">${this.i18n.add_a_widget}</div>
             </a>
           </div>
         </div>

@@ -26,7 +26,7 @@ export class SakaiComment extends SakaiElement {
 
   deleteComment() {
 
-    if (!confirm(this.i18n["confirm_comment_delete"])) {
+    if (!confirm(this.i18n.confirm_comment_delete)) {
       return;
     }
 
@@ -74,10 +74,10 @@ export class SakaiComment extends SakaiElement {
           ${this.comment.canEdit ? html`
           <div>
             <a href="javascript:;"
-                title="${this.i18n["edit_this_comment"]}"
+                title="${this.i18n.edit_this_comment}"
                 @click=${() => this.editing = true}
-                arial-label="${this.i18n["edit_this_comment"]}">
-              ${this.i18n["edit"]}
+                arial-label="${this.i18n.edit_this_comment}">
+              ${this.i18n.edit}
             </a>
           </div>
           ` : ""}
@@ -85,9 +85,9 @@ export class SakaiComment extends SakaiElement {
           <div>
             <a href="javascript:;"
                 @click=${this.deleteComment}
-                title="${this.i18n["delete_this_comment"]}"
-                arial-label="${this.i18n["delete_this_comment"]}">
-              ${this.i18n["delete"]}
+                title="${this.i18n.delete_this_comment}"
+                arial-label="${this.i18n.delete_this_comment}">
+              ${this.i18n.delete}
             </a>
           </div>
           ` : ""}

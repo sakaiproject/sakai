@@ -40,7 +40,7 @@ class SakaiOptionsMenu extends LitElement {
   }
 
   static get styles() {
-    
+
     return [
       css`
         .overlay {

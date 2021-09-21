@@ -313,11 +313,8 @@
   <query name="findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic,
     			org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-		    join topic.openForum as forum
-		    join forum.area as area
 		    join topic.membershipItemSet as membershipItem  
-		    where area.contextId = :contextId and
-		    topic.moderated = true and
+		    where topic in ( :topicList ) and
 		    membershipItem.name in ( :membershipList ) and
 		    pl.moderatePostings = true and
 		    membershipItem.permissionLevel = pl.id
@@ -329,11 +326,8 @@
   <query name="findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic,
     			org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-		    join topic.openForum as forum
-		    join forum.area as area
 		    join topic.membershipItemSet as membershipItem  
-		    where area.contextId = :contextId and
-		    topic.moderated = true and
+		    where topic in ( :topicList ) and
 		    membershipItem.name in ( :membershipList ) and
 		    pl.moderatePostings = true and
 		    (pl.typeUuid != :customTypeUuid and 

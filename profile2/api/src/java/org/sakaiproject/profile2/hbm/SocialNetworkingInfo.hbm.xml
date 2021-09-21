@@ -14,7 +14,7 @@
 		<property name="myspaceUrl" column="MYSPACE_URL" not-null="false" />
 		<property name="skypeUsername" column="SKYPE_USERNAME" not-null="false" />
 		<property name="twitterUrl" column="TWITTER_URL" not-null="false" />
-		
+		<property name="instagramUrl" column="INSTAGRAM_URL" not-null="false"/>
 	</class>
 	
 	<query name="getSocialNetworkingInfo">

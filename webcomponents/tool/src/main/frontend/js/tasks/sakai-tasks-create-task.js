@@ -21,14 +21,14 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     super();
     this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now() };
-    this.task = Object.assign({}, this.defaultTask);
+    this.task = { ...this.defaultTask};
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
   title() {
 
     return html`
-      ${this.task.taskId == "" ? this.i18n["create_new_task"] : this.i18n["edit_task"]}
+      ${this.task.taskId == "" ? this.i18n.create_new_task : this.i18n.edit_task}
     `;
   }
 
@@ -49,10 +49,10 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         if (r.ok) {
           this.error = false;
           return r.json();
-        } else {
-          this.error = true;
-          throw new Error();
         }
+        this.error = true;
+        throw new Error();
+
       })
       .then(savedTask => {
 
@@ -125,7 +125,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   reset() {
-    this.task = Object.assign({}, this.defaultTask);
+    this.task = { ...this.defaultTask};
   }
 
   complete(e) {
@@ -160,13 +160,13 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     return html`
 
       <div class="label">
-        <label for="description">${this.i18n["description"]}</label>
+        <label for="description">${this.i18n.description}</label>
       </div>
       <div class="input"><input type="text" id="description" size="50" maxlength="150" .value=${this.task.description}></div>
       <div id="due-and-priority-block">
         <div id="due-block">
           <div class="label">
-            <label for="due">${this.i18n["due"]}</label>
+            <label for="due">${this.i18n.due}</label>
           </div>
           <div class="input">
             <sakai-date-picker id="due" @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }} epoch-millis=${this.task.due}></sakai-date-picker>
@@ -175,15 +175,15 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         <div id="spacer"></div>
         <div id="priority-block">
           <div class="label">
-            <label for="priority">${this.i18n["priority"]}</label>
+            <label for="priority">${this.i18n.priority}</label>
           </div>
           <div class="input">
             <select id="priority" @change=${(e) => this.task.priority = e.target.value} .value=${this.task.priority}>
-              <option value="5">${this.i18n["high"]}</option>
-              <option value="4">${this.i18n["quite_high"]}</option>
-              <option value="3">${this.i18n["medium"]}</option>
-              <option value="2">${this.i18n["quite_low"]}</option>
-              <option value="1">${this.i18n["low"]}</option>
+              <option value="5">${this.i18n.high}</option>
+              <option value="4">${this.i18n.quite_high}</option>
+              <option value="3">${this.i18n.medium}</option>
+              <option value="2">${this.i18n.quite_low}</option>
+              <option value="1">${this.i18n.low}</option>
             </select>
           </div>
         </div>
@@ -191,31 +191,31 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       ${this.task.taskId != "" ? html`
         <div id="complete-block">
           <div>
-            <label for="complete">${this.i18n["completed"]}</label>
+            <label for="complete">${this.i18n.completed}</label>
             <input
               type="checkbox"
               id="complete"
-              aria-label="${this.i18n["complete_tooltip"]}"
-              title="${this.i18n["complete_tooltip"]}"
+              aria-label="${this.i18n.complete_tooltip}"
+              title="${this.i18n.complete_tooltip}"
               @click=${this.complete}
               ?checked=${this.task.complete}>
           </div>
         </div>
       ` : ""}
       <div class="label">
-        <label for="text">${this.i18n["text"]}</label>
+        <label for="text">${this.i18n.text}</label>
       </div>
       <div class="input">
         <slot id="task-text" name="task-text"></slot>
       </div>
-      ${this.error ? html`<div id="error">${this.i18n["save_failed"]}</div>` : ""}
+      ${this.error ? html`<div id="error">${this.i18n.save_failed}</div>` : ""}
     `;
   }
 
   buttons() {
 
     return html`
-      <sakai-button @click=${this.save} primary>${this.task.taskId == "" ? this.i18n["add"] : this.i18n["save"]}</sakai-button>
+      <sakai-button @click=${this.save} primary>${this.task.taskId == "" ? this.i18n.add : this.i18n.save}</sakai-button>
     `;
   }
 

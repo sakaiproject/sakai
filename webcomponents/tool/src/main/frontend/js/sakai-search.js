@@ -31,14 +31,14 @@ class SakaiSearch extends SakaiElement {
     this.loadTranslations("search").then(t => {
       this.i18n = t;
       this.toolNameMapping = {
-        "announcement": this.i18n["toolname_announcement"],
-        "assignments": this.i18n["toolname_assignment"],
-        "chat": this.i18n["toolname_chat"],
-        "forums": this.i18n["toolname_forum"],
-        "lessons": this.i18n["toolname_lesson"],
-        "commons": this.i18n["toolname_commons"],
-        "content": this.i18n["toolname_resources"],
-        "wiki": this.i18n["toolname_wiki"],
+        "announcement": this.i18n.toolname_announcement,
+        "assignments": this.i18n.toolname_assignment,
+        "chat": this.i18n.toolname_chat,
+        "forums": this.i18n.toolname_forum,
+        "lessons": this.i18n.toolname_lesson,
+        "commons": this.i18n.toolname_commons,
+        "content": this.i18n.toolname_resources,
+        "wiki": this.i18n.toolname_wiki,
       };
     });
   }
@@ -70,9 +70,9 @@ class SakaiSearch extends SakaiElement {
     return html`
       <div class="sakai-search-input">
         ${this.showField ? html`
-            <input type="text" id="sakai-search-input" tabindex="0" @input=${this.search} @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n["search_placeholder"]}" aria-label="${this.i18n["search_placeholder"]}"/>
+            <input type="text" id="sakai-search-input" tabindex="0" @input=${this.search} @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n.search_placeholder}" aria-label="${this.i18n.search_placeholder}"/>
           ` : ""}
-        <a href="javascript:;" @click=${this.toggleField} title="${this.i18n["search_tooltip"]}"><span class="icon-sakai--sakai-search"></span></a>
+        <a href="javascript:;" @click=${this.toggleField} title="${this.i18n.search_tooltip}"><span class="icon-sakai--sakai-search"></span></a>
       </div>
       ${this.noResults && this.showField ? html`
         <div class="sakai-search-results" tabindex="1">
@@ -87,11 +87,11 @@ class SakaiSearch extends SakaiElement {
               <div>
                 <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
                 <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
-                <span>${this.i18n["from_site"]}</span>
+                <span>${this.i18n.from_site}</span>
                 <span class="search-result-site-title">${r.siteTitle}</span>
               </div>
               <div>
-                <span class="search-result-title-label">${this.i18n["search_result_title"]}</span><span class="search-result-title">${r.title}</span>
+                <span class="search-result-title-label">${this.i18n.search_result_title}</span><span class="search-result-title">${r.title}</span>
               </div>
               <div class="search-result">${unsafeHTML(r.searchResult)}</div>
             </a>
@@ -111,30 +111,28 @@ class SakaiSearch extends SakaiElement {
     this.showField = !this.showField;
     if (!this.showField) {
       this.clear();
-    } else {
-      if (!$input.data('ui-autocomplete')) {
-        this.updateComplete.then(() => {
+    } else if (!$input.data('ui-autocomplete')) {
+      this.updateComplete.then(() => {
 
-          $('#sakai-search-input').autocomplete({
-            source: function(request, response) {
-              const query = document.getElementById("sakai-search-input").value;
-              fetch(`/direct/search/suggestions.json?q=${encodeURIComponent(query)}`)
+        $('#sakai-search-input').autocomplete({
+          source(request, response) {
+            const query = document.getElementById("sakai-search-input").value;
+            fetch(`/direct/search/suggestions.json?q=${encodeURIComponent(query)}`)
                 .then(r => {
 
                   if (r.ok) {
                     return r.json();
-                  } else {
-                    throw new Error("Failed to get search suggestions");
                   }
+                  throw new Error("Failed to get search suggestions");
+
                 })
                 .then(data => response(data))
                 .catch (error => console.error("Failed to get search suggestions", error));
-            },
-            minLength: 2,
-            select: (e, ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
-          });
+          },
+          minLength: 2,
+          select: (e, ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
         });
-      }
+      });
     }
 
     this.requestUpdate();

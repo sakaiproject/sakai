@@ -94,12 +94,12 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
             <div class="criterion-actions">
             ${!this.preview ? html`
               <sakai-rubric-student-comment criterion="${JSON.stringify(c)}"></sakai-rubric-student-comment>
-              <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
+              <strong class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
                 ${c.selectedvalue.toLocaleString(this.locale)}
                 ${!c.selectedRatingId ? "0" : ""}
                 &nbsp;
               </strong>
-              ${this.isOverridden(c.pointoverride,c.selectedvalue) ?
+              ${this.isOverridden(c.pointoverride, c.selectedvalue) ?
                 html`<strong class="points-display">${c.pointoverride.toLocaleString(this.locale)}</strong>`
                 : html``}
             ` : html``}
@@ -162,9 +162,9 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     if ((pointoverride || pointoverride === 0) && (parseFloat(pointoverride) !== parseFloat(selected))) {
       return true;
-    } else {
-      return false;
     }
+    return false;
+
   }
 
   updateTotalPoints() {
@@ -175,15 +175,15 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);
-      } else {
-        return a;
       }
+      return a;
+
     }, 0);
 
     this.ready = true;
   }
 
-  getOverriddenClass(ovrdvl,selected) {
+  getOverriddenClass(ovrdvl, selected) {
 
     if (!this.rubricAssociation.parameters.fineTunePoints) {
       return '';
@@ -191,9 +191,9 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
 
     if ((ovrdvl || ovrdvl === 0) && (parseFloat(ovrdvl) !== parseFloat(selected))) {
       return 'strike';
-    } else {
-      return '';
     }
+    return '';
+
   }
 }
 

@@ -118,8 +118,8 @@ class SakaiDatePicker extends LitElement {
 
     return html`
       <input type="text" id="picker" size="30"
-          placeholder="${this.i18n["input_placeholder"]}"
-          aria-label="${this.i18n["input_placeholder"]}"></input>
+          placeholder="${this.i18n.input_placeholder}"
+          aria-label="${this.i18n.input_placeholder}"></input>
     `;
   }
 
@@ -128,10 +128,10 @@ class SakaiDatePicker extends LitElement {
     if (typeof portal !== "undefined" && portal.user && portal.user.offsetFromServerMillis) {
       const osTzOffset = new Date().getTimezoneOffset();
       return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
-    } else {
-      window.console && window.console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
-      return moment(epochMillis);
     }
+    window.console && window.console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
+    return moment(epochMillis);
+
   }
 
   static get styles() {
