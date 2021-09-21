@@ -40,7 +40,7 @@ ASN_SVS.undoCancel = function()
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/addTimeSheet.json";
     const params = {
-        "tsassignmentId" : document.getElementById("assignmentId").value,
+        "tsAssignmentId" : document.getElementById("assignmentId").value,
         "tsDate" : document.getElementById("regDate").value,
         "new_ts_record_day" : document.getElementById("new_ts_record_day").value,
         "new_ts_record_month" : document.getElementById("new_ts_record_month").value,
@@ -48,7 +48,7 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
 
-        "tsComment" : document.getElementById("regComment").value,
+        "tsComment" : document.getElementById("comment").value,
         "tsTime" : document.getElementById("duration").value,
     }
 
@@ -63,7 +63,7 @@ ASN_TS_API.removeTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/removeTimeSheet.json";
     const params = {
         "selectedTimeSheets" : [...document.getElementsByName("selectedTimesheet")].filter((el) => el.checked).map((el) => el.value),
-        "assignmentId" : document.getElementById("assignmentId").value,
+        "tsAssignmentId" : document.getElementById("assignmentId").value,
     };
 
     button.classList.add("spinButton");
