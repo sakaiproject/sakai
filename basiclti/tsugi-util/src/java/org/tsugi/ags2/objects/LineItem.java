@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?
-public class LineItem {
+public class LineItem extends org.tsugi.jackson.objects.JacksonBase {
 
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.lineitem+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.lineitemcontainer+json";

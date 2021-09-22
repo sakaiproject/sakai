@@ -89,7 +89,6 @@ public class LTI13ObjectTest {
 
 		lj.custom = new TreeMap<String, String>();
 		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
-			System.out.println(entry.getKey() + " : " + entry.getValue());
 			String custom_key = (String) entry.getKey();
 			String custom_val = (String) entry.getValue();
 			if (!custom_key.startsWith("custom_")) {

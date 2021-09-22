@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 	  "userId" : "5323497"
 	}
  */
-public class Score { // Input only
+public class Score extends org.tsugi.jackson.objects.JacksonBase {
 
 	/**
 	 * the user has not started the activity, or the activity has been reset for that student.
@@ -81,7 +81,9 @@ public class Score { // Input only
 	@JsonProperty("scoreGiven")
 	public Double scoreGiven;
 	@JsonProperty("scoreMaximum")
-	public Double scoregiven;
+	public Double scoreMaximum;
+	@JsonProperty("userId")
+	public String userId;      // TODO: LTI13 quirk - should be subject
 	@JsonProperty("comment")
 	public String comment;
 	@JsonProperty("activityProgress")

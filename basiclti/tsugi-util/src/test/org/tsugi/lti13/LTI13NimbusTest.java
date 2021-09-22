@@ -156,17 +156,17 @@ public class LTI13NimbusTest {
 		// https://docs.oracle.com/javase/7/docs/api/java/security/interfaces/RSAPublicKey.html
 		Key publicKey = LTI13Util.string2PublicKey(actual_public_key_string);
 		java.security.interfaces.RSAKey rsaPublicKey = (java.security.interfaces.RSAKey) publicKey;
-		System.out.println("rsaPublicKey="+rsaPublicKey);
+		// System.out.println("rsaPublicKey="+rsaPublicKey);
 
         com.nimbusds.jose.jwk.JWKSet localKeys = com.nimbusds.jose.jwk.JWKSet.parse(json);
-        System.out.println("JWKSet="+localKeys);
+        // System.out.println("JWKSet="+localKeys);
 
 		com.nimbusds.jose.jwk.RSAKey nimbusPublic = (com.nimbusds.jose.jwk.RSAKey) localKeys.getKeyByKeyId(kid);
-		System.out.println("nimbusPublic="+nimbusPublic);
+		// System.out.println("nimbusPublic="+nimbusPublic);
 
 		Key publicKey2 = nimbusPublic.toRSAPublicKey();
 		java.security.interfaces.RSAKey rsaPublicKey2 = (java.security.interfaces.RSAKey) publicKey2;
-		System.out.println("rsaPublicKey2="+rsaPublicKey2);
+		// System.out.println("rsaPublicKey2="+rsaPublicKey2);
 
 		assertEquals(rsaPublicKey, rsaPublicKey2);
 

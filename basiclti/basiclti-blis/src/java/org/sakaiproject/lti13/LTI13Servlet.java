@@ -88,6 +88,7 @@ import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
+import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.PlatformConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
@@ -1021,20 +1022,17 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		log.debug("jsonString={}", jsonString);
 
-		Object js = JSONValue.parse(jsonString);
-		if (js == null || !(js instanceof JSONObject)) {
-			LTI13Util.return400(response, "Badly formatted JSON");
+		Score scoreObj;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			scoreObj = mapper.readValue(jsonString, Score.class);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+			log.error("Could not read POST Data Jackson {}", ex.getMessage());
+			LTI13Util.return400(response, "Could not read POST Data Jackson");
 			return;
 		}
-		JSONObject jso = (JSONObject) js;
 
-		// An empty / null score given means to delete the score
-		Double scoreGiven = SakaiBLTIUtil.getDoubleNull(jso.get("scoreGiven"));
-		Double scoreMaximum = SakaiBLTIUtil.getDoubleNull(jso.get("scoreMaximum"));
-		String userId = SakaiBLTIUtil.getStringNull(jso.get("userId"));  // TODO: LTI13 quirk - should be subject
-		String comment = SakaiBLTIUtil.getStringNull(jso.get("comment"));
-		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
-
+		String userId = scoreObj.userId;
 		if (userId == null) {
 			LTI13Util.return400(response, "Missing userId");
 			return;
@@ -1063,9 +1061,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// In case we are creating the gradebook entry at this very moment
-		SakaiLineItem lineItem = new SakaiLineItem();
-		lineItem.scoreMaximum = scoreMaximum;
+		// TODO: Check if sat and tool match
 
 		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
 		if (assignment_name == null || assignment_name.length() < 1) {
@@ -1077,8 +1073,8 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
-		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreGiven, lineItem, comment);
-		log.debug("Lineitem retval={}",retval);
+		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, lineitem_key, scoreObj);
+		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {
 			LTI13Util.return400(response, (String) retval);
 			return;

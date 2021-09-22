@@ -712,6 +712,7 @@ public class BasicLTIUtil {
 	public static String getOAuthURL(String method, String url,
 		String oauth_consumer_key, String oauth_secret, String signature)
 	{
+		if ( url == null ) return null;
 		OAuthMessage om = new OAuthMessage(method, url, null);
 		om.addParameter(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
 		if ( signature == null ) signature = OAuth.HMAC_SHA1;
