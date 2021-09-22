@@ -21,9 +21,17 @@
 			#set($downloadTemplateUrl="$accessPointUrl?contextString=" + $contextString + "&studentSubmissionText=true&studentSubmissionAttachment=true&gradeFile=true&feedbackTexts=true&feedbackComments=true&feedbackAttachments=true")
 			$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
 			<br />
-			<div class="highlight">
+			<p class="highlight">
 				$tlang.getString('uploadall.note')
-			</div>
+			</p>
+			#if ($plagiarismNote)
+				<p>
+					<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette" aria-hidden="true"/>
+					<em>
+						$plagiarismNote
+					</em>
+				</p>
+			#end
 		#end
 	</p>
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
