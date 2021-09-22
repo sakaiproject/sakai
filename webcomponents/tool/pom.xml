@@ -132,7 +132,7 @@
                 <executions>
                     <execution>
                         <id>install node and npm</id>
-                        <phase>install</phase>
+                        <phase>install,test</phase>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
@@ -143,7 +143,7 @@
                     </execution>
                     <execution>
                         <id>npm install dependencies</id>
-                        <phase>install</phase>
+                        <phase>install,test</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -172,7 +172,7 @@
                     </execution>
                     <execution>
                         <id>npm empathise</id>
-                        <phase>install</phase>
+                        <phase>install,test</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
