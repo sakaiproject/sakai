@@ -80,10 +80,8 @@
 			<version>1.0-FCS</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>javax.activation-api</artifactId>
-			<version>1.2.0</version>
-			<!--properties:  war.bundle: standalone -->
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
         <dependency>
             <groupId>OKI</groupId>

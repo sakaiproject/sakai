@@ -58,7 +58,6 @@
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
     <sakai.opencsv.version>5.5.2</sakai.opencsv.version>
-    <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
     <sakai.spring.version>5.3.9</sakai.spring.version>
@@ -362,6 +361,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>com.sun.activation</groupId>
+        <artifactId>jakarta.activation</artifactId>
+        <version>1.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>jakarta.xml.soap</groupId>
         <artifactId>jakarta.xml.soap-api</artifactId>
         <version>1.4.2</version>
@@ -374,8 +379,8 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.glassfish.jaxb</groupId>
-        <artifactId>jaxb-runtime</artifactId>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
         <version>2.3.3</version>
         <scope>provided</scope>
       </dependency>
@@ -738,12 +743,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>javax.activation-api</artifactId>
-        <version>1.2.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.cache</groupId>
         <artifactId>cache-api</artifactId>
         <version>1.1.1</version>
@@ -951,9 +950,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>2.0.1.Final</version>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>2.0.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -963,9 +962,15 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.4.3.Final</version>
+        <version>6.1.7.Final</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator-annotation-processor</artifactId>
+        <version>6.1.7.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
