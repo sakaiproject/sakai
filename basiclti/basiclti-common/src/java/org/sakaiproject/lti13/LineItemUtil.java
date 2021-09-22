@@ -355,7 +355,7 @@ public class LineItemUtil {
 	 * @param column_id
 	 * @return
 	 */
-	protected static Assignment getColumnByKeyDAO(String context_id, Long tool_id, Long column_id)
+	public static Assignment getColumnByKeyDAO(String context_id, Long tool_id, Long column_id)
 	{
 		List<Assignment> assignments = getColumnsForToolDAO(context_id, tool_id);
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
