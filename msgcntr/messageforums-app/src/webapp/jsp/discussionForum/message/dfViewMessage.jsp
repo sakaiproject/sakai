@@ -182,7 +182,7 @@
 					</h:commandLink>
 					<%-- Email --%>
 					<h:outputLink styleClass="button"  id="createEmail1" value="mailto:#{ForumTool.selectedMessage.authorEmail}" rendered="#{ForumTool.selectedMessage.userCanEmail && ForumTool.selectedMessage.authorEmail != '' && ForumTool.selectedMessage.authorEmail != null}"> 
-						<f:param value="Feedback on #{ForumTool.selectedMessage.message.title}" name="subject" />
+						<f:param value="#{msgs.cdfm_feedback_on} #{ForumTool.selectedMessage.message.title}" name="subject" />
 						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_email}" />
   						<h:outputText value=" #{msgs.cdfm_button_bar_email}"/>
 					</h:outputLink>

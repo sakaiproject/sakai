@@ -850,3 +850,10 @@ MFR_RBC.saveRubric = function() {
     const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
     rubricGrading && rubricGrading.release();
 };
+
+window.onload = function() {
+    var mailtos = document.querySelectorAll("[id*=createEmail1");
+    mailtos.forEach(item =>{
+        item.setAttribute('href', item.href.replaceAll('+',' '));
+    });
+}
