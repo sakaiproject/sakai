@@ -2,6 +2,8 @@ package org.sakaiproject.contentreview.service;
 
 import java.time.Instant;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -103,22 +105,31 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	@Override
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		ContentReviewItem item = checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
+		return formatRedirectUrl(contentId, assignmentRef, userId);
 	}
 	
 	@Override
 	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		ContentReviewItem item = checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
+		return formatRedirectUrl(contentId, assignmentRef, userId);
 	}
 	
 	@Override
 	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		return formatRedirectUrl(contentId, assignmentRef, userId);
+	}
+	
+	private String formatRedirectUrl(String contentId, String assignmentRef, String userId)
+			throws QueueException, ReportException {
 		ContentReviewItem item = checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
+		try {
+			return String.format(REDIRECT_URL_TEMPLATE, URLEncoder.encode(contentId, "UTF-8"), 
+					URLEncoder.encode(assignmentRef, "UTF-8"), URLEncoder.encode(item.getSiteId(), "UTF-8"));
+		} catch(UnsupportedEncodingException e) {
+			log.error(e.getMessage(), e);
+			throw new ReportException("Error encoding contentId: " + contentId + ", assignmentRef: " + assignmentRef + ", siteId: " + item.getSiteId());
+		}
 	}
 	
 	private ContentReviewItem checkContentItemStatus(String contentId) throws ReportException {
