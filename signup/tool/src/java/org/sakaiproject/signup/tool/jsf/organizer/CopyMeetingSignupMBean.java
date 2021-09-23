@@ -736,6 +736,21 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		this.maxNumOfAttendees = maxNumOfAttendees;
 	}
 
+       /**
+	* This is getter method for UI
+	* @return a String for the meeting id
+	*/
+        public String getSignupMeetingId() {
+	    String rv = "";
+	    if (signupMeeting != null) {
+		Long id = signupMeeting.getId();
+		if (id != null) {
+		    rv = id.toString();
+		}
+	    }
+	    return rv;
+	}
+
 	/**
 	 * this is a getter method for UI
 	 * 

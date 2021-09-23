@@ -615,7 +615,12 @@ $(function() {
          $timezone
 		</p>
 		<div class="itemSummary">
-			
+			#set($contextkey = "ckeditor-autosave-context")
+  		        #set($entitykey = "ckeditor-autosave-entity-id")
+			#set( $entityval = "$!event.getId()" )
+			<input type="hidden" id="$contextkey" name="$contextkey" value="calendar_new">
+			<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
+
 			<label for="body" class="block">$tlang.getString("new.descr")</label>
 			#if ($savedData.getDescription().length() !=0)
 				<textarea name="description" id="description" wrap="virtual" rows="10">$formattedText.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>

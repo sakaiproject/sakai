@@ -190,6 +190,8 @@
 
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
+  <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_publishedSettings" /></f:verbatim>
+  <h:panelGroup rendered="#{publishedSettings.assessmentId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{publishedSettings.assessmentId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs" value="#{publishedSettings.blockDivs}"/>
   <h:inputHidden id="itemNavigationUpdated" value="false" />

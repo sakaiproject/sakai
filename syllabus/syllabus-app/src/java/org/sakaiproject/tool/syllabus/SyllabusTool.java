@@ -2462,6 +2462,37 @@ public class SyllabusTool
     return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
       + ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
   }
+
+    /**
+     * @return
+     * Get id attribute of syllabus
+     */
+    public String getSyllabusDataId()
+    {
+	String rv = "";
+	DecoratedSyllabusEntry entry = getEntry();
+	boolean alert = true;
+	if (entry != null)
+	    {
+		SyllabusData syllabusData = entry.getEntry();
+		if (syllabusData != null)
+		    {
+			Long id = syllabusData.getSyllabusId();
+			if (id != null) 
+			    {
+				rv = id.toString();
+				alert = false;
+			    }
+		    }
+	    }
+	  
+	if (alert)
+	    {
+		setAlertMessage(rb.getString("refresh"));
+	    }
+	  
+	return rv;
+    }
   
   /**
    * get title attribute of syllabus

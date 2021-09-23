@@ -234,7 +234,7 @@
 								<f:selectItems value="#{CopyMeetingSignupMBean.allLocations}"/>
 							</h:selectOneMenu>
 							<h:inputText id="customLocation" size="35" value="#{CopyMeetingSignupMBean.customLocation}" style="display:none" styleClass="editText">  
-								<f:converter converterId=Signup.StringTrimConverter"/>
+								<f:converter converterId="Signup.StringTrimConverter"/>
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')">
@@ -279,6 +279,8 @@
 
 					<%--Description --%>
 					<div class="form-group row">
+						<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="signup_copy" /></f:verbatim>
+						<h:panelGroup rendered="#{CopyMeetingSignupMBean.signupMeetingId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{CopyMeetingSignupMBean.signupMeetingId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 						<h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12" escape="false"/>
 						<div class="col-lg-12">
 							<sakai:inputRichText value="#{CopyMeetingSignupMBean.signupMeeting.description}"

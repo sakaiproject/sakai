@@ -237,6 +237,8 @@
 					</div>
 				</div>
 		  </div>
+                  <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="messages_compose" /></f:verbatim>
+                  <h:panelGroup rendered="#{PrivateMessagesTool.currentMsgUuid!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{PrivateMessagesTool.currentMsgUuid}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 
 		  <h4><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_message}" /></h4>
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{PrivateMessagesTool.composeBody}" id="pvt_message_body" rows="#{ForumTool.editorRows}" cols="132">

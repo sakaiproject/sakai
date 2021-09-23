@@ -19,6 +19,8 @@
  *
  ******************************************************************************/
 var sakai = sakai || {};
+var autosaveContext = "ckeditor-autosave-context";
+var autosaveEntityKey = "ckeditor-autosave-entity-id";
 sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
 // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
@@ -110,6 +112,53 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    // Prune the GET parameters and '?' off the URL
+    function pruneUrl(url) {
+	return url.split('?')[0];
+    }
+
+    // Truncate the Tests & Quizzes Settings URL to only include up to the tool_id.
+    function truncateSamigoSettingsUrl(url) {
+	var arr = url.split('/');
+	return "https://" + arr[2] + "/" + arr[3] + "/" + arr[4] + "/" + arr[6] + "/" + arr[7];
+    }
+
+    // The autosave plugin's default use of a URL is not sufficient for many Sakai entities
+    // whereby the tool URL is not distinct.
+    function getAutoSaveKey() {
+        var _saveKeyPrefix = "autosave",
+        _saveKeyUrl = window.location.href,
+        _saveKeyDelimiter = "_",
+	_saveKeyAttribute = "value",
+	_context = "unknown",
+	_entityVal = "undefined",
+	_username = "";
+
+	// Lookup two hidden inputs field to make autosave key unique beyond Sakai's presented URL
+	var contextElement = document.getElementById(autosaveContext);
+	if (contextElement != null)
+	        _context = contextElement.getAttribute(_saveKeyAttribute);
+	var entityElement = document.getElementById(autosaveEntityKey);
+	if (entityElement != null) 
+	        _entityVal = entityElement.getAttribute(_saveKeyAttribute);
+
+	// Including the username in the autosavekey can help prevent instances on shared devices
+	// (e.g., in computer labs on campus) where one user's autosaved contents could otherwise be inadvertently accessible 
+	// to another user.
+        if (typeof portal != 'undefined' && typeof portal.user != 'undefined' && typeof portal.user.eid != 'undefined' && 
+	        typeof portal.user.eid == 'string') {
+	        _username = portal.user.eid;
+	    }
+
+	if (_context == "overview")
+	        _saveKeyUrl = pruneUrl(_saveKeyUrl);
+	else if ((_context == "samigo_authorSettings") || (_context == "samigo_publishedSettings"))
+	        _saveKeyUrl = truncateSamigoSettingsUrl(_saveKeyUrl);
+
+	return _saveKeyPrefix + _saveKeyDelimiter + _saveKeyUrl + _saveKeyDelimiter + targetId + 
+	        _saveKeyDelimiter + _context + _saveKeyDelimiter + _entityVal + _saveKeyDelimiter + _username;  
     }
 
     var folder = "";
@@ -341,9 +390,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false,
         autosave : {
-            saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
+	    SaveKey: getAutoSaveKey(),
+	    // Include ".ui-dialog-buttons button" which are used in Syllabus
+            saveDetectionSelectors : "form input[type='button'],form input[type='submit'],.ui-dialog-buttons button",
             //Delay for autosave
-            delay: 120,
+            delay: 5,
             //autosave_messageType can be "no" or "notification"
             messageType : "statusbar"
         },

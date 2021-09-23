@@ -136,6 +136,11 @@ function resizeFrame(){
 					</label>
 				</div>
 				<div class="col-md-12">
+				        #set($contextkey = "ckeditor-autosave-context")
+					#set($entitykey = "ckeditor-autosave-entity-id")
+					#set($entityval = "$message.id")
+					<input type="hidden" id="$contextkey" name="$contextkey" value="annc">
+					<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
 					#if ($new=="true")
 						#if ($!tempBody.length() != 0)
 							<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$formattedText.escapeHtmlFormattedTextarea($tempBody)</textarea>
