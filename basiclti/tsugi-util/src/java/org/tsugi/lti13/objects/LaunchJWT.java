@@ -81,13 +81,12 @@ public class LaunchJWT extends BaseJWT {
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings")
 	public DeepLink deep_link;
-	//
-	// TODO: Remove after transition
-	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti11_legacy_user_id")
-	public String lti11_legacy_user_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1p1")
 	public LTI11Transition lti11_transition;
+
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/for_user")
+	public ForUser for_user;
 
 	// Constructor
 	public LaunchJWT() {

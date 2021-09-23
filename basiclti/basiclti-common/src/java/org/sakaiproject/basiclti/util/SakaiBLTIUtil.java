@@ -114,6 +114,7 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
+import org.tsugi.lti13.objects.ForUser;
 import org.tsugi.lti13.objects.LTI11Transition;
 import org.tsugi.basiclti.ContentItem;
 
@@ -1829,6 +1830,13 @@ public class SakaiBLTIUtil {
 			lis.version.add("1.0.0");
 			lis.version.add("1.1.0");
 			lj.lis = lis;
+
+			String for_user = req.getParameter("for_user");
+			if ( for_user != null ) {
+				ForUser forUser = new ForUser();
+				forUser.user_id =  getSubject(for_user, context_id);
+				lj.for_user = forUser;
+			}
 
 			lj.custom = new TreeMap<>();
 			for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {

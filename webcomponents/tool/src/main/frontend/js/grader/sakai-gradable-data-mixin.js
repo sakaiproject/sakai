@@ -34,6 +34,8 @@ const gradableDataMixin = Base => class extends Base {
 
           this.groups = gradableData.groups;
 
+          this.ltiGradeLaunch = gradableData.ltiGradeLaunch;
+
           // Load up the graded status for each submission. We need that for the next/prev ungraded type of navigations.
           fetch(`/direct/assignment/grades.json?gradableId=${gradableId}&courseId=${courseId}`, {cache: "no-cache", credentials: "same-origin"})
             .then(res => res.json())

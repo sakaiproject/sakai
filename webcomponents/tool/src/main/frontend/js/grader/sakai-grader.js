@@ -67,6 +67,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       rubric: { type: Object },
       assignmentsI18n: Object,
       showingHistory: Boolean,
+      ltiGradeLaunch: { attribute: "lti-grade-launch", type: String },
     };
   }
 
@@ -186,6 +187,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     return html`
       <div class="gradable">
+        ${this.ltiGradeLaunch ? html`
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
+          <div class="grader-feedback-launch" style="display:none;"><a href="${this.ltiGradeLaunch}" class="btn btn-primary" role="button" target="_blank">${this.i18n.lti_grade_launch_button}</a>
+          </div>
+          <div class="grader-feedback-iframe">
+                <iframe src="${this.ltiGradeLaunch}" id="grader-feedback-iframe" style="width: 100%; height: 100%; min-height: 600px;">
+                </iframe>
+          </div>
+        ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
             <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>

@@ -135,6 +135,20 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		return false;
 	}
+
+	/**
+	 * Check if the current user can update the site associated with this entity
+	 *
+	 * @param ref
+	 *		The Reference to the entity.
+	 * @return true if allowed, false if not.
+	 */
+	protected boolean checkSiteUpdate(Reference ref)
+	{
+		String contextId = ref.getContext();
+		return siteService.allowUpdateSite(contextId);
+	}
+
 	/*******************************************************************************
 	 * Init and Destroy
 	 *******************************************************************************/
@@ -483,7 +497,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						protect = SakaiBLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
 					}
 
-					if ( protect > 0 ) {
+					if ( protect > 0 && ! checkSiteUpdate(ref) ) {
 						String launch_code = (String) session.getAttribute(launch_code_key);
 
 						// We don't remove the token until later because LTI 1.3 pass through this twice
