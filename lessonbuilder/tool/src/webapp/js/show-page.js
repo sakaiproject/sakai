@@ -3983,17 +3983,21 @@ function pageLayoutSelectChange(){
 	$(".templateTypeDescription").hide();  //hide all the descriptions in case one is already showing
 	$("#simplepage-layout-example").hide();
 	var value = document.getElementById('page-dropdown-selection').value;
-	if(value === 'addSubpageList'){    //show only the description we've selected.
-		document.getElementById('type1description').removeAttribute('style');
-		document.getElementById('simplepage-layout-example').removeAttribute('style');
-	} else if(value === 'interiorResources'){
-		document.getElementById('type2description').removeAttribute('style');
-		document.getElementById('simplepage-layout-example').removeAttribute('style');
-	} else if(value === 'interiorTask'){
-		document.getElementById('type3description').removeAttribute('style');
-		document.getElementById('simplepage-layout-example').removeAttribute('style');
-	} else {
-		document.getElementById('page-preview-blank').removeAttribute('style');
+	switch(value){
+		case 'addSubpageList':	//show only the description we've selected.
+			document.getElementById('type1description').removeAttribute('style');
+			document.getElementById('simplepage-layout-example').removeAttribute('style');
+			break;
+		case 'interiorResources':
+			document.getElementById('type2description').removeAttribute('style');
+			document.getElementById('simplepage-layout-example').removeAttribute('style');
+			break;
+		case 'interiorTask':
+			document.getElementById('type3description').removeAttribute('style');
+			document.getElementById('simplepage-layout-example').removeAttribute('style');
+			break;
+		default:
+			document.getElementById('page-preview-blank').removeAttribute('style');
 	}
 }
 function collapsibleChange(){

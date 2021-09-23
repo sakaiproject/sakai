@@ -5320,6 +5320,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String pageLayoutLabels[] = {"", messageLocator.getMessage("simplepage.layout.page.menuSubpage"), messageLocator.getMessage("simplepage.layout.page.menuResources"), messageLocator.getMessage("simplepage.layout.page.menuTasks")};	//populate dropdown labels from properties
 		UIForm form2 = UIForm.make(tofill, "page-form");
 		makeCsrf(form2, "page-csrf28");
+		String subpageCountValues[] = new String[20];
+		for (int count=0; count<20; count++){	//make array of Strings for the number of subpages/tasks to create
+			subpageCountValues[count] = String.valueOf(count+1);
+		}
 		UIOutput.make(form2,"page-preview-subpage-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png"));
 		UIOutput.make(form2,"page-preview-subpage").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-subpage-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
 		UIOutput.make(form2,"page-preview-resource-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-resource-layout.png"));
@@ -5331,8 +5335,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect.make(form2, "page-color-scheme-3", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.pageColorScheme}", SimplePageBean.NewColors[0]);
 		UIBoundBoolean.make(form2,"page-subpage-button","#{simplePageBean.pageSubpageButton}",true);
 		UIInput.make(form2, "page-option-subpage-title", "#{simplePageBean.pageSubpageTitle}");
-		UISelect.make(form2, "page-option-subpage-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.pageSubpageCount}", SimplePageBean.subpageCountValues[1]);
-		UISelect.make(form2, "page-option-task-count", SimplePageBean.subpageCountValues, SimplePageBean.subpageCountValues, "#{simplePageBean.pageTaskCount}", SimplePageBean.subpageCountValues[1]);
+		UISelect.make(form2, "page-option-subpage-count", subpageCountValues,subpageCountValues, "#{simplePageBean.pageSubpageCount}", subpageCountValues[1]);
+		UISelect.make(form2, "page-option-task-count", subpageCountValues, subpageCountValues, "#{simplePageBean.pageTaskCount}", subpageCountValues[1]);
 		UIBoundBoolean.make(form2, "page-option-task-collapsible", "#{simplePageBean.pageTaskCollapsible}",false);
 		UIBoundBoolean.make(form2, "page-option-task-closed", "#{simplePageBean.pageTaskClosed}",false);
 		UICommand.make(form2, "page-submit", messageLocator.getMessage("simplepage.add_layout"), "#{simplePageBean.addPageLayout}");
