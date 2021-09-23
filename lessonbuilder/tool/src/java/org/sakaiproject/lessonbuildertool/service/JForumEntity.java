@@ -421,32 +421,6 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return null;
     }
 
-    // the following methods all take references. So they're in effect static.
-    // They ignore the entity from which they're called.
-    // The reason for not making them a normal method is that many of the
-    // implementations seem to let you set access control and find submissions
-    // from a reference, without needing the actual object. So doing it this
-    // way could save some database activity
-
-    // access control
-    public boolean addEntityControl(String siteId, String groupId) throws IOException {
-	return false;
-	// not yet
-    };
-	
-    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-	return false;
-	// not yet
-    };
-
-    // submission
-    // do we need the data from submission?
-    //  not for the moment. If a posting is required, we just check whether one
-    //  has been done. While you can grade submissions, grading is done manually
-    //  later. It's unlikely that faculty will want to test on those grades
-    public boolean needSubmission(){
-	return false;
-    }
     public LessonSubmission getSubmission(String user) {
 	return null; // not used
     }

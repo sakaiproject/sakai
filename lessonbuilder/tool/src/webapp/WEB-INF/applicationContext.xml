@@ -245,7 +245,6 @@ simplePageBean.addForumSummary
     <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
     <property name="nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
     <property name="messageLocator" ref="messageLocator"/>
-    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
   </bean>
   

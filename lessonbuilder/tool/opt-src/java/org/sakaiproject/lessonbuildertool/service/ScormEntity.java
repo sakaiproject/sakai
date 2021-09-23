@@ -59,9 +59,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -104,11 +101,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     
     public void setPrevEntity(LessonEntity e) {
 	e.setNextEntity(this);
-    }
-
-    static MemoryService memoryService = null;
-    public void setMemoryService(MemoryService m) {
-	memoryService = m;
     }
 
     static MessageLocator messageLocator = null;
@@ -293,30 +285,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     public Date getDueDate() {
 	return null;
-    }
-
-    // the following methods all take references. So they're in effect static.
-    // They ignore the entity from which they're called.
-    // The reason for not making them a normal method is that many of the
-    // implementations seem to let you set access control and find submissions
-    // from a reference, without needing the actual object. So doing it this
-    // way could save some database activity
-
-    // access control
-    // no longer used, so there's no way to test them
-    public boolean addEntityControl(String siteId, final String groupId) throws IOException {
-	return false;
-
-    }
-
-    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-	return false;
-    }
-
-    // submission
-    // do we need the data from submission?
-    public boolean needSubmission(){
-	return true;
     }
 
     public Double toDouble(Object f) {
