@@ -135,34 +135,6 @@ public class LineItemUtil {
 		return retval;
 	}
 
-	/*
-	 *     /assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3
-	 */
-	public static String getAssignmentIdFromExternalId(String external_id, String siteId)
-	{
-		if ( external_id == null ) return null;
-		if ( siteId == null ) return null;
-		String assignmentRef = getAssignmentRefFromExternalId(external_id);
-		if ( assignmentRef == null ) return null;
-		if ( siteId == null ) return null;
-		String[] parts = assignmentRef.split("/");
-		if ( parts.length < 5 ) return null;
-		if ( !siteId.equals(parts[3]) ) return null;
-		return parts[4];
-	}
-
-	/**
-	 *     tool_id|content_id|resourceId|tag|assignmentRef
-	 *     1|16||/assignment/a/08af6eae-81ea-485c-94ba-a4a98fca7141/1539956f-031d-4014-8f6b-403b5b15c0f3
-	 */
-	public static String getAssignmentRefFromExternalId(String external_id)
-	{
-		if ( external_id == null ) return null;
-		String[] parts = external_id.split(ID_SEPARATOR_REGEX);
-		if ( parts.length < 4 || ! parts[3].startsWith("/assignment/a/") ) return null;
-		return parts[3];
-	}
-
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		String context_id = site.getId();
 		return createLineItem(context_id, tool_id, content, lineItem);
