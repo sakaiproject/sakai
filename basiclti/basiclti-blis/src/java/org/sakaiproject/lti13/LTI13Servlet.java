@@ -1073,7 +1073,7 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
-		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, lineitem_key, scoreObj);
+		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
 		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {
 			LTI13Util.return400(response, (String) retval);
