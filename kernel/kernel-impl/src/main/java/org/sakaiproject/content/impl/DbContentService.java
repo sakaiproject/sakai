@@ -709,11 +709,11 @@ public class DbContentService extends BaseContentService
 
         if (id.endsWith("/"))
         {
-            wildcard = id + "%";
+            wildcard = StorageUtils.escapeSqlLike(id) + "%";
         }
         else
         {
-            wildcard = id + "/%";
+            wildcard = StorageUtils.escapeSqlLike(id) + "/%";
         }
 
         int fileCount = countQuery(contentServiceSql.getNumContentResources1Sql(), wildcard);
