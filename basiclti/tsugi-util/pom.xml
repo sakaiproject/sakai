@@ -22,6 +22,10 @@
         <!-- This pom should *never* add any "org.sakaiproject" dependencies - any
             Sakai-specific code needs to be placed in the basiclti-common folder -->
         <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>

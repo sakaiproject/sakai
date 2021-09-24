@@ -13,6 +13,10 @@
 	</parent>
 
 	<dependencies>
+		<dependency>
+			<groupId>jakarta.xml.soap</groupId>
+			<artifactId>jakarta.xml.soap-api</artifactId>
+		</dependency>
 		<!-- Content Review dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.contentreview</groupId>

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.springframework.util.FileCopyUtils;
@@ -157,7 +158,8 @@ public class SwiftFileHandlerTest {
         SwiftFileSystemHandler.ContainerAndName can = getContainerAndName(ID2, ROOT0, PATH_INVALID);
         assertEquals(PATH_VALID, can.name);
     }
-    
+
+    @Ignore("Setup a mock http listener to respond to http call")
     @Test
     public void testValid() throws IOException {
         long contentSize = swift.saveInputStream(ID2, ROOT1, PATH2, getInputStream());
@@ -173,7 +175,8 @@ public class SwiftFileHandlerTest {
             assertNotNull(e);
         }
     }
-    
+
+    @Ignore("Setup a mock http listener to respond to http call")
     @Test
     public void testValidText() throws IOException {
         long contentSize = swift.saveInputStream(ID3, ROOT1, PATH3, getInputStream());
@@ -183,7 +186,8 @@ public class SwiftFileHandlerTest {
         assertEquals(MESSAGE, message);
         swift.delete(ID3, ROOT1, PATH3);
     }
-    
+
+    @Ignore("Setup a mock http listener to respond to http call")
     @Test
     public void testValidBinary() throws IOException {
         long contentSize = swift.saveInputStream(ID4, ROOT1, PATH4, getBinaryInputStream());

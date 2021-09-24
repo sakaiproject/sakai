@@ -58,7 +58,6 @@
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.3.2</sakai.quartz.version>
     <sakai.opencsv.version>5.5.2</sakai.opencsv.version>
-    <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
     <sakai.spring.version>5.3.9</sakai.spring.version>
@@ -98,7 +97,7 @@
     <sakai.msgcntr.version>${sakai.version}</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>1.8</sakai.jdk.version>
+    <sakai.jdk.version>11</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
@@ -186,8 +185,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
-                <source>${sakai.jdk.version}</source>
-                <target>${sakai.jdk.version}</target>
+                <release>${sakai.jdk.version}</release>
                 <optimize>true</optimize>
                 <debug>true</debug>
             </configuration>
@@ -348,6 +346,49 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- JDK 9+ -->
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>1.3.5</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>1.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.activation</groupId>
+        <artifactId>jakarta.activation</artifactId>
+        <version>1.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.soap</groupId>
+        <artifactId>jakarta.xml.soap-api</artifactId>
+        <version>1.4.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>2.3.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.3.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons-runtime</artifactId>
+        <version>3.0.11</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <dependency>
         <groupId>xalan</groupId>
@@ -701,12 +742,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>jakarta.activation</groupId>
-        <artifactId>jakarta.activation-api</artifactId>
-        <version>2.0.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.cache</groupId>
         <artifactId>cache-api</artifactId>
         <version>1.1.1</version>
@@ -914,9 +949,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>2.0.1.Final</version>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>2.0.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -926,9 +961,15 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.4.3.Final</version>
+        <version>6.1.7.Final</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator-annotation-processor</artifactId>
+        <version>6.1.7.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1066,7 +1107,19 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
-        <version>2.0.1</version>
+        <version>1.6.7</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>1.5.0-b01</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
+        <version>1.6.2</version>
         <scope>provided</scope>
       </dependency>
       <!-- KERNEL -->
@@ -2219,6 +2272,14 @@
   <!-- should never need to override these in your project -->
   <dependencies>
     <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.activation</groupId>
+      <artifactId>jakarta.activation-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -2591,9 +2652,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <!-- <compilerArguments> <verbose /> </compilerArguments> -->
-          <source>${sakai.jdk.version}</source>
-          <target>${sakai.jdk.version}</target>
+          <release>${sakai.jdk.version}</release>
+          <forceJavacCompilerUse>true</forceJavacCompilerUse>
         </configuration>
       </plugin>
       <plugin>
@@ -2608,6 +2668,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <testFailureIgnore>false</testFailureIgnore>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
             <lombok.disable>true</lombok.disable>
@@ -2619,7 +2682,7 @@
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
-          <argLine>-Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
+          <argLine>--illegal-access=permit --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
         </configuration>
       </plugin>
       <plugin>
