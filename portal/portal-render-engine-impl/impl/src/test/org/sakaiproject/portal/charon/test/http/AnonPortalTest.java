@@ -21,6 +21,8 @@
 
 package org.sakaiproject.portal.charon.test.http;
 
+import static org.junit.Assert.fail;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -29,6 +31,10 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -45,8 +51,9 @@ import lombok.extern.slf4j.Slf4j;
  * @author ieb
  */
 
+@Ignore
 @Slf4j
-public class AnonPortalTest extends TestCase
+public class AnonPortalTest
 {
 	private static final String TEST_URL = "http://localhost:8080/library/js/headscripts.js";
 
@@ -81,7 +88,7 @@ public class AnonPortalTest extends TestCase
 	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	@Override
+	@Before
 	protected void setUp() throws Exception
 	{
 		try
@@ -100,17 +107,7 @@ public class AnonPortalTest extends TestCase
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
-
+	@Test
 	public void testSinglePage()
 	{
 		if (enabled)
@@ -123,6 +120,7 @@ public class AnonPortalTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testFrontPage() throws Exception
 	{
 		if (enabled)

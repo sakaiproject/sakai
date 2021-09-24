@@ -77,19 +77,6 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <!-- SAK-14526 Disable tests as they might be testing
-                            another system -->
-                        <exclude>**/AnonPortalTest.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
         <resources>
             <resource>
                 <directory>${basedir}/src/bundle</directory>

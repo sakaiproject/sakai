@@ -24,22 +24,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
-                    <testFailureIgnore>false</testFailureIgnore>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
-                    <systemPropertyVariables>
-                        <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file>
-                        <derby.system.durability>test</derby.system.durability>
-                        <known.issues/>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-
             <!-- This means we get a JAR artifact for this project, this allows other projects to depend on it
                  in their tests. This isn't an optimal solution as you end up with the situation where tests
                  in a very different part of the codebase break when you attempt to refactor something in the

@@ -36,6 +36,10 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
 
     <!-- jclouds dependencies -->
     <!-- Package these directly in the impl/component -->
@@ -43,12 +47,6 @@
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-slf4j</artifactId>
       <version>${jclouds.version}</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>aopalliance</groupId>
-                  <artifactId>aopalliance</artifactId>
-              </exclusion>
-          </exclusions>
     </dependency>
     <!-- jclouds-sl4j needs jclouds-core which needs guice which needs aopalliance which is already provided in lib -->
     <dependency>
@@ -71,34 +69,5 @@
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4.2</version>
-        <configuration>
-          <skipTests>true</skipTests>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>swift-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.4.2</version>
-            <configuration>
-              <skipTests>false</skipTests>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
 </project>

@@ -185,6 +185,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
+                <release>${sakai.jdk.version}</release>
                 <source>${sakai.jdk.version}</source>
                 <target>${sakai.jdk.version}</target>
                 <optimize>true</optimize>
@@ -2653,7 +2654,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <!-- <compilerArguments> <verbose /> </compilerArguments> -->
+          <release>${sakai.jdk.version}</release>
           <source>${sakai.jdk.version}</source>
           <target>${sakai.jdk.version}</target>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
@@ -2671,6 +2672,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <testFailureIgnore>false</testFailureIgnore>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
             <lombok.disable>true</lombok.disable>
@@ -2682,7 +2686,7 @@
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
           <!-- file.encoding is for windows which was failing tests under maven without this -->
           <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
-          <argLine>--illegal-access=permit -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
+          <argLine>--illegal-access=permit --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED -Djava.awt.headless=true -Dfile.encoding=${project.build.sourceEncoding} ${random-source}</argLine>
         </configuration>
       </plugin>
       <plugin>

@@ -80,20 +80,6 @@
         <filtering>false</filtering>
       </testResource>
     </testResources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <reuseFork>false</reuseFork>
-          <argLine>${maven.test.jvmargs}</argLine>
-          <!-- This test randomly has errors at present SAK-13616 -->
-          <excludes>
-             <exclude>**/OpenFilesTest.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
   <dependencies>
     <dependency>
