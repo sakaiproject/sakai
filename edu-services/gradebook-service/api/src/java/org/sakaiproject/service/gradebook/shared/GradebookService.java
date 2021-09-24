@@ -759,10 +759,12 @@ public interface GradebookService {
 	 * @param studentUuid uuid of the student
 	 * @param categoryId id of category
 	 * @param isInstructor will determine whether category score includes non-released items
+	 * @param categoryType category type of the gradebook
+	 * @param equalWeightAssignments whether category is equal-weighting regardless of points
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 *
 	 */
-	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems);
+	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems, int categoryType, Boolean equalWeightAssignments);
 
 	/**
 	 * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any
@@ -774,6 +776,7 @@ public interface GradebookService {
 	 * @param category the category
 	 * @param categoryAssignments list of assignments the student can view, and are in the category
 	 * @param gradeMap map of assignmentId to grade, to use for the calculations
+	 * @param includeNonReleasedItems relevant for student view
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 */
 	Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
