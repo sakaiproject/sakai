@@ -910,17 +910,6 @@
   
   <!-- Custom Renderers -->
   <render-kit>
-    <!-- color picker -->
-    <renderer>
-      <component-family>javax.faces.Input</component-family>
-      <renderer-type>ColorPicker</renderer-type>
-      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ColorPickerRenderer</renderer-class>
-    </renderer>
-    <renderer>
-      <component-family>javax.faces.Output</component-family>
-      <renderer-type>ColorPickerPopup</renderer-type>
-      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ColorPickerPopupRenderer</renderer-class>
-    </renderer>
     <!-- hide division -->
     <renderer>
       <component-family>javax.faces.Output</component-family>
