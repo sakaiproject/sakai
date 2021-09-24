@@ -20,35 +20,12 @@
   </properties>
   <build>
     <resources />
-<!--nagEmailAddress: andrew@caret.cam.ac.uk -->
-<!-- java source -->
-<!--
- Needs fixing, ant test works
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>**/*Test</includes>
-    </unitTest>
--->
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <!-- Tests broken since SAK-40909, this component looks strange and needs review. -->
-        <executions>
-          <execution>
-            <id>default-testCompile</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
   <dependencies>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
       <version>2.0.8</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
 </project>

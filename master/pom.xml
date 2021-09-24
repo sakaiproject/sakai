@@ -186,8 +186,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                 <release>${sakai.jdk.version}</release>
-                <source>${sakai.jdk.version}</source>
-                <target>${sakai.jdk.version}</target>
                 <optimize>true</optimize>
                 <debug>true</debug>
             </configuration>
@@ -2655,8 +2653,6 @@
         <version>3.8.1</version>
         <configuration>
           <release>${sakai.jdk.version}</release>
-          <source>${sakai.jdk.version}</source>
-          <target>${sakai.jdk.version}</target>
           <forceJavacCompilerUse>true</forceJavacCompilerUse>
         </configuration>
       </plugin>
