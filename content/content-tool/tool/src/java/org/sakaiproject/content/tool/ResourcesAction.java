@@ -4307,7 +4307,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Set<String> expandedCollections = getExpandedCollections(state);
 			expandedCollections.add(collectionId);
 
-			DropboxAuthz dropboxAuthz = dropboxMode ? new DropboxAuthz() : null;
+			DropboxAuthz dropboxAuthz = dropboxMode ? DropboxHelper.getAuthorization() : null;
 
 			ContentCollection collection = contentHostingService.getCollection(collectionId);
 			

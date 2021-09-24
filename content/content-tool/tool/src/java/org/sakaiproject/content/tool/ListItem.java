@@ -206,7 +206,7 @@ public class ListItem
          */
         if (dropboxAuthz != null)
         {
-            dropboxAuthz.configureDropboxItemPermissions(item);
+            DropboxHelper.configureDropboxItemPermissions(dropboxAuthz, item);
         }
         else if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
         {
@@ -314,7 +314,7 @@ public class ListItem
 						{
 							continue;
 						}
-						if (dropboxAuthz != null && !dropboxAuthz.getDropboxPermissionsForEntity(childEntity).contains(ContentPermissions.READ))
+						if (dropboxAuthz != null && !DropboxHelper.getDropboxPermissionsForEntity(dropboxAuthz, childEntity).contains(ContentPermissions.READ))
 						{
 							// This is a Drop Box context and we don't have read permission on this entity; exclude it
 							continue;
