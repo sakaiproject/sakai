@@ -33,7 +33,7 @@ class SakaiDocumentViewer extends SakaiElement {
     this.loadTranslations("document-viewer").then(t => {
 
       this.i18n = t;
-      this.documentFailureMessage = `<div>${this.i18n["failed_to_load_document"]}</div>`;
+      this.documentFailureMessage = `<div>${this.i18n.failed_to_load_document}</div>`;
     });
   }
 
@@ -85,7 +85,7 @@ class SakaiDocumentViewer extends SakaiElement {
   render() {
 
     return html`
-      <div class="document-link">${this.i18n["viewing"]}: <a href="/access${this.content.ref}" target="_blank" rel="noopener">${this.content.name}</a></div>
+      <div class="document-link">${this.i18n.viewing}: <a href="/access${this.content.ref}" target="_blank" rel="noopener">${this.content.name}</a></div>
       ${this.withBorders ? this.renderWithBorders() : this.renderWithoutBorders()}
     `;
   }
@@ -102,19 +102,21 @@ class SakaiDocumentViewer extends SakaiElement {
     if (type === "application/pdf") {
       this.nomargins = true;
       // Let PDFJS handle this. We can just literally use the viewer, like Firefox and Chrome do.
-      this.documentMarkup = `<iframe src="/library/webjars/pdf-js/2.3.200/web/viewer.html?file=/access/${encodeURIComponent(ref)}" width="100%" height="${this.height}" />`;
+      this.documentMarkup = `<iframe src="/library/webjars/pdf-js/2.9.359/web/viewer.html?file=/access/${encodeURIComponent(ref)}" width="100%" height="${this.height}" />`;
     } else if (type === "application/vnd.oasis.opendocument.presentation") {
       this.nomargins = true;
-      this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.8/ViewerJS#/access${ref}" width="100%" height="${this.height}" />`;
+      this.documentMarkup = `<iframe src="/library/webjars/viewerjs/0.5.9#/access${ref}" width="100%" height="${this.height}" />`;
     } else if (type.includes("image/")) {
       this.documentMarkup = `<img src="/access/${ref}" />`;
+    } else if (type.includes("video/")) {
+      this.documentMarkup = `<video controls playsinline><source src='/access/${ref}' type='${type}'></video>`;
     } else {
       this.withBorders = true;
-      const contentIndex = ref.indexOf("\/content\/");
+      const contentIndex = ref.indexOf("/content/");
       ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
 
       fetch(`/direct/content/${portal.siteId}/htmlForRef.html?ref=${ref}`,
-              {cache: "no-cache", credentials: "same-origin"})
+        {cache: "no-cache", credentials: "same-origin"})
         .then(r => {
 
           if (!r.ok) {

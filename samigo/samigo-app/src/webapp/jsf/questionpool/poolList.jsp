@@ -37,12 +37,11 @@
           <script>
               function flagFolders() {
                   collapseAllRows();
-                  flagRows();
               }
               window.onload = flagFolders;
           </script>
       </head>
-<body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
+<body onload="collapseAllRows();<%= request.getAttribute("html.body.onload") %>;disabledButton()">
 <h:panelGroup layout="block" styleClass="portletBody container-fluid">
 <!-- content... -->
 <h:form id="questionpool">

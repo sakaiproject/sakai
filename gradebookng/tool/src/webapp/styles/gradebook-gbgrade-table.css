@@ -298,10 +298,11 @@
 }
 .gb-flag-equal-weight:before {
   content: '\2696';
-  color:var(--sakai-color-gold--darker-1);
 }
 .gb-flag-extra-credit:before {
   content: '\f0fe';
+}
+#gradeTableWrapper .gb-notification.gb-flag-extra-credit:before {
   color:var(--sakai-color-gold--darker-1);
 }
 #gradeTableWrapper .gb-excused {

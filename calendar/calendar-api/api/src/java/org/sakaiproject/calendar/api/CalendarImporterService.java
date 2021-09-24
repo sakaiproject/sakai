@@ -35,9 +35,6 @@ public interface CalendarImporterService
 	/** Comma separated value import type */
 	public static final String CSV_IMPORT = "CSV";
 	
-	/** MeetingMaker import type */
-	public static final String MEETINGMAKER_IMPORT = "MeetingMaker";
-	
 	/** Outlook import type */
 	public static final String OUTLOOK_IMPORT = "Outlook";
 
@@ -46,14 +43,14 @@ public interface CalendarImporterService
 	
 	/**
 	 * Get the default column mapping (keys are column headers, values are property names).
-	 * @param importType Type such as Outlook, MeetingMaker, etc. defined in the CalendarImporterService interface.
+	 * @param importType Type such as Outlook, etc. defined in the CalendarImporterService interface.
 	 * @throws ImportException if the importType can't be found.
 	 */
 	public Map<String, String> getDefaultColumnMap(String importType)  throws ImportException;
 	
 	/**
 	 * Perform an import given the import type.
-	 * @param importType Type such as Outlook, MeetingMaker, etc. defined in the CalendarImporterService interface.
+	 * @param importType Type such as Outlook, etc. defined in the CalendarImporterService interface.
 	 * @param importStream Stream of data to be imported
 	 * @param columnMapping Map of column headers (keys) to property names (values)
 	 * @param customFieldPropertyNames Array of custom properties that we want to import.  null if there are no custom properties.
@@ -66,7 +63,7 @@ public interface CalendarImporterService
 
 	/**
 	 * Perform an import given the import type. (SAK-33451)
-	 * @param importType Type such as Outlook, MeetingMaker, etc. defined in the CalendarImporterService interface.
+	 * @param importType Type such as Outlook, etc. defined in the CalendarImporterService interface.
 	 * @param importStream Stream of data to be imported
 	 * @param columnMapping Map of column headers (keys) to property names (values)
 	 * @param customFieldPropertyNames Array of custom properties that we want to import.  null if there are no custom properties.

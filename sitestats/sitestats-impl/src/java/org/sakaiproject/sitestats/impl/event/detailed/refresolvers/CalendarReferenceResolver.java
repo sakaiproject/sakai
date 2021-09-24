@@ -62,7 +62,7 @@ public class CalendarReferenceResolver
         }
 
         GenericRefParser.GenericEventRef ref = CalendarRefParser.parse( eventType, eventRef, tips );
-        String calendarRef = "/calendar/calendar/" + ref.contextId + "/";
+        String calendarRef = "/calendar/calendar/" + ref.contextId + "/" + ref.subContextId;
         try
         {
             // 1. some calendar.read refs do not contain an event id and details can't be retrieved

@@ -123,9 +123,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.sanselan</groupId>
-      <artifactId>sanselan</artifactId>
-      <version>0.97-incubator</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-imaging</artifactId>
+      <version>1.0-alpha2</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jtidy</groupId>
@@ -162,12 +162,12 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-${bouncycastle.artifact.version}</artifactId>
-      <version>1.68</version>
+      <version>1.69</version>
     </dependency>
      <dependency>
        <groupId>org.bouncycastle</groupId>
        <artifactId>bcmail-${bouncycastle.artifact.version}</artifactId>
-       <version>1.68</version>
+       <version>1.69</version>
     </dependency>
     <dependency>
        <groupId>org.apache.tika</groupId>
@@ -199,14 +199,14 @@
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.8.2.2</version>
+      <version>10.15.2.0</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>3.4</version>
+      <version>4.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>

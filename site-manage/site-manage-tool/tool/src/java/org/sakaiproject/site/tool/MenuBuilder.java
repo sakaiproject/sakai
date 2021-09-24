@@ -35,6 +35,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.sitemanage.api.SiteTypeProvider;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -47,6 +48,7 @@ public class MenuBuilder
 {
     // APIs
     private static final SiteService SS = (SiteService) ComponentManager.get( SiteService.class );
+    private static final ToolManager TM = (ToolManager) ComponentManager.get( ToolManager.class );
 
     // sakai.properties
     private static final String     SAK_PROP_SITE_SETUP_IMPORT_FILE                 = "site.setup.import.file";
@@ -222,7 +224,7 @@ public class MenuBuilder
             menu.add( buildMenuEntry( rl.getString( "java.edittools" ), "doMenu_edit_site_tools", activeTab.equals( SiteInfoActiveTab.MANAGE_TOOLS ) ) );
 
             // If the page order helper is available, not stealthed and not hidden, show the link
-            if( SiteAction.notStealthOrHiddenTool( "sakai-site-pageorder-helper" ) )
+            if( !TM.isStealthed("sakai-site-pageorder-helper" ) )
             {
                 // In particular, need to check site types for showing the tool or not
                 if( SiteAction.isPageOrderAllowed( siteType, siteProperties.getProperty( SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES ) ) )
@@ -236,7 +238,7 @@ public class MenuBuilder
         }
 
         // If the add participant helper is available, not stealthed and not hidden, show the tab
-        if( allowUpdateSiteMembership && !isMyWorkspace && SiteAction.notStealthOrHiddenTool( SiteAction.getAddUserHelper( site ) ) )
+        if( allowUpdateSiteMembership && !isMyWorkspace && !TM.isStealthed( SiteAction.getAddUserHelper( site ) ) )
         {
             // 'Add Participants'
             menu.add( buildMenuEntry( rl.getString( "java.addp" ), "doParticipantHelper", activeTab.equals( SiteInfoActiveTab.ADD_PARTICIPANTS ) ) );
@@ -269,13 +271,13 @@ public class MenuBuilder
 
         if( allowUpdateSite && !isMyWorkspace )
         {
-            if( SiteAction.notStealthOrHiddenTool( "sakai-site-manage-link-helper" ) )
+            if( !TM.isStealthed( "sakai-site-manage-link-helper" ) )
             {
                 // 'Link to Parent Site'
                 menu.add( buildMenuEntry( rl.getString( "java.link" ), "doLinkHelper", activeTab.equals( SiteInfoActiveTab.LINK_TO_PARENT_SITE ) ) );
             }
 
-            if( SiteAction.notStealthOrHiddenTool( "sakai.basiclti.admin.helper" ) )
+            if( !TM.isStealthed( "sakai.basiclti.admin.helper" ) )
             {
                 // 'External Tools'
                 menu.add( buildMenuEntry( rl.getString( "java.external" ), "doExternalHelper", activeTab.equals( SiteInfoActiveTab.EXTERNAL_TOOLS ) ) );
@@ -320,7 +322,7 @@ public class MenuBuilder
             }
 
             boolean eventLogEnabled = ServerConfigurationService.getBoolean( SAK_PROP_DISPLAY_USER_AUDIT_LOG, SAK_PROP_DISPLAY_USER_AUDIT_LOG_DEFAULT );
-            if( SiteAction.notStealthOrHiddenTool( "sakai.useraudit" ) && eventLogEnabled )
+            if( !TM.isStealthed( "sakai.useraudit" ) && eventLogEnabled )
             {
                 // 'User Audit Log'
                 menu.add( buildMenuEntry( rl.getString( "java.userAuditEventLog" ), "doUserAuditEventLog", activeTab.equals( SiteInfoActiveTab.USER_AUDIT_LOG ) ) );

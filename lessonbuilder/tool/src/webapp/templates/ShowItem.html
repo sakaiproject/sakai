@@ -31,7 +31,7 @@
 
 // need a delay to allow dynamic things like inserting the html editor
 function resizeiframe1() {
-setTimeout("resizeiframe()",1000);
+    setTimeout("resizeiframe()",1000);
 }
 
 function resizeiframe() {
@@ -155,7 +155,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                     <a role="button" href="#" rsf:id="resetbutton2" class="title-tools reset reload Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
                     <span rsf:id="crumb:" class="crumb-item"><a style="background:none" href="#" rsf:id="crumb-link" class="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span></span>
                     <span class="returnheader nextprev"><a role="button" style="background:none; width:auto" href="#" class="usebutton nextprev returnmsg" rsf:id="return"></a></span>
-                    <span rsf:id="returnwarning" class="returnwarning"></span>
+                    <span rsf:id="returnwarning" class="returnwarning sak-banner-warn"></span>
                 </div>
                 <div class="action itemAction">
                     
@@ -190,11 +190,13 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 			scrolling="auto">
 		</iframe>
 		<script>
+//<![CDATA[
 		window.addEventListener('message', function(e) {
 			try {
-				var message = JSON.parse(e.data);
+				var message = e.data;
+				if ( typeof message == 'string' ) message = JSON.parse(e.data);
 				var idval = 'iframe1';
-				if ( message.subject == 'lti.frameResize' ) {
+				if ( message.subject == 'lti.frameResize' && typeof(message.height) == 'number' ) {
 					var height = message.height;
 					document.getElementById(idval).height = height;
 					console.debug('Reveived lti.frameResize height='+height);
@@ -207,6 +209,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 				console.debug(e.data);
 			}
 		});
+//]]>
 		</script>
 
 	</div>	

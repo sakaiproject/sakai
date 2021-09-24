@@ -1,0 +1,21 @@
+<!-- start: assignments_record_video_submission.vm  -->
+#if ($submissionType == 7)
+
+    <script>includeWebjarLibrary('recordrtc');</script>
+    <script>includeWebjarLibrary('webrtc-adapter');</script>
+
+    <div class="video-recorder">
+        <input type="hidden" name="video-submission" id="video-submission" value="" />
+        <input type="hidden" name="video-submission-mimetype" id="video-submission-mimetype" value="" />
+
+        <video style="display:none" id="submission-preview-player" controls autoplay playsinline></video>
+        <br><br>
+        <input type="button" class="button" id="btn-start-recording" value="$tlang.getString("stuviewsubm.start.recording")"/>
+        <input type="button" class="button" id="btn-stop-recording" value="$tlang.getString("stuviewsubm.stop.recording")" disabled/>
+
+    </div>
+
+    <script src="/sakai-assignment-tool/js/video-recorder.js"></script>
+
+#end
+<!-- end: assignments_record_video_submission.vm  -->

@@ -2841,23 +2841,21 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (!state.getIsNewAnnouncement())
 				{
 					state.setEdit(null);
-				} // if-else
-				
-				// for event tracking
-				if (titleChanged)
-				{
-					// title changed
-					eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_TITLE, msg.getReference(), true));
-				}
-				if (accessChanged)
-				{
-					// access changed
-					eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_ACCESS, msg.getReference(), true));
-				}
-				if (availabilityChanged)
-				{
-					// availablity changed
-					eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
+					if (titleChanged)
+					{
+						// title changed
+						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_TITLE, msg.getReference(), true));
+					}
+					if (accessChanged)
+					{
+						// access changed
+						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_ACCESS, msg.getReference(), true));
+					}
+					if (availabilityChanged)
+					{
+						// availablity changed
+						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY, msg.getReference(), true));
+					}
 				}
 			}
 			catch (IdUnusedException e)

@@ -27,6 +27,10 @@ ul.feedbackPanel li span {
   color: var(--sakai-text-color-dimmed);
 }
 
+.modal-add-or-edit-gbitem input[type="text"] {
+  min-width: 70px;
+}
+
 /* required labels should have a prefix asterisk */
 .control-label.required:before {
   content: '*';

@@ -73,7 +73,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<List<String>> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
             q.setParameter(USER_UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             //q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 
             return q.list();
@@ -92,8 +92,8 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		//updated: now just returns a List of Strings
 		final HibernateCallback<List<String>> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_OUTGOING_FRIEND_REQUESTS_FOR_USER);
-            q.setString(USER_UUID, userId);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter(USER_UUID, userId);
+            q.setParameter("false", Boolean.FALSE);
 
             return q.list();
         };
@@ -111,7 +111,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<List<String>> hcb = session -> {
 	  			final Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, StringType.INSTANCE);
-	  			q.setBoolean("true", Boolean.TRUE); 
+	  			q.setParameter("true", Boolean.TRUE); 
 	  			return q.list();
 	  	};
 	  	
@@ -436,10 +436,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	
 		return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean updatePrivacyRecord(final ProfilePrivacy privacy) {
 
@@ -452,9 +449,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
 		
@@ -467,9 +462,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean updateCompanyProfile(final CompanyProfile companyProfile) {
 
@@ -482,9 +474,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
 		
@@ -496,10 +485,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean removeCompanyProfile(final CompanyProfile companyProfile) {
 
@@ -511,10 +497,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
 		
@@ -526,10 +509,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public List<GalleryImage> getGalleryImages(final String userId) {
 		
@@ -541,10 +521,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean removeGalleryImage(final GalleryImage galleryImage) {
 		
@@ -557,9 +534,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public int getGalleryImagesCount(final String userId) {
 		
@@ -572,9 +546,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
 		
@@ -588,24 +559,17 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		return getHibernateTemplate().execute(hcb);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean saveSocialNetworkingInfo(final SocialNetworkingInfo socialNetworkingInfo) {
-
 		try {
 			getHibernateTemplate().saveOrUpdate(socialNetworkingInfo);
 			return true;
 		} catch (final Exception e) {
-			log.error("saveSocialNetworkingInfo failed. "+ e.getClass() + ": " + e.getMessage());
+			log.error("saveSocialNetworkingInfo failed. {}: {}",  e.getClass(), e.getMessage());
 			return false;
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage) {
 		
@@ -779,7 +743,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<Number> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
             q.setParameter(UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             return (Number) q.uniqueResult();
         };
 	  	
@@ -795,7 +759,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		final HibernateCallback<Number> hcb = session -> {
             final Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
             q.setParameter(UUID, userId, StringType.INSTANCE);
-            q.setBoolean("false", Boolean.FALSE);
+            q.setParameter("false", Boolean.FALSE);
             return (Number) q.uniqueResult();
         };
 	  	

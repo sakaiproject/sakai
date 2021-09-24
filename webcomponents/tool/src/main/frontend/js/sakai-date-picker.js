@@ -99,8 +99,8 @@ class SakaiDatePicker extends SakaiElement {
 
     return html`
       <input type="text" id="picker-${this.idSalt}" size="30"
-          placeholder="${this.i18n["input_placeholder"]}"
-          aria-label="${this.i18n["input_placeholder"]}" />
+          placeholder="${this.i18n.input_placeholder}"
+          aria-label="${this.i18n.input_placeholder}" />
     `;
   }
 
@@ -109,10 +109,10 @@ class SakaiDatePicker extends SakaiElement {
     if (portal.user && portal.user.offsetFromServerMillis) {
       const osTzOffset = new Date().getTimezoneOffset();
       return moment(epochMillis).add(portal.user.offsetFromServerMillis, 'ms').add(osTzOffset, 'm');
-    } else {
-      window.console && console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
-      return moment();
     }
+    window.console && console.debug("No user timezone or server time set. Using agent's time and timezone for initial datetime");
+    return moment();
+
   }
 }
 

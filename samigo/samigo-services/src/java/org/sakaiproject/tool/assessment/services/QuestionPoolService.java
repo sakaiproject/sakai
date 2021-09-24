@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -38,6 +38,8 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The QuestionPoolService calls the service locator to reach the
@@ -58,13 +60,9 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   /**
    * Get all pools from the back end.
    */
-  public List getAllPools()
+  public List<QuestionPoolData> getAllPools()
   {
-    List results = null;
-      results =
-        (List) PersistenceService.getInstance().
-           getQuestionPoolFacadeQueries().getAllPools();
-    return results;
+    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllPools();
   }
 
   /**
@@ -121,9 +119,9 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   }
 
   /**
-   * Get a list of pools that have a specific Agent
+   * Get a list of pools that have a specific item
    */
-  public List getPoolIdsByItem(String itemId)
+  public List getPoolIdsByItem(Long itemId)
   {
     List idList = null;
     try
@@ -142,7 +140,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
   }
 
 
-  public boolean hasItem(String itemId, Long poolId)
+  public boolean hasItem(Long itemId, Long poolId)
   {
         List poollist = null;
 	boolean found = false;

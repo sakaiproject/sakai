@@ -634,6 +634,13 @@ function initTimedRadio(){
 	}
 }
 
+function initAnononymousUsers(){
+	var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
+	if (releaseToVal === 'Anonymous Users') {
+		handleAnonymousUsers(releaseToVal, "");
+	}
+}
+
 //This is just needed for the published settings
 //In unpublished settings the default is set in the AssessmentSettingsBean
 function setSubmissionLimit() {
@@ -650,25 +657,41 @@ function setExceptionDefault() {
         checkUserOrGroupRadio();
 }
 
-function lockdownAnonyGrading(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', '');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', '');
+const ANON_USERS = "Anonymous Users";
+function lockdownAnonyGrading(value, prevValue) {
+	const ag = document.getElementById("assessmentSettingsAction:anonymousGrading");
+	if (ag === null) {
+		return;
 	}
+	ag.disabled = value === ANON_USERS;
 }
 
 function lockdownGradebook(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
+	const gb = document.getElementById("assessmentSettingsAction:toDefaultGradebook");
+	if (gb === null) {
+		return;
 	}
+	gb.disabled = value === ANON_USERS;
+}
+
+function handleAnonymousUsers(value, prevValue) {
+	lockdownAnonyGrading(value, prevValue);
+	lockdownGradebook(value);
+	const msg = document.getElementById("assessmentSettingsAction:gradingOptionsDisabledInfo");
+	if (msg !== null) {
+		msg.style.display = value === ANON_USERS ? "block" : "none";
+	}
+}
+
+
+
+function handleAnonymousUsersChange(element)
+{
+	const value = element.value; 	// possible values are Anonymous Users, <site title>, Specific Groups
+	const prevValue = "prevValue" in element ? element.prevValue : [...element.options].filter(o => o.defaultSelected)[0].label;
+	element.prevValue = value;
+
+		handleAnonymousUsers(value, prevValue);
 }
 
 function show_multiple_text(show_multiple_link){

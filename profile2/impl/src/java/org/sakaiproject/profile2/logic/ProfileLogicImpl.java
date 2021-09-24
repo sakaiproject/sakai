@@ -362,7 +362,7 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	@Override
 	public List<Person> getPersons(List<User> users) {
-		List<Person> list = new ArrayList();
+		List<Person> list = new ArrayList<>();
 		for (User u : users) {
 			list.add(getPerson(u));
 		}
@@ -431,6 +431,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setNickname(sp.getNickname());
 		p.setDateOfBirth(sp.getDateOfBirth());
 		p.setPersonalSummary(sp.getNotes());
+		p.setPhoneticPronunciation(sp.getPhoneticPronunciation());
 		
 		//contact info
 		p.setHomepage(sp.getLabeledURI());

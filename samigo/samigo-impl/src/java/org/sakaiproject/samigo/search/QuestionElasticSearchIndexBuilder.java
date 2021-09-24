@@ -21,8 +21,17 @@
 
 package org.sakaiproject.samigo.search;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,46 +40,30 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
 
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
-import net.htmlparser.jericho.Source;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.collect.Sets;
-import org.elasticsearch.common.lang3.ArrayUtils;
-import org.elasticsearch.common.lang3.tuple.Pair;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import static org.elasticsearch.index.query.FilterBuilders.missingFilter;
-import static org.elasticsearch.index.query.FilterBuilders.orFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.search.facet.FacetBuilders.termsFacet;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
-import org.elasticsearch.action.admin.indices.validate.query.QueryExplanation;
-import org.elasticsearch.action.support.QuerySourceBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.util.set.Sets;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.action.ActionFuture;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.osid.shared.SharedException;
-import org.slf4j.Logger;
-
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -80,10 +73,14 @@ import org.sakaiproject.search.elasticsearch.NoContentException;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.slf4j.Logger;
+
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import net.htmlparser.jericho.Source;
 
 @Slf4j
 public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder {
@@ -92,7 +89,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     private SiteService siteService;
     protected String[] searchResultFieldNames;
 
-    protected static final String SAKAI_DOC_TYPE = "question_doc";
+    protected static final String SAKAI_DOC_TYPE = "_doc";
     protected static final String ADD_RESOURCE_VALIDATION_KEY_ITEM = "questionId";
     protected static final String DELETE_RESOURCE_KEY_ITEM = "questionId";
 
@@ -148,19 +145,17 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
      * in general might depend.
      */
     @Override
-    protected void beforeBackgroundSchedulerInitialization(){
-        //no-op
+    protected void beforeBackgroundSchedulerInitialization() {
     }
 
     @Override
-    protected SearchRequestBuilder completeFindContentQueueRequestBuilder(SearchRequestBuilder searchRequestBuilder){
-        return searchRequestBuilder;
+    protected SearchRequest completeFindContentQueueRequest(SearchRequest searchRequest) {
+        return searchRequest;
     }
 
     @Override
-    protected DeleteRequestBuilder completeDeleteRequestBuilder(DeleteRequestBuilder deleteRequestBuilder,
-                                                                Map<String, Object> deleteParams) {
-        return deleteRequestBuilder.setRouting((String)deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
+    protected DeleteRequest completeDeleteRequest(DeleteRequest deleteRequest, Map<String, Object> deleteParams) {
+        return deleteRequest.routing((String)deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
     }
 
 
@@ -197,21 +192,15 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     @Override
     protected void rebuildIndexImmediately(){
-         //1. ITEMS in assessments will be indexed for each site
+        // 1. ITEMS in assessments will be indexed for each site
         for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
             if (isSiteIndexable(s)) {
                 rebuildSiteIndex(s.getId());
             }
         }
 
-        //2. Items in Question Pools
-       List allPools =  questionPoolService.getAllPools();
-        Iterator<QuestionPoolData> qpit = allPools.iterator();
-
-            while (qpit.hasNext()) {
-                String qpId = Long.toString(qpit.next().getQuestionPoolId());
-                rebuildQuestionPoolIndex(qpId);
-            }
+        // 2. Items in Question Pools
+        questionPoolService.getAllPools().forEach(p -> rebuildQuestionPoolIndex(Long.toString(p.getQuestionPoolId())));
     }
 
     protected boolean isSiteIndexable(Site site) {
@@ -233,29 +222,28 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             long start = System.currentTimeMillis();
             int numberOfDocs = 0;
 
-            BulkRequestBuilder bulkRequest = client.prepareBulk();
-
+            BulkRequest bulkRequest = new BulkRequest();
 
             EntityContentProducer ecp = new ItemContentProducer();
 
-            for (Iterator i = qpItemsIds.iterator(); i.hasNext(); ) {
+            for (Object qpItemsId : qpItemsIds) {
 
-                    if (bulkRequest.numberOfActions() < bulkRequestSize) {
+                if (bulkRequest.numberOfActions() < bulkRequestSize) {
 
-                        String reference = Long.toString((Long)i.next());
-                            try {
-                                deleteDocument(ecp.getId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, false));
-                                numberOfDocs++;
-                            } catch (Exception e) {
-                                getLog().error(e.getMessage(), e);
-                            }
-
-                    } else {
-                        executeBulkRequest(bulkRequest);
-                        bulkRequest = client.prepareBulk();
+                    String reference = Long.toString((Long) qpItemsId);
+                    try {
+                        deleteDocument(ecp.getId(reference));
+                        bulkRequest.add(prepareIndex(reference, ecp, false));
+                        numberOfDocs++;
+                    } catch (Exception e) {
+                        getLog().error(e.getMessage(), e);
                     }
+
+                } else {
+                    executeBulkRequest(bulkRequest);
+                    bulkRequest = new BulkRequest();
                 }
+            }
 
                 // execute any remaining bulks requests not executed yet
                 if (bulkRequest.numberOfActions() > 0) {
@@ -283,7 +271,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             long start = System.currentTimeMillis();
             int numberOfDocs = 0;
 
-            BulkRequestBuilder bulkRequest = client.prepareBulk();
+            BulkRequest bulkRequest = new BulkRequest();
 
             Set<EntityContentProducer> questionProducers = Sets.newConcurrentHashSet();
             questionProducers.add(new ItemContentProducer());
@@ -307,7 +295,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
                     } else {
                         executeBulkRequest(bulkRequest);
-                        bulkRequest = client.prepareBulk();
+                        bulkRequest = new BulkRequest();
                     }
                 }
 
@@ -327,14 +315,16 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         }
     }
 
-    //Used in the content producer
     private void deleteAllDocumentForSite(String siteId) {
-        getLog().debug("removing all documents from question index for siteId: " + siteId);
-        DeleteByQueryResponse response = client.prepareDeleteByQuery(indexName)
+        getLog().debug("removing all documents from question index for site: " + siteId);
+        DeleteByQueryRequest request = new DeleteByQueryRequest(indexName)
                 .setQuery(termQuery("site", siteId))
-                .setTypes(indexedDocumentType)
-                .execute()
-                .actionGet();
+                .types(indexedDocumentType);
+        try {
+            client.deleteByQuery(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            getLog().error("Failed to remove all documents from question index for site: " + siteId + ", " + e);
+        }
     }
 
     public void deleteAllDocumentForSiteIfDeleted(String siteId) {
@@ -354,12 +344,15 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
         protected void deleteAllDocumentForQuestionPool(String qpId) {
         getLog().debug("removing all documents from question index for questionPool: " + qpId);
-        DeleteByQueryResponse response = client.prepareDeleteByQuery(indexName)
+        DeleteByQueryRequest request = new DeleteByQueryRequest(indexName)
                 .setQuery(termQuery("questionPoolId", qpId))
-                .setTypes(indexedDocumentType)
-                .execute()
-                .actionGet();
-    }
+                .types(indexedDocumentType);
+            try {
+                client.deleteByQuery(request, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                getLog().error("Failed to remove all documents from question index for questionPool: " + qpId + ", " + e);
+            }
+        }
 
     protected void deleteDocument(String id) {
         final Map<String, Object> params = Maps.newHashMap();
@@ -369,11 +362,8 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
 
     @Override
-    protected IndexRequestBuilder completeIndexRequestBuilder(IndexRequestBuilder requestBuilder,
-                                                              String resourceName, EntityContentProducer ecp,
-                                                              boolean includeContent)
-            throws IOException{
-        return requestBuilder.setRouting(null);
+    protected IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent) {
+        return indexRequest.routing(null);
     }
 
 
@@ -423,7 +413,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             //in that way we can delete all the items in a site w/o affect the
             //questionpools.
 
-                HashMap<String,Object> allFields = icp.getAllFields(resourceName);
+                Map<String,Object> allFields = icp.getAllFields(resourceName);
 
                 if (allFields.get("isFromQuestionPool").equals("false")){
                     contentSourceBuilder.field("site", allFields.get("site"));
@@ -444,7 +434,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             }else if (ecp.getSubType(resourceName).equals("publisheditem")){
                 PublishedItemContentProducer picp = (PublishedItemContentProducer)ecp;
 
-                HashMap<String,Object> allFieldsPub = picp.getAllFields(resourceName);
+                Map<String,Object> allFieldsPub = picp.getAllFields(resourceName);
 
                 return contentSourceBuilder.field("questionId", allFieldsPub.get("questionId"))
                         .field("site", allFieldsPub.get("site"))
@@ -509,19 +499,18 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     @Override
     protected void completeAddResourceEventValidations(Event event, Map<String, Object> validationContext)
-            throws IllegalArgumentException, IllegalStateException{
-        //no-op
+            throws IllegalArgumentException, IllegalStateException {
     }
 
     @Override
-    protected DeleteRequestBuilder prepareDeleteDocument(Map<String, Object> deleteParams) {
-        DeleteRequestBuilder deleteRequestBuilder = newDeleteRequestBuilder(deleteParams);
-        deleteRequestBuilder = completeDeleteRequestBuilder(deleteRequestBuilder, deleteParams);
-        return deleteRequestBuilder;
+    protected DeleteRequest prepareDeleteDocument(Map<String, Object> deleteParams) {
+        DeleteRequest request = newDeleteRequest(deleteParams);
+        request = completeDeleteRequest(request, deleteParams);
+        return request;
     }
 
-    private DeleteRequestBuilder newDeleteRequestBuilder(Map<String, Object> deleteParams) {
-        return client.prepareDelete(indexName, indexedDocumentType, (String)deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
+    private DeleteRequest newDeleteRequest(Map<String, Object> deleteParams) {
+        return new DeleteRequest(indexName, indexedDocumentType, (String) deleteParams.get(DELETE_RESOURCE_KEY_ITEM));
     }
 
     @Override
@@ -547,8 +536,8 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected DeleteResponse deleteDocumentWithRequest(DeleteRequestBuilder deleteRequestBuilder) {
-        return deleteRequestBuilder.execute().actionGet();
+    protected DeleteResponse deleteDocumentWithRequest(DeleteRequest deleteRequest) throws IOException {
+        return client.delete(deleteRequest, RequestOptions.DEFAULT);
     }
 
     @Override
@@ -645,16 +634,22 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     @Override
     protected void deleteDocumentWithParams(Map<String, Object> deleteParams) {
-        final DeleteRequestBuilder deleteRequestBuilder = prepareDeleteDocument(deleteParams);
-        final DeleteResponse deleteResponse = deleteDocumentWithRequest(deleteRequestBuilder);
-        if (getLog().isDebugEnabled()) {
-            if (!deleteResponse.isFound()) {
-                getLog().debug("Could not delete doc with by id: " + deleteParams.get(DELETE_RESOURCE_KEY_ITEM)
-                        + " in index builder [" + getName() + "] because the document wasn't found");
-            } else {
-                getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder ["
-                        + getName() + "]");
+        final DeleteRequest request = prepareDeleteDocument(deleteParams);
+        try {
+            final DeleteResponse deleteResponse = deleteDocumentWithRequest(request);
+            if (getLog().isDebugEnabled()) {
+                if (RestStatus.NOT_FOUND == deleteResponse.status()) {
+                    getLog().debug("Could not delete doc with by id: "
+                            + deleteParams.get(DELETE_RESOURCE_KEY_ITEM)
+                            + " in index builder ["
+                            + getName()
+                            + "] because the document wasn't found");
+                } else {
+                    getLog().debug("ES deleted a doc with id: " + deleteResponse.getId() + " in index builder [" + getName() + "]");
+                }
             }
+        } catch (IOException e) {
+            getLog().error("Failed to delete a doc in index builder [" + getName() + "], " + e);
         }
     }
 
@@ -673,12 +668,12 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
         SearchResponse response = findContentQueue();
 
-        SearchHit[] hits = response.getHits().hits();
+        SearchHit[] hits = response.getHits().getHits();
 
         List<NoContentException> noContentExceptions = new ArrayList();
         getLog().trace(getPendingDocuments() + " pending docs for index builder [" + getName() + "]");
 
-        BulkRequestBuilder bulkRequest = newContentQueueBulkUpdateRequestBuilder();
+        BulkRequest bulkRequest = new BulkRequest();
 
         for (SearchHit hit : hits) {
 
@@ -691,7 +686,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                 }
             } else {
                 executeBulkRequest(bulkRequest);
-                bulkRequest = newContentQueueBulkUpdateRequestBuilder();
+                bulkRequest = new BulkRequest();
             }
         }
 
@@ -717,20 +712,20 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
     @Override
-    protected SearchRequestBuilder addFindContentQueueRequestParams(SearchRequestBuilder searchRequestBuilder) {
-        return searchRequestBuilder
-                .setQuery(matchAllQuery())
-                .setTypes(indexedDocumentType)
-                .setPostFilter( orFilter(
-                        missingFilter(SearchService.FIELD_INDEXED),
-                        termFilter(SearchService.FIELD_INDEXED, false)))
-                .setSize(contentIndexBatchSize)
-                .addFields("questionId", "subtype");
+    protected SearchRequest addFindContentQueueRequestParams(SearchRequest searchRequest) {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(matchAllQuery())
+                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .size(contentIndexBatchSize)
+                .storedFields(Arrays.asList("questionId", "subtype"));
+        return searchRequest
+                .source(searchSourceBuilder)
+                .types(indexedDocumentType);
     }
 
 
     @Override
-    protected void processContentQueueEntry(SearchHit hit, BulkRequestBuilder bulkRequest) throws NoContentException {
+    protected void processContentQueueEntry(SearchHit hit, BulkRequest bulkRequest) throws NoContentException {
 
         String reference = getFieldFromSearchHit("questionId", hit);
         String subtype = getFieldFromSearchHit("subtype", hit);
@@ -766,14 +761,13 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     @Override
     protected void prepareIndexAdd(String resourceName, EntityContentProducer ecp, boolean includeContent) throws NoContentException {
         try {
-            prepareIndex(resourceName, ecp, includeContent).execute().actionGet();
+            IndexRequest request = prepareIndex(resourceName, ecp, includeContent);
+            client.index(request, RequestOptions.DEFAULT);
         } catch (NoContentException e) {
             throw e;
         } catch (Throwable t) {
-            getLog().error("Error: trying to register resource " + resourceName
-                    + " in index builder: " + getName(), t);
+            getLog().error("Error: trying to register resource " + resourceName + " in index builder: " + getName(), t);
         }
-
     }
 
     /**
@@ -806,192 +800,167 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
      * We have duplicated the methods that need this parameter, like prepareSearchRequest
      */
     public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
-        final Pair<SearchRequestBuilder,QueryBuilder> searchBuilders = prepareSearchRequest(searchTerms, references, siteIds, start, end, additionalSearchInformation);
-        final SearchRequestBuilder searchRequestBuilder = searchBuilders.getLeft();
-        final QueryBuilder queryBuilder = searchBuilders.getRight();
-
-        getLog().debug("Search request from index builder [" + getName() + "]: " + searchRequestBuilder.toString());
-
+        SearchRequest searchRequest = prepareSearchRequest(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+        log.debug("Search request from index builder [{}]: {}", getName(), searchRequest.toString());
         ValidateQueryRequest validateQueryRequest = new ValidateQueryRequest(indexName);
-        QuerySourceBuilder querySourceBuilder = new QuerySourceBuilder().setQuery(queryBuilder);
-        validateQueryRequest.source(querySourceBuilder);
+        validateQueryRequest.query(searchRequest.source().query());
         validateQueryRequest.explain(true);
 
-
         try {
-            ActionFuture<ValidateQueryResponse> future = client.admin().indices().validateQuery(validateQueryRequest); // the client is org.elasticsearch.client.Client
-            ValidateQueryResponse responseV = future.get(); // typical java future as response
+            ValidateQueryResponse validateQueryResponse = client.indices().validateQuery(validateQueryRequest, RequestOptions.DEFAULT);
+            if (validateQueryResponse.isValid()) {
+                SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
-            if (responseV.isValid()) {
-                SearchResponse response = searchRequestBuilder.execute().actionGet();
-                getLog().debug("Search request from index builder [" + getName() + "] took: " + response.getTook().format());
-                eventTrackingService.post(eventTrackingService.newEvent(SearchService.EVENT_SEARCH,
-                        SearchService.EVENT_SEARCH_REF + queryBuilder.toString(), true,
-                        NotificationService.PREF_IMMEDIATE));
+                log.debug("Search request from index builder [{}] took: {}", getName(), searchResponse.getTook().millis());
 
-                return response;
-            }else{
-                return null;
+                eventTrackingService.post(
+                        eventTrackingService.newEvent(
+                                SearchService.EVENT_SEARCH,
+                                SearchService.EVENT_SEARCH_REF + searchRequest.source().query().toString(),
+                                true,
+                                NotificationService.PREF_IMMEDIATE));
+
+                return searchResponse;
+            } else {
+                log.warn("Query was not valid for index {} index builder [{}]", indexName, getName());
             }
-        }catch(Exception ex){
-            return null;
+        } catch (IOException ioe) {
+            log.warn("Failure search request from index builder [{}], {}", getName(), ioe.toString());
         }
-
+        return null;
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
         return prepareSearchRequest(searchTerms,references, siteIds, start, end, new HashMap<>());
     }
 
-    protected Pair<SearchRequestBuilder,QueryBuilder> prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
-        // All this Pair<SearchRequestBuilder,QueryBuilder> business b/c:
-        //    a) Legacy eventing in search() needs the QueryBuilder, not just the SearchRequestBuilder, and
-        //    b) SiteId handling entails manipulation of both objects, so presumably completeSearchRequestBuilders()
-        //       would as well
-        //    c) There is no getQuery() on SearchRequestBuilder
-        Pair<SearchRequestBuilder,QueryBuilder> builders = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
-        builders = addSearchCoreParams(builders, searchTerms, references, siteIds);
-        builders = addSearchQuery(builders, searchTerms, references, siteIds, additionalSearchInformation);
-        builders = pairOf(addSearchResultFields(builders.getLeft()), builders.getRight());
-        builders = pairOf(addSearchPagination(builders.getLeft(), start, end), builders.getRight());
-        builders = pairOf(addSearchFacetting(builders.getLeft()), builders.getRight());
-        return completeSearchRequestBuilders(builders, searchTerms, references, siteIds);
+    protected SearchRequest prepareSearchRequest(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInformation) {
+        SearchRequest searchRequest = newSearchRequestAndQueryBuilders(searchTerms, references, siteIds);
+        addSearchCoreParams(searchRequest);
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, additionalSearchInformation);
+        addSearchResultFields(searchRequest);
+        addSearchPagination(searchRequest, start, end);
+        addSearchFacetting(searchRequest);
+        completeSearchRequestBuilders(searchRequest, searchTerms, references, siteIds);
+        return searchRequest;
+    }
+
+    protected SearchRequest newSearchRequestAndQueryBuilders(String searchTerms, List<String> references, List<String> siteIds) {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.source().query(boolQuery());
+        return searchRequest;
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> newSearchRequestAndQueryBuilders(String searchTerms,
-                                                                                       List<String> references,
-                                                                                       List<String> siteIds) {
-        return pairOf(client.prepareSearch(indexName), boolQuery());
+    protected void addSearchCoreParams(SearchRequest searchRequest) {
+        searchRequest.searchType(SearchType.QUERY_THEN_FETCH).types(indexedDocumentType);
     }
 
     @Override
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchCoreParams(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                           String searchTerms, List<String> references,
-                                                                           List<String> siteIds) {
-        final SearchRequestBuilder searchRequestBuilder = builders.getLeft();
-        return pairOf(searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setTypes(indexedDocumentType),
-                builders.getRight());
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds) {
+        addSearchQuery(searchRequest, searchTerms, references, siteIds, new HashMap<>());
+    }
+
+    protected void addSearchQuery(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds, Map<String,String> additionalSearchInformation ) {
+        addSearchTerms(searchRequest, searchTerms, additionalSearchInformation);
+        addSearchReferences(searchRequest, references);
+        addSearchSiteIds(searchRequest, siteIds);
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> addSearchQuery(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                     String searchTerms, List<String> references,
-                                                                     List<String> siteIds) {
-        return addSearchQuery(builders, searchTerms, references, siteIds, new HashMap<>());
-    }
-
-    protected Pair<SearchRequestBuilder,QueryBuilder> addSearchQuery(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                     String searchTerms, List<String> references,
-                                                                     List<String> siteIds, Map<String,String> additionalSearchInformation ) {
-        builders = addSearchTerms(builders, searchTerms, additionalSearchInformation);
-        builders = addSearchReferences(builders, references);
-        builders = addSearchSiteIds(builders, siteIds);
-        return pairOf(builders.getLeft().setQuery(builders.getRight()), builders.getRight());
-    }
-
-    @Override
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchTerms(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                      String searchTerms) {
-        return addSearchTerms(builders, searchTerms, new HashMap<>());
+    protected void addSearchTerms(SearchRequest searchRequest, String searchTerms) {
+        addSearchTerms(searchRequest, searchTerms, new HashMap<>());
     }
 
     /**
      * Here we create our specific search query with the parameters that are sent in the additionalSearchInformation
 
      */
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchTerms(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                      String searchTerms, Map<String,String> additionalSearchInformation) {
-        BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
-        SearchRequestBuilder searchRequestBuilder = builders.getLeft();
-        //We will receive the text in the searchTerms
-        //This is were manage the TEXT query
-        log.debug("Searching the searchterm: " + searchTerms);
-        //First, let's remove the html code because it can cause exceptions.
+    protected void addSearchTerms(SearchRequest searchRequest, String searchTerms, Map<String, String> additionalSearchInformation) {
+        // receive the text in the searchTerms
+        // manage the TEXT query
+        log.debug("Searching the searchterm: {}", searchTerms);
+        // remove the html code because it can cause exceptions.
         Source parseSearchTerms = new Source(searchTerms);
         searchTerms = parseSearchTerms.getTextExtractor().toString();
         //and now let's remove especial chars
         String regex = "([+\\-!\\(\\){}\\[\\]^~*?:\\\\]|[&\\|]{2})";
-        searchTerms = searchTerms.replaceAll(regex,"\\\\$1");
-        log.debug("Searching the searchterms after escape them: " + searchTerms);
+        searchTerms = searchTerms.replaceAll(regex, "\\\\$1");
+        log.debug("Searching the searchterms after escape them: {}", searchTerms);
+
+        final BoolQueryBuilder query = (BoolQueryBuilder) searchRequest.source().query();
         if (StringUtils.isNotEmpty(searchTerms)) {
             if (additionalSearchInformation.containsKey("logic") && additionalSearchInformation.get("logic").equals("and")) {
-                query = query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(QueryStringQueryBuilder.Operator.AND));
-            }else{
-                query = query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(QueryStringQueryBuilder.Operator.OR));
+                query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(Operator.AND));
+            } else {
+                query.must(queryStringQuery(searchTerms).defaultField("contents").defaultOperator(Operator.OR));
             }
         }
 
-        //We will receive the Tags in tag_1 / tag value, tag_2..., tag_n...
-        Set<String> keys = additionalSearchInformation.keySet();
-        Iterator<String> keysIterator = keys.iterator();
-        Boolean oneTimeTagShould = true;
-        BoolQueryBuilder tagsQuery = QueryBuilders.boolQuery();
-        Boolean tagsFounded = false;
-        while (keysIterator.hasNext()){
-            String key = keysIterator.next();
-            if (key.startsWith("tag_")){
-                tagsFounded = true;
-                String tag= additionalSearchInformation.get(key);
-                log.debug("We will search this tag:" + tag);
-                if (additionalSearchInformation.containsKey("logic") && additionalSearchInformation.get("logic").equals("or")) {
-                    tagsQuery = tagsQuery.should(termQuery("tags", tag));
-                    if (oneTimeTagShould){
-                        tagsQuery.minimumNumberShouldMatch(1);
-                    }
-                    oneTimeTagShould = false;
-                }else {
-                    tagsQuery = tagsQuery.must(termQuery("tags", tag));
-                }
+        final BoolQueryBuilder tagsQuery = boolQuery();
+        final boolean logicalOr = "or".equals(additionalSearchInformation.get("logic")) ? true : false;
+
+        // the tags are in the form of tag_1 / tag value, tag_2..., tag_n...
+        additionalSearchInformation.keySet().stream().filter(k -> k.startsWith("tag_")).forEach(k -> {
+            String tag = additionalSearchInformation.get(k);
+            log.debug("search tag: {}", tag);
+            if (logicalOr) {
+                tagsQuery.should(termQuery("tags", tag));
+            } else {
+                tagsQuery.must(termQuery("tags", tag));
             }
+        });
+
+        if (tagsQuery.hasClauses()) {
+            if (tagsQuery.should().size() > 1) {
+                tagsQuery.minimumShouldMatch(1);
+            }
+            log.debug("tags sub query: {}", tagsQuery);
+            query.must(tagsQuery);
         }
 
-        if (tagsFounded) {
-            query = query.must(tagsQuery);
+        if (additionalSearchInformation.containsKey("subtype")) {
+            log.debug("We will search this subtype: {}", additionalSearchInformation.get("subtype"));
+            query.must(matchQuery("subtype", additionalSearchInformation.get("subtype")));
         }
 
-        if (additionalSearchInformation.containsKey("subtype")){
-            log.debug("We will search this subtype:" + additionalSearchInformation.get("subtype"));
-            query = query.must(matchQuery("subtype", additionalSearchInformation.get("subtype")));
+        if (additionalSearchInformation.containsKey("hash")) {
+            log.debug("We will search this hash: {}", additionalSearchInformation.get("hash"));
+            query.must(matchQuery("hash", additionalSearchInformation.get("hash")));
         }
 
-        if (additionalSearchInformation.containsKey("hash")){
-            log.debug("We will search this hash:" + additionalSearchInformation.get("hash"));
-            query = query.must(matchQuery("hash", additionalSearchInformation.get("hash")));
-        }
-
-        //We will receive the scope of the search in the advancedSearchInformation Map...
+        // the scope of the search in the advancedSearchInformation Map...
         // scope "all" = no filter
         // scope "owns" or no scope = all their sites as instructor and qpools with permissions (That's the default value)
-        // scope "custom" = we will filter all the site_1, site_2, site_3 and qp_1,qp2,qp3....
+        // scope "custom" = filter all the site_1, site_2, site_3 and qp_1,qp2,qp3....
 
-        if (additionalSearchInformation.containsKey("scope")){
-            if (additionalSearchInformation.get("scope").equals("all")){
-                //Doing nothing here
+        if (additionalSearchInformation.containsKey("scope")) {
+            if (additionalSearchInformation.get("scope").equals("all")) {
+                // do nothing here
                 log.debug("we won't filter the results by scope");
-            } else if (additionalSearchInformation.get("scope").equals("custom")){
+            } else if (additionalSearchInformation.get("scope").equals("custom")) {
                 log.debug("We have a custom scope request");
                 Set<String> keysForACL = additionalSearchInformation.keySet();
                 Iterator<String> keysForACLIterator = keysForACL.iterator();
-                while (keysForACLIterator.hasNext()){
+                while (keysForACLIterator.hasNext()) {
                     String key = keysForACLIterator.next();
                     List<String> siteIds = new ArrayList<>();
                     List<String> questionPoolsIds = new ArrayList<>();
-                    if (key.startsWith("site_")){
-                        String siteId= additionalSearchInformation.get(key);
-                        log.debug("We have this siteId to add:" + siteId);
-                        siteIds.add(siteId);
-                        query = query.should(termsQuery("site", siteIds.toArray(new String[siteIds.size()])));
 
+                    if (key.startsWith("site_")) {
+                        String siteId = additionalSearchInformation.get(key);
+                        log.debug("We have this siteId to add: {}", siteId);
+                        siteIds.add(siteId);
+                        query.should(termsQuery("site", siteIds.toArray(new String[siteIds.size()])));
                     }
 
-                    if (key.startsWith("qp_")){
-                        String qpId= additionalSearchInformation.get(key);
-                        log.debug("We have this question Pool to add:" + qpId);
+                    if (key.startsWith("qp_")) {
+                        String qpId = additionalSearchInformation.get(key);
+                        log.debug("We have this question Pool to add: {}", qpId);
                         questionPoolsIds.add(qpId);
-                        query = query.should(termsQuery("questionPoolId", questionPoolsIds.toArray(new String[questionPoolsIds.size()])));
-                        query = query.minimumNumberShouldMatch(1);
+                        query.should(termsQuery("questionPoolId", questionPoolsIds.toArray(new String[questionPoolsIds.size()])));
+                        query.minimumShouldMatch(1);
                     }
                 }
             } else {
@@ -999,27 +968,22 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                     log.debug("No superuser.Searching based in permissions");
                     List<String> siteIds = getAllSitesUserHasQuestionAuthorPermissions();
                     List<String> questionPoolsIds = getAllUserQuestionPools();
-                    query = query.should(termsQuery("site", siteIds.toArray(new String[siteIds.size()])));
-                    query = query.should(termsQuery("questionPoolId", questionPoolsIds.toArray(new String[questionPoolsIds.size()])));
-                    query = query.minimumNumberShouldMatch(1);
-
-                }else{
+                    query.should(termsQuery("site", siteIds.toArray(new String[siteIds.size()])));
+                    query.should(termsQuery("questionPoolId", questionPoolsIds.toArray(new String[questionPoolsIds.size()])));
+                    query.minimumShouldMatch(1);
+                } else {
                     log.debug("Superuser, so no filtering");
                 }
-
             }
 
-            //If we want aggregation we will have a key "group" with the field on it.
+            // aggregations will have a key "group" with the field on it.
             if (additionalSearchInformation.containsKey("group")) {
-                log.debug("We are going to group results by: " + additionalSearchInformation.get("group"));
-                //if we need aggregation, we don't need normal results.
-                searchRequestBuilder.setSize(0);
-                searchRequestBuilder = addSearchAggregation(searchRequestBuilder,additionalSearchInformation.get("group"));
+                log.debug("We are going to group results by: {}", additionalSearchInformation.get("group"));
+                // need aggregation, don't need normal results.
+                searchRequest.source().size(0);
+                addSearchAggregation(searchRequest, additionalSearchInformation.get("group"));
             }
-
         }
-
-        return pairOf(searchRequestBuilder, query);
     }
 
 
@@ -1095,84 +1059,62 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     }
 
 
-        @Override
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchReferences(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                           List<String> references) {
-        BoolQueryBuilder query = (BoolQueryBuilder)builders.getRight();
+    @Override
+    protected void addSearchReferences(SearchRequest searchRequest, List<String> references) {
         if (references.size() > 0){
-            query = query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[references.size()])));
+            ((BoolQueryBuilder) searchRequest.source().query()).must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[0])));
         }
-        return pairOf(builders.getLeft(), query);
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> addSearchSiteIds(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                       List<String> siteIds){
-           return builders;
+    protected void addSearchSiteIds(SearchRequest searchRequest, List<String> siteIds) {
     }
 
     @Override
-    protected  SearchRequestBuilder addSearchResultFields(SearchRequestBuilder searchRequestBuilder) {
-        if (ArrayUtils.isEmpty(searchResultFieldNames)) {
-            return searchRequestBuilder;
+    protected void addSearchResultFields(SearchRequest searchRequest) {
+        if (!ArrayUtils.isEmpty(searchResultFieldNames)) {
+            searchRequest.source().storedFields(Arrays.asList(searchResultFieldNames));
         }
-        return searchRequestBuilder.addFields(searchResultFieldNames);
     }
 
     @Override
-    protected SearchRequestBuilder addSearchPagination(SearchRequestBuilder searchRequestBuilder, int start, int end) {
-        return searchRequestBuilder.setFrom(start).setSize(end - start);
+    protected void addSearchPagination(SearchRequest searchRequest, int start, int end) {
+        searchRequest.source().from(start).size(end - start);
     }
 
     @Override
-    protected SearchRequestBuilder addSearchFacetting(SearchRequestBuilder searchRequestBuilder) {
-        if(useFacetting) {
-            return searchRequestBuilder.addFacet(termsFacet(facetName).field("hash").size(facetTermSize));
+    protected void addSearchFacetting(SearchRequest searchRequest) {
+        if (useFacetting) {
+            TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(facetName).field("hash").size(facetTermSize);
+            searchRequest.source().aggregation(termsAggregationBuilder);
         }
-        return searchRequestBuilder;
     }
 
-    protected SearchRequestBuilder addSearchAggregation(SearchRequestBuilder searchRequestBuilder, String field) {
-        if(useAggregation) {
-            return searchRequestBuilder.addAggregation(
+    protected void addSearchAggregation(SearchRequest searchRequest, String field) {
+        if (useAggregation) {
+            List<String> fields = Arrays.asList("assessmentId", "site", "questionPoolId", "typeId", "tags", "qText");
+            searchRequest.source().aggregation(
                     AggregationBuilders.terms(AGGREGATION_NAME).field(field).size(serverConfigurationService.getInt("samigo.search.maxResults",50))
-                            .subAggregation(AggregationBuilders.topHits(AGGREGATION_TOP_HITS).setSize(1).addFieldDataField("assessmentId").addFieldDataField("site").addFieldDataField("questionPoolId").addFieldDataField("typeId").addFieldDataField("tags").addFieldDataField("qText")));
-            //.subAggregation(AggregationBuilders.topHits(AGGREGATION_TOP_HITS).setSize(1).addFieldDataField("origin")));
-
+                            .subAggregation(AggregationBuilders.topHits(AGGREGATION_TOP_HITS).size(1).storedFields(fields)));
+                            // .subAggregation(AggregationBuilders.topHits(AGGREGATION_TOP_HITS).size(1).storedField("origin")));
         }
-        return searchRequestBuilder;
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> completeSearchRequestBuilders(Pair<SearchRequestBuilder,QueryBuilder> builders,
-                                                                                    String searchTerms,
-                                                                                    List<String> references,
-                                                                                    List<String> siteIds){
-        log.debug("This is the search query: " + builders.getRight().toString());
-        return builders;
-
-
+    protected void completeSearchRequestBuilders(SearchRequest searchRequest, String searchTerms, List<String> references, List<String> siteIds){
+        log.debug("This is the search query: {}", searchRequest.source().query().toString());
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> completeSearchSuggestionsRequestBuilders(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                                               String searchString,
-                                                                                               String currentSite,boolean allMySites){
-        //no-op, no suggestions on this index
-        return null;
+    protected void completeSearchSuggestionsRequestBuilders(SearchRequest searchRequest, String searchString, String currentSite, boolean allMySites) {
     }
 
     @Override
-    protected Pair<SearchRequestBuilder,QueryBuilder> addSearchSuggestionsTerms(Pair<SearchRequestBuilder, QueryBuilder> builders,
-                                                                                String searchString) {
-        //no-op, no suggestions on this index
-        return null;
+    protected void addSearchSuggestionsTerms(SearchRequest searchRequest, String searchString) {
     }
 
     @Override
-    protected Pair<SearchRequestBuilder, QueryBuilder> addSearchSuggestionsSites(Pair<SearchRequestBuilder, QueryBuilder> builders, String currentSite, boolean allMySites){
-        //no-op, no suggestions on this index
-        return null;
+    protected void addSearchSuggestionsSites(SearchRequest searchRequest, String currentSite, boolean allMySites){
     }
 
     @Override

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
 import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
@@ -35,6 +33,8 @@ import org.sakaiproject.tool.assessment.facade.DataFacadeException;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AuthorizationFacadeQueries extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
@@ -46,7 +46,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     final HibernateCallback<List<QualifierData>> hcb = session -> session
             .createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q " +
                     "where p.qualifierId = q.parentId and c.qualifierId = q.childId and q.childId = :id")
-            .setString("id", qualifierId)
+            .setParameter("id", qualifierId)
             .list();
     List<QualifierData> parents = getHibernateTemplate().execute(hcb);
 
@@ -62,7 +62,7 @@ public class AuthorizationFacadeQueries extends HibernateDaoSupport implements A
     final HibernateCallback<List<QualifierData>> hcb = session -> session
             .createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q " +
                     "where p.qualifierId = q.parentId and c.qualifierId = q.childId and q.parentId = :id")
-            .setString("id", qualifierId)
+            .setParameter("id", qualifierId)
             .list();
     List<QualifierData> children = getHibernateTemplate().execute(hcb);
 

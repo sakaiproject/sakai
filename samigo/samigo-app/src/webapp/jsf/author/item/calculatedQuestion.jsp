@@ -107,7 +107,7 @@ confirmation dialog
 		<h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-4 form-control-label"/>
 		<div class="col-md-2">
 			<h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" 
-							required="true" styleClass="form-control">
+							required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control">
 				<f:validateDoubleRange/>
 			</h:inputText>			
 			<h:message for="answerptr" styleClass="validate"/>
@@ -134,6 +134,7 @@ confirmation dialog
 	  	<p><h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /></p>
 	  	<label><h:outputText value="#{authorMessages.calc_question_instructions_label}"/></label>
 		<ol>
+			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_4}" /></li>
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1}" /></li>
 			<ul>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1a}" /></li>

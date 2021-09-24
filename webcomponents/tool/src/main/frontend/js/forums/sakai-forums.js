@@ -28,9 +28,9 @@ export class SakaiForums extends SakaiPageableElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get forums data from ${url}`);
         }
+        throw new Error(`Failed to get forums data from ${url}`);
+
       })
       .then(data => this.data = data)
       .catch (error => console.error(error));
@@ -102,32 +102,32 @@ export class SakaiForums extends SakaiPageableElement {
     return html`
       <div id="options">
         <input type="checkbox" id="options-checkbox" @click=${(e) => this.showOptions = e.target.checked}>
-        <label for="options-checkbox">${this.i18n["syn_options"]}</label>
+        <label for="options-checkbox">${this.i18n.syn_options}</label>
       </div>
       <div class="messages ${this.messagesClass}">
-        ${this.showOptions ? html`<div class="header">Hide</div>` : ""}
+        ${this.showOptions ? html`<div class="header">${this.i18n.syn_hide}</div>` : ""}
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortByMessages}
-              title="${this.i18n["sort_by_messages_tooltip"]}"
-              aria-label="${this.i18n["sort_by_messages_tooltip"]}">
-            ${this.i18n["syn_private_heading"]}
+              title="${this.i18n.sort_by_messages_tooltip}"
+              aria-label="${this.i18n.sort_by_messages_tooltip}">
+            ${this.i18n.syn_private_heading}
           </a>
         </div>
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortByForums}
-              title="${this.i18n["sort_by_forums_tooltip"]}"
-              aria-label="${this.i18n["sort_by_forums_tooltip"]}">
-            ${this.i18n["syn_discussion_heading"]}
+              title="${this.i18n.sort_by_forums_tooltip}"
+              aria-label="${this.i18n.sort_by_forums_tooltip}">
+            ${this.i18n.syn_discussion_heading}
           </a>
         </div>
         <div class="header">
           <a href="javascript:;"
               @click=${this.sortBySite}
-              title="${this.i18n["sort_by_site_tooltip"]}"
-              aria-label="${this.i18n["sort_by_site_tooltip"]}">
-            ${this.i18n["syn_site_heading"]}
+              title="${this.i18n.sort_by_site_tooltip}"
+              aria-label="${this.i18n.sort_by_site_tooltip}">
+            ${this.i18n.syn_site_heading}
           </a>
         </div>
       ${this.dataPage.map((m, i) => html`
@@ -138,8 +138,8 @@ export class SakaiForums extends SakaiPageableElement {
                 @click=${this.toggleSite}
                 data-site-id="${m.siteId}"
                 ?checked=${m.hidden}
-                title="${this.i18n["syn_hide_tooltip"]}"
-                arial-label="${this.i18n["syn_hide_tooltip"]}">
+                title="${this.i18n.syn_hide_tooltip}"
+                arial-label="${this.i18n.syn_hide_tooltip}">
           </div>`
         : ""}
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
@@ -156,7 +156,18 @@ export class SakaiForums extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
-
+        a {
+          color: var(--link-color);
+        }
+        a:hover { 
+          color: var(--link-hover-color);
+        }
+        a:active {
+          color: var(--link-active-color);
+        }
+        a:visited {
+          color: var(--link-visited-color);
+        }
         #options {
           margin-bottom: 8px;
           margin-top: 10px;
@@ -188,7 +199,7 @@ export class SakaiForums extends SakaiPageableElement {
           }
             .header a {
               text-decoration: none;
-              color: black;
+              color: var(--sakai-text-color-1, #000);
             }
           .cell {
             padding: 8px;

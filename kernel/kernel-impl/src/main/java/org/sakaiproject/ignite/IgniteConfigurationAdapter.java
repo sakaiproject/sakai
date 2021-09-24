@@ -1,8 +1,10 @@
 package org.sakaiproject.ignite;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,12 +40,15 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
     public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
     public static final String IGNITE_TCP_MESSAGE_QUEUE_LIMIT = "ignite.tcpMessageQueueLimit";
+    public static final String IGNITE_STOP_ON_FAILURE = "ignite.stopOnFailure";
 
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
     private static Boolean configured = Boolean.FALSE;
 
     @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private CacheConfiguration[] cacheConfiguration;
+    @Setter private List<CacheConfiguration> hibernateCacheConfiguration;
+    @Setter private List<CacheConfiguration> requiredCacheConfiguration;
+    @Setter private List<IgniteConditionalCache> conditionalCacheConfiguration;
     @Setter private DataStorageConfiguration dataStorageConfiguration;
 
     @Getter @Setter private String address;
@@ -72,6 +77,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
+            boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
             // disable banner
             System.setProperty("IGNITE_NO_ASCII", "true");
@@ -105,15 +111,18 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
-            igniteConfiguration.setCacheConfiguration(cacheConfiguration);
+            configureCaches();
 
             igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
 
             // configuration for metrics update frequency
             igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
-
             igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
+            igniteConfiguration.setFailureDetectionTimeout(20000);
+            if (stopOnFailure) {
+                igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
+            }
 
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
@@ -210,5 +219,13 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
         // return the absolute path
         home = igniteHome.getAbsolutePath();
+    }
+
+    private void configureCaches() {
+        List<CacheConfiguration> caches = new ArrayList<>();
+        caches.addAll(hibernateCacheConfiguration);
+        caches.addAll(requiredCacheConfiguration);
+        conditionalCacheConfiguration.stream().filter(IgniteConditionalCache::exists).map(IgniteConditionalCache::getCacheConfiguration).forEach(caches::add);
+        igniteConfiguration.setCacheConfiguration(caches.toArray(new CacheConfiguration[]{}));
     }
 }

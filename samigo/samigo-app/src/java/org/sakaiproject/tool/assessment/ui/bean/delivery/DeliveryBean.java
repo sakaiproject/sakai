@@ -443,14 +443,14 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private String rbcsToken;
 
-  private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
-  private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
+  private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl();
+  private static final String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
 
-  private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
-  private static String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
-  private static String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
-  private static String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
+  private static final String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
+  private static final String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
+  private static final String questionProgressMardPath = ServerConfigurationService.getString("samigo.questionprogress.mardpath", "/images/questionMarkBubble15.png");
 
   // delivery action
   public static final int TAKE_ASSESSMENT = 1;
@@ -1694,7 +1694,7 @@ public class DeliveryBean implements Serializable {
   public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment) {
 	  this.publishedAssessment = publishedAssessment;
 	  //Setup extendedTimeDeliveryService
-	  if (extendedTimeDeliveryService == null && 
+	  if ((extendedTimeDeliveryService == null || StringUtils.isBlank(extendedTimeDeliveryService.getAgentId())) &&
 			  (publishedAssessment != null && publishedAssessment.getPublishedAssessmentId() != null)) {
 		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
 	  }
@@ -2533,11 +2533,6 @@ public class DeliveryBean implements Serializable {
   	    return ServerConfigurationService.getInt("samigo.autoSave.repeat.milliseconds", 300000);
 	  }
 
-	  public boolean getStudentRichText() {
-	      String studentRichText = ServerConfigurationService.getString("samigo.studentRichText", "true");
-		  return Boolean.parseBoolean(studentRichText);
-	  }
-
 	  public String getRecURL() {
   	    if (RECPATH == null || RECPATH.trim().equals("")) {
   	    	return "";
@@ -2617,6 +2612,14 @@ public class DeliveryBean implements Serializable {
     public String getPublishedURL() {
         PublishedAssessmentSettingsBean pasBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
         return pasBean.generatePublishedURL(publishedAssessment);
+    }
+
+    public String getSubmittedDateString() {
+        return userTimeService.timeFormat(getAssessmentGrading().getSubmittedDate(), locale, DateFormat.MEDIUM);
+    }
+
+    public void setSubmittedDateString(String value) {
+        // derived property but JSF needs a setter to be happy
     }
 
     /**

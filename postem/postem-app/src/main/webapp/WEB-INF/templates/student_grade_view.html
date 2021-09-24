@@ -20,19 +20,17 @@
                             <th th:text="${heading}"></th>
                         </span>
                     </span>
-                    <th th:text="#{student_lastchecked}"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td th:text="${student?.username}"></td>
                     <td th:text="${grade}" th:each="grade : ${student?.grades}"></td>
-                    <td th:text="${student?.checkDateTime}"></td>
                 </tr>
             </tbody>
         </table>
         <div class="act">
-            <input accesskey="x" type="button" th:onclick="cancelAction()" id="gradebook-cancel-button" class="btn btn-default" th:value="#{back}">
+            <input accesskey="x" type="button" th:onclick="cancelAction()" id="gradebook-cancel-button" th:value="#{back}">
         </div>
     </div>
 </body>

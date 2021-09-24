@@ -34,17 +34,14 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
-
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
-import org.hibernate.query.Query;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
+import org.hibernate.type.DateType;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -96,6 +93,10 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Nuno Fernandes
@@ -366,8 +367,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			HibernateCallback<List<String>> hcb = session -> {
                 Query q = session.createQuery("select distinct s.userId from EventStatImpl as s where s.siteId = :siteid and s.eventId = :eventId");
-                q.setString("siteid", siteId);
-                q.setString("eventId", SITEVISIT_EVENTID);
+                q.setParameter("siteid", siteId);
+                q.setParameter("eventId", SITEVISIT_EVENTID);
                 return q.list();
             };
 			return new HashSet<>(getHibernateTemplate().execute(hcb));
@@ -634,11 +635,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// New files
 				HibernateCallback<Long> hcb1 = session -> {
                     Query q = session.createQuery(hql);
-                    q.setString("siteid", siteId);
-                    q.setString("resourceAction", "new");
-                    q.setString("resourceRefLike", resourceRefLike);
+                    q.setParameter("siteid", siteId);
+                    q.setParameter("resourceAction", "new");
+                    q.setParameter("resourceRefLike", resourceRefLike);
                     if(excludeFolders){
-                        q.setString("resourceRefNotLike", resourceRefNotLike);
+                        q.setParameter("resourceRefNotLike", resourceRefNotLike);
                     }
                     List<Object[]> list = q.list();
                     Long total = Long.valueOf(0);
@@ -656,11 +657,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// Deleted files
 				HibernateCallback<Long> hcb2 = session -> {
                     Query q = session.createQuery(hql);
-                    q.setString("siteid", siteId);
-                    q.setString("resourceAction", "delete");
-                    q.setString("resourceRefLike", resourceRefLike);
+                    q.setParameter("siteid", siteId);
+                    q.setParameter("resourceAction", "delete");
+                    q.setParameter("resourceRefLike", resourceRefLike);
                     if(excludeFolders){
-                        q.setString("resourceRefNotLike", resourceRefNotLike);
+                        q.setParameter("resourceRefNotLike", resourceRefNotLike);
                     }
                     List<Object[]> list = q.list();
                     Long total = Long.valueOf(0);
@@ -712,9 +713,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// New files
 			HibernateCallback<Long> hcb1 = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "create");
-                q.setString("pageRefLike", pageRefLike);
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "create");
+                q.setParameter("pageRefLike", pageRefLike);
                 List<Object[]> list = q.list();
                 Long total = Long.valueOf(0);
                 if (list != null && list.size() > 0) {
@@ -731,9 +732,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// Deleted files
 			HibernateCallback<Long> hcb2 = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "delete");
-                q.setString("pageRefLike", pageRefLike);
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "delete");
+                q.setParameter("pageRefLike", pageRefLike);
                 List<Object[]> list = q.list();
                 Long total = Long.valueOf(0);
                 if (list != null && list.size() > 0) {
@@ -769,9 +770,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// New files
 			HibernateCallback<List<Object[]>> hcb1 = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "read");
-                q.setString("pageRefLike", pageRefLike);
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "read");
+                q.setParameter("pageRefLike", pageRefLike);
                 return q.list();
             };
 
@@ -780,9 +781,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// Deleted files
 			HibernateCallback<List<String>> hcb2 = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "delete");
-                q.setString("pageRefLike", pageRefLike);
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "delete");
+                q.setParameter("pageRefLike", pageRefLike);
                 return q.list();
             };
 
@@ -817,9 +818,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 			HibernateCallback<List<Object[]>> hcb = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "read");
-                q.setString("pageRefLike", "/lessonbuilder/page/%");
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "read");
+                q.setParameter("pageRefLike", "/lessonbuilder/page/%");
                 return q.list();
             };
 
@@ -855,9 +856,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback<List<Object[]>> hcb = session -> {
 
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
-                q.setString("pageAction", "read");
-                q.setString("pageRefLike", "/lessonbuilder/page/%");
+                q.setParameter("siteid", siteId);
+                q.setParameter("pageAction", "read");
+                q.setParameter("pageRefLike", "/lessonbuilder/page/%");
                 return q.list();
             };
 
@@ -1128,7 +1129,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<List<Stat>> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null) {
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(events != null) {
                 if(events.isEmpty()) {
@@ -1153,14 +1154,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
                 q.setParameterList("anonymousEvents", anonymousEvents);
@@ -1351,7 +1352,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<Integer> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null){
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(events != null && !events.isEmpty()){
                 q.setParameterList("events", events);
@@ -1373,14 +1374,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0){
                 q.setParameterList("anonymousEvents", anonymousEvents);
@@ -1421,7 +1422,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<List<Stat>> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null) {
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(userIds != null && !userIds.isEmpty()) {
                 if(userIds.size() <= 1000) {
@@ -1440,14 +1441,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(page != null){
                 q.setFirstResult(page.getFirst() - 1);
@@ -1554,7 +1555,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<Integer> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null){
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(userIds != null && !userIds.isEmpty()) {
                 if(userIds.size() <= 1000) {
@@ -1573,14 +1574,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             log.debug("getPresenceStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
@@ -1598,7 +1599,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<List<SitePresenceTotal>> hcb = session -> {
             String hql = "FROM SitePresenceTotalImpl st WHERE st.siteId = :siteId";
             Query q = session.createQuery(hql);
-            q.setString("siteId", siteId);
+            q.setParameter("siteId", siteId);
             log.debug("getPresenceTotalsForSite(): " + q.getQueryString());
             return q.list();
         };
@@ -1683,7 +1684,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<List<Stat>> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null){
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(userIds != null && !userIds.isEmpty()) {
                 if(userIds.size() <= 1000) {
@@ -1702,7 +1703,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if(resourceAction != null)
-                q.setString("action", resourceAction);
+                q.setParameter("action", resourceAction);
             if(resourceIds != null && !resourceIds.isEmpty()) {
                 List<String> simpleResourceIds = new ArrayList<String>();
                 List<String> wildcardResourceIds = new ArrayList<String>();
@@ -1717,18 +1718,18 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     q.setParameterList("resources", resourceIds);
                 }
                 for(int i=0; i<wildcardResourceIds.size(); i++) {
-                    q.setString("resource"+i, wildcardResourceIds.get(i));
+                    q.setParameter("resource"+i, wildcardResourceIds.get(i));
                 }
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(page != null){
                 q.setFirstResult(page.getFirst() - 1);
@@ -1851,7 +1852,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		HibernateCallback<List<Stat>> hcb = session -> {
 
             Query q = session.createQuery(hql);
-            q.setString("siteid", siteId);
+            q.setParameter("siteid", siteId);
 
             if (userIds != null && !userIds.isEmpty()) {
                 if (userIds.size() <= 1000) {
@@ -1870,7 +1871,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             if (pageAction != null) {
-                q.setString("action", pageAction);
+                q.setParameter("action", pageAction);
             }
 
             if (resourceIds != null && !resourceIds.isEmpty()) {
@@ -1887,12 +1888,12 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     q.setParameterList("resources", resourceIds);
                 }
                 for (int i=0; i<wildcardResourceIds.size(); i++) {
-                    q.setString("resource"+i, wildcardResourceIds.get(i));
+                    q.setParameter("resource"+i, wildcardResourceIds.get(i));
                 }
             }
 
             if (iDate != null) {
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             }
             if (fDate != null) {
                 // adjust final date
@@ -1900,7 +1901,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if (page != null) {
                 q.setFirstResult(page.getFirst() - 1);
@@ -2032,7 +2033,7 @@ if (log.isDebugEnabled()) {
 		HibernateCallback<Integer> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null){
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(userIds != null && !userIds.isEmpty()) {
                 if(userIds.size() <= 1000) {
@@ -2051,18 +2052,18 @@ if (log.isDebugEnabled()) {
                 }
             }
             if(resourceAction != null)
-                q.setString("action", resourceAction);
+                q.setParameter("action", resourceAction);
             if(resourceIds != null && !resourceIds.isEmpty())
                 q.setParameterList("resources", resourceIds);
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             log.debug("getEventStatsRowCount(): " + q.getQueryString());
             Integer rowCount = q.list().size();
@@ -2098,17 +2099,17 @@ if (log.isDebugEnabled()) {
 		HibernateCallback<List<Stat>> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null) {
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(page != null){
                 q.setFirstResult(page.getFirst() - 1);
@@ -2205,7 +2206,7 @@ if (log.isDebugEnabled()) {
 		HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery(hql);
             if(siteId != null) {
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
             }
             if(events != null) {
                 if(events.isEmpty()) {
@@ -2214,14 +2215,14 @@ if (log.isDebugEnabled()) {
                 q.setParameterList("events", events);
             }
             if(iDate != null)
-                q.setDate("idate", iDate);
+                q.setParameter("idate", iDate, DateType.INSTANCE);
             if(fDate != null){
                 // adjust final date
                 Calendar c = Calendar.getInstance();
                 c.setTime(fDate);
                 c.add(Calendar.DAY_OF_YEAR, 1);
                 Date fDate2 = c.getTime();
-                q.setDate("fdate", fDate2);
+                q.setParameter("fdate", fDate2, DateType.INSTANCE);
             }
             if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
                 q.setParameterList("anonymousEvents", anonymousEvents);
@@ -2958,16 +2959,16 @@ if (log.isDebugEnabled()) {
                 }else{
                     q = session.createQuery(hql);
                 }
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Object[]> records = q.list();
                 List<SiteVisits> results = new ArrayList<SiteVisits>();
@@ -3033,16 +3034,16 @@ if (log.isDebugEnabled()) {
 			
 			HibernateCallback<Long> hcb = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Long> res = q.list();
                 if(res.size() > 0) return res.get(0);
@@ -3067,8 +3068,8 @@ if (log.isDebugEnabled()) {
 
 			HibernateCallback<Long> hcb = session -> {
 				Query q = session.createQuery(hql);
-				q.setString("siteid", siteId);
-				q.setString("userid", userId);
+				q.setParameter("siteid", siteId);
+				q.setParameter("userid", userId);
 				List<Long> res = q.list();
 				if(res.size() > 0 && res.get(0) != null) return res.get(0);
 				else return 0L;
@@ -3100,7 +3101,7 @@ if (log.isDebugEnabled()) {
 			
 			HibernateCallback<Long> hcb = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 List<Long> res = q.list();
                 if(res.size() > 0) return res.get(0);
                 else return 0L;
@@ -3139,16 +3140,16 @@ if (log.isDebugEnabled()) {
 			
 			HibernateCallback<Long> hcb = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Long> res = q.list();
                 if(res.size() > 0) return res.get(0);
@@ -3261,20 +3262,20 @@ if (log.isDebugEnabled()) {
                 }else{
                     q = session.createQuery(hql);
                 }
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
                     q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Object[]> records = q.list();
                 List<SiteActivity> results = new ArrayList<SiteActivity>();
@@ -3354,20 +3355,20 @@ if (log.isDebugEnabled()) {
                 }else{
                     q = session.createQuery(hql);
                 }
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
                     q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Object[]> records = q.list();
                 List<SiteActivity> results = new ArrayList<SiteActivity>();
@@ -3444,20 +3445,20 @@ if (log.isDebugEnabled()) {
                 }else{
                     q = session.createQuery(hql);
                 }
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
                     q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Object[]> records = q.list();
                 List<SiteActivityByTool> results = new ArrayList<SiteActivityByTool>();
@@ -3525,20 +3526,20 @@ if (log.isDebugEnabled()) {
 			HibernateCallback<List<SiteActivity>> hcb = session -> {
                 Query q = session.createQuery(hql);
                 //q.setFlushMode(FlushMode.MANUAL);
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
                     q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Object[]> records = q.list();
                 List<SiteActivity> results = new ArrayList<SiteActivity>();
@@ -3591,20 +3592,20 @@ if (log.isDebugEnabled()) {
 			
 			HibernateCallback<Long> hcb = session -> {
                 Query q = session.createQuery(hql);
-                q.setString("siteid", siteId);
+                q.setParameter("siteid", siteId);
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
                     q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
-                    q.setDate("idate", iDate);
+                    q.setParameter("idate", iDate, DateType.INSTANCE);
                 if(fDate != null){
                     // adjust final date
                     Calendar c = Calendar.getInstance();
                     c.setTime(fDate);
                     c.add(Calendar.DAY_OF_YEAR, 1);
                     Date fDate2 = c.getTime();
-                    q.setDate("fdate", fDate2);
+                    q.setParameter("fdate", fDate2, DateType.INSTANCE);
                 }
                 List<Long> res = q.list();
                 if(res.size() > 0) return res.get(0);
@@ -3788,7 +3789,7 @@ if (log.isDebugEnabled()) {
 
 		HibernateCallback<List<String>> hcb = session -> {
             Query q = session.createQuery(hql);
-            q.setString("siteid", siteId);
+            q.setParameter("siteid", siteId);
             return q.list();
         };
 		return getHibernateTemplate().execute(hcb);

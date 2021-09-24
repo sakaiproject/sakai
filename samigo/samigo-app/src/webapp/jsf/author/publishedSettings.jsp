@@ -49,7 +49,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-      <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
@@ -178,6 +177,7 @@
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
+          initAnononymousUsers();
           setAccessibilityAttributes();
           setExceptionDefault();
           setSubmissionLimit();
@@ -387,10 +387,11 @@
   <div class="form-group row">
       <h:outputLabel for="releaseTo" styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
-          <h:selectOneMenu id="releaseTo" disabled="true" value="#{publishedSettings.firstTargetSelected}">
-              <f:selectItems value="#{publishedSettings.publishingTargets}" />
+          <h:selectOneMenu id="releaseTo" disabled="true" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();" onchange="handleAnonymousUsersChange(this);showHideReleaseGroups();">
+              <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
-          <h:outputLabel id="releaseToHelp" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
+          <h:outputLabel id="releaseToHelp" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                         styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
        </div>
   </div>
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
@@ -553,7 +554,13 @@
         </t:selectOneRadio>
       </div>
     </h:panelGroup>
-  
+
+    <!-- info message about the anonymous and gradebook options below, will be shown only if quiz released to "Anonymous Users" -->
+    <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true || (publishedSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                  layout="block" id="gradingOptionsDisabledInfo" styleClass="row sak-banner-info" style="display: none">
+        <h:outputText value="#{assessmentSettingsMessages.grading_options_disabled_info}" />
+    </h:panelGroup>
+
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
@@ -792,11 +799,6 @@
             <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
-
-    <!-- BACKGROUND INFO BANNER -->
-    <div class="sak-banner-info">
-	  <h:outputLabel value="#{assessmentSettingsMessages.background_info}"/>
-    </div>
 </div>
 </h:panelGroup>
 

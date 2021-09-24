@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
 import org.sakaiproject.commons.api.*;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
+import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
@@ -165,6 +166,27 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         }
 
         return false;
+    }
+
+    public boolean likePost(String postId, boolean toggle, String userId){
+        persistenceManager.likePost(postId, toggle, userId);
+        return true;
+    }
+
+    public int countPostLikes(String postId){
+        return persistenceManager.countPostLikes(postId);
+    }
+
+    public int doesUserLike(String postId, String userId){
+        return persistenceManager.doesUserLike(postId, userId);
+    }
+
+    public List<PostLike> getAllUserLikes(String userId){
+        return persistenceManager.getAllUserLikes(userId);
+    }
+
+    public List<PostLike> getAllPostLikes(String postId){
+        return persistenceManager.getAllPostLikes(postId);
     }
 
     public Optional<Comment> getComment(String commentId) {

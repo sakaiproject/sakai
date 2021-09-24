@@ -137,5 +137,12 @@ public class ToolManager
 
 		return manager.getLocalizedToolProperty(toolId, key);
 	}	
-	
+
+	public static boolean isStealthed(String toolID)
+	{
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		if (manager == null) return false;
+
+		return manager.isStealthed(toolID);
+	}
 }

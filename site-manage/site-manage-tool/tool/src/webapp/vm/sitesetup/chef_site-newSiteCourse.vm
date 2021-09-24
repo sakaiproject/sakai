@@ -28,7 +28,7 @@
 					$tlang.getString("nscourse.acad2")
 				</label>	
 				<div class="col-sm-6">
-					<select name="selectTerm" id="selectTerm" onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('option').value='change';document.addCourseForm.submit();">
+					<select name="selectTerm" id="selectTerm" onchange="SPNR.disableControlsAndSpin(this, null); document.getElementById('option').value='change';document.addCourseForm.submit();">
 						#foreach($t in $termList)
 							<option value ="$t.eid"
 								#if($t.eid == $term.eid)

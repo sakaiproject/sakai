@@ -85,16 +85,16 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this.dispatchEvent(new CustomEvent('show-tooltip', {detail: this.criterion}));
 
     // title input box reference
-    var titleinput = this.querySelector('[type="text"]');
+    const titleinput = this.querySelector('[type="text"]');
 
     if (!this.classList.contains("show-tooltip")) {
 
       this.closeOpen();
       this.classList.add("show-tooltip");
 
-      var popover = $(`#edit_criterion_${this.criterion.id}`);
-      popover[0].style.top = e.target.offsetTop + 20 + "px";
-      popover[0].style.left = (e.target.offsetLeft - popover.width()/2) + "px";
+      const popover = $(`#edit_criterion_${this.criterion.id}`);
+      popover[0].style.top = `${e.target.offsetTop + 20  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - popover.width()/2  }px`;
       popover.show();
 
       // and highlight the title
@@ -136,7 +136,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    var data = {
+    const edited = {
       title: document.getElementById(`criterion-title-field-${this.criterion.id}`).value,
       description: document.getElementById(`criterion-description-field-${this.criterion.id}`).value
     };
@@ -146,10 +146,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
       headers: {"authorization": this.token},
       method: "PATCH",
       contentType: "application/json",
-      data: JSON.stringify(data)
+      data: JSON.stringify(edited)
     })
       .done(data => this.updateUi(data))
-      .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
+      .fail((jqXHR, error, message) => { console.log(error); console.log(message); });
 
     // hide the popover
     this.hideToolTip();
@@ -165,9 +165,9 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   }
 
   openEditWithKeyboard(e) {
-	
+
     if (e.keyCode == 32) {
-      this.editCriterion(e)
+      this.editCriterion(e);
     }
   }
 }

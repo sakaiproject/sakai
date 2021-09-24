@@ -34,9 +34,8 @@ public interface LogConfigurationManager
 	 * @param level
 	 *        The logging level - one of: OFF | TRACE | DEBUG | INFO | WARN | ERROR | FATAL | ALL
 	 *        The logger name (such as "org.sakaiproject")
-	 * @return true if successful, false if not (could be a bad level, or a logger that does not exist)
 	 * @throws LogPermissionException
 	 *         if the current end user does not have permission to set the log level.
 	 */
-	boolean setLogLevel(String level, String logger) throws LogPermissionException;
+	void setLogLevel(String level, String logger) throws LogPermissionException;
 }

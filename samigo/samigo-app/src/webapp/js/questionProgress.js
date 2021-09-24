@@ -192,4 +192,10 @@
 		$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		return true;
 	};
+
+	questionProgress.blockLink = function(link) {
+		link.style.pointerEvents = 'none';
+		link.disabled = true;
+		return true;
+	};
 }( window.questionProgress = window.questionProgress || {}, jQuery )) ;

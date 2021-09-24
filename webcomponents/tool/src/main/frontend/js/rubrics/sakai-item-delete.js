@@ -71,11 +71,11 @@ export class SakaiItemDelete extends RubricsElement {
   }
 
   onFocus(e){
-    var criterionRow= e.target.closest('.criterion-row');
+    const criterionRow= e.target.closest('.criterion-row');
     if(criterionRow!=undefined) criterionRow.classList.add("focused");
   }
   focusOut(e){
-    var criterionRow= e.target.closest('.criterion-row');
+    const criterionRow= e.target.closest('.criterion-row');
     if(criterionRow!=undefined) criterionRow.classList.remove("focused");
   }
 
@@ -94,12 +94,12 @@ export class SakaiItemDelete extends RubricsElement {
 
       this.classList.add("show-tooltip");
 
-      var popover = $(`#delete_${this.type}_${this.item.id}`);
+      const popover = $(`#delete_${this.type}_${this.item.id}`);
 
-      var target = this.querySelector(".fa-times");
+      const target = this.querySelector(".fa-times");
 
-      popover[0].style.left = target.offsetLeft - 280 + "px";
-      popover[0].style.top = (target.offsetTop - this.offsetHeight*2 - 10) + "px";
+      popover[0].style.left = `${target.offsetLeft - 280  }px`;
+      popover[0].style.top = `${target.offsetTop - this.offsetHeight*2 - 10  }px`;
 
       $('.btn-danger').focus();
 
@@ -126,9 +126,9 @@ export class SakaiItemDelete extends RubricsElement {
   saveDelete(e) {
 
     e.stopPropagation();
-    var url = "/rubrics-service/rest/rubrics/";
+    let url = "/rubrics-service/rest/rubrics/";
 
-    if ("criterion" === this.type) {
+    if (this.type === "criterion") {
       url += `${this.rubricId}/criterions/${this.criterion.id}`;
     } else {
       url += this.rubric.id;
@@ -145,10 +145,10 @@ export class SakaiItemDelete extends RubricsElement {
               url: `/rubrics-service/rest/evaluations/search/by-association?toolItemRubricAssociationId=${assoc.id}`,
               headers: {"authorization": this.token},
               async: false
-            }).done(data => {
-              if (data._embedded['evaluations'].length) {
-                data._embedded['evaluations'].forEach( rubeval => {
-                  var evalUrl = "/rubrics-service/rest/evaluations/"+rubeval.id;
+            }).done(data1 => {
+              if (data1._embedded.evaluations.length) {
+                data1._embedded.evaluations.forEach( rubeval => {
+                  const evalUrl = `/rubrics-service/rest/evaluations/${rubeval.id}`;
                   $.ajax({
                     url: evalUrl,
                     method: "DELETE",
@@ -161,7 +161,7 @@ export class SakaiItemDelete extends RubricsElement {
                 });
               }
             });
-            var assocUrl = "/rubrics-service/rest/rubric-associations/"+assoc.id;
+            const assocUrl = `/rubrics-service/rest/rubric-associations/${assoc.id}`;
             $.ajax({
               url: assocUrl,
               method: "DELETE",
@@ -177,7 +177,7 @@ export class SakaiItemDelete extends RubricsElement {
     }
 
     $.ajax({
-      url: url,
+      url,
       method: "DELETE",
       headers: {"authorization": this.token},
       contentType: "application/json"
@@ -198,7 +198,7 @@ export class SakaiItemDelete extends RubricsElement {
 
   openEditWithKeyboard(e) {
     if(e.keyCode == 32) {
-      this.deleteItem(e)
+      this.deleteItem(e);
     }
   }
 }

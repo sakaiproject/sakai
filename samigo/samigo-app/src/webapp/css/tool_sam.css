@@ -76,17 +76,45 @@ h4.samigo-category-subhead-2 {
   color: var(--sakai-text-color-1);
 }
 
-.treefolder {
- background-repeat: no-repeat;
- height: 17px;
- width: 26px;
+.treefolder, .treefolder-open, .treedoc {
+ position: relative;
 }
 
-.treedoc {
- background-image: url(../images/file.gif);
- background-repeat: no-repeat;
- height: 17px;
- width: 26px;
+.treefolder:before {
+  content: "\f061";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+}
+
+.treefolder:after {
+  content: "\f07b";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+  margin-left: -15px;
+}
+
+.treefolder-open:before {
+  content: "\f063";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+}
+
+.treefolder-open:after {
+  content: "\f07c";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+  margin-left: -15px;
+}
+
+.treedoc:before {
+  content: "\f114";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
 }
 
 .actionHeader{
@@ -938,7 +966,9 @@ label.inactive
 
 #modifyPartForm fieldset.roundedBorder input[type="text"]
 {
-    width: 30px;
+    box-sizing: content-box; /* content-box is used so we can safely use the "ch" unit to define the number of digits that fit in the field */
+    width: 5ch;
+    text-align: center;
     margin-left: 5px;
     margin-right: 5px;
 }
@@ -1393,6 +1423,19 @@ label#itemForm\:noFeedbackMsg {
 	color: var(--sakai-text-color-disabled);
 }
 
+input#eventLogId\:previousEventPage,
+input#eventLogId\:search {
+	margin-right: 4px;
+}
+
+input#eventLogId\:clear {
+	margin-right: 8px;
+}
+
+div#eventSearchContainer {
+	margin-top: 4px;
+}
+
 .noListStyle {
 	list-style: none;
 	padding-left: 0;
@@ -1473,4 +1516,12 @@ td.stats-correctness {
 
 .feedbackByDatePanel {
   padding-left: 2em;
+}
+
+#autosave-msg {
+	visibility: hidden;
+}
+
+#autosave-lasttime-msg {
+	display: none;
 }

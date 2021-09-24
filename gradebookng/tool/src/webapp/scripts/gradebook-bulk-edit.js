@@ -49,3 +49,59 @@ function disableAndStrikeoutOneRow(deleteBox) {
         titleBox.removeAttribute('style');
     }
 }
+
+var GBBE = GBBE || {};
+
+GBBE.init = function(contentId) {
+    GBBE.$content = $(document.getElementById(contentId));
+    GBBE.$fakeSubmit = $(document.getElementById("gb-bulk-edit-fake-submit"));
+    GBBE.$realSubmit = $(document.getElementById("gb-bulk-edit-real-submit"));
+
+    GBBE.$fakeSubmit.off('click').on('click', GBBE.handleFakeSubmit);
+};
+
+GBBE.showConfirmation = function() {
+    const templateHtml = $("#bulkEditConfirmationModalTemplate").html().trim();
+    const modalTemplate = TrimPath.parseTemplate(templateHtml);
+    const $confirmationModal = $(modalTemplate.process());
+
+    $confirmationModal.one("click", ".gb-bulk-edit-continue", function() {
+        GBBE.performRealSubmit();
+    });
+    $(document.body).append($confirmationModal);
+
+    $confirmationModal.on("hidden.bs.modal", function() {
+        $confirmationModal.remove();
+    });
+    $confirmationModal.on("show.bs.modal", function() {
+        const $formModal = GBBE.$content.closest(".wicket-modal");
+        $confirmationModal.css("marginTop", $formModal.offset().top + 40);
+    });
+
+    $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".gb-bulk-edit-cancel").focus();
+    });
+
+    $confirmationModal.modal().modal('show');
+};
+
+GBBE.performRealSubmit = function() {
+    GBBE.$fakeSubmit.hide();
+    GBBE.$realSubmit.toggleClass("hide");
+    GBBE.$realSubmit.trigger("click");
+    GBBE.$content.find(":input").prop("disabled", true);
+};
+
+GBBE.handleFakeSubmit = function(event) {
+
+    if (document.querySelectorAll(".deleteBox:checked").length > 0) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        GBBE.showConfirmation();
+
+        return false;
+    }
+
+    GBBE.performRealSubmit();
+};

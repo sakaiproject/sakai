@@ -281,10 +281,10 @@ public class MessageBundleServiceImpl implements MessageBundleService {
             return null;
         }
         Query query = sessionFactory.getCurrentSession().getNamedQuery("findProperty");
-        query.setString("basename", mbp.getBaseName());
-        query.setString("module", mbp.getModuleName());
-        query.setString("name", mbp.getPropertyName());
-        query.setString("locale", mbp.getLocale());
+        query.setParameter("basename", mbp.getBaseName());
+        query.setParameter("module", mbp.getModuleName());
+        query.setParameter("name", mbp.getPropertyName());
+        query.setParameter("locale", mbp.getLocale());
         List<MessageBundleProperty> results = (List<MessageBundleProperty>) query.list();
         if (results.size() == 0) {
             if (log.isDebugEnabled()) log.debug("can't find a message bundle property for : " + mbp);
@@ -300,9 +300,9 @@ public class MessageBundleServiceImpl implements MessageBundleService {
 
         if (enabled && loc != null && StringUtils.isNoneBlank(baseName, moduleName)) {
             Query query = sessionFactory.getCurrentSession().getNamedQuery("findPropertyWithNullValue");
-            query.setString("basename", baseName);
-            query.setString("module", moduleName);
-            query.setString("locale", loc.toString());
+            query.setParameter("basename", baseName);
+            query.setParameter("module", moduleName);
+            query.setParameter("locale", loc.toString());
             List<MessageBundleProperty> results = (List<MessageBundleProperty>) query.list();
 
             for (MessageBundleProperty mbp : results) {
@@ -368,7 +368,7 @@ public class MessageBundleServiceImpl implements MessageBundleService {
     @Transactional
     public int revertAll(final String locale) {
        Query query = sessionFactory.getCurrentSession().createQuery("update MessageBundleProperty set value = null where locale = :locale");
-       query.setString("locale", locale);
+       query.setParameter("locale", locale);
 
         try {
             return query.executeUpdate();

@@ -56,6 +56,7 @@ public class Post implements Entity {
     private String siteId;
     private String commonsId;
     private String url = "";
+    private boolean priority;
 
     public Post() {
 
@@ -73,7 +74,7 @@ public class Post implements Entity {
         this.setSiteId(rs.getString("SITE_ID"));
         this.setContent(rs.getString("CONTENT"));
         this.setCreatorId(rs.getString("CREATOR_ID"));
-
+        this.setPriority(rs.getBoolean("PRIORITY"));
         // retrieve time's in UTC since that's how it's stored
         this.setCreatedDate(rs.getTimestamp("CREATED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
         this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());

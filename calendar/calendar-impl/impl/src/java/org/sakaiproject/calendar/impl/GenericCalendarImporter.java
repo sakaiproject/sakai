@@ -47,7 +47,6 @@ import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.impl.readers.CSVReader;
-import org.sakaiproject.calendar.impl.readers.MeetingMakerReader;
 import org.sakaiproject.calendar.impl.readers.OutlookReader;
 import org.sakaiproject.calendar.impl.readers.IcalendarReader;
 import org.sakaiproject.calendar.impl.readers.Reader;
@@ -945,7 +944,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 			// Add our readers. This might be done from a
 			// config file in future versions.
 			readerMap.put(OUTLOOK_IMPORT, OutlookReader.class);
-			readerMap.put(MEETINGMAKER_IMPORT, MeetingMakerReader.class);
 			readerMap.put(CSV_IMPORT, CSVReader.class);
 			readerMap.put(ICALENDAR_IMPORT, IcalendarReader.class);
 		}

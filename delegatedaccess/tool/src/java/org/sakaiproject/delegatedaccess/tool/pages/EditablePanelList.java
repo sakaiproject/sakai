@@ -22,13 +22,12 @@ import java.util.List;
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -68,7 +67,6 @@ public class EditablePanelList  extends Panel
 		editableSpan.setOutputMarkupId(true);
 		final String editableSpanId = editableSpan.getMarkupId();
 		add(editableSpan);
-		
 
 		AjaxLink<Void> saveEditableSpanLink = new AjaxLink<Void>("saveEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
@@ -108,37 +106,20 @@ public class EditablePanelList  extends Panel
 			@Override
 			protected void populateItem(ListItem<ListOptionSerialized[]> item) {
 				ListOptionSerialized wrapper = item.getModelObject()[0];
+				final String toolId = wrapper.getId();
 				item.add(new Label("name", wrapper.getName()));
 				//Auth Checkbox:
-				final CheckBox checkBox = new CheckBox("authCheck", new PropertyModel(wrapper, "selected"));
+				final AjaxCheckBox checkBox = new AjaxCheckBox("authCheck", new PropertyModel(wrapper, "selected")){
+					@Override
+					protected void onUpdate(AjaxRequestTarget target){
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+							nodeModel.setAuthToolRestricted(toolId, getModelObject());
+						}
+					}
+				};
 				checkBox.setOutputMarkupId(true);
 				checkBox.setOutputMarkupPlaceholderTag(true);
 				final String checkBoxId = checkBox.getMarkupId();
-				final String toolId = wrapper.getId();
-				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
-				{
-					protected void onUpdate(AjaxRequestTarget target){
-						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-							nodeModel.setAuthToolRestricted(toolId, isChecked());
-						}
-					}
-
-					private boolean isChecked(){
-						final String value = checkBox.getValue();
-						if (value != null)
-						{
-							try
-							{
-								return Strings.isTrue(value);
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
-						return false;
-					}
-				});
 				item.add(checkBox);
 				if(nodeModel.isPublicToolRestricted(toolId) && !nodeModel.isAuthToolRestricted(toolId)){
 					//disable the auth option because public is already selected (only disable if it's not already selected)
@@ -147,24 +128,20 @@ public class EditablePanelList  extends Panel
 				
 				//Public Checkbox:
 				ListOptionSerialized publicWrapper = item.getModelObject()[1];
-				final CheckBox publicCheckBox = new CheckBox("publicCheck", new PropertyModel(publicWrapper, "selected")){
+				final AjaxCheckBox publicCheckBox = new AjaxCheckBox("publicCheck", new PropertyModel(publicWrapper, "selected")){
 					@Override
 					public boolean isVisible() {
 						return DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType;
 					}
-				};
-				publicCheckBox.setOutputMarkupId(true);
-				final String publicToolId = publicWrapper.getId();
-				publicCheckBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
-				{
+
+					@Override
 					protected void onUpdate(AjaxRequestTarget target){
-						boolean checked = isPublicChecked();
-						
+						final String publicToolId = publicWrapper.getId();
 						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-							nodeModel.setPublicToolRestricted(publicToolId, checked);
+							nodeModel.setPublicToolRestricted(publicToolId, getModelObject());
 						}
 						
-						if(checked){
+						if(getModelObject()){
 							//if public is checked, we don't need the "auth" checkbox enabled (or selected).  Disabled and De-select it
 							checkBox.setModelValue(new String[]{"false"});
 							checkBox.setEnabled(false);
@@ -176,23 +153,8 @@ public class EditablePanelList  extends Panel
 						}
 						target.add(checkBox, checkBoxId);
 					}
-
-					private boolean isPublicChecked(){
-						final String value = publicCheckBox.getValue();
-						if (value != null)
-						{
-							try
-							{
-								return Strings.isTrue(value);
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
-						return false;
-					}
-				});
+				};
+				publicCheckBox.setOutputMarkupId(true);
 				item.add(publicCheckBox);
 
 			}
@@ -259,52 +221,46 @@ public class EditablePanelList  extends Panel
 		}
 		editableSpan.add(editToolsInstructions);
 
-		CheckBox toggleAllPublicCheckbox = new CheckBox("toggleAllPublicCheckboxes", Model.of(Boolean.FALSE));
+		AjaxCheckBox toggleAllPublicCheckbox = new AjaxCheckBox("toggleAllPublicCheckboxes", Model.of(Boolean.FALSE)){
+			@Override
+			protected void onUpdate(AjaxRequestTarget target){
+				List<ListOptionSerialized[]> options = listView.getModelObject();
+
+				for (ListOptionSerialized[] option : options) {
+					if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+							nodeModel.setPublicToolRestricted(option[1].getId(), getModelObject());
+						}
+					if (getModelObject()) {
+							if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+									nodeModel.setAuthToolRestricted(option[0].getId(), false);
+								}
+						}
+				}
+
+				target.add(editableSpan);
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
+			}
+		};
 		toggleAllPublicCheckbox.setVisible(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType);
-		toggleAllPublicCheckbox.add(new AjaxFormComponentUpdatingBehavior("onClick")
-			{
-				protected void onUpdate(AjaxRequestTarget target){
-				Boolean checked = Strings.isTrue(getFormComponent().getValue());
-
-					List<ListOptionSerialized[]> options = listView.getModelObject();
-
-					for (ListOptionSerialized[] option : options) {
-						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
-								nodeModel.setPublicToolRestricted(option[1].getId(), checked);
-							}
-						if (checked) {
-								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
-										nodeModel.setAuthToolRestricted(option[0].getId(), false);
-									}
-							}
-					}
-
-					target.add(editableSpan);
-				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
-			}
-		});
 		editableSpan.add(toggleAllPublicCheckbox);
-		CheckBox toggleAllAuthCheckboxes = new CheckBox("toggleAllAuthCheckboxes", Model.of(Boolean.FALSE));
-		toggleAllAuthCheckboxes.setVisible(true);
-		toggleAllAuthCheckboxes.add(new AjaxFormComponentUpdatingBehavior("onClick")
-			{
-				protected void onUpdate(AjaxRequestTarget target){
-				Boolean checked = Strings.isTrue(getFormComponent().getValue());
+		AjaxCheckBox toggleAllAuthCheckboxes = new AjaxCheckBox("toggleAllAuthCheckboxes", Model.of(Boolean.FALSE)){
+			@Override
+			protected void onUpdate(AjaxRequestTarget target){
+				List<ListOptionSerialized[]> options = listView.getModelObject();
 
-					List<ListOptionSerialized[]> options = listView.getModelObject();
+				for (ListOptionSerialized[] option : options) {
+					if (!nodeModel.isPublicToolRestricted(option[1].getId())) {
+							if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+									nodeModel.setAuthToolRestricted(option[0].getId(), getModelObject());
+								}
+						}
+				}
 
-					for (ListOptionSerialized[] option : options) {
-						if (!nodeModel.isPublicToolRestricted(option[1].getId())) {
-								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
-										nodeModel.setAuthToolRestricted(option[0].getId(), checked);
-									}
-							}
-					}
-
-					target.add(editableSpan);
+				target.add(editableSpan);
 				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
-		});
+		};
+		toggleAllAuthCheckboxes.setVisible(true);
 		editableSpan.add(toggleAllAuthCheckboxes);
 
 	}

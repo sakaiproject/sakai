@@ -19,8 +19,6 @@ import java.util.HashMap;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
@@ -169,7 +167,7 @@ public class SamigoLRSStatements {
     
     private static LRS_Result getLRS_Result(AssessmentGradingData gradingData, PublishedAssessmentIfc publishedAssessment) {
         double score = gradingData.getFinalScore();
-        LRS_Result result = new LRS_Result(score, 0.0, publishedAssessment.getTotalScore(), null);
+        LRS_Result result = new LRS_Result(score, null, publishedAssessment.getTotalScore(), null);
         result.setCompletion(true);
         return result;
     }

@@ -26,34 +26,35 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import lombok.Setter;
+
 /**
  * Utilities based on double and integers such as validation formats.
  */
 public class NumberUtil {
-	
-	/**
-	 * @param origin number that is needed to validate
-	 * @param locale specific geographic location to validate format on origin param  
-	 * @return true if number format is valid for that locale
-	 */
-	public static boolean isValidLocaleDouble(final String origin, Locale locale) {
-		final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(locale);
-		final DecimalFormatSymbols fs = df.getDecimalFormatSymbols();
-		final String doublePattern =
-			"\\d+\\" + fs.getGroupingSeparator() 
-			+ "\\d\\d\\d\\" + fs.getDecimalSeparator()
-			+ "\\d+|\\d+\\" + fs.getDecimalSeparator()
-			+ "\\d+|\\d+\\" + fs.getGroupingSeparator() 
-			+ "\\d\\d\\d|\\d+";
-		return origin.matches(doublePattern);
-	}
 
-	/**
-	 * @param origin origin number that is needed to validate on the default user's locale
-	 * @return true if number format is valid for user's locale
-	 */
-	public static boolean isValidLocaleDouble(final String origin) {
-		return isValidLocaleDouble(origin, new ResourceLoader().getLocale());
-	}
+    @Setter
+    private static ResourceLoader resourceLoader = new ResourceLoader();
 
+    /**
+     * @param origin origin number that is needed to validate on the default user's locale
+     * @return true if number format is valid for user's locale
+     */
+    public static boolean isValidLocaleDouble(final String origin) {
+        final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(resourceLoader.getLocale());
+        final DecimalFormatSymbols fs = df.getDecimalFormatSymbols();
+        final String doublePattern =
+                new StringBuilder()
+                        .append("\\d+\\")
+                        .append(fs.getGroupingSeparator())
+                        .append("\\d\\d\\d\\")
+                        .append(fs.getDecimalSeparator())
+                        .append("\\d+|\\d+\\")
+                        .append(fs.getDecimalSeparator())
+                        .append("\\d+|\\d+\\")
+                        .append(fs.getGroupingSeparator())
+                        .append("\\d\\d\\d|\\d+")
+                        .toString();
+        return origin.matches(doublePattern);
+    }
 }

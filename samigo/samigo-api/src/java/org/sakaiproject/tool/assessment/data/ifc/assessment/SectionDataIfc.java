@@ -33,24 +33,24 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 public interface SectionDataIfc
     extends java.io.Serializable{
 
-  public static String AUTHOR_TYPE= "AUTHOR_TYPE";  // author questions one at a time, or random draw from qpool.
-  public static Integer QUESTIONS_AUTHORED_ONE_BY_ONE= Integer.valueOf(1);
-  public static Integer RANDOM_DRAW_FROM_QUESTIONPOOL= Integer.valueOf(2);
+  public static final String AUTHOR_TYPE= "AUTHOR_TYPE";  // author questions one at a time, or random draw from qpool.
+  public static final Integer QUESTIONS_AUTHORED_ONE_BY_ONE= 1;
+  public static final Integer RANDOM_DRAW_FROM_QUESTIONPOOL= 2;
 
-  public static String QUESTIONS_ORDERING = "QUESTIONS_ORDERING"; // question ordering within a part
-  public static Integer AS_LISTED_ON_ASSESSMENT_PAGE= Integer.valueOf(1);
-  public static Integer RANDOM_WITHIN_PART= Integer.valueOf(2);
-  public static String POOLID_FOR_RANDOM_DRAW = "POOLID_FOR_RANDOM_DRAW";
-  public static String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
-  public static String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
-  public static String QUESTIONS_RANDOM_DRAW_DATE = "QUESTIONS_RANDOM_DRAW_DATE";
+  public static final String QUESTIONS_ORDERING = "QUESTIONS_ORDERING"; // question ordering within a part
+  public static final Integer AS_LISTED_ON_ASSESSMENT_PAGE= 1;
+  public static final Integer RANDOM_WITHIN_PART= 2;
+  public static final String POOLID_FOR_RANDOM_DRAW = "POOLID_FOR_RANDOM_DRAW";
+  public static final String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
+  public static final String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
+  public static final String QUESTIONS_RANDOM_DRAW_DATE = "QUESTIONS_RANDOM_DRAW_DATE";
   
-  public static String RANDOMIZATION_TYPE = "RANDOMIZATION_TYPE";
-  public static String PER_SUBMISSION = "1";
-  public static String PER_STUDENT = "2";
+  public static final String RANDOMIZATION_TYPE = "RANDOMIZATION_TYPE";
+  public static final String PER_SUBMISSION = "1";
+  public static final String PER_STUDENT = "2";
   
-  public static String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
-  public static String DISCOUNT_VALUE_FOR_QUESTION = "DISCOUNT_VALUE_FOR_QUESTION";
+  public static final String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
+  public static final String DISCOUNT_VALUE_FOR_QUESTION = "DISCOUNT_VALUE_FOR_QUESTION";
 
   
    Long getSectionId() ;

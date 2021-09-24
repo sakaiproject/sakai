@@ -223,7 +223,6 @@ $(window).load( function() {
 
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
-  <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -320,13 +319,13 @@ $(window).load( function() {
         <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
         <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
+             <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{partBean.itemContents.size()}"/>
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
              <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
         </h:selectOneMenu>
       </div>
     </div>
     <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
-      <f:param name="itemSequence" value="#{partBean.itemContentsCount}"/>
     </h:commandLink>
 </h:panelGroup>
 
@@ -374,8 +373,8 @@ $(window).load( function() {
 	</h:panelGroup>
 
 	<!--Rubrics icon-->
-	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
-	<h:outputText styleClass="fa fa-table" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa icon-sakai--sakai-rubrics" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 
 
         </h:panelGroup>
@@ -464,10 +463,10 @@ $(window).load( function() {
           <!-- each selectItem stores the itemtype, current sequence -->
           <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);" value="#{itemauthor.itemTypeString}" >
             <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
+            <f:selectItem itemLabel="#{authorMessages.select_qtype}" itemValue="1,#{partBean.number},#{question.itemData.sequence}"/>
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
           </h:selectOneMenu>
           <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
-            <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
           </h:commandLink>
         </div>
       </h:panelGroup>
@@ -539,4 +538,3 @@ $(window).load( function() {
       </body>
     </html>
   </f:view>
-

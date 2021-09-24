@@ -137,7 +137,7 @@
 			<testResource>
 				<directory>${basedir}/src/test</directory>
 				<includes>
-					<include>log4j.properties</include>
+					<include>log4j2.properties</include>
 					<include>hibernate.test.properties</include>
 					<include>hibernate.dataload.properties</include>
 					<include>spring-test.xml</include>

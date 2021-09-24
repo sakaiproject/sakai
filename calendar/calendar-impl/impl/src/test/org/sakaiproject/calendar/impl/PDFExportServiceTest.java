@@ -107,7 +107,7 @@ public class PDFExportServiceTest {
     @Test
     public void testListExport() throws IOException, InterruptedException {
         Document doc = docBuilder.newDocument();
-        TimeRange officeHours = newTimeRange("2007-12-03T09:00:00.00Z", "PT8H");
+        Instant officeHours = Instant.parse("2007-12-03T09:00:00.00Z");
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
@@ -137,7 +137,7 @@ public class PDFExportServiceTest {
     @Test
     public void testDayExport() throws IOException, InterruptedException {
         Document doc = docBuilder.newDocument();
-        TimeRange officeHours = newTimeRange("2007-12-03T09:00:00.00Z", "PT8H");
+        Instant officeHours = Instant.parse("2007-12-03T09:00:00.00Z");
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
@@ -167,7 +167,7 @@ public class PDFExportServiceTest {
     @Test
     public void testWeekExport() throws IOException, InterruptedException {
         Document doc = docBuilder.newDocument();
-        TimeRange officeHours = newTimeRange("2007-12-03T09:00:00.00Z", "PT8H");
+        Instant officeHours = Instant.parse("2007-12-03T09:00:00.00Z");
         // One week.
         TimeRange range = newTimeRange("2007-12-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");
@@ -178,8 +178,8 @@ public class PDFExportServiceTest {
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(new CalendarEventVector());
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class), any(boolean.class))).thenReturn(new CalendarEventVector());
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), any(TimeRange.class))).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
         OpenOption[] options = (deleteFiles) ? new OpenOption[]{DELETE_ON_CLOSE, CREATE} : new OpenOption[]{CREATE};
@@ -197,7 +197,7 @@ public class PDFExportServiceTest {
     @Test
     public void testMonthExport() throws IOException, InterruptedException, TransformerException {
         Document doc = docBuilder.newDocument();
-        TimeRange officeHours = newTimeRange("2007-11-03T09:00:00.00Z", "PT8H");
+        Instant officeHours = Instant.parse("2007-12-03T09:00:00.00Z");
         // One week.
         TimeRange range = newTimeRange("2007-11-03T00:00:00.00Z", "P7D");
         List<String> calendarReferenceList = Collections.singletonList("/calendar/1");

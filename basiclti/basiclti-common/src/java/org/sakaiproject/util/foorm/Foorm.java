@@ -22,6 +22,7 @@
 package org.sakaiproject.util.foorm;
 
 import java.sql.ResultSetMetaData;	
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +34,11 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
@@ -1062,7 +1068,7 @@ public class Foorm {
 
 			// Check the automatically populate empty date fields
 			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
-				java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(
+				Timestamp sqlTimestamp = new Timestamp(
 						new java.util.Date().getTime());
 				if ("updated_at".equals(field) || (forInsert && "created_at".equals(field))) {
 					dataMap.put(field, sqlTimestamp);
@@ -1171,6 +1177,16 @@ public class Foorm {
 				} else {
 					if (dataMap != null)
 						dataMap.put(field, sdf);
+				}
+			}
+
+			if ("date".equals(type) ) {
+				if (sdf == null) {
+					if (dataMap != null)
+						dataMap.put(field, null);
+				} else {
+					if (dataMap != null)
+						dataMap.put(field, getInstantUTC(sdf));
 				}
 			}
 		}
@@ -2124,6 +2140,51 @@ public class Foorm {
 			int recordCount = (endRec - startRec) + 1;
 			return sqlIn + " limit " + startRec + "," + recordCount;
 		}
+	}
+
+	/**
+	 * Deal with the vagaries of date object types returned from this library - all UTC
+	 */
+	// https://www.baeldung.com/java-date-to-localdate-and-localdatetime
+	public static Instant getInstantUTC(Object input)
+	{
+		if ( input == null ) return null;
+
+		String dateString = null;
+		if ( input instanceof LocalDateTime ) {
+			return ((LocalDateTime) input).toInstant(ZoneOffset.UTC);
+		} else if ( input instanceof Timestamp ) {
+			return ((Timestamp) input).toInstant();
+		} else if ( input instanceof Date ) {
+			Date dateToConvert = (Date) input;
+			return dateToConvert.toInstant();
+		} else if ( input instanceof String ) {
+			dateString = (String) input;
+			if ( dateString.trim().length() < 1 ) return null;
+		} else {
+			dateString = input.toString();
+		}
+
+		// https://stackoverflow.com/questions/4024544/how-to-parse-dates-in-multiple-formats-using-simpledateformat
+		String pattern = "[yyyy-MM-dd[['T'][ ]HH:mm:ss[.SSSSSSSz][.SSS[XXX][X]]]]";
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern).withZone(ZoneOffset.UTC);
+			TemporalAccessor accessor = formatter.parse(dateString);
+			return Instant.from(accessor);
+		} catch(Exception e) {
+			return null;
+		}
+
+	}
+
+	/**
+	 * Return now() in the right format to add to a Map to all Foorm routines
+	 */
+	public static String now()
+	{
+		Instant instant = Foorm.getInstantUTC(new Date());
+		String nowStr = instant.toString();
+		return nowStr;
 	}
 
 	/**

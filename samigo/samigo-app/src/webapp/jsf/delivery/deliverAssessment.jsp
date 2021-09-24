@@ -39,7 +39,6 @@
       <script src="/sakai-editor/editor.js"></script>
       <script src="/sakai-editor/editor-launch.js"></script>
       <script src="/samigo-app/js/saveForm.js"></script>
-      <script src="/samigo-app/js/finInputValidator.js"></script>
       <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{studentScores.CDNQuery}" />"></script>
       <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
@@ -250,6 +249,8 @@ document.links[newindex].onclick();
 <h:inputHidden id="formatByAssessment" value="#{delivery.settings.formatByAssessment}"/>
 <h:inputHidden id="lastSubmittedDate1" value="#{delivery.assessmentGrading.submittedDate.time}" 
    rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
+<h:inputHidden id="lastSubmittedDateStr" value="#{delivery.submittedDateString}"
+   rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
@@ -299,14 +300,14 @@ document.links[newindex].onclick();
     <h:column>
     <h4 class="part-header">
         <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-        <small class="part-text">
-            <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
-        </small>
+        <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false" rendered="#{! empty part.nonDefaultText}"/>
         <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
     </h4>
     <h4 class="tier1">
         <small class="part-text">
-            <h:outputText value="#{part.description}" escape="false"/>
+            <h:outputText value="#{part.description}" escape="false">
+              <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
         </small>
     </h4>
 
@@ -319,13 +320,13 @@ document.links[newindex].onclick();
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
 		<h:panelGroup layout="block" styleClass="input-group col-sm-6">
-			<span class="input-group-addon">
+			<p class="input-group-addon">
 				<h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
 				<h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-			</span>
+			</p>
 			<%-- REVIEW ASSESSMENT --%>
 			<h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-			<span class="input-group-addon">
+			<p class="input-group-addon">
 				<%-- REVIEW ASSESSMENT --%>
 				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 				<%-- DELIVER ASSESSMENT --%>
@@ -336,7 +337,7 @@ document.links[newindex].onclick();
 				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
 					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
 				</h:outputText>
-			</span>
+			</p>
 			<h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}" />
 		</h:panelGroup>
 
@@ -349,7 +350,7 @@ document.links[newindex].onclick();
          </sakai-rubric-student>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl'}">
+       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl' || delivery.actionString == 'previewAssessment'}">
            <sakai-rubric-student-preview-button
                 token="<h:outputText value="#{delivery.rbcsToken}" />"
                 tool-id="sakai.samigo"
@@ -458,6 +459,10 @@ document.links[newindex].onclick();
 </h:panelGroup>
 
   <f:verbatim><br/></f:verbatim>
+  <div role="alert" aria-live="polite" aria-atomic="true">
+    <span id="autosave-msg"><h:outputText value="#{deliveryMessages.autosaving}"/></span>
+    <span id="autosave-lasttime-msg"><h:outputText value="#{deliveryMessages.autosaveTime}"/> <span id="autosave-lasttime"></span></span>
+  </div>
 
 <!-- 1. special case: linear + no question to answer -->
 <h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">

@@ -34,41 +34,41 @@ public interface AssessmentAccessControlIfc
     extends java.io.Serializable
 {
   // flag it when no editing on the property is desire
-  public static Integer NO_EDIT = Integer.valueOf(-1);
+  public static final Integer NO_EDIT = -1;
   // timedAssessment
-  public static Integer TIMED_ASSESSMENT = Integer.valueOf(1);
-  public static Integer DO_NOT_TIMED_ASSESSMENT = Integer.valueOf(0);
+  public static final Integer TIMED_ASSESSMENT = 1;
+  public static final Integer DO_NOT_TIMED_ASSESSMENT = 0;
   // autoSubmit
-  public static Integer AUTO_SUBMIT = Integer.valueOf(1);
-  public static Integer DO_NOT_AUTO_SUBMIT = Integer.valueOf(0);
+  public static final Integer AUTO_SUBMIT = 1;
+  public static final Integer DO_NOT_AUTO_SUBMIT = 0;
   // autoSave
-  public static Integer SAVE_ON_CLICK = Integer.valueOf(1);
-  public static Integer AUTO_SAVE = Integer.valueOf(2);
+  public static final Integer SAVE_ON_CLICK = 1;
+  public static final Integer AUTO_SAVE = 2;
   // itemNavigation
-  public static Integer LINEAR_ACCESS = Integer.valueOf(1);
-  public static Integer RANDOM_ACCESS = Integer.valueOf(2);
+  public static final Integer LINEAR_ACCESS = 1;
+  public static final Integer RANDOM_ACCESS = 2;
   // assessmentFormat
-  public static Integer BY_QUESTION = Integer.valueOf(1);
-  public static Integer BY_PART = Integer.valueOf(2);
-  public static Integer BY_ASSESSMENT = Integer.valueOf(3);
+  public static final Integer BY_QUESTION = 1;
+  public static final Integer BY_PART = 2;
+  public static final Integer BY_ASSESSMENT = 3;
   // itemNumbering
-  public static Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
-  public static Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
+  public static final Integer CONTINUOUS_NUMBERING = 1;
+  public static final Integer RESTART_NUMBERING_BY_PART = 2;
   // itemScoreDisplay
-  public static Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(1);
-  public static Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(2);
+  public static final Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = 1;
+  public static final Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = 2;
   //markForReview
-  public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
-  public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);
+  public static final Integer MARK_FOR_REVIEW = 1;
+  public static final Integer NOT_MARK_FOR_REVIEW = 0;
   // submissionsAllowed
-  public static Integer UNLIMITED_SUBMISSIONS_ALLOWED = Integer.valueOf(9999);
-  public static Integer UNLIMITED_SUBMISSIONS = Integer.valueOf(1);
-  public static Integer LIMITED_SUBMISSIONS = Integer.valueOf(0);
+  public static final Integer UNLIMITED_SUBMISSIONS_ALLOWED = 9999;
+  public static final Integer UNLIMITED_SUBMISSIONS = 1;
+  public static final Integer LIMITED_SUBMISSIONS = 0;
   // lateHandling
-  public static Integer ACCEPT_LATE_SUBMISSION = Integer.valueOf(1);
-  public static Integer NOT_ACCEPT_LATE_SUBMISSION = Integer.valueOf(2);
+  public static final Integer ACCEPT_LATE_SUBMISSION = 1;
+  public static final Integer NOT_ACCEPT_LATE_SUBMISSION = 2;
   // group release
-  public static String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";
+  public static final String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";
 
   Long getId();
 

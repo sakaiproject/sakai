@@ -7,19 +7,40 @@
 		<h1>$tlang.getString("multiple.file.upload")</h1>
 	</div>
 	#if ($alertMessage)
-		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
+		<br /><div class="sak-banner-error" id="resourceAlert">$clang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>
+	#else
+		<br /><div id="resourceAlert" class="sak-banner-error hide"></div>
 	#end
 	<p class="instruction">
 		$tlang.getString("instr.upload")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesAction")"  enctype="multipart/form-data">
 		<div id="fileInputDiv" class="form-group">
-			<label>$tlang.getString("label.upload")</label>
+			<label for="MultipleFolderContent">$tlang.getString("label.upload")</label>
 			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="fillDisplayName()"/>
 		</div>
 		<div class="form-group">
 			<label for="displayName">$tlang.getString("label.display")</label> 
 			<input class="form-control" type="text" id="MultipleFolderDisplayName" name="MultipleFolderDisplayName"/>  
+		</div>
+		<div class="form-group">
+			<label for="copyright" style="display: block">$tlang.getString("cright.status.all")</label>
+			<select class="copyrightStatus" name="copyright" id="copyright">
+			#foreach ($copyright in $copyrightTypes)
+				<option value="$copyright.getType()" #if($copyright_defaultType == $copyright.getType())selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >
+					$copyright.getText()
+				</option>
+			#end
+			</select>
+			<small>
+				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
+			</small>
+			<div id="copyright_status" class="hide">
+				<label for="newcopyright">$tlang.getString("cright.info")</label>
+				<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">
+					$validator.escapeHtmlTextarea("$!model.copyrightInfo")
+				</textarea>
+			</div>
 		</div>
 		<div class="form-group">
 		<table class="sidebyside form" cellpadding="0" cellspacing="0" style="margin:0"  role="presentation">
@@ -62,7 +83,7 @@
 		</div>
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="if (checkCopyright(this)){ showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');}" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</p>
@@ -70,6 +91,8 @@
 			
 	</form>
 </div>
+
+#parse("/vm/resources/sakai_properties_scripts.vm")
 
 <script type="text/javascript">
 	$(document).ready (function (){

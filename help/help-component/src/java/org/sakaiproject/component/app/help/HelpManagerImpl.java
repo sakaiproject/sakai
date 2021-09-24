@@ -53,6 +53,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -64,7 +65,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.api.app.help.Category;
@@ -86,8 +86,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -244,7 +242,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		FSDirectory dir = null;
 		try
 		{
-			dir = FSDirectory.open(new File(luceneFolder));
+			dir = FSDirectory.open(new File(luceneFolder).toPath());
 			reader = DirectoryReader.open(dir);
 			IndexSearcher searcher = new IndexSearcher(reader);
 
@@ -265,7 +263,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 		catch (Exception e)
 		{
-			log.error(e.getMessage());
+			log.error("Failed to search resources, {}", e.toString());
 		}
 		finally 
 		{
@@ -274,11 +272,15 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				try {
 					reader.close();
 				} catch (IOException e) {
-					//nothing to do
+					log.error("Failed to close reader, {}", e.toString());
 				}
 			}
 			if (dir != null) {
-				dir.close();
+				try {
+					dir.close();
+				} catch (IOException e) {
+					log.error("Failed to close directory, {}", e.toString());
+				}
 			}
 		}
 		return results;
@@ -295,8 +297,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	protected Set<Resource> searchResources(String queryStr, String defaultField)
 	throws ParseException
 	{
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
-		QueryParser parser = new QueryParser(Version.LUCENE_40, defaultField, analyzer);
+		Analyzer analyzer = new StandardAnalyzer();
+		QueryParser parser = new QueryParser(defaultField, analyzer);
 		Query query = parser.parse(queryStr);
 		return searchResources(query);
 	}
@@ -326,7 +328,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		{
 			for (String context : resource.getContexts())
 			{
-				doc.add(new Field("context", "\"" + context + "\"", Field.Store.YES, Field.Index.NOT_ANALYZED));
+				doc.add(new TextField("context", "\"" + context + "\"", Field.Store.YES));
 			}
 		}
 
@@ -407,12 +409,12 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			if(localFileIsFile) { 
 				resLocation = localFile.getPath();
 			}
-			doc.add(new Field("location", resLocation, Field.Store.YES, Field.Index.NOT_ANALYZED));
+			doc.add(new TextField("location", resLocation, Field.Store.YES));
 		}
 
 
 		//doc.add(Field.Keyword("id", resource.getId().toString()));
-		doc.add(new Field("id", resource.getId().toString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+		doc.add(new TextField("id", resource.getId().toString(), Field.Store.YES));
 
 		if (getRestConfiguration().getOrganization().equals("sakai"))
 		{
@@ -429,7 +431,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			}
 		}
 		//doc.add(Field.Text("content", sb.toString()));
-		doc.add(new Field("content", sb.toString(), Field.Store.YES, Field.Index.ANALYZED));
+		doc.add(new TextField("content", sb.toString(), Field.Store.YES));
 
 		return doc;
 	}
@@ -462,9 +464,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		this.toc.put(DEFAULT_LOCALE, toc);
 	}
 
-	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#storeCategory(org.sakaiproject.api.app.help.Category)
-	 */
 	public void storeCategory(Category category)
 	{
 		getHibernateTemplate().saveOrUpdate(category);
@@ -487,10 +486,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		{
 			public Object doInHibernate(Session session) throws HibernateException
 			{
-				org.hibernate.Query q = session
+				org.hibernate.query.Query q = session
 				.getNamedQuery(QUERY_GETRESOURCEBYDOCID);
 
-				q.setString(DOCID, (docId == null) ? null : docId.toLowerCase());
+				q.setParameter(DOCID, (docId == null) ? null : docId.toLowerCase());
 				if (q.list().size() == 0){
 					return null;
 				}
@@ -511,7 +510,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		initialize();
 		HibernateCallback<List<ResourceBean>> hcb = session -> session
             .getNamedQuery(QUERY_GET_WELCOME_PAGE)
-				.setString(WELCOME_PAGE, "true")
+				.setParameter(WELCOME_PAGE, "true")
 				.list();
 
 		List<ResourceBean> list = getHibernateTemplate().execute(hcb);
@@ -532,9 +531,9 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		{
 			public Object doInHibernate(Session session) throws HibernateException
 			{
-				org.hibernate.Query q = session
+				org.hibernate.query.Query q = session
 				.getNamedQuery(QUERY_GETCATEGORYBYNAME);
-				q.setString(NAME, (name == null) ? name : name.toLowerCase());
+				q.setParameter(NAME, (name == null) ? name : name.toLowerCase());
 				return q.uniqueResult();
 			}
 		};
@@ -733,18 +732,11 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	private void dropExistingContent() {
-		if (log.isDebugEnabled()) {
-			log.debug("dropExistingContent()");
-		}
-
-		TransactionTemplate tt = new TransactionTemplate(txManager);
-		tt.execute(new TransactionCallback() {
-			public Object doInTransaction(TransactionStatus status) {
-				getHibernateTemplate().bulkUpdate("delete CategoryBean");
-				getHibernateTemplate().flush();
-				return null;
-			}
-		});
+		log.debug("Delete existing content from SAKAI_HELP_CATEGORY_T");
+		new TransactionTemplate(txManager).executeWithoutResult((status) ->
+			getHibernateTemplate().execute(session -> session
+					.createQuery("delete CategoryBean")
+					.executeUpdate()));
 	}
 
 	/**
@@ -787,8 +779,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			try
 			{
 				//writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_40), true);
-				FSDirectory directory = FSDirectory.open(new File(luceneIndexPath));
-                IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, new StandardAnalyzer(Version.LUCENE_40));
+				FSDirectory directory = FSDirectory.open(new File(luceneIndexPath).toPath());
+                IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
 
 				writer = new IndexWriter(directory, config);
 			}

@@ -21,7 +21,9 @@
 
 package org.sakaiproject.user.tool;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.any23.encoding.TikaEncodingDetector;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -409,7 +413,7 @@ public class UsersAction extends PagedResourceActionII
 		// add the paging commands
 		int pageSize = Integer.valueOf(state.getAttribute(STATE_PAGESIZE).toString()).intValue();
 		int currentPageNumber = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
-		int startNumber = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
+		int startNumber = state.getAttribute(STATE_TOP_PAGE_MESSAGE) != null ? ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1 : pageSize * (currentPageNumber - 1);
 		int endNumber = pageSize * currentPageNumber;
 
 		int totalNumber = 0;
@@ -1836,31 +1840,15 @@ public class UsersAction extends PagedResourceActionII
 				addAlert(state, rb.getString("import.error"));
 				return;
 			}
-			//SAK-21405 SAK-21884 original parse method, auto maps column headers to bean properties
-			/*
-			HeaderColumnNameTranslateMappingStrategy<ImportedUser> strat = new HeaderColumnNameTranslateMappingStrategy<ImportedUser>();
-			strat.setType(ImportedUser.class);
-
-			//map the column headers to the field names in the ImportedUser class
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("user id", "eid");
-			map.put("first name", "firstName");
-			map.put("last name", "lastName");
-			map.put("email", "email");
-			map.put("password", "password");
-			map.put("type", "type");
-			map.put("properties", "rawProps"); //specially formatted string, see ImportedUser class.
-			
-			strat.setColumnMapping(map);
-
-			CsvToBean<ImportedUser> csv = new CsvToBean<ImportedUser>();
-			List<ImportedUser> list = new ArrayList<ImportedUser>();
-			
-			list = csv.parse(strat, new CSVReader(new InputStreamReader(resource.streamContent())));
-			*/
 			
 			//SAK-21884 manual parse method so we can support arbitrary columns
-			CSVReader reader = new CSVReader(new InputStreamReader(resource.streamContent()));
+			InputStream in = resource.streamContent();
+			String charset = new TikaEncodingDetector().guessEncoding(resource.streamContent());
+			if(StandardCharsets.UTF_8.name().equals(charset)) {
+				in = new BOMInputStream(in);
+			}
+	
+			CSVReader reader = new CSVReader(new InputStreamReader(in, charset));
 		    String [] nextLine;
 		    int lineCount = 0;
 		    List<ImportedUser> list = new ArrayList<ImportedUser>();

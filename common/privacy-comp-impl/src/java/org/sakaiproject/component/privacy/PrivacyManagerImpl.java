@@ -585,9 +585,9 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 
 		HibernateCallback<PrivacyRecord> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
-            q.setString(CONTEXT_ID, contextId);
-            q.setString(USER_ID, userId);
-            q.setString(RECORD_TYPE, recordType);
+            q.setParameter(CONTEXT_ID, contextId);
+            q.setParameter(USER_ID, userId);
+            q.setParameter(RECORD_TYPE, recordType);
             return (PrivacyRecord) q.uniqueResult();
         };
 
@@ -637,9 +637,9 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   	
     HibernateCallback<List<PrivacyRecord>> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE);
-      q.setString(CONTEXT_ID, contextId);
-      q.setBoolean(VIEWABLE, viewable);
-      q.setString(RECORD_TYPE, recordType);
+      q.setParameter(CONTEXT_ID, contextId);
+      q.setParameter(VIEWABLE, viewable);
+      q.setParameter(RECORD_TYPE, recordType);
       return q.list();
     };
 
@@ -655,9 +655,9 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   	
     HibernateCallback<List<PrivacyRecord>> hcb = session -> {
       Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE_IDLIST);
-      q.setString(CONTEXT_ID, contextId);
-      q.setBoolean(VIEWABLE, viewable);
-      q.setString(RECORD_TYPE, recordType);
+      q.setParameter(CONTEXT_ID, contextId);
+      q.setParameter(VIEWABLE, viewable);
+      q.setParameter(RECORD_TYPE, recordType);
       q.setParameterList("userIds", userIds);
       return q.list();
     };
@@ -674,8 +674,8 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 
 	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE);
-		  q.setString(CONTEXT_ID, contextId);
-		  q.setString(RECORD_TYPE, recordType);
+		  q.setParameter(CONTEXT_ID, contextId);
+		  q.setParameter(RECORD_TYPE, recordType);
 		  return q.list();
 	  };
   	
@@ -691,8 +691,8 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 
 	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
 		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE_IDLIST);
-		  q.setString(CONTEXT_ID, contextId);
-		  q.setString(RECORD_TYPE, recordType);
+		  q.setParameter(CONTEXT_ID, contextId);
+		  q.setParameter(RECORD_TYPE, recordType);
 		  q.setParameterList("userIds", userIds);
 		  q.setCacheable(true);
 		  return q.list();

@@ -21,32 +21,27 @@
 
 package org.sakaiproject.profile2.logic;
 
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.search.api.EntityContentProducer;
-import org.sakaiproject.search.api.EntityContentProducerEvents;
-import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

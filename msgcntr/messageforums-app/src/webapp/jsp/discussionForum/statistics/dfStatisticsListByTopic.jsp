@@ -184,7 +184,7 @@
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
 			      		rendered="#{ForumTool.forumsTool}" />
 			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
@@ -255,7 +255,7 @@
 			</h:column>
 			<h:column>
   				<f:facet name="header">
-  					
+					<h:outputText value="#{msgs.stat_forum_details}" />
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" styleClass="font-size: small">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
@@ -306,6 +306,7 @@
   			</h:column>
   			<h:column rendered="#{mfStatisticsBean.selectedAssign == 'Default_0'}">
   				<f:facet name="header">
+					<h:outputText value="#{msgs.cdfm_button_bar_grade}" />
   				</f:facet>
   				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 						onclick="dialogLinkClick(this);">

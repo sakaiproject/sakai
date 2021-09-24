@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -291,6 +292,10 @@ public class SiteStatsTestConfiguration {
         when(resourcesTool.getId()).thenReturn(StatsManager.RESOURCES_TOOLID);
         Set<Tool> tools = new HashSet<>(Arrays.asList(chatTool, resourcesTool));
         when(toolManager.findTools(null, null)).thenReturn(tools);
+        when(toolManager.findTools(Collections.EMPTY_SET, null)).thenReturn(tools);
+        when(toolManager.findTools(Collections.emptySet(), null)).thenReturn(tools);
+        when(toolManager.getTool(FakeData.TOOL_CHAT)).thenReturn(chatTool);
+        when(toolManager.getTool(StatsManager.RESOURCES_TOOLID)).thenReturn(resourcesTool);
         return toolManager;
     }
 

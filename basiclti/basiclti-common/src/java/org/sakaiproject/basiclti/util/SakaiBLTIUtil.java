@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.Key;
+import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -32,7 +33,10 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.TreeMap;
+import java.time.Instant;
+import java.time.Duration;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -70,6 +74,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -79,6 +84,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.util.SakaiDeepLink;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
@@ -137,6 +143,12 @@ public class SakaiBLTIUtil {
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
 	public static final String LTI_CUSTOM_SUBSTITION_PREFIX =  "lti.custom.substitution.";
+	// SAK-45491 - Key rotation interval
+	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS = "lti.advantage.key.rotation.days";
+	public static final String LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT = "30";
+	// SAK-45951 - Control post verify feature - default off
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED = "lti.advantage.post.verify.enabled";
+	public static final String LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT = "false";
 
 	// These are the field names in old school portlet placements
 	public static final String BASICLTI_PORTLET_KEY = "key";
@@ -400,7 +412,7 @@ public class SakaiBLTIUtil {
 			}
 
 			// Never double encrypt
-			String check = decryptSecret(orig, encryptionKey);
+			String check = decryptSecret(orig, encryptionKey, true);
 			if ( ! orig.equals(check) ) {
 				return orig;
 			}
@@ -412,10 +424,10 @@ public class SakaiBLTIUtil {
 
 		public static String decryptSecret(String orig) {
 			String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
-			return decryptSecret(orig, encryptionKey);
+			return decryptSecret(orig, encryptionKey, false);
 		}
 
-		public static String decryptSecret(String orig, String encryptionKey) {
+		public static String decryptSecret(String orig, String encryptionKey, boolean checkonly) {
 			if (StringUtils.isEmpty(orig) || StringUtils.isEmpty(encryptionKey) ) {
 				return orig;
 			}
@@ -424,7 +436,7 @@ public class SakaiBLTIUtil {
 				String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
 				return newsecret;
 			} catch (RuntimeException re) {
-				log.debug("Exception when decrypting secret - this is normal if the secret is unencrypted");
+				if ( ! checkonly ) log.debug("Exception when decrypting secret - this is normal if the secret is unencrypted");
 				return orig;
 			}
 		}
@@ -516,6 +528,12 @@ public class SakaiBLTIUtil {
 			setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
 			setProperty(lti13subst, LTICustomVars.USER_USERNAME, user.getEid());
 			setProperty(lti13subst, LTICustomVars.PERSON_SOURCEDID, user.getEid());
+
+			UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+			TimeZone tz = userTimeService.getLocalTimeZone(user.getId());
+			if (tz != null) {
+				setProperty(lti13subst, LTICustomVars.PERSON_ADDRESS_TIMEZONE, tz.getID());
+			}
 
 			if (releasename == 1) {
 				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_NAME_GIVEN, user.getFirstName());
@@ -1890,6 +1908,12 @@ public class SakaiBLTIUtil {
 				"data": "csrftoken:c7fbba78-7b75-46e3-9201-11e6d5f36f53"
 			*/
 
+			// Add post-launch call back claim
+			if ( checkSendPostVerify() ) {
+				lj.origin = getOurServerUrl();
+				lj.postverify = getOurServerUrl() + LTI13_PATH + "postverify/" + signed_placement;
+			}
+
 			if ( deepLink ) {
 				SakaiDeepLink ci = new SakaiDeepLink();
 				// accept_copy_advice is not in deep linking - files are to be copied - images maybe
@@ -1989,9 +2013,11 @@ public class SakaiBLTIUtil {
 			}
 			html += "    </form>\n";
 
+
 			if ( ! dodebug ) {
 				String launch_error = rb.getString("error.submit.timeout")+" "+launch_url;
 				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending prelaunch request');\n";
 				html += "setTimeout(function() { document.getElementById(\"jwt-launch-" + form_id + "\").submit(); }, 200 );\n";
 				html += "setTimeout(function() { alert(\""+BasicLTIUtil.htmlspecialchars(launch_error)+"\"); }, 4000);\n";
 				html += "</script>\n";
@@ -2003,6 +2029,9 @@ public class SakaiBLTIUtil {
 						+ "</p>\n<p>\n--- Encoded JWT:<br/>"
 						+ BasicLTIUtil.htmlspecialchars(jws)
 						+ "</p>\n";
+				html += "<script>\n";
+				html += "parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('Sending debug prelaunch request');\n";
+				html += "</script>\n";
 			}
 			String[] retval = {html, launch_url};
 			return retval;
@@ -2732,6 +2761,27 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
+	/**
+	 * sendPostVerify - Check if we are supposed to send the postVerify Claims
+	 */
+	public static boolean checkSendPostVerify()
+	{
+		String postVerify = ServerConfigurationService.getString(
+		    LTI_ADVANTAGE_POST_VERIFY_ENABLED, LTI_ADVANTAGE_POST_VERIFY_ENABLED_DEFAULT);
+		return "true".equals(postVerify);
+	}
+
+	/**
+	 * addSakaiBaseCapabilities - Add a list of Sakai base capabilities to a URL under construction
+	 *
+	 * There may be additional capabilities available through an org.imsglobal.lti.capabilities message.
+	 * These are the commonly available capabilities to all LTI placements, comma separated.
+	 */
+
+	public static void addSakaiBaseCapabilities(URIBuilder redirect) {
+		redirect.addParameter("sakai_base_capabilities", "org.imsglobal.lti.capabilities,org.imsglobal.lti.put_data,org.imsglobal.lti.get_data");
+	}
+
 	public static boolean isPlacement(String placement_id) {
 		if (placement_id == null) {
 			return false;
@@ -3047,6 +3097,87 @@ public class SakaiBLTIUtil {
 
 		Object result = ltiService.insertContent(contentProps, siteId);
 		return result;
+	}
+
+	/**
+	 * rotateToolKeys - If necessary - rotate tool keys
+	 *
+	 * This is controlled by a sakai.property
+	 *
+	 * lti.advantage.key.rotation.days=30
+	 *
+	 * For positive numbers this is the number of days before rotation happens
+	 * For negative numbers it is the number of minutes before rotation happens (for testing)
+	 * If it is zero, no rotation happens
+	 *
+	 */
+	// SAK-45491 - Support LTI 1.3 Key Rotation
+	public static void rotateToolKeys(Long toolKey, Map<String, Object> tool)
+	{
+		// Get services
+		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
+			(org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
+
+		String daysStr = serverConfigurationService.getString(LTI_ADVANTAGE_KEY_ROTATION_DAYS, LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT);
+		int days = LTI13Util.getInt(daysStr);
+		if ( days == 0 ) return;
+
+		Instant now = Instant.now();
+		Instant nextInstant = Foorm.getInstantUTC(tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT));
+
+		Map<String, Object> updates = new TreeMap<String, Object>();
+
+		// Generate next Keypair in case we update
+		KeyPair kp = LTI13Util.generateKeyPair();
+		String pub = LTI13Util.getPublicEncoded(kp);
+		String priv = LTI13Util.getPrivateEncoded(kp);
+		priv = SakaiBLTIUtil.encryptSecret(priv);
+		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, pub);
+		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, priv);
+
+		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT, Foorm.now());
+		String siteId = null; // bypass
+
+		if ( nextInstant == null ) {
+			Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
+			if ( retval instanceof String) {
+				log.error("Could not update tool={} retval={}", toolKey, retval);
+			} else if ( nextInstant == null ) {
+				log.info("Created future keys for tool={}", toolKey);
+			}
+		} else {
+			long deltaDays = Duration.between(now, nextInstant).abs().toDays();
+			long deltaMinutes = Duration.between(now, nextInstant).abs().toMinutes();
+
+			// Should we rotate?
+			if ( ( days > 0 && deltaDays >= days ) || ( days < -1 && deltaMinutes >= (-1*days) ) ) {
+
+				// Only rotate next->current if next already contains valid values
+				String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
+				String privateSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE_NEXT));
+				Key publicKeyNext = LTI13Util.string2PublicKey(publicSerializedNext);
+				// Key privateKeyNext = (privateSerializedNext == null) ? null : LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
+				Key privateKeyNext = LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
+
+				if ( publicKeyNext != null && privateKeyNext != null ) {
+					String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+
+					updates.put(LTIService.LTI13_PLATFORM_PUBLIC, publicSerializedNext);
+					updates.put(LTIService.LTI13_PLATFORM_PRIVATE, privateSerializedNext);
+					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD, publicSerializedCurrent);
+					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD_AT, Foorm.now());
+				}
+
+				// If the next key is somehow broken, at least we update the next values
+				Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
+				if ( retval instanceof String) {
+					log.error("Could not update tool={} retval={}", toolKey, retval);
+				} else {
+					log.info("Rotated keys for tool={} days={} delta={}", toolKey, days, deltaDays);
+				}
+			}
+		}
 	}
 
 	public static Long getLong(Object key) {

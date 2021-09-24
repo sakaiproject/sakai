@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -54,7 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 @Slf4j
 public class PublishedItemData
     implements java.io.Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
-  static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
+  private static final ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;
 

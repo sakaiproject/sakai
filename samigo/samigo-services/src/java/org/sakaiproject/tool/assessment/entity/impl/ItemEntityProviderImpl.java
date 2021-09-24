@@ -107,10 +107,8 @@ public class ItemEntityProviderImpl implements ItemEntityProvider,CoreEntityProv
 
 
     public List<String> questionPoolIds(ItemFacade item) {
-        Long itemID = item.getItemId();
-        String itemIdSting = itemID.toString();
-        List questionPoolIdsItem = questionPoolFacadeQueries.getPoolIdsByItem(itemIdSting);
-        List<String> questionPoolIds = new ArrayList<String>();
+        List questionPoolIdsItem = questionPoolFacadeQueries.getPoolIdsByItem(item.getItemId());
+        List<String> questionPoolIds = new ArrayList<>();
         if (!(questionPoolIdsItem).isEmpty()){
             Iterator iterator = questionPoolIdsItem.iterator();
             while (iterator.hasNext()){

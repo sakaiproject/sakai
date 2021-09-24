@@ -14,9 +14,9 @@
         #end
     </ol>
     #if ($itemAlertMessage)
-        <div class="sak-banner-success">$itemAlertMessage</div>
+        <div  id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>
     #else
-        <div class="sak-banner-error" style="display:none"></div>
+        <div  id="resourceAlert" class="sak-banner-error hide"></div>
     #end
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
@@ -70,61 +70,18 @@
             </div>
         </fieldset>
 
-        #if ($model.resourceTypeDef.hasNotificationDialog())
-            #if($model.isDropbox())
-                ## SAK-18932 show email checkbox only when possible to use it
-                #if($dropboxNotificationAllowed)
-                    <p class="act">
-                        <input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
-                        <label for="notify_dropbox">
-                            #if($model.isCourseSite())
-                                #if($model.userIsMaintainer())
-                                    $tlang.getString("notify.student")
-                                #else
-                                    $tlang.getString("notify.instructor")
-                                #end
-                            #else
-                                #if($model.userIsMaintainer())
-                                    $tlang.getString("notify.access")
-                                #else
-                                    $tlang.getString("notify.maintain")
-                                #end
-                            #end
-                        </label>
-                    </p>
-                #end
-            #else
-                <div class="form">
-                    #if(!$model.isUserSite())
-                        #if($availability_is_enabled)
-                            <fieldset>
-                                <legend><h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4></legend>
-                                <div class="form-group">
-                                    <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
-                                    <label for="hidden_false">$tlang.getString("avail.show40")</label>
-                                    <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
-                                    <label for="hidden_true">$tlang.getString("avail.hide40")</label>
-                                </div>
-                            </fieldset>
-                        #end
-                        <div class="form-group">
-                            <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
-                            <select name="notify" id="notify" #if($upload_visibility_hidden) title="$tlang.getString('gen.email.disabled')" disabled #end>
-                                #if ($noti)
-                                    <option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
-                                    <option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
-                                    <option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("gen.email4")</option>
-                                #else
-                                    <option value="r">$tlang.getString("gen.email2")</option>
-                                    <option value="o">$tlang.getString("gen.email3")</option>
-                                    <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-                                #end
-                            </select>
-                        </div>
-                    #end
+        #if ($model.resourceTypeDef.hasNotificationDialog() && !$model.isUserSite() && $availability_is_enabled)
+            <fieldset>
+                <legend><h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4></legend>
+                <div class="form-group">
+                    <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
+                    <label for="hidden_false">$tlang.getString("avail.show40")</label>
+                    <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
+                    <label for="hidden_true">$tlang.getString("avail.hide40")</label>
                 </div>
-            #end
+            </fieldset>
         #end
+
         <p class="act">
             <input type="button" class="active" name="finish" id="finish" disabled=true
                 onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';"
@@ -133,6 +90,41 @@
             <input type="button" name="cancel" 
                 onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');"
                 value="$tlang.getString("label.cancel")" accesskey="x" />
+
+            #if ($model.resourceTypeDef.hasNotificationDialog())
+                ## SAK-18932 show email checkbox only when possible to use it
+                #if($model.isDropbox() && $dropboxNotificationAllowed)
+                    <input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
+                    <label for="notify_dropbox">
+                        #if($model.isCourseSite())
+                            #if($model.userIsMaintainer())
+                                $tlang.getString("notify.student")
+                            #else
+                                $tlang.getString("notify.instructor")
+                            #end
+                        #else
+                            #if($model.userIsMaintainer())
+                                $tlang.getString("notify.access")
+                            #else
+                                $tlang.getString("notify.maintain")
+                            #end
+                        #end
+                    </label>
+                #elseif(!$model.isUserSite())
+                    <label for="notify">$tlang.getString("gen.email1")</label>
+                    <select name="notify" id="notify" #if($upload_visibility_hidden) title="$tlang.getString('gen.email.disabled')" aria-label="$tlang.getString('gen.email.disabled')" disabled #else title="$tlang.getString("gen.email.help")" aria-label="$tlang.getString("gen.email.help")" #end>
+                        #if ($noti)
+                            <option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
+                            <option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
+                            <option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("gen.email4")</option>
+                        #else
+                            <option value="r">$tlang.getString("gen.email2")</option>
+                            <option value="o">$tlang.getString("gen.email3")</option>
+                            <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+                        #end
+                    </select>
+                #end
+            #end
         </p>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>

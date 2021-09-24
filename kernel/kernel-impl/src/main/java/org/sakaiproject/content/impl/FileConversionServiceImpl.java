@@ -42,9 +42,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +57,7 @@ public class FileConversionServiceImpl implements FileConversionService {
     @Autowired private FileConversionServiceRepository repository;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
+    @Setter private TransactionTemplate transactionTemplate;
 
     private String converterBaseUrl;
     private boolean conversionEnabled;
@@ -132,12 +133,18 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                         workers.submit(() -> {
 
-                            log.debug("Setting item with ref {} to IN_PROGRESS ...", ref);
-                            item.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
-                            item.setAttempts(item.getAttempts() + 1);
-                            item.setLastAttemptStarted(Instant.now());
+                            // This should update the item to IN_PROGRESS and flush the change so
+                            // that other workers can see it. This is the mutex, in effect.
+                            transactionTemplate.executeWithoutResult(status -> {
+                                log.debug("Setting item with ref {} to IN_PROGRESS ...", ref);
 
-                            FileConversionQueueItem inProgressItem = repository.save(item);
+                                repository.findById(item.getId()).ifPresent(inProgressItem -> {
+                                    inProgressItem.setStatus(FileConversionQueueItem.Status.IN_PROGRESS);
+                                    inProgressItem.setAttempts(inProgressItem.getAttempts() + 1);
+                                    inProgressItem.setLastAttemptStarted(Instant.now());
+                                    repository.save(inProgressItem);
+                                });
+                            });
 
                             try {
                                 String convertedFileName = FilenameUtils.getBaseName(ref) + ".pdf";
@@ -159,15 +166,20 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                                 log.debug("Deleting item with ref {}. It's been successfully converted.", ref);
 
-                                repository.deleteById(inProgressItem.getId());
+                                // We just want to hard delete it here. No need to requery.
+                                transactionTemplate.executeWithoutResult(status -> repository.delete(item));
                             } catch (Exception e) {
-                                // Too many attempts. Do not try again.
-                                if (inProgressItem.getAttempts() > maxAttemptsAllowed) {
-                                    inProgressItem.setStatus(FileConversionQueueItem.Status.INVALID);
-                                } else {
-                                    inProgressItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
-                                }
-                                repository.save(inProgressItem);
+                                transactionTemplate.executeWithoutResult(status -> {
+                                    repository.findById(item.getId()).ifPresent(failedItem -> {
+                                        if (failedItem.getAttempts() > maxAttemptsAllowed) {
+                                            // Too many attempts. Do not try again.
+                                            failedItem.setStatus(FileConversionQueueItem.Status.FAILED);
+                                        } else {
+                                            failedItem.setStatus(FileConversionQueueItem.Status.NOT_STARTED);
+                                        }
+                                        repository.save(failedItem);
+                                    });
+                                });
                                 log.error("Call to conversion service failed", e);
                             } finally {
                                 securityService.popAdvisor(securityAdvisor);

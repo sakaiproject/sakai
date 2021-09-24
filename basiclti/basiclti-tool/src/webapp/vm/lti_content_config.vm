@@ -45,6 +45,7 @@ $tlang.getString("need.tool.info")
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="tool_id" value="$tool_id" />
                 <input type="hidden" name="flow" value="$flow" />
+                <input type="hidden" name="secretonly" value="$secretonly" />
 #if ( $returnUrl ) 
                 <input type="hidden" name="returnUrl" value="$returnUrl" />
 #end
@@ -64,6 +65,13 @@ $tlang.getString("content.admin.note")
 #if ( ! $isAdmin )
 <script>
 $(document).ready( function() {
+#if ( $secretonly == 'true' ) 
+    $("#description-input").hide();
+    $("#title-input").hide();
+    $("#pagetitle-input").hide();
+    $("#custom-input").hide();
+    $("#launch-input").hide();
+#end
         ## Does nothing if we are not in a frame of the right name
         setMainFrameHeight('sakai-basiclti-admin-iframe');
         $(window).resize( function() {

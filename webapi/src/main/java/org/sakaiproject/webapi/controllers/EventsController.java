@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-import io.swagger.annotations.ApiOperation;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.codec.ServerSentEvent;
@@ -58,7 +56,6 @@ public class EventsController extends AbstractSakaiApiController {
     @Resource
     private MessagingService messagingService;
 
-    @ApiOperation(value = "Get a stream of events for a particular user")
     @GetMapping("/users/{userId}/events")
     public Flux<ServerSentEvent<String>> streamEvents() {
 

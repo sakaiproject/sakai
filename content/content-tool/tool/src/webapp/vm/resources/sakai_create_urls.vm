@@ -61,7 +61,9 @@
 					<div class="form-group">
 						<span class="reqStar">*</span>
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
-						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512"/>
+						<input type="url" id="content${DOT}$i" name="content${DOT}$i" class="form-control" maxlength="512" 
+							pattern="[Hh][Tt][Tt][Pp][Ss]?:\/\/(?:(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)(?:\.(?:[a-zA-Z\u00a1-\uffff0-9]+-?)*[a-zA-Z\u00a1-\uffff0-9]+)*(?:\.(?:[a-zA-Z\u00a1-\uffff]{2,}))(?::\d{2,5})?(?:\/[^\s]*)?"
+						/>
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
 							<span class="fa fa-times" aria-hidden="true"></span>
@@ -80,36 +82,34 @@
 		</div>
 		<p><a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a><br></p>
 
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			#if($model.isDropbox())
-			    ## SAK-18932 show email checkbox only when possible to use it
-				#if($dropboxNotificationAllowed)
-					<p class="act">
-						<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
-						<label for="notify_dropbox">
-							#if($model.isCourseSite())
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.student")
-								#else
-									$tlang.getString("notify.instructor")
-								#end
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" />
+			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+
+			#if ($model.resourceTypeDef.hasNotificationDialog())
+				## SAK-18932 show email checkbox only when possible to use it
+				#if($model.isDropbox() && $dropboxNotificationAllowed)
+					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" />
+					<label for="notify_dropbox">
+						#if($model.isCourseSite())
+							#if($model.userIsMaintainer())
+								$tlang.getString("notify.student")
 							#else
-								#if($model.userIsMaintainer())
-									$tlang.getString("notify.access")
-								#else
-									$tlang.getString("notify.maintain")
-								#end
+								$tlang.getString("notify.instructor")
 							#end
-						</label>
-					</p>
-				#end
-			#elseif($model.isUserSite())
-			#else
-				<div class="form-group">
+						#else
+							#if($model.userIsMaintainer())
+								$tlang.getString("notify.access")
+							#else
+								$tlang.getString("notify.maintain")
+							#end
+						#end
+					</label>
+				#elseif(!$model.isUserSite())
 					<label for="notify">
 						$tlang.getString("gen.email1")
-					</label>	
-					<select name="notify" id="notify">
+					</label>
+					<select name="notify" id="notify" title="$tlang.getString("gen.email.help")" aria-label="$tlang.getString("gen.email.help")">
 						#if ($noti)
 							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
 							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
@@ -118,15 +118,10 @@
 							<option value="r">$tlang.getString("gen.email2")</option>
 							<option value="o">$tlang.getString("gen.email3")</option>
 							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-						#end							
+						#end
 					</select>
-				</p>	
+				#end
 			#end
-		#end
-		
-		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" value="$tlang.getString("label.urlnow")" accesskey="s" disabled />
-			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.url")</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

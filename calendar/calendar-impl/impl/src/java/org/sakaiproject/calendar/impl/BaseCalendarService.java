@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -214,14 +215,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/**
 	 * @inheritDoc
 	 */
-	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
-			String userName, TimeRange dailyTimeRange, boolean reverseOrder)
-	{
+	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString, String userName, boolean reverseOrder) {
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_PDF + Entity.SEPARATOR + context + Entity.SEPARATOR + id
 				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(Integer.valueOf(scheduleType).toString()) + "&"
 				+ TIME_RANGE_PARAMETER_NAME + "=" + timeRangeString + "&"
 				+ Validator.escapeHtml(USER_NAME_PARAMETER_NAME) + "=" + Validator.escapeUrl(userName) + "&"
-				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString()) + "&"
 				+ ORDER_EVENTS_PARAMETER_NAME + "=" + reverseOrder;
 	}
 
@@ -5160,34 +5158,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * PDF file generation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-
-
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
 	protected final static String ICAL_MIME_TYPE = "text/calendar";
 
-
-
-
-
-
 	// URL Parameter Constants
 	protected static final String TIME_RANGE_PARAMETER_NAME = "timeRange";
-
-	protected static final String DAILY_START_TIME_PARAMETER_NAME = "dailyStartTime";
-
 	protected final static String USER_NAME_PARAMETER_NAME = "user";
-
 	protected final static String CALENDAR_PARAMETER_BASE_NAME = "calendar";
-
 	protected final static String SCHEDULE_TYPE_PARAMETER_NAME = "scheduleType";
-	
+	protected final static String SELECTED_CALENDAR_DATE_PARAMETER_NAME = "selectedCalendarDate";	
 	protected final static String ORDER_EVENTS_PARAMETER_NAME = "order";
-
-
-
-
-
 
 	/**
 	 * Debugging routine to get a string for a TimeRange. This should probably be in the TimeRange class.
@@ -5305,22 +5286,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		return m_timeService.newTimeRange(startTime,endTime,true,true);
 	}
-	
-
-	/*
-	 * Gets the daily start time parameter from a Properties object filled from URL parameters.
-	 */
-	protected TimeRange getDailyStartTimeFromParameters(Properties parameters)
-	{
-		return getTimeRangeParameterByName(parameters, DAILY_START_TIME_PARAMETER_NAME);
-	}
-
 
 	/**
 	 * Gets the schedule type from a Properties object (filled from a URL parameter list).
 	 */
-	protected int getScheduleTypeFromParameterList(Properties parameters)
-	{
+	protected int getScheduleTypeFromParameterList(Properties parameters) {
 		int scheduleType = UNKNOWN_VIEW;
 
 		// Get the type of schedule (daily, weekly, etc.)
@@ -5328,6 +5298,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		scheduleType = Integer.parseInt(scheduleTypeString);
 
 		return scheduleType;
+	}
+
+	/**
+	 * Gets the schedule type from a Properties object (filled from a URL parameter list).
+	 */
+	protected Instant getSelectedCalendarDateFromParameterList(Properties parameters) {
+		// Get the selected calendar date in ISO format
+		// Example 2021-08-06T08:22:27.789Z
+		String selectedCalendarDate = (String) parameters.get(SELECTED_CALENDAR_DATE_PARAMETER_NAME);
+		if (StringUtils.isBlank(selectedCalendarDate)) {
+			return null;
+		}		
+		Instant selectedCalendarInstant = Instant.parse(selectedCalendarDate);
+		return selectedCalendarInstant;
 	}
 
 	/**
@@ -5437,39 +5421,35 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
            log.warn(".printICalSchedule(): ", e);
 		}
 	}
-	
+
 	/**
 	 * Called by the servlet to service a get/post requesting a calendar in PDF format.
 	 */
-	protected void printSchedule(Properties parameters, OutputStream os) throws PermissionException
-	{
-      //		 Get the user name.
+	protected void printSchedule(Properties parameters, OutputStream os) throws PermissionException {
+		// Get the user name.
 		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
 
 		// Get the list of calendars.from user session
 		List calendarReferenceList = getCalendarReferenceList();
-		
+
 		// Get the type of schedule (daily, weekly, etc.)
 		int scheduleType = getScheduleTypeFromParameterList(parameters);
 
-		// Now get the time range.
+		// Get the selected calendar instant
+		Instant selectedCalendarInstant = this.getSelectedCalendarDateFromParameterList(parameters);
+
+		// Now get the time range, the time range is only used by the OLD VIEW list, none of the new full calendar views use it.
 		TimeRange timeRange = getTimeRangeFromParameters(parameters);
-		
+
 		// Now get the order
 		boolean reverseOrder = Boolean.parseBoolean( (String) parameters.get(ORDER_EVENTS_PARAMETER_NAME) );
 
 		Document document = docBuilder.newDocument();
 
-		pdfExportService.generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
-				calendarReferenceList, userName, this, reverseOrder);
-
+		pdfExportService.generateXMLDocument(scheduleType, document, timeRange, selectedCalendarInstant, calendarReferenceList, userName, this, reverseOrder);
 		pdfExportService.generatePDF(document, pdfExportService.getXSLFileNameForScheduleType(scheduleType), os);
 	}
 
-   
-
-   
-   
    /**
 	 * Get a DefaultHandler so that the StorageUser here can parse using SAX events.
 	 * 

@@ -30,16 +30,16 @@ public interface AttachmentIfc
     extends Serializable{
 
   // This three parameters are for SAM_ATTACHMENT_T table	
-  public static Long ASSESSMENT_ATTACHMENT = Long.valueOf(1);
-  public static Long SECTION_ATTACHMENT = Long.valueOf(2);
-  public static Long ITEM_ATTACHMENT = Long.valueOf(3);
+  public static final Long ASSESSMENT_ATTACHMENT = 1L;
+  public static final Long SECTION_ATTACHMENT = 2L;
+  public static final Long ITEM_ATTACHMENT = 3L;
   //This parameter is for SAM_GRADINGATTACHMENT_T table
-  public static Long ITEMGRADING_ATTACHMENT = Long.valueOf(1);
-  public static Long ASSESSMENTGRADING_ATTACHMENT = Long.valueOf(4);
+  public static final Long ITEMGRADING_ATTACHMENT = 1L;
+  public static final Long ASSESSMENTGRADING_ATTACHMENT = 4L;
   
-  public static Long ITEM_TEXT_ATTACHMENT = Long.valueOf(5);//for EMI sub-item attachments 
-  public static Integer ACTIVE_STATUS = Integer.valueOf(1);
-  public static Integer INACTIVE_STATUS = Integer.valueOf(0);
+  public static final Long ITEM_TEXT_ATTACHMENT = 5L;//for EMI sub-item attachments
+  public static final Integer ACTIVE_STATUS = 1;
+  public static final Integer INACTIVE_STATUS = 0;
 
   Long getAttachmentId();
 

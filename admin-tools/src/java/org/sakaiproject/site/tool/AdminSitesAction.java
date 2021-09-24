@@ -478,7 +478,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// add the paging commands
 		int pageSize = Integer.valueOf(state.getAttribute(STATE_PAGESIZE).toString()).intValue();
 		int currentPageNumber = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
-		int startNumber = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
+		int startNumber = state.getAttribute(STATE_TOP_PAGE_MESSAGE) != null ? ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1 : pageSize * (currentPageNumber - 1);
 		int endNumber = pageSize * currentPageNumber;
 
 		int totalNumber = 0;

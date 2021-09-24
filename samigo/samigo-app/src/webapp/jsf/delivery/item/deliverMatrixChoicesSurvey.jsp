@@ -37,8 +37,10 @@ should be included in file importing DeliveryMessages
 </script>
 <h:messages layout="table" styleClass="error"/>
 
- <h:outputText value="#{question.itemData.text}"  escape="false"/>
- 
+ <h:outputText value="#{question.itemData.text}"  escape="false">
+  <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+</h:outputText>
+
   <f:verbatim><br /></f:verbatim>
   
   <!-- ATTACHMENTS -->

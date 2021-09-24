@@ -51,7 +51,6 @@ function textCounter(field, maxlimit) {
           <script>
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);
-                  flagRows();
               }
               function initPage()
               {
@@ -67,28 +66,34 @@ function textCounter(field, maxlimit) {
           </script>
       </head>
 
-<f:verbatim><body onload="checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
+<f:verbatim><body onload="checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
   
 <div class="portletBody container-fluid">
 <h:form id="editform">
   <!-- HEADINGS -->
   <%@ include file="/jsf/questionpool/questionpoolHeadings.jsp" %>
 
-<!-- dataLine here is not working -->
 <br />
-<samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
-   separator=" > " first="0" rows="100" >
-  <h:column>
-    <h:commandLink action="#{questionpool.editPool}"  immediate="true">
-      <h:outputText value="#{parent.displayName}" escape="false"/>
-      <f:param name="qpid" value="#{parent.questionPoolId}"/>
-    </h:commandLink>
-  </h:column>
-</samigo:dataLine>
-
-<h:outputText rendered="#{questionpool.currentPool.showParentPools}" value=" > " />
-<h:outputText rendered="#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.displayName}"/>
-
+<h:panelGroup rendered="#{questionpool.currentPool.showParentPools}">
+  <ol class="breadcrumb">
+    <li>
+      <h:outputText value="#{authorMessages.global_nav_pools}" />
+    </li>
+    <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100" >
+      <h:column>
+        <li>
+          <h:commandLink action="#{questionpool.editPool}" immediate="true">
+            <h:outputText value="#{parent.displayName}" escape="false"/>
+            <f:param name="qpid" value="#{parent.questionPoolId}"/>
+          </h:commandLink>
+        </li>
+      </h:column>
+    </samigo:dataLine>
+    <li>
+      <h:outputText value="#{questionpool.currentPool.displayName}"/>
+    </li>
+  </ol>
+</h:panelGroup>
 <div class="page-header">
   <h1>
     <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>

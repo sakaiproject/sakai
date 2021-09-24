@@ -252,14 +252,7 @@
         #set($hasInline = !$value_feedback_text.isEmpty())
         #set($size = 0)
         #if ($!submission.Submitted || !$alertGradeDraft)
-            #set ($props = false)
-            #set ($size = $submission.Attachments.size())
-            #foreach ($attachmentReference in $submission.Attachments)
-                #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
-                #if ($reference)
-                    #set ($props = $reference.Properties)
-                #end
-            #end
+            #set ($size = $submissionAttachmentReferences.size())
         #end
         #if ($submissionType == 4 && !$hasInline && $size == 0)
             ## if this is non-electronic submission
@@ -279,6 +272,9 @@
                     <p class="sak-banner-warn-inline">$tlang.getString("gradingsub.nosubmittedtext")</p>
                 #end
             #end
+
+            #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
             ## for returned submission, show the instructor comment as well
             #if ($!prevFeedbackText)
                 <h4 id="toggleInline" class="toggleAnchor specialLink">

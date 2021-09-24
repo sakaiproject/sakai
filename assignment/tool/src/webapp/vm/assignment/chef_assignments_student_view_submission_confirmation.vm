@@ -13,7 +13,7 @@
     #if (!$!allowAddAssignment)
         #progressBar($!service.getProgressBarStatus($!submission))
     #end
-    <div class="success">
+    <div class="sak-banner-success">
         #if ($!submission.Submitted)
             $tlang.getString('confirm.submission.success')
         #else
@@ -130,6 +130,9 @@
                 $tlang.getString('confirm.savesubmission.include')
             #end
         </h4>
+
+        #parse ("/vm/assignment/assignments_display_video_submission.vm")
+
         ## only show the following section if text submission is allowed
         #if (!$!attachmentSubmissionOnly)
         ## submission text
@@ -165,7 +168,7 @@
             ## Submission attachments
             #set ($attachments = $submission.Attachments)
             #if ($attachments)
-                #set ($size = $attachments.size())
+                #set ($size = $submissionAttachmentReferences.size())
                 #if ($size < 1)
                     #if ($!assignment.SubmissionType.ordinal() == 5)
                         $tlang.getString("gen.noatt.single")
@@ -175,7 +178,8 @@
                 #else
                     <ul class="attachList indnt2">
                         #foreach ($attachmentReference in $attachments)
-                            #set ($reference = $attachmentReferences.get($attachmentReference))
+                            #set ($reference = false)
+                            #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
                             #if ($reference)
                                 #set ($props = false)
                                 #set ($props = $reference.Properties)

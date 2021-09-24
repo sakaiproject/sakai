@@ -107,6 +107,7 @@ can be either all members of the site, all members of selected groups, or the se
 				#foreach ($group in $!groupsList)
 					#set($description = $formattedText.escapeHtml($group.Description))
 					#set($selected=false)
+					#set($groupDisabled=false)
 					#foreach($aGroupRef in $assignmentGroups)
 						#set($aGroup = $!site.getGroup($!aGroupRef))
 						#if ($!group.Id == $!aGroup.Id)

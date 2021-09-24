@@ -3,10 +3,6 @@ import { LionTooltip } from "./assets/@lion/tooltip/src/LionTooltip.js";
 
 export class SakaiTooltip extends LionTooltip {
 
-  constructor() {
-    super();
-  }
-
   static get styles() {
 
     return [super.styles, css`

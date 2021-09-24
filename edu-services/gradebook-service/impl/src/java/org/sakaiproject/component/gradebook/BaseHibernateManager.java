@@ -128,16 +128,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected List<GradebookAssignment> getAssignments(final Long gradebookId) throws HibernateException {
         return getSessionFactory().getCurrentSession()
                 .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
-                .setLong("gradebookid", gradebookId)
+                .setParameter("gradebookid", gradebookId)
                 .list();
     }
 
     protected List getCountedStudentGradeRecords(final Long gradebookId, final String studentId) throws HibernateException {
         return getSessionFactory().getCurrentSession().createQuery(
-        	"select agr from AssignmentGradeRecord as agr, GradebookAssignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
-        	.setString("studentid", studentId)
-        	.setLong("gradebookid", gradebookId)
-        	.list();
+            "select agr from AssignmentGradeRecord as agr, GradebookAssignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
+            .setParameter("studentid", studentId)
+            .setParameter("gradebookid", gradebookId)
+            .list();
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     public CourseGrade getCourseGrade(final Long gradebookId) {
         return (CourseGrade) getSessionFactory().getCurrentSession().createQuery(
                 "from CourseGrade as cg where cg.gradebook.id = :gradebookid")
-                .setLong("gradebookid", gradebookId)
+                .setParameter("gradebookid", gradebookId)
                 .uniqueResult();
     }
 
@@ -160,8 +160,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected CourseGradeRecord getCourseGradeRecord(final Gradebook gradebook, final String studentId) throws HibernateException {
         return (CourseGradeRecord) getSessionFactory().getCurrentSession()
                 .createQuery("from CourseGradeRecord as cgr where cgr.studentId = :studentid and cgr.gradableObject.gradebook = :gradebook")
-                .setString("studentid", studentId)
-                .setEntity("gradebook", gradebook)
+                .setParameter("studentid", studentId)
+                .setParameter("gradebook", gradebook)
                 .uniqueResult();
     }
 
@@ -224,16 +224,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	protected GradebookAssignment getAssignmentWithoutStats(final String gradebookUid, final String assignmentName) throws HibernateException {
 		return (GradebookAssignment) getSessionFactory().getCurrentSession()
                 .createQuery("from GradebookAssignment as asn where asn.name = :assignmentname and asn.gradebook.uid = :gradebookuid and asn.removed is false")
-                .setString("assignmentname", assignmentName)
-                .setString("gradebookuid", gradebookUid)
+                .setParameter("assignmentname", assignmentName)
+                .setParameter("gradebookuid", gradebookUid)
                 .uniqueResult();
 	}
 
 	protected GradebookAssignment getAssignmentWithoutStats(final String gradebookUid, final Long assignmentId) throws HibernateException {
 		return (GradebookAssignment) getSessionFactory().getCurrentSession()
                 .createQuery("from GradebookAssignment as asn where asn.id = :assignmentid and asn.gradebook.uid = :gradebookuid and asn.removed is false")
-                .setLong("assignmentid", assignmentId)
-                .setString("gradebookuid", gradebookUid)
+                .setParameter("assignmentid", assignmentId)
+                .setParameter("gradebookuid", gradebookUid)
                 .uniqueResult();
 	}
 
@@ -263,8 +263,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected AssignmentGradeRecord getAssignmentGradeRecord(final GradebookAssignment assignment, final String studentUid) throws HibernateException {
 		return (AssignmentGradeRecord) getSessionFactory().getCurrentSession()
                 .createQuery("from AssignmentGradeRecord as agr where agr.studentId = :studentid and agr.gradableObject.id = :assignmentid")
-                .setString("studentid", studentUid)
-                .setLong("assignmentid", assignment.getId())
+                .setParameter("studentid", studentUid)
+                .setParameter("assignmentid", assignment.getId())
                 .uniqueResult();
 	}
 
@@ -512,7 +512,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     public List getCategories(final Long gradebookId) throws HibernateException {
     	final HibernateCallback<List<Category>> hc = session -> session
                 .createQuery("from Category as ca where ca.gradebook.id = :gradebookid and ca.removed is false")
-                .setLong("gradebookid", gradebookId)
+                .setParameter("gradebookid", gradebookId)
                 .list();
 
         return getHibernateTemplate().execute(hc);
@@ -537,8 +537,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     public List<GradebookAssignment> getAssignmentsForCategory(final Long categoryId) throws HibernateException{
     	final HibernateCallback<List<GradebookAssignment>> hc = session -> session
-                .createQuery("from GradebookAssignment as assign where assign.category = :categoryid and assign.removed is false")
-                .setLong("categoryid", categoryId)
+                .createQuery("from GradebookAssignment as assign where assign.category.id = :categoryid and assign.removed is false")
+                .setParameter("categoryid", categoryId)
                 .list();
     	return getHibernateTemplate().execute(hc);
     }
@@ -546,7 +546,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     public Category getCategory(final Long categoryId) throws HibernateException{
     	final HibernateCallback<Category> hc = session -> (Category) session
                 .createQuery("from Category as cat where cat.id = :categoryid")
-                .setLong("categoryid", categoryId)
+                .setParameter("categoryid", categoryId)
                 .uniqueResult();
     	return getHibernateTemplate().execute(hc);
     }
@@ -697,7 +697,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	final HibernateCallback<LetterGradePercentMapping> hc = session -> {
             final LetterGradePercentMapping mapping = (LetterGradePercentMapping) session
                     .createQuery("from LetterGradePercentMapping as lgpm where lgpm.gradebookId = :gradebookId and lgpm.mappingType = 2")
-                    .setLong("gradebookId", gradebook.getId())
+                    .setParameter("gradebookId", gradebook.getId())
                     .uniqueResult();
             if(mapping == null ) {
                 final LetterGradePercentMapping lgpm = getDefaultLetterGradePercentMapping();
@@ -722,7 +722,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         final HibernateCallback<LetterGradePercentMapping> hc = session -> {
             final LetterGradePercentMapping mapping = (LetterGradePercentMapping) session
                     .createQuery("from LetterGradePercentMapping as lgpm where lgpm.gradebookId = :gradebookId and lgpm.mappingType = 2")
-                    .setLong("gradebookId", gradebook.getId())
+                    .setParameter("gradebookId", gradebook.getId())
                     .uniqueResult();
             return mapping;
         };
@@ -905,7 +905,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         }
     	final HibernateCallback<List<Permission>> hc = session -> session
                 .createQuery("from Permission as perm where perm.gradebookId = :gradebookId")
-                .setLong("gradebookId", gradebookId)
+                .setParameter("gradebookId", gradebookId)
                 .list();
     	return getHibernateTemplate().execute(hc);
     }
@@ -963,8 +963,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     	final HibernateCallback<List<Permission>> hc = session -> session
                 .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId")
-                .setLong("gradebookId", gradebookId)
-                .setString("userId", userId)
+                .setParameter("gradebookId", gradebookId)
+                .setParameter("userId", userId)
                 .list();
 
     	return getHibernateTemplate().execute(hc);
@@ -978,8 +978,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if (cateIds != null && cateIds.size() > 0) {
     		final HibernateCallback<List<Permission>> hc = session -> session
                     .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.categoryId in (:cateIds)")
-                    .setLong("gradebookId", gradebookId)
-                    .setString("userId", userId)
+                    .setParameter("gradebookId", gradebookId)
+                    .setParameter("userId", userId)
                     .setParameterList("cateIds", cateIds)
                     .list();
     		return getHibernateTemplate().execute(hc);
@@ -994,8 +994,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     	final HibernateCallback<List<Permission>> hc = session -> session
                 .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.categoryId is null and perm.function in (:functions)")
-                .setLong("gradebookId", gradebookId)
-                .setString("userId", userId)
+                .setParameter("gradebookId", gradebookId)
+                .setParameter("userId", userId)
                 .setParameterList("functions", GraderPermission.getStandardPermissions())
                 .list();
 
@@ -1009,8 +1009,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     	final HibernateCallback<List<Permission>> hc = session -> session
                 .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.groupId is null and perm.function in (:functions)")
-                .setLong("gradebookId", gradebookId)
-                .setString("userId", userId)
+                .setParameter("gradebookId", gradebookId)
+                .setParameter("userId", userId)
                 .setParameterList("functions", GraderPermission.getStandardPermissions())
                 .list();
 
@@ -1025,8 +1025,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if (cateIds != null && cateIds.size() > 0) {
             final HibernateCallback<List<Permission>> hc = session -> session
                     .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.categoryId in (:cateIds) and perm.groupId is null")
-                    .setLong("gradebookId", gradebookId)
-                    .setString("userId", userId)
+                    .setParameter("gradebookId", gradebookId)
+                    .setParameter("userId", userId)
                     .setParameterList("cateIds", cateIds)
                     .list();
 
@@ -1042,7 +1042,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if (cateIds != null && cateIds.size() > 0) {
     		final HibernateCallback<List<Permission>> hc = session -> session
                     .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.categoryId in (:cateIds)")
-                    .setLong("gradebookId", gradebookId)
+                    .setParameter("gradebookId", gradebookId)
                     .setParameterList("cateIds", cateIds)
                     .list();
 
@@ -1058,8 +1058,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     	final HibernateCallback<List<Permission>> hc = session -> session
                 .createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.groupId is null")
-                .setLong("gradebookId", gradebookId)
-                .setString("userId", userId)
+                .setParameter("gradebookId", gradebookId)
+                .setParameter("userId", userId)
                 .list();
 
     	return getHibernateTemplate().execute(hc);
@@ -1072,8 +1072,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	if (groupIds != null && groupIds.size() > 0) {
 	    	final HibernateCallback<List<Permission>> hc = session -> session
                     .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.categoryId is null and perm.groupId in (:groupIds)")
-                    .setLong("gradebookId", gradebookId)
-                    .setString("userId", userId)
+                    .setParameter("gradebookId", gradebookId)
+                    .setParameter("userId", userId)
                     .setParameterList("groupIds", groupIds)
                     .list();
 
@@ -1089,8 +1089,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	if (groupIds != null && groupIds.size() > 0) {
 	    	final HibernateCallback<List<Permission>> hc = session -> session
                     .createQuery("from Permission as perm where perm.gradebookId = :gradebookId and perm.userId = :userId and perm.groupId in (:groupIds) ")
-                    .setLong("gradebookId", gradebookId)
-                    .setString("userId", userId)
+                    .setParameter("gradebookId", gradebookId)
+                    .setParameter("userId", userId)
                     .setParameterList("groupIds", groupIds)
                     .list();
 
@@ -1277,7 +1277,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
             final List<GradebookAssignment> countedAssignments = session
                     .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gb and asn.removed is false and asn.notCounted is false and asn.ungraded is false")
-                    .setLong("gb", gradebook.getId())
+                    .setParameter("gb", gradebook.getId())
                     .list();
 
             final Map<String, Set<GradebookAssignment>> visible = getVisibleExternalAssignments(gradebook, studentUids, countedAssignments);
@@ -1285,7 +1285,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             for (final GradebookAssignment assignment : countedAssignments) {
                 final List<AssignmentGradeRecord> scoredGradeRecords = session
                         .createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.id = :go")
-                        .setLong("go", assignment.getId())
+                        .setParameter("go", assignment.getId())
                         .list();
 
                 final Map<String, AssignmentGradeRecord> studentToGradeRecordMap = new HashMap<>();
@@ -1340,10 +1340,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
 	private Comment getInternalComment(final String gradebookUid, final Long assignmentId, final String studentUid) {
 		return (Comment) getHibernateTemplate().execute(session -> session
-                .createQuery("from Comment as c where c.studentId = :studentId and c.gradableObject.gradebook.uid = :gradebookUid and c.gradableObject.id = :assignmentId and gradableObject.removed is false")
-                .setString("studentId", studentUid)
-                .setString("gradebookUid", gradebookUid)
-                .setLong("assignmentId", assignmentId)
+                .createQuery("from org.sakaiproject.tool.gradebook.Comment as c where c.studentId = :studentId and c.gradableObject.gradebook.uid = :gradebookUid and c.gradableObject.id = :assignmentId and gradableObject.removed is false")
+                .setParameter("studentId", studentUid)
+                .setParameter("gradebookUid", gradebookUid)
+                .setParameter("assignmentId", assignmentId)
                 .uniqueResult());
 	}
 
@@ -1419,7 +1419,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected List<CourseGradeRecord> getCourseGradeOverrides(final Gradebook gradebook) throws HibernateException {
         return getHibernateTemplate().execute(session -> session
                 .createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.gradebook = :gradebook and cgr.enteredGrade is not null")
-                .setEntity("gradebook", gradebook)
+                .setParameter("gradebook", gradebook)
                 .list());
     }
 }

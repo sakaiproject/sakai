@@ -572,16 +572,6 @@ $(document).ready(function() {
 			return false;
 		});
 
-		$('#export-cc-v11').change(function(){		
-			if ($("#export-cc-v11").prop('checked'))
-			    $("#export-cc-v13").prop('checked',false);
-		    });
-
-		$('#export-cc-v13').change(function(){		
-			if ($("#export-cc-v13").prop('checked'))
-			    $("#export-cc-v11").prop('checked',false);
-		    });
-
 		$('#delete-orphan-link').click(function(){
 			if (delete_orphan_enabled) {
 			    delete_orphan_enabled = false;
@@ -598,24 +588,22 @@ $(document).ready(function() {
 			return false;
 		});
 
-		$('#export-cc-submit').click(function(){
-			// jquery click doesn't actually click, so get the js object and do a native click call
-                        if ($('#export-cc-v11').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.1"));
-			} else if ($('#export-cc-v13').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.3"));
-                        } else {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
-                        }
-                        if ($('#export-cc-bank').prop('checked')) {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=1"));
-                        } else {
-                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=0"));
-                        }
-			$("#export-cc-link").get(0).click();
-			closeExportCcDialog();
-			return false;
-		    });
+        $('#export-cc-submit').click(function(){
+            // Get the checkbox value for bank option.
+            const exportCCBank = document.getElementById('export-cc-bank').checked;
+            // Get the selected CC version.
+            const exportCCVersion = document.querySelector('input[name="export-cc"]:checked').value;
+            const exportCCLink = document.getElementById('export-cc-link');
+            const exportCCUrl = new URL(exportCCLink.href);
+            // Update the request parameters with the selected options.
+            exportCCUrl.searchParams.set('version', exportCCVersion);
+            exportCCUrl.searchParams.set('bank', exportCCBank ? 1 : 0);
+            // Replace the link
+            exportCCLink.href = exportCCUrl.href;
+            exportCCLink.click();
+            closeExportCcDialog();
+            return false;
+        });
 
 		$('#import-cc-submit').click(function() {
 			// prevent double clicks
@@ -1424,7 +1412,7 @@ $(document).ready(function() {
 				for(var index = 0; index < questionAnswers.length - 1; index++) {
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableShortanswerDiv").first();
+						answerSlot = $("#copyableShortanswer").first();
 					}else {
 						answerSlot = addShortanswer();
 					}
@@ -1443,7 +1431,7 @@ $(document).ready(function() {
 					
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableMultipleChoiceAnswerDiv").first();
+						answerSlot = $("#copyableMultipleChoiceAnswer").first();
 					}else {
 						answerSlot = addMultipleChoiceAnswer();
 					}
@@ -1696,24 +1684,25 @@ $(document).ready(function() {
 			return false;
 		});
 
-        $("#subpage-button").click(function(){
-            if($(this).is(":checked")){
-                if($("#subpage-btncolor-forced").is(":visible")){
-                    //do nothing, color selector still needs hidden.
-                }else{
-                    $("#subpage-buttonColorLabel").removeClass("disabled");
-                    $("#subpage-btncolor-selection").removeClass("disabled");
-                }
-                //remove button warning regardless
-                $("#subpage-needbtn").hide();
-            }else{
-                //if its not checked, make sure "disabled" class is there.
+		$("#subpage-button-color-group").hide();
+		$("#subpage-button").click(function(){
+			if ($(this).is(":checked")) {
+				if( $("#subpage-btncolor-forced").is(":visible")) {
+					//do nothing, color selector still needs to be hidden.
+				} else {
+					$("#subpage-button-color-group").show();
+				}
+			} else {
+				$("#subpage-button-color-group").hide();
+			}
+		});
 
-                $("#subpage-buttonColorLabel").addClass("disabled");
-                $("#subpage-btncolor-selection").addClass("disabled");
-                $("#subpage-needbtn").show();
-            }
-        });
+		$("#subpage-choose-button").tooltip();
+		$("#subpage-choose-button").attr("title", $('#subpage-choose').html());
+		$("#subpage-choose-button").click(function(e) {
+			e.preventDefault();
+			window.location = $('#subpage-choose').attr('href');
+		});
 
 		$("#item-button").click(function(){
 			if($(this).is(":checked")){
@@ -3123,7 +3112,11 @@ function checkEditTitleForm() {
 	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
 		$('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
 		$('#edit-title-error-container').show();
-	}else {
+	} else if(/[\[\]{}\\|\^\`]/.test($('#pageTitle').val())) {
+		$('#edit-title-error').text(msg("simplepage.subpage_invalid_chars"));
+		$('#edit-title-error-container').show();
+		return false;
+	} else {
 		$('#edit-title-error-container').hide();
 		if ($("#page-releasedate").prop('checked'))
 		    $("#release_date_string").val($("#releaseDateISO8601").val());
@@ -3544,15 +3537,14 @@ function unhideMultimedia() {
 
 // Clones one of the multiplechoice answers in the Question dialog and appends it to the end of the list
 function addMultipleChoiceAnswer() {
-	var clonedAnswer = $("#copyableMultipleChoiceAnswerDiv").clone(true);
-	var num = $("#extraMultipleChoiceAnswers").find("div").length + 2; // Should be currentNumberOfAnswers + 1
-	
+	var clonedAnswer = $("#copyableMultipleChoiceAnswer").clone(true);
+	var num = $("#multipleChoiceAnswersBody").find("tr").length + 2; // Should be currentNumberOfAnswers + 1
 	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
 	clonedAnswer.find(".question-multiplechoice-answer-correct").prop("checked", false);
 	clonedAnswer.find(".question-multiplechoice-answer").val("");
-	
+
 	clonedAnswer.attr("id", "multipleChoiceAnswerDiv" + num);
-	
+
 	// Each input has to be renamed so that RSF will recognize them as distinct
 	clonedAnswer.find("[name='question-multiplechoice-answer-complete']")
 		.attr("name", "question-multiplechoice-answer-complete" + num);
@@ -3568,39 +3560,50 @@ function addMultipleChoiceAnswer() {
 		.attr("for", "question-multiplechoice-answer" + num);
 	clonedAnswer.find("[name='question-multiplechoice-answer']")
 		.attr("name", "question-multiplechoice-answer" + num);
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
-	clonedAnswer.appendTo("#extraMultipleChoiceAnswers");
-	
+	clonedAnswer.appendTo("#multipleChoiceAnswersBody");
+
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
+
 	return clonedAnswer;
 }
 
+function reassignAnswerOptions() {
+	const capitalLettersIndex = 65; // 65 corresponds to A.
+	document.querySelectorAll('.question-multiplechoice-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
+	document.querySelectorAll('.question-showans-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
+}
 // Clones one of the shortanswers in the Question dialog and appends it to the end of the list
 function addShortanswer() {
-	var clonedAnswer = $("#copyableShortanswerDiv").clone(true);
-	
+	var clonedAnswer = $("#copyableShortanswer").clone(true);
 	clonedAnswer.find(".question-shortanswer-answer").val("");
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
 	// have to make name unique, so append a count
-	var n = $("#extraShortanswers div").length;
+	var n = $("#shortAnswersTableBody tr").length;
 	var elt = clonedAnswer.find("label");
 	elt.attr("for", elt.attr("for") + n);
 	elt = clonedAnswer.find("input");
 	elt.attr("name", elt.attr("name") + n);
-	
-	clonedAnswer.appendTo("#extraShortanswers");
 
+	clonedAnswer.appendTo("#shortAnswersTableBody");
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
 
-	
 	return clonedAnswer;
 }
 
@@ -3625,7 +3628,8 @@ function updateShortanswers() {
 }
 
 function deleteAnswer(el) {
-	el.parent('div').remove();
+	el.parent('td').parent('tr').remove();
+	reassignAnswerOptions();
 }
 
 // Enabled or disables the subfields under grading in the question dialog
@@ -3658,13 +3662,9 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#shortanswerSelect").prop("checked") && $("#question-graded").prop("checked") &&
-		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!=="";}).length < 1) {
-	    $('#question-error').text(msg("simplepage.question-need-1"));
-	    $('#question-error-container').show();
-	    return false;
-	} else
+	} else {
 	    $('#question-error-container').hide();
+	}
 
 	updateMultipleChoiceAnswers();
 	updateShortanswers();
@@ -3679,17 +3679,15 @@ function prepareQuestionDialog() {
 
 // Reset the multiple choice answers to prevent problems when submitting a shortanswer
 function resetMultipleChoiceAnswers() {
-	var firstMultipleChoice = $("#copyableMultipleChoiceAnswerDiv");
+	var firstMultipleChoice = $("#copyableMultipleChoiceAnswer");
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
 	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
-	$("#extraMultipleChoiceAnswers").empty();
 }
 
 //Reset the shortanswers to prevent problems when submitting a multiple choice
 function resetShortanswers() {
-	$("#copyableShortanswerDiv").find(".question-shortanswer-answer").val("");
-	$("#extraShortanswers").empty();
+	$("#copyableShortanswer").find(".question-shortanswer-answer").val("");
 }
 
 

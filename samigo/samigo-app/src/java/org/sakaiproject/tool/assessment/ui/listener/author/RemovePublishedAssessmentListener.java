@@ -91,7 +91,7 @@ public class RemovePublishedAssessmentListener
       if(calendarDueDateEventId != null){
     	  calendarService.removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
       }
-      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + AgentFacade.getCurrentSiteId() + ", publisedAssessmentId=" + assessmentId, true));
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
       Iterator<PublishedSectionData> sectionDataIterator = assessment.getSectionSet().iterator();
         while (sectionDataIterator.hasNext()){
             PublishedSectionData sectionData = sectionDataIterator.next();

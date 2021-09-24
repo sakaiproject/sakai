@@ -98,7 +98,10 @@ public class ReportDataPage extends BasePage {
 	private byte[]						chartImage			= null;
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
-	
+
+	// namespace for sakai icons see _icons.scss
+	public static final String ICON_SAKAI = "icon-sakai--";
+
 	public ReportDataPage(final ReportDefModel reportDef) {
 		this(reportDef, null, null);
 	}
@@ -378,11 +381,9 @@ public class ReportDataPage extends BasePage {
 					if(!"".equals(toolId)){
 						toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
 					}
-					Label toolLabel = new Label(componentId, toolName);
-					String toolIconClass = "toolIcon";
-					String toolIconPath = "url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ")";
-					toolLabel.add(new AttributeModifier("class", new Model(toolIconClass)));
-					toolLabel.add(new AttributeModifier("style", new Model("background-image: "+toolIconPath)));
+					Label toolLabel = new Label(componentId, " " + toolName);
+					String hclass = ICON_SAKAI + toolId.replace('.', '-');
+					toolLabel.add(new AttributeModifier("class", new Model(hclass)));
 					toolLabel.add(new AttributeModifier("title", new Model(toolName)));
 					item.add(toolLabel);
 				}
@@ -398,15 +399,13 @@ public class ReportDataPage extends BasePage {
 					if(!"".equals(eventId)){
 						eventName = Locator.getFacade().getEventRegistryService().getEventName(eventId);
 					}
-					Label eventLabel = new Label(componentId, eventName);
+					Label eventLabel = new Label(componentId, " " + eventName);
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					if(toolInfo != null) {
 						String toolId = toolInfo.getToolId();
 						String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-						String toolIconClass = "toolIcon";
-						String toolIconPath = "url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ")";
-						eventLabel.add(new AttributeModifier("class", new Model(toolIconClass)));
-						eventLabel.add(new AttributeModifier("style", new Model("background-image: "+toolIconPath)));
+						String hclass = ICON_SAKAI + toolId.replace('.', '-');
+						eventLabel.add(new AttributeModifier("class", new Model(hclass)));
 						eventLabel.add(new AttributeModifier("title", new Model(toolName)));
 					}
 					item.add(eventLabel);

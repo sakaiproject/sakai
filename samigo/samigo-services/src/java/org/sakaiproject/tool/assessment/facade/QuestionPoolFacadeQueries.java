@@ -34,9 +34,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -60,6 +59,8 @@ import org.sakaiproject.util.api.FormattedText;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class QuestionPoolFacadeQueries
@@ -87,15 +88,15 @@ public class QuestionPoolFacadeQueries
    * Get a list of all the pools in the site. Note that questions in each pool will not
    * be populated. We must keep this list updated.
    */
-  public List getAllPools() {
-    return getHibernateTemplate().find("from QuestionPoolData");
+  public List<QuestionPoolData> getAllPools() {
+    return (List<QuestionPoolData>) getHibernateTemplate().find("from QuestionPoolData");
   }
 
 
   public List getAllPoolsByAgent(final String agentId) {
 	    final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("from QuestionPoolData a  where a.questionPoolId in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent) ");
-            q.setString("agent", agentId);
+            q.setParameter("agent", agentId);
             return q.list();
         };
 	    List list = getHibernateTemplate().execute(hcb);
@@ -122,7 +123,7 @@ public class QuestionPoolFacadeQueries
     //List poolList = getAllPools(); 
     HibernateCallback<List<QuestionPoolData>> hcb = session -> session
             .createQuery("from QuestionPoolData a where a.ownerId = :id")
-            .setString("id", agentId)
+            .setParameter("id", agentId)
             .list();
     List<QuestionPoolData> poolList = getHibernateTemplate().execute(hcb);
 /*
@@ -193,7 +194,7 @@ public class QuestionPoolFacadeQueries
           Query q = session.createQuery(
                   "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
                           "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent)");
-          q.setString("agent", agentId);
+          q.setParameter("agent", agentId);
           return q.list();
       };
       List list = getHibernateTemplate().execute(hcb);
@@ -244,7 +245,7 @@ public class QuestionPoolFacadeQueries
   // return items that belong to this pool and this pool only.  
 	    final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id");
-            q.setLong("id", questionPoolId);
+            q.setParameter("id", questionPoolId);
             return q.list();
         };
 	    List list = getHibernateTemplate().execute(hcb);
@@ -252,8 +253,7 @@ public class QuestionPoolFacadeQueries
     List newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
-      String itemId = itemdata.getItemId().toString();
-     if (getPoolIdsByItem(itemId).size() == 1) {
+     if (getPoolIdsByItem(itemdata.getItemId()).size() == 1) {
        newlist.add(itemdata);
      }
      else {
@@ -267,7 +267,7 @@ public class QuestionPoolFacadeQueries
   public List getAllItems(final Long questionPoolId) {
 	    final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id order by ab.itemId");
-            q.setLong("id", questionPoolId.longValue());
+            q.setParameter("id", questionPoolId.longValue());
             return q.list();
         };
 	    List list = getHibernateTemplate().execute(hcb);
@@ -277,7 +277,7 @@ public class QuestionPoolFacadeQueries
     public List getAllItemsIds(final Long questionPoolId) {
         final HibernateCallback<List> hcb = session -> {
                 Query q = session.createQuery("select qpi.itemId from QuestionPoolItemData qpi where qpi.questionPoolId = ?");
-                q.setLong(0, questionPoolId.longValue());
+                q.setParameter(0, questionPoolId.longValue());
                 return q.list();
         };
         List list = getHibernateTemplate().execute(hcb);
@@ -375,7 +375,7 @@ public class QuestionPoolFacadeQueries
                       orderBy);
           }
 
-          q.setLong("id", questionPoolId);
+          q.setParameter("id", questionPoolId);
           log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
           return q.list();
       };
@@ -394,7 +394,7 @@ public class QuestionPoolFacadeQueries
   public List getAllItemFacades(final Long questionPoolId) {
     final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id order by ab.itemId");
-        q.setLong("id", questionPoolId.longValue());
+        q.setParameter("id", questionPoolId.longValue());
         return q.list();
     };
     List list = getHibernateTemplate().execute(hcb);
@@ -477,8 +477,8 @@ public class QuestionPoolFacadeQueries
       final String agentId) {
 	    final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId = :id and qpa.agentId = :agent");
-            q.setLong("id", poolId);
-            q.setString("agent", agentId);
+            q.setParameter("id", poolId);
+            q.setParameter("agent", agentId);
             return q.list();
         };
 	    List list = getHibernateTemplate().execute(hcb);
@@ -551,7 +551,7 @@ public class QuestionPoolFacadeQueries
         try {
           final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId = :id");
-            q.setLong("id", poolId);
+            q.setParameter("id", poolId);
             return q.list();
           };
           List list = getHibernateTemplate().execute(hcb);
@@ -602,8 +602,8 @@ public class QuestionPoolFacadeQueries
       final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa, QuestionPoolData as qpp " +
                 "where qpa.questionPoolId = qpp.questionPoolId and (qpp.questionPoolId = :qid or qpp.parentPoolId = :pid) ");
-        q.setLong("qid", poolId);
-        q.setLong("pid", poolId);
+        q.setParameter("qid", poolId);
+        q.setParameter("pid", poolId);
         return q.list();
       };
       List qpaList = getHibernateTemplate().execute(hcb);
@@ -622,7 +622,7 @@ public class QuestionPoolFacadeQueries
       // #4. Ready! delete pool now
       final HibernateCallback<List> hcb2 = session -> {
           Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.id = :id");
-          q.setLong("id", poolId);
+          q.setParameter("id", poolId);
           return q.list();
       };
       List qppList = getHibernateTemplate().execute(hcb2);
@@ -867,7 +867,7 @@ public class QuestionPoolFacadeQueries
   public List getSubPools(final Long poolId) {
 	    final HibernateCallback<List> hcb = session -> {
             Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId = :id");
-            q.setLong("id", poolId.longValue());
+            q.setParameter("id", poolId.longValue());
             return q.list();
         };
 	    return getHibernateTemplate().execute(hcb);
@@ -879,7 +879,7 @@ public class QuestionPoolFacadeQueries
           Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
                   "from QuestionPoolData a where a.ownerId = :id");
           q.setCacheable(true);
-          q.setString("id", agent);
+          q.setParameter("id", agent);
           return q.list();
       };
 	  List<Object[]> objectResult = getHibernateTemplate().execute(hcb);
@@ -896,7 +896,7 @@ public class QuestionPoolFacadeQueries
 	  final HibernateCallback<Number> hcb = session -> {
           Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId = :id");
           q.setCacheable(true);
-          q.setLong("id", poolId);
+          q.setParameter("id", poolId);
           return (Number) q.uniqueResult();
       };
 	  
@@ -924,10 +924,10 @@ public class QuestionPoolFacadeQueries
     final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a " +
                 "where a.questionPoolId != :qid and a.title = :title and a.parentPoolId = :pid and a.ownerId = :agent");
-        q.setLong("qid", questionPoolId);
-        q.setString("title", title);
-        q.setLong("pid", parentPoolId);
-        q.setString("agent", agentId);
+        q.setParameter("qid", questionPoolId);
+        q.setParameter("title", title);
+        q.setParameter("pid", parentPoolId);
+        q.setParameter("agent", agentId);
         return q.list();
     };
     List list = getHibernateTemplate().execute(hcb);
@@ -960,7 +960,7 @@ public class QuestionPoolFacadeQueries
 
     final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.agentId = :id");
-        q.setString("id", agentId);
+        q.setParameter("id", agentId);
         return q.list();
     };
     List qpaList = getHibernateTemplate().execute(hcb);
@@ -985,12 +985,12 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByItem(final String itemId) {
+  public List getPoolIdsByItem(final Long itemId) {
     List idList = new ArrayList();
     
     final HibernateCallback<List> hcb = session -> {
         Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.itemId = :id");
-        q.setString("id", itemId);
+        q.setParameter("id", itemId);
         return q.list();
     };
     List qpiList = getHibernateTemplate().execute(hcb);
@@ -1333,7 +1333,7 @@ public class QuestionPoolFacadeQueries
   public Integer getCountItemFacades(final Long questionPoolId) {
       final HibernateCallback<Number> hcb = session -> {
           Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId = qpi.itemId and qpi.questionPoolId = :id");
-          q.setLong("id", questionPoolId);
+          q.setParameter("id", questionPoolId);
           q.setCacheable(true);
           return (Number) q.uniqueResult();
       };
@@ -1354,8 +1354,8 @@ public class QuestionPoolFacadeQueries
                   "select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " +
                   "where ab.itemId = qpi.itemId and qpi.questionPoolId = qpd.questionPoolId AND qpd.questionPoolId = qpad.questionPoolId AND qpad.agentId = :agent AND qpad.accessTypeId != :access " +
                   "group by qpi.questionPoolId");
-          q.setString("agent", agentId);
-          q.setLong("access", QuestionPoolData.ACCESS_DENIED);
+          q.setParameter("agent", agentId);
+          q.setParameter("access", QuestionPoolData.ACCESS_DENIED);
           q.setCacheable(true);
           return q.list();
       };
@@ -1399,7 +1399,7 @@ public class QuestionPoolFacadeQueries
   public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId) {
 	  final HibernateCallback<List<QuestionPoolAccessData>> hcb = session -> {
           Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId = :id");
-          q.setLong("id", questionPoolId);
+          q.setParameter("id", questionPoolId);
           return q.list();
       };
 	  List<QuestionPoolAccessData> qpaList = getHibernateTemplate().execute(hcb);
@@ -1483,10 +1483,10 @@ public class QuestionPoolFacadeQueries
   		  String query = "";
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
   			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
-  			  session.createSQLQuery(query).setString("id", ownerId).executeUpdate();
+  			  session.createSQLQuery(query).setParameter("id", ownerId).executeUpdate();
 
   			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
-			  session.createSQLQuery(query).setString("id", ownerId).executeUpdate();
+			  session.createSQLQuery(query).setParameter("id", ownerId).executeUpdate();
               session.flush();
   		  }
   

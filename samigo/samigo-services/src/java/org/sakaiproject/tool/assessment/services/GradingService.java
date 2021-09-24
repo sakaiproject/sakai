@@ -94,6 +94,8 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.comparator.ImageMapGradingItemComparator;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -118,6 +120,8 @@ public class GradingService
   public static final String CLOSE_BRACKET = "\\}";
   public static final String CALCULATION_OPEN = "[["; // not regex safe
   public static final String CALCULATION_CLOSE = "]]"; // not regex safe
+  public static final char CALCULATION_AUX_OPEN = '└';
+  public static final char CALCULATION_AUX_CLOSE = '┐';
   public static final String FORMAT_MASK = "0E0";
   public static final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
   public static final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
@@ -135,7 +139,7 @@ public class GradingService
   public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[((([^\\[\\]])*+(\\[([^\\[\\]])*+\\])*+)*+)\\]\\]"); // possessive
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\" + CALCULATION_AUX_OPEN + "([^\\" + CALCULATION_AUX_OPEN + "\\" + CALCULATION_AUX_CLOSE + "]+)\\" + CALCULATION_AUX_CLOSE);
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
   public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
   public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
@@ -146,6 +150,12 @@ public class GradingService
   private static final int WRONG_IMAGE_MAP_ANSWER_NON_PARCIAL = -123456789;
   
   private static final String NBSP = "&#160;";
+
+  @Getter @Setter
+  private List<String> texts;
+  @Getter @Setter
+  private HashMap<Integer, String> answersMap = new HashMap<Integer, String>();
+  private static final int MAX_ERROR_TRIES = 100;
 	  
   /**
    * Get all scores for a published assessment from the back end.
@@ -1062,6 +1072,7 @@ public class GradingService
       //collect min score information to determine if the auto score will need to be adjusted
       //since there can be multiple questions store in map: itemId -> {user's score, minScore, # of answers}
       Map<Long, Double[]> minScoreCheck = new HashMap<>();
+      Map<Long, Boolean> minScoreAnswered = new HashMap<>();
       double totalAutoScoreCheck = 0;
       Map<Long, Integer> countMcmcAllItemGradings = new HashMap<>();
       //get item information to check if it's MCMS and Not Partial Credit
@@ -1114,12 +1125,15 @@ public class GradingService
         if(item.getMinScore() != null){
         	Double accumulatedScore = itemGrading.getAutoScore();
         	Double itemParts = 1d;
+        	boolean answered = isAnswered(itemGrading, itemType2);
         	if(minScoreCheck.containsKey(itemId)){
         		Double[] accumulatedScoreArr = minScoreCheck.get(itemId);
         		accumulatedScore += accumulatedScoreArr[0];
         		itemParts += accumulatedScoreArr[2];
+        		answered = answered || minScoreAnswered.get(itemId);
         	}
         	minScoreCheck.put(itemId, new Double[]{accumulatedScore, item.getMinScore(), itemParts});
+        	minScoreAnswered.put(itemId, answered);
         }
       }
       
@@ -1204,7 +1218,7 @@ public class GradingService
     		  }
     	  }
       }
-      
+
         // If there is a minimum score value, then make sure the auto score is at least the minimum
         // entry.getValue()[0] = total score for the question
         // entry.getValue()[1] = min score
@@ -1217,8 +1231,7 @@ public class GradingService
                     if (!Boolean.valueOf(item.getPartialCreditFlag())) {
                         // We should only set the autoScore to the min score
                         // if partial credit is not in effect
-                        AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
-                        if (answer != null && itemGrading.getPublishedItemId().equals(entry.getKey())) {
+                        if (minScoreAnswered.get(entry.getKey()) && itemGrading.getPublishedItemId().equals(entry.getKey())) {
                             itemGrading.setAutoScore(entry.getValue()[1]/entry.getValue()[2]);
                         }
                     }
@@ -1293,6 +1306,27 @@ public class GradingService
         }
     }
     return totalAutoScore.doubleValue();
+  }
+
+  private boolean isAnswered(ItemGradingData data, Long type) {
+    if(TypeIfc.MATCHING.equals(type)) {
+        if (data.getPublishedAnswerId() != null) {
+          return true;
+        }
+    } else if(TypeIfc.ESSAY_QUESTION.equals(type) || TypeIfc.FILL_IN_BLANK.equals(type) || TypeIfc.FILL_IN_NUMERIC.equals(type)) {
+        if (StringUtils.isNotEmpty(data.getAnswerText())) {
+          return true;
+        }
+    } else if(TypeIfc.IMAGEMAP_QUESTION.equals(type)) {
+        if (StringUtils.isNotEmpty(data.getAnswerText()) && data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+          return true;
+        }
+    } else {
+        if (data.getPublishedAnswerId() != null || StringUtils.isNotEmpty(data.getAnswerText())) {
+          return true;
+        }
+	}
+	return false;
   }
 
   public void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
@@ -2735,10 +2769,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return map of calc answers
    */
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
-      Map<Integer, String> calculatedAnswersMap = new HashMap<>();
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
-      return calculatedAnswersMap;
+      if (answersMap.isEmpty()) {
+          extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+      }
+      return answersMap;
   }
 
   /**
@@ -2753,6 +2788,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * list will be empty.
    */
   public List<String> extractCalculations(String text) {
+      text = text.replaceAll("\\[\\[", "" + CALCULATION_AUX_OPEN + CALCULATION_AUX_OPEN ).replaceAll("\\]\\](?!\\])", "" + CALCULATION_AUX_CLOSE + CALCULATION_AUX_CLOSE);
       List<String> calculations = extractCalculatedQuestionKeyFromItemText(text, CALCQ_CALCULATION_PATTERN);
       for (Iterator<String> iterator = calculations.iterator(); iterator.hasNext();) {
         String calc = iterator.next();
@@ -3011,7 +3047,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
   public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
-      final int MAX_ERROR_TRIES = 100;
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
@@ -3030,12 +3065,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               try {
                   instructions = replaceCalculationsWithValues(instructions, 5); // what decimal precision should we use here?
                   // if could not process the calculation into a result then throws IllegalStateException which will be caught below and cause the numbers to regenerate
+                  // only pull out the segments if the formulas worked
+                  instructionSegments = extractInstructionSegments(instructions);
+                  hasErrors = false;
               } catch (SamigoExpressionError e1) {
                   log.warn("Samigo calculated item ("+item.getItemId()+") calculation invalid: "+e1.get());
+                  attemptCount++;
               }
-              // only pull out the segments if the formulas worked
-              instructionSegments = extractInstructionSegments(instructions);
-              hasErrors = false;
           } catch (Exception e) {
               attemptCount++;
           }
@@ -3209,6 +3245,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       if (StringUtils.isEmpty(expression)) {
           expression = "";
       } else {
+          String calculationAuxOpen = "" + CALCULATION_AUX_OPEN + CALCULATION_AUX_OPEN;
+          String calculationAuxClose = "" + CALCULATION_AUX_CLOSE + CALCULATION_AUX_CLOSE;
+          expression = expression.replaceAll("\\[\\[", calculationAuxOpen).replaceAll("\\]\\](?!\\])", calculationAuxClose);
           Matcher keyMatcher = CALCQ_CALCULATION_PATTERN.matcher(expression);
           List<String> toReplace = new ArrayList<>();
           while (keyMatcher.find()) {
@@ -3217,11 +3256,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           }
           if (toReplace.size() > 0) {
               for (String formula : toReplace) {
-                  String replace = CALCULATION_OPEN+formula+CALCULATION_CLOSE;
+                  String replace = calculationAuxOpen + formula + calculationAuxClose;
                   formula = StringEscapeUtils.unescapeHtml4(formula);
                   String formulaValue = processFormulaIntoValue(formula, decimalPlaces);
                   expression = StringUtils.replace(expression, replace, formulaValue);
               }
+              expression = expression.replaceAll(calculationAuxOpen, "\\[\\[").replaceAll(calculationAuxClose, "\\]\\]");
           }
       }
       return expression;
@@ -3272,53 +3312,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
       return formula;
   }
-
-  /**
-   * isNegativeSqrt() looks at the incoming expression and looks specifically
-   * to see if it executes the SQRT function.  If it does, it evaluates it.  If
-   * it has an error, it assumes that the SQRT function tried to evaluate a 
-   * negative number and evaluated to NaN.
-   * <p>Note - the incoming expression should have no variables.  They should 
-   * have been replaced before this function was called
-   * @param expression a mathematical formula, with all variables replaced by
-   * real values, to be evaluated
-   * @return true if the function uses the SQRT function, and the SQRT function
-   * evaluates as an error; else false
-   * @throws SamigoExpressionError if the evaluation of the SQRT function throws
-   * some other parse error
-   */
-    public boolean isNegativeSqrt(String expression) throws SamigoExpressionError {
-        Pattern sqrt = Pattern.compile("sqrt\\s*\\(");
-        boolean isNegative = false;
-        if (expression == null) {
-            expression = "";
-        }
-        expression = expression.toLowerCase();
-        Matcher matcher = sqrt.matcher(expression);
-        while (matcher.find()) {
-            int x = matcher.end();
-            int p = 1; // Parentheses left to match
-            int len = expression.length();
-            while (p > 0 && x < len) {
-                if (expression.charAt(x) == ')') {
-                    --p;
-                } else if (expression.charAt(x) == '(') {
-                    ++p;
-                }
-                ++x;
-            }
-            if (p == 0) {
-                String sqrtExpression = expression.substring(matcher.start(), x);
-                SamigoExpressionParser parser = new SamigoExpressionParser();
-                String numericAnswerString = parser.parse(sqrtExpression);
-                if (!isAnswerValid(numericAnswerString)) {
-                    isNegative = true;
-                    break; // finding 1 invalid one is enough
-                }
-            }
-        }
-        return isNegative;
-    }
 
   /**
    * CALCULATED_QUESTION

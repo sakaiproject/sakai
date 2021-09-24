@@ -14,7 +14,7 @@ export class SakaiCourseList extends LitElement {
       displayedSites: { type: Array},
       currentFilter: String,
       currentTermFilter: String,
-    }
+    };
   }
 
   constructor() {
@@ -35,9 +35,9 @@ export class SakaiCourseList extends LitElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get sites data from ${url}`);
         }
+        throw new Error(`Failed to get sites data from ${url}`);
+
       })
       .then(r => {
 
@@ -153,11 +153,11 @@ export class SakaiCourseList extends LitElement {
       <div id="course-list-controls">
         <div id="filter">
           <select aria-label="Course filter" @change=${this.siteFilterChanged} .value=${this.currentFilter}>
-            <option value="all">${this.i18n["view_all_sites"]}</option>
-            <option value="favourites">${this.i18n["favourites"]}</option>
-            <option value="projects">${this.i18n["all_projects"]}</option>
-            <option value="courses">${this.i18n["all_courses"]}</option>
-            <option value="active">${this.i18n["new_activity"]}</option>
+            <option value="all">${this.i18n.view_all_sites}</option>
+            <option value="favourites">${this.i18n.favourites}</option>
+            <option value="projects">${this.i18n.all_projects}</option>
+            <option value="courses">${this.i18n.all_courses}</option>
+            <option value="active">${this.i18n.new_activity}</option>
             <option value="term">Term</option>
           </select>
         </div>
@@ -169,10 +169,10 @@ export class SakaiCourseList extends LitElement {
           </div>
         <div id="sort">
           <select aria-label="Sort courses" @change=${this.siteSortChanged}>
-            <option value="title_a_to_z">${this.i18n["title_a_to_z"]}</option>
-            <option value="title_z_to_a">${this.i18n["title_z_to_a"]}</option>
-            <option value="code_a_to_z">${this.i18n["code_a_to_z"]}</option>
-            <option value="code_z_to_a">${this.i18n["code_z_to_a"]}</option>
+            <option value="title_a_to_z">${this.i18n.title_a_to_z}</option>
+            <option value="title_z_to_a">${this.i18n.title_z_to_a}</option>
+            <option value="code_a_to_z">${this.i18n.code_a_to_z}</option>
+            <option value="code_z_to_a">${this.i18n.code_z_to_a}</option>
           </select>
         </div>
       </div>

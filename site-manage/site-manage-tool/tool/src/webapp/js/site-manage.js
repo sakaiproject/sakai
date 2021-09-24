@@ -12,54 +12,66 @@ $.ajaxSetup({
  args:class of trigger, id of dialog, message strings
  */
 sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
-    utils.startDialog(dialogTarget);
-    $("." + trigger).click(function(e){
-        var siteURL = '/direct/site/' + $(this).attr('id') + '/info.json';
-        jQuery.getJSON(siteURL, function(data){
-            var desc = '', shortdesc = '', title = '', owner = '', email = '';
-            if (data.description) {
-                desc = unescape(data.description);
-            }
-            else {
-                desc = nold;
-            }
-            if (data.shortDescription) {
-                shortdesc = data.shortDescription;
-            }
-            else {
-                shortdesc = nosd;
-            }
+	$("." + trigger).click(function(e){
+		e.preventDefault();
+		$("#" + dialogTarget).modal('show');
+	});
+	const siteId = $("." + trigger).attr('id');
+	if (!siteId) {
+		return;
+	}
+	const siteURL = `/direct/site/${siteId}/info.json`;
+	jQuery.getJSON(siteURL, function(data){
+		var desc = '', shortdesc = '', title = '', owner = '', email = '';
+		if (data.description) {
+			desc = unescape(data.description);
+		}
+		else {
+			desc = nold;
+		}
+		if (data.shortDescription) {
+			shortdesc = data.shortDescription;
+		}
+		else {
+			shortdesc = nosd;
+		}
 
-            if (data.contactName) {
-                owner = data.contactName;
-            }
+		if (data.contactName) {
+			owner = data.contactName;
+		}
 
-            if (data.contactEmail) {
-                email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-            }
-            
-            if (data.props) {
-                if (data.props['contact-name']) {
-                    owner = data.props['contact-name'];
-                }
-                
-                if (data.props['contact-email']) {
-                    email = " (<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
-                }
-            }
+		if (data.contactEmail) {
+			email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+		}
 
-            sitetitle = data.title.escapeHTML();
-            content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + shortdesc.escapeHTML() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
-            $("#" + dialogTarget).html(content);
-            $("#" + dialogTarget + ' #shortdesc').text(shortdesc);
-            $("#" + dialogTarget + ' #owner').text(owner);
-            $("#" + dialogTarget).dialog('option', 'title', sitetitle);
-            utils.endDialog(e, dialogTarget);
-            return false;
-        });
-        
-        
-    });
+		if (data.props) {
+			if (data.props['contact-name']) {
+				owner = data.props['contact-name'];
+			}
+
+			if (data.props['contact-email']) {
+				email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+			}
+		}
+
+		sitetitle = data.title.escapeHTML();
+		content = (
+			'<div class="modal-dialog modal-md">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
+						'<h4 class="modal-title">' + sitetitle + '</h4>' +
+					'</div>' +
+					'<div class="modal-body">' +
+						'<p>' + shortdesc + '</p>' +
+						'<div>' + desc + '</div>' +
+					'</div>' +
+				'</div>' +
+			'</div>'
+		);
+		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+		return false;
+	});
 };
 
 
@@ -68,30 +80,50 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
  args:class of trigger, id of dialog, message strings
  */
 sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
-    utils.startDialog(dialogTarget);
 	$('.' + trigger).click(function(e){
-		
-        var id = $(this).attr('id');
-        var title = $('#group' + id).html();
-        var groupURL = '/direct/membership/group/' + id + '.json';
-        var list = "";
-        var count = 1;
-        
-        jQuery.getJSON(groupURL, function(data){
-            $.each(data.membership_collection, function(i, item){
-                var sortName = $('<div>').text(item.userSortName).html();
-                var role = $('<div>').text(item.memberRole).html();
-                var email = $('<div>').text(item.userEmail).html();
-                list = list + "<tr><td>" + count + ")&nbsp;" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
-                count = count + 1;
-            });
-            content = ("<h4>(<a  href=\"#\" id=\'printme\' class=\'print-window\' onclick=\'printPreview(\"/direct/membership/group/" + id + ".json\")\'>" + printstr + "</a>)</h4>" + "<p class=\'textPanelFooter\'></p>" + "<div class=\'textPanel\'><div id=\'groupListContent\'><table class=\'listHier lines nolines\' border=\'0\'><tr><th>" + tablestr1 + "</th><th>" + tablestr2 + "</th><th>" + tablestr3 + "</th>" + list + "</table></div>");
-            $("#" + dialogTarget).html(content);
-            $("#" + dialogTarget).dialog('option', 'title', memberstr + ': ' + title);
-            utils.endDialog(e, dialogTarget);
-            return false;
-        });
-    });
+		e.preventDefault();
+		$("#" + dialogTarget).modal('show');
+	});
+
+	const id = $("." + trigger).attr('id');
+	if (!id) {
+		return;
+	}
+	var title = $('#group' + id).html();
+	const groupURL = `/direct/membership/group/${id}.json`;
+	var list = "";
+
+	jQuery.getJSON(groupURL, function(data){
+		$.each(data.membership_collection, function(i, item){
+			var sortName = $('<div>').text(item.userSortName).html();
+			var role = $('<div>').text(item.memberRole).html();
+			var email = $('<div>').text(item.userEmail).html();
+			list = list + "<tr><td>" + sortName + "</td><td>" + role + "</td><td><a href=\'mailto:" + email + "\'>" + email + "</a></td></tr>";
+		});
+		content = (
+			'<div class="modal-dialog modal-md">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>' +
+						'<button type="button" id="printme" class="print-window close" onclick="printPreview(\'/direct/membership/group/' + id + '.json\')" aria-label="' + printstr + '"><span class="fa fa-print" aria-hidden="true"></span></button>' +
+						'<h4 class="modal-title">' + title + '</h4>' +
+					'</div>' +
+					'<div class="modal-body" id="groupListContent">' +
+						'<table class="table table-striped table-bordered table-hover">' +
+						'<tr>' +
+							'<th>' + tablestr1 + '</th>' +
+							'<th>' + tablestr2 + '</th>' +
+							'<th>' + tablestr3 + '</th>' +
+						'</tr>' +
+							list +
+						'</table>' +
+					'</div>' +
+				'</div>' +
+			'</div>'
+		);
+		$("#" + dialogTarget).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
+		return false;
+	});
 };
 
 /*
@@ -177,9 +209,6 @@ sakai.siteTypeSetup = function(){
      //the #courseSiteTypes input[type=text] contains what site types are associated with the course category
      // if there are none associated in sakai.properties, the value will be just one ('course')
      var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(/ /gi, '').split(',');
-     
-    //uncheck site type radio
-    $('input[name="itemType"]').prop('checked', false);
     
     // handles clicking in "Build site from template"
     $('#copy').click(function(e){
@@ -497,6 +526,8 @@ sakai.siteTypeSetup = function(){
         }
     });
     
+    // Click the first item in the create site screen
+    $('input[name="itemType"]').first().click();
 };
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
@@ -1194,7 +1225,7 @@ function toggleSelectAll(caller, elementName) {
 
 function printPreview(target) {
 
-  var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+  var w = window.open('', 'printwindow', 'scrollbars=yes,toolbar=yes,resizable=yes');
   var content=  "";
   var content=  document.getElementById('groupListContent').innerHTML;
   w.document.writeln(
@@ -1265,7 +1296,7 @@ function doCategoryCheck(clickedElement) {
   }
 }
 
-// Returns true iff the limitByAccountType checkboxes are in a valid state.
+// Returns true if the limitByAccountType checkboxes are in a valid state.
 // Also responsible for the visibility of the "You must select at least one account type below" message
 function limitByAccountTypesValidation() {
 
@@ -1282,15 +1313,6 @@ function limitByAccountTypesValidation() {
 
     // determine if at least one is checked
     var atLeastOneChecked = [].slice.call(chkAccountTypes).some(function (t) { return t.checked; });
-    /*
-    var atLeastOneChecked = false;
-    for (var i = 0; i < chkAccountTypes.length; i++) {
-      if (chkAccountTypes[i].checked) {
-        atLeastOneChecked = true;
-        break;
-      }
-    }
-    */
 
     if (!atLeastOneChecked) {
       // 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
@@ -1299,12 +1321,20 @@ function limitByAccountTypesValidation() {
     }
   }
 
+  const unjoinable = document.getElementById("unjoinable");
+  const unpublished = document.getElementById("unpublish");
+  if ((unjoinable && unjoinable.checked) || (unpublished && unpublished.checked)) {
+      valid = true;
+  }
+
   // Control the visibility of the "You must select at least one account type below" message
   var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
-  if (displayJoinLimitInfo) {
-    joinLimitInfoDiv.removeAttribute("style");
-  } else {
-    joinLimitInfoDiv.setAttribute("style", "display:none;");
+  if (joinLimitInfoDiv) {
+    if (displayJoinLimitInfo) {
+      joinLimitInfoDiv.removeAttribute("style");
+    } else {
+      joinLimitInfoDiv.setAttribute("style", "display:none;");
+    }
   }
 
   return valid;
