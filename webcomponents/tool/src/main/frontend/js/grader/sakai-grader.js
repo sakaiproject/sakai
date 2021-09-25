@@ -6,6 +6,7 @@ import "./sakai-grader-file-picker.js";
 import "../sakai-date-picker.js";
 import "../sakai-group-picker.js";
 import "../sakai-document-viewer.js";
+import "../sakai-lti-iframe.js";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { Submission } from "./submission.js";
 import "/webcomponents/rubrics/rubric-association-requirements.js";
@@ -189,12 +190,10 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       <div class="gradable">
         ${this.ltiGradeLaunch ? html`
           <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
-          <div class="grader-feedback-launch" style="display:none;"><a href="${this.ltiGradeLaunch}" class="btn btn-primary" role="button" target="_blank">${this.i18n.lti_grade_launch_button}</a>
-          </div>
-          <div class="grader-feedback-iframe">
-                <iframe src="${this.ltiGradeLaunch}" id="grader-feedback-iframe" style="width: 100%; height: 100%; min-height: 600px;">
-                </iframe>
-          </div>
+          <sakai-lti-iframe
+            new-window-text="${this.i18n.lti_grade_launch_button}"
+            launch-url="${this.ltiGradeLaunch}"
+         />
         ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
