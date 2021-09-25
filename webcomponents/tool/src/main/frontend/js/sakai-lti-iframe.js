@@ -12,12 +12,15 @@ class SakaiLTIIframe extends SakaiElement {
         const idval = `sakai-lti-iframe-${randomId}`;
         // https://stackoverflow.com/questions/15329710/postmessage-source-iframe
         let frame_id = false;
+        let allow_resize = false;
         Array.prototype.forEach.call(document.getElementsByTagName('iframe'), (element) => {
           if (element.contentWindow === event.source) {
             frame_id = element.getAttributeNode("id").nodeValue;
+            allow_resize = element.getAttributeNode("data-allow-resize").nodeValue;
           }
         });
         if ( frame_id != idval ) return;
+        if ( allow_resize != "yes" ) return;
 
         // The message is from our frame
         let message = e.data;
@@ -62,6 +65,7 @@ class SakaiLTIIframe extends SakaiElement {
                 <iframe src="${this.launchUrl}" id="sakai-lti-iframe-${this.randomId}" 
                   style="width: 100%; height: 100%; min-height: 80vh;"
                     width="100%" frameborder="0" marginwidth="0"
+                    data-allow-resize="${this.allowResize}"
                     marginheight="0" scrolling="auto"
                      allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
                      allow="camera; microphone">
