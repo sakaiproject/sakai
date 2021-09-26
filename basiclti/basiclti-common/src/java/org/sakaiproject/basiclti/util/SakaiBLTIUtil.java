@@ -2589,7 +2589,7 @@ public class SakaiBLTIUtil {
 
 		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
 		org.sakaiproject.user.api.PreferencesService preferencesService  = ComponentManager.get(org.sakaiproject.user.api.PreferencesService.class);
-		org.sakaiproject.time.api.UserTimeService userTimeService = ComponentManager.get(org.sakaiproject.time.api.UserTimeService.class);
+		UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 
 		String activityProgress = scoreObj.activityProgress != null ? scoreObj.activityProgress : Score.ACTIVITY_COMPLETED ;
 		String gradingProgress = scoreObj.gradingProgress != null ? scoreObj.gradingProgress : Score.GRADING_FULLYGRADED;

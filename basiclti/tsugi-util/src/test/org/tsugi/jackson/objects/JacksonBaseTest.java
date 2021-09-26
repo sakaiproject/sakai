@@ -6,18 +6,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class JacksonBaseTest {
 
 	@Test
 	public void testOne() {
-		String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-		ObjectMapper mapper = new ObjectMapper();
-		// JsonNode actualObj = mapper.readTree(jsonString);
-		// assertNotNull(actualObj);
-
 		JacksonBase jb = new JacksonBase();
 		String o1 = jb.prettyPrintLog();
 		assertEquals(o1, "{ }");

@@ -712,10 +712,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
 
-            // TODO: Make this Java 8 lambda style to make Earle happy
-            // String userId2 = submissions.stream().filter(s -> s.userSubmission).map(s -> s.submitters).forEach(m -> m.id);
-            // String userId2 = submissions.stream().filter(s -> s.userSubmission).map(s -> s.submitters).stream().map(m -> m.id);
-
             if ( userId != null ) {
                 ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + userId;
             }
