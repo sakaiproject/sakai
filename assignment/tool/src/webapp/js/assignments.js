@@ -987,7 +987,7 @@ ASN.disableTimesheetSetupSection = function()
     el && (el.style.display = 'none');
     
     const el2 = document.getElementById('new_assignment_check_add_is_estimate');
-    el2 && (el2.checked = "");
+    el2 && (el2.checked = false);
     
     ASN.toggleAutoAnnounceEstimate(false);
 }
