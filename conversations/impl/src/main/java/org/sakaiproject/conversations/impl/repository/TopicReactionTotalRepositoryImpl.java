@@ -12,7 +12,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 
 import org.springframework.transaction.annotation.Transactional;
 
-public class TopicReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<TopicReactionTotal, Long>  implements TopicReactionTotalRepository {
+public class TopicReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<TopicReactionTotal, Long> implements TopicReactionTotalRepository {
 
     @Transactional
     public List<TopicReactionTotal> findByTopic_Id(String topicId) {
