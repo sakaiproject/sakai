@@ -714,6 +714,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if ( userId != null ) {
                 ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + userId;
+				// TODO: If we are supposed to send content-review message (Draft spec)
+				// ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
             }
         }
 

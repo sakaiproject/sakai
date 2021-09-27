@@ -184,6 +184,13 @@ public class SakaiBLTIUtil {
 
 	public static final String SESSION_LAUNCH_CODE = "launch_code:";
 
+	public static final String FOR_USER = "for_user";
+
+	// Message type
+	public static final String MESSAGE_TYPE_PARAMETER = "message_type";
+	public static final String MESSAGE_TYPE_PARAMETER_PRIVACY = "privacy";
+	public static final String MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW = "content_review";
+
 		public static boolean rosterEnabled() {
 			String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 			return "true".equals(allowRoster);
@@ -1749,9 +1756,14 @@ public class SakaiBLTIUtil {
 			String user_id = (String) ltiProps.getProperty(BasicLTIConstants.USER_ID);
 
 			// Lets make a JWT from the LTI 1.x data
+			String messageTypeParm = req.getParameter(MESSAGE_TYPE_PARAMETER);
 			boolean deepLink = false;
 			SakaiLaunchJWT lj = new SakaiLaunchJWT();
-			if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
+			if ( MESSAGE_TYPE_PARAMETER_PRIVACY.equals(messageTypeParm)) {
+				lj.message_type = LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST;
+			} else if ( MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
+				lj.message_type = LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST;
+			} else if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 				deepLink = true;
 			}
@@ -1831,7 +1843,7 @@ public class SakaiBLTIUtil {
 			lis.version.add("1.1.0");
 			lj.lis = lis;
 
-			String for_user = req.getParameter("for_user");
+			String for_user = req.getParameter(FOR_USER);
 			if ( for_user != null ) {
 				ForUser forUser = new ForUser();
 				forUser.user_id =  getSubject(for_user, context_id);
