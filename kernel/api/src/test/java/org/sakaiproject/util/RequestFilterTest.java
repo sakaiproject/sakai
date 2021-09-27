@@ -39,7 +39,7 @@ import java.security.Principal;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.security.auth.Subject")
+@PowerMockIgnore("javax.*")
 @PrepareForTest(ComponentManager.class)
 public class RequestFilterTest {
 

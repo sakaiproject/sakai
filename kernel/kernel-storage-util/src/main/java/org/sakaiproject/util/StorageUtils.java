@@ -316,4 +316,17 @@ public class StorageUtils {
             return "";
         }
     }
+
+	/**
+	 * Escape the wildcards in an SQL LIKE phrase
+	 * @param value
+	 * @return string with escaped wildcards
+	 */
+    public static String escapeSqlLike(final String value) {
+        if (value == null) return "";
+        return value
+            .replaceAll("\\_", "\\\\_")
+            .replaceAll("\\%", "\\\\%");
+    }
+
 }
