@@ -11,6 +11,7 @@
         <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
         <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
 
 </beans>
