@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -230,6 +231,7 @@ public class SakaiBLTIUtilTest {
 
 		String siteId = "tsugi-site";
 		String leastSpecific = toolUrls[0];
+		String mostSpecificWithoutQuery = toolUrls[2];
 		String mostSpecific = toolUrls[3];
 		String bestSite;
 		String bestLaunch;
@@ -238,24 +240,17 @@ public class SakaiBLTIUtilTest {
 
 		tools = new ArrayList<Map<String,Object>>();
 		// Lets make some globals in least specific to most specific
-		for(String s: toolUrls) {
-			tool.put(LTIService.LTI_LAUNCH, s);
+		for(String toolUrl : toolUrls) {
+			tool.put(LTIService.LTI_LAUNCH, toolUrl);
 			tool.put(LTIService.LTI_SITE_ID, ""); // Global
 			tools.add(tool);
 
-			bestTool = SakaiBLTIUtil.findBestToolMatch(s, tools);
+			bestTool = SakaiBLTIUtil.findBestToolMatch(toolUrl, tools);
 			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
-			assertEquals(s, bestLaunch);
-			assertEquals("", bestSite);
-
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
-			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
-			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
-			assertEquals(s, bestLaunch);
+			assertEquals(toolUrl, bestLaunch);
 			assertEquals("", bestSite);
 		}
-
 
 		tools = new ArrayList<Map<String,Object>>();
 		// Lets make some globals in least specific to most specific
@@ -269,23 +264,20 @@ public class SakaiBLTIUtilTest {
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals("", bestSite);
-
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
-			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
-			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
-			assertEquals(s, bestLaunch);
-			assertEquals("", bestSite);
 		}
 
-		// Lets add a local low priority - see if it wins
+		// Lets add two local low priority - see who wins
 		tool.put(LTIService.LTI_LAUNCH, leastSpecific);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+		tool.put(LTIService.LTI_LAUNCH, mostSpecificWithoutQuery);
 		tool.put(LTIService.LTI_SITE_ID, siteId);
 		tools.add(tool);
 
 		bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
 		bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
 		bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
-		assertEquals(leastSpecific, bestLaunch);
+		assertEquals(mostSpecificWithoutQuery, bestLaunch);
 		assertEquals(siteId, bestSite);
 
 		// Lets make locals and globals, and make sure we never get a global
@@ -303,14 +295,42 @@ public class SakaiBLTIUtilTest {
 			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
 			assertEquals(s, bestLaunch);
 			assertEquals(siteId, bestSite);
-
-			bestTool = SakaiBLTIUtil.findBestToolMatch(mostSpecific, tools);
-			bestLaunch = (String) bestTool.get(LTIService.LTI_LAUNCH);
-			bestSite = (String) bestTool.get(LTIService.LTI_SITE_ID);
-			assertEquals(s, bestLaunch);
-			assertEquals(siteId, bestSite);
 		}
+	}
 
+	@Test
+	public void testLabsterUrlMatching() {
+		List<Map<String,Object>> tools = new ArrayList<Map<String,Object>>();
+		Map<String,Object> tool = new HashMap<String,Object>();
+		Map<String,Object> bestTool = null;
+		String bestLaunch, bestSite;
+
+		String siteId = "lti-test";
+		String launchA = "https://api.example.edu/lti/0103940";
+		String launchB = "https://api.example.edu/lti/8493820";
+		String launchC = "https://api.example.edu/lti/5420496";
+		String launchD = "https://api.example.edu/lti/5420496?ignore=me";
+
+		// Lets add the first two to existing tools Map
+		tool.put(LTIService.LTI_LAUNCH, launchA);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+
+		tool.put(LTIService.LTI_LAUNCH, launchB);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+
+		// Lets test match on the third. There should not be a match on an existing URL!
+		bestTool = SakaiBLTIUtil.findBestToolMatch(launchC, tools);
+		Assert.assertNull(bestTool);
+
+		tool.put(LTIService.LTI_LAUNCH, launchC);
+		tool.put(LTIService.LTI_SITE_ID, siteId);
+		tools.add(tool);
+
+		// Now test the query stripping
+		bestTool = SakaiBLTIUtil.findBestToolMatch(launchD, tools);
+		assertEquals(launchC, bestTool.get(LTIService.LTI_LAUNCH));
 	}
 
 	/* Quick story.  When reviewing PR#8884 - the collective wisdom was not to 
