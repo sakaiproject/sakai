@@ -11234,8 +11234,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         Boolean withGradesConfig = serverConfigurationService.getBoolean("assignment.grade.default", Boolean.TRUE);
-        state.setAttribute(WITH_GRADES, withGradesConfig);
         if (withGradesConfig) {
+            state.setAttribute(WITH_GRADES, Boolean.TRUE);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, SCORE_GRADE_TYPE.ordinal());
             String defaultPointsConfig = serverConfigurationService.getString("assignment.points.default", "");
             if (NumberUtils.isParsable(defaultPointsConfig)) {
