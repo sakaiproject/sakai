@@ -4912,12 +4912,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     public boolean timeHasCorrectFormat(String timeSheet) {
-        Matcher match = pattern.matcher(timeSheet);
-
-        if (!match.matches()) {
-            return false;
-        } else {
-            return true;
-        }
+        return pattern.matcher(timeSheet).matches();
     }
 }
