@@ -282,11 +282,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
         
-        try {
-            this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-        }catch(NullPointerException npe) {
-            this.pattern = Pattern.compile("");
-        }
+        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime", ""));
 
     }
 
