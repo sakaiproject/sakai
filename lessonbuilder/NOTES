@@ -19,8 +19,6 @@ class LessonEntity
    Object actual
    int type; actual underlying Sakai type
    String reference
-   static boolean addEntityControl(String ref, String siteId, String groupId) throws IOException {
-   static boolean removeEntityControl(String ref, String siteId, String groupId) throws IOException {
    static LessonEntity getEntity(ref)
    String getTitle
    String getUrl

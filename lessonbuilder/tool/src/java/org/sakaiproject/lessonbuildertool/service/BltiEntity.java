@@ -373,29 +373,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return null;
     }
 
-    // the following methods all take references. So they're in effect static.
-    // They ignore the entity from which they're called.
-    // The reason for not making them a normal method is that many of the
-    // implementations seem to let you set access control and find submissions
-    // from a reference, without needing the actual object. So doing it this
-    // way could save some database activity
-
-    // access control
-    public boolean addEntityControl(String siteId, String groupId) throws IOException {
-	// not used for BLTI, control is done entirely within LB
-	return false;
-    }
-
-    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-	return false;
-    }
-
-    // submission
-    // do we need the data from submission?
-    public boolean needSubmission(){
-	return false;
-    }
-
     public LessonSubmission getSubmission(String userId) {
 	// students don't have submissions to BLTI
 	return null;
