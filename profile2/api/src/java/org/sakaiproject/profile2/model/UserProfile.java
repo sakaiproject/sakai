@@ -43,6 +43,7 @@ public class UserProfile implements Serializable {
 	private Date dateOfBirth;
 	private String birthday;
 	private String birthdayDisplay;
+	private String formattedBirthday;
 	private String email;
 	private String position;
 	private String department;
