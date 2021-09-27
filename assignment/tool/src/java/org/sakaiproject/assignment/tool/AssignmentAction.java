@@ -12788,7 +12788,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     String sGrade = StringUtils.trimToNull(submission.getGrade());
                     if (sGrade == null || !submission.getGraded()) {
                         // update the grades for those existing non-submissions
-                        if ((checkNotGrade && sGrade == null) || (checkNotSubmit && submission.getDateSubmitted() == null)) {
+                        if ((checkNotGrade && sGrade == null && submission.getDateSubmitted() != null) || (checkNotSubmit && submission.getDateSubmitted() == null)) {
                             submission.setGrade(grade);
                             submission.setSubmitted(true);
 	                        submission.setGraded(true);
