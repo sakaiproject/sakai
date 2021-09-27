@@ -41,6 +41,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.SingleStorageUser;
+import org.sakaiproject.util.StorageUtils;
 import org.sakaiproject.util.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -454,7 +455,7 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria.toUpperCase() + "%";
+			fields[0] = "%" + StorageUtils.escapeSqlLike(criteria.toUpperCase()) + "%";
 			fields[1] = fields[0];
 			List all = super.getSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields, first,
 					last);
@@ -484,7 +485,7 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria.toUpperCase() + "%";
+			fields[0] = "%" + StorageUtils.escapeSqlLike(criteria.toUpperCase()) + "%";
 			fields[1] = fields[0];
 			int rv = super.countSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields);
 
