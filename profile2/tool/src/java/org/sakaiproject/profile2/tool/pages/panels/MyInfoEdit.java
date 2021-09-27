@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -157,9 +158,13 @@ public class MyInfoEdit extends Panel {
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
+		HiddenField birthdayAltField = new HiddenField("birthdayAltField", new PropertyModel(userProfile, "formattedBirthday"));
 		birthday.setMarkupId("birthdayinput");
 		birthday.setOutputMarkupId(true);
+		birthdayAltField.setMarkupId("birthdayAltField");
+		birthdayAltField.setOutputMarkupId(true);
 		birthdayContainer.add(birthday);
+		birthdayContainer.add(birthdayAltField);
 		//tooltip
 		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
@@ -282,7 +287,7 @@ public class MyInfoEdit extends Panel {
 		sakaiPerson.setNickname(tNickname);
 		
 		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
-			Date convertedDate = ProfileUtils.convertStringToDate(userProfile.getBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
+			Date convertedDate = ProfileUtils.convertStringToDate(userProfile.getFormattedBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
 			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
 			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
 		} else {
