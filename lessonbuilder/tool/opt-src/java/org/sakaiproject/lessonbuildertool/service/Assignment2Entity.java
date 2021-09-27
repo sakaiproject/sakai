@@ -487,23 +487,6 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
     }
 
-    // access control
-    // no longer used, so there's no way to test them
-    public boolean addEntityControl(String siteId, final String groupId) throws IOException {
-	return false;
-
-    }
-
-    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-	return false;
-    }
-
-    // submission
-    // do we need the data from submission?
-    public boolean needSubmission(){
-	return true;
-    }
-
     public Double toDouble(Object f) {
 	if (f instanceof Double)
 	    return (Double)f;
