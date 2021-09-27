@@ -704,6 +704,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         Integer contentKey = assignment.getContentId();
         String ltiGradeLaunch = null;
         if ( contentKey != null ) {
+             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+
             String userId = null;
             for (SimpleSubmission submission : submissions) {
                 if ( ! submission.userSubmission ) continue;
@@ -714,8 +717,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if ( userId != null ) {
                 ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + userId;
-				// TODO: If we are supposed to send content-review message (Draft spec)
-				// ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
+
+				// Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+				// Delegate the complex understanding of the launch to SakaiBLTIUtil
+				if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+					ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
+				}
             }
         }
 
