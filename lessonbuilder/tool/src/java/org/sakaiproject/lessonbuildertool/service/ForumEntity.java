@@ -61,8 +61,6 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -104,7 +102,6 @@ import uk.org.ponder.messageutil.MessageLocator;
 @Slf4j
 public class ForumEntity extends HibernateDaoSupport implements LessonEntity, ForumInterface {
 
-    private static Cache topicCache = null;   // topicid => grouplist
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     private static SessionFactory sessionFactory = null;
 
@@ -138,11 +135,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	messageLocator = m;
     }
 
-    static MemoryService memoryService = null;
-    public void setMemoryService(MemoryService m) {
-	memoryService = m;
-    }
-
 	static AuthzGroupService authzGroupService = null;
 	public void setAuthzGroupService(AuthzGroupService service) {
 		authzGroupService = service;
@@ -157,8 +149,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     private static HibernateTemplate hibernateTemplate = null;
 
     public void init () {	
-	//	topicCache = memoryService
-	//	    .getCache("org.sakaiproject.lessonbuildertool.service.ForumEntity.cache");
 	sessionFactory = getSessionFactory();
     }
 
@@ -170,9 +160,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     public void destroy()
     {
-	//	topicCache.destroy();
-	//	topicCache = null;
-
 	log.info("destroy()");
     }
 
@@ -275,11 +262,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     	
     	return ret;
     }
-
-	//ForumEntity e = new ForumEntity(TYPE_FORUM_TOPIC, 3L, 2);
-
-	//e.setGroups(Arrays.asList("1c24287b-b880-43da-8cdd-c6cdc1249c5c", "75184424-853e-4dd4-9e92-980c851f0580"));
-	//e.setGroups(Arrays.asList("75184424-853e-4dd4-9e92-980c851f0580"));
 
 	SortedSet<DiscussionForum> forums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
 	for (DiscussionForum forum: forumManager.getForumsForMainPage())
@@ -555,161 +537,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	}
     }
 
-    // access control
-    // seems not to be used anymore
-    public boolean addEntityControl(String siteId, String groupId) throws IOException {
-
-	if (type != TYPE_FORUM_TOPIC)
-	    return false;
-
-	setMasks();
-
-	if (topic == null)
-	    topic = getTopicById(true, id);
-	if (topic == null)
-	    return false;
-
-	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
-
-	Set membershipItemSet = new HashSet();
-
-	String groupName = null;
-	String maintainRole = null;
-	try {
-	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
-	} catch (Exception e) {
-	    log.info("Unable to get site info for AddEntityControl " + e);
-	}
-
-	PermissionLevel ownerLevel = permissionLevelManager.
-	    createPermissionLevel("Owner",  typeManager.getOwnerLevelType(), ownerMask);
-	permissionLevelManager.savePermissionLevel(ownerLevel);
-
-	PermissionLevel contributorLevel = permissionLevelManager.
-	    createPermissionLevel("Contributor",  typeManager.getContributorLevelType(), contributorMask);
-	permissionLevelManager.savePermissionLevel(contributorLevel);
-
-	DBMembershipItem membershipItem = permissionLevelManager.
-	    createDBMembershipItem(groupName, "Contributor", MembershipItem.TYPE_GROUP);
-	membershipItem.setPermissionLevel(contributorLevel);
-	permissionLevelManager.saveDBMembershipItem(membershipItem);	
-
-	membershipItemSet.add(membershipItem);
-
-	membershipItem = permissionLevelManager.
-	    createDBMembershipItem(maintainRole, "Owner", MembershipItem.TYPE_ROLE);
-	membershipItem.setPermissionLevel(ownerLevel);
-	permissionLevelManager.saveDBMembershipItem(membershipItem);	
-	
-	membershipItemSet.add(membershipItem);
-
-	// now change any existing ones into null
-	for (DBMembershipItem item: oldMembershipItemSet) {
-	    if (!(maintainRole.equals(item.getName()) && item.getType().equals(MembershipItem.TYPE_ROLE) ||
-		  groupName.equals(item.getName()) && item.getType().equals(MembershipItem.TYPE_GROUP))) {
-		PermissionLevel noneLevel = permissionLevelManager.
-		    createPermissionLevel("None",  typeManager.getNoneLevelType(), noneMask);
-		permissionLevelManager.savePermissionLevel(noneLevel);
-
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(item.getName(), "None", item.getType());
-		membershipItem.setPermissionLevel(noneLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-	    }
-	}
-
-        permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
-
-	topic.setMembershipItemSet(membershipItemSet);
-	discussionForumManager.saveTopic((DiscussionTopic) topic);
-
-	return true;
-    };
-	
-    // seems not to be used anymore
-    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-
-	if (type != TYPE_FORUM_TOPIC)
-	    return false;
-
-	setMasks();
-
-	if (topic == null)
-	    topic = getTopicById(true, id);
-	if (topic == null)
-	    return false;
-
-	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
-
-	Set membershipItemSet = new HashSet();
-
-	String groupName = null;
-	String maintainRole = null;
-	try {
-	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
-	} catch (Exception e) {
-	    log.info("Unable to get site info for AddEntityControl " + e);
-	}
-
-	PermissionLevel ownerLevel = permissionLevelManager.
-	    createPermissionLevel("Owner",  typeManager.getOwnerLevelType(), ownerMask);
-	permissionLevelManager.savePermissionLevel(ownerLevel);
-
-	DBMembershipItem membershipItem = permissionLevelManager.
-	    createDBMembershipItem(maintainRole, "Owner", MembershipItem.TYPE_ROLE);
-	membershipItem.setPermissionLevel(ownerLevel);
-	permissionLevelManager.saveDBMembershipItem(membershipItem);	
-	
-	membershipItemSet.add(membershipItem);
-
-	// now change any existing ones into null
-	for (DBMembershipItem item: oldMembershipItemSet) {
- 	    if (item.getType().equals(MembershipItem.TYPE_ROLE)) {
-		if (!maintainRole.equals(item.getName())) { // that was done above, other roles contributor
-		    PermissionLevel contributorLevel = permissionLevelManager.
-			createPermissionLevel("Contributor",  typeManager.getContributorLevelType(), contributorMask);
-		    permissionLevelManager.savePermissionLevel(contributorLevel);
-
-		    membershipItem = permissionLevelManager.
-			createDBMembershipItem(item.getName(), "Contributor", item.getType());
-		    membershipItem.setPermissionLevel(contributorLevel);
-		    permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		    membershipItemSet.add(membershipItem);
-		}
-	    } else {  // everything else off
-		PermissionLevel noneLevel = permissionLevelManager.
-		    createPermissionLevel("None",  typeManager.getNoneLevelType(), noneMask);
-		permissionLevelManager.savePermissionLevel(noneLevel);
-		
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(item.getName(), "None", item.getType());
-		membershipItem.setPermissionLevel(noneLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-	    }
-	}
-
-        permissionLevelManager.deleteMembershipItems(oldMembershipItemSet);
-
-	topic.setMembershipItemSet(membershipItemSet);
-	discussionForumManager.saveTopic((DiscussionTopic) topic);
-
-	return true;
-    };
-
-    // submission
-    // do we need the data from submission?
-    //  not for the moment. If a posting is required, we just check whether one
-    //  has been done. While you can grade submissions, grading is done manually
-    //  later. It's unlikely that faculty will want to test on those grades
-    public boolean needSubmission(){
-	return false;
-    }
     public LessonSubmission getSubmission(String user) {
 	return null; // not used
     }
@@ -928,32 +755,29 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
 		return true;
 	}
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public List<String> getGroups(boolean nocache) {
 
-	// don't need cache, since simplepagebean is now caching groups
-	//	List<String>ret = (List<String>)topicCache.get(id);
-	//	if (!nocache && ret != null) {
-	//	    if (ret.size() == 0)
-	//		return null;
-	//	    else 
-	//		return ret;
-	//	} else {
-	//	}
-
-	if (type != TYPE_FORUM_TOPIC)
-	    return null;
+		Set<DBMembershipItem> oldMembershipItemSet = null;
+		if (type == TYPE_FORUM_TOPIC) {
+			topic = getTopicById(true, id);
+			if (topic == null) {
+				return null;
+			}
+			oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
+		} else if (type == TYPE_FORUM_FORUM) {
+			forum = getForumById(true, id);
+			if (forum == null) {
+				return null;
+			}
+			oldMembershipItemSet = uiPermissionsManager.getForumItemsSet((DiscussionForum)forum);
+		} else {
+			return null;
+		}
 
 	List <String>ret = new ArrayList<String>();
-
-	if (topic == null)
-	    topic = getTopicById(true, id);
-	if (topic == null)
-	    return null;
-
-	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
-
 	Collection<Group> groups = null;
 
 	try {
@@ -975,7 +799,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 	}
 
-	//	topicCache.put(id, ret, DEFAULT_EXPIRATION);
 	if (ret.size() == 0)
 	    return null;
 	else
@@ -985,9 +808,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups) {
-
-	if (type != TYPE_FORUM_TOPIC)
-	    return;
 
     // Setgroups with a non-null list: we set all contributor entries to none, and then set the
     //    specified groups to contribtor. By only handling groups, we avoid interfering with
@@ -999,25 +819,30 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
 	setMasks();
 
-	//log.info("topic 1 " + topic + " " + groups);
-	//	if (topic == null)
-	    topic = getTopicById(true, id);
-	//log.info("topic 2 " + topic);
-	if (topic == null)
-	    return;
+		Set<DBMembershipItem> oldMembershipItemSet = null;
+		if (type == TYPE_FORUM_TOPIC) {
+			topic = getTopicById(true, id);
+			if (topic == null) {
+				return;
+			}
+			oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
+		} else if (type == TYPE_FORUM_FORUM) {
+			forum = getForumById(true, id);
+			if (forum == null) {
+				return;
+			}
+			oldMembershipItemSet = uiPermissionsManager.getForumItemsSet((DiscussionForum)forum);
+		} else {
+			return;
+		}
 
 	Site site = null;
 	try {
 	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	} catch (Exception e) {
-	    log.info("Unable to get site info for AddEntityControl " + e);
+	    log.info("Unable to get site info for setGroups " + e);
 	    return;
 	}
-
-	// topicCache.remove(id);
-
-	// old entries
-	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 
 	DBMembershipItem membershipItem = null;
 
@@ -1035,8 +860,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		groupNames.add(site.getGroup(groupId).getTitle());
 		addGroupNames.add(site.getGroup(groupId).getTitle());
 	    }
-	    //	    log.info("groups " + groups + " " + groupNames + " " + addGroupNames);
-	    //	    log.info("oldMembership " + oldMembershipItemSet.size());
 
 	    // delete groups from here as they are done.
 
@@ -1052,9 +875,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    for (DBMembershipItem item: oldMembershipItemSet) {
 		// kill everything except our own groups
 		// this will leave the owner but remove all other roles
-		//log.info("item " + item.getType() + " " + item.getName() + " " + item.getPermissionLevelName());
 		if (item.getType().equals(MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
-		    //		    log.info("found group " + item.getName());
 		    addGroupNames.remove(item.getName()); // we've seen it
 		    // if it's one of our groups make it a contributor if it's not already an owner
 		    if (!item.getPermissionLevelName().equals("Contributor") && 
@@ -1070,8 +891,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		    }
 		} else if (!item.getPermissionLevelName().equals("Owner")) {  // only group members are contributors
 		    // remove contributor from anything else, both groups and roles
-		    //log.info("set none");
-		    //		    log.info("setgroups make none " + item.getName());
 		    PermissionLevel noneLevel = permissionLevelManager.
 			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
 		    permissionLevelManager.savePermissionLevel(noneLevel);
@@ -1082,7 +901,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		}			
 	    }
 	    for (String newGroupName: addGroupNames) {
-		//log.info("addgroup " + newGroupName);
 		changed = true;
 		PermissionLevel contributorLevel = permissionLevelManager.
 		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
@@ -1126,20 +944,13 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	}
 
 	if (changed) {
-	    //log.info("changed");
-	    // have to refresh the topic or the save won't work
-	    topic = getTopicById(true, id);
-	    topic.setMembershipItemSet(oldMembershipItemSet);
-	    forumManager.saveDiscussionForumTopic((DiscussionTopic)topic);
-
-	    //	    topic.setVersion(null);
-	    //	    try {
-	    //		log.info("simplepagetool dao " + simplePageToolDao);
-	    //		hibernateTemplate.merge(topic);
-	    //	    } catch (Exception e){
-	    //		log.info("Unable to save forum topic " + e);
-	    //	    }
-
+		if (type == TYPE_FORUM_TOPIC) {
+			topic.setMembershipItemSet(oldMembershipItemSet);
+			forumManager.saveDiscussionForumTopic((DiscussionTopic)topic);
+		} else if (type == TYPE_FORUM_FORUM) {
+			forum.setMembershipItemSet(oldMembershipItemSet);
+			forumManager.saveDiscussionForum((DiscussionForum)forum);
+		}
 	}
 
 
