@@ -166,7 +166,7 @@ ASN.checkTimesheetRecord = function () {
 
 //SAK-43155
 ASN.checkTimesheetSpent = function (totalTimeRecord) {
-    if (document.getElementById("timeTimesheet").checked) {
+    if (document.getElementById("timeTimesheet")?.checked) {
         document.getElementById("assignment_input_add_time_spent").disabled = true;
         document.getElementById("assignment_input_add_time_spent").value = totalTimeRecord;
     } else {
