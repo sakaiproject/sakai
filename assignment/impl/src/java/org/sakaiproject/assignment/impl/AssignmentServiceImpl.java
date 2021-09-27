@@ -293,11 +293,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         userMessagingService.importTemplateFromResourceXmlFile("templates/submission.xml", AssignmentConstants.TOOL_ID + ".submission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/dueReminder.xml", AssignmentConstants.TOOL_ID + ".duereminder");
 
-        try {
-            this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-        }catch(NullPointerException npe) {
-            this.pattern = Pattern.compile("");
-        }
+        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime", ""));
 
     }
 
