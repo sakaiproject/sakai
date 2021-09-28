@@ -1435,7 +1435,8 @@ $(document).ready(function() {
 				
 				row.find(".questionMultipleChoiceAnswer").each(function(index, el) {
 					var id = $(el).find(".questionMultipleChoiceAnswerId").text();
-					var text = $(el).find(".questionMultipleChoiceAnswerText").text();
+					//SAK-46296
+					var text = $(el).find(".raw-questionAnswer-text").val();
 					var correct = $(el).find(".questionMultipleChoiceAnswerCorrect").text();
 					
 					var answerSlot;
