@@ -3370,6 +3370,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 
 					UIOutput.make(tableRow, "checklistDescription", i.getDescription());
+					UIOutput.make(tableRow, "error-checklist-not-saved", messageLocator.getMessage("simplepage.checklist.error.not-saved"));
 
 					List<SimpleChecklistItem> checklistItems = simplePageToolDao.findChecklistItems(i);
 
@@ -3377,7 +3378,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIForm checklistForm = UIForm.make(tableRow, "checklistItemForm");
 
 					UIInput.make(checklistForm, "checklistId", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
-
 					ArrayList<String> values = new ArrayList<String>();
 					ArrayList<String> initValues = new ArrayList<String>();
 
@@ -3428,19 +3428,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIOutput.make(checklistForm, "checklistItemsDiv");
 					if(!checklistItems.isEmpty()) {
 						UISelect select = UISelect.makeMultiple(checklistForm, "checklist-span", values.toArray(new String[1]), "#{simplePageBean.selectedChecklistItems}", initValues.toArray(new String[1]));
-
 						int index = 0;
 						for (SimpleChecklistItem checklistItem : checklistItems) {
 							UIBranchContainer row = UIBranchContainer.make(checklistForm, "select-checklistitem-list:");
 							UIComponent input = UISelectChoice.make(row, "select-checklistitem", select.getFullID(), index).decorate(new UIStyleDecorator("checklist-checkbox"));
 							String checklistItemName = checklistItem.getName();
-							if(checklistItem.getLink() > 0L) {
+							if (checklistItem.getLink() > 0L) {
+								//item with link
+								row.decorate(new UIStyleDecorator("is-linked"));
 								SimplePageItem linkedItem = simplePageBean.findItem(checklistItem.getLink());
 								if(linkedItem != null) {
-									input.decorate(new UIDisabledDecorator(true));
-
-									UIOutput.make(row, "select-checklistitem-linked-icon");
-
 									String toolTipMessage = "simplepage.checklist.external.link.details.incomplete";
 									if (simplePageBean.isItemComplete(linkedItem)) {
 										toolTipMessage = "simplepage.checklist.external.link.details.complete";
@@ -3448,24 +3445,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 									String tooltipContent = messageLocator.getMessage(toolTipMessage).replace("{}", SimplePageItemUtilities.getDisplayName(linkedItem));
 
 									if (!simplePageBean.isItemVisible(linkedItem)) {
-										row.decorate(new UIStyleDecorator("checklist-blur"));
 										tooltipContent = messageLocator.getMessage("simplepage.checklist.external.link.details.notvisible");
 										checklistItemName = messageLocator.getMessage("simplepage.checklist.external.link.hidden");
 									}
 
-									UIVerbatim.make(row, "select-checklistitem-linked-details", tooltipContent);
+									UIOutput.make(row, "select-checklistitem-linked-details", tooltipContent);
 								}
-								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName);
+								UIOutput.make(row, "linked-checklistitem-linked-icon");
 
 							} else if (checklistItem.getLink() < -1L) {	// getLink will give out -2 for items that were once linked but broke during site duplication.
-								input.decorate(new UIDisabledDecorator(true));
-								UIOutput.make(row, "select-checklistitem-link-broken");
-								String toolTipMessage = "simplepage.checklist.external.link.details.broken";
-								String tooltipContent = messageLocator.getMessage(toolTipMessage);
-								UIVerbatim.make(row, "select-checklistitem-linked-details", tooltipContent);
-								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label link-broken"));
+								//item with broken link
+								row.decorate(new UIStyleDecorator("is-linked"));
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName);
+								UIOutput.make(row, "linked-checklistitem-broken-link-icon");
+								String toolTipContent = messageLocator.getMessage("simplepage.checklist.external.link.details.broken");
+								UIOutput.make(row, "select-checklistitem-linked-details", toolTipContent);
 							} else {
-								UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+								//item without link
+								UIOutput.make(row, "select-checklistitem-name", checklistItemName);
 							}
 							index++;
 						}
@@ -5498,6 +5497,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		String[] localeDetails = locale.toString().split("_");
 		int localeSize = localeDetails.length;
+
 		String filePath = null;
 		String localizedPath = null;
 
@@ -5629,7 +5629,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 			String sessionTokenString = null;
 			if (sessionToken != null)
-			    sessionTokenString = sessionToken.toString();
+				sessionTokenString = sessionToken.toString();
 			UIInput checklistCsrfInput = UIInput.make(saveChecklistForm, "saveChecklistForm-csrf", "checklistBean.csrfToken", sessionTokenString);
 
 			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistDisplay.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
