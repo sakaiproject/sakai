@@ -852,8 +852,7 @@ MFR_RBC.saveRubric = function() {
 };
 
 window.onload = function() {
-    var mailtos = document.querySelectorAll("[id*=createEmail1");
-    mailtos.forEach(item =>{
-        item.setAttribute('href', item.href.replaceAll('+',' '));
+    document.querySelectorAll("[id*=createEmail1").forEach(item => {
+        item.setAttribute('href', item.href.replaceAll('+', ' '));
     });
 }
