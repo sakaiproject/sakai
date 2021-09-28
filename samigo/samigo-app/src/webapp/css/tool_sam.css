@@ -78,40 +78,19 @@ h4.samigo-category-subhead-2 {
 
 .treefolder, .treefolder-open, .treedoc {
  position: relative;
+ margin-right: 15px;
 }
 
 .treefolder:before {
-  content: "\f061";
+  content: "\f0da";
   position: absolute;
   top: 0;
   font-family: FontAwesome;
 }
 
-.treefolder:after {
-  content: "\f07b";
-  position: absolute;
-  top: 0;
-  font-family: FontAwesome;
-  margin-left: -15px;
-}
 
 .treefolder-open:before {
-  content: "\f063";
-  position: absolute;
-  top: 0;
-  font-family: FontAwesome;
-}
-
-.treefolder-open:after {
-  content: "\f07c";
-  position: absolute;
-  top: 0;
-  font-family: FontAwesome;
-  margin-left: -15px;
-}
-
-.treedoc:before {
-  content: "\f114";
+  content: "\f0d7";
   position: absolute;
   top: 0;
   font-family: FontAwesome;
