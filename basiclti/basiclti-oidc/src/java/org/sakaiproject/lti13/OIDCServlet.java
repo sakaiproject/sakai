@@ -119,7 +119,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!login_hint.startsWith("/access/basiclti/site/")
+		if (!login_hint.startsWith(LTIService.LAUNCH_PREFIX)
 				|| login_hint.contains("\"") || login_hint.contains("'")
 				|| login_hint.contains("<") || login_hint.contains(">")
 				|| login_hint.contains(" ") || login_hint.contains(";")) {
@@ -158,7 +158,7 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if (!platform_state.startsWith("/access/basiclti/site/")
+		if (!platform_state.startsWith(LTIService.LAUNCH_PREFIX)
 				|| platform_state.contains("\"") || platform_state.contains("'")
 				|| platform_state.contains("<") || platform_state.contains(">")
 				|| platform_state.contains(" ") || platform_state.contains(";")) {

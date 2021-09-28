@@ -36,6 +36,11 @@ import org.sakaiproject.lti.api.LTIExportService.ExportType;
  * </p>
  */
 public interface LTIService extends LTISubstitutionsFilter {
+
+    /** Constants */
+    String ADMIN_SITE = "!admin";
+    String LAUNCH_PREFIX = "/access/basiclti/site/";
+
     /**
      * This string starts the references to resources in this service.
      */
@@ -261,6 +266,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
     String LTI_PL_LESSONSSELECTION = "pl_lessonsselection";
     String LTI_PL_COURSENAV = "pl_coursenav";
+    String LTI_PL_PRIVACY = "pl_privacy";
     String LTI_SEARCH_TOKEN_SEPARATOR_AND = "#&#";
     String LTI_SEARCH_TOKEN_SEPARATOR_OR = "#|#";
     String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND = "\\#\\&\\#";

@@ -164,6 +164,11 @@ ${includeLatestJQuery}
                                 #if ( $tool.get("lti_content_count") > 0 ) 
                                 <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
                                 #end
+                                #set($privacy=0)
+                                #set($privacy=$tool.get("pl_privacy"))
+                                #if ( $privacy == 1 )
+                                <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$tool.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
+                                #end
                                 </ul>
 	                        #end
 		                </td>
