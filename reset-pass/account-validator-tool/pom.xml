@@ -13,8 +13,11 @@
 	<version>22-SNAPSHOT</version>
    </parent>
 
-   <properties>
-   </properties>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+        <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
+    </properties>
 
    <dependencies>
       <!-- internal dependencies -->
@@ -41,7 +44,39 @@
       	<groupId>org.sakaiproject.emailtemplateservice</groupId>
       	<artifactId>emailtemplateservice-api</artifactId>
       </dependency>
-      
+          <!-- thymeleaf template engine -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+        </dependency>        
+        <!-- we are running a webapp in a servlet container so we need the servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <!-- Sakai dependencies -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-api</artifactId>
@@ -54,31 +89,7 @@
       	<groupId>org.sakaiproject.kernel</groupId>
       	<artifactId>sakai-kernel-util</artifactId>
       </dependency>
-      <!-- Sakai RSF dependency -->
-      <dependency>
-         <groupId>org.sakaiproject.rsf</groupId>
-         <artifactId>sakai-rsf-core</artifactId>
-         <version>${project.version}</version>
-         <type>jar</type>
-      </dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject.rsf</groupId>
-         <artifactId>sakai-rsf-web-evolvers</artifactId>
-		 <version>${project.version}</version>
-         <type>jar</type>
-      </dependency>
-
-      <dependency>
-         <groupId>org.sakaiproject.rsf</groupId>
-         <artifactId>sakai-rsf-web-templates</artifactId>
-         <version>${project.version}</version>
-         <type>war</type>
-      </dependency>
-      <dependency>
-      	<groupId>javax.servlet</groupId>
-      	<artifactId>javax.servlet-api</artifactId>
-      </dependency>
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -101,7 +112,7 @@
         </includes>
       </resource>
       <resource>
-        <directory>${basedir}/src/bundle</directory>
+        <directory>${basedir}/src/resources</directory>
         <includes>
           <include>**/*.*</include>
         </includes>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title th:text="${accountTitle}">Activate your account</title>
+        <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/morpheus-default/portal.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/morpheus-default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/morpheus-default/print.css" type="text/css" rel="stylesheet" media="print"/>
+        <link href="/library/skin/morpheus-default/properties.css" type="text/css" rel="stylesheet" media="all"/>
+        <link href="content/css/newUser.css" type="text/css" rel="stylesheet" media="all"/>
+        <script id="portal-matter"></script>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+        <script type='text/javascript'>includeLatestJQuery('accountvalidator');</script>
+        <script type="text/javascript" language="JavaScript" src="content/js/accountValidator.js"></script>
+        <script type="text/javascript" language="JavaScript" th:text="${passwordPolicyEnabled}"></script>
+    </head>
+    <body>
+    <div class="wrapper">
+        <h2 class="topheading" th:text="#{validate.welcome1}">Welcome to Sakai!</h2>
+        <div class="logo"></div>
+        <div class="instruction">
+            <span th:text="${welcome}">You have been invited to the following sites:</span>
+            <ul class="siteList" th:each="site : ${siteTitles}">
+                <li th:text="${site}"></li>
+            </ul>
+        </div>
+        <h3 th:text="${accountTitle}" class="header">Activate</h3>
+        <form id="setDetailsForm" class="form-horizontal" name="form" method="post">
+            <div id="banner" class="sak-banner-info">
+                <span class="fit" th:text="#{username.new}" >Your new username will be:</span>
+                <span id="eid" th:text="${eid}" class="username">User ID</span>
+            </div>
+            <div class="sak-banner-warn">
+                <span class="fit" th:text="${wait1}">Wait!</span>
+                <span th:utext="${wait2}">I already have a Sakai account</span>
+            </div>
+            <div class="spacer"></div>
+            <div class="form-group">
+                <label for="firstName" class="col-sm-3">
+                    <span th:text="#{firstname}">First name</span>
+                    <span class="reqStar">*</span>
+                </label>
+                <div class="col-xs-5">
+                    <input type="text" class="form-control" id="firstName" onkeyup="VALIDATOR.validateFirstName();" oninput="VALIDATOR.validateFirstName();" required/>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div class="form-group">
+                <label for="surName" class="col-sm-3">
+                    <span th:text="#{lastname}">Last name</span>
+                    <span class="reqStar">*</span>
+                </label>
+                <div class="col-xs-5">
+                    <input type="text" class="form-control" id="surName" onkeyup="VALIDATOR.validateLastName();" oninput="VALIDATOR.validateLastName();" required/>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div class="form-group">
+                <label for="password1" class="col-sm-3">
+                    <span th:text="#{password}">Password</span>
+                    <span class="reqStar">*</span>
+                </label>
+                <div class="col-xs-5">
+                    <input id="password1" type="password" class="form-control" onkeyup="VALIDATOR.validatePassword(), VALIDATOR.validateActivateForm();" oninput="VALIDATOR.validatePassword();" onblur="VALIDATOR.displayStrengthInfo();" onfocus="VALIDATOR.displayStrengthInfo();" required autocomplete="new-password" />
+                    <div id="strengthBar" style="display:none;">
+                        <span id="strengthBarMeter" style="display:none;"></span>
+                    </div>
+                    <div id="strongMsg" style="display:none" class="sak-banner-success" th:text="#{password.strong}"></div>
+                    <div id="moderateMsg" style="display:none" class="sak-banner-success" th:text="#{password.moderate}"></div>
+                    <div id="weakMsg" style="display:none" class="sak-banner-success" th:text="#{password.weak}"></div>
+                    <div id="failMsg" style="display:none" class="sak-banner-error" th:text="#{password.fail}"></div>
+                    <div id="strengthInfo" style="display:none" th:text="#{password.strengthInfo}"></div>
+                </div>
+            </div>
+            <div class="spacer"></div>            
+            <div th:if="${renderPassBox} == true">
+                <div class="form-group">
+                    <label for="password2" class="col-sm-3">
+                        <span th:text="#{password2}">Confirm password</span>
+                        <span class="reqStar">*</span>
+                    </label>
+                    <div class="col-xs-5">
+                        <input id="password2" type="password" class="form-control" onkeyup="VALIDATOR.verifyPasswordsMatch();" oninput="VALIDATOR.verifyPasswordsMatch(), VALIDATOR.validateActivateForm();" required autocomplete="new-password"/>
+                    <div id="matchMsg" class="sak-banner-success" style="display:none;">
+                        <div  th:text="#{password.match}"></div>
+                    </div>
+                    <div id="noMatchMsg" class="sak-banner-error" style="display:none;">
+                        <div th:text="#{password.noMatch}"></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="spacer"></div>
+            <div class="terms" th:if="${termsLabel != null}">
+                <input id="termsCheck" type="checkbox" onclick="VALIDATOR.validateTermsChecked();" required/>
+                <label id="termsLabel" for="termsCheck" th:utext="#{terms(${termsLabel})}">I accept the terms and conditions</label>
+                <span class="reqStar">*</span>
+            </div>
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h5 th:text="#{terms.link}">Terms and conditions</h5>
+                    <div class="spacer"></div>
+                    <p th:text="${termsText}">Explanation..</p>
+                </div>
+            </div>
+            <input id="addDetailsSub" type="submit" th:value="#{submit.new.account}" disabled="true" /> 
+            <div class="spacer"></div>
+        </form>
+    </div>
+    <script>
+        const modal = document.getElementById("myModal");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        function showModal() {
+            modal.style.display = "block";
+        };
+        // Close the modal when the user clicks on <span> (x)
+        closeBtn.onclick = function () {
+            modal.style.display = "none";
+        };
+        // Close the modal When the user clicks anywhere outside
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        document.getElementById('setDetailsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            let terms = "false";
+            const checkBox = document.getElementById('termsCheck');
+
+            const data = {
+                "firstName": document.getElementById('firstName').value,
+                "surname": document.getElementById('surName').value,
+                "password": document.getElementById('password1').value,
+                "password2": document.getElementById('password2').value,
+                "terms": terms = (checkBox == null ?
+                        'false' : checkBox.checked ?
+                        'true' : 'false')
+            };
+
+            fetch(window.location.href, {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: JSON.stringify(data)
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json().then(function (response) {
+
+                    const banner = document.getElementById("banner");
+
+                    if (response.error !== undefined) {
+                        banner.classList.remove("sak-banner-info");
+                        banner.classList.add("sak-banner-error");
+                        const message = response.error;
+                        banner.textContent = message;
+                    } else if (response.success !== undefined) {
+                        window.location.replace(location.origin + '/portal');
+                    }
+                });
+            });
+        });
+    </script>
+    </body>
+</html>

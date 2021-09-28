@@ -1,0 +1,168 @@
+body {
+  background: var(--sakai-background-color-2);
+}
+
+p,
+h1,
+form,
+button {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.spacer {
+  clear: both;
+  height: 25px;
+}
+
+/* ----------- wrapper ------------ */
+.wrapper {
+  border: 2px solid var(--sakai-active-color-1);
+  padding: 10px 40px 20px 40px;
+  background: var(--sakai-background-color-1);
+  margin: 2em auto;
+  max-width: 45%;
+  min-width: fit-content;
+  border-radius: 8px;
+}
+
+.header {
+  padding: 5px 0 20px 15px;
+  border-bottom: 1px solid var(--sakai-border-color);
+  margin-bottom: 10px;
+}
+
+.stylized .logo {
+  background: var(--sakai-passive-color-1) url(/library/skin/morpheus-default/images/logo-jewel.png) no-repeat center center;
+  background-size: 160px 45px;
+  width: 100%;
+  height: 64px;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+/* ----------- stylized ----------- */
+
+.stylized h1 {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.dialog {
+  font-size: 13px;
+  color: var(--sakai-text-color-dimmed);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  max-width: fit-content;
+}
+
+span.instruction {
+  display: block;
+  margin: 0.5em auto;
+  line-height: 200%;
+  font-size: 13px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 0.5em;
+  width: fit-content;
+  text-align: left;
+}
+
+.fit {
+  max-width: fit-content;
+}
+
+span.reqStar {
+  /* needed to override tool.css */
+  float: none;
+  margin-left: 2px;
+  border: 0 none;
+  font-weight: bold;
+}
+
+.siteList {
+  display: block;
+  text-align: left;
+  margin: auto;
+}
+
+.terms label {
+  width: auto;
+  height: auto;
+  float: none;
+  font-weight: normal;
+  display: inline;
+}
+
+.terms {
+  padding-bottom: 10px;
+}
+
+.spacerVertical {
+  border-left: 2px solid var(--sakai-active-color-1);
+  height: 110px;
+  width: 2px;
+}
+
+.or {
+  color: var(--warnBanner-color);
+  font-size: 140%;
+  font-weight: bold;
+}
+
+.username {
+  color: var(--infoBanner-color);
+  font-weight: bold;
+}
+
+/* Modal Background */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1; /* Sit on top */
+  padding-top: 20%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.2); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 40%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.linkStyle {
+  color: var(--link-color);
+  text-decoration: underline;
+  cursor: pointer;
+}
