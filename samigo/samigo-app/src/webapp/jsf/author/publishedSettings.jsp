@@ -387,7 +387,7 @@
   <div class="form-group row">
       <h:outputLabel for="releaseTo" styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
-          <h:selectOneMenu id="releaseTo" disabled="true" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();" onchange="handleAnonymousUsersChange(this);showHideReleaseGroups();">
+          <h:selectOneMenu id="releaseTo" disabled="true" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
           <h:outputLabel id="releaseToHelp" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"

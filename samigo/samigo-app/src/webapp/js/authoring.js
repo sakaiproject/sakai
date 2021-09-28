@@ -660,18 +660,25 @@ function setExceptionDefault() {
 const ANON_USERS = "Anonymous Users";
 function lockdownAnonyGrading(value, prevValue) {
 	const ag = document.getElementById("assessmentSettingsAction:anonymousGrading");
-	if (ag === null) {
-		return;
+	if (ag !== null) {
+		if (value === ANON_USERS) {
+			ag.checked = true;
+		}
+		else if (prevValue === ANON_USERS) {
+			ag.checked = false;
+		}
+		ag.disabled = value === ANON_USERS;
 	}
-	ag.disabled = value === ANON_USERS;
 }
 
 function lockdownGradebook(value) {
 	const gb = document.getElementById("assessmentSettingsAction:toDefaultGradebook");
-	if (gb === null) {
-		return;
+	if (gb !== null) {
+		if (value === ANON_USERS && gb.checked) {
+			gb.click();  // there is an event handler on the checkbox so we need to click it
+		}
+		gb.disabled = value === ANON_USERS;
 	}
-	gb.disabled = value === ANON_USERS;
 }
 
 function handleAnonymousUsers(value, prevValue) {
