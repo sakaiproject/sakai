@@ -44,7 +44,7 @@ class SakaiRubricStudent extends RubricsElement {
 
   set token(newValue) {
 
-    this._token = "Bearer " + newValue;
+    this._token = `Bearer ${  newValue}`;
     if (this.preview && this.rubricId) {
       this.setRubric();
     }
@@ -81,23 +81,25 @@ class SakaiRubricStudent extends RubricsElement {
     return html`
       <hr class="itemSeparator" />
 
-      <h3>${this.rubric.title}</h3>
+      <div class="rubric-details student-view">
+        <h3>${this.rubric.title}</h3>
 
-      ${this.preview || this.forcePreview ? html`
-        <sakai-rubric-criterion-preview
-          criteria="${JSON.stringify(this.rubric.criterions)}"
-          .weighted=${this.rubric.weighted}
-        ></sakai-rubric-criterion-preview>
-        ` : html`
-        <sakai-rubric-criterion-student
-          criteria="${JSON.stringify(this.rubric.criterions)}"
-          rubric-association="${JSON.stringify(this.association)}"
-          evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
-          ?preview="${this.preview}"
-          entity-id="${this.entityId}"
-          .weighted=${this.rubric.weighted}
-        ></sakai-rubric-criterion-student>
-      `}
+        ${this.preview || this.forcePreview ? html`
+          <sakai-rubric-criterion-preview
+            criteria="${JSON.stringify(this.rubric.criterions)}"
+            .weighted=${this.rubric.weighted}
+          ></sakai-rubric-criterion-preview>
+          ` : html`
+          <sakai-rubric-criterion-student
+            criteria="${JSON.stringify(this.rubric.criterions)}"
+            rubric-association="${JSON.stringify(this.association)}"
+            evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+            ?preview="${this.preview}"
+            entity-id="${this.entityId}"
+            .weighted=${this.rubric.weighted}
+          ></sakai-rubric-criterion-student>
+        `}
+      </div>
     `;
   }
 
@@ -123,7 +125,7 @@ class SakaiRubricStudent extends RubricsElement {
       if (data._embedded['rubric-associations'].length) {
         this.association = data._embedded['rubric-associations'][0];
         this.options = data._embedded['rubric-associations'][0].parameters;
-        var rubricId = data._embedded['rubric-associations'][0].rubricId;
+        const rubricId = data._embedded['rubric-associations'][0].rubricId;
 
         // Now, get the rubric
         $.ajax({
@@ -136,10 +138,10 @@ class SakaiRubricStudent extends RubricsElement {
           $.ajax({
             url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
             headers: { "authorization": this.token }
-          }).done(data => {
+          }).done(data1 => {
 
-            if (data._embedded.evaluations.length) {
-              this.evaluation = data._embedded.evaluations[0];
+            if (data1._embedded.evaluations.length) {
+              this.evaluation = data1._embedded.evaluations[0];
               this.preview = false;
             } else {
               this.evaluation = { criterionOutcomes: [] };

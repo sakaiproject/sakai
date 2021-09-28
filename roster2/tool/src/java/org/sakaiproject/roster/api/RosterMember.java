@@ -35,7 +35,9 @@
 package org.sakaiproject.roster.api;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import lombok.Data;
@@ -78,10 +80,16 @@ public class RosterMember {
 	}
 
 	public String getGroupsToString() {
-		return groups.values().stream().collect(Collectors.joining(","));
+		return this.getGroups().values().stream().collect(Collectors.joining(","));
 	}
 
 	public String getEid() {
 		return eid == null ? userId : eid;
+	}
+
+	public Map<String, String> getGroups() {
+		this.groups = this.groups.entrySet().stream().sorted(Entry.comparingByValue()).
+				collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		return this.groups;
 	}
 }

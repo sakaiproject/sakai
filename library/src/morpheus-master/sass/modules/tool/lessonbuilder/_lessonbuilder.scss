@@ -43,20 +43,6 @@
 		}
 	}
 
-	label.checklistLabel.disabled:hover {
-		color: var(--sakai-text-color-disabled);
-		cursor: not-allowed;
-	}
-
-	label.checklistLabel.disabled {
-		color: var(--sakai-text-color-disabled);
-	}
-
-	.checklist-blur label.checklistLabel.disabled, .checklist-blur label.checklistLabel.disabled:hover {
-		text-shadow: 0 0 5px rgba(0,0,0,0.5);
-		color: transparent;
-	}
-
 	.#{$namespace}toolTitleNav {
 		@media #{$phone} {
 		       margin-top: 0px;
@@ -100,7 +86,7 @@
     */
 	/* default */
 	.questionDiv .contentCol, .checklistDiv {
-		background-color: var(--sakai-active-color-1);
+		background-color: var(--sakai-background-color-3);
 	}
 	input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
 		@include sakai_secondary_button();
@@ -108,9 +94,6 @@
 	}
 	.column .commentDiv, .column .studentContentTable, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv, .column .fc-toolbar {
 		background-color: var(--sakai-background-color-2);
-	}
-	.checklist-checkbox-label {
-		vertical-align: baseline;
 	}
 
 	.column a[href]:not(.usebutton) {
@@ -238,8 +221,6 @@
 			.questionDiv .contentCol, .checklistDiv {
 				@include sakai-colorize(#{$shade4}, $colorPalette: $colorPalette);
 			}
-			.usebutton.n#{$name},
-			.usebutton.n#{$name}-trans,
 			input[type="submit"].question-submit,
 			.linkCell .addStudentContent,
 			input[type="submit"].setStudentZero {
@@ -258,6 +239,12 @@
 			input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
 				margin-top: $standard-space-4x;
 			}
+		}
+
+		.usebutton.n#{$name},
+		.usebutton.n#{$name}-trans {
+			background-color: var(#{$shade1}) !important;
+			color: white !important;
 		}
 	}
 

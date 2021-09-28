@@ -74,28 +74,6 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
     font-size: 110%;
 }
 
-.checklist-checkbox-label {
-    padding: 0.5em 0.5em 0.5em 0;
-}
-
-label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label, label.checklistLabel.disabled input.checklist-checkbox ~ span.link-broken {
-    background-image: none;
-    cursor: not-allowed;
-    vertical-align: top;
-    padding-bottom: 13px;
-}
-
-span.link-broken-icon {
-    line-height: .5em;
-    padding-top: 2.5%;
-}
-label.checklistLabel:hover .checklist-checkbox ~ span.checklist-checkbox-label {
-    cursor: pointer;
-}
-
-.checklistLabel {
-    line-height: 1.5em;
-}
 .hideNameCheckbox {
     margin: 1em .5em 0 4em !important;
 }
@@ -155,18 +133,7 @@ legend.no-border {
 
 .tooltip-content {
     display: none;
-    position: absolute;
-    background-color: var(--sakai-background-color-1);
-    padding: .5em;
-    border: 1px solid var(--sakai-border-color);
-    box-shadow: var(--elevation-2dp);
-    width: 20em;
-    height: auto;
-    line-height: normal;
-    font-weight: normal;
-    z-index: 900001;
-    cursor: pointer;
-}
+
 
 span.externally-linked, label input.checklist-checkbox:checked + span.externally-linked {
     display: none;

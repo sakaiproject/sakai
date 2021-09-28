@@ -16,7 +16,7 @@ if (field != null) {
        return "Check all"; }
   }
   else {
-// for only one checkbox
+/// for only one checkbox
     if (checkflag == "false") {
   field.checked = true;
   checkflag = "true";
@@ -338,39 +338,9 @@ $( document ).ready( function() {
             $("input", this).click();
         }
     });
-
-    // Setup extended time radios
     $('input[name="assessmentSettingsAction\\:userOrGroup"]').change(function () {
-        var $t = $(this);
-        var $thisSelect;
-        var $otherSelect;
-
-        if($t.attr('id') === 'assessmentSettingsAction:extendedEnableUser') {
-            $thisSelect = $('#assessmentSettingsAction\\:newEntry-user');
-            $otherSelect = $('#assessmentSettingsAction\\:newEntry-group');
-        } else {
-            $thisSelect = $('#assessmentSettingsAction\\:newEntry-group');
-            $otherSelect = $('#assessmentSettingsAction\\:newEntry-user');
-        }
-
-        $thisSelect.prop('disabled', false);
-        $otherSelect.prop('disabled', true);
-        $otherSelect.val('');
+        checkUserOrGroupRadio();
     });
-
-    if($('#assessmentSettingsAction\\:newEntry-user').val() === '') {
-        $('#assessmentSettingsAction\\:newEntry-user').prop('disabled', 'disabled');
-        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', false);
-    } else {
-        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', true);
-    }
-
-    if($('#assessmentSettingsAction\\:newEntry-group').val() === '') {
-        $('#assessmentSettingsAction\\:newEntry-group').prop('disabled', 'disabled');
-        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', false);
-    } else {
-        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', true);
-    }
 });
 
 function validationWarningSetDefault(element, value) {
@@ -416,27 +386,28 @@ function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
 //consolidate common used functions here for assessment settings
 //improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013
 
-// If we select "No Feedback will be displayed to the student"
-// it will disable and uncheck feedback as well as blank out text, otherwise,	
+// If we select "No, do not display any feedback to the student"
+// it will uncheck feedback as well as blank out text, otherwise,
 // if a different radio button is selected, we reenable feedback checkboxes & text.
-function disableAllFeedbackCheck(feedbackType)
-{
+function disableAllFeedbackCheck(feedbackType) {
     var noFeedback = 3;
 
-    if (feedbackType == noFeedback){
-     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
-		$(".respChoice input").prop({disabled:true, checked:false});
-	}
-    else
-	{
-    	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
-    	if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
-    		$(".respChoice input").prop({disabled:true, checked:false});
-    	} else {
-    		$(".respChoice input").prop("disabled", false);
-    	}
-	}
+    if (feedbackType == noFeedback) {
+        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
+        $(".respChoice input").prop({checked:false});
+        $('input[id*=feedbackComponentOption][value=1]')[0].checked = true;
+    }
+    else {
+        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
+        if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
+                $(".respChoice input").prop({checked:false});
+        }
+        else {
+                $(".respChoice input").prop("disabled", false);
+        }
+    }
     disableFeedbackDateCheck(feedbackType);
+    disableOtherFeedbackComponentOption();
 }
 
 // Display the date selectors when the feedback is shown by date.
@@ -521,13 +492,15 @@ function checkNoFeedbackOnLoad(){
 	disableFeedbackDateCheck(feedbackType);
 }
 
-function disableOtherFeedbackComponentOption(field)
+function disableOtherFeedbackComponentOption()
 {
-	var fieldValue = field.getAttribute("value");
-	if(fieldValue ==1 )
-		$(".respChoice input").prop({disabled:true, checked:false});
-	else
-		$(".respChoice input").prop("disabled", false);
+	var fieldValue = $("input[id*=feedbackComponentOption]:checked")[0].value;
+	if(fieldValue == "1" ){
+		$(".respChoice")[0].style.display = "none";
+	}
+	else{
+		$(".respChoice")[0].style.display = "block";
+	}
 }
 
 function validateUrl(){
@@ -574,6 +547,16 @@ function showHideReleaseGroups(){
   }
 }
 
+function showHideSurveyHelp() {
+	var selectedValue = $('select[id*="releaseTo"]').val();
+	var helpText = $('[id*="releaseToHelp"]');
+	if(selectedValue == "Anonymous Users") {
+		helpText.show();
+	} else {
+		helpText.hide();
+	}
+}
+
 function setBlockDivs()
 {  
    //alert("setBlockDivs()");
@@ -602,94 +585,120 @@ function setBlockDivs()
    //document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = "_id224";
    document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = blockDivs;
 }
+function checkTimedRadio(){
+        var timelimitEnabled=$('input[id*="selTimeAssess"]:checked').val();
+        var hourSelect=$('select[id*="timedHours"]');
+        var minuteSelect=$('select[id*="timedMinutes"]');
+        var hourLabel = $('[id*="timedHoursLabel"]');
+        var minuteLabel = $('[id*="timedMinutesLabel"]');
+        var firstLabel = $('label[for*="selTimeAssess:1"]');
+        var secondLabel = $('label[id*="isTimedTimeLimitLabel"]');
+        var dot = ".";
 
-function checkUncheckTimeBox(){
-  var inputList= document.getElementsByTagName("INPUT");
-  var timedCheckBoxId;
-  var timedHourId;
-  var timedMinuteId;
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].type=='checkbox')
-    {
-      if(inputList[i].id.indexOf("selTimeAssess")>=0)
-        timedCheckBoxId = inputList[i].id;
-    }
-  }
-  inputList= document.getElementsByTagName("select");
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].id.indexOf("timedHours")>=0)
-      timedHourId =inputList[i].id;
-    if(inputList[i].id.indexOf("timedMinutes")>=0)
-      timedMinuteId =inputList[i].id;
-  }
-  if(document.getElementById(timedCheckBoxId) != null)
-  {
-    if(!document.getElementById(timedCheckBoxId).checked)
-    {
-      if(document.getElementById(timedHourId) != null)
-      {
-        for(i=0; i<document.getElementById(timedHourId).options.length; i++)
-        {
-          if(i==0)
-            document.getElementById(timedHourId).options[i].selected = true;
-          else
-            document.getElementById(timedHourId).options[i].selected = false;
+        if(timelimitEnabled == 'true') {
+                //timelimit enabled
+                hourSelect.show();
+                minuteSelect.show();
+                hourLabel.show();
+                minuteLabel.show();
+                secondLabel.show();
+                if(firstLabel.text().indexOf(dot) == -1) {
+                    firstLabel.text(firstLabel.text() + dot);
+                    firstLabel.after('<span id="timedSpace"> </span>');
+                }
         }
-        document.getElementById(timedHourId).disabled = true;
-      }
-      if(document.getElementById(timedMinuteId) != null)
-      {
-        for(i=0; i<document.getElementById(timedMinuteId).options.length; i++)
-        {
-          if(i==0)
-            document.getElementById(timedMinuteId).options[i].selected = true;
-          else
-            document.getElementById(timedMinuteId).options[i].selected = false;
+        else if(timelimitEnabled == 'false') {
+                //timelimit disabled
+                hourSelect.hide();
+                minuteSelect.hide();
+                hourLabel.hide();
+                minuteLabel.hide();
+                secondLabel.hide();
+                if(firstLabel.text().indexOf(dot) > -1) {
+                    firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+                    $("#timedSpace").remove();
+                }
+                //set hour and min to 0
+                hourSelect[0].options.selectedIndex = 0;
+                minuteSelect[0].options.selectedIndex = 0;
         }
-        document.getElementById(timedMinuteId).disabled = true;
-      }
-    }
-    else 
-    { // SAM-2121: now the "Timed Assessment" box is checked"
-      // I wish we didn't have to submit this form now, but I could not get it to work properly without submitting.
-      // SAM-2262: fixed
-      document.getElementById(timedHourId).disabled = false;
-      document.getElementById(timedMinuteId).disabled = false;
-      //document.forms[0].submit();
-    }    
-  }
 }
 
-function initTimedCheckBox(){
-		var timedHours = document.getElementById("assessmentSettingsAction\:timedHours");
-		var timedHoursVal = timedHours.options[timedHours.selectedIndex].value;
-		var timedMinutes = document.getElementById("assessmentSettingsAction\:timedMinutes");
-		var timedMinutesVal = timedMinutes.options[timedMinutes.selectedIndex].value;
-		
-		if((timedHoursVal != "0") || (timedMinutesVal != "0")) document.getElementById("assessmentSettingsAction\:selTimeAssess").checked=true;
+function initTimedRadio(){
+	timedSettings = $('[id*="selTimeAssess"]')
+	defaultValue = false ? 1 : 0;
+	//If no option is selected
+	if(timedSettings.filter(':checked').length == 0) {
+		//Select default value
+		timedSettings.slice(defaultValue, defaultValue + 1).prop('checked', 'checked');
+	}
 }
 
-function lockdownAnonyGrading(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', '');
-		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', '');
+function initAnononymousUsers(){
+	var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
+	if (releaseToVal === 'Anonymous Users') {
+		handleAnonymousUsers(releaseToVal, "");
+	}
+}
+
+//This is just needed for the published settings
+//In unpublished settings the default is set in the AssessmentSettingsBean
+function setSubmissionLimit() {
+	var textField = $('[id*="submissions_Allowed"]')
+	if(textField.val() == "") {
+		textField.val("1");
+	}
+}
+
+//Sets default values for time exceptions (User/Group)
+function setExceptionDefault() {
+	defaultButton = $('[id*="extendedEnableUser"]');
+	defaultButton.first().prop('checked', 'checked');
+        checkUserOrGroupRadio();
+}
+
+const ANON_USERS = "Anonymous Users";
+function lockdownAnonyGrading(value, prevValue) {
+	const ag = document.getElementById("assessmentSettingsAction:anonymousGrading");
+	if (ag !== null) {
+		if (value === ANON_USERS) {
+			ag.checked = true;
+		}
+		else if (prevValue === ANON_USERS) {
+			ag.checked = false;
+		}
+		ag.disabled = value === ANON_USERS;
 	}
 }
 
 function lockdownGradebook(value) {
-	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
-	} 
-	else {
-		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
+	const gb = document.getElementById("assessmentSettingsAction:toDefaultGradebook");
+	if (gb !== null) {
+		if (value === ANON_USERS && gb.checked) {
+			gb.click();  // there is an event handler on the checkbox so we need to click it
+		}
+		gb.disabled = value === ANON_USERS;
 	}
+}
+
+function handleAnonymousUsers(value, prevValue) {
+	lockdownAnonyGrading(value, prevValue);
+	lockdownGradebook(value);
+	const msg = document.getElementById("assessmentSettingsAction:gradingOptionsDisabledInfo");
+	if (msg !== null) {
+		msg.style.display = value === ANON_USERS ? "block" : "none";
+	}
+}
+
+
+
+function handleAnonymousUsersChange(element)
+{
+	const value = element.value; 	// possible values are Anonymous Users, <site title>, Specific Groups
+	const prevValue = "prevValue" in element ? element.prevValue : [...element.options].filter(o => o.defaultSelected)[0].label;
+	element.prevValue = value;
+
+		handleAnonymousUsers(value, prevValue);
 }
 
 function show_multiple_text(show_multiple_link){
@@ -704,16 +713,42 @@ function show_multiple_text(show_multiple_link){
 
 function checkLastHandling(){
 	var isDisabled=$('input[id*="lateHandling"]:checked').val();
-	var retractDate = $('input[id*="retractDate"]:visible');
+	var retractDate = $('input[id*="retractDate"]');
+	var deadlineLabel = $('[id*="lateHandlingDeadlineLabel"]');
+	var firstLabel = $('label[for*="lateHandling:1"]');
+	var dot = ".";
 	//$('input[id*="retractDate"]:visible').prop( "disabled", isDisabled);
 	//$('input[id*="retractDate"]:visible').next().show;
 	
 	if(isDisabled==2){
-		$(retractDate).prop( "disabled", true );
-		$(retractDate).next().hide();
+		retractDate.hide().next().hide();
+		deadlineLabel.hide();
+		if(firstLabel.text().indexOf(dot) > -1) {
+			firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+			$("#lateSpace").remove();
+		}
 	}else{
-		$(retractDate).prop( "disabled", false );
-		$(retractDate).next().show();
+		retractDate.show().next().show();
+		deadlineLabel.show();
+		if(firstLabel.text().indexOf(dot) == -1) {
+			firstLabel.text(firstLabel.text() + dot);
+			firstLabel.after('<span id="lateSpace"> </span>');
+		}
+	}
+}
+
+function checkUserOrGroupRadio() {
+	var checkedSettingId = $('input[id*="extendedEnable"]:checked').attr('id');
+
+	if(checkedSettingId.indexOf('User') > -1) {
+		//User is selected -> disable group selection
+		$('select[name*="newEntry-group"]').prop('disabled', 'disabled');
+		$('select[name*="newEntry-user"]').prop('disabled', '');
+	}
+	else if(checkedSettingId.indexOf('Group') > -1) {
+		//Group is selected -> disable user selection
+		$('select[name*="newEntry-user"]').prop('disabled', 'disabled');
+		$('select[name*="newEntry-group"]').prop('disabled', '');
 	}
 }
 
@@ -838,3 +873,22 @@ function collapseAccordion(iframId){
     $("div#jqueryui-accordion > h3.ui-accordion-header").removeClass("ui-accordion-header-active ui-state-active");
 }
 
+/*
+* This will set an aria-describedbiy attribute to every setting with a descriptive label when
+* the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
+*/
+function setAccessibilityAttributes() {
+	var helpBlockDetectString = "HelpBlock";
+	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
+	for(i = 0; i < helpBlocks.length; i++) {
+		var helpBlockId = helpBlocks[i].id;
+		//removes helpBlockDetectString resulting in the id of the setting
+		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
+		//querries elements with that exact id
+		var settingQuerryIdent = "#" + settingId.replace(/:/g, "\\:");
+		//querries elements with appending :0, :1, ...
+		var settingQuerryOption = "[id*=" + settingId.replace(/:/g, "\\:") + "\\:]";
+		//sets aria-describredby attribute
+		$(settingQuerryIdent + ", " + settingQuerryOption).first().attr("aria-describredby", helpBlockId);
+	}
+}

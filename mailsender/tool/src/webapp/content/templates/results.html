@@ -1,20 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-	<title rsf:id="page-title">Mail Sender</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-</head>
-
-<body>
-<div class="portletBody">
-	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
-	<span rsf:id="msg=message.sent.to">Message sent to:</span>
-	<div rsf:id="message-for:*">Messages for the user show here</div>
-</div>
-</body>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+        <link href="/mailsender-tool/content/css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+        <script src="/library/js/headscripts.js"></script>
+    </head> 
+    <body>
+        <div class="portletBody">
+            <div id="menu" th:include="fragments/menus :: main (compose)" />
+            <br/>
+            <span th:text="#{message.sent.to}" style="margin-bottom: 5px ">Message sent to:</span>
+            <ul th:each="user:${listaus}">
+                <li th:text="${user}"></li>
+            </ul>
+            <div th:if="${badem && invemails != null && invemails.size() > 0}" style="margin-top: 10px">
+                <span th:text="#{invalid.email.addresses}" >The following users do not have valid email addresses:</span>
+                <ul th:each="invuser:${invemails}">
+                    <li th:text="${invuser}"></li>
+                </ul>  
+            </div>
+        </div>
+    </body>
 </html>

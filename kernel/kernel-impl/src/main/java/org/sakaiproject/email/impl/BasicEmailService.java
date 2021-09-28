@@ -27,21 +27,21 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.DataSource;
-import jakarta.mail.Address;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Multipart;
-import jakarta.mail.SendFailedException;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
-import jakarta.mail.internet.MimeUtility;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
@@ -568,9 +568,9 @@ public class BasicEmailService implements EmailService
 					msg.setFrom(from);
 				}
 			}
-	    } catch (jakarta.mail.internet.AddressException e) {
+	    } catch (javax.mail.internet.AddressException e) {
 			log.info("checkfrom address exception " + e);
-	    } catch (jakarta.mail.MessagingException e) {
+	    } catch (javax.mail.MessagingException e) {
 			log.info("checkfrom messaging exception " + e);
 	    }
 	}
@@ -1007,7 +1007,7 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Converts a {@link java.util.List} of {@link EmailAddress} to
-	 * {@link jakarta.mail.internet.InternetAddress}.
+	 * {@link javax.mail.internet.InternetAddress}.
 	 *
 	 * @param emails
 	 * @return Array will be the same size as the list with converted addresses. If list is null,

@@ -69,6 +69,11 @@ const sakaiVideoRecorder = {
         sakaiVideoRecorder.recorder.camera = camera;
         sakaiVideoRecorder.recorderStopButton.disabled = false;
 
+        // Scroll the view to the stop recording button.
+        setTimeout(() => {
+          sakaiVideoRecorder.recorderStopButton.scrollIntoView({block: 'center', behavior: "smooth" })
+        }, 100);
+
         // Important: The default Sakai file size is 20MB so by default is recording around 2:30 of video, increase this value if your instance allows bigger files.
         // TODO: Could be interesting to calculate this depending on the server side property content.upload.max, maybe as future improvement.
         const sleep = (m) => new Promise( (r) => setTimeout(r, m));

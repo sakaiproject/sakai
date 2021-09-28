@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -227,16 +228,18 @@ public class EmailUtil {
             //if this is a archive (zip etc) append the list of files in it
             attachments.stream().map(attachment -> entityManager.newReference(attachment)).forEach(reference -> {
                 ResourceProperties properties = reference.getProperties();
-                boolean isArchiveFile = isArchiveFile(reference);
-                buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-                        .append(" (")
-                        .append(reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
-                        .append(isArchiveFile ? "):" : ")")
-                        .append(NEW_LINE);
-                if (isArchiveFile(reference)) {
-                    buffer.append("<blockquote>\n");
-                    buffer.append(getArchiveManifest(reference, true));
-                    buffer.append("</blockquote>\n");
+                if (!"true".equals(properties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+                    boolean isArchiveFile = isArchiveFile(reference);
+                    buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+                            .append(" (")
+                            .append(reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
+                            .append(isArchiveFile ? "):" : ")")
+                            .append(NEW_LINE);
+                    if (isArchiveFile(reference)) {
+                        buffer.append("<blockquote>\n");
+                        buffer.append(getArchiveManifest(reference, true));
+                        buffer.append("</blockquote>\n");
+                    }
                 }
             });
         }

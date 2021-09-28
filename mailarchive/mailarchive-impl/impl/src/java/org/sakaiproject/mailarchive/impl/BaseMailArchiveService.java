@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import jakarta.mail.internet.MimeUtility;
+import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.AliasService;
@@ -1143,7 +1143,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
 				return getHtmlBody();
 			else 
-				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText(m_body) );
+				return m_formattedText.encodeUrlsAsHtml( m_formattedText.convertPlaintextToFormattedText( m_formattedText.decodeNumericCharacterReferences(m_body)) );
 				
 		} // getHtmlBody
 

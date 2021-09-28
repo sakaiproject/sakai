@@ -57,25 +57,25 @@
 
 package org.apache.commons.jrcs.diff;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public abstract class DiffTest extends TestCase
+import org.junit.Test;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public abstract class DiffTest
 {
 	static final int LARGE = 2 * 1024;
 
 	protected DiffAlgorithm algorithm;
 
-	public DiffTest(String testName, DiffAlgorithm algorithm)
+	public DiffTest(DiffAlgorithm algorithm)
 	{
-		super(testName);
 		this.algorithm = algorithm;
-	}
-
-	public static Test suite()
-	{
-		return new TestSuite(DiffTest.class);
 	}
 
 	Object[] empty = new Object[] {};
@@ -93,14 +93,16 @@ public abstract class DiffTest extends TestCase
 			"[4] four", "[5] five", "[6] six", "[7] seven revised",
 			"[8] eight revised", };
 
+	@Test
 	public void testCompare()
 	{
-		assertTrue(!Diff.compare(original, empty));
-		assertTrue(!Diff.compare(empty, original));
+		assertFalse(Diff.compare(original, empty));
+		assertFalse(Diff.compare(empty, original));
 		assertTrue(Diff.compare(empty, empty));
 		assertTrue(Diff.compare(original, original));
 	}
 
+	@Test
 	public void testEmptySequences() throws DifferentiationFailedException
 	{
 		String[] emptyOrig = {};
@@ -110,6 +112,7 @@ public abstract class DiffTest extends TestCase
 		assertEquals("revision size is not zero", 0, revision.size());
 	}
 
+	@Test
 	public void testOriginalEmpty() throws DifferentiationFailedException
 	{
 		String[] emptyOrig = {};
@@ -120,6 +123,7 @@ public abstract class DiffTest extends TestCase
 		assertTrue(revision.getDelta(0) instanceof AddDelta);
 	}
 
+	@Test
 	public void testRevisedEmpty() throws DifferentiationFailedException
 	{
 		String[] orig = { "1", "2", "3" };
@@ -130,6 +134,7 @@ public abstract class DiffTest extends TestCase
 		assertTrue(revision.getDelta(0) instanceof DeleteDelta);
 	}
 
+	@Test
 	public void testDeleteAll() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -139,6 +144,7 @@ public abstract class DiffTest extends TestCase
 		assertTrue(Diff.compare(revision.patch(original), empty));
 	}
 
+	@Test
 	public void testTwoDeletes() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -151,6 +157,7 @@ public abstract class DiffTest extends TestCase
 				+ Diff.NL + "< [9] nine" + Diff.NL, revision.toString());
 	}
 
+	@Test
 	public void testChangeAtTheEnd() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -163,19 +170,22 @@ public abstract class DiffTest extends TestCase
 				.toRCSString());
 	}
 
+	@Test
 	public void testPatchFailed() throws DifferentiationFailedException
 	{
 		try
 		{
 			Revision revision = Diff.diff(original, rev2, algorithm);
-			assertTrue(!Diff.compare(revision.patch(rev1), rev2));
+			assertFalse(Diff.compare(revision.patch(rev1), rev2));
 			fail("PatchFailedException not thrown");
 		}
 		catch (PatchFailedException e)
 		{
+			log.info(e.toString());
 		}
 	}
 
+	@Test
 	public void testPreviouslyFailedShuffle()
 			throws DifferentiationFailedException, PatchFailedException
 	{
@@ -189,6 +199,7 @@ public abstract class DiffTest extends TestCase
 		assertTrue(Diff.compare(patched, rev));
 	}
 
+	@Test
 	public void testEdit5() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -202,6 +213,7 @@ public abstract class DiffTest extends TestCase
 		assertTrue(Diff.compare(patched, rev));
 	}
 
+	@Test
 	public void testShuffle() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -220,6 +232,7 @@ public abstract class DiffTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testRandomEdit() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -237,6 +250,7 @@ public abstract class DiffTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testVisitor()
 	{
 		Object[] orig = new String[] { "[1] one", "[2] two", "[3] three",
@@ -294,6 +308,7 @@ public abstract class DiffTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testAlternativeAlgorithm()
 			throws DifferentiationFailedException, PatchFailedException
 	{
@@ -306,6 +321,7 @@ public abstract class DiffTest extends TestCase
 				.toRCSString());
 	}
 
+	@Test
 	public void testLargeShuffles() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -323,6 +339,7 @@ public abstract class DiffTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testLargeShuffleEdits() throws DifferentiationFailedException,
 			PatchFailedException
 	{
@@ -339,6 +356,7 @@ public abstract class DiffTest extends TestCase
 		}
 	}
 
+	@Test
 	public void testLargeAllEdited() throws DifferentiationFailedException,
 			PatchFailedException
 	{

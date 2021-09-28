@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.tool.assessment.services;
 
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

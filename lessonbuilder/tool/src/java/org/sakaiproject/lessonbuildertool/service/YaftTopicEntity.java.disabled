@@ -233,27 +233,6 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		return null;
 	}
 
-	// access control
-	public boolean addEntityControl(String siteId, String groupId) throws IOException {
-
-		if (discussion == null)
-			discussion = forumService.getDiscussion(id, false);
-
-		return true;
-	}
-
-	public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-
-		return true;
-	}
-
-	/**
-	 * From LessonEntity
-	 */
-	public boolean needSubmission() {
-		return false;
-	}
-
 	/**
 	 * From LessonEntity
 	 */

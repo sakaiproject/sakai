@@ -25,10 +25,10 @@ jobs:
           git pull --ff-only origin $GITHUB_BASE_REF
           echo "Commits after pull"
           git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
-      - name: JDK 8
+      - name: JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
           architecture: x64
       - name: Cache local Maven repository
         uses: actions/cache@v2
@@ -39,8 +39,8 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Build with Maven
         env:
-          MAVEN_OPTS: -Djava.awt.headless=true -Dorg.slf4j.simpleLogger.defaultLogLevel=info -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
-        run: mvn -PskipBrokenTests test --batch-mode
+          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
+        run: mvn --batch-mode -PskipBrokenTests test
       - name: Report jUnit Annotations as Github Actions Annotations
         uses: shyim/junit-report-annotations-action@0.2.0
         with:

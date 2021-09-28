@@ -1,6 +1,6 @@
 .ui-progressbar {
 	position: relative;
-	background: var(--sakai-background-color-2);
+	background: var(--sakai-color-gray--darker-2);
 	margin-bottom: 15px;
 }
 
@@ -35,6 +35,8 @@
 	width: 98%;
 	margin: auto;
 	margin-top: 10px;
+	background-color: var(--sakai-color-gray--darker-2);
+	border-color: var(--sakai-color-gray--darker-2);
 }
 
 #timerBlock {

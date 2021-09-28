@@ -45,7 +45,7 @@ class SakaiEditor extends SakaiElement {
     if (value) {
       this.attachEditor();
     } else {
-      this.editor.destroy()
+      this.editor.destroy();
     }
   }
 
@@ -96,4 +96,4 @@ if (!customElements.get("sakai-editor")) {
 }
 
 SakaiEditor.toolbars = new Map();
-SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']}]);
+SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList', 'BulletedList', 'Blockquote']}]);

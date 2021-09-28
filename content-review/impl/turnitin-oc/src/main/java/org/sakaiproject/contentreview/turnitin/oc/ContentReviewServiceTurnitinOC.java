@@ -785,8 +785,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		
 		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
 		Map<String, String> assignmentSettings = assignment.getProperties();
-		
-		List<String> repositories = Arrays.asList("INTERNET", "SUBMITTED_WORK");
+		// Pass the full list of repositories, TCA will filter out which repositories the tenant isn't allowed to use
+		List<String> repositories = Arrays.asList("INTERNET", "SUBMITTED_WORK", "PUBLICATION", "CROSSREF", "CROSSREF_POSTED_CONTENT");
 		// Build header maps
 		Map<String, Object> reportData = new HashMap<>();
 		Map<String, Object> generationSearchSettings = new HashMap<>();

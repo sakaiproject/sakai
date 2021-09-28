@@ -1,6 +1,6 @@
 import { css } from "./assets/lit-element/lit-element.js";
 import { loadProperties } from "./sakai-i18n.js";
-import { LionPagination } from "./assets/@lion/pagination/src/LionPagination.js"
+import { LionPagination } from "./assets/@lion/pagination/src/LionPagination.js";
 
 export class SakaiPager extends LionPagination {
 

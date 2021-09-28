@@ -70,6 +70,17 @@
 				draftTitlePrefix: $("#messages #draftTitlePrefix").html(),
 				noUndoWarning: $("#messages #noUndoWarning").html()
 			};
+
+		var menuLink = $('#syllabusMenuMainLink');
+		menuLink.addClass('current');
+		menuLink.find('a').removeAttr('href');
+		$('#expandLink').on('click', function () {
+			expandAccordion(mainframeId);
+		});
+		$('#collapseLink').on('click', function () {
+			collapseAccordion(mainframeId);
+		});
+
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
 					if(<h:outputText value="#{SyllabusTool.editAble == 'true'}"/>){
@@ -110,18 +121,6 @@
 	window.onbeforeunload = function()
 	{ return ""; };// default message is OK
 
-  $(document).ready(function() {
-    var menuLink = $('#syllabusMenuMainLink');
-    menuLink.addClass('current');
-    menuLink.find('a').removeAttr('href');
-    $('#expandLink').on('click', function () {
-      expandAccordion(mainframeId);
-    });
-    $('#collapseLink').on('click', function () {
-      collapseAccordion(mainframeId);
-    });
-  });
-
 </script>
 
 <%-- gsilver: global things about syllabus tool:
@@ -134,12 +133,12 @@
 		<br/>
 		<%@ include file="mainControls.jsp" %>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-					<f:verbatim><div class="instruction"></f:verbatim>
+					<h:panelGroup layout="block" styleClass="instruction" rendered="#{SyllabusTool.editAble == 'true'}">
 						<h:outputText value="#{msgs.reorderInstruction}" />
-						<f:verbatim><span class="sr-only"></f:verbatim>
+						<h:panelGroup styleClass="sr-only">
 							<h:outputText value="#{msgs.reorderInstruction_sr}" />
-						<f:verbatim></span></f:verbatim>
-					<f:verbatim></div></f:verbatim>
+						</h:panelGroup>
+					</h:panelGroup>
 					<f:verbatim>
 						<div>
 							<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>

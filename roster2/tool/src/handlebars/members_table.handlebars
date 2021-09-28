@@ -97,9 +97,7 @@
     <td class="roster-groups-cell">
         {{#if hasGroups}}
             <div class="roster-group-cell">
-                {{#if singleGroup}}
-                <a href="javascript:;" class="roster-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
-                {{else}}
+                {{#if groups.[1]}}
                 <span class="skip">{{tr 'screenreader_comboBox'}}</span>
                 <select class="roster-groups-selector">
                     <option value="all">{{tr 'member_group_all_option'}}</option>
@@ -107,6 +105,8 @@
                     <option value="{{id}}">{{title}}</option>
                     {{/each}}
                 </select>
+                {{else}}
+                <a href="javascript:;" class="roster-group-link" data-groupid="{{groups.[0].id}}">{{groups.[0].title}}</a>
                 {{/if}}
             </div>
         {{else}}

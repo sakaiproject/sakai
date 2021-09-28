@@ -15,6 +15,18 @@
  */
 package org.sakaiproject.component.app.help;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,12 +39,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Iterator;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -69,10 +75,8 @@ public class HelpManagerImplTest {
     public void testSearch() {
         Set<Resource> test = helpManager.searchResources("test");
         assertNotNull(test);
-        Iterator<Resource> iterator = test.iterator();
-        assertTrue(iterator.hasNext());
-        Resource resource = iterator.next();
-        assertEquals("Sample Resource Name", resource.getName());
+        assertEquals(1, test.size());
+        assertEquals("Sample Resource Name", test.toArray(new Resource[0])[0].getName());
     }
 
     @Test

@@ -3012,11 +3012,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		}
 
-		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords, includeNonReleasedItems, gb.getCategory_type());
+		return calculateCategoryScore(studentUuid, category.getId(), gradeRecords, includeNonReleasedItems, gb.getCategory_type(), category.getEqualWeight());
 	}
 
 	@Override
-	public Optional<CategoryScoreData> calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId, final boolean includeNonReleasedItems, int categoryType) {
+	public Optional<CategoryScoreData> calculateCategoryScore(final Long gradebookId, final String studentUuid, final Long categoryId,
+															  final boolean includeNonReleasedItems, int categoryType, Boolean equalWeightAssignments) {
 
 		// get all grade records for the student
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -3031,7 +3032,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// apply the settings
 		final List<AssignmentGradeRecord> gradeRecords = gradeRecMap.get(studentUuid);
 
-		return calculateCategoryScore(studentUuid, categoryId, gradeRecords, includeNonReleasedItems, categoryType);
+		return calculateCategoryScore(studentUuid, categoryId, gradeRecords, includeNonReleasedItems, categoryType, equalWeightAssignments);
 	}
 
 	/**
@@ -3043,7 +3044,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @return
 	 */
 	private Optional<CategoryScoreData> calculateCategoryScore(final String studentUuid, final Long categoryId,
-			final List<AssignmentGradeRecord> gradeRecords, final boolean includeNonReleasedItems, final int categoryType) {
+			final List<AssignmentGradeRecord> gradeRecords, final boolean includeNonReleasedItems, final int categoryType, Boolean equalWeightAssignments) {
 
 		// validate
 		if (gradeRecords == null) {
@@ -3062,7 +3063,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalEarnedMean = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
-		Category category = getCategory(categoryId);
 
 		// apply any drop/keep settings for this category
 		applyDropScores(gradeRecords, categoryType);
@@ -3150,7 +3150,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						GradebookService.MATH_CONTEXT)
 				.multiply(new BigDecimal("100"));
 		
-		if (category.isEqualWeightAssignments()) {
+		if (equalWeightAssignments == null) {
+			Category category = getCategory(categoryId);
+			equalWeightAssignments = category.isEqualWeightAssignments();
+		}
+		if (equalWeightAssignments) {
 			mean = totalEarnedMean.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
 		}
 

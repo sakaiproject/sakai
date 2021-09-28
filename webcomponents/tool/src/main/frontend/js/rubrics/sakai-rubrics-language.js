@@ -29,8 +29,5 @@ export function tr(key, values) {
   return translate("rubrics", key, values);
 }
 
-try {
-  customElements.define("sr-lang", SakaiRubricsLanguage);
-} catch (error) {
-  // Can happen under healthy circumstances
-}
+const tagName = "sr-lang";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricsLanguage);

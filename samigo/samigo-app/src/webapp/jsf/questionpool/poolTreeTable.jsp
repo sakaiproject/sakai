@@ -48,11 +48,11 @@
 <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 <h:outputLink  title="#{questionPoolMessages.t_toggletree}" id="parenttogglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
-    <h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
+    <h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="5" value="/images/delivery/spacer.gif" />
 </h:outputLink>
-<h:outputLink title="#{questionPoolMessages.t_toggletree}" id="togglelink"  value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
-    <h:graphicImage id="spacer_for_mozilla1" style="border:0" width="30" height="14"  value="/images/delivery/spacer.gif" />
-</h:outputLink>
+<h:panelGroup styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
+    <h:graphicImage id="spacer_for_mozilla1" style="border:0" width="5" height="14"  value="/images/delivery/spacer.gif" />
+</h:panelGroup>
 
 <h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}" rendered="#{authorization.editOwnQuestionPool}">
   <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false"/>

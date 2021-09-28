@@ -90,40 +90,49 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function() {
+	$("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
-                if ($(this).attr('defaultsize') === 'true' ||
-		    (typeof width !== 'undefined' && width !== '' &&
-		     (typeof height === 'undefined' || height =='')))
-                    $(this).height($(this).width() * 0.75);
-            });
+		if ($(this).attr('defaultsize') === 'true' ||
+			(typeof width !== 'undefined' && width !== '' &&
+			(typeof height === 'undefined' || height =='')))
+			$(this).height($(this).width() * 0.75);
+	});
 
-        $("div.multimediaType img").each(function() {
+	$("div.multimediaType img").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
 		// if just width specified, we're fine. it will scale. But if height is specified narrow windows
 		// will give us the wrong aspect ration
-                if (typeof height !== 'undefined' && height !== '') {
-		    if (typeof width !== 'undefined' && width !== '') {
-			// both specified. use specified aspect ratio
-			if ($(this).width() != width) {
-			    var aspect = height / width;
-			    $(this).height($(this).width() * aspect);
+		if (typeof height !== 'undefined' && height !== '') {
+			if (typeof width !== 'undefined' && width !== '') {
+				// both specified. use specified aspect ratio
+				if ($(this).width() != width) {
+					var aspect = height / width;
+					$(this).height($(this).width() * aspect);
+				}
+			} else {
+				var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
+				// -1 to avoid triggering because of rounding
+				if ($(this).width() *  aspect < (height-1)) {
+				// width has been reduced because of max-width 100%
+					$(this).height($(this).width() * aspect);
+				}
 			}
-		    } else {
-			var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
-			// -1 to avoid triggering because of rounding
-			if ($(this).width() *  aspect < (height-1)) {
-			    // width has been reduced because of max-width 100%
-			    $(this).height($(this).width() * aspect);			    
-			}
-		    }
-                }
-            });
+		}
+	});
+
+	$('.is-linked').click(function (e) {
+		e.preventDefault();
+	});
+
+	$('.is-linked').each(function () {
+		box = $(this).children().first();
+		box.attr('title', $(this).children().nextAll('.tooltip-content').html())
+		box.tooltip();
+	});
 
 	$("input[type=checkbox].checklist-checkbox").on("change", function(){
-
 		$(this).next("span").addClass("savingChecklistItem");
 		$(this).parent().nextAll(".saveChecklistSaving").show();
 		$("#saveChecklistForm-checklistId").val($(this).closest(".checklistItemForm").find(".checklistId").val()).change();
@@ -1412,7 +1421,7 @@ $(document).ready(function() {
 				for(var index = 0; index < questionAnswers.length - 1; index++) {
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableShortanswerDiv").first();
+						answerSlot = $("#copyableShortanswer").first();
 					}else {
 						answerSlot = addShortanswer();
 					}
@@ -1431,7 +1440,7 @@ $(document).ready(function() {
 					
 					var answerSlot;
 					if(index === 0) {
-						answerSlot = $("#copyableMultipleChoiceAnswerDiv").first();
+						answerSlot = $("#copyableMultipleChoiceAnswer").first();
 					}else {
 						answerSlot = addMultipleChoiceAnswer();
 					}
@@ -1684,24 +1693,25 @@ $(document).ready(function() {
 			return false;
 		});
 
-        $("#subpage-button").click(function(){
-            if($(this).is(":checked")){
-                if($("#subpage-btncolor-forced").is(":visible")){
-                    //do nothing, color selector still needs hidden.
-                }else{
-                    $("#subpage-buttonColorLabel").removeClass("disabled");
-                    $("#subpage-btncolor-selection").removeClass("disabled");
-                }
-                //remove button warning regardless
-                $("#subpage-needbtn").hide();
-            }else{
-                //if its not checked, make sure "disabled" class is there.
+		$("#subpage-button-color-group").hide();
+		$("#subpage-button").click(function(){
+			if ($(this).is(":checked")) {
+				if( $("#subpage-btncolor-forced").is(":visible")) {
+					//do nothing, color selector still needs to be hidden.
+				} else {
+					$("#subpage-button-color-group").show();
+				}
+			} else {
+				$("#subpage-button-color-group").hide();
+			}
+		});
 
-                $("#subpage-buttonColorLabel").addClass("disabled");
-                $("#subpage-btncolor-selection").addClass("disabled");
-                $("#subpage-needbtn").show();
-            }
-        });
+		$("#subpage-choose-button").tooltip();
+		$("#subpage-choose-button").attr("title", $('#subpage-choose').html());
+		$("#subpage-choose-button").click(function(e) {
+			e.preventDefault();
+			window.location = $('#subpage-choose').attr('href');
+		});
 
 		$("#item-button").click(function(){
 			if($(this).is(":checked")){
@@ -3536,15 +3546,14 @@ function unhideMultimedia() {
 
 // Clones one of the multiplechoice answers in the Question dialog and appends it to the end of the list
 function addMultipleChoiceAnswer() {
-	var clonedAnswer = $("#copyableMultipleChoiceAnswerDiv").clone(true);
-	var num = $("#extraMultipleChoiceAnswers").find("div").length + 2; // Should be currentNumberOfAnswers + 1
-	
+	var clonedAnswer = $("#copyableMultipleChoiceAnswer").clone(true);
+	var num = $("#multipleChoiceAnswersBody").find("tr").length + 2; // Should be currentNumberOfAnswers + 1
 	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
 	clonedAnswer.find(".question-multiplechoice-answer-correct").prop("checked", false);
 	clonedAnswer.find(".question-multiplechoice-answer").val("");
-	
+
 	clonedAnswer.attr("id", "multipleChoiceAnswerDiv" + num);
-	
+
 	// Each input has to be renamed so that RSF will recognize them as distinct
 	clonedAnswer.find("[name='question-multiplechoice-answer-complete']")
 		.attr("name", "question-multiplechoice-answer-complete" + num);
@@ -3560,39 +3569,50 @@ function addMultipleChoiceAnswer() {
 		.attr("for", "question-multiplechoice-answer" + num);
 	clonedAnswer.find("[name='question-multiplechoice-answer']")
 		.attr("name", "question-multiplechoice-answer" + num);
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
-	clonedAnswer.appendTo("#extraMultipleChoiceAnswers");
-	
+	clonedAnswer.appendTo("#multipleChoiceAnswersBody");
+
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
+
 	return clonedAnswer;
 }
 
+function reassignAnswerOptions() {
+	const capitalLettersIndex = 65; // 65 corresponds to A.
+	document.querySelectorAll('.question-multiplechoice-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
+	document.querySelectorAll('.question-showans-answer-option').forEach( (item, index) => {
+		item.innerHTML = String.fromCharCode(capitalLettersIndex + index);
+	});
+}
 // Clones one of the shortanswers in the Question dialog and appends it to the end of the list
 function addShortanswer() {
-	var clonedAnswer = $("#copyableShortanswerDiv").clone(true);
-	
+	var clonedAnswer = $("#copyableShortanswer").clone(true);
 	clonedAnswer.find(".question-shortanswer-answer").val("");
-	
+
 	// Unhide the delete link on every answer choice other than the first.
 	// Not allowing them to remove the first makes this AddAnswer code simpler,
 	// and ensures that there is always at least one answer choice.
 	clonedAnswer.find(".deleteAnswerLink").removeAttr("style");
 
 	// have to make name unique, so append a count
-	var n = $("#extraShortanswers div").length;
+	var n = $("#shortAnswersTableBody tr").length;
 	var elt = clonedAnswer.find("label");
 	elt.attr("for", elt.attr("for") + n);
 	elt = clonedAnswer.find("input");
 	elt.attr("name", elt.attr("name") + n);
-	
-	clonedAnswer.appendTo("#extraShortanswers");
 
+	clonedAnswer.appendTo("#shortAnswersTableBody");
+	// Re-assign the options to the question list
+	reassignAnswerOptions();
 
-	
 	return clonedAnswer;
 }
 
@@ -3617,7 +3637,8 @@ function updateShortanswers() {
 }
 
 function deleteAnswer(el) {
-	el.parent('div').remove();
+	el.parent('td').parent('tr').remove();
+	reassignAnswerOptions();
 }
 
 // Enabled or disables the subfields under grading in the question dialog
@@ -3650,13 +3671,9 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#shortanswerSelect").prop("checked") && $("#question-graded").prop("checked") &&
-		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!=="";}).length < 1) {
-	    $('#question-error').text(msg("simplepage.question-need-1"));
-	    $('#question-error-container').show();
-	    return false;
-	} else
+	} else {
 	    $('#question-error-container').hide();
+	}
 
 	updateMultipleChoiceAnswers();
 	updateShortanswers();
@@ -3671,17 +3688,15 @@ function prepareQuestionDialog() {
 
 // Reset the multiple choice answers to prevent problems when submitting a shortanswer
 function resetMultipleChoiceAnswers() {
-	var firstMultipleChoice = $("#copyableMultipleChoiceAnswerDiv");
+	var firstMultipleChoice = $("#copyableMultipleChoiceAnswer");
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
 	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
-	$("#extraMultipleChoiceAnswers").empty();
 }
 
 //Reset the shortanswers to prevent problems when submitting a multiple choice
 function resetShortanswers() {
-	$("#copyableShortanswerDiv").find(".question-shortanswer-answer").val("");
-	$("#extraShortanswers").empty();
+	$("#copyableShortanswer").find(".question-shortanswer-answer").val("");
 }
 
 

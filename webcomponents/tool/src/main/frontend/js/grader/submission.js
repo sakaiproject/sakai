@@ -21,10 +21,10 @@ export class Submission {
         this.submittedTime = init.dateSubmitted;
         this.submittedText = init.submittedText;
       } else if (init.draft && init.visible) {
-        this.submittedTime = i18n["draft_not_submitted"];
+        this.submittedTime = i18n.draft_not_submitted;
         this.submittedText = init.submittedText;
       } else {
-        this.submittedText = i18n["no_submission"];
+        this.submittedText = i18n.no_submission;
         this.submittedTime = "";
       }
 
@@ -65,9 +65,9 @@ export class Submission {
       }
       this.feedbackComment = init.feedbackComment || "";
 
-      this.resubmitsAllowed = parseInt(init.properties["allow_resubmit_number"] || 0);
+      this.resubmitsAllowed = parseInt(init.properties.allow_resubmit_number || 0);
       if (this.resubmitsAllowed === -1 || this.resubmitsAllowed > 0) {
-        this.resubmitDate = moment(parseInt(init.properties["allow_resubmit_closeTime"], 10)).valueOf();
+        this.resubmitDate = moment(parseInt(init.properties.allow_resubmit_closeTime, 10)).valueOf();
       }
 
       // We need this for setting the default resubmission date

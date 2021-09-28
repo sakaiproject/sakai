@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums.ui;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import org.sakaiproject.api.app.messageforums.events.ForumsMessageEventParams;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.events.ForumsTopicEventParams;
-import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.user.api.User;
@@ -530,21 +528,23 @@ public interface DiscussionForumManager
    * Returns num moderated topics in the current site that the current user
    * has moderate permission for, given the user's memberships
    * by permissionLevel (custom permissions)
-   * @param membershipList
    * @param contextId
+   * @param membershipList
+   * @param moderatedTopics
    * @return
    */
-  public int getNumModTopicsWithModPermissionByPermissionLevel(List membershipList);
+  public int getNumModTopicsWithModPermissionByPermissionLevel(List<String> membershipList, List<Topic> moderatedTopics);
   
   /**
    * Returns num moderated topics in the current site that the current user
    * has moderate permission for, given the user's memberships
    * based on permissionLevel (non-custom permissions)
-   * @param membershipList
    * @param contextId
+   * @param membershipList
+   * @param moderatedTopics
    * @return
    */
-  public int getNumModTopicsWithModPermissionByPermissionLevelName(List membershipList);
+  public int getNumModTopicsWithModPermissionByPermissionLevelName(List<String> membershipList, List<Topic> moderatedTopics);
   
   /**
    * Returns forum with topics, topic attachments, and topic messages

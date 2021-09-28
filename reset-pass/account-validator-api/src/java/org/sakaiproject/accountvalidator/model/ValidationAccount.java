@@ -19,6 +19,7 @@
  */
 package org.sakaiproject.accountvalidator.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 
 public class ValidationAccount {
@@ -67,13 +68,17 @@ public class ValidationAccount {
 	 */
 	public static final int ACCOUNT_STATUS_USERID_UPDATE = 7;
 	
+	@JsonIgnore
 	private Long id;
+	@JsonIgnore
 	private String userId;
 	private Date validationSent;
 	private Date validationReceived;
 	private Integer validationsSent;
+	@JsonIgnore
 	private String validationToken;
 	private Integer status;
+	@JsonIgnore
 	private String eid;
 
 	private String firstName = "";

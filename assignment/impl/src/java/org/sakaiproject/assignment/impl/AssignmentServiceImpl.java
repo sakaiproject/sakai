@@ -999,6 +999,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
                 }
 
+                // Copy Private Note
+                AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(assignmentId);
+                if (oNoteItem != null) {
+                    AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+                    nNoteItem.setAssignmentId(assignment.getId());
+                    nNoteItem.setNote(oNoteItem.getNote());
+                    nNoteItem.setShareWith(oNoteItem.getShareWith());
+                    nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
+                    assignmentSupplementItemService.saveNoteItem(nNoteItem);
+                }
+
                 // Copy All Purpose
                 AssignmentAllPurposeItem existingAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(assignmentId);
                 if (existingAllPurposeItem != null) {
@@ -3693,6 +3704,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 String contentType = resource.getContentType();
 
                 ResourceProperties props = resource.getProperties();
+                if ("true".equals(props.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION)))
+                {
+                    // File for the inline submission - the inline text has a separate file designated in the archive, so skip
+                    continue;
+                }
                 String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
                 displayName = escapeInvalidCharsEntry(displayName);
 

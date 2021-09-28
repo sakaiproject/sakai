@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
-import jakarta.activation.DataSource;
-import jakarta.activation.FileDataSource;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 
 /**
  * Holds an attachment for an email message. The attachment will be included with the message.
@@ -77,7 +77,7 @@ public class Attachment
 	 *             from.
 	 * @param filename The filename to call the attachment when sent out, doesn't have to match
 	 *                 the file from which the content is loaded.
-	 * @deprecated {@link org.sakaiproject.email.api.Attachment#Attachment(jakarta.activation.DataSource)}
+	 * @deprecated {@link org.sakaiproject.email.api.Attachment#Attachment(javax.activation.DataSource)}
 	 */
 	public Attachment(File file, String filename)
 	{

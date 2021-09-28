@@ -1178,9 +1178,6 @@ extends VelocityPortletStateAction
 				
 				context.put("delFields", (List)sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS));
 				sstate.removeAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS);
-			
-				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM, "N");
-				state.setDelfieldAlertOff(true);
 			}
 			else //after the 'Options' button click
 			{
@@ -1202,11 +1199,9 @@ extends VelocityPortletStateAction
 			buildMenu(portlet, context, runData, state);
 			
 		} //buildCustomizeCalendarContext
-		
-		/**
-		 * Handles the click on the page to add a field to events that will
-		 * be added to the calendar. Changes aren't complete until the user
-		 * commits changes with a save.
+
+		/*
+		 * Handles the adding of fields to events in the calendar.
 		 */
 		public void doAddfield(
 		RunData runData,
@@ -1216,22 +1211,22 @@ extends VelocityPortletStateAction
 		{
 			String addFields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
 			String [] addFieldsCalendarList = null;
-			
+
 			if (addFields != null)
 				addFieldsCalendarList = fieldStringToArray(addFields,ADDFIELDS_DELIMITER);
-			
+
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
-			
+
 			String addField = "";
 			addField = runData.getParameters().getString("textfield").trim();
 			String dupAddfield = "N";
-			
+
 			//prevent entry of some characters (can cause problem)
 			addField = addField.replaceAll("	 "," ");
 			addField = addField.replaceAll("'","");
 			addField = addField.replaceAll("\"","");
-			
+
 			if (addField.length()==0)
 			{
 				addAlert(sstate, rb.getString("java.alert.youneed"));
@@ -1259,7 +1254,7 @@ extends VelocityPortletStateAction
 					addFieldsCalendarList = initString;
 					
 				}
-				
+
 				if (dupAddfield.equals("N"))
 				{
 					if (addFields != null)
@@ -1270,11 +1265,11 @@ extends VelocityPortletStateAction
 					sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addFields);
 				}
 			}
-			
+
 			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_ADDFIELDS);
-			
-		}
 		
+		}
+
 		/**
 		 * Handles a click on the cancel button in the page that allows the
 		 * user to add/remove events to/from events that will be added to
@@ -1318,10 +1313,8 @@ extends VelocityPortletStateAction
 			state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
 		}
 		
-		/**
-		 * Handles the click on the page to remove a field from events in the
-		 * calendar. Changes aren't complete until the user commits changes
-		 * with a save.
+		/*
+		 * Handles the removal of event fields in the calendar.
 		 */
 		public void doDeletefield(
 		RunData runData,
@@ -1358,7 +1351,6 @@ extends VelocityPortletStateAction
 					}
 					else
 					{
-						sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM, "Y");
 						delFields.add(addFieldsCalendarList[i]);
 					}
 				}
@@ -1375,42 +1367,37 @@ extends VelocityPortletStateAction
 			
 		}
 		
-		/**
-		 * Handles the user clicking on the save button on the page to add or
-		 * remove additional attributes for all calendar events.
+		/*
+		 * Handles the saving process of changes fields in calendar events.
 		 */
 		public void doUpdate( RunData runData, Context context, CalendarActionState state, SessionState sstate) {
-			if ("Y".equals(sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM)) && state.getDelfieldAlertOff() ) {
-				state.setDelfieldAlertOff(false);
-			} else {
-				state.setDelfieldAlertOff(true);
-				String addfields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
-				while (addfields.startsWith(ADDFIELDS_DELIMITER)) {
-					addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
-				}
+			String addfields = (String) sstate.getAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS);
 
-				String calId = state.getPrimaryCalendarReference();
-				try {
-					CalendarEdit edit = CalendarService.editCalendar(calId);
-					edit.setEventFields(addfields);
-					CalendarService.commitCalendar(edit);
-				} catch (IdUnusedException e) {
-					context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno")); 
-					log.debug(".doUpdate customize calendar IdUnusedException"+e);
-					return;
-				} catch (PermissionException e) {
-					context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdonthave"));
-					log.debug(".doUpdate customize calendar "+e);
-					return;
-				} catch (InUseException e) {
-					context.put(ALERT_MSG_KEY,rb.getString("java.alert.someone")); 
-					log.debug(".doUpdate() for CustomizeCalendar: " + e);
-					return;
-				}
-
-				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
-				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
+			while (addfields.startsWith(ADDFIELDS_DELIMITER)) {
+				addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
 			}
+
+			String calId = state.getPrimaryCalendarReference();
+			try {
+				CalendarEdit edit = CalendarService.editCalendar(calId);
+				edit.setEventFields(addfields);
+				CalendarService.commitCalendar(edit);
+			} catch (IdUnusedException e) {
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.thereisno"));
+				log.debug(".doUpdate customize calendar IdUnusedException"+e);
+				return;
+			} catch (PermissionException e) {
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdonthave"));
+				log.debug(".doUpdate customize calendar "+e);
+				return;
+			} catch (InUseException e) {
+				context.put(ALERT_MSG_KEY,rb.getString("java.alert.someone"));
+				log.debug(".doUpdate() for CustomizeCalendar: " + e);
+				return;
+			}
+
+			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
+			sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_PAGE, CalendarAction.PAGE_MAIN);
 
 			// Go back to whatever state we were in beforehand.
 			state.setReturnState(CalendarAction.STATE_INITED);
@@ -1607,20 +1594,13 @@ extends VelocityPortletStateAction
 			calendarUrl = calendarUrl.replaceAll("webcals://", "https://");
 			calendarUrl = calendarUrl.replaceAll("webcal://", "http://");
 
-			if (calendarName.length() == 0)
-			{
+			if (calendarName.length() == 0) {
 				addAlert(sstate, rb.getString("java.alert.subsnameempty"));
-			}
-			else if (calendarUrl.length() == 0)
-			{
+			} else if (calendarUrl.length() == 0) {
 				addAlert(sstate, rb.getString("java.alert.subsurlempty"));
-			}
-			else if(!ComponentManager.get(FormattedText.class).validateURL(calendarUrl))
-			{
+			} else if(!ComponentManager.get(FormattedText.class).validateURL(calendarUrl)) {
 				addAlert(sstate,rb.getString("java.alert.subsurlinvalid"));
-			}
-			else
-			{
+			} else {
 				String contextId = EntityManager.newReference(
 						state.getPrimaryCalendarReference()).getContext();
 				String id = externalCalendarSubscriptionService
@@ -2156,9 +2136,6 @@ extends VelocityPortletStateAction
 	private final static String SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS =
 	"addfields";
 	private final static String SSTATE_ATTRIBUTE_DELFIELDS = "delFields";
-	
-	private final static String SSTATE_ATTRIBUTE_DELFIELDS_CONFIRM =
-	"delfieldsConfirm";
 	
 	private final static String SSTATE_ATTRIBUTE_SUBSCRIPTIONS = "calendarSubscriptions";
 	private final static String SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS = "addCalendarSubscriptions";
@@ -4751,7 +4728,7 @@ extends VelocityPortletStateAction
 			log.debug(".doAdd(): " + e);
 			return;
 		} catch (PermissionException e) {
-			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont")); 
+			context.put(ALERT_MSG_KEY,rb.getString("java.alert.youdont"));
 			log.debug(".doAdd(): " + e);
 			return;
 		}
@@ -5005,28 +4982,21 @@ extends VelocityPortletStateAction
 		else
 			if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
 			{
-				customizeCalendarPage.doDeletefield( runData, context, state, getSessionState(runData));
+				//customizeCalendarPage.doDeletefield( runData, context, state, getSessionState(runData));
 				customizeCalendarPage.doUpdate(runData, context, state, getSessionState(runData));
 				
-				if (!state.getDelfieldAlertOff())
+				// ReturnState was set up above.	 Switch states now.
+				String returnState = state.getReturnState();
+				if (returnState.endsWith("!!!fromDescription"))
 				{
-					state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
+					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
+					state.setState("description");
 				}
 				else
 				{
-					// ReturnState was set up above.	 Switch states now.
-					String returnState = state.getReturnState();
-					if (returnState.endsWith("!!!fromDescription"))
-					{
-						state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
-						state.setState("description");
-					}
-					else
-					{
-						state.setReturnState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
-						state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
-					}
-				} // if (!state.getDelfieldAlertOff())
+					state.setReturnState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
+					state.setState(CalendarAction.STATE_CUSTOMIZE_CALENDAR);
+				}
 			}
 			else
 			{
@@ -5329,23 +5299,26 @@ extends VelocityPortletStateAction
 		
 	}	 // doUpdate
 	
-	
+	/**
+	 * Handle the button click to remove fields to calendar events.
+	 */
 	public void doDeletefield(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		
 		customizeCalendarPage.doDeletefield( runData, context, state, getSessionState(runData));
+	    doUpdate(runData, context);
 	}
 	
-	
 	/**
-	 * Handle the button click to add a field to the list of optional attributes.
+	 * Handle the button click to add fields to calendar events.
 	 */
 	public void doAddfield(RunData runData, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		
 		customizeCalendarPage.doAddfield( runData, context, state, getSessionState(runData));
+		doUpdate(runData, context);
 	}
 	
 	
@@ -5354,6 +5327,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		
 		calendarSubscriptionsPage.doAddSubscription( runData, context, state, getSessionState(runData));
+		doUpdate(runData, context);
 	}
 
 	/**
@@ -5835,8 +5809,13 @@ extends VelocityPortletStateAction
 		
 		// groups awareness - filtering
 		String calId = state.getPrimaryCalendarReference();
+
 		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 		
+		boolean showAllEvents   = StringUtils.isBlank(scheduleTo) || "all".equalsIgnoreCase(scheduleTo);
+		boolean showSiteEvents  = "site".equalsIgnoreCase(scheduleTo);
+		boolean showGroupEvents = "groups".equalsIgnoreCase(scheduleTo);
+
 		try
 		{
 			Calendar calendarObj = CalendarService.getCalendar(calId);
@@ -5850,8 +5829,8 @@ extends VelocityPortletStateAction
 			{
 				if (calendarObj.allowGetEvents())
 				{
-					// default to make site selection
-					context.put("scheduleTo", "site");
+					// default to all events selection
+					context.put("scheduleTo", "all");
 				}
 				else if (calendarObj.getGroupsAllowGetEvent().size() > 0)
 				{
@@ -5870,39 +5849,42 @@ extends VelocityPortletStateAction
 			context.put("scheduleToGroups", schToGroups);
 			
 			CalendarEventVector newEventVectorObj = new CalendarEventVector();
-			newEventVectorObj.addAll(masterEventVectorObj);
-			
-			for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
-			{
-				CalendarEvent e = (CalendarEvent)(i.next());
-				
-				String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
-				if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
+			if (showAllEvents) {
+				newEventVectorObj.addAll(masterEventVectorObj);
+			} else {
+				for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
 				{
-					context.put("fromColExist", Boolean.TRUE);
-				}
-				
-				if ((schToGroups != null) && (schToGroups.size()>0))
-				{
-					boolean eventInGroup = false;
-					for (Iterator j = schToGroups.iterator(); j.hasNext();)
+					CalendarEvent e = (CalendarEvent)(i.next());
+
+					String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
+					if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
 					{
-						String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
-						String groupId = j.next().toString();
-						Site site = SiteService.getSite(calendarObj.getContext());
-						Group group = site.getGroup(groupId);
-						if (groupRangeForDisplay.equals("")||groupRangeForDisplay.equals("site")) 
-							eventInGroup = true;
-						if (groupRangeForDisplay.equals(group.getTitle()))
-							eventInGroup = true;
+						context.put("fromColExist", Boolean.TRUE);
 					}
-					if ( ! eventInGroup )
-						newEventVectorObj.remove(e);
+
+					if (showGroupEvents && schToGroups != null && !schToGroups.isEmpty())
+					{
+						boolean eventInGroup = false;
+						for (Iterator j = schToGroups.iterator(); j.hasNext();)
+						{
+							String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
+							String groupId = j.next().toString();
+							Site site = SiteService.getSite(calendarObj.getContext());
+							Group group = site.getGroup(groupId);
+							if (groupRangeForDisplay.equals(group.getTitle()))
+								eventInGroup = true;
+						}
+						if (eventInGroup){
+							newEventVectorObj.add(e);
+						}
+					}
+					if(showSiteEvents){
+						String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
+						if(StringUtils.isBlank(groupRangeForDisplay) || "site".equalsIgnoreCase(groupRangeForDisplay)){
+							newEventVectorObj.add(e);
+						}
+					}
 				}
-			}
-				
-			if ((schToGroups != null) && (schToGroups.size()>0))
-			{
 				masterEventVectorObj.clear();
 				masterEventVectorObj.addAll(newEventVectorObj);
 			}
@@ -5919,85 +5901,47 @@ extends VelocityPortletStateAction
 		boolean dateDsc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 		context.put("currentDateSortAsc", Boolean.valueOf(!dateDsc));
 		
-		if (!dateDsc)
-		{
-			for (yearInt = CalendarFilter.LIST_VIEW_STARTING_YEAR;
-				yearInt <= CalendarFilter.LIST_VIEW_ENDING_YEAR;
-				yearInt++)
-			{
-				Vector arrayOfMonths = new Vector(20);
-				for(monthInt = 1; monthInt <13; monthInt++)
+		boolean dateAsc = !dateDsc;
+		
+		for (yearInt = dateAsc ? CalendarFilter.LIST_VIEW_STARTING_YEAR : CalendarFilter.LIST_VIEW_ENDING_YEAR;
+			dateAsc ? yearInt <= CalendarFilter.LIST_VIEW_ENDING_YEAR : yearInt >= CalendarFilter.LIST_VIEW_STARTING_YEAR ;
+			yearInt = yearInt + (dateAsc ? 1 : -1)
+		){
+			ArrayList<MyMonth> arrayOfMonths = new ArrayList(20);
+			for(
+					monthInt = dateAsc ? 1 : 12;
+					dateAsc ? monthInt <13 : monthInt >=1;
+					monthInt = monthInt + (dateAsc ? 1 : -1)
+			){
+				CalendarUtil AcalObj = new CalendarUtil();
+
+				monthObj2 = new MyMonth();
+				AcalObj.setDay(yearInt, monthInt, dayInt);
+
+				dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
+
+				// Get the events for the particular month from the
+				// master list of events.
+				calendarEventVectorObj =
+					new CalendarEventVector(
+						state.getCalendarFilter().filterEvents(
+							masterEventVectorObj.getEvents(
+								getMonthTimeRange((CalendarUtil) AcalObj))));
+
+				if (!calendarEventVectorObj.isEmpty())
 				{
-					CalendarUtil AcalObj = new CalendarUtil();
-					
-					monthObj2 = new MyMonth();
-					AcalObj.setDay(yearInt, monthInt, dayInt);
-					
-					dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
-					
-					// Get the events for the particular month from the
-					// master list of events.
-					calendarEventVectorObj =
-						new CalendarEventVector(
-							state.getCalendarFilter().filterEvents(
-								masterEventVectorObj.getEvents(
-									getMonthTimeRange((CalendarUtil) AcalObj))));
-					
+					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
+
+					monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
+
+					AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
+
 					if (!calendarEventVectorObj.isEmpty())
-					{
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
-						
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						if (!calendarEventVectorObj.isEmpty())
-							arrayOfMonths.addElement(monthObj2);
-					}
+						arrayOfMonths.add(monthObj2);
 				}
-				if (!arrayOfMonths.isEmpty())
-					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 			}
-		}
-		else
-		{
-			for (yearInt = CalendarFilter.LIST_VIEW_ENDING_YEAR;
-			yearInt >= CalendarFilter.LIST_VIEW_STARTING_YEAR;
-			yearInt--)
-			{
-				Vector arrayOfMonths = new Vector(20);
-				for(monthInt = 12; monthInt >=1; monthInt--)
-				{
-					CalendarUtil AcalObj = new CalendarUtil();
-					
-					monthObj2 = new MyMonth();
-					AcalObj.setDay(yearInt, monthInt, dayInt);
-					
-					dateObj1.setTodayDate(AcalObj.getMonthInteger(),AcalObj.getDayOfMonth(),AcalObj.getYear());
-					
-					// Get the events for the particular month from the
-					// master list of events.
-					calendarEventVectorObj =
-						new CalendarEventVector(
-							state.getCalendarFilter().filterEvents(
-								masterEventVectorObj.getEvents(
-									getMonthTimeRange((CalendarUtil) AcalObj))));
-					
-					if (!calendarEventVectorObj.isEmpty())
-					{
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						monthObj2 = calMonth(monthInt, (CalendarUtil)AcalObj, state, calendarEventVectorObj);
-						
-						AcalObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
-						
-						if (!calendarEventVectorObj.isEmpty())
-							arrayOfMonths.addElement(monthObj2);
-					}
-				}
-				if (!arrayOfMonths.isEmpty())
-					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
-			}
+			if (!arrayOfMonths.isEmpty())
+				yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 		}
 		
 		context.put("yearMap", yearMap);

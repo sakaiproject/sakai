@@ -287,13 +287,13 @@ public class PDFExportService {
                 break;
             case CalendarService.LIST_SUBVIEW:
             case CalendarService.WEEK_VIEW:
+            case CalendarService.DAY_VIEW:
                 timeRangeList = makeWeekTimeRangeList(selectedCalendarLocalDate);
+                // SAK-45768 - Fixing the day or week view could be a big amount of DEV time while this should be done through CSS, using the list view instead
+                scheduleType = CalendarService.LIST_VIEW;
                 break;
             case CalendarService.MONTH_VIEW:
                 timeRangeList = makeMonthTimeRangeList(selectedCalendarLocalDate);
-                break;
-            case CalendarService.DAY_VIEW:
-                timeRangeList = makeDayTimeRangeList(selectedCalendarLocalDate);
                 break;
             default:
                 log.warn(".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
@@ -367,7 +367,6 @@ public class PDFExportService {
 
                 // Set the current date
                 eventList.setAttribute(LIST_DATE_ATTRIBUTE_NAME, getDateFromTime(currentTimeRange.firstTime()));
-
                 eventList.setAttribute(LIST_DAY_OF_MONTH_ATTRIBUTE_NAME, getDayOfMonthFromTime(currentTimeRange.firstTime()));
 
                 // Set the maximum number of events per timeslot
@@ -391,80 +390,11 @@ public class PDFExportService {
                 root.appendChild(eventList);
 
                 Iterator itEvent = calendarEventVector.iterator();
-
-                //
-                // Day and week views use a layout table to assist in constructing the
-                // rowspan information for layout.
-                //
-                if (scheduleType == CalendarService.DAY_VIEW || scheduleType == CalendarService.WEEK_VIEW)  {
-                    SingleDayLayoutTable layoutTable = new SingleDayLayoutTable(currentTimeRange, MAX_OVERLAPPING_COLUMNS, SCHEDULE_INTERVAL_IN_MINUTES);
-
-                    // Load all the events into our layout table.
-                    while (itEvent.hasNext()) {
-                        CalendarEvent event = (CalendarEvent) itEvent.next();
-                        layoutTable.addEvent(event);
-                    }
-
-                    List layoutRows = layoutTable.getLayoutRows();
-
-                    Iterator rowIterator = layoutRows.iterator();
-
-                    // Iterate through the list of rows.
-                    while (rowIterator.hasNext()) {
-                        LayoutRow layoutRow = (LayoutRow) rowIterator.next();
-                        TimeRange rowTimeRange = layoutRow.getRowTimeRange();
-
-                        if (maxNumberOfColumnsPerRow < layoutRow.size())  {
-                            maxNumberOfColumnsPerRow = layoutRow.size();
-                        }
-
-                        if (maxConcurrentEventsOverListNode < layoutRow.size()) {
-                            maxConcurrentEventsOverListNode = layoutRow.size();
-                        }
-
-                        Element eventNode = doc.createElement(EVENT_NODE_NAME);
-                        eventList.appendChild(eventNode);
-
-                        // Add the "from" time as an attribute.
-                        eventNode.setAttribute(FROM_ATTRIBUTE_STRING, getTimeString(rowTimeRange.firstTime()));
-
-                        // Add the "to" time as an attribute.
-                        eventNode.setAttribute(TO_ATTRIBUTE_STRING, getTimeString(performEndMinuteKludge(rowTimeRange.lastTime().breakdownLocal())));
-
-                        Element rowNode = doc.createElement(ROW_NODE_NAME);
-
-                        // Set an attribute indicating the number of columns in this row.
-                        rowNode.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(layoutRow.size()));
-
-                        eventNode.appendChild(rowNode);
-
-                        Iterator layoutRowIterator = layoutRow.iterator();
-
-                        // Iterate through our list of column lists.
-                        while (layoutRowIterator.hasNext()) {
-                            Element columnNode = doc.createElement(COLUMN_NODE_NAME);
-                            rowNode.appendChild(columnNode);
-
-                            List columnList = (List) layoutRowIterator.next();
-
-                            Iterator columnListIterator = columnList.iterator();
-
-                            // Iterate through the list of columns.
-                            while (columnListIterator.hasNext()) {
-                                CalendarEvent event = (CalendarEvent) columnListIterator.next();
-                                generateXMLEvent(doc, columnNode, event, SUB_EVENT_NODE_NAME, rowTimeRange, true, false, false, baseCalendarService);
-                            }
-                        }
-                    }
+                // Generate XML for all the events.
+                while (itEvent.hasNext())  {
+                    CalendarEvent event = (CalendarEvent) itEvent.next();
+                    generateXMLEvent(doc, eventList, event, EVENT_NODE_NAME, currentTimeRange, false, false, scheduleType == CalendarService.LIST_VIEW, baseCalendarService);
                 }
-                else {
-                    // Generate XML for all the events.
-                    while (itEvent.hasNext())  {
-                        CalendarEvent event = (CalendarEvent) itEvent.next();
-                        generateXMLEvent(doc, eventList, event, EVENT_NODE_NAME, currentTimeRange, false, false, scheduleType == CalendarService.LIST_VIEW, baseCalendarService);
-                    }
-                }
-
                 // Update this event after having gone through all the rows.
                 eventList.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(maxConcurrentEventsOverListNode));
 

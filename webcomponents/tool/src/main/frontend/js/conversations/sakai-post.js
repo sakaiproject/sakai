@@ -61,9 +61,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
       if (r.ok) {
         return r.json();
-      } else {
-        throw new Error("Network error while posting reactions");
       }
+      throw new Error("Network error while posting reactions");
+
     })
     .then(reactionTotals => {
 
@@ -96,9 +96,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
       if (r.ok) {
         return r.json();
-      } else {
-        throw new Error("Network error while locking/unlocking post");
       }
+      throw new Error("Network error while locking/unlocking post");
+
     })
     .then(post => {
       this.dispatchEvent(new CustomEvent("post-updated", { detail: { post }, bubbles: true }));
@@ -255,7 +255,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     if (!this.post.canDelete) return;
 
-    if (!confirm(this.i18n["confirm_post_delete"])) {
+    if (!confirm(this.i18n.confirm_post_delete)) {
       return;
     }
 
@@ -279,7 +279,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     if (!this.post.canDelete) return;
 
-    if (!confirm(this.i18n["confirm_post_delete"])) {
+    if (!confirm(this.i18n.confirm_post_delete)) {
       return;
     }
 
@@ -364,7 +364,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
   }
 
   render(isReply = false) {
-    
+
     return html`
       <div id="post-${this.post.id}"
           data-post-id="${this.post.id}"
@@ -384,36 +384,36 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div class="author-details">
             <div class="post-creator-name">${this.post.creatorDisplayName}</div>
             ${this.post.isInstructor ? html`
-            <div class="post-creator-instructor">${this.i18n["instructor"]}</div>
+            <div class="post-creator-instructor">${this.i18n.instructor}</div>
             ` : ""}
             <div class="post-created-date">${this.post.formattedCreatedDate}</div>
             ${this.post.draft ? html`
-            <div class="draft">${this.i18n["draft"]}</div>
+            <div class="draft">${this.i18n.draft}</div>
             ` : ""}
             ${this.post.locked ? html`
             <div class="topic-status"
-                title="${this.i18n["post_locked_tooltip"]}"
-                aria-label="${this.i18n["post_locked_tooltip"]}">
+                title="${this.i18n.post_locked_tooltip}"
+                aria-label="${this.i18n.post_locked_tooltip}">
               <sakai-icon type="lock" size="small"></sakai-icon></div>
             </div>
             ` : ""}
             ${this.post.hidden ? html`
             <div class="topic-status"
-                title="${this.i18n["post_hidden_tooltip"]}"
-                aria-label="${this.i18n["post_hidden_tooltip"]}">
+                title="${this.i18n.post_hidden_tooltip}"
+                aria-label="${this.i18n.post_hidden_tooltip}">
               <sakai-icon type="hidden" size="small"></sakai-icon></div>
             </div>
             ` : ""}
             ${this.post.privatePost ? html`
             <div class="topic-status"
-                title="${this.i18n["post_private_tooltip"]}"
-                aria-label="${this.i18n["post_private_tooltip"]}">
+                title="${this.i18n.post_private_tooltip}"
+                aria-label="${this.i18n.post_private_tooltip}">
               <sakai-icon type="secret" size="small"></sakai-icon></div>
             </div>
             ` : ""}
           </div>
           ${this.post.isInstructor ? html`
-          <div class="conv-instructors-answer">${this.i18n["instructors_answer"]}</div>
+          <div class="conv-instructors-answer">${this.i18n.instructors_answer}</div>
           ` : ""}
         </div>
 
@@ -436,9 +436,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                   <div class="edit-post">
                     <a href="javascript:;"
                         @click=${() => this.editing = true}
-                        title="${this.i18n["edit_this_post"]}"
-                        arial-label="${this.i18n["edit_this_post"]}">
-                      ${this.i18n["edit"]}
+                        title="${this.i18n.edit_this_post}"
+                        arial-label="${this.i18n.edit_this_post}">
+                      ${this.i18n.edit}
                     </a>
                   </div>
                   ` : ""}
@@ -446,9 +446,9 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                   <div class="delete-post">
                     <a href="javascript:;"
                         @click=${this.hardDeletePost}
-                        title="${this.i18n["delete_this_post"]}"
-                        arial-label="${this.i18n["delete_this_post"]}">
-                      ${this.i18n["delete"]}
+                        title="${this.i18n.delete_this_post}"
+                        arial-label="${this.i18n.delete_this_post}">
+                      ${this.i18n.delete}
                     </a>
                   </div>
                   ` : ""}
@@ -482,13 +482,13 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div class="conv-private-checkbox-block">
             <label>
               <input type="checkbox" .checked=${this.post.privatePost} @click=${e => this.post.privatePost = e.target.checked}>
-              <span>${this.i18n["private_reply"]}</span>
+              <span>${this.i18n.private_reply}</span>
             </label>
           </div>
           <div class="act">
-            <input type="button" class="active" @click=${this.publishPost} value="${this.i18n["publish"]}">
-            <input type="button" @click=${this.savePostAsDraft} value="${this.i18n["save_as_draft"]}">
-            <input type="button" @click=${() => this.editing = false} value="${this.i18n["cancel"]}">
+            <input type="button" class="active" @click=${this.publishPost} value="${this.i18n.publish}">
+            <input type="button" @click=${this.savePostAsDraft} value="${this.i18n.save_as_draft}">
+            <input type="button" @click=${() => this.editing = false} value="${this.i18n.cancel}">
           </div>
         </div>
         ` : html`
@@ -497,8 +497,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           ${this.post.canUpvote ? html`
             <a href="javascript:;"
                 @click=${this.toggleUpvotePost}
-                aria-label="${this.i18n["upvote_tooltip"]}"
-                title="${this.i18n["upvote_tooltip"]}">
+                aria-label="${this.i18n.upvote_tooltip}"
+                title="${this.i18n.upvote_tooltip}">
               <div class="post-upvote-container ${!this.post.upvotes ? "no-votes" : ""}">
                 <div>
                   <sakai-icon type="up" size="smallest"></sakai-icon>
@@ -511,13 +511,13 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div class="post-actions-block">
 
             <div class="topic-option post-option
-                  ${this.post.myReactions["GOOD_ANSWER"] ? "good-question-on" : ""}
-                  ${this.post.isMine && this.post.reactionTotals["GOOD_ANSWER"] > 0 ? "reaction-on" : ""}"
+                  ${this.post.myReactions.GOOD_ANSWER ? "good-question-on" : ""}
+                  ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? "reaction-on" : ""}"
             >
-              ${this.post.isMine && this.post.reactionTotals["GOOD_ANSWER"] > 0 ? html`
+              ${this.post.isMine && this.post.reactionTotals.GOOD_ANSWER > 0 ? html`
               <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
               <div>
-                ${this.i18n["goodanswer"]} ${this.isInstructor && this.post.reactionTotals["GOOD_ANSWER"] ? ` - ${this.post.reactionTotals["GOOD_ANSWER"]}` : ""}
+                ${this.i18n.goodanswer} ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
               </div>
               ` : ""}
               ${!this.post.isMine ? html`
@@ -527,12 +527,12 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
               <a href="javascript:;"
                   data-reaction="GOOD_ANSWER"
                   @click=${this.toggleReaction}
-                  aria-label="${this.i18n[this.post.myReactions["GOOD_ANSWER"] ? "ungoodanswer_tooltip" : "goodanswer_tooltip"]}"
-                  title="${this.i18n[this.post.myReactions["GOOD_ANSWER"] ? "ungoodanswer_tooltip" : "goodanswer_tooltip"]}">
-                ${this.i18n["goodanswer"]} ${this.isInstructor && this.post.reactionTotals["GOOD_ANSWER"] ? ` - ${this.post.reactionTotals["GOOD_ANSWER"]}` : ""}
+                  aria-label="${this.i18n[this.post.myReactions.GOOD_ANSWER ? "ungoodanswer_tooltip" : "goodanswer_tooltip"]}"
+                  title="${this.i18n[this.post.myReactions.GOOD_ANSWER ? "ungoodanswer_tooltip" : "goodanswer_tooltip"]}">
+                ${this.i18n.goodanswer} ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
               </a>
               ` : html`
-                ${this.i18n["goodanswer"]} ${this.isInstructor && this.post.reactionTotals["GOOD_ANSWER"] ? ` - ${this.post.reactionTotals["GOOD_ANSWER"]}` : ""}
+                ${this.i18n.goodanswer} ${this.isInstructor && this.post.reactionTotals.GOOD_ANSWER ? ` - ${this.post.reactionTotals.GOOD_ANSWER}` : ""}
               `}
               </div>
               ` : ""}
@@ -544,8 +544,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                 <div slot="trigger" class="reactions-link">
                   <a href="javascript:;"
                       @click=${() => this.showingMyReactions = !this.showingMyReactions}
-                      aria-label="${this.i18n["reactions_tooltip"]}"
-                      title="${this.i18n["reactions_tooltip"]}">
+                      aria-label="${this.i18n.reactions_tooltip}"
+                      title="${this.i18n.reactions_tooltip}">
                     <sakai-icon type="smile" size="small"></sakai-icon>
                   </a>
                 </div>
@@ -559,8 +559,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           <div>
           ${this.post.numberOfComments > 0 ? html`
           <a href="javascript:;"
-              aria-label="${this.showingComments ? this.i18n["hide_comments_tooltip"] : this.i18n["show_comments_tooltip"]}"
-              title="${this.showingComments ? this.i18n["hide_comments_tooltip"] : this.i18n["show_comments_tooltip"]}"
+              aria-label="${this.showingComments ? this.i18n.hide_comments_tooltip : this.i18n.show_comments_tooltip}"
+              title="${this.showingComments ? this.i18n.hide_comments_tooltip : this.i18n.show_comments_tooltip}"
               @click=${() => this.showingComments = !this.showingComments}>
             <div class="post-comment-toggle-block">
               <div class="post-comment-toggle-icon">
@@ -569,7 +569,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
                     size="small">
                 </sakai-icon>
               </div>
-              <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this.i18n["comment"] : this.i18n["comments"]}</div>
+              <div>${this.post.numberOfComments} ${this.post.numberOfComments == 1 ? this.i18n.comment : this.i18n.comments}</div>
             </div>
           </a>
           ` : ""}

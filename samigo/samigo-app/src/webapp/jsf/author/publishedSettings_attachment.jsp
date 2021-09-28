@@ -20,9 +20,8 @@
 --%>
 -->
 <!-- ASSESSMENT ATTACHMENTS -->
-<h:outputLabel value="#{assessmentSettingsMessages.attachments}" />
-  <br/>
-  <h:panelGroup rendered="#{publishedSettings.hasAttachment}">
+<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.attachments}" />
+  <h:panelGroup styleClass="col-md-10" rendered="#{publishedSettings.hasAttachment}">
     <h:dataTable value="#{publishedSettings.attachmentList}" var="attach">
       <h:column>
         <%@ include file="/jsf/shared/mimeicon.jsp" %>
@@ -39,18 +38,18 @@
       </h:column>
     </h:dataTable>
   </h:panelGroup>
-  <h:panelGroup rendered="#{!publishedSettings.hasAttachment}">
+  <h:panelGroup styleClass="col-md-10" rendered="#{!publishedSettings.hasAttachment}">
     <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{!publishedSettings.hasAttachment}">
+  <h:panelGroup styleClass="col-md-offset-2 col-md-10" rendered="#{!publishedSettings.hasAttachment}">
     <sakai:button_bar>
       <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}"
              value="#{assessmentSettingsMessages.add_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{publishedSettings.hasAttachment}">
+  <h:panelGroup styleClass="col-md-offset-2 col-md-10" rendered="#{publishedSettings.hasAttachment}">
     <sakai:button_bar>
       <h:commandButton action="#{publishedSettings.addAttachmentsRedirect}"
              value="#{assessmentSettingsMessages.add_remove_attachments}"/>

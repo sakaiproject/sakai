@@ -76,17 +76,24 @@ h4.samigo-category-subhead-2 {
   color: var(--sakai-text-color-1);
 }
 
-.treefolder {
- background-repeat: no-repeat;
- height: 17px;
- width: 26px;
+.treefolder, .treefolder-open, .treedoc {
+ position: relative;
+ margin-right: 15px;
 }
 
-.treedoc {
- background-image: url(../images/file.gif);
- background-repeat: no-repeat;
- height: 17px;
- width: 26px;
+.treefolder:before {
+  content: "\f0da";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
+}
+
+
+.treefolder-open:before {
+  content: "\f0d7";
+  position: absolute;
+  top: 0;
+  font-family: FontAwesome;
 }
 
 .actionHeader{

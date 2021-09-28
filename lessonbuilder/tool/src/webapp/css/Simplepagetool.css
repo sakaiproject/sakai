@@ -1461,7 +1461,7 @@ margin-left: 5px;
 padding: 10px 15px 0 15px
 }
 .returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
-  font-size: .75em;
+  font-size: 14px;
 }
 #content{
   padding-top: 1px;
@@ -1959,27 +1959,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     font-weight: normal;
     color: var(--sakai-text-color-1);
 }
-.checklistSaveMessage {
-    font-size:13px;
-    margin: 0 0 0 1em;
-    padding:4px 4px 4px 24px;
-    background-repeat: no-repeat;
-    background-position: 4px center;
-}
-.saveChecklistSuccess {
-    color: var(--successBanner-color);
-    background-image:url('../images/success.png');
-}
-.saveChecklistError {
-    color: var(--errorBanner-bgcolor);
-    background-image: url('../images/failed.png');
-    background-size: 16px 16px;
-}
-.saveChecklistSaving {
-    margin-left: 2em;
-}
-
-
 .Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
     margin-top: 20px;
 }

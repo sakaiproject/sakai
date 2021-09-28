@@ -19,7 +19,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
   }
 
   title() {
-    return this.i18n["title"];
+    return this.i18n.title;
   }
 
   updated() {
@@ -50,7 +50,7 @@ export class SakaiImageEditor extends SakaiDialogContent {
     this.cropper.getCroppedCanvas().toBlob((blob) => {
 
       const url = URL.createObjectURL(blob);
-      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url: url, blob: blob }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("image-edited", { detail: { url, blob }, bubbles: true }));
     });
 
     this.close();
@@ -92,25 +92,25 @@ export class SakaiImageEditor extends SakaiDialogContent {
       <input type="file" accept="image/*" value="Choose an image" @change=${this.filePicked} />
       <img id="image" src="${this.imageUrl}" width="200" />
       <div id="controls">
-        <sakai-button @click=${this.zoomIn} type="small" title="${this.i18n["zoom_in"]}" arial-label="${this.i18n["zoom_in"]}">
+        <sakai-button @click=${this.zoomIn} type="small" title="${this.i18n.zoom_in}" arial-label="${this.i18n.zoom_in}">
           <sakai-icon type="add"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.zoomOut} type="small" title="${this.i18n["zoom_out"]}" arial-label="${this.i18n["zoom_out"]}">
+        <sakai-button @click=${this.zoomOut} type="small" title="${this.i18n.zoom_out}" arial-label="${this.i18n.zoom_out}">
           <sakai-icon type="minus"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.up} type="small" title="${this.i18n["pan_up"]}" arial-label="${this.i18n["pan_up"]}">
+        <sakai-button @click=${this.up} type="small" title="${this.i18n.pan_up}" arial-label="${this.i18n.pan_up}">
           <sakai-icon type="up"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.down} type="small" title="${this.i18n["pan_down"]}" arial-label="${this.i18n["pan_down"]}">
+        <sakai-button @click=${this.down} type="small" title="${this.i18n.pan_down}" arial-label="${this.i18n.pan_down}">
           <sakai-icon type="down"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.left} type="small" title="${this.i18n["pan_left"]}" arial-label="${this.i18n["pan_left"]}">
+        <sakai-button @click=${this.left} type="small" title="${this.i18n.pan_left}" arial-label="${this.i18n.pan_left}">
           <sakai-icon type="left"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.right} type="small" title="${this.i18n["pan_right"]}" arial-label="${this.i18n["pan_right"]}">
+        <sakai-button @click=${this.right} type="small" title="${this.i18n.pan_right}" arial-label="${this.i18n.pan_right}">
           <sakai-icon type="right"></sakai-icon>
         </sakai-button>
-        <sakai-button @click=${this.rotate} type="small" title="${this.i18n["rotate"]}" arial-label="${this.i18n["rotate"]}">
+        <sakai-button @click=${this.rotate} type="small" title="${this.i18n.rotate}" arial-label="${this.i18n.rotate}">
           <sakai-icon type="refresh"></sakai-icon>
         </sakai-button>
       </div>

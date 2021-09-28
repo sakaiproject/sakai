@@ -30,6 +30,17 @@
       color: #FFFFFF;
       text-decoration: none;
     }
+
+    .header-sort-block {
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+
+      div:nth-child(2) {
+        padding-top: 5px;
+        margin-left: 10px;
+      }
+    }
   }
 
   td {

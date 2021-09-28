@@ -45,6 +45,10 @@
         </t:div>
     </h:panelGrid>
     
+    <h:panelGroup rendered="#{rosterBean.enrollmentsSize <= 0}" >
+        <h:outputText styleClass="sak-banner-warn" value="#{msgs.students_not_found}"  />
+    </h:panelGroup>
+
     <t:dataTable cellpadding="0" cellspacing="0"
         id="sectionsTable"
         value="#{rosterBean.enrollments}"
@@ -52,6 +56,7 @@
         binding="#{rosterBean.rosterDataTable}"
         sortColumn="#{preferencesBean.rosterSortColumn}"
         sortAscending="#{preferencesBean.rosterSortAscending}"
+        rendered="#{rosterBean.enrollments.size() > 0}"
         styleClass="listHier rosterTable">
         <h:column>
             <f:facet name="header">

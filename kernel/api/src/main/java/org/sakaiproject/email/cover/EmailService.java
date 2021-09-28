@@ -54,9 +54,9 @@ public class EmailService
 
 	private static org.sakaiproject.email.api.EmailService m_instance = null;
 
-	public static void sendMail(jakarta.mail.internet.InternetAddress param0, jakarta.mail.internet.InternetAddress[] param1,
-			java.lang.String param2, java.lang.String param3, jakarta.mail.internet.InternetAddress[] param4,
-			jakarta.mail.internet.InternetAddress[] param5, java.util.List param6)
+	public static void sendMail(javax.mail.internet.InternetAddress param0, javax.mail.internet.InternetAddress[] param1,
+			java.lang.String param2, java.lang.String param3, javax.mail.internet.InternetAddress[] param4,
+			javax.mail.internet.InternetAddress[] param5, java.util.List param6)
 	{
 		org.sakaiproject.email.api.EmailService service = getInstance();
 		if (service == null) return;

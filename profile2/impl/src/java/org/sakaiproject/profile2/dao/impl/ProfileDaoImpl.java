@@ -436,10 +436,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	
 		return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean updatePrivacyRecord(final ProfilePrivacy privacy) {
 
@@ -452,9 +449,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
 		
@@ -467,9 +462,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean updateCompanyProfile(final CompanyProfile companyProfile) {
 
@@ -482,9 +474,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
 		
@@ -496,10 +485,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean removeCompanyProfile(final CompanyProfile companyProfile) {
 
@@ -511,10 +497,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
 		
@@ -526,10 +509,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public List<GalleryImage> getGalleryImages(final String userId) {
 		
@@ -541,10 +521,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
+
 	@Override
 	public boolean removeGalleryImage(final GalleryImage galleryImage) {
 		
@@ -557,9 +534,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public int getGalleryImagesCount(final String userId) {
 		
@@ -572,9 +546,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
 		
@@ -588,24 +559,17 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		return getHibernateTemplate().execute(hcb);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean saveSocialNetworkingInfo(final SocialNetworkingInfo socialNetworkingInfo) {
-
 		try {
 			getHibernateTemplate().saveOrUpdate(socialNetworkingInfo);
 			return true;
 		} catch (final Exception e) {
-			log.error("saveSocialNetworkingInfo failed. "+ e.getClass() + ": " + e.getMessage());
+			log.error("saveSocialNetworkingInfo failed. {}: {}",  e.getClass(), e.getMessage());
 			return false;
 		}
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	@Override
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage) {
 		
@@ -1215,9 +1179,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public boolean invalidateCurrentProfileImage(final String userUuid) {
 		try {
 			final ProfileImageUploaded currentImage = getCurrentProfileImageRecord(userUuid);
-			currentImage.setCurrent(false);
-			getHibernateTemplate().save(currentImage);
-			return true;
+			if (currentImage != null) {
+				currentImage.setCurrent(false);
+				getHibernateTemplate().save(currentImage);
+				return true;
+			} else {
+				return false;
+			}
 		} catch (final Exception e) {
 			log.error("invalidateCurrentProfileImage failed. "+ e.getClass() + ": " + e.getMessage());
 			return false;

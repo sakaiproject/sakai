@@ -19,7 +19,7 @@ class SakaiRubricAssociation extends RubricsElement {
   set token(newValue) {
 
     this.i18nPromise.then(r => this.initLightbox(newValue, r));
-    this._token = "Bearer " + newValue;
+    this._token = `Bearer ${  newValue}`;
     if (this.toolId) {
       this.getAssociation();
     }
@@ -82,7 +82,7 @@ class SakaiRubricAssociation extends RubricsElement {
   toggleFineTunePoints(e) {
 
     if (!e.target.checked) {
-      if (!confirm(this.i18n["adjust_scores_warning"])) {
+      if (!confirm(this.i18n.adjust_scores_warning)) {
         e.preventDefault();
       }
     }
@@ -138,14 +138,14 @@ class SakaiRubricAssociation extends RubricsElement {
                       name="rbcs-config-fineTunePoints"
                       type="checkbox"
                       @click=${this.toggleFineTunePoints}
-                      ?checked=${this.selectedConfigOptions["fineTunePoints"]}
+                      ?checked=${this.selectedConfigOptions.fineTunePoints}
                       value="1"
                       ?disabled=${!this.isAssociated || this.readOnly}>${this.fineTunePoints}
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                  <input name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions.hideStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
                 </label>
               </div>
             </div>
@@ -161,7 +161,7 @@ class SakaiRubricAssociation extends RubricsElement {
     if (this.entityId) url += `&itemId=${this.entityId}`;
 
     $.ajax({
-      url: url,
+      url,
       headers: {"authorization": this.token},
       contentType: "application/json"
     })
@@ -181,12 +181,12 @@ class SakaiRubricAssociation extends RubricsElement {
     .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });
   }
 
-  getRubrics(data) {
+  getRubrics(params = {}) {
 
     $.ajax({
       url: "/rubrics-service/rest/rubrics",
       headers: {"authorization": this.token},
-      data: data || {}
+      data: params,
     })
     .done(data => this.handleRubrics(data))
     .fail((jqXHR, textStatus, message) => { console.error(textStatus); console.error(message); });

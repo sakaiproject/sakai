@@ -105,7 +105,7 @@
 				#set($count = 1)
 				#foreach ($ann_item in $showMessagesList)
 					#set($ann_item_props=$ann_item.getProperties())
-					<li #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft true) id="listitem.orderable$count" tabindex="0">
+					<li class="row reorder-element grab_cursor" id="listitem.orderable$count" tabindex="0" onmouseup="grab(this)" onmousedown="grabbing(this);">
 						<span class="title col-md-4 col-sm-4 col-xs-12">
 							<span style="display:none" class="grabHandle">
 								<input type="text" size="3" value="$count" id="index$count" style="z-index:5"/>
@@ -157,3 +157,19 @@
 		</div>
 #end	##end of for each loop
 </div>
+
+<script>
+
+	function grabbing(selectedItem) {
+		li = $(selectedItem);
+		$(li).removeClass("grab_cursor");
+		$(li).addClass("grabbing_cursor");
+	}
+
+	function grab(selectedItem) {
+		li = $(selectedItem);
+		$(li).removeClass("grabbing_cursor");
+		$(li).addClass("grab_cursor");
+	}
+
+</script>

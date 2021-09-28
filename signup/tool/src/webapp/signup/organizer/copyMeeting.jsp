@@ -234,7 +234,7 @@
 								<f:selectItems value="#{CopyMeetingSignupMBean.allLocations}"/>
 							</h:selectOneMenu>
 							<h:inputText id="customLocation" size="35" value="#{CopyMeetingSignupMBean.customLocation}" style="display:none" styleClass="editText">  
-								<f:converter converterId=Signup.StringTrimConverter"/>
+								<f:converter converterId="Signup.StringTrimConverter"/>
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:outputLabel id="customLocationLabel" for="customLocation" styleClass="activeTag"  onclick="handleDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation')">

@@ -115,29 +115,7 @@ public class EmailEntryTest {
 		String rcpts = "nobody@example.com;someone@example.com,whatever@example.com";
 
 		entry.setOtherRecipients(rcpts);
-		assertFalse(entry.getOtherRecipients().isEmpty());
-		assertEquals(3, entry.getOtherRecipients().size());
-		assertEquals("nobody@example.com", entry.getOtherRecipients().get(0));
-		assertEquals("someone@example.com", entry.getOtherRecipients().get(1));
-		assertEquals("whatever@example.com", entry.getOtherRecipients().get(2));
 
-		entry.setOtherRecipients("");
-
-	}
-
-	@Test
-	public void setOtherRecipientsList() {
-		List<String> otherRecipients = new ArrayList<String>();
-		otherRecipients.add("nobody@example.com");
-		otherRecipients.add("someone@example.com");
-		otherRecipients.add("whatever@example.com");
-
-		entry.setOtherRecipientsList(otherRecipients);
-		assertFalse(entry.getOtherRecipients().isEmpty());
-		assertEquals(3, entry.getOtherRecipients().size());
-		assertEquals("nobody@example.com", entry.getOtherRecipients().get(0));
-		assertEquals("someone@example.com", entry.getOtherRecipients().get(1));
-		assertEquals("whatever@example.com", entry.getOtherRecipients().get(2));
 	}
 
 	@Test
