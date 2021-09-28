@@ -402,13 +402,10 @@ roster.renderMembership = function (options) {
 
         var groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
-        m.singleGroup = null;
-        if (groupIds.length === 1) {
-          var singleGroupId = groupIds[0];
-          m.singleGroup = { id: singleGroupId, title: m.groups[singleGroupId] };
-        } else {
-          m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
-        }
+        m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
+        m.groups.sort(function (a, b) {
+          return a.title.localeCompare(b.title);
+        });
 
         if (roster.showVisits) {
           if (m.totalSiteVisits > 0) {
