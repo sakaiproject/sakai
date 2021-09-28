@@ -85,7 +85,7 @@
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 
-			<li class="sortable row reorder-element" tabindex="0" id="listitem.orderable$count">
+			<li class="sortable row reorder-element grab_cursor" tabindex="0" id="listitem.orderable$count" onmousedown="ASN.grabbing(this)" onmouseup="ASN.grab(this)">
 				<span class="col-md-6 col-sm-6 col-xs-12" title="$formattedText.escapeHtml($!assignment.Title)">
 					<span style="display:none" class="grabHandle">
 						<input type="text" size="3" value="$count" id="index$count"/>
