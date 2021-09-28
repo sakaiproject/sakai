@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -86,16 +85,17 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 
 /**
  * For author: Assessment Settings backing bean.
@@ -103,7 +103,7 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 @Slf4j
 @ManagedBean(name="assessmentSettings")
 @SessionScoped
-public class AssessmentSettingsBean implements Serializable {
+public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
     private static final IntegrationContextFactory integrationContextFactory =
       IntegrationContextFactory.getInstance();
     private static final GradebookServiceHelper gbsHelper =
@@ -242,26 +242,30 @@ public class AssessmentSettingsBean implements Serializable {
   private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   private static final ResourceLoader authorMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
-  @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
+  @Autowired
+  @Qualifier("org.sakaiproject.service.gradebook.GradebookService")
   private GradebookService gradebookService;
-  @Resource(name = "org.sakaiproject.tool.api.SessionManager")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.SessionManager")
   private SessionManager sessionManager;
-  @Resource(name = "org.sakaiproject.tool.api.ToolManager")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
   private ToolManager toolManager;
-  @Resource(name = "org.sakaiproject.util.api.FormattedText")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
   private FormattedText formattedText;
-  @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
 
   /*
    * Creates a new AssessmentBean object.
    */
   public AssessmentSettingsBean() {
-    this(ContextLoader.getCurrentWebApplicationContext());
-  }
-
-  public AssessmentSettingsBean(WebApplicationContext context) {
-    context.getAutowireCapableBeanFactory().autowireBean(this);
   }
 
   public AssessmentFacade getAssessment() {

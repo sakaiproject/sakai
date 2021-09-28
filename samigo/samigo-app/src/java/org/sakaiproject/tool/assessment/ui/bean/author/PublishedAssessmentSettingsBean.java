@@ -44,16 +44,18 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.facade.*;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -62,21 +64,13 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.section.api.SectionAwareness;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -84,6 +78,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
@@ -98,14 +96,19 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeValidator;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* For author: Assessment Settings backing bean.*/
 @Slf4j
 @ManagedBean(name="publishedSettings")
 @SessionScoped
-public class PublishedAssessmentSettingsBean implements Serializable {
+public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport implements Serializable {
 
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
@@ -239,26 +242,30 @@ public class PublishedAssessmentSettingsBean implements Serializable {
 
   private static final ResourceLoader assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
-  @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
+  @Autowired
+  @Qualifier("org.sakaiproject.service.gradebook.GradebookService")
   private GradebookService gradebookService;
-  @Resource(name = "org.sakaiproject.tool.api.SessionManager")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.SessionManager")
   private SessionManager sessionManager;
-  @Resource(name = "org.sakaiproject.tool.api.ToolManager")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.tool.api.ToolManager")
   private ToolManager toolManager;
-  @Resource(name = "org.sakaiproject.util.api.FormattedText")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.util.api.FormattedText")
   private FormattedText formattedText;
-  @Resource(name = "org.sakaiproject.time.api.UserTimeService")
+
+  @Autowired
+  @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
 
   /*
    * Creates a new AssessmentBean object.
    */
   public PublishedAssessmentSettingsBean() {
-    this(ContextLoader.getCurrentWebApplicationContext());
-  }
-
-  public PublishedAssessmentSettingsBean(WebApplicationContext context) {
-    context.getAutowireCapableBeanFactory().autowireBean(this);
   }
 
   public PublishedAssessmentFacade getAssessment() {
