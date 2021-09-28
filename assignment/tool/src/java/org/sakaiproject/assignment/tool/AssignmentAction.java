@@ -319,8 +319,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
     private static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
     private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
-    private static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
-    
+
     // Video Submissions
     private static final String VIDEO_SUBMISSION_PARAM = "video-submission";
     private static final String VIDEO_SUBMISSION_MIMETYPE_PARAM = "video-submission-mimetype";
@@ -1766,7 +1765,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if(submitterA.isPresent() && StringUtils.isNotBlank(submitterA.get().getTimeSpent())){
                 submissionTimeSpent = submitterA.get().getTimeSpent();
             }
-            state.setAttribute(ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
+            state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
 
             if(submitterA.isPresent() && !submitterA.get().getTimeSheet().isEmpty()) {
                 String timeSpent = "";
@@ -5635,7 +5634,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         timeSpent = getTotalTimeSheet(submitter.getTimeSheet());
                 }
                 state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
-                state.setAttribute(ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
+                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
             } else {
                 state.setAttribute(ATTACHMENTS, entityManager.newReferenceList());
             }
@@ -14906,11 +14905,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         public String getTimeSpent() {
-            Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee(submission);
-            if (ass.isPresent()) {
-                return ass.get().getTimeSpent();
-            }
-            return "";
+            return assignmentService.getTimeSpent(submission);
         }
     }
 

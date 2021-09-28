@@ -104,7 +104,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private UserTimeService userTimeService;
     private FormattedText formattedText;
 
-    //Builds TimeSheet error/success messages
     @Setter
     @Getter
     public class BuildTimeSheetReturnMessage implements Serializable {

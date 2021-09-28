@@ -865,6 +865,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         log.debug("Remove timeSheet {}", timeSheet.getId());
     }
 
+    public String getTimeSpent(AssignmentSubmission submission) {
+        Optional<AssignmentSubmissionSubmitter> ass = getSubmissionSubmittee(submission);
+        if (ass.isPresent()) {
+            return ass.get().getTimeSpent();
+        }
+        return "";
+    }
     private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
