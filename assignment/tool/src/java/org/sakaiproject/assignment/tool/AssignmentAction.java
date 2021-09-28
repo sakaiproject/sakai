@@ -8120,7 +8120,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (!aOldAccess.equals(a.getTypeOfAccess())) {
                             //SAK-45992
-                            if(!(openTime.isAfter(Instant.now()))){
+                            if(openTime.isBefore(Instant.now())){
                                 // site-group access setting changed
                                 eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                             }
@@ -8129,7 +8129,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             if (!(aOldGroups == null && aGroups == null)
                                     && !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups))) {
                                 //SAK-45992
-                                if(!(openTime.isAfter(Instant.now()))){
+                                if(openTime.isBefore(Instant.now())){
                                     //group changed
                                     eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                                 }
