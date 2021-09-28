@@ -95,7 +95,7 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
 
-    public boolean existsAssignmentTimeSheet(Long timeSheetId);
+    public boolean existsAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
 
     public AssignmentTimeSheet findTimeSheet(Long timeSheetId);
 
