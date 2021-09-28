@@ -12,9 +12,9 @@
 		    return;
 		}
 
-		var ajaxUrl = checklistIdInput.form.action;
+		const ajaxUrl = checklistIdInput.form.action;
 
-		var callback = function (results) {
+		const callback = function (results) {
 			if (results.EL[elBinding][0] === "success") {
 				$("[id*='error-checklist-not-saved']").hide();
 			} else {
@@ -23,7 +23,7 @@
 		};
 
 		// setup the function which initiates the AJAX request
-		var updater = RSF.getAJAXUpdater([checklistIdInput, checklistItemIdInput, checklistItemDone, csrfField], ajaxUrl, [elBinding], callback);
+		const updater = RSF.getAJAXUpdater([checklistIdInput, checklistItemIdInput, checklistItemDone, csrfField], ajaxUrl, [elBinding], callback);
 		// setup the input field event to trigger the ajax request function
 		checklistItemDone.onchange = updater; // send request when field changes
 	};
