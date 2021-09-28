@@ -84,12 +84,6 @@
 
 // Site Info and Worksite Setup namespaces
 .#{$namespace}sakai-siteinfo, .#{$namespace}sakai-sitesetup {
-  .toggledContent {
-    margin: 0;
-    border: 2px solid var(--infoBanner-bordercolor);
-    border-top: none;
-    padding: .5em;
-  }
   #templateSettings {
     padding: .5em;
     background: var(--sakai-background-color-2);
@@ -531,16 +525,9 @@
       margin: $standard-spacing 0 0 0;
     }
   }
-  h4.toggleAnchor {
-    border: 1px solid var(--infoBanner-bordercolor);
-    background: var(--infoBanner-bgcolor) !important;
-    padding: 5px !important;
-    cursor: pointer;
-    outline: none;
-    color: var(--infoBanner-color);
-  }
-  .toggleAnchor:hover {
-    border: 1px solid var(--infoBanner-bordercolor);
+  .toggleAnchor:focus {
+    outline: 3px solid var(--focus-outline-color);
+    outline-offset: -3px;
   }
   dl.defList {
     margin: 0;
