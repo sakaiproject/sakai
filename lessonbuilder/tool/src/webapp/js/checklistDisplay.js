@@ -2,10 +2,15 @@
 
 	checklistDisplay.initSaveChecklistForm = function (checklistIdInputId, checklistItemIdInputId, checklistItemDoneId, csrfFieldId, elBinding) {
 
-		var checklistIdInput = document.getElementById(checklistIdInputId);
-		var checklistItemIdInput = document.getElementById(checklistItemIdInputId);
-		var checklistItemDone = document.getElementById(checklistItemDoneId);
-		var csrfField = document.getElementById(csrfFieldId);
+		const checklistIdInput = document.getElementById(checklistIdInputId);
+		const checklistItemIdInput = document.getElementById(checklistItemIdInputId);
+		const checklistItemDone = document.getElementById(checklistItemDoneId);
+		const csrfField = document.getElementById(csrfFieldId);
+		
+		if (!checklistIdInput || !checklistItemIdInput || !checklistItemDone || !csrfField) {
+		    console.warn("initSaveChecklistForm not called correctly");
+		    return;
+		}
 
 		var ajaxUrl = checklistIdInput.form.action;
 
