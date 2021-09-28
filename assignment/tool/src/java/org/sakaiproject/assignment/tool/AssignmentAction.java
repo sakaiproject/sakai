@@ -8148,7 +8148,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
             //SAK-45967
-            if (newAssignment ||(!a.getDraft() && !newAssignment)) {
+            if (newAssignment || !a.getDraft()) {
                 // post new assignment event since it is fully initialized by now
                 eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
             }
