@@ -231,10 +231,6 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return itemContents;
   }
 
-  public int getItemContentsCount() {
-    return itemContents.size();
-  }
-
   public List<ItemContentsBean> getItemContentsForRandomDraw()
   {
     // same ordering for each student

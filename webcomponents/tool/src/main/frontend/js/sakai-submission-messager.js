@@ -50,27 +50,27 @@ class SakaiSubmissionMessager extends SakaiElement {
         </div>
         <div class="sm-title">${this.title}</div>
         <div class="sm-block">
-          <span id="sm-subject-label-${this.assignmentId}" class="sm-label">${this.i18n["subject"]}</span>
+          <span id="sm-subject-label-${this.assignmentId}" class="sm-label">${this.i18n.subject}</span>
           <input class="subject-input" aria-labelledby="sm-subject-label-${this.assignmentId}"
                   type="text" .value=${this.subject} @change=${e => this.subject = e.target.value}
-                  placeholder="${this.i18n["subject_placeholder"]}"/>
-          <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this.i18n["message"]}</div>
+                  placeholder="${this.i18n.subject_placeholder}"/>
+          <div id="sm-body-label-${this.assignmentId}" class="sm-label">${this.i18n.message}</div>
           <textarea aria-labelledby="sm-body-label-${this.assignmentId}" .value=${this.body} class="message-input" @change=${e => this.body = e.target.value}>${this.body}</textarea>
         </div>
         <div class="sm-block">
-          <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n["select_action"]}</span>
+          <span id="sm-action-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_action}</span>
           <select aria-labelledby="sm-action-selector-label-${this.assignmentId}" class="group-select" @change=${this.actionChanged}>
-            <option value="1" ?selected=${this.action === "1"}>${this.i18n["ungraded_students"]}
-            <option value="2">${this.i18n["graded_students"]}
-            <option value="3">${this.i18n["all_students"]}
+            <option value="1" ?selected=${this.action === "1"}>${this.i18n.ungraded_students}
+            <option value="2">${this.i18n.graded_students}
+            <option value="3">${this.i18n.all_students}
           </select>
         </div>
         <div class="sm-score-block" style="display: ${this.action === "2" ? "block" : "none"}">
-          <div><label>${this.i18n["min_score_label"]}<input type="text" size="6" @input=${this.minScoreChanged} /></label></div>
-          <div><label>${this.i18n["max_score_label"]}<input type="text" size="6" @input=${this.maxScoreChanged} /></label></div>
+          <div><label>${this.i18n.min_score_label}<input type="text" size="6" @input=${this.minScoreChanged} /></label></div>
+          <div><label>${this.i18n.max_score_label}<input type="text" size="6" @input=${this.maxScoreChanged} /></label></div>
         </div>
         <div class="sm-block">
-          <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n["select_group"]}</span>
+          <span id="sm-group-selector-label-${this.assignmentId}" class="sm-label">${this.i18n.select_group}</span>
           <sakai-group-picker
             site-id="${portal.siteId}"
             group-id="${this.groupId}"
@@ -79,18 +79,18 @@ class SakaiSubmissionMessager extends SakaiElement {
             @group-selected=${this.groupSelected}>
           </sakai-group-picker>
         </div>
-        <button @click=${this.listRecipients}>${this.i18n["show_recipients"]}</button>
+        <button @click=${this.listRecipients}>${this.i18n.show_recipients}</button>
         ${this.recipientsToCheck.length > 0 ? html`
-          <div class="sm-recipients-label">${this.i18n["recipients"]}</div>
+          <div class="sm-recipients-label">${this.i18n.recipients}</div>
           <div class="sm-recipients">
             ${this.recipientsToCheck.map(r => html`<div>${r.displayName}</div>`)}
           </div>
         ` : ""}
         <div class="send-button-wrapper">
-          <button @click=${this.sendMessage} style="display: inline-block;">${this.i18n["send"]}</button>
+          <button @click=${this.sendMessage} style="display: inline-block;">${this.i18n.send}</button>
           ${this.sending ? html`<div id="sm-progressbar-${this.assignmentId}" class="sm-progressbar"></div>` : ""}
-          ${this.success ? html`<span class="sm-alert sak-banner-success-inline">${this.i18n["success"]}</span>` : ""}
-          ${this.error ? html`<span class="sm-alert sak-banner-error-inline">${this.i18n["error"]}</span>` : ""}
+          ${this.success ? html`<span class="sm-alert sak-banner-success-inline">${this.i18n.success}</span>` : ""}
+          ${this.error ? html`<span class="sm-alert sak-banner-error-inline">${this.i18n.error}</span>` : ""}
         </div>
       </div>
     `;
@@ -156,7 +156,7 @@ class SakaiSubmissionMessager extends SakaiElement {
       .then(r => r.json())
       .then(data => {
 
-          this.recipientsToCheck = data;
+        this.recipientsToCheck = data;
       });
   }
 
@@ -181,9 +181,9 @@ class SakaiSubmissionMessager extends SakaiElement {
         if (r.ok) {
           this.error = false;
           return r.json();
-        } else {
-          this.error = true;
         }
+        this.error = true;
+
       })
       .then(data => {
 

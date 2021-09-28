@@ -258,7 +258,7 @@
         ## Submission Attachments
         #set ($attachments = $submission.Attachments)
         #if ($attachments)
-            #set ($size = $attachments.size())
+            #set ($size = $submissionAttachmentReferences.size())
             #if ($size < 1)
                 $tlang.getString("gen.noattsubmitted")
             #else
@@ -272,6 +272,7 @@
                 <div class="textPanel borderPanel">
                     <ul class="attachList indnt1">
                         #foreach ($attachmentReference in $attachments)
+                            #set ($reference = false)
                             #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
                             #if ($reference)
                                 #set ($props = false)

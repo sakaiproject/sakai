@@ -104,7 +104,7 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setActionString(actionString);
     }
 
-    if (StringUtils.equalsAny(delivery.getActionString(), "reviewAssessment", "takeAssessment", "takeAssessmentViaUrl")) {
+    if (StringUtils.equalsAny(delivery.getActionString(), "reviewAssessment", "takeAssessment", "takeAssessmentViaUrl", "previewAssessment")) {
       delivery.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO, delivery.getSiteId()));
     }
 

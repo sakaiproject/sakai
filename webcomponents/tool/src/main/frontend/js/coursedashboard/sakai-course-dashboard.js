@@ -48,9 +48,9 @@ export class SakaiCourseDashboard extends LitElement {
 
         if (r.ok) {
           return r.json();
-        } else {
-          throw new Error(`Failed to get dashboard data from ${url}`);
         }
+        throw new Error(`Failed to get dashboard data from ${url}`);
+
       })
       .then(r => this.data = r)
       .catch(error => console.error(error));
@@ -66,7 +66,7 @@ export class SakaiCourseDashboard extends LitElement {
 
   overviewChanged(e) {
 
-    this.data.overview = e.detail.overview;
+    this.data.overview = e.detail.content;
     this.requestUpdate();
   }
 
@@ -102,7 +102,7 @@ export class SakaiCourseDashboard extends LitElement {
       const fd = new FormData();
       fd.append("siteImage", this.newImageBlob);
 
-      const imageUrl = `/api/sites/${this.siteId}/image`
+      const imageUrl = `/api/sites/${this.siteId}/image`;
       fetch(imageUrl, {
         method: "POST",
         credentials: "include",
@@ -132,7 +132,7 @@ export class SakaiCourseDashboard extends LitElement {
       template: this.data.template,
     };
 
-    const url = `/api/sites/${this.siteId}/dashboard`
+    const url = `/api/sites/${this.siteId}/dashboard`;
     fetch(url, {
       method: "PUT",
       credentials: "include",
@@ -194,17 +194,17 @@ export class SakaiCourseDashboard extends LitElement {
           ${this.data.editable ? html`
             ${this.editing ? html`
               <div id="course-dashboard-layout">
-                <sakai-button title="${this.i18n["layout_tooltip"]}" @click=${this.showTemplates}>${this.i18n["layout"]}</sakai-button>
+                <sakai-button title="${this.i18n.layout_tooltip}" @click=${this.showTemplates}>${this.i18n.layout}</sakai-button>
               </div>
               <div id="course-dashboard-save">
-                <sakai-button @click=${this.save} title="${this.i18n["save_tooltip"]}" aria-label="${this.i18n["save_tooltip"]}" primary>${this.i18n["save"]}</sakai-button>
+                <sakai-button @click=${this.save} title="${this.i18n.save_tooltip}" aria-label="${this.i18n.save_tooltip}" primary>${this.i18n.save}</sakai-button>
               </div>
               <div id="course-dashboard-cancel">
-                <sakai-button @click=${this.cancel} title="${this.i18n["cancel_tooltip"]}" aria-label="${this.i18n["cancel_tooltip"]}">${this.i18n["cancel"]}</sakai-button>
+                <sakai-button @click=${this.cancel} title="${this.i18n.cancel_tooltip}" aria-label="${this.i18n.cancel_tooltip}">${this.i18n.cancel}</sakai-button>
               </div>
             ` : html`
               <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n["edit_tooltip"]}" arial-label="${this.i18n["edit_tooltip"]}">${this.i18n["edit"]}</sakai-button>
+                <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
               </div>
             `}
           ` : ""}

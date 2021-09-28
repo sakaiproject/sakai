@@ -3,6 +3,7 @@ import { html, css } from "../assets/lit-element/lit-element.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
 import "../datepicker/sakai-date-picker.js";
 import { loadProperties } from "../sakai-i18n.js";
+import moment from "../assets/moment/dist/moment.js";
 import "../sakai-button.js";
 
 class SakaiCalendarCreateEvent extends SakaiDialogContent {
@@ -130,7 +131,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         ` : ""}
       </div>
     `;
-        //<sakai-editor editor-id="editor-classic"></sakai-editor>
+    //<sakai-editor editor-id="editor-classic"></sakai-editor>
   }
 
   buttons() {

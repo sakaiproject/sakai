@@ -237,8 +237,6 @@
 			.questionDiv .contentCol, .checklistDiv {
 				@extend .sakai-colorize#{$shade4};
 			}
-			.usebutton.n#{$name},
-			.usebutton.n#{$name}-trans,
 			input[type="submit"].question-submit,
 			.linkCell .addStudentContent,
 			input[type="submit"].setStudentZero {
@@ -257,6 +255,12 @@
 			input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
 				margin-top: $standard-space-4x;
 			}
+		}
+
+		.usebutton.n#{$name},
+		.usebutton.n#{$name}-trans {
+			background-color: var(#{$shade1}) !important;
+			color: white !important;
 		}
 	}
 

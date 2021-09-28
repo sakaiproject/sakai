@@ -22,7 +22,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
   set criterion(newValue) {
 
-    var oldValue = this._criterion;
+    const oldValue = this._criterion;
     this._criterion = newValue;
     this._criterion.comments = newValue.comments && newValue.comments.indexOf("null") === 0 ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
@@ -81,10 +81,10 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
       this.classList.add('show-tooltip');
 
-      var popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
+      const popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
-      popover[0].style.left = e.target.offsetLeft - 270 + "px";
-      popover[0].style.top = e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2 + "px";
+      popover[0].style.left = `${e.target.offsetLeft - 270  }px`;
+      popover[0].style.top = `${e.target.offsetTop + e.target.offsetHeight / 2 + 20 - popover.height() / 2  }px`;
 
       Object.keys(CKEDITOR.instances)
         .filter(n => n.includes("criterion-")).forEach(n => CKEDITOR.instances[n].destroy(true));
@@ -119,7 +119,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     const editorKey = `criterion-${this.criterion.id}-${this.evaluatedItemId}-comment-${this.randombit}`;
 
     try {
-      var commentEditor = CKEDITOR.replace(editorKey, {
+      const commentEditor = CKEDITOR.replace(editorKey, {
         startupFocus: true,
         toolbar: [['Bold', 'Italic', 'Underline'], ['NumberedList', 'BulletedList', 'Blockquote']],
         height: 40

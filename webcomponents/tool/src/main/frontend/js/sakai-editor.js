@@ -14,6 +14,7 @@ class SakaiEditor extends SakaiElement {
       active: { type: Boolean },
       delay: { type: Boolean },
       toolbar: String,
+      setFocus: { attribute: "set-focus", type: Boolean },
     };
   }
 
@@ -23,7 +24,15 @@ class SakaiEditor extends SakaiElement {
 
     if (this.debug) console.debug("Sakai Editor constructor");
     this.content = "";
-    this.elementId = "editable";
+    this.elementId = `editable_${Math.floor(Math.random() * 20) + 1}`;
+  }
+
+  getContent() {
+    return this.editor.getData();
+  }
+
+  clear() {
+    this.editor.setData("");
   }
 
   shouldUpdate() {
@@ -36,7 +45,7 @@ class SakaiEditor extends SakaiElement {
     if (value) {
       this.attachEditor();
     } else {
-      this.editor.destroy()
+      this.editor.destroy();
     }
   }
 
@@ -49,13 +58,20 @@ class SakaiEditor extends SakaiElement {
     }
 
     if (sakai?.editor?.launch) {
-      this.editor = sakai.editor.launch(this.elementId);
+      this.editor = sakai.editor.launch(this.elementId, { autosave: { delay: 10000000, messageType: "no" } });
     } else {
       this.editor = CKEDITOR.replace(this.elementId, {toolbar: SakaiEditor.toolbars.get("basic")});
     }
+
     this.editor.on("change", (e) => {
-      this.dispatchEvent(new CustomEvent("changed", { detail: { overview: e.editor.getData() }, bubbles: true }));
+      this.dispatchEvent(new CustomEvent("changed", { detail: { content: e.editor.getData() }, bubbles: true }));
     });
+
+    if (this.setFocus) {
+      this.editor.on("instanceReady", e => {
+        e.editor.focus();
+      });
+    }
   }
 
   firstUpdated(changed) {
@@ -80,4 +96,4 @@ if (!customElements.get("sakai-editor")) {
 }
 
 SakaiEditor.toolbars = new Map();
-SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']}]);
+SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList', 'BulletedList', 'Blockquote']}]);

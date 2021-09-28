@@ -1,0 +1,40 @@
+.active-topic-row {
+  margin-top: 8px;
+}
+
+#statistics-timeframe-block {
+  margin-top: 40px;
+  div {
+    font-weight: bold;
+    font-size: 16px;
+    color: #262626;
+    margin-bottom: 5px;
+  }
+  input {
+    margin-right: 5px;
+  }
+  input:nth-child(2) {
+    margin-left: 10px;
+  }
+}
+
+#statistics-report-table {
+  margin-top: 20px;
+
+  th {
+    background: #176EA3;
+    a {
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 500;
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+  }
+
+  td {
+    white-space: nowrap;
+    color: #262626;
+    font-size: 14px;
+  }
+}

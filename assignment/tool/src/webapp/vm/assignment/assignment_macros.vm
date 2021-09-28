@@ -378,6 +378,7 @@
             #end
             <ul class="attachList">
                 #foreach ($attachmentReference in $attachmentsSet)
+                    #set ($reference = false)
                     #set ($reference = $attachmentReferencesMap.get($attachmentReference))
                     #if ($reference)
                         #set ($props = false)

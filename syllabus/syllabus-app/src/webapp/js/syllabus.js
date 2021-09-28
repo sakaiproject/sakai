@@ -37,19 +37,16 @@ $.widget( 'ui.dialog', $.ui.dialog, {
 } );
 
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
-	var activeVar = false;
 	if($( "#accordion .group" ).children("h3").size() <= 1){
-		//since there is only 1 option, might was well keep it open instead of collapsed
-		activeVar = 0;
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
 	$( "#accordion > span > div" ).accordion({ 
 		header: "> div > h3",
-		active: activeVar,
+		active: false,
 		autoHeight: false,
 		collapsible: true,
-		heightStyle: "content",
+		heightStyle: "content"
 	});
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
@@ -114,12 +111,14 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 				});
 			}, 500);
 		});
+	} else {
+		$( "#accordion span" ).sortable('disabled');
 	}
 	Array.prototype.move = function(from,to){
 		this.splice(to,0,this.splice(from,1)[0]);
 		return this;
 	};
-	if(activeVar === false && openDataId && openDataId !== ''){
+	if (openDataId && openDataId !== ''){
 		//instructor is working on this data item, keep it open and focused on when refreshing
 		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
 		

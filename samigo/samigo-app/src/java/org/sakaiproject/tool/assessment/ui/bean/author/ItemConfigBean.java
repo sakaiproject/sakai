@@ -442,14 +442,6 @@ public class ItemConfigBean implements Serializable {
     return list;
   }
 
-  public List<SelectItem> getAddItemTypeSelectList()
-  {
-    List<SelectItem> list = getItemTypeSelectList();
-    list.add(0, new SelectItem("", getResourceDisplayName("select_qtype")));
-
-    return list;
-  }
-
   /**
    * Can we select items from a question pool?
    * If we are in question pools we cannot select items from pool.

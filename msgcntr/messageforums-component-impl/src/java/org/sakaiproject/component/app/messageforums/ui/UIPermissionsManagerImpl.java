@@ -692,7 +692,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     private Set<DBMembershipItem> getTopicMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        clearMembershipsFromCacheForArea(area);
         String topicCacheKey = "topic_" + area.getId();
         Set<DBMembershipItem> cachedTopicMemberships = membershipItemCache.get(topicCacheKey);
         if (cachedTopicMemberships == null) {
@@ -704,7 +703,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     private Set<DBMembershipItem> getForumMemberships(Area area) {
         if (area == null) return Collections.emptySet();
-        clearMembershipsFromCacheForArea(area);
         String forumCacheKey = "forum_" + area.getId();
         Set<DBMembershipItem> cachedForumMemberships = membershipItemCache.get(forumCacheKey);
         if (cachedForumMemberships == null) {
@@ -718,7 +716,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (StringUtils.isNotBlank(siteId)) {
             Area area = forumManager.getDiscussionForumArea(siteId);
             if (area != null) {
-                clearMembershipsFromCacheForArea(area);
                 String areaSiteCacheKey = "area_" + area.getId();
                 Set<DBMembershipItem> cachedAreaMemberships = membershipItemCache.get(areaSiteCacheKey);
                 if (cachedAreaMemberships == null) {

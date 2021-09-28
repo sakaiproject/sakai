@@ -848,8 +848,7 @@ public class podHomeBean {
 	 */
 	public void podMainListener(ActionEvent e) {
 		FacesContext context = FacesContext.getCurrentInstance();
-		Map requestParams = context.getExternalContext()
-				.getRequestParameterMap();
+		Map requestParams = context.getExternalContext().getRequestParameterMap();
 		final String resourceId = (String) requestParams.get(RESOURCEID);
 
 		setPodcastSelected(resourceId);
@@ -1122,32 +1121,27 @@ public class podHomeBean {
 	 * @throws AbortProcessingException
 	 * 			Internal processing error attempting to set up BufferedInputStream
 	 */
-	public void processFileUpload(ValueChangeEvent event)
-			throws AbortProcessingException {
+	public void processFileUpload(ValueChangeEvent event) throws AbortProcessingException {
 		UIComponent component = event.getComponent();
-
 		Object newValue = event.getNewValue();
 		Object oldValue = event.getOldValue();
 		PhaseId phaseId = event.getPhaseId();
 		Object source = event.getSource();
-//		log.info("processFileUpload() event: " + event
-//				+ " component: " + component + " newValue: " + newValue
-//				+ " oldValue: " + oldValue + " phaseId: " + phaseId
-//				+ " source: " + source);
 
-		if (newValue instanceof String)
+		if (newValue instanceof String || newValue == null) {
 			return;
-		if (newValue == null)
-			return;
+		}
 
 		FileItem item = (FileItem) event.getNewValue();
 		String fieldName = item.getFieldName();
 		filename = FilenameUtils.getName(item.getName());
 		fileSize = item.getSize();
 		fileContentType = item.getContentType();
-//		log.info("processFileUpload(): item: " + item
-//				+ " fieldname: " + fieldName + " filename: " + filename
-//				+ " length: " + fileSize);
+		if (!fileContentType.startsWith("audio")) {
+			setErrorMessage("wrong_file_type");
+			return;
+		}
+		log.debug("processFileUpload(): item: {} fieldname: {} filename: {} length: {}", item, fieldName, filename, fileSize);
 
 		// Read the file as a stream (may be more memory-efficient)
 		try {
@@ -1780,6 +1774,13 @@ public class podHomeBean {
 	         rb = new ResourceLoader(bundle);
 	    }
 	    return rb.getString(key);
+	}
+
+	/**
+	 * Goes to the main screen
+	 */
+	public String processBackListen() {
+		return "cancel";
 	}
 
 }

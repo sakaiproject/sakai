@@ -19,20 +19,19 @@
 	#if ($alertMessage)
 		<div class="sak-banner-warn">$tlang.getString('gen.alert') $formattedText.escapeHtml($alertMessage)</div>
 	#end
-	<p class="instruction">
-		$tlang.getString('cust.toadd')
-	</p>
+	<div id="noFieldSelected" style="display:none" class="sak-banner-warn">$tlang.getString('cust.error.nosel')</div>
+
 	<form id="optionsForm" name="Options" action="#toolForm('$action')" method="post">
+		<p class="instruction">$tlang.getString('cust.toadd')</p>
 		<span class="shorttext">
-			<label for="textfield">
-				$tlang.getString('cust.fname'):
-			</label>	
-			<input type="text" name="textfield" id="textfield" maxlength="20" size="20" />
+			<label for="textfield">$tlang.getString('cust.fname'):</label>
+		<input type="text" name="textfield" id="textfield" maxlength="20" size="20" />
 		</span >
-		<span  class="act">
-			<input type="submit" name="eventSubmit_doAddfield" value="$tlang.getString('cust.add')" />
+		<span class="act">
+			<input id="addFieldButton" type="submit" value="$tlang.getString('cust.add')" name="eventSubmit_doAddfield" accesskey="a" />
 		</span >
-				<table class="table table-striped table-bordered table-hover" cellspacing="0" summary="$tlang.getString('cust.list')">
+
+		<table class="table table-striped table-bordered table-hover" cellspacing="0" summary="$tlang.getString('cust.list')">
 			#if (!$addFieldsCalendarsCollectionIsEmpty)
 					<tr> 
 						<th id="fieldname">$tlang.getString('cust.fname')</th>
@@ -104,31 +103,30 @@
 							</td>
 						</tr>
 					#end
-				</table>
 			#end
-		<p class="act">
-				<input id="saveEventsButton" type="submit" class="active"  value="$tlang.getString('cust.save')" accesskey="s" />
-				<input id="saveEventsSubmission" type="submit" name="eventSubmit_doUpdate" class="hidden" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" accesskey="x" />
-		</p>
+		</table>
+		<div class="act">
+			<input id="removeFieldButton" type="button" value="$tlang.getString('cust.rem.btn')" accesskey="d" />
+			<input id="removeFieldSubmission" type="submit" name="eventSubmit_doDeletefield" class="hidden" />
+		</div >
 		<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
 			<div class="modal-dialog modal-md">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-times" aria-hidden="true"></span></button>
-					<h4 class="modal-title">$tlang.getString('gen.confirm.type')</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="$tlang.getString('gen.close')"><span class="fa fa-times" aria-hidden="true"></span></button>
+					<h4 class="modal-title">$tlang.getString('cust.rem.btn')</h4>
 				</div>
 				<div class="modal-body">
 					<div class="sak-banner-warn">$tlang.getString('java.alert.areyou')</div>
 					<ul id="deleted-event-list"></ul>
 				</div>
 				<div class="modal-footer act">
-					<button type="button" class="active" id="modal-btn-confirm">$tlang.getString('gen.save')</button>
-					<button type="button" class="btn btn-default" id="modal-btn-cancel">$tlang.getString('gen.cancel')</button>
+					<button type="button" class="active" id="modal-btn-confirm">$tlang.getString('cust.confirm.yes')</button>
+					<button type="button" class="btn btn-default" id="modal-btn-cancel">$tlang.getString('cust.confirm.no')</button>
 				</div>
 				</div>
 			</div>
-		  </div>
+		</div>
 		<input type="hidden" name="state" value="$state" />
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
@@ -136,9 +134,14 @@
 
 <script>
   var confirmationModal = function(callback){
-    $('#saveEventsButton').on('click', function(e) {
-      e.preventDefault();
-      $('#confirmation-modal').modal('show');
+    $('#removeFieldButton').on('click', function(e) {
+      if($("input[id*='addedFields']:checked").length > 0) {
+        e.preventDefault();
+        $('#noFieldSelected').hide();
+        $('#confirmation-modal').modal('show');
+      } else {
+        $('#noFieldSelected').show();
+      }
     });
 
     $('#modal-btn-confirm').on('click', function(){
@@ -154,7 +157,7 @@
 
   confirmationModal(function(confirm) {
     if (confirm) {
-      $('#saveEventsSubmission').click();
+      $('#removeFieldSubmission').click();
     }
   });
 </script>

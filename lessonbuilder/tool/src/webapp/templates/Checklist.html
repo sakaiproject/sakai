@@ -35,24 +35,23 @@
             </div>
         </div>
 
-        <div class="longtext titleBorder">
-            <span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span>
+        <div class="page-header">
+            <span rsf:id="title-label"></span><span rsf:id="page-title"></span>
         </div>
 
         <div>
-            <p class="required checklistFormInput">
+            <div class="form-group">
                 <span class="reqStar">*</span>
-                <label class="checklistTitle" rsf:id="msg=simplepage.new-checklist-title" for="name"></label>
-                <br />
-                <input rsf:id="name" id="name" />
-                <br />
-                <input type="checkbox" rsf:id="isNameHidden" id="isNameHidden" class="hideNameCheckbox"/><label rsf:id="nameHidden-label" for="isNameHidden" class="hideNameCheckboxLabel"></label>
-            </p>
-            <p class="checklistFormInput">
-                <label class="checklistDescription" rsf:id="msg=simplepage.new-checklist-description" for="description"></label>
-                <br />
-                <textarea rsf:id="description" id="description" rows="6"></textarea>
-            </p>
+                <label rsf:id="msg=simplepage.new-checklist-title" for="name"></label>
+                <input class="form-control" required="true" rsf:id="name" id="name"/>
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="checkbox" rsf:id="isNameHidden" id="isNameHidden"/><label rsf:id="nameHidden-label" for="isNameHidden"></label>
+            </div>
+            <div class="form-group">
+                <label rsf:id="msg=simplepage.new-checklist-description" for="description"></label>
+                <textarea class="form-control" rsf:id="description" id="description" rows="6"></textarea>
+            </div>
 
             <hr />
             <input type="hidden" rsf:id="attributeString" id="attributeString"/>
@@ -87,21 +86,23 @@
         <div id="additionalSettings">
             <h3 class="checklist-settings-header"><span rsf:id="msg=simplepage.appearance.settings" /></h3>
             <div id="stylingstuff" class="stylingstuff">
-                <p class="shorttext">
+                <div class="form-group">
                     <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
-                    <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
-                </p>
-                <p class="shorttext">
+                    <select class="form-control" rsf:id="indent-level" name="indent-level" id="indent-level"/>
+                </div>
+                <div class="form-group">
                     <label for="customCssClass" rsf:id="custom-css-label"></label>
-                    <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
-                </p>
+                    <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="form-control"/>
+                </div>
             </div>
             <h3 class="checklist-settings-header" id="groupHeader"><span rsf:id="msg=simplepage.group.settings" /></h3>
-            <div id="grouplist" rsf:id="grouplist">
+            <div id="grouplist" rsf:id="grouplist" class="form-group">
                 <span rsf:id="group-list-span"/>
                 <p rsf:id="msg=simplepage.select-group"></p>
                 <div rsf:id="select-group-list:">
-                    <input type="checkbox" rsf:id="select-group" /><input type="checkbox" rsf:id="select-group-checked" checked="checked" /><span rsf:id="select-group-text"></span>
+                    <input class="form-control" type="checkbox" rsf:id="select-group" />
+                    <input class="form-control" type="checkbox" rsf:id="select-group-checked" checked="checked" />
+                    <span rsf:id="select-group-text"></span>
                 </div>
             </div>
         </div>

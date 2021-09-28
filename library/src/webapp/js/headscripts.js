@@ -833,6 +833,10 @@ function includeWebjarLibrary(library) {
 			jsReferences.push('/dist/video.min.js');
 			cssReferences.push('/dist/video-js.css');
 			break;
+		case 'wavesurfer.js':
+			libraryVersion = "5.1.0";
+			jsReferences.push('/dist/wavesurfer.min.js');
+			break;
 		default:
 			if (library.endsWith(".js")) {
 				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');

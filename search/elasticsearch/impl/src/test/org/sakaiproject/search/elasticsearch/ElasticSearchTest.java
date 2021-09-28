@@ -15,8 +15,26 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import com.github.javafaker.Faker;
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +44,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.event.api.*;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
@@ -36,14 +58,11 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-//import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.github.javafaker.Faker;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -102,24 +121,17 @@ public class ElasticSearchTest {
     @Mock
     EntityContentProducer entityContentProducer;
 
-
-
     @Mock
     Site site;
 
-    List<String> siteIds = new ArrayList<String>();
+    private final Map<String, Resource> resources = new HashMap<>();
+    private final List<Event> events = new ArrayList<>();
 
+    List<String> siteIds = new ArrayList<>();
+    List<Site> sites = new ArrayList<>();
     Faker faker = new Faker();
-
-    String siteId = faker.phoneNumber();
-
-     String resourceName = faker.name() + " key keyboard";
-    String url = "http://localhost/test123";
-
-    private Map<String, Resource> resources = new HashMap();
-    private List<Event> events = new ArrayList();
-
-    List<Site> sites = new ArrayList<Site>();
+    String siteId = faker.bothify("########-????????-########");
+    String resourceName = faker.name().name() + " key keyboard";
     SearchSecurityFilter filter = new SearchSecurityFilter();
 
     @After
@@ -135,22 +147,20 @@ public class ElasticSearchTest {
         resources.put(resourceName, resource);
 
         when(event.getResource()).thenReturn(resource.getName());
-        events.add(event);
         when(entityContentProducer.matches(event)).thenReturn(true);
         when(entityContentProducer.matches(resourceName)).thenReturn(true);
-
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(event)).thenReturn(SearchBuilderItem.ACTION_ADD);
         when(entityContentProducer.getContent(resourceName)).thenReturn(content);
         when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
         when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
+        events.add(event);
 
-
-        for (int i=0;i<105;i++) {
-            String name = faker.name();
+        for (int i = 0; i < 105; i++) {
+            String name = faker.name().name();
             Event newEvent = mock(Event.class);
-            Resource resource1 = new Resource(generateContent(), faker.phoneNumber(), name);
+            Resource resource1 = new Resource(generateContent(), faker.bothify("########-????????-########"), name);
             resources.put(name, resource1);
             events.add(newEvent);
             when(newEvent.getResource()).thenReturn(resource1.getName());
@@ -169,7 +179,7 @@ public class ElasticSearchTest {
     private String generateContent() {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < 10; i++) {
-            sb.append(faker.paragraph(10) + " ");
+            sb.append(faker.lorem().paragraph(10) + " ");
         }
         return sb.toString();
     }
@@ -182,9 +192,12 @@ public class ElasticSearchTest {
         when(siteService.getSite(site.getId())).thenReturn(site);
         sites.add(site);
         when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
-        when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
+        when(serverConfigurationService.getConfigData().getItems()).thenReturn(Collections.emptyList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
+        when(serverConfigurationService.getString("elasticsearch.http.host", "localhost")).thenReturn("localhost");
+        when(serverConfigurationService.getInt("elasticsearch.http.port", 9200)).thenReturn(9200);
+
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         siteIds.add(siteId);
@@ -209,70 +222,67 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setPeriod(10);
         elasticSearchIndexBuilder.setContentIndexBatchSize(50);
         elasticSearchIndexBuilder.setBulkRequestSize(20);
-        elasticSearchIndexBuilder.setMapping("{\n" +
-                "    \"sakai_doc\": {\n" +
-                "        \"_source\": {\n" +
-                "            \"enabled\": false\n" +
+        elasticSearchIndexBuilder.setMappingConfig(
+                "\n{\n" +
+                "    \"properties\": {\n" +
+                "        \"siteid\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
                 "        },\n" +
-                "\n" +
-                "        \"properties\": {\n" +
-                "            \"siteid\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"title\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"store\": \"yes\",\n" +
-                "                \"term_vector\" : \"with_positions_offsets\",\n" +
-                "                \"search_analyzer\": \"str_search_analyzer\",\n" +
-                "                \"index_analyzer\": \"str_index_analyzer\"\n" +
-                "            },\n" +
-                "            \"url\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"reference\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"id\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"tool\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"container\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"type\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"subtype\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"index\": \"not_analyzed\",\n" +
-                "                \"store\": \"yes\"\n" +
-                "            },\n" +
-                "            \"contents\": {\n" +
-                "                \"type\": \"string\",\n" +
-                "                \"analyzer\": \"snowball\",\n" +
-                "                \"index\": \"analyzed\",\n" +
-                "                \"store\": \"no\"\n" +
-                "            }\n" +
+                "        \"title\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"store\": \"true\",\n" +
+                "            \"term_vector\" : \"with_positions_offsets\",\n" +
+                "            \"search_analyzer\": \"str_search_analyzer\",\n" +
+                "            \"analyzer\": \"str_index_analyzer\"\n" +
+                "        },\n" +
+                "        \"url\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"reference\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"id\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"tool\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"container\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"type\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"subtype\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"store\": \"true\"\n" +
+                "        },\n" +
+                "        \"indexed\": {\n" +
+                "            \"type\": \"boolean\",\n" +
+                "            \"null_value\": \"false\",\n" +
+                "            \"store\": \"false\"\n" +
+                "        },\n" +
+                "        \"contents\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"analyzer\": \"snowball\",\n" +
+                "            \"index\": \"true\",\n" +
+                "            \"store\": \"false\"\n" +
                 "        }\n" +
                 "    }\n" +
-                "}");
-        elasticSearchIndexBuilder.setIndexSettings("{\n" +
+                "}\n");
+        elasticSearchIndexBuilder.setIndexSettingsConfig(
+                "\n{\n" +
+                "    \"number_of_shards\": 1,\n" +
+                "    \"index\": {\n" +
+                "        \"max_ngram_diff\": 20" +
+                "    },\n" +
                 "    \"analysis\": {\n" +
                 "        \"filter\": {\n" +
                 "            \"substring\": {\n" +
@@ -282,9 +292,9 @@ public class ElasticSearchTest {
                 "            }\n" +
                 "        },\n" +
                 "        \"analyzer\": {\n" +
-                "            \"snowball\": {\n" +
-                "                \"type\": \"snowball\",\n" +
-                "                \"language\": \"English\"\n" +
+                "            \"standard\": {\n" +
+                "                \"type\": \"standard\",\n" +
+                "                \"max_token_length\": \"255\"\n" +
                 "            },\n" +
                 "            \"str_search_analyzer\": {\n" +
                 "                \"tokenizer\": \"keyword\",\n" +
@@ -296,8 +306,7 @@ public class ElasticSearchTest {
                 "            }\n" +
                 "        }\n" +
                 "    }\n" +
-                "}\n" +
-                "\n");
+                "}\n");
 
         filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
 
@@ -348,8 +357,8 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         elasticSearchIndexBuilder.refreshIndex();
-        assertTrue("the number of docs is " + elasticSearchService.getNDocs() + " expecting 106.",
-                elasticSearchService.getNDocs() == 106);
+        long numberOfDocs = elasticSearchService.getNDocs();
+        assertTrue("The number of docs is " + numberOfDocs + " expecting 106.", numberOfDocs == 106);
     }
 
     @Test
@@ -389,8 +398,8 @@ public class ElasticSearchTest {
     public void deleteAllDocumentForSite(){
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
-        elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
         elasticSearchIndexBuilder.refreshIndex();
+        elasticSearchIndexBuilder.deleteAllDocumentForSite(siteId);
 
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
@@ -418,15 +427,17 @@ public class ElasticSearchTest {
 
         try {
             SearchList list = elasticSearchService.search("asdf", siteIds, 0, 10);
-            assertNotNull(list.get(0) ) ;
-            assertEquals(list.get(0).getReference(),resourceName);
+            assertNotEquals(0, list.size());
             SearchResult result = list.get(0);
+            assertNotNull(result);
+            assertEquals(result.getReference(), resourceName);
             assertTrue(result.getSearchResult().toLowerCase().contains("<b>"));
 
             // Searching the title of the file should also return results
             list = elasticSearchService.search("keyboard", siteIds, 0, 10);
-            assertNotNull(list.get(0) ) ;
-            assertEquals(list.get(0).getReference(),resourceName);
+            assertNotEquals(0, list.size());
+            assertNotNull(list.get(0));
+            assertEquals(list.get(0).getReference(), resourceName);
         } catch (InvalidSearchQueryException e) {
             log.error(e.getMessage(), e);
             fail();
@@ -489,46 +500,38 @@ public class ElasticSearchTest {
     public void testRebuild(){
         elasticSearchIndexBuilder.setContentIndexBatchSize(200);
         elasticSearchIndexBuilder.setBulkRequestSize(400);
-
-
         elasticSearchIndexBuilder.addResource(notification, event);
 
         // add in a resource with no content
         String resourceName = "billy bob";
         Resource resource = new Resource(null, siteId, resourceName);
         resources.put(resourceName, resource);
+
         Event newEvent = mock(Event.class);
-
         when(newEvent.getResource()).thenReturn(resource.getName());
-        events.add(newEvent);
         when(entityContentProducer.matches(newEvent)).thenReturn(true);
-
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
         when(entityContentProducer.getContent(resourceName)).thenReturn(null);
         when(entityContentProducer.getType(resourceName)).thenReturn("sakai:content");
         when(entityContentProducer.getId(resourceName)).thenReturn(resourceName);
         when(entityContentProducer.getTitle(resourceName)).thenReturn(resourceName);
+        events.add(newEvent);
 
         addResources();
 
         when(entityContentProducer.getSiteContentIterator(siteId)).thenReturn(resources.keySet().iterator());
-
-
         elasticSearchService.rebuildInstance();
-
-        //assertTrue(elasticSearchIndexBuilder.getPendingDocuments() > 0);
         elasticSearchIndexBuilder.refreshIndex();
-
         elasticSearchIndexBuilder.processContentQueue();
-
         elasticSearchIndexBuilder.refreshIndex();
-
 
         verify(entityContentProducer, atLeast(106)).getContent(any(String.class));
-        assertTrue("pending doc=" + elasticSearchIndexBuilder.getPendingDocuments() + ", expecting 0",
-                elasticSearchIndexBuilder.getPendingDocuments() == 0);
-        assertTrue("num doc=" + elasticSearchService.getNDocs() + ", expecting 106.", elasticSearchService.getNDocs() == 106);
+
+        int pendingDocs = elasticSearchIndexBuilder.getPendingDocuments();
+        long indexedDocs = elasticSearchService.getNDocs();
+        assertTrue("pending doc=" + pendingDocs + ", expecting 0", pendingDocs == 0);
+        assertTrue("num doc=" + indexedDocs + ", expecting 106.", indexedDocs == 106);
     }
 
     public class Resource {

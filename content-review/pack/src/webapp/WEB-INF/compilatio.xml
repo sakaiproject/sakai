@@ -20,7 +20,6 @@
 		<property name="compilatioContentValidator" ref="org.sakaiproject.contentreview.compilatio.CompilatioContentValidator" />
 		<property name="compilatioConn" ref="org.sakaiproject.contentreview.compilatio.CompilatioAccountConnection" />
 		<property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" />
-		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
 	</bean>
 
 	<!-- Default to allow all sites to use Compilatio regardless of site type or property -->

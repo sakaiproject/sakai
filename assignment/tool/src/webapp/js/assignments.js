@@ -397,12 +397,6 @@ ASN.highlightSelectedAttachment = function()
 
 ASN.saveChanges = function(formName, textAreaId) {
     var _textArea = document.getElementById(textAreaId);
-    if (_textArea !== null) {
-        if (typeof FCKeditorAPI !== "undefined") {
-            var editor = FCKeditorAPI.GetInstance(textAreaId);
-            document[formName].savedText.value = editor.GetXHTML(false);
-        }
-    }
 };
 
 ASN.allowClick = function(object)
@@ -993,7 +987,7 @@ ASN.disableTimesheetSetupSection = function()
     el && (el.style.display = 'none');
     
     const el2 = document.getElementById('new_assignment_check_add_is_estimate');
-    el2 && (el2.checked = "");
+    el2 && (el2.checked = false);
     
     ASN.toggleAutoAnnounceEstimate(false);
 }

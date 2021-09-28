@@ -49,7 +49,7 @@ class SakaiDialogContent extends LitElement {
         <div id="titlebar">
           <div id="title">${this.title()}</div>
           <div id="close">
-            <a href="javascript:;" @click=${this.close} title="${this.baseI18n["close"]} ${this.title()}">
+            <a href="javascript:;" @click=${this.close} title="${this.baseI18n.close} ${this.title()}">
               <sakai-icon type="close"></sakai-icon>
             </a>
           </div>
@@ -59,7 +59,7 @@ class SakaiDialogContent extends LitElement {
         </div>
         <div id="buttonbar">
           ${this.buttons()}
-          <sakai-button @click=${this.cancel}>${this.baseI18n["cancel"]}</sakai-button>
+          <sakai-button @click=${this.cancel}>${this.baseI18n.cancel}</sakai-button>
         </div>
     `;
   }
