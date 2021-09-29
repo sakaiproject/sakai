@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${userDisplayName} changed their profile on ${localSakaiName}</subject>
+	<message>${userDisplayName} changed their profile on ${localSakaiName}
+
+To view ${userDisplayName}'s profile, follow the url below:
+${profileLink}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+	</message>
+	<htmlMessage>${userDisplayName} changed their profile on ${localSakaiName}
+&lt;p&gt;
+To view ${userDisplayName}&apos;s profile, follow the url below:
+&lt;br /&gt;&lt;a href="${profileLink}"&gt;${profileLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;/p&gt;
+	</htmlMessage>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.profileChangeNotification</key>
+</emailTemplate>

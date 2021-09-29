@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} replied to your message on ${localSakaiName}</subject>
+	<message>${senderDisplayName} replied to your message on ${localSakaiName}
+
+--------------------
+${messageSubject}
+
+${messageBody}
+--------------------
+
+To view this message, follow the link below:
+${messageLink}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive from connections at Home > ${toolName} > Preferences
+	</message>
+	<htmlMessage>${senderDisplayName} replied to your message on ${localSakaiName}
+&lt;p&gt;
+--------------------
+&lt;br /&gt;${messageSubject}
+&lt;br /&gt;
+&lt;br /&gt;${messageBody}
+&lt;br /&gt;--------------------
+&lt;/p&gt;
+
+&lt;p&gt;To view this message, follow the link below:
+&lt;br /&gt;&lt;a href="${messageLink}"&gt;${messageLink}&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Control what email notifications you receive from connections at Home &gt; ${toolName} &gt; Preferences
+&lt;/p&gt;
+	</htmlMessage>
+	<version>3</version>
+	<owner>admin</owner>
+	<key>profile2.messageReply</key>
+</emailTemplate>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} ha creado el nuevo sitio de trabajo: '${worksiteTitle}'</subject>
+	<message>${senderDisplayName} ha creado el nuevo sitio de trabajo '${worksiteTitle}' para que colaboréis en ${localSakaiName}
+
+Para acceder al nuevo sitio de trabajo puedes hacer clic en el siguiente enlace:
+${worksiteLink}
+
+---
+Este mensaje de notificación automática ha sido enviado por ${localSakaiName} (${localSakaiUrl})
+Si desea modificar las opciones de notificación, acceda a Mi Sitio > ${toolName} > Preferencias
+	</message>
+	<htmlMessage>${senderDisplayName} ha creado el nuevo sitio de trabajo '${worksiteTitle}' para que colaboréis en ${localSakaiName}
+&lt;p&gt;
+Para acceder al nuevo sitio de trabajo puedes hacer clic en el siguiente enlace:
+&lt;br /&gt;&lt;a href="${worksiteLink}"&gt;${worksiteLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Si desea modificar las opciones de notificación, acceda a Mi Sitio &gt; ${toolName} &gt; Preferencias
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>es_ES</locale>
+	<version>2</version>
+	<owner>admin</owner>
+	<key>profile2.worksiteNew</key>
+</emailTemplate>

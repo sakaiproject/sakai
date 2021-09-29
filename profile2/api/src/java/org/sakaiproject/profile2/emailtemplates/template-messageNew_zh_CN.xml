@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} 从${localSakaiName}给您发送了一条消息</subject>
+	<message>${senderDisplayName} 从${localSakaiName}给您发送了一条消息
+
+--------------------
+${messageSubject}
+
+${messageBody}
+--------------------
+
+您可以通过下面的链接查看此消息：
+${messageLink}
+
+---
+此邮件由 ${localSakaiName} (${localSakaiUrl})自动发送。
+您可以在“我的工作空间” > “${toolName}” > “偏好设置” 中设定您希望接收的邮件类型。
+	</message>
+	<htmlMessage>${senderDisplayName} 从${localSakaiName}给您发送了一条消息
+&lt;p&gt;
+--------------------
+&lt;br /&gt;${messageSubject}
+&lt;br /&gt;
+&lt;br /&gt;${messageBody}
+&lt;br /&gt;--------------------
+&lt;/p&gt;
+
+&lt;p&gt;您可以通过下面的链接查看此消息：
+&lt;br /&gt;${messageLink}
+&lt;/p&gt;
+
+&lt;p&gt;
+---
+&lt;br /&gt;此邮件由 ${localSakaiName} (${localSakaiUrl})自动发送。
+&lt;br /&gt;您可以在“我的工作空间” &gt; “${toolName}” &gt; “偏好设置” 中设定您希望接收的邮件类型。
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>zh_CN</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.messageNew</key>
+</emailTemplate>

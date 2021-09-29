@@ -16,10 +16,15 @@
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
 		<property name="activityService" ref="org.sakaiproject.event.api.ActivityService" />
-		<property name="userMessagingService" ref="org.sakaiproject.messaging.api.UserMessagingService" />
+		
+		<!-- inject other resources -->
+		<property name="emailTemplates" ref="org.sakaiproject.profile2.emailtemplates.List" />
+		
 	</bean>
 	
 	<!-- setup a DAO, accessed via the transaction proxy -->
@@ -162,6 +167,12 @@
 		<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
 	</bean>
 	
+	    <!-- ProfileWorksiteLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileWorksiteLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileWorksiteLogicImpl">
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
+    
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">

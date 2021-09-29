@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- create a DAO bean, use the hibernate implementation -->
+	<bean id="org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDaoTarget"
+			class="org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDaoImpl">
+		<property name="sessionFactory" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="persistentClasses">
+			<list>
+				<value>org.sakaiproject.emailtemplateservice.model.EmailTemplate</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- This wraps our DAO so that the transactions are managed -->
+	<bean id="org.sakaiproject.emailtemplateservice.dao.EmailTemplateServiceDao"
+			class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+    <!-- define the list of HBM mapping files -->
+    <bean id="emailTemplateService.hbmMappingList" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>org/sakaiproject/emailtemplateservice/hbm/EmailTemplate.hbm.xml</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>

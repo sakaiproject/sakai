@@ -21,6 +21,7 @@
 		<module>impl</module>
 		<module>util</module>
 		<module>tool</module>
+		<module>bundle</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>

@@ -22,6 +22,8 @@
   </properties>
 
   <modules>
+    <module>api</module>
+    <module>impl/logic</module>
     <module>tool</module>
   </modules>
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${userDisplayName} ha modificado su perfil en ${localSakaiName}</subject>
+	<message>${userDisplayName} ha modificado su perfil en ${localSakaiName}
+
+Para acceder al perfil de ${userDisplayName} puede hacer clic en el siguiente enlace:
+${profileLink}
+
+---
+Este mensaje de notificación automática ha sido enviado por ${localSakaiName} (${localSakaiUrl})
+Si desea modificar las opciones de notificación, acceda a Mi Sitio > ${toolName} > Preferencias
+	</message>
+	<htmlMessage>${userDisplayName} ha modificado su perfil en ${localSakaiName}
+&lt;p&gt;
+Para acceder al perfil de ${userDisplayName} puede hacer clic en el siguiente enlace:
+&lt;br /&gt;&lt;a href="${profileLink}"&gt;${profileLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Si desea modificar las opciones de notificación, acceda a Mi Sitio &gt; ${toolName} &gt; Preferencias
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>es_ES</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.profileChangeNotification</key>
+</emailTemplate>

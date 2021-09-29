@@ -610,7 +610,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST;
 			
 			//create the map of replacement values for this email template
-			Map<String, Object> replacementValues = new HashMap<>();
+			Map<String,String> replacementValues = new HashMap<String,String>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("connectionLink", linkLogic.getEntityLinkToProfileConnections());
@@ -627,7 +627,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM;
 			
 			//create the map of replacement values for this email template
-			Map<String, Object> replacementValues = new HashMap<>();
+			Map<String,String> replacementValues = new HashMap<String,String>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("connectionLink", linkLogic.getEntityLinkToProfileHome(fromUuid));

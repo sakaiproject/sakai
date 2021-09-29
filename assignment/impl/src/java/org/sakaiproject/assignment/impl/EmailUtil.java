@@ -16,8 +16,10 @@
 package org.sakaiproject.assignment.impl;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,7 +48,10 @@ import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class EmailUtil {
-
+    private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+    private static final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+    private static final String BOUNDARY_LINE = "\n\n--" + MULTIPART_BOUNDARY + "\n";
+    private static final String TERMINATION_LINE = "\n\n--" + MULTIPART_BOUNDARY + "--\n\n";
     private static final String NEW_LINE = "<br />\n";
     private static final String INDENT = "    ";
 
@@ -58,45 +63,122 @@ public class EmailUtil {
     @Setter private SiteService siteService;
     @Setter private UserDirectoryService userDirectoryService;
 
-    public Map<String, Object> getReleaseGradeReplacements(Assignment a, String siteId) {
+    public List<String> getHeaders(String receiverEmail, String submissionOrReleaseGrade) {
+        List<String> rv = new ArrayList<>();
 
-        Map<String, Object> map = new HashMap<>();
-        try {
-            Site site = siteService.getSite(siteId);
-            map.put("siteTitle", site.getTitle());
-            map.put("siteUrl", site.getUrl());
-            map.put("assignmentTitle", a.getTitle());
-            map.put("assignmentUrl", getAssignmentUrl(a));
-            map.put("bundle", resourceLoader);
-        } catch (Exception e) {
-            log.warn("Failed to get email replacements", e);
+        rv.add("MIME-Version: 1.0");
+        rv.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
+        // set the subject
+        rv.add(getSubject(submissionOrReleaseGrade));
+
+        // from
+        rv.add(getFrom());
+
+        // to
+        if (StringUtils.isNotBlank(receiverEmail)) {
+            rv.add("To: " + receiverEmail);
         }
-        return map;
+
+        return rv;
     }
 
-    public Map<String, Object> getSubmissionReplacements(AssignmentSubmission submission) {
+    public String getSubject(String submissionOrReleaseGrade) {
+        String subject;
+        if ("submission".equals(submissionOrReleaseGrade)) {
+            subject = resourceLoader.getString("noti.subject.content");
+        } else if ("releasegrade".equals(submissionOrReleaseGrade)) {
+            subject = resourceLoader.getString("noti.releasegrade.subject.content");
+        } else {
+            subject = resourceLoader.getString("noti.releaseresubmission.subject.content");
+        }
+        return "Subject: " + subject;
+    }
 
-        Map<String, Object> replacements = new HashMap<>();
+    public String getFrom() {
+        return "From: " + "\"" + serverConfigurationService.getString("ui.service", "Sakai") + "\" <" + serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName()) + ">";
+    }
 
+    public String getNotificationMessage(AssignmentSubmission s, String submissionOrReleaseGrade) {
+        StringBuilder message = new StringBuilder();
+        message.append(MIME_ADVISORY);
+        message.append(BOUNDARY_LINE);
+        message.append(plainTextHeaders());
+        message.append(plainTextContent(s, submissionOrReleaseGrade));
+        message.append(formattedText.convertFormattedTextToPlaintext(htmlContentAttachments(s)));
+        message.append(BOUNDARY_LINE);
+        message.append(htmlHeaders());
+        message.append(htmlPreamble(submissionOrReleaseGrade));
+        if ("submission".equals(submissionOrReleaseGrade))
+            message.append(htmlContent(s));
+        else if ("releasegrade".equals(submissionOrReleaseGrade))
+            message.append(htmlContentReleaseGrade(s));
+        else
+            message.append(htmlContentReleaseResubmission(s));
+        message.append(htmlContentAttachments(s));
+        message.append(htmlEnd());
+        message.append(TERMINATION_LINE);
+        return message.toString();
+    }
+
+    public String plainTextHeaders() {
+        return "Content-Type: text/plain\n\n";
+    }
+
+    public String plainTextContent(AssignmentSubmission s, String submissionOrReleaseGrade) {
+        if ("submission".equals(submissionOrReleaseGrade))
+            return formattedText.convertFormattedTextToPlaintext(htmlContent(s));
+        else if ("releasegrade".equals(submissionOrReleaseGrade))
+            return formattedText.convertFormattedTextToPlaintext(htmlContentReleaseGrade(s));
+        else
+            return formattedText.convertFormattedTextToPlaintext(htmlContentReleaseResubmission(s));
+    }
+
+    public String htmlHeaders() {
+        return "Content-Type: text/html\n\n";
+    }
+
+    public String htmlPreamble(String submissionOrReleaseGrade) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
+        buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
+        buf.append("<html>\n");
+        buf.append("  <head><title>");
+        buf.append(getSubject(submissionOrReleaseGrade));
+        buf.append("</title></head>\n");
+        buf.append("  <body>\n");
+        return buf.toString();
+    }
+
+    public String htmlEnd() {
+        return "\n  </body>\n</html>\n";
+    }
+
+    public String htmlContent(AssignmentSubmission submission) {
         Assignment assignment = submission.getAssignment();
         String context = assignment.getContext();
         boolean isAnon = assignmentService.assignmentUsesAnonymousGrading(assignment);
 
+        String siteTitle;
+        String siteUrl;
         try {
             Site site = siteService.getSite(context);
-            replacements.put("siteTitle", site.getTitle());
-            replacements.put("siteUrl", site.getUrl());
+            siteTitle = site.getTitle();
+            siteUrl = site.getUrl();
         } catch (Exception e) {
             log.warn("Can't get site with id = {}, {}", context, e.getMessage());
-            replacements.put("siteTitle", resourceLoader.getFormattedMessage("cannotfin_site", context));
-            replacements.put("siteUrl", "");
+            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+            siteUrl = "";
         }
 
-        replacements.put("assignmentTitle", assignment.getTitle());
-        replacements.put("assignmentUrl", getAssignmentUrl(assignment));
-        replacements.put("hideDueDate", assignment.getHideDueDate());
+        StringBuilder buffer = new StringBuilder();
+        // site title and id
+        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        // assignment title and due date
+        buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
         if(!assignment.getHideDueDate()) {
-            replacements.put("dueDate", assignmentService.getUsersLocalDateTimeString(assignment.getDueDate()));
+            String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
+            buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
         }
         // submitter name and id
         String submitterNames = "";
@@ -114,73 +196,106 @@ public class EmailUtil {
                 log.warn("User not found with id = {}, {}", submitter.getSubmitter());
             }
         }
-        replacements.put("submitterNames", submitterNames);
-        if (!isAnon) {
-            replacements.put("submitterIds", submitterIds);
+        buffer.append(resourceLoader.getString("noti.student")).append(" ").append(submitterNames);
+        if (submitterIds.length() != 0 && !isAnon) {
+            buffer.append(" ( ").append(submitterIds).append(" )");
         }
+        buffer.append(NEW_LINE).append(NEW_LINE);
 
         // submit time
-        replacements.put("submissionId", submission.getId());
+        buffer.append(resourceLoader.getString("submission.id")).append(" ").append(submission.getId()).append(NEW_LINE);
 
         // submit time
-	    replacements.put("submittedDate", assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()));
+	String formattedSubDate = assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted());
+        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(formattedSubDate).append(NEW_LINE).append(NEW_LINE);
 
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
         if (text != null) {
-            replacements.put("submittedText", text);
+            buffer.append(resourceLoader.getString("gen.submittedtext")).append(NEW_LINE).append(NEW_LINE).append(formattedText.escapeHtmlFormattedText(text)).append(NEW_LINE).append(NEW_LINE);
         }
 
         // attachment if any
         Set<String> attachments = submission.getAttachments();
         if (!attachments.isEmpty()) {
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
-                replacements.put("attachmentType", resourceLoader.getString("gen.att.single"));
+                buffer.append(resourceLoader.getString("gen.att.single"));
             } else {
-                replacements.put("attachmentType", resourceLoader.getString("gen.att"));
+                buffer.append(resourceLoader.getString("gen.att"));
             }
+            buffer.append(NEW_LINE).append(NEW_LINE);
 
             //if this is a archive (zip etc) append the list of files in it
-            StringBuffer buffer = attachments.stream().map(att -> entityManager.newReference(att)).collect(StringBuffer::new, (sb, ref) -> {
-
-                ResourceProperties properties = ref.getProperties();
-                boolean isArchiveFile = isArchiveFile(ref);
-                sb.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-                    .append(" (")
-                    .append(ref.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
-                    .append(isArchiveFile ? "):" : ")")
-                    .append(NEW_LINE);
-                if (isArchiveFile(ref)) {
-                    sb.append("<blockquote>\n");
-                    sb.append(getArchiveManifest(ref, true));
-                    sb.append("</blockquote>\n");
+            attachments.stream().map(attachment -> entityManager.newReference(attachment)).forEach(reference -> {
+                ResourceProperties properties = reference.getProperties();
+                if (!"true".equals(properties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+                    boolean isArchiveFile = isArchiveFile(reference);
+                    buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+                            .append(" (")
+                            .append(reference.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
+                            .append(isArchiveFile ? "):" : ")")
+                            .append(NEW_LINE);
+                    if (isArchiveFile(reference)) {
+                        buffer.append("<blockquote>\n");
+                        buffer.append(getArchiveManifest(reference, true));
+                        buffer.append("</blockquote>\n");
+                    }
                 }
-            }, StringBuffer::append);
-            replacements.put("attachmentsBlock", buffer.toString());
+            });
         }
 
-        replacements.put("bundle", resourceLoader);
-
-        return replacements;
+        return buffer.toString();
     }
 
-    public Map<String, Object> getReleaseResubmissionReplacements(AssignmentSubmission submission) {
-
-        Map<String, Object> replacements = new HashMap<>();
-
+    public String htmlContentReleaseGrade(AssignmentSubmission submission) {
         Assignment assignment = submission.getAssignment();
         String context = assignment.getContext();
 
+        String siteTitle;
+        String siteUrl;
+        Site site = null;
         try {
-            Site site = siteService.getSite(context);
-            replacements.put("siteTitle", site.getTitle());
-            replacements.put("siteUrl", site.getUrl());
+            site = siteService.getSite(context);
+            siteTitle = site.getTitle();
+            siteUrl = site.getUrl();
         } catch (Exception e) {
             log.warn("Can't get site with id = {}, {}", context, e.getMessage());
-            replacements.put("siteTitle", resourceLoader.getFormattedMessage("cannotfin_site", context));
-            replacements.put("siteUrl", "");
+            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+            siteUrl = "";
         }
 
+        StringBuilder buffer = new StringBuilder();
+        // site title and id
+        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
+        // notification text
+        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
+        buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite));
+
+        return buffer.toString();
+    }
+
+    public String htmlContentReleaseResubmission(AssignmentSubmission submission) {
+        Assignment assignment = submission.getAssignment();
+        String context = assignment.getContext();
+
+        String siteTitle;
+        String siteUrl;
+        try {
+            Site site = siteService.getSite(context);
+            siteTitle = site.getTitle();
+            siteUrl = site.getUrl();
+        } catch (Exception e) {
+            log.warn("Can't get site with id = {}, {}", context, e.getMessage());
+            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+            siteUrl = "";
+        }
+
+        StringBuilder buffer = new StringBuilder();
+        // site title and id
+        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
+        // notification text
         //Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
         String userId = null;
         for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
@@ -189,13 +304,46 @@ public class EmailUtil {
             }
         }
 
-        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + replacements.get("siteTitle") + "</a>";
-        replacements.put("assignmentUrl", linkToToolInSite);
-        replacements.put("assignmentTitle", assignment.getTitle());
-        replacements.put("canSubmit", assignmentService.canSubmit(assignment, userId));
-        replacements.put("bundle", resourceLoader);
+        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
+        if (assignmentService.canSubmit(assignment, userId)) {
+            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite));
+        } else {
+            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.noresubmit.text", assignment.getTitle(), linkToToolInSite));
+        }
 
-        return replacements;
+        return buffer.toString();
+    }
+
+    public String htmlContentAttachments(AssignmentSubmission submission) {
+        StringBuilder body = new StringBuilder();
+        Set<String> feedbackAttachments = submission.getFeedbackAttachments();
+        if (!feedbackAttachments.isEmpty()) {
+            body.append(NEW_LINE).append(NEW_LINE);
+            if (submission.getAssignment().getTypeOfSubmission() == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
+                body.append(resourceLoader.getString("gen.att.single"));
+            } else {
+                body.append(resourceLoader.getString("gen.att"));
+            }
+            body.append(NEW_LINE);
+
+            feedbackAttachments.stream()
+                    .filter(Objects::nonNull)
+                    .map(feedbackAttachment -> entityManager.newReference(feedbackAttachment))
+                    .forEach(reference -> {
+                        ResourceProperties properties = reference.getProperties();
+                        if (properties != null) {
+                            String attachmentName = StringUtils.defaultIfBlank(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME), reference.getId());
+                            String attachmentSize = StringUtils.defaultString(properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH));
+                            body.append("<a href=\"").append(reference.getUrl()).append("\">").append(attachmentName).append(" (").append(attachmentSize).append(")").append("</a>");
+                            body.append(NEW_LINE);
+                        }
+                    });
+        }
+        return body.toString();
+    }
+
+    public String getPlainTextNotificationMessage(AssignmentSubmission s, String submissionOrReleaseGrade) {
+        return plainTextContent(s, submissionOrReleaseGrade);
     }
 
     private String getAssignmentUrl(Assignment assignment) {

@@ -40,7 +40,6 @@ public interface EmailService
 {
 	public static final String MAIL_SENDFROMSAKAI_MAXSIZE = "mail.sendfromsakai.maxsize";
 	public static final int DEFAULT_MAXSIZE = 25000000;
-    public static final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 
 	/**
 	 * Creates and sends a generic text MIME message to the address contained in to.
@@ -120,7 +119,7 @@ public interface EmailService
 
 	/**
 	 * Send a single message to a set of Users.
-	 *
+	 * 
 	 * @param users
 	 *        Collection (of User) to send the message to (for those with valid email addresses).
 	 * @param headers
@@ -129,18 +128,6 @@ public interface EmailService
 	 *        String body of the message.
 	 */
 	void sendToUsers(Collection<User> users, Collection<String> headers, String message);
-
-	/**
-	 * Send a message to a single user
-	 * 
-	 * @param user
-	 *        User to send the message to
-	 * @param headers
-	 *        List (of String, form "name: value") of headers for the message.
-	 * @param message
-	 *        String body of the message.
-	 */
-	void sendToUser(User user, Collection<String> headers, String message);
 
 	/**
 	 * Sends a single message to a set of users.

@@ -204,7 +204,6 @@ public class FileConversionServiceImpl implements FileConversionService {
     }
 
     public void destroy() {
-
         workers.shutdownNow();
         master.shutdownNow();
     }

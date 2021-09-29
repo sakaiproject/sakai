@@ -376,15 +376,16 @@ public class ProfileConstants {
 	 * EMAIL TEMPLATING
 	 */
 	
-	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_NEW = "messageNew";
-	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_REPLY = "messageReply";
-	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "connectionRequest";
-	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "connectionConfirm";
-	public static final String EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW = "wallEventNew";
-	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW = "wallPostMyWallNew";
-	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW = "wallPostConnectionWallNew";
-	public static final String EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW = "wallStatusNew";
-	public static final String EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION = "profileChangeNotification";
+	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_NEW = "profile2.messageNew";
+	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_REPLY = "profile2.messageReply";
+	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "profile2.connectionRequest";
+	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "profile2.connectionConfirm";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW = "profile2.wallEventNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW = "profile2.wallPostMyWallNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW = "profile2.wallPostConnectionWallNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW = "profile2.wallStatusNew";
+	public static final String EMAIL_TEMPLATE_KEY_WORKSITE_NEW = "profile2.worksiteNew";
+	public static final String EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION = "profile2.profileChangeNotification";
 	
 	/*
 	 * DIRECT LINKS

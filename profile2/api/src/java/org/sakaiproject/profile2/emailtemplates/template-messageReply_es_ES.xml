@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} ha contestado a su mensaje en ${localSakaiName}</subject>
+	<message>${senderDisplayName} ha contestado a su mensaje en ${localSakaiName}
+
+--------------------
+${messageSubject}
+
+${messageBody}
+--------------------
+
+Para acceder al mensaje completo, puede hacer clic en el siguiente enlace:
+${messageLink}
+
+---
+Este mensaje de notificación automática ha sido enviado por ${localSakaiName} (${localSakaiUrl})
+Si desea modificar las opciones de notificación, acceda a Mi Sitio > ${toolName} > Preferencias
+	</message>
+	<htmlMessage>${senderDisplayName} ha contestado a su mensaje en ${localSakaiName}
+&lt;p&gt;
+--------------------
+&lt;br /&gt;${messageSubject}
+&lt;br /&gt;
+&lt;br /&gt;${messageBody}
+&lt;br /&gt;--------------------
+&lt;/p&gt;
+
+&lt;p&gt;Para acceder al mensaje completo, puede hacer clic en el siguiente enlace:
+&lt;br /&gt;&lt;a href="${messageLink}"&gt;${messageLink}&lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+---
+&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Si desea modificar las opciones de notificación, acceda a Mi Sitio &gt; ${toolName} &gt; Preferencias
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>es_ES</locale>
+	<version>3</version>
+	<owner>admin</owner>
+	<key>profile2.messageReply</key>
+</emailTemplate>

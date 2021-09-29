@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} confirmed your connection request on ${localSakaiName}</subject>
+	<message>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+
+To view ${senderDisplayName}'s profile, follow the url below:
+${connectionLink}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive from connections at Home > ${toolName} > Preferences
+	</message>
+	<htmlMessage>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+&lt;p&gt;
+To view ${senderDisplayName}&apos;s profile, follow the url below:
+&lt;br /&gt;&lt;a href="${connectionLink}"&gt;${connectionLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Control what email notifications you receive from connections at Home &gt; ${toolName} &gt; Preferences
+&lt;/p&gt;
+	</htmlMessage>
+	<version>2</version>
+	<owner>admin</owner>
+	<key>profile2.connectionConfirm</key>
+</emailTemplate>

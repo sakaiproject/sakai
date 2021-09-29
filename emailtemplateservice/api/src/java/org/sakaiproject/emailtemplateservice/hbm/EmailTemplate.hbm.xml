@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.emailtemplateservice.model"
+                   default-cascade="none">
+
+    <class name="org.sakaiproject.emailtemplateservice.model.EmailTemplate" table="EMAIL_TEMPLATE_ITEM" dynamic-insert="false" dynamic-update="false">
+        <id name="id" type="java.lang.Long" unsaved-value="null">
+            <column name="ID" />
+            <generator class="native">
+            	<param name="sequence">emailtemplate_item_seq</param>
+            </generator>
+        </id>
+        <property name="lastModified" type="java.util.Date">
+            <column name="LAST_MODIFIED" not-null="true" />
+        </property>
+        <!-- this should be the internal userId -->
+        <property name="owner" type="java.lang.String" index="email_templ_owner">
+            <column name="OWNER" not-null="true" length="255" />
+        </property>
+        <!-- the subject -->
+        <property name="subject" type="materialized_clob">
+	        <column name="SUBJECT" not-null="true" length="100000000"/>
+        </property>
+        <property name="from" type="java.lang.String">
+	        <column name="emailfrom" not-null="false" length="255"/>
+        </property>
+        <!-- the email template message -->
+        <property name="message" type="materialized_clob">
+             <column name="MESSAGE" not-null="true" length="100000000"/>
+        </property>
+        <!-- the email template message in html-->
+        <property name="htmlMessage" type="materialized_clob">
+            <column name="HTMLMESSAGE" not-null="false" length="100000000"/>
+        </property>
+        <property name="key" type="java.lang.String" index="email_templ_key">
+        	<column name="TEMPLATE_KEY" not-null="true" length="255" unique-key="EMAIL_TEMPLATE_ITEM_KEY_LOCALE_KEY"/>
+        </property>
+        <property name="locale" type="java.lang.String">
+        	<column name="TEMPLATE_LOCALE" not-null="false" length="255" unique-key="EMAIL_TEMPLATE_ITEM_KEY_LOCALE_KEY"/>
+        </property>
+        <!-- identifies this email template as a default template and indicates the type (reminder, available, etc.), use constants -->
+        <property name="defaultType" type="java.lang.String" unique="false" length="255" />
+        
+        <!--  version of this template, used for comparison (optional) -->
+        <property name="version" column="VERSION" not-null="false" />
+        
+	</class>
+</hibernate-mapping>

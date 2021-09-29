@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<bean
+		id="org.sakaiproject.emailtemplateservice.hibernate.AdditionalHibernateMappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/emailtemplateservice/hbm/EmailTemplate.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

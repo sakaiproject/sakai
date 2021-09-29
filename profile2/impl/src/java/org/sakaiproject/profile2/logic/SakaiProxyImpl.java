@@ -20,13 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -37,6 +36,9 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.ActivityService;
@@ -47,9 +49,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.messaging.api.Message;
-import org.sakaiproject.messaging.api.MessageMedium;
-import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -65,7 +64,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Implementation of SakaiProxy for Profile2.
@@ -75,8 +73,6 @@ import org.sakaiproject.util.ResourceLoader;
  */
 @Slf4j
 public class SakaiProxyImpl implements SakaiProxy {
-
-	private static ResourceLoader rb = new ResourceLoader("ProfileApplication");
 
 	/**
 	 * {@inheritDoc}
@@ -652,21 +648,162 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendEmail(final List<String> userIds, final String emailTemplateKey, final Map<String, Object> replacementValues) {
+	public void sendEmail(final String userId, final String subject, final String message) {
 
-		final Set<User> users = new HashSet<>(getUsers(userIds));
+		class EmailSender {
+			private final String userId;
+			private final String subject;
+			private final String message;
 
-		replacementValues.put("bundle", rb);
-		userMessagingService.message(users,
-				Message.builder().tool(ProfileConstants.TOOL_ID).type(emailTemplateKey).build(),
-				Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacementValues, NotificationService.NOTI_REQUIRED);
+			public final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+			public final String BOUNDARY_LINE = "\n\n--" + this.MULTIPART_BOUNDARY + "\n";
+			public final String TERMINATION_LINE = "\n\n--" + this.MULTIPART_BOUNDARY + "--\n\n";
+			public final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+			public final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
+			public final String HTML_HEADERS = "Content-Type: text/html; charset=ISO-8859-1\n\n";
+			public final String HTML_END = "\n  </body>\n</html>\n";
+
+			public EmailSender(final String userId, final String subject, final String message) {
+				this.userId = userId;
+				this.subject = subject;
+				this.message = message;
+			}
+
+			// do it!
+			public void send() {
+				try {
+
+					// get User to send to
+					final User user = SakaiProxyImpl.this.userDirectoryService.getUser(this.userId);
+
+					if (StringUtils.isBlank(user.getEmail())) {
+						log.error("SakaiProxy.sendEmail() failed. No email for userId: " + this.userId);
+						return;
+					}
+
+					// do it
+					SakaiProxyImpl.this.emailService.sendToUsers(Collections.singleton(user), getHeaders(user.getEmail(), this.subject),
+							formatMessage(this.subject, this.message));
+
+					log.info("Email sent to: " + this.userId);
+				} catch (final UserNotDefinedException e) {
+					log.error("SakaiProxy.sendEmail() failed for userId: " + this.userId + " : " + e.getClass() + " : " + e.getMessage());
+				}
+			}
+
+			/** helper methods for formatting the message */
+			private String formatMessage(final String subject, final String message) {
+				final StringBuilder sb = new StringBuilder();
+				sb.append(this.MIME_ADVISORY);
+				sb.append(this.BOUNDARY_LINE);
+				sb.append(this.PLAIN_TEXT_HEADERS);
+				sb.append(StringEscapeUtils.escapeHtml4(message));
+				sb.append(this.BOUNDARY_LINE);
+				sb.append(this.HTML_HEADERS);
+				sb.append(htmlPreamble(subject));
+				sb.append(message);
+				sb.append(this.HTML_END);
+				sb.append(this.TERMINATION_LINE);
+
+				return sb.toString();
+			}
+
+			private String htmlPreamble(final String subject) {
+				final StringBuilder sb = new StringBuilder();
+				sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
+				sb.append("\"http://www.w3.org/TR/html4/loose.dtd\">\n");
+				sb.append("<html>\n");
+				sb.append("<head><title>");
+				sb.append(subject);
+				sb.append("</title></head>\n");
+				sb.append("<body>\n");
+
+				return sb.toString();
+			}
+
+			private List<String> getHeaders(final String emailTo, final String subject) {
+				final List<String> headers = new ArrayList<String>();
+				headers.add("MIME-Version: 1.0");
+				headers.add("Content-Type: multipart/alternative; boundary=\"" + this.MULTIPART_BOUNDARY + "\"");
+				headers.add(formatSubject(subject));
+				headers.add(getFrom());
+				if (StringUtils.isNotBlank(emailTo)) {
+					headers.add("To: " + emailTo);
+				}
+
+				return headers;
+			}
+
+			private String getFrom() {
+				final StringBuilder sb = new StringBuilder();
+				sb.append("From: ");
+				sb.append(getServiceName());
+				sb.append(" <");
+				sb.append(SakaiProxyImpl.this.serverConfigurationService.getString("setup.request", "no-reply@" + getServerName()));
+				sb.append(">");
+
+				return sb.toString();
+			}
+
+			private String formatSubject(final String subject) {
+				final StringBuilder sb = new StringBuilder();
+				sb.append("Subject: ");
+				sb.append(subject);
+
+				return sb.toString();
+			}
+
+		}
+
+		// instantiate class to format, then send the mail
+		new EmailSender(userId, subject, message).send();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendEmail(final String userId, final String emailTemplateKey, final Map<String, Object> replacementValues) {
+	public void sendEmail(final List<String> userIds, final String emailTemplateKey, final Map<String, String> replacementValues) {
+
+		// get list of Users
+		final List<User> users = new ArrayList<User>(getUsers(userIds));
+
+		// only ever use one thread whether sending to one user or many users
+		final Thread sendMailThread = new Thread() {
+
+			@Override
+			public void run() {
+				// get the rendered template for each user
+				RenderedTemplate template = null;
+
+				for (final User user : users) {
+					log.info("SakaiProxy.sendEmail() attempting to send email to: " + user.getId());
+					try {
+						template = SakaiProxyImpl.this.emailTemplateService.getRenderedTemplateForUser(emailTemplateKey,
+								user.getReference(), replacementValues);
+						if (template == null) {
+							log.error("SakaiProxy.sendEmail() no template with key: " + emailTemplateKey);
+							return; // no template
+						}
+					} catch (final Exception e) {
+						log.error("SakaiProxy.sendEmail() error retrieving template for user: " + user.getId() + " with key: "
+								+ emailTemplateKey + " : " + e.getClass() + " : " + e.getMessage());
+						continue; // try next user
+					}
+
+					// send
+					sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
+				}
+			}
+		};
+		sendMailThread.start();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sendEmail(final String userId, final String emailTemplateKey, final Map<String, String> replacementValues) {
 		sendEmail(Collections.singletonList(userId), emailTemplateKey, replacementValues);
 	}
 
@@ -1716,15 +1853,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		log.info("Profile2 SakaiProxy init()");
 
 		// process the email templates
-		userMessagingService.importTemplateFromResourceXmlFile("templates/connectionConfirm.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/connectionRequest.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/messageNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/messageReply.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_REPLY);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/profileChangeNotification.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallEventNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallPostConnectionWallNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallPostMyWallNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW);
-		userMessagingService.importTemplateFromResourceXmlFile("templates/wallStatusNew.xml", ProfileConstants.TOOL_ID + "." + ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW);
+		// the list is injected via Spring
+		this.emailTemplateService.processEmailTemplates(this.emailTemplates);
 
 	}
 
@@ -1753,7 +1883,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private EventTrackingService eventTrackingService;
 
 	@Setter
+	private EmailService emailService;
+
+	@Setter
 	private ServerConfigurationService serverConfigurationService;
+
+	@Setter
+	private EmailTemplateService emailTemplateService;
 
 	@Setter
 	private IdManager idManager;
@@ -1761,6 +1897,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Setter
 	private ActivityService activityService;
 
+	// INJECT OTHER RESOURCES
 	@Setter
-	private UserMessagingService userMessagingService;
+
+	private ArrayList<String> emailTemplates;
+
 }

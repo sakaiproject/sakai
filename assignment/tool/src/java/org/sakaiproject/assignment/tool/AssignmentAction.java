@@ -267,8 +267,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AssignmentAction extends PagedResourceActionII {
-
-    private static final String TOOL_ID = "sakai.assignment.grades";
+    private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 
     // Grading
     private static final String NEW_ASSIGNMENT_GRADE_ASSIGNMENT = "new_assignment_grade_assignment";
@@ -11218,7 +11217,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // save the option into tool configuration
             try {
                 Site site = siteService.getSite(siteId);
-                ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
+                ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                 propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
             } catch (IdUnusedException e) {
                 log.warn(this + ":init()  Cannot find site with id " + siteId);
@@ -12846,7 +12845,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 addAlert(state, rb.getString("uploadall.alert.zipFile"));
             } else {
                 String contextString = toolManager.getCurrentPlacement().getContext();
-                String toolTitle = toolManager.getTool(AssignmentConstants.TOOL_ID).getTitle();
+                String toolTitle = toolManager.getTool(ASSIGNMENT_TOOL_ID).getTitle();
                 String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
                 String associateGradebookAssignment = null;
 
@@ -14189,7 +14188,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String siteId = toolManager.getCurrentPlacement().getContext();
         try {
             Site site = siteService.getSite(siteId);
-            ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
+            ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
             String optionValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
             state.setAttribute(SUBMISSIONS_SEARCH_ONLY, optionValue == null ? Boolean.FALSE : Boolean.valueOf(optionValue));
         } catch (IdUnusedException e) {
@@ -14223,7 +14222,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (submissionsSearchOnly == null) {
             try {
                 Site site = siteService.getSite(siteId);
-                ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
+                ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
                 submissionsSearchOnly = BooleanUtils.toBoolean(tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY));
             } catch (Exception e) {
             }
@@ -14258,7 +14257,7 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             boolean changed = false;
             Site site = siteService.getSite(siteId);
-            ToolConfiguration tc = site.getToolForCommonId(AssignmentConstants.TOOL_ID);
+            ToolConfiguration tc = site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
             String currentSetting = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
             if (currentSetting == null || !currentSetting.equals(Boolean.toString(submissionsSearchOnly))) {
                 changed = true;

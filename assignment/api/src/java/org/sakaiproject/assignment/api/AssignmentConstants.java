@@ -28,8 +28,6 @@ package org.sakaiproject.assignment.api;
  */
 public final class AssignmentConstants {
 
-    public static final String TOOL_ID = "sakai.assignment.grades";
-
     public final static String MODEL_ANSWER_SHOW_TO_STUDENT = "show_to_student";
     public final static int MODEL_ANSWER_SHOW_TO_STUDENT_BEFORE_STARTS = 1;
     public final static int MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT = 2;

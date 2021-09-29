@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} has just posted to your profile wall on ${localSakaiName}</subject>
+	<message>${senderDisplayName} has just posted to your profile wall on ${localSakaiName}
+
+To view your wall, follow the link below:
+${wallLink}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive from connections at Home > ${toolName} > Preferences
+	</message>
+	<htmlMessage>${senderDisplayName} has just posted to your profile wall on ${localSakaiName}
+&lt;p&gt;
+To view your wall, follow the link below:
+&lt;br /&gt;&lt;a href="${wallLink}"&gt;${wallLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
+&lt;br /&gt;Control what email notifications you receive from connections at Home &gt; ${toolName} &gt; Preferences
+&lt;/p&gt;
+	</htmlMessage>
+	<version>2</version>
+	<owner>admin</owner>
+	<key>profile2.wallPostMyWallNew</key>
+</emailTemplate>

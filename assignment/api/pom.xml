@@ -72,7 +72,6 @@
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.metaprops</include>
-                    <include>**/*.xml</include>
                 </includes>
             </resource>
             <resource>
