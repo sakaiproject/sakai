@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Assert;
@@ -43,6 +44,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
@@ -58,17 +60,23 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
     @Autowired
     private WebApplicationContext wac;
 
-    @Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    @Autowired
     private ServerConfigurationService serverConfigurationService;
 
     @Before
     public void setup() {
+        // for some reason the application context is not added to the current thread when using SpringBeanAutowiringSupport
+        // therefore we re-init the WAC to get it added to the current thread
+        ServletContext servletContext = wac.getServletContext();
+        servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        new ContextLoader(wac).initWebApplicationContext(servletContext);
+
         when(serverConfigurationService.getString("spreadsheet.font")).thenReturn("");
     }
 
     @Test
     public void testGetAsWorkbook() {
-        ExportResponsesBean bean = new ExportResponsesBean(wac);
+        ExportResponsesBean bean = new ExportResponsesBean();
         byte[] xlsData = null;
         List<List<Object>> spreadsheetData = null;
         Workbook wb = null;
@@ -109,7 +117,7 @@ public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
 
     @Test
     public void testGetAsWorkbookWide() {
-        ExportResponsesBean bean = new ExportResponsesBean(wac);
+        ExportResponsesBean bean = new ExportResponsesBean();
         byte[] xlsData = null;
         List<List<Object>> spreadsheetData = null;
         Workbook wb = null;

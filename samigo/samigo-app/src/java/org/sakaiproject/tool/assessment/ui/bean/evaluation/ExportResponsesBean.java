@@ -26,14 +26,12 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -41,9 +39,6 @@ import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -61,16 +56,20 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /* For evaluation: Export Responses backing bean. */
 @Slf4j
 @ManagedBean(name="exportResponses")
 @SessionScoped
-public class ExportResponsesBean implements Serializable, PhaseAware {
+public class ExportResponsesBean extends SpringBeanAutowiringSupport implements Serializable, PhaseAware {
 
 	private static final long serialVersionUID = 2854656853283125977L;
 
@@ -81,9 +80,12 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	public static final String FORMAT_BOLD = FORMAT + "bold/>";
 	private static final String MSG_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
 
-	@Resource(name = "org.sakaiproject.util.api.FormattedText")
+	@Autowired
+	@Qualifier("org.sakaiproject.util.api.FormattedText")
 	private FormattedText formattedText;
-	@Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+
+	@Autowired
+	@Qualifier("org.sakaiproject.component.api.ServerConfigurationService")
 	private ServerConfigurationService serverConfigurationService;
 
 	@Setter private String assessmentId;
@@ -94,12 +96,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	 * Creates a new TotalScoresBean object.
 	 */
 	public ExportResponsesBean() {
-		this(ContextLoader.getCurrentWebApplicationContext());
-		log.debug("Creating a new ExportResponsesBean");
-	}
-
-	public ExportResponsesBean(WebApplicationContext context) {
-		context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 	/**
