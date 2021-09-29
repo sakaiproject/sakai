@@ -53,8 +53,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -91,7 +89,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -249,8 +246,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
-    
-    private Pattern pattern;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -281,8 +276,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
-
-        this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime", ""));
     }
 
     @Override
@@ -572,12 +565,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 String filename = "bulk_download_" + date;
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                                res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
-                                if (queryString.contains("estimate")) {
-                                    res.setHeader("Content-Disposition", "attachment; filename = \"export_worklog_" + filename + ".xlsx\"");
-                                } else {
-                                    res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
-                                }
                                 try (OutputStream out = res.getOutputStream()) {
                                     gradeSheetExporter.writeGradesSpreadsheet(out, queryString);
                                 } catch (Exception e) {
@@ -843,35 +832,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return assignment;
     }
 
-    @Override
-    @Transactional
-    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
-        // security check
-        if (!allowAddSubmission(siteId)) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
-        }
-        assignmentRepository.newAssignmentTimeSheet(timeSheet);
-        log.debug("Created new timeSheet {}", timeSheet.getId());
-    }
-
-    @Override
-    @Transactional
-    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException {
-        // security check
-        if (!allowAddSubmission(timeSheet.getSubmitter().getSubmission().getAssignment().getContext())) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
-        }
-        assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
-        log.debug("Remove timeSheet {}", timeSheet.getId());
-    }
-
-    public String getTimeSpent(AssignmentSubmission submission) {
-        Optional<AssignmentSubmissionSubmitter> ass = getSubmissionSubmittee(submission);
-        if (ass.isPresent()) {
-            return ass.get().getTimeSpent();
-        }
-        return "";
-    }
     private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
@@ -977,9 +937,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setAllowAttachments(existingAssignment.getAllowAttachments());
                 // for ContentReview service
                 assignment.setContentReview(existingAssignment.getContentReview());
-
-                assignment.setReqEstimate(existingAssignment.getReqEstimate());
-                assignment.setEstimate(existingAssignment.getEstimate());
 
                 //duplicating attachments
                 Set<String> tempAttach = existingAssignment.getAttachments();
@@ -1693,23 +1650,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         log.debug("Submission ID does not exist {}", submissionId);
-        return null;
-    }
-
-    @Override
-    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException {
-        AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
-        if (timeSheet != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getSubmitter().getSubmission()).reckon().getReference();
-            if (allowGetSubmission(reference)) {
-                return timeSheet;
-            } else {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-            }
-        } else {
-            // submission not found
-            log.debug("TimeSheet ID does not exist {}", timeSheetId);
-        }
         return null;
     }
 
@@ -4060,8 +4000,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
-                    nAssignment.setReqEstimate(oAssignment.getReqEstimate());
-                    nAssignment.setEstimate(oAssignment.getEstimate());
 
                     // If there is a LTI launch associated with this copy it over
                     if ( oAssignment.getContentId() != null ) {
@@ -4920,9 +4858,5 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         dupes.sort(Comparator.comparing(r -> r.user.getDisplayName()));
         return dupes;
-    }
-
-    public boolean timeHasCorrectFormat(String timeSheet) {
-        return pattern.matcher(timeSheet).matches();
     }
 }

@@ -37,15 +37,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 /**
  * Defines a relation between a submission and the submission's submitters.
  * <br/> - A submitter can have its own grade separate from the grade of the submission,
@@ -92,13 +83,4 @@ public class AssignmentSubmissionSubmitter {
     @Lob
     @Column(name = "FEEDBACK", length = 65535)
     private String feedback;
-    
-    @Column(name = "TIME_SPENT", length = 255)
-    private String timeSpent;
-
-    @OneToMany(mappedBy = "submitter", cascade = CascadeType.ALL, orphanRemoval = true)
-	@OrderBy("regDate ASC")
-    @JsonManagedReference
-    private Set<AssignmentTimeSheet> timeSheet = new HashSet<>();
-    
 }

@@ -46,10 +46,6 @@ public final class AssignmentServiceConstants {
      */
     public static final String SECURE_ADD_ASSIGNMENT = "asn.new";
     /**
-     * Security lock for adding an timesheet.
-     */
-    public static final String SECURE_ADD_TIMESHEET = "asn.new.timeSheet";
-    /**
      * Security lock for adding an assignment submission.
      */
     public static final String SECURE_ADD_ASSIGNMENT_SUBMISSION = "asn.submit";

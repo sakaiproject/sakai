@@ -47,9 +47,9 @@
 						$tlang.getString("listassig.sorbytit")
 						#if ($sortedBy.equals("title"))
 							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+								<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 							#else
-								<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+								<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 							#end
 						#end
 				</a>
@@ -59,9 +59,9 @@
 						$tlang.getString("listassig.sorbyope")
 						#if ($sortedBy.equals("opendate"))
 							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+								<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 							#else
-								<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+								<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 							#end
 						#end
 					</a>
@@ -71,9 +71,9 @@
 						$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
 						#if ($sortedBy.equals("duedate"))
 							#if ($sortedAsc.equals("true"))
-								<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+								<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 							#else
-								<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+								<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 							#end
 						#end
 					</a>

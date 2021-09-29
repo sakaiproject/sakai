@@ -91,16 +91,6 @@
 										</td>
 									</tr>
 								#end
-								#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-									<tr>
-										<th>
-											$tlang.getString("gen.estimatedselfempl")
-										</th>
-										<td>
-											$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)
-										</td>
-									</tr>
-								#end
 								<tr>
 									<th>
 										$tlang.getString("gen.addduedat")
@@ -240,16 +230,6 @@
 								</td>
 							</tr>
 						#end
-						#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
-							<tr>
-								<th>
-									$tlang.getString("gen.estimatedselfempl")
-								</th>
-								<td>
-									$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)
-								</td>
-							</tr>
-						#end
 					</table>
 					<h4>
 						$tlang.getString("gen.assinf")
@@ -304,25 +284,6 @@
 									#end
 								</div>
 								<textarea cols="80" rows="8" wrap="virtual" name="textarea" id="textarea" disabled="disabled">&nbsp;</textarea>						
-						#end
-						#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
-						<div id="spenttimepanel">
-							<h4>
-								$tlang.getString("gen.spenttime")
-							</h4>
-							<div class="row">
-								<div class="col-sm-3">
-									<div class="itemSummaryHeader">$tlang.getString("gen.totaltimespent")</div>
-								</div>
-								<div class="col-sm-2">
-									<div class="itemSummaryValue">
-										<label for="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT">
-											<input name="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" id="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" type="text" disabled="disabled" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)" size="20" maxlength="20" class="form-control" />
-										</label>
-									</div>
-								</div>
-							</div>
-						</div>
 						#end
 						#if (($value_SubmissionType==2) || ($value_SubmissionType==3)) 
 							#if ($value_SubmissionType==2)

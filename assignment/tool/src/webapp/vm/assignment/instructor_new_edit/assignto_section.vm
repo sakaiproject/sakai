@@ -41,7 +41,7 @@ can be either all members of the site, all members of selected groups, or the se
 			#set($showGB = "if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.resizeFrame()};")
 		#end
 		<input type="radio" name="$name_AssignTo" id="site" value="$value_AssignTo_Individuals"
-			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame(); if($!isTimesheet){ASN.enableTimesheetSetupSection();}"
+			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
 			#if( $value_AssignTo == $value_AssignTo_Individuals || $selectedGroupsNotFound ) checked="checked" #end
 			#if($disableIndividual) disabled="disabled" #end/>
 		$tlang.getString("displayto.site")
@@ -57,7 +57,7 @@ can be either all members of the site, all members of selected groups, or the se
 			#set($hideGB = "if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};")
 		#end
 		<input type="radio" name="$name_AssignTo" id="groups" value="$value_AssignTo_IndividualsFromGroups"
-			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment();ASN.resizeFrame(); if($!isTimesheet){ASN.enableTimesheetSetupSection();}"
+			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection();ASN_INE.handleAssignToChangeForPeerAssessment();ASN.resizeFrame();"
 			#if( $value_AssignTo == $value_AssignTo_IndividualsFromGroups && !$selectedGroupsNotFound ) checked="checked"
 			#elseif(!$!groupsList || $disableIndividual) disabled="disabled"
 			#end />
@@ -71,7 +71,7 @@ can be either all members of the site, all members of selected groups, or the se
 	<div class="radio">
 		<label for="groupAssignment" id="groupAssignmentCheckboxLabel" class="#if($disableGroupAssignment)disabled#end">
 			<input type="radio" id="groupAssignment" name="$name_AssignTo" value="$value_AssignTo_Groups"
-				onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection(); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame(); if($!isTimesheet){ASN.disableTimesheetSetupSection();}"
+				onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN_INE.validateGroupSelection(); ASN_INE.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
 				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) checked="checked" #end
 				#if ($disableGroupAssignment) disabled="disabled" #end
 			/>

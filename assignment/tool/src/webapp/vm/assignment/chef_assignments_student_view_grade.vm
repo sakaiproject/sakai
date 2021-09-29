@@ -17,15 +17,7 @@
     });
 </script>
 
-## Include other javascript specific to this page
-#javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
-
 <div class="portletBody">
-    #set($timeSheetSource = "grade")
-    ##tabs
-    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-        #navBarTimesheet("Assignment")
-    #end
     #if ($taggable)
         #if (!$itemHelpers.isEmpty())
             <ul class="navIntraTool actionToolBar">
@@ -64,10 +56,6 @@
     #set($submitTime=$submission.DateSubmitted)
     #set($returnTime=false)
     #set($returnTime=$submission.DateReturned)
-    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-        #parse ("/vm/assignment/chef_assignments_student_estimate.vm")
-    #end
-    <div id="StudentAssignmentCurrent" style="display:block;">
     <table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
         <tr>
             <th>
@@ -248,10 +236,6 @@
                 <div class="textPanel borderPanel">$submission.SubmittedText</div>
             #end
         #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-            <h4>$tlang.getString("gen.totaltimespent")</h4>
-            <div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
-        #end
 
         #parse ("/vm/assignment/assignments_display_video_submission.vm")
 
@@ -364,7 +348,7 @@
             </div>
         #end
     #end
-    </div>
+
     <form action="#toolForm("AssignmentAction")" method="post">
         <div class="act">
             <input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade"

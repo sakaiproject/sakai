@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.assignment.entityproviders;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,7 +74,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @Setter
@@ -102,40 +99,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private ServerConfigurationService serverConfigurationService;
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
-    private FormattedText formattedText;
 
-    @Setter
-    @Getter
-    public class BuildTimeSheetReturnMessage implements Serializable {
-
-        @Setter
-        @Getter
-        public class ErrorTimeSheetReturnMessage implements Serializable {
-            private int code;
-            private String message;
-
-            private ErrorTimeSheetReturnMessage() {}
-
-            private ErrorTimeSheetReturnMessage(int codeMsg, String textMsg) {
-                this.code = codeMsg;
-                this.message = textMsg;
-            }
-        }
-
-        private ErrorTimeSheetReturnMessage error;
-        private boolean success;
-
-        public BuildTimeSheetReturnMessage () {}
-
-        public BuildTimeSheetReturnMessage (boolean isSuccess, int codeMsg, String textMsg) {
-            this.success = isSuccess;
-            if (!isSuccess) {
-                this.error = new ErrorTimeSheetReturnMessage(codeMsg, textMsg);
-            }
-        }
-    }
-
-    
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
         return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
@@ -491,189 +455,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.sortName = sakaiUser.getSortName();
             this.id = sakaiUser.getId();
         }
-    }
-
-    @EntityCustomAction(action = "addTimeSheet", viewKey = EntityView.VIEW_NEW)
-    public BuildTimeSheetReturnMessage addTimeSheet(Map<String, Object> params) {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-          log.warn("You need to be logged in to add time sheet register");
-          return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
-        }
-        
-        User u;
-        try {
-            u = userDirectoryService.getUser(userId);
-        } catch (UserNotDefinedException e2) {
-            log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
-        }
-
-        String assignmentId = (String)params.get("tsAssignmentId");
-        if (StringUtils.isBlank(assignmentId)) {
-            log.warn("You need to supply the assignmentId and ref");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
-        }
-
-        AssignmentSubmission as;
-        try {
-            as = assignmentService.getSubmission(assignmentId, u);
-        } catch (PermissionException e1) {
-            log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
-        }
-
-        if(as == null) {
-            String submitterId = u.getId();
-
-            try {
-                as = assignmentService.addSubmission(assignmentId, submitterId);
-                if (as != null ) {
-                    as.setSubmitted(true);
-                    as.setUserSubmission(false);
-                    as.setDateModified(Instant.now());
-                    as.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
-                    assignmentService.updateSubmission(as);
-                }
-            } catch (PermissionException e) {
-                log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.getMessage());
-                return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
-            }
-        }
-
-        String duration = (String) params.get("tsTime");
-        
-        if (!assignmentService.timeHasCorrectFormat(duration)) {
-
-            log.warn("Wrong time format. Must be XXHXXM");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
-        }
-
-        String comment = (String) params.get("tsComment");
-        StringBuilder alertMsg = new StringBuilder();
-        comment = formattedText.processFormattedText(comment, alertMsg);
-        if (alertMsg.length() > 0) {
-            log.warn("Comment field format is not valid");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.regComment");
-        }
-        
-        Instant regDate = Instant.now();
-        try {
-            int month = Integer.parseInt((String)params.get("new_ts_record_month"));
-            int day = Integer.parseInt((String)params.get("new_ts_record_day"));
-            int year = Integer.parseInt((String)params.get("new_ts_record_year"));
-            int hour = Integer.parseInt((String)params.get("new_ts_record_hour"));
-            int min = Integer.parseInt((String)params.get("new_ts_record_minute"));
-            
-            regDate = LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
-        }catch (NumberFormatException nfe) {
-        	regDate = Instant.now();
-        }
-
-        AssignmentSubmissionSubmitter ass = as.getSubmitters().stream().findAny().orElse(null);
-
-        if(ass == null) {
-            log.warn("You submitter does not exist");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
-        }
-
-        String context = ass.getSubmission().getAssignment().getContext();
-        
-        AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
-        timeSheet.setComment(comment);
-        timeSheet.setRegDate(regDate);
-        timeSheet.setDuration(duration);
-        timeSheet.setSubmitter(ass);
-        
-        try {
-            assignmentService.setTimeSheet(timeSheet, context);
-        } catch (PermissionException e) {
-            log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
-        }
-        return new BuildTimeSheetReturnMessage (true, 0, "");
-    }
-
-    @EntityCustomAction(action = "removeTimeSheet", viewKey = EntityView.VIEW_NEW)
-    public BuildTimeSheetReturnMessage removeTimeSheet(Map<String, Object> params) {
-
-        String userId = sessionManager.getCurrentSessionUserId();
-
-        if (StringUtils.isBlank(userId)) {
-            log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
-
-        }
-
-        User u;
-        try {
-            u = userDirectoryService.getUser(userId);
-        } catch (UserNotDefinedException e2) {
-            log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
-        }
-
-        String assignmentId = (String)params.get("tsAssignmentId");
-        if (StringUtils.isBlank(assignmentId)) {
-            log.warn("You need to supply the assignmentId and ref");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
-        }
-
-        AssignmentSubmission as;
-        try {
-            as = assignmentService.getSubmission(assignmentId, u);
-        } catch (PermissionException e1) {
-            log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
-        }
-
-        final List<Long> timeSheetIds;
-        Object ts = params.get("selectedTimeSheets[]");
-        if (ts != null && ts instanceof String[]) {
-            List <String> aux = Arrays.asList((String[]) ts);
-            timeSheetIds = new ArrayList<>();
-            aux.stream().forEach(a -> timeSheetIds.add(Long.parseLong(a)));
-//            timeSheetIds = Arrays.asList((Long[]) ts);
-        } else if (ts != null && ts instanceof String) {
-            timeSheetIds = Collections.singletonList(Long.parseLong(ts.toString()));
-        } else {
-            log.warn("Selected time sheet must be provided a.");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.empty");
-        }
-
-        if (timeSheetIds != null) {
-            for (Long timeSheetId : timeSheetIds) {
-
-                if (null == timeSheetId) {
-                    log.warn("Selected time sheet must be provided b.");
-                    return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.submitterId");
-                }
-
-                AssignmentTimeSheet timeSheet = null;
-                try {
-                    timeSheet = assignmentService.getTimeSheet(timeSheetId);
-                } catch (PermissionException pe) {
-                    log.warn("Selected time sheet must be provided c.");
-                    return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
-                }
-
-                if(!timeSheet.getSubmitter().getSubmission().getId().equals(as.getId())) {
-                    log.warn("Selected time sheet must be provided d.");
-                    return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
-                }
-
-                try {
-                    assignmentService.deleteTimeSheet(timeSheet);
-                } catch (PermissionException e) {
-                    log.warn("Selected time sheet must be provided e.");
-                    return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
-                }
-            }
-        }
-
-        return new BuildTimeSheetReturnMessage (true, 0, "");
     }
 
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
@@ -1348,11 +1129,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private boolean anonymousGrading;
 
-
-        private Boolean reqEstimate;
-
-        private String estimate;
-
         private Boolean allowPeerAssessment;
 
         private String maxGradePoint;
@@ -1466,8 +1242,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
-            this.reqEstimate = a.getReqEstimate();
-            this.estimate = a.getEstimate();
 
             this.allowPeerAssessment = a.getAllowPeerAssessment();
         }

@@ -4,6 +4,7 @@
 <div class="portletBody">
 		<h3>
 		$tlang.getString("viewassig.viewass1") 	
+YADA YADA
 	</h3>
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if (!$hideAssignmentFlag)
@@ -120,16 +121,6 @@
 					#end
 				</td>
 			</tr>
-		#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-			<tr>
-				<th>
-					$tlang.getString("gen.estimatedselfempl")
-				</th>
-				<td>
-					$formattedText.escapeHtml($!assignment.Estimate)
-				</td>
-			</tr>
-		#end
 			<tr> 
 				<th>
 					$tlang.getString("gen.honple")

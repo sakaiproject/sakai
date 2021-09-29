@@ -86,26 +86,6 @@
                 </td>
             </tr>
         #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-            <tr>
-                <th>
-                    $tlang.getString("gen.estimatedselfempl")
-                </th>
-                <td>
-                    $formattedText.escapeHtml($!assignment.Estimate)
-                </td>
-            </tr>
-        #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
-            <tr>
-                <th>
-                    $tlang.getString("gen.totaltimespent")
-                </th>
-                <td>
-                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
-                </td>
-            </tr>
-        #end
         ## show alert when assignment is modified and the modified date is after its open date
         #set($newAssignment="false")
         #set($newAssignment=$assignment.getProperties().get("newAssignment"))
