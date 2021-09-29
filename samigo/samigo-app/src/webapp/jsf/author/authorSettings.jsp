@@ -512,7 +512,6 @@ if (releaseToVal === 'Anonymous Users') {
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1" /></li>
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2" /></li>
       </ul>
-      <h:outputLabel id="notificationEmailChoicesHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
     </div>
   </h:panelGroup>
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
@@ -594,6 +593,7 @@ if (releaseToVal === 'Anonymous Users') {
           <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="1" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="2" /></li>
         </ul>
+        <h:outputLabel id="feedbackAuthoringHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.feedback_level_help}"/>
       </div>
     </h:panelGroup>
 

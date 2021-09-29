@@ -154,23 +154,30 @@ public class SaveAssessmentSettingsListener
     		assessmentSettings.setNoGroupSelectedError(false);
     	}
     }
-    
-    //  if timed assessment, does it has value for time
-    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
-    boolean isTime=false;
-    try
-    {
-      if (time != null)
-      {
-        isTime = ( (Boolean) time).booleanValue();
-      }
-    }
-    catch (Exception ex)
-    {
-      // keep default
-      log.warn("Expecting Boolean hasTimeAssessment, got: " + time);
 
-    }
+	//  if timed assessment, does it has value for time
+	Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+	boolean isTime=false;
+	try
+	{
+		if (time != null) {
+			if (time instanceof String) {
+				String timeStr = time.toString();
+				if ("true".equals(timeStr)) {
+					isTime = true;
+				} else if ("false".equals(timeStr)) {
+					isTime = false;
+				}
+			} else {
+				isTime = ( (Boolean) time).booleanValue();
+			}
+		}
+	}
+	catch (Exception ex)
+	{
+		// keep default
+		log.warn("Expecting Boolean or String true/false for hasTimeAssessment, got: " + time + ", exception: " + ex.getMessage());
+	}
     if((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
 	String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
 	context.addMessage(null,new FacesMessage(time_err));

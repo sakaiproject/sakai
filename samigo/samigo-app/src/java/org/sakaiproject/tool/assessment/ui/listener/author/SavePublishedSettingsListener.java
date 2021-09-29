@@ -347,15 +347,23 @@ implements ActionListener
 		boolean isTime = false;
 		try
 		{
-			if (time != null)
-			{
-				isTime = ((Boolean) time);
+			if (time != null) {
+				if (time instanceof String) {
+					String timeStr = time.toString();
+					if ("true".equals(timeStr)) {
+						isTime = true;
+					} else if ("false".equals(timeStr)) {
+						isTime = false;
+					}
+				} else {
+					isTime = ( (Boolean) time).booleanValue();
+				}
 			}
 		}
 		catch (Exception ex)
 		{
 			// keep default
-			log.warn("Expecting Boolean hasTimeAssessment, got: " + time + ", exception: " + ex);
+			log.warn("Expecting Boolean or String true/false for hasTimeAssessment, got: " + time + ", exception: " + ex.getMessage());
 		}
 		if(isTime && (assessmentSettings.getTimeLimit())==0){
 			String time_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "timeSelect_error");
