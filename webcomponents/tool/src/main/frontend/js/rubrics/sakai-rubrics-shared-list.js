@@ -55,18 +55,18 @@ export class SakaiRubricsSharedList extends RubricsElement {
 
     SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics/search/shared-only", token, { params })
     .then( (data) => {
-       this.rubrics = data._embedded.rubrics 
+      this.rubrics = data._embedded.rubrics;
 
-       // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
-       this.rubrics = this.rubrics.map( (rubric) => {
-         const metadata = rubric.metadata;
-         const creatorId = metadata.creatorId;
-         const siteId = metadata.ownerId;
-         SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
-         SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
-         rubric.metadata = metadata;
-         return rubric;
-       });
+      // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
+      this.rubrics = this.rubrics.map( (rubric) => {
+        const metadata = rubric.metadata;
+        const creatorId = metadata.creatorId;
+        const siteId = metadata.ownerId;
+        SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
+        SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
+        rubric.metadata = metadata;
+        return rubric;
+      });
 
     });
   }

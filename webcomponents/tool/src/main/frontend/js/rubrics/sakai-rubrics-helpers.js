@@ -53,7 +53,7 @@ export class SakaiRubricsHelpers {
   }
 
   static getUserDisplayName(sakaiSessionId, creatorId) {
-  return fetch(`/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${sakaiSessionId}&eid=${creatorId}`)
+    return fetch(`/sakai-ws/rest/sakai/getUserDisplayName?sessionid=${sakaiSessionId}&eid=${creatorId}`)
       .then( (response) => response.text() );
   }
 

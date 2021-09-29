@@ -1,12 +1,13 @@
 import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 /**
- * Provides a text input field, supports the maxlength attribute displaying an errorMessage when the limit is reached by the user.
+ * Provides a textarea input field, supports the maxlength attribute displaying an errorMessage when the limit is reached by the user.
  * @example <caption>Usage:</caption>
- * <sakai-text-input value="" input-id="first-name-input" name="firstName" maxlength="5" error-message="You can't insert more than 5 chars"></sakai-text-input>
+ * <sakai-textarea input-id="user-bio-input" name="userBio" maxlength="20" cols="2" rows="45" error-message="You can't insert more than 20 chars"></sakai-text-input>
+ *
  */
 
-export class SakaiTextInput extends SakaiElement {
+export class SakaiTextArea extends SakaiElement {
 
   static get properties() {
 
@@ -16,8 +17,9 @@ export class SakaiTextInput extends SakaiElement {
       value: { type: String },
       errorMessage: { attribute: "error-message", type: String },
       maxLength: { type: Number },
-      styleClass: { attribute: "style-class", type: String },
-      displayWarning: { attribute: false }
+      cols: { type: Number },
+      rows: { type: Number },
+      displayWarning: { attribute: false },
     };
   }
 
@@ -30,13 +32,14 @@ export class SakaiTextInput extends SakaiElement {
   render() {
 
     return html`
-      <input @keyup=${this.keyup}
-          type="text"
+      <textarea @keyup=${this.keyup}
           id="${this.inputId}"
           name="${this.name}"
-          value="${this.value}"
-          maxlength="${this.maxLength}"
-          class="${this.styleClass}">
+          rows="${this.rows}"
+          cols="${this.cols}"
+          maxlength="${this.maxLength}">
+        ${this.value}
+      </textarea>
       ${this.displayWarning ? html`
       <div class="sak-banner-warn">${this.errorMessage}</div>
       ` : html``}
@@ -44,5 +47,5 @@ export class SakaiTextInput extends SakaiElement {
   }
 }
 
-const tagName = "sakai-text-input";
-!customElements.get(tagName) && customElements.define(tagName, SakaiTextInput);
+const tagName = "sakai-textarea";
+!customElements.get(tagName) && customElements.define(tagName, SakaiTextArea);
