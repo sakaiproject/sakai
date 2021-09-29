@@ -448,7 +448,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGraderReturned() {
-    return html`<span class="grader-returned fa fa-eye" title="${this.i18n["returned_tooltip"]}" />`;
+    return html`<span class="grader-returned fa fa-eye" title="${this.i18n.returned_tooltip}" />`;
   }
 
   render() {

@@ -205,11 +205,11 @@
         </div>
         <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
          <div class="col-md-10">
-            <sakai-text-input inputId="itemForm:imageMapAltText" 
+            <sakai-text-input name="itemForm:imageMapAltText"
                 value='<h:outputText value="#{itemauthor.currentItem.imageMapAltText}" escape="false" />'
-                maxLength="254"
-                errorMessage='<h:outputText value="#{authorMessages.image_map_alt_length_warning}" escape="false" />' 
-                styleClass="form-control"
+                maxlength="254"
+                error-message='<h:outputText value="#{authorMessages.image_map_alt_length_warning}" escape="false" />'
+                style-class="form-control"
             ></sakai-text-input>
         </div>
     </div>
