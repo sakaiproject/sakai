@@ -114,6 +114,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import org.tsugi.basiclti.ContentItem;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -4836,6 +4837,11 @@ public class SimplePageBean {
 		extension = extension.toLowerCase();
 	    
 		return extension;
+	}
+
+	public boolean isPDFType(SimplePageItem item) {
+		String mimeType = getContentType(item);
+		return StringUtils.isNotBlank(mimeType) && MediaType.APPLICATION_PDF_VALUE.toLowerCase().equals(mimeType.toLowerCase());
 	}
 
 	public boolean isImageType(SimplePageItem item) {

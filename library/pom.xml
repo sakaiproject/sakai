@@ -291,6 +291,7 @@
 			<artifactId>multifile</artifactId>
 			<version>2.2.2</version>
 		</dependency>
+		<!-- Used in Webcomponents and the Lessons PDF Widget -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pdf-js</artifactId>
