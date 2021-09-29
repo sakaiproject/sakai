@@ -352,20 +352,14 @@
              class="org.sakaiproject.samigo.search.ItemContentProducer"
              init-method="init">
        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-       <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
-       <property name="searchIndexBuilder" ref="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" />
        <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
-       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
     <bean id="org.sakaiproject.samigo.search.PublishedItemContentProducer"
           class="org.sakaiproject.samigo.search.PublishedItemContentProducer"
           init-method="init">
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
-        <property name="searchIndexBuilder" ref="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" />
         <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
    <!--  Add a job to auto-submit assessments -->
@@ -523,6 +517,8 @@
         <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="filter"><ref bean="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/></property>
+        <property name="itemContentProducer"><ref bean="org.sakaiproject.samigo.search.ItemContentProducer"/></property>
+        <property name="publishedItemContentProducer"><ref bean="org.sakaiproject.samigo.search.PublishedItemContentProducer"/></property>
     </bean>
 
     <bean id="org.sakaiproject.tool.assessment.elfinder.AssessmentToolFsVolumeFactory"

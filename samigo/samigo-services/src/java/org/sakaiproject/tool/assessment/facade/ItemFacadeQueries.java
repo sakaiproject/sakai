@@ -319,11 +319,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
         getHibernateTemplate().execute(session -> session
-                .createQuery("update ItemTag it set it.tagLabel = ?1, it.tagCollectionId = ?2, it.tagCollectionName = ?3 where it.tagId = ?4")
-                .setParameter(1, tagView.tagLabel)
-                .setParameter(2, tagView.tagCollectionId)
-                .setParameter(3, tagView.tagCollectionName)
-                .setParameter(4, tagView.tagId)
+                .createQuery("update ItemTag it set it.tagLabel = :tagLabel, it.tagCollectionId = :tagCollectionId, it.tagCollectionName = :tagCollectionName where it.tagId = :tagId")
+                .setParameter("tagLabel", tagView.tagLabel)
+                .setParameter("tagCollectionId", tagView.tagCollectionId)
+                .setParameter("tagCollectionName", tagView.tagCollectionName)
+                .setParameter("tagId", tagView.tagId)
                 .executeUpdate());
     }
 
@@ -333,8 +333,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
         getHibernateTemplate().execute(session -> session
-                .createQuery("delete ItemTag it where it.tagId = ?1")
-                .setParameter(1, tagId)
+                .createQuery("delete ItemTag it where it.tagId = :tagId")
+                .setParameter("tagId", tagId)
                 .executeUpdate());
     }
 
@@ -344,9 +344,9 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
         getHibernateTemplate().execute(session -> session
-                .createQuery("update ItemTag it set it.tagCollectionName = ?1 where it.tagCollectionId = ?2")
-                .setParameter(1, tagCollectionView.tagCollectionName)
-                .setParameter(2, tagCollectionView.tagCollectionId)
+                .createQuery("update ItemTag it set it.tagCollectionName = :tagCollectionName where it.tagCollectionId = :tagCollectionId")
+                .setParameter("tagCollectionName", tagCollectionView.tagCollectionName)
+                .setParameter("tagCollectionId", tagCollectionView.tagCollectionId)
                 .executeUpdate());
     }
 
@@ -356,8 +356,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         // first read in all the affected item IDs so we can generate events for each
         // (similar to what we do in the tag service)
         getHibernateTemplate().execute(session -> session
-                .createQuery("delete ItemTag it where it.tagCollectionId = ?1")
-                .setParameter(1, tagCollectionId)
+                .createQuery("delete ItemTag it where it.tagCollectionId = :tagCollectionId")
+                .setParameter("tagCollectionId", tagCollectionId)
                 .executeUpdate());
     }
 
@@ -365,8 +365,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     @Override
     public List<Long> getItemsIdsByHash(String hash) {
         List<Long> list1 = getHibernateTemplate().execute(session -> session
-                .createQuery("select ab.itemId from ItemData ab where ab.hash = ?1 ")
-                .setParameter(1, hash)
+                .createQuery("select ab.itemId from ItemData ab where ab.hash = :hash ")
+                .setParameter("hash", hash)
                 .list());
 
         return list1;
@@ -377,8 +377,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     @Override
     public Long getAssessmentId(Long itemId) {
         List<Number> list1 = getHibernateTemplate().execute(session -> session
-            .createQuery("select s.assessment.assessmentBaseId from SectionData s, ItemData i where s.id = i.section AND i.itemId = ?1")
-            .setParameter(1, itemId)
+            .createQuery("select s.assessment.assessmentBaseId from SectionData s, ItemData i where s.id = i.section AND i.itemId = :itemId")
+            .setParameter("itemId", itemId)
             .list());
 
         if (list1.isEmpty()) {

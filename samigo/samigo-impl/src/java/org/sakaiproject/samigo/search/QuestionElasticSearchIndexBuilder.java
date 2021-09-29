@@ -82,11 +82,15 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
 
+import lombok.Setter;
+
 @Slf4j
 public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder {
 
     QuestionPoolService questionPoolService  = new QuestionPoolService();
-    private SiteService siteService;
+    @Setter private ItemContentProducer itemContentProducer;
+    @Setter private PublishedItemContentProducer publishedItemContentProducer;
+    @Setter private SiteService siteService;
     protected String[] searchResultFieldNames;
 
     protected static final String SAKAI_DOC_TYPE = "_doc";
@@ -135,6 +139,10 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                     "type",
                     "subtype"
             };
+        }
+        if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
+            registerEntityContentProducer(itemContentProducer);
+            registerEntityContentProducer(publishedItemContentProducer);
         }
     }
 
@@ -224,7 +232,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
             BulkRequest bulkRequest = new BulkRequest();
 
-            EntityContentProducer ecp = new ItemContentProducer();
+            EntityContentProducer ecp = itemContentProducer;
 
             for (Object qpItemsId : qpItemsIds) {
 
@@ -274,8 +282,8 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             BulkRequest bulkRequest = new BulkRequest();
 
             Set<EntityContentProducer> questionProducers = Sets.newConcurrentHashSet();
-            questionProducers.add(new ItemContentProducer());
-            questionProducers.add(new PublishedItemContentProducer());
+            questionProducers.add(itemContentProducer);
+            questionProducers.add(publishedItemContentProducer);
 
             for (final EntityContentProducer ecp : questionProducers) {
 
@@ -373,12 +381,12 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         if (ref.contains("/sam_item/") || ref.contains(" itemId=")){
                 getLog().debug("Matched content producer ItemContentProducer for reference " + ref + " in index builder "
                     + getName());
-            return new ItemContentProducer();
+            return itemContentProducer;
         }
         if (ref.contains("/sam_publisheditem/") || ref.contains(" publishedItemId=")){
             getLog().debug("Matched content producer PublishedItemContentProducer for reference " + ref + " in index builder "
                     + getName());
-            return new PublishedItemContentProducer();
+            return publishedItemContentProducer;
         }
         getLog().debug("Failed to match any content producer for reference " + ref + " in index builder " + getName());
         return null;
@@ -386,17 +394,17 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     @Override
     public EntityContentProducer newEntityContentProducer(Event event) {
-        ItemContentProducer icp = new ItemContentProducer();
+        ItemContentProducer icp = itemContentProducer;
         Set<String> triggerIcp = icp.getTriggerFunctions();
         if (triggerIcp.contains(event.getEvent())){
             getLog().debug("we have a ItemContentProducer for the event " + event + " in index builder " + getName());
-            return new ItemContentProducer();
+            return itemContentProducer;
         }
-        PublishedItemContentProducer picp = new PublishedItemContentProducer();
+        PublishedItemContentProducer picp = publishedItemContentProducer;
         Set<String> triggerPicp = picp.getTriggerFunctions();
         if (triggerPicp.contains(event.getEvent())){
             getLog().debug("we have a PublishedContentProducer for the event " + event + " in index builder " + getName());
-            return new PublishedItemContentProducer();
+            return publishedItemContentProducer;
         }
         getLog().debug("Failed to match any content producer for event " + event + " in index builder " + getName());
         return null;
@@ -731,9 +739,9 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         String subtype = getFieldFromSearchHit("subtype", hit);
         EntityContentProducer ecp;
         if (subtype.equals("item")) {
-            ecp = new ItemContentProducer();
+            ecp = itemContentProducer;
         }else{
-            ecp = new PublishedItemContentProducer();
+            ecp = publishedItemContentProducer;
         }
 
         if (ecp != null) {
@@ -1127,7 +1135,4 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         return log;
     }
 
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
 }

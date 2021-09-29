@@ -26,15 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
-import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
@@ -49,18 +46,11 @@ import net.htmlparser.jericho.Source;
 @Slf4j
 public class ItemContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
-    @Getter @Setter private SearchService searchService;
-    @Getter @Setter private SearchIndexBuilder searchIndexBuilder;
     @Getter @Setter private EntityManager entityManager = null;
     @Setter EntityProviderManager entityProviderManager;
-    @Setter private ServerConfigurationService serverConfigurationService;
     AssessmentService assessmentService  = new AssessmentService();
 
     protected void init() throws Exception {
-       if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            getSearchIndexBuilder().registerEntityContentProducer(this);
-        }
-
     }
 
     @Override

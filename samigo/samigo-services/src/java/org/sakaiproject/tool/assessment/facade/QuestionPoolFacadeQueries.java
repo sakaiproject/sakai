@@ -276,8 +276,8 @@ public class QuestionPoolFacadeQueries
 
     public List getAllItemsIds(final Long questionPoolId) {
         final HibernateCallback<List> hcb = session -> {
-                Query q = session.createQuery("select qpi.itemId from QuestionPoolItemData qpi where qpi.questionPoolId = ?");
-                q.setParameter(0, questionPoolId.longValue());
+                Query q = session.createQuery("select qpi.itemId from QuestionPoolItemData qpi where qpi.questionPoolId = :questionPoolId");
+                q.setParameter("questionPoolId", questionPoolId.longValue());
                 return q.list();
         };
         List list = getHibernateTemplate().execute(hcb);

@@ -41,6 +41,8 @@ import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,12 +51,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ItemEntityProviderImpl implements ItemEntityProvider,CoreEntityProvider,AutoRegisterEntityProvider {
 
-    private ItemFacadeQueriesAPI itemFacadeQueries;
-    private DeveloperHelperService developerHelperService;
-    private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
-    private AssessmentFacadeQueriesAPI assessmentFacadeQueries;
+    @Getter @Setter private ItemFacadeQueriesAPI itemFacadeQueries;
+    @Getter @Setter private DeveloperHelperService developerHelperService;
+    @Getter @Setter private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
+    @Getter @Setter private AssessmentFacadeQueriesAPI assessmentFacadeQueries;
+    @Getter @Setter private SiteService siteService;
     private AssessmentService assessmentService = new AssessmentService();
-    private SiteService siteService;
 
     public final static String ENTITY_PREFIX = ItemEntityProvider.ENTITY_PREFIX;
 
@@ -274,45 +276,5 @@ public class ItemEntityProviderImpl implements ItemEntityProvider,CoreEntityProv
     public void setPropertyValue(String reference, String name, String value) {
 
     }
-
-
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
-    }
-
-    public ItemFacadeQueriesAPI getItemFacadeQueries() {
-        return itemFacadeQueries;
-    }
-
-    public void setItemFacadeQueries(
-            ItemFacadeQueriesAPI itemFacadeQueries) {
-        this.itemFacadeQueries = itemFacadeQueries;
-    }
-
-    public QuestionPoolFacadeQueriesAPI getQuestionPoolFacadeQueries() {
-        return questionPoolFacadeQueries;
-    }
-
-    public void setQuestionPoolFacadeQueries(QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries) {
-        this.questionPoolFacadeQueries = questionPoolFacadeQueries;
-    }
-
-    public AssessmentFacadeQueriesAPI getAssessmentFacadeQueries() {
-        return assessmentFacadeQueries;
-    }
-
-    public void setAssessmentFacadeQueries(AssessmentFacadeQueriesAPI assessmentFacadeQueries) {
-        this.assessmentFacadeQueries = assessmentFacadeQueries;
-    }
-
-
-    public SiteService getSiteService() {
-        return siteService;
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
 
 }
