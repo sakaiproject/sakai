@@ -1131,7 +1131,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalStartDateString;
     }
     else {
-      return userTimeService.dateTimeFormat(startDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+      return userTimeService.dateTimeFormat(startDate, assessmentSettingMessages.getLocale(), DateFormat.LONG);
     }
   }
 
@@ -1171,7 +1171,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalDueDateString;
     }
     else {
-      return userTimeService.dateTimeFormat(dueDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+      return userTimeService.dateTimeFormat(dueDate, assessmentSettingMessages.getLocale(), DateFormat.LONG);
     }
   }
 
@@ -1243,7 +1243,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackDateString;
     }
     else {
-      return userTimeService.dateTimeFormat(feedbackDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+      return userTimeService.dateTimeFormat(feedbackDate, assessmentSettingMessages.getLocale(), DateFormat.LONG);
     }
   }
 
@@ -1282,7 +1282,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
       return this.originalFeedbackEndDateString;
     }
     else {
-      return userTimeService.dateTimeFormat(feedbackEndDate, new ResourceLoader().getLocale(), DateFormat.MEDIUM);
+      return userTimeService.dateTimeFormat(feedbackEndDate, assessmentSettingMessages.getLocale(), DateFormat.LONG);
     }
   }
 
