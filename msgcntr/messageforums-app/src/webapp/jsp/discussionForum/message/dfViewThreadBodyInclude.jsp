@@ -124,7 +124,7 @@
                     <h:panelGroup>
                         <%-- Always show separator, or else we see "Reply Grade" --%>
                     	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}" rendered="#{message.userCanEmail}" styleClass="button">
-                        	<f:param value="Feedback on #{message.message.title}" name="subject" />
+                        	<f:param value="#{msgs.cdfm_feedback_on} #{message.message.title}" name="subject" />
                         	<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
                         </h:outputLink>
                     </h:panelGroup>
