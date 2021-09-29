@@ -224,7 +224,6 @@ commons.utils = {
             document.getElementById('commons-likes-people-' + postId).removeAttribute('style');
             document.getElementById('commons-likes-person-' + postId).setAttribute('style','display:none;');
         }
-        commons.utils.getPostLikerNames(postId);
     },
     cancelCommentEdit: function (commentId) {
 
@@ -345,6 +344,8 @@ commons.utils = {
             type: 'POST',
             data: postId,
             timeout: commons.AJAX_TIMEOUT
+        }).done(function () {	
+            commons.utils.getPostLikerNames(postId);
         });
     },
     deleteComment: function (postId, commentId, callback) {
