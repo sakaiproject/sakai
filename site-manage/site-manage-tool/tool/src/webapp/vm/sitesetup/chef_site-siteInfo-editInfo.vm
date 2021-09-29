@@ -1,5 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 ## Edit Site Information
+<script type="module" src="/webcomponents/forms/sakai-text-input.js"></script>
+<script type="module" src="/webcomponents/forms/sakai-text-area.js"></script>
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
 	## header for edit site information page
@@ -107,9 +109,14 @@
 				#end
 				$tlang.getString("sitediinf.sittit")
 			</label>
-			<div class="col-sm-6">
+			<div class="col-sm-4">
 				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
-					<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$formattedText.escapeHtml($!title)" />
+					<sakai-text-input inputId="title"
+						value="$formattedText.escapeHtml($!title)"
+						maxLength="$!titleMaxLength"
+						styleClass="form-control"
+						errorMessage="$tlang.getString("sinfo.stitle.length.warn")">
+					</sakai-text-input>
 				#else
 					$formattedText.escapeHtml($!title)
 				#end
@@ -216,7 +223,13 @@
 				</span>
 			</label>
 			<div class="col-sm-6">
-				<textarea name="short_description" id="short_description" rows="2" cols="45" maxlength="80">$validator.escapeHtmlTextarea($!short_description)</textarea>
+				<sakai-text-area inputId="short_description"
+					value="$validator.escapeHtmlTextarea($!short_description)"
+					rows="2"
+					cols="45"
+					maxLength="80"
+					errorMessage="$tlang.getString("sitediinf.shodes.length.warn")">
+				</sakai-text-area>
 			</div>
 		</div>	
 		## Skin & Site Icon ##

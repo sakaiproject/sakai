@@ -44,6 +44,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -2464,9 +2465,12 @@ public class ItemAddListener
 					ItemMetaDataIfc.IMAGE_MAP_SRC, bean.getImageMapSrc()));
 		}
 		// The imageMap Image Alt Text added in Metadata
-		if (StringUtils.isNotEmpty(bean.getImageMapAltText())) {
+		// As this is now a sakai-text-input webcomponent, JSF doesn't send it in the form, we need it from the request.
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		String imageAltText = request.getParameter("itemForm:imageMapAltText");
+		if (StringUtils.isNotEmpty(imageAltText)) {
 		set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, bean.getImageMapAltText()));
+					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, imageAltText));
 		}
 		// MSMC property got left out, added in metadata
 		if (bean.getMcmsPartialCredit() != null) {

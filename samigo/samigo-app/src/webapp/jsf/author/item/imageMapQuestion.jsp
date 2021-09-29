@@ -34,12 +34,12 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-	  
-	  <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-	  <script src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
-	  <script src="/samigo-app/js/selection.author.js"></script>
-	  
-	  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+      <script type="module" src="/webcomponents/forms/sakai-text-input.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
+      <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+      <script src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
+      <script src="/samigo-app/js/selection.author.js"></script>
+      <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+
 <%--
 <script>
 <!--
@@ -205,7 +205,12 @@
         </div>
         <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
          <div class="col-md-10">
-            <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control" maxlength="254"/>
+            <sakai-text-input inputId="itemForm:imageMapAltText" 
+                value='<h:outputText value="#{itemauthor.currentItem.imageMapAltText}" escape="false" />'
+                maxLength="254"
+                errorMessage='<h:outputText value="#{authorMessages.image_map_alt_length_warning}" escape="false" />' 
+                styleClass="form-control"
+            ></sakai-text-input>
         </div>
     </div>
   
