@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -259,10 +260,10 @@ public class PersistenceManagerImpl implements PersistenceManager {
         return sqlService.transact(transaction, "COMMONS_POST_DELETION_TRANSACTION");
     }
 
-    public boolean likePost(String postId, boolean toggle, String userId){
+    public boolean likePost(String postId, String userId){
         PostLike likeNow = getLike(postId, userId);
-        if(likeNow == null){    //if there is no existing Like, write a new one with the information provided
-            sqlService.dbWrite(POST_LIKE,new Object[]{userId, postId, toggle, new Timestamp(new Date().getTime())});
+        if(likeNow == null){ //if there is no existing Like, write a new one
+            sqlService.dbWrite(POST_LIKE, new Object[]{userId, postId, true, new Timestamp(new Date().getTime())});
             return true;
         }
         sqlService.dbWrite(LIKE_UPDATE, new Object[]{!likeNow.isLiked(), new Timestamp(new Date().getTime()), userId, postId});
@@ -275,7 +276,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                     return loadPostLikeFromResult(result);
                 }
         });
-        if (results != null && !results.isEmpty()){
+        if (CollectionUtils.isEmpty(results)) {
             return null;
         }
         return results.get(0);

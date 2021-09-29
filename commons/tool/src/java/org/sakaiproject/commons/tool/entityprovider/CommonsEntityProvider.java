@@ -295,8 +295,7 @@ public class CommonsEntityProvider extends AbstractEntityProvider implements Req
     public ActionReturn handleLikePost(Map<String, Object> params){
         String userId = getCheckedUser();
         String postId = (String) params.get("postId");
-        boolean toggle = true;
-        commonsManager.likePost(postId, toggle, userId);
+        commonsManager.likePost(postId, userId);
         return new ActionReturn("SUCCESS");
     }
 

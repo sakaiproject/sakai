@@ -168,8 +168,8 @@ public class CommonsManagerImpl implements CommonsManager, Observer {
         return false;
     }
 
-    public boolean likePost(String postId, boolean toggle, String userId){
-        persistenceManager.likePost(postId, toggle, userId);
+    public boolean likePost(String postId, String userId){
+        persistenceManager.likePost(postId, userId);
         return true;
     }
 

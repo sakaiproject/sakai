@@ -39,7 +39,7 @@ public interface PersistenceManager {
     public boolean deletePost(Post post);
     public Post getPost(String postId, boolean loadComments);
     public Commons getCommons(String commonsId);
-    public boolean likePost(String postId, boolean toggle, String userId);
+    public boolean likePost(String postId, String userId);
     public int countPostLikes(String postId);
     public int doesUserLike(String postId, String userId);
     public List<PostLike> getAllUserLikes(String userId);
