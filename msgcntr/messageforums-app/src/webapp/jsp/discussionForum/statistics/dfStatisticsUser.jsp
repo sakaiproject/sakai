@@ -259,7 +259,7 @@
   				</h:commandLink>
   			</h:column>
 
-  			<h:column>
+			<h:column rendered="#{ForumTool.instructor}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.stat_forum_more_details}"  />
 				</f:facet>
