@@ -42,7 +42,7 @@ public interface CommonsManager extends EntityProducer {
 
     public boolean deletePost(String postId);
 
-    public boolean likePost(String postId, boolean toggle, String userId);
+    public boolean likePost(String postId, String userId);
 
     public int countPostLikes(String postId);
 
