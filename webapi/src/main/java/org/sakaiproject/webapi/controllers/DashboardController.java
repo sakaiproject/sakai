@@ -175,6 +175,8 @@ public class DashboardController extends AbstractSakaiApiController {
                 bean.setWorksiteSetupUrl("/portal/directtool/" + tc.getId() + "?panel=Shortcut&sakai_action=doNew_site");
             } catch (IdUnusedException idue) {
                 log.warn("No home site found for user {}", session.getUserId());
+            } catch (Exception e) {
+                log.warn("Failed to find the worksite setup tool for {}", userId, e);
             }
         }
 
