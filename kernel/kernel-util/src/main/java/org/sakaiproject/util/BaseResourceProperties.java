@@ -729,7 +729,51 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	{
 		return NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE;
 	}
+	
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 */
+	@Override
+	public String getNamePropNewAssignmentCheckAddIsEstimate()
+	{
+		return NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE;
+	}
+	
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 */
+	@Override
+	public String getNamePropNewAssignmentCheckAddReqEstimate()
+	{
+		return NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE;
+	}
+	
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE
+	 */
+	@Override
+	public String getNamePropNewAssignmentInputAddTimeEstimate()
+	{
+		return NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE;
+	}
 
+	/**
+	 * Get the static String of ASSIGNMENT_INPUT_ADD_TIME_SPENT
+	 * 
+	 * @return The static String of ASSIGNMENT_INPUT_ADD_TIME_SPENT
+	 */
+	@Override
+	public String getNamePropAssignmentInputAddTimeSpent()
+	{
+		return ASSIGNMENT_INPUT_ADD_TIME_SPENT;
+	}
+	
 	/**
 	 * Get the static String of NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE
 	 * 

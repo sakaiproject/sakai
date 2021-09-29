@@ -27,6 +27,9 @@ $(document).ready(function(){
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
+#if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+    #navBarTimesheet("Assignment")
+#end
 ## submission times
 	#set($dateReturned=false)
 	#set($dateReturned=$submission.DateReturned)
@@ -39,6 +42,7 @@ $(document).ready(function(){
 	#set($returned=$submission.Returned)
 	#set($closeDate = false)
 	#set($closeDate = $assignment.CloseDate)
+	#set($timeSheetSource = "submission")
 
 	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
@@ -134,6 +138,10 @@ $(document).ready(function(){
 		#progressBar($!service.getProgressBarStatus($!submission))
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
+	#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+		#parse ("/vm/assignment/chef_assignments_student_estimate.vm")
+	#end
+		<div id="StudentAssignmentCurrent">
 		<div class="itemSummary">
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
@@ -267,6 +275,18 @@ $(document).ready(function(){
 						</div>
 					</div>
 				#end
+			#end
+			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			<div class="row">
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryHeader">$tlang.getString("gen.estimatedselfempl")</div>
+				</div>
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryValue">
+						$formattedText.escapeHtml($!assignment.Estimate)
+					</div>
+				</div>
+			</div>
 			#end
 			##show alert when assignment is modified and the modified date is after its open date	
 			#set($newAssignment="false")
@@ -623,6 +643,45 @@ $(document).ready(function(){
 					#end
 				#end
 			#end
+			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			<div id="spenttimepanel" class="highlightPanel">
+				<h3>
+					$tlang.getString("gen.spenttime")
+				</h3>
+				<div class="row">
+					#if ($assignment.ReqEstimate)
+						<div class="col-sm-5 form-required">
+					#else
+						<div class="col-sm-5">
+					#end
+						<label class="itemSummaryHeader itemSummaryWrap"">$tlang.getString("gen.totaltimespent")</label>
+					</div>
+					<div class="col-sm-3">
+						<div class="itemSummaryValue">
+							<input name="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" id="$name_ASSIGNMENT_INPUT_ADD_TIME_SPENT" type="text" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT)" size="20" maxlength="20" class="form-control" <input type="text" class="form-control" id="duration" name="duration" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
+							<input name="assignment_input_add_submission_time" id="assignment_input_add_submission_time" type="hidden" value="$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT)">
+							##$formattedText.escapeHtml($!assignment.Estimate)
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					#if(!$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT).equals(""))
+						<div class="col-sm-5">
+							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.useimputedtime" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a> ( $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT))</label>
+						</div>
+						<div class="col-sm-2">
+							<div class="itemSummaryValue">
+								<input type="checkbox" name="timeTimesheet" id="timeTimesheet" onclick="ASN.checkTimesheetSpent('$formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)');" />
+							</div>
+						</div>
+					#else
+						<div class="col-sm-5">
+							<label for="timeTimesheet" class="itemSummaryHeader itemSummaryWrap">$!tlang.getString( "gen.notimeimputted" )<a href="javascript:void(0)" title="$!tlang.getString( "ts.tab.timesheet" )" onclick="ASN.switchTimesheetTab( 'tabTimeSheet' ); return false;">$!tlang.getString( "ts.tab.timesheet" )</a>$!tlang.getString( "gen.notimeimputted.enter" )</label>
+						</div>
+					#end
+				</div>
+			</div>
+			#end
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
 				<div id="attachmentspanel" class="highlightPanel">
 					<h3 style="margin-top:0;margin-bottom:.5em">
@@ -634,12 +693,12 @@ $(document).ready(function(){
 					</h3>	
 					#if ($size == 0)
 						<p class="instruction">
-                                                    #if ($submissionType == 5)
-                                                        $tlang.getString("gen.noatt.single")
-                                                    #else
-                                                        $tlang.getString("gen.noatt")
-                                                    #end
-                                                </p>
+							#if ($submissionType == 5)
+								$tlang.getString("gen.noatt.single")
+							#else
+								$tlang.getString("gen.noatt")
+							#end
+						</p>
 					#else
 						<table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto" summary="$tlang.getString("stuviewsubm.listsummary")">
 							#foreach ($attachment in $attachments) 
@@ -1040,5 +1099,6 @@ $(document).ready(function(){
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	#end
+	</div>
 </div>
 <!-- end: chef_assignments_student_view_submission.vm  -->

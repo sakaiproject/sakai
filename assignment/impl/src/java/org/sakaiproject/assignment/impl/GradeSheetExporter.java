@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -294,7 +295,14 @@ public class GradeSheetExporter {
 
                             // Create item and fill up if doesn't exist.
                             // find right row
-    
+                            if ("true".equals(params.get("estimate"))) {
+                                if (submission.getSubmitted() && submission.getDateSubmitted() != null && (submissionSubmitters[0].getTimeSpent() == null || StringUtils.isBlank(submissionSubmitters[0].getTimeSpent()))) {
+                                    submissionInfo = new SubmissionInfo(rb.getString("gen.noestimate"), submission);
+                                } else {
+                                    submissionInfo = new SubmissionInfo(submissionSubmitters[0].getTimeSpent(), submission);
+                                }
+                            }
+
                             if (submission.getGraded() && submission.getGrade() != null) {
                                 // graded and released
                                 String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
@@ -327,7 +335,6 @@ public class GradeSheetExporter {
                             results.put(submitter, submissionInfo);
                         }
                     }
-
                 }
 
                 final List<Submitter> submitters = new ArrayList<>(results.keySet());
