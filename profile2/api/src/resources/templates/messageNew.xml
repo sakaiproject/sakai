@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>${senderDisplayName} ${bundle["email.messagenew.subject"]} ${localSakaiName}</subject>
+	  <message>${senderDisplayName} ${bundle["email.messagenew.subject"]} ${localSakaiName}
+
+--------------------
+${messageSubject}
+
+${messageBody}
+--------------------
+
+${bundle["email.messagenew.toview1"]}
+${messageLink}
+	  </message>
+	  <messagehtml>${senderDisplayName} ${bundle["email.messagenew.subject"]} ${localSakaiName}
+&lt;p&gt;
+--------------------
+&lt;br /&gt;${messageSubject}
+&lt;br /&gt;
+&lt;br /&gt;${messageBody}
+&lt;br /&gt;--------------------
+&lt;/p&gt;
+
+&lt;p&gt;
+${bundle["email.messagenew.toview1"]}
+&lt;br /&gt;
+&lt;a href="${messageLink}"&gt;${messageLink}&lt;/a&gt;
+&lt;/p&gt;
+	  </messagehtml>
+	  <version>1</version>
+	  <owner>admin</owner>
+	  <key>sakai.profile2.messageNew</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

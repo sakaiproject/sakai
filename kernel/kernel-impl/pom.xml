@@ -247,6 +247,11 @@
             <artifactId>spring-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -393,6 +398,15 @@
             <artifactId>passay</artifactId>
             <version>1.6.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.30</version>
+        </dependency>
+		<dependency>
+			<groupId>org.simpleframework</groupId>
+		    <artifactId>simple-xml</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>

@@ -703,6 +703,14 @@ public class BasicEmailService implements EmailService
 		transportMessage(session, messageSets, headers, msg);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendToUser(User user, Collection<String> headers, String message) {
+        sendToUsers(Arrays.asList(new User[] {user}), headers, message);
+	}
+
+
 	private List<Address[]> getMessageSets(List<InternetAddress> addresses) {
 		// how many separate messages do we need to send to keep each one at or under maxRecipients?
 		int numMessageSets = ((addresses.size() - 1) / maxRecipients) + 1;

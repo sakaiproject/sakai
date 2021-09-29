@@ -62,10 +62,6 @@
       		<artifactId>profile2-util</artifactId>
     	</dependency>
     	<dependency>
-      		<groupId>org.sakaiproject.profile2</groupId>
-      		<artifactId>profile2-bundle</artifactId>
-    	</dependency>
-    	<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-api</artifactId>
 			<scope>provided</scope>
@@ -137,33 +133,6 @@
 		</resources>
 		
 		<plugins>
-			<!-- Unpack resource bundles JAR into webapp/bundle -->
-            <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-dependency-plugin</artifactId>
-                 <executions>
-					<execution>
-						<id>unpack</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>unpack</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>org.sakaiproject.profile2</groupId>
-									<artifactId>profile2-bundle</artifactId>
-									<type>jar</type>
-									<overWrite>false</overWrite>
-									<outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
-									<includes>**/*.properties</includes>
-									<excludes />
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			
 			<!-- compress CSS and JS -->
 			<plugin>

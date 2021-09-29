@@ -1055,6 +1055,15 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			return rv;
 		}
 
+		public ResourceProperties getToolNotificationProperties(String commonToolId) {
+
+			if (commonToolId == null) {
+				return new BaseResourceProperties();
+			}
+
+			return getProperties(NotificationService.PREFS_TYPE + commonToolId.replace(".", ":"));
+		}
+
 		/**
 		 * @inheritDoc
 		 */
