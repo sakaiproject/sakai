@@ -48,6 +48,8 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_VIEW_MEMBERS = "group_prop_view_members";
 	/** The property to indicate whether the joinable group is unjoinable or not*/
 	static final String GROUP_PROP_JOINABLE_UNJOINABLE = "group_prop_joinable_unjoinable";
+	/** The property to indicate by which group it was filtered */
+	static final String GROUP_PROP_FILTERED_BY = "group_prop_filtered_by";
 
 	/** @return a human readable short title of this group. */
 	String getTitle();

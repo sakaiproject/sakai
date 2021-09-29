@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.groupmanager.constants.GroupManagerConstants;
 import org.sakaiproject.groupmanager.form.GroupForm;
 import org.sakaiproject.groupmanager.service.SakaiService;
@@ -129,11 +130,17 @@ public class GroupController {
                     return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
                 }
 
+                ResourceProperties groupProperties = group.getProperties();
+                String optionalFilteredBy = groupProperties.getProperty(Group.GROUP_PROP_FILTERED_BY);
+
                 // After finding the group, assign all the existing values to the form.
                 groupForm.setGroupId(groupId);
                 groupForm.setGroupTitle(group.getTitle());
                 groupForm.setGroupDescription(group.getDescription());
                 groupForm.setGroupAllowViewMembership(group.getProperties().get(Group.GROUP_PROP_VIEW_MEMBERS) != null && Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_VIEW_MEMBERS)).booleanValue());
+                if (StringUtils.isEmpty(filterByGroupId) && StringUtils.isNotBlank(optionalFilteredBy)) {
+                    groupForm.setFilterByGroupId(optionalFilteredBy);
+                }
                 String roleProviderId = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
                 // Get the roles currently assigned to the group.
                 roleProviderList = StringUtils.isNotBlank(roleProviderId) ? (ArrayList<String>) SiteGroupHelper.unpack(roleProviderId) : new ArrayList<String>();
@@ -284,6 +291,11 @@ public class GroupController {
         group.setTitle(groupTitle);
         group.setDescription(groupForm.getGroupDescription());
         group.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, String.valueOf(groupForm.isGroupAllowViewMembership()));
+
+        // Assign a group filter
+        if (StringUtils.isNotBlank(filterByGroupId)) {
+            group.getProperties().addProperty(Group.GROUP_PROP_FILTERED_BY, filterByGroupId);
+        }
 
         // Assign or delete the joinable set
         if (StringUtils.isNotBlank(joinableSetName)) {

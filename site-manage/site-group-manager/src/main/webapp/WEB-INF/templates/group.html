@@ -17,7 +17,7 @@
     </div>
     <form id="creategroup-form" action="#" th:action="@{/saveGroup}" th:object="${groupForm}" method="post">
       <input type="hidden" id="groupId" name="groupId" th:field="*{groupId}"/>
-      <input type="hidden" id="filterByGroupId" name="filterByGroupId" th:field="*{filterByGroupId}"/>
+      <input type="hidden" id="filterByGroupId" name="filterByGroupId" th:field="*{filterByGroupId}" th:if="${!groupFilterEnabled}" />
       <div class="form-group row">
         <div class="col-sm-8">
           <label for="groupTitle" class="form-control-label block" th:text="|* #{groups.title}|">* Group Title</label>
