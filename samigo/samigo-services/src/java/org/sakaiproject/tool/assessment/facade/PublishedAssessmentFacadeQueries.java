@@ -36,11 +36,9 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.type.BooleanType;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -54,6 +52,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -68,8 +67,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -77,17 +74,20 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implements PublishedAssessmentFacadeQueriesAPI {
 
-	private SecurityService securityService;
-	private SiteService siteService;
+	@Setter private SiteService siteService;
+	@Setter private ToolManager toolManager;
+	@Setter private UserDirectoryService userDirectoryService;
 
 	public static final String STARTDATE = "assessmentAccessControl.startDate";
 
@@ -2306,13 +2306,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 	}
 
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
 
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
 	
 	private List<String> getSiteGroupIdsForSubmittingAgent(String agentId, String siteId) {
 
@@ -2348,7 +2342,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 	
 	private List<String> getSiteGroupIdsForCurrentUser(final String siteId) {
-		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		String currentUserId = userDirectoryService.getCurrentUser().getId();
 		return getSiteGroupIdsForSubmittingAgent(currentUserId, siteId);
 	}
 		
@@ -2410,7 +2404,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * Returns all groups for site
 	 */
 	public Map getGroupsForSite() {
-		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String siteId = toolManager.getCurrentPlacement().getContext();
 		return getGroupsForSite(siteId);
 	}
 
