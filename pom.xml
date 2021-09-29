@@ -65,7 +65,6 @@
                 <module>deploy</module>
                 <module>edu-services</module>
                 <module>emailtemplateservice</module>
-                <module>endorsed</module>
                 <module>entitybroker</module>
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
@@ -153,7 +152,6 @@
                 <module>deploy</module>
                 <module>edu-services</module>
                 <module>emailtemplateservice</module>
-                <module>endorsed</module>
                 <module>entitybroker</module>
                 <module>evaluation</module>
                 <module>external-calendaring-service</module>
