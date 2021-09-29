@@ -8063,14 +8063,20 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
 
                         if (!aOldAccess.equals(a.getTypeOfAccess())) {
-                            // site-group access setting changed
-                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                            //SAK-45992
+                            if(openTime.isBefore(Instant.now())){
+                                // site-group access setting changed
+                                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                            }
                         } else {
                             Collection aGroups = a.getGroups();
                             if (!(aOldGroups == null && aGroups == null)
                                     && !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups))) {
-                                //group changed
-                                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                                //SAK-45992
+                                if(openTime.isBefore(Instant.now())){
+                                    //group changed
+                                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                                }
                             }
                         }
 
