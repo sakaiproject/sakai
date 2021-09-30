@@ -287,10 +287,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS = "new_assignment_peer_assessment_num_reviews";
     private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS = "new_assignment_peer_assessment_instructions";
 
-    // Video Submissions
-    private static final String VIDEO_SUBMISSION_PARAM = "video-submission";
-    private static final String VIDEO_SUBMISSION_MIMETYPE_PARAM = "video-submission-mimetype";
-
     /**
      * Is the review service available?
      */
@@ -323,7 +319,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT = "review_service_eula_agreement";
     private static final String SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT = "review_check_service_eula_agreement";
     private static final String SUBMISSION_REVIEW_EULA_AGREEMENT_LINK = "review_service_eula_agreement_link";
-    private static final String ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT = "value_ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT";
 
     // Video Submissions
     private static final String VIDEO_SUBMISSION_PARAM = "video-submission";

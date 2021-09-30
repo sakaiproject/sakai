@@ -838,14 +838,4 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
-
-    public boolean correctTime(String timeSheet);
-
-	public AssignmentSubmissionSubmitter getSubmissionSubmitter(String submitterId) throws PermissionException;
-
-	public AssignmentTimeSheet getTimeSheet(String timeSheetId) throws PermissionException;
-	
-	public void addAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
-
-	public void removeAssignmentTimeSheet(AssignmentTimeSheet timeSheet, String context) throws PermissionException;
 }
