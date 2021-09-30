@@ -240,7 +240,7 @@
 						</h:outputText>
 						<f:verbatim></p></f:verbatim>
 						<% if(!isDialogBox){ %>
-						<h:panelGroup style="display:block;float:right;width:25%;text-align:right">
+						<h:panelGroup rendered="#{ForumTool.instructor}" style="display:block;float:right;width:25%;text-align:right">
 							<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 								onclick="dialogLinkClick(this);" rendered="#{ForumTool.instructor}">
 								<f:param value="#{stat.forumId}" name="forumId"/>
