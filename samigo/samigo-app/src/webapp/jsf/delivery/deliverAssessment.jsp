@@ -439,14 +439,27 @@ document.links[newindex].onclick();
              </h:panelGroup>
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="autosave-failed-warning">
-             <p><h:outputText value="#{deliveryMessages.autosaveFailed}" escape="false" /></p>
-             <p><h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" /></p>
+             <h5><h:outputText value="#{deliveryMessages.autosaveFailed_heading}" escape="false" /></h5>
+             <p>
+               <h:outputText value="#{deliveryMessages.autosaveFailed_reason}" escape="false" /><br />
+               <h:outputText value="#{deliveryMessages.autosaveFailedDetail}" escape="false" />
+             </p>
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="multiple-tabs-warning">
-             <p><h:outputText value="#{deliveryMessages.multipleTabsWarning}" escape="false" /></p>
-             <p><h:outputText value="#{deliveryMessages.multipleTabsWarningDetail}" escape="false" /></p>
+             <h5><h:outputText value="#{deliveryMessages.multipleTabsWarning_heading}" escape="false" /></h5>
+             <p>
+               <h:outputText value="#{deliveryMessages.multipleTabsWarning_1}" escape="false" /><br />
+               <h:outputText value="#{deliveryMessages.multipleTabsWarning_2}" escape="false" /><br />
+               <h:outputText value="#{deliveryMessages.multipleTabsWarning_3}" escape="false" />
+             </p>
+             <h5><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_heading}" escape="false" /></h5>
+             <ol>
+               <li><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_1}" escape="false" /></li>
+               <li><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_2}" escape="false" /></li>
+               <li><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_3}" escape="false" /></li>
+               <li><h:outputText value="#{deliveryMessages.multipleTabsWarningFix_4}" escape="false" /></li>
+             </ol>
            </div>
-          
          </div>
         </h:column>
       </h:dataTable>
