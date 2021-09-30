@@ -717,7 +717,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			HttpUriRequest request = null;
 	
 			if (headers == null) {
-				throw new Exception("No headers present for call: " + method + ":" + urlStr);
+				throw new ContentReviewProviderException("No headers present for call: " + method + ":" + urlStr);
 			}
 	
 			switch (method) {
@@ -731,7 +731,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				request = new HttpPut(urlStr);
 				break;
 			default:
-				throw new Exception("Invalid method: " + method); 
+				throw new ContentReviewProviderException("Invalid method: " + method);
 			}
 			// Set Headers
 			for (Entry<String, String> entry : headers.entrySet()) {
@@ -1305,7 +1305,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						if (updateLastError) {
 							setLastError(item, e);
 						}
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
+						Long statusCode = ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE;
+						if (e instanceof SubmissionException) {
+							statusCode = ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE;
+						}
+						item.setStatus(statusCode);
 						crqs.update(item);
 						errors++;
 					}
@@ -1661,7 +1665,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 
-		if (responseCode < 200 || responseCode >= 300) {
+		if (responseCode == 413) {
+			throw new SubmissionException(responseCode + ": This file is too large. Files larger than 100mb cannot be submitted to Turnitin. Please upload a different file.");
+		} else if (responseCode < 200 || responseCode >= 300) {
 			throw new TransientSubmissionException(responseCode + ": " + responseMessage);
 		}
 	}
