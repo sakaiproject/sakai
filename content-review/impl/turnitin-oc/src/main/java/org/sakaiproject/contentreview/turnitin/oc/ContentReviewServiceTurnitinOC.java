@@ -16,14 +16,9 @@
 package org.sakaiproject.contentreview.turnitin.oc;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -44,6 +39,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -55,6 +51,18 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -295,6 +303,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Boolean mayViewMatchSubmissionInfoOverrideStudent = null;
 	private Boolean mayViewSubmissionFullSourceOverrideInstructor = null;
 	private Boolean mayViewMatchSubmissionInfoOverrideInstructor = null;
+	
+	private CloseableHttpAsyncClient client;
+	private ObjectMapper objectMapper;
 
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
@@ -358,6 +369,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Populate content upload headers used in uploadExternalContent
 		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
+		
+		objectMapper = new ObjectMapper();
+		client = HttpAsyncClients.createDefault();
+		client.start();
 
 		if(StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(serviceUrl)) {
 			try {
@@ -593,7 +608,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Set locale, getLanguage removes locale region
 				data.put("locale", preferencesService.getLocale(userId).getLanguage());
 
-				HashMap<String, Object> response = makeHttpCall("GET",
+				HashMap<String, Object> response = makeHttpCall("POST",
 						getNormalizedServiceUrl() + "submissions/" + item.getExternalId() + "/viewer-url",
 						SUBMISSION_REQUEST_HEADERS,
 						data,
@@ -696,67 +711,85 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
         securityService.popAdvisor(advisor);
     }
 
-	private HashMap<String, Object> makeHttpCall(String method, String urlStr, Map<String, String> headers,  Map<String, Object> data, byte[] dataBytes) 
+	private HashMap<String, Object> makeHttpCall(String method, String urlStr, Map<String, String> headers,  Map<String, Object> data, InputStream is) 
 		throws Exception {
-		// Set variables
-		HttpURLConnection connection;
-		URL url;
-
-		// Construct URL
-		url = new URL(urlStr);
-
-		// Open connection and set HTTP method
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod(method);
-
-		// Set headers
-		if (headers == null) {
-			throw new Exception("No headers present for call: " + method + ":" + urlStr);
-		}
-		for (Entry<String, String> entry : headers.entrySet()) {
-			connection.setRequestProperty(entry.getKey(), entry.getValue());
-		}
-
-		if (data != null || dataBytes != null) {
-			connection.setDoOutput(true);
-			try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
-				// Set Post body:
-				if (data != null) {
-					// Convert data to string:
-					try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8))) {
-						ObjectMapper objectMapper = new ObjectMapper();
-						String dataStr = objectMapper.writeValueAsString(data);
-						br.write(dataStr);
-						br.flush();
-					}
-				} else if (dataBytes != null) {
-					wr.write(dataBytes);
+		try {
+			HttpUriRequest request = null;
+	
+			if (headers == null) {
+				throw new ContentReviewProviderException("No headers present for call: " + method + ":" + urlStr);
+			}
+	
+			switch (method) {
+			case "GET":
+				request = new HttpGet(urlStr);
+				break;
+			case "POST":
+				request = new HttpPost(urlStr);
+				break;
+			case "PUT":
+				request = new HttpPut(urlStr);
+				break;
+			default:
+				throw new ContentReviewProviderException("Invalid method: " + method);
+			}
+			// Set Headers
+			for (Entry<String, String> entry : headers.entrySet()) {
+				request.setHeader(entry.getKey(), entry.getValue());
+			}
+			if (data != null) {
+				String dataStr = objectMapper.writeValueAsString(data);
+				StringEntity requestEntity = new StringEntity(dataStr, ContentType.APPLICATION_JSON);
+				switch (method) {
+				case "POST":
+					((HttpPost) request).setEntity(requestEntity);
+					break;
+				case "PUT":
+					((HttpPut) request).setEntity(requestEntity);
+					break;
+				default: 
+					break;
+				}
+			}else if (is != null) {
+				HttpEntity entity = new InputStreamEntity(is);
+				switch (method) {
+				case "POST":
+					((HttpPost) request).setEntity(new BufferedHttpEntity(entity));
+					break;
+				case "PUT":
+					((HttpPut) request).setEntity(new BufferedHttpEntity(entity));
+					break;
+				default: 
+					break;
+				}
+			}
+	
+			Future<HttpResponse> future = client.execute(request, null);
+			HttpResponse httpResponse = future.get();
+	
+	
+			// Send request:
+			int responseCode = httpResponse.getStatusLine().getStatusCode();
+			String responseMessage = httpResponse.getStatusLine().getReasonPhrase();
+			String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+	
+	
+			log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
+			HashMap<String, Object> response = new HashMap<>();
+			response.put(RESPONSE_CODE, responseCode);
+			response.put(RESPONSE_MESSAGE, responseMessage);
+			response.put(RESPONSE_BODY, responseBody);
+	
+			return response;
+		}finally {
+			if(is != null) {
+				try {
+					is.close();
+				} catch(Exception e) {
+					log.error(e.getMessage(), e);
 				}
 			}
 		}
-
-		// Send request:
-		int responseCode = connection.getResponseCode();
-		String responseMessage = connection.getResponseMessage();
-		String responseBody;
-		if (responseCode < 200 || responseCode >= 300)
-		{
-			InputStream inputStream = connection.getErrorStream() != null ? connection.getErrorStream() : connection.getInputStream();
-			// getInputStream() throws an exception in this case, but getErrorStream() has the information necessary for troubleshooting
-			responseBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-		}
-		else
-		{
-			responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
-		}
-
-		log.debug("Turnitin response code: {}; message: {}; body:\n{}", responseCode, responseMessage, responseBody);
-		HashMap<String, Object> response = new HashMap<>();
-		response.put(RESPONSE_CODE, responseCode);
-		response.put(RESPONSE_MESSAGE, responseMessage);
-		response.put(RESPONSE_BODY, responseBody);
-		
-		return response;
 	}
 	
 	private void indexSubmission(String reportId) throws Exception {
@@ -1247,9 +1280,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						}
 						else {
 							// Add filename to content upload headers
-							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
+							Map<String, String> uploadHeaders = new HashMap<>(CONTENT_UPLOAD_HEADERS); 
+							uploadHeaders.put(HEADER_DISP, "inline; filename=\"" + URLEncoder.encode(fileName, "UTF-8") + "\"");
 							// Upload submission contents of to TCA
-							uploadExternalContent(externalId, resource.getContent());
+							uploadExternalContent(externalId, resource.streamContent(), uploadHeaders);
 							// Set item externalId to externalId
 							item.setExternalId(externalId);
 							// Reset retry count
@@ -1271,7 +1305,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						if (updateLastError) {
 							setLastError(item, e);
 						}
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
+						Long statusCode = ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE;
+						if (e instanceof SubmissionException) {
+							statusCode = ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE;
+						}
+						item.setStatus(statusCode);
 						crqs.update(item);
 						errors++;
 					}
@@ -1615,19 +1653,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				+ TURNITIN_OC_API_VERSION + "/";
 	}
 
-	private void uploadExternalContent(String reportId, byte[] data) throws Exception {
+	private void uploadExternalContent(String reportId, InputStream is, Map<String, String> headers) throws Exception {
 		
 		HashMap<String, Object> response = makeHttpCall("PUT",
 				getNormalizedServiceUrl() + "submissions/" + reportId + "/original/",
-				CONTENT_UPLOAD_HEADERS,
+				headers,
 				null,
-				data);
+				is);
 
 		// Get response:
 		int responseCode = !response.containsKey(RESPONSE_CODE) ? 0 : (int) response.get(RESPONSE_CODE);
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 
-		if (responseCode < 200 || responseCode >= 300) {
+		if (responseCode == 413) {
+			throw new SubmissionException(responseCode + ": This file is too large. Files larger than 100mb cannot be submitted to Turnitin. Please upload a different file.");
+		} else if (responseCode < 200 || responseCode >= 300) {
 			throw new TransientSubmissionException(responseCode + ": " + responseMessage);
 		}
 	}
@@ -1906,4 +1946,15 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	public boolean allowSubmissionsOnBehalf() {
 		return true;
 	}
+	
+	public void destroy() {
+        log.info("ContentReviewServiceTurnitinOC destroy()");
+        if(client != null) {
+        	try {
+        		client.close();
+        	} catch(Exception e) {
+        		log.error(e.getMessage(), e);
+        	}
+        }
+    }
 }
