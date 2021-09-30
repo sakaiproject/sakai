@@ -39,6 +39,7 @@ public class MainController {
     public String index(ModelMap model) {
         String token = rubricsService.generateJsonWebToken("sakai.rubrics");
         model.addAttribute("token", token);
+        model.addAttribute("weightedEnabled", rubricsService.isWeightedEnabled());
         model.addAttribute("sakaiSessionId", rubricsService.getCurrentSessionId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
         return "index";

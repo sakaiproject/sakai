@@ -17,6 +17,7 @@ export class SakaiRubricsList extends RubricsElement {
     return {
       token: { type: String },
       rubrics: { type: Array },
+      weightedIsEnabled: { attribute: "weighted-enabled", type: Boolean },
     };
   }
 
@@ -40,7 +41,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}"></sakai-rubric>
+            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}" ?weighted-enabled=${this.weightedIsEnabled}></sakai-rubric>
           </div>
         `)}
         </div>

@@ -32,7 +32,8 @@ export class SakaiRubric extends RubricsElement {
       shareIcon: { type: String },
       weightedIcon: String,
       totalWeight: String,
-      validWeight: Boolean
+      validWeight: Boolean,
+      weightedIsEnabled: { attribute: "weighted-enabled", type: Boolean },
     };
   }
 
@@ -82,7 +83,7 @@ export class SakaiRubric extends RubricsElement {
         <div class="hidden-xs"><sakai-rubric-modified-date modified="${this.rubric.metadata.modified}"></sakai-rubric-modified-date></div>
 
         <div class="actions">
-          ${!this.rubric.metadata.locked ? html`
+          ${!this.rubric.metadata.locked && this.weightedIsEnabled ? html`
             <div class="action-container">
               <span class="hidden-sm hidden-xs sr-only">
                 ${this.rubric.weighted ?

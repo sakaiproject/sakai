@@ -60,6 +60,8 @@ public interface RubricsService {
 
     String generateLang();
 
+    Boolean isWeightedEnabled();
+
     String getRubricEvaluationObjectId(String associationId, String userId, String toolId);
 
     void deleteRubricAssociation(String toolId, String itemId);

@@ -1026,6 +1026,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         return lines.toString();
     }
+    
+    public Boolean isWeightedEnabled(){
+        return serverConfigurationService.getBoolean("rubrics.enable.weighted", true);
+    }
 
     public String getCurrentSessionId() {
         return sessionManager.getCurrentSession().getId();

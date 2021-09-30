@@ -17,7 +17,11 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   static get properties() {
-    return { token: String, i18nLoaded: Boolean };
+    return {
+      token: String,
+      i18nLoaded: Boolean,
+      weightedIsEnabled: { attribute: "weighted-enabled", type: Boolean }
+    };
   }
 
   shouldUpdate() {
@@ -57,7 +61,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}"></sakai-rubrics-list>
+        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}" ?weighted-enabled=${this.weightedIsEnabled}></sakai-rubrics-list>
       </div>
 
         <div id="shared-rubrics-title" aria-expanded="${this.sharedRubricsExpanded}" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="${tr("toggle_shared_rubrics")}" tabindex="0" @click="${this.toggleSharedRubrics}">

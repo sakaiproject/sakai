@@ -11,7 +11,7 @@
       <script th:inline="javascript">
           var sakaiSessionId = /*[[${sakaiSessionId}]]*/ null;
       </script>
-      <sakai-rubrics-manager th:attr="token=${token}"></sakai-rubrics-manager>
+      <sakai-rubrics-manager th:attr="token=${token}, weighted-enabled=${weightedEnabled ? true : null}"></sakai-rubrics-manager>
     </div>
   </body>
 </html>
