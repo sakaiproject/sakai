@@ -8,7 +8,7 @@
         id="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
         class="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC"
         parent="org.sakaiproject.contentreview.service.BaseContentReviewService"
-        init-method="init" lazy-init="true">
+        init-method="init" destroy-method="destroy" lazy-init="true">
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
          <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
