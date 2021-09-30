@@ -702,28 +702,27 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
 
         Integer contentKey = assignment.getContentId();
-        String ltiGradeLaunch = null;
         if ( contentKey != null ) {
              Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
              String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
-            String userId = null;
             for (SimpleSubmission submission : submissions) {
                 if ( ! submission.userSubmission ) continue;
+                String ltiGradeLaunch = null;
                 for(SimpleSubmitter submitter: submission.submitters) {
-                    userId = submitter.id;
+                    if ( submitter.id != null ) {
+                        ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                            ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
+                        }
+                    }
                 }
+                submission.ltiGradeLaunch = ltiGradeLaunch;
             }
 
-            if ( userId != null ) {
-                ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + userId;
-
-				// Instead of parsing, the JSON we just look for a simple existance of the submission review entry
-				// Delegate the complex understanding of the launch to SakaiBLTIUtil
-				if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-					ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
-				}
-            }
         }
 
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
@@ -735,7 +734,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         data.put("showOfficialPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
         String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
         data.put("letterGradeOptions", lOptions);
-        data.put("ltiGradeLaunch", ltiGradeLaunch);
 
         return new ActionReturn(data);
     }
@@ -1528,6 +1526,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant assignmentCloseTime;
         private boolean draft;
         private boolean visible;
+        public String ltiGradeLaunch = null;
 
         public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa, Set<String> activeSubmitters) throws Exception {
 
