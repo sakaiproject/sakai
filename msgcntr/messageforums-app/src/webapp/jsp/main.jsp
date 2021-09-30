@@ -51,7 +51,7 @@
 
 
 		<%-- include hide division here so that dfArea can be used w/o div within Forums tool --%>        
-		<mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div" >
+		<mf:forumHideDivision title="#{msgs.cdfm_discussions}" id="_test_div" >
 	        <%@ include file="discussionForum/area/dfArea.jsp"%>
         	<h:inputHidden id="mainOrForumOrTopic" value="main" />
 

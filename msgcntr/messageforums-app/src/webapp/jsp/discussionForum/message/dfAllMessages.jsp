@@ -153,7 +153,7 @@
 						<h:outputText value="#{msgs.cdfm_message_forums}"/>
 					</h:commandLink>
 			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussions}" rendered="#{ForumTool.forumsTool}" >
-							<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
+							<h:outputText value="#{msgs.cdfm_discussions}"/>
 						</h:commandLink>
       			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title="#{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
