@@ -22,7 +22,7 @@
 			</div>
 			<div class="printBlock">
 				<h2>
-			      <h:outputText value="#{msgs.cdfm_discussion_forums}" />
+			      <h:outputText value="#{msgs.cdfm_discussions}" />
       			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				  <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 				  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />

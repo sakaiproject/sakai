@@ -7959,7 +7959,7 @@ public class DiscussionForumTool {
     private boolean saveForumsForGroups(boolean draft) {
         log.debug("saveForumsForGroups()");
         if (siteGroups == null || siteGroups.isEmpty()) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussions")}));
             return false;
         }
 
@@ -8030,7 +8030,7 @@ public class DiscussionForumTool {
         }
 
         if (!groupSelected) {
-            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussion_forums")}));
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED, new Object[]{getResourceBundleString("cdfm_discussions")}));
             Collections.reverse(siteGroups);
             return false;
         }
