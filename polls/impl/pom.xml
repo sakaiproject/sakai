@@ -42,10 +42,6 @@
             <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
-        	<groupId>org.sakaiproject.emailtemplateservice</groupId>
-        	<artifactId>emailtemplateservice-api</artifactId>
-       </dependency>
-        <dependency>
             <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
         </dependency>

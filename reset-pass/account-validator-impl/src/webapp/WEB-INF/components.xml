@@ -15,7 +15,7 @@
 			init-method="init">
 		<property name="dao" ref="org.sakaiproject.accountvalidator.dao.ValidationLogicDao" />
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" 	/>
-		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="authzGroupService"  ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
@@ -70,7 +70,7 @@
 		</property>
 	        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>

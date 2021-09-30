@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+	  <subject>${senderDisplayName} ${bundle["email.connectionrequest.subject"]} ${localSakaiName}</subject>
+	  <message>${senderDisplayName} ${bundle["email.connectionrequest.subject"]} ${localSakaiName}
+
+        ${bundle["email.connectionrequest.toconfirm1"]} ${senderDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
+${connectionLink}
+	  </message>
+	  <messagehtml>${senderDisplayName} added you as a connection on ${localSakaiName}
+&lt;p&gt;
+${bundle["email.connectionrequest.toconfirm1"]} ${senderDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
+&lt;br /&gt;&lt;a href="${connectionLink}"&gt;${connectionLink}&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;
+    </messagehtml>
+    <version>1</version>
+    <owner>admin</owner>
+	  <key>sakai.profile2.connectionRequest</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

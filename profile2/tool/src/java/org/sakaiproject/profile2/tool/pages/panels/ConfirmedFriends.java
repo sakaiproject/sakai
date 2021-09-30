@@ -125,15 +125,6 @@ public class ConfirmedFriends extends Panel {
 		Form<Void> confirmedFriendsButtonForm = new Form<Void>("confirmedFriendsButtonForm");
 		add(confirmedFriendsButtonForm);
 		
-		//create worksite panel
-		final CreateWorksitePanel createWorksitePanel = 
-			new CreateWorksitePanel("createWorksitePanel", connectionsLogic.getConnectionsForUser(userUuid));
-		//create placeholder and set invisible initially
-		createWorksitePanel.setOutputMarkupPlaceholderTag(true);
-		createWorksitePanel.setVisible(false);
-				
-		confirmedFriendsButtonForm.add(createWorksitePanel);
-
 		//search for connections
 		AjaxButton searchConnectionsButton = new AjaxButton("searchConnectionsButton", confirmedFriendsButtonForm) {
 			private static final long serialVersionUID = 1L;

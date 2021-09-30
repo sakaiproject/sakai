@@ -29,8 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
@@ -125,7 +125,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			Map<String, String> rv = new HashMap<>();
 			rv.put("productionSiteName", productionSiteName);
 
-			Map<String, String> replacementValues = new HashMap<>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("userName", user.getDisplayName());
 			replacementValues.put("userEid", user.getEid());
 			replacementValues.put("localSakaiName", productionSiteName);
@@ -166,7 +166,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 * $currentUserName
 			 * $localSakaiUrl
 			 */
-			Map<String, String> replacementValues = new HashMap<>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("userName", user.getDisplayName());
 			replacementValues.put("localSakaiName",serverConfigurationService.getString("ui.service", ""));
 			replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
@@ -194,7 +194,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String replyTo = templateEmailArchive;
 
 		if (from != null && templateEmailArchive != null) {
-			Map<String, String> replacementValues = new HashMap<>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("templateSiteTitle", templateSite.getTitle());
 			replacementValues.put("templateSiteId", templateSite.getId());
 			replacementValues.put("currentUserDisplayName", currentUser.getDisplayName());
@@ -224,7 +224,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
 			
 			
-			Map<String, String> replacementValues = new HashMap<>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 			replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 			replacementValues.put("termTitle", termTitle);
@@ -260,7 +260,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String headerTo = requestEmail;
 		String replyTo = currentUserEmail;
 		
-		Map<String, String> replacementValues = new HashMap<>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("termTitle", termTitle);
@@ -303,7 +303,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String to = currentUserEmail;
 		String headerTo = to;
 		String replyTo = to;
-		Map<String, String> replacementValues = new HashMap<>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("currentUserEmail", currentUserEmail);
@@ -329,7 +329,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String to = requestEmail;
 		String headerTo = requestEmail;
 		String replyTo = currentUserEmail;
-		Map<String, String> replacementValues = new HashMap<>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
 		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
 		replacementValues.put("currentUserEmail", currentUserEmail);
@@ -407,7 +407,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	 * @param replacementValues
 	 * @return the email content
 	 */
-	private String emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, String> replacementValues) {
+	private String emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, Object> replacementValues) {
 		log.debug("getting template: " + templateName);
 		RenderedTemplate template;
 		try { 
@@ -443,7 +443,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		if(toEmail != null && !"".equals(toEmail)){
 			
 			// Create the map of replacement values
-			Map<String, String> replacementValues = new HashMap<>();
+			Map<String, Object> replacementValues = new HashMap<>();
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_WORKSITE, siteTitle);
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_LINK, developerHelperService.getLocationReferenceURL(SITE_REF_PREFIX + siteId));
 			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION, serverConfigurationService.getString(SAK_PROP_UI_INSTITUTION));

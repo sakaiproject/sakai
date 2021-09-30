@@ -440,7 +440,7 @@
           init-method="init">
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>

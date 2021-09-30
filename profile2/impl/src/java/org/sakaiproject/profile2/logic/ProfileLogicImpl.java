@@ -497,7 +497,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION;
 			
 		//create the map of replacement values for this email template
-		Map<String,String> replacementValues = new HashMap<String,String>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("userDisplayName", sakaiProxy.getUserDisplayName(userUuid));
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 		replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(userUuid));

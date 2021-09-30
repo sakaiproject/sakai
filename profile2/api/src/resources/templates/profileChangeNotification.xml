@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>${userDisplayName} ${bundle["email.profilechange.subject"]} ${localSakaiName}</subject>
+    <message>${userDisplayName} ${bundle["email.profilechange.subject"]} ${localSakaiName}
+
+          ${bundle["email.connectionconfirm.toview1"]} ${userDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
+  ${profileLink}
+
+    </message>
+    <messagehtml>${userDisplayName} ${bundle["email.profilechange.subject"]} ${localSakaiName}
+  &lt;p&gt;
+  ${bundle["email.connectionconfirm.toview1"]} ${userDisplayName} ${bundle["email.connectionrequest.toconfirm2"]}
+  &lt;br /&gt;
+  &lt;a href="${profileLink}"&gt;${profileLink}&lt;/a&gt;
+  &lt;/p&gt;
+    </messagehtml>
+    <version>1</version>
+    <owner>admin</owner>
+    <key>sakai.profile2.profileChangeNotification</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

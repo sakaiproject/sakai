@@ -55,7 +55,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -898,7 +898,7 @@ public class MainController {
         if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
 
             String supportEmail = serverConfigurationService.getString("mail.support");
-            Map<String, String> replacementValues = new HashMap<String, String>();
+            Map<String, Object> replacementValues = new HashMap<>();
             replacementValues.put("emailSupport", supportEmail);
             emailTemplateService.sendRenderedMessages(AccountValidatorConstants.TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, supportEmail, supportEmail);
         }

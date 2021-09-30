@@ -40,10 +40,6 @@
 		<groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-utils</artifactId>
       </dependency>
-      <dependency>
-      	<groupId>org.sakaiproject.emailtemplateservice</groupId>
-      	<artifactId>emailtemplateservice-api</artifactId>
-      </dependency>
           <!-- thymeleaf template engine -->
         <dependency>
             <groupId>org.thymeleaf</groupId>

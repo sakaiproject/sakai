@@ -333,7 +333,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final EmailType messageType) {
 		
 		// create the map of replacement values for this email template
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 		replacementValues.put("senderWallLink", linkLogic.getEntityLinkToProfileWall(fromUuid));
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
@@ -370,7 +370,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 
 		// create the map of replacement values for this email template
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
