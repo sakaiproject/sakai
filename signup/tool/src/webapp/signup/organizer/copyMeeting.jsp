@@ -279,6 +279,8 @@
 
 					<%--Description --%>
 					<div class="form-group row">
+						<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="signup_copy" /></f:verbatim>
+						<h:panelGroup rendered="#{CopyMeetingSignupMBean.signupMeetingId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{CopyMeetingSignupMBean.signupMeetingId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 						<h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12" escape="false"/>
 						<div class="col-lg-12">
 							<sakai:inputRichText value="#{CopyMeetingSignupMBean.signupMeeting.description}"

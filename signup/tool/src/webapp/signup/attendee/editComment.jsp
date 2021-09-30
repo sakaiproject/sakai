@@ -46,6 +46,9 @@
 					
 					<h:outputText value="&nbsp;" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
+
+                        		<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="signup_editcomment" /></f:verbatim>
+                        		<h:panelGroup rendered="#{EditCommentSignupMBean.meetingWrapper.meeting.id!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.id}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 					
 					<h:outputText value="#{msgs.event_comment}" styleClass="titleText" escape="false"/>
 					<sakai:inputRichText value="#{EditCommentSignupMBean.comment}" width="720" height="200" rows="5"  cols="80"/>

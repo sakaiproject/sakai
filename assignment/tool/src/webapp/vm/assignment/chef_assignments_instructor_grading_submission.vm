@@ -262,6 +262,11 @@
                 #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
                     <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
                     <div class="textarea-holder">
+                        #set($contextkey = "ckeditor-autosave-context")
+                        #set($entitykey = "ckeditor-autosave-entity-id")
+                        #set($entityval = "$submission.id")
+                        <input type="hidden" id="$contextkey" name="$contextkey" value="asn_instructor_grade">
+                        <input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
                         <textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">
                             $formattedText.escapeHtmlFormattedTextarea($!value_feedback_text)
                         </textarea>

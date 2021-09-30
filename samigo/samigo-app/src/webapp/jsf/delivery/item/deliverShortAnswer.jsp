@@ -39,6 +39,9 @@ should be included in file importing DeliveryMessages
 
 <h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="sak-banner-error"/>
 
+<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_deliverShortAnswer" /></f:verbatim>
+<h:panelGroup rendered="#{question.itemData.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{question.itemData.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
             && delivery.actionString!='gradeAssessment'}">
 	<samigo:wysiwyg rows="240" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">

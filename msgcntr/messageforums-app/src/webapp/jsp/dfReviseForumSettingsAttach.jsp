@@ -170,6 +170,9 @@
 
 			<%--RTEditor area - if enabled--%>
 			<h:panelGroup rendered="#{! ForumTool.disableLongDesc}">
+				<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="forums_dfReviseForumSettingsAttach" /></f:verbatim>
+       				<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{ForumTool.selectedForum.forum.id}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+
 				<h:outputText id="outputLabel2" value="#{msgs.cdfm_fullDescription}" styleClass="labeled"/>
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_description" value="#{ForumTool.selectedForum.forum.extendedDescription}">
 			</sakai:inputRichText>

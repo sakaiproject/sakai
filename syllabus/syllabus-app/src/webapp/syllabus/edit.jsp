@@ -60,6 +60,9 @@
  			</h:panelGrid>
  
  			<div class="longtext">
+				<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="syllabus_edit" /></f:verbatim>
+		  		<f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="new" /></f:verbatim>
+
  				<label for="" style="float:none;display:block">
  					<h:outputText value="#{msgs.syllabus_content}"/>
  				</label>

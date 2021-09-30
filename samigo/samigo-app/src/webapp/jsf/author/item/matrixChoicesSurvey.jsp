@@ -61,6 +61,8 @@
 <%-- HEADING --%>
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm" >
+<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_matrixChoicesSurvey" /></f:verbatim>
+<h:panelGroup rendered="#{itemauthor.currentItem.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{itemauthor.currentItem.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 <p class="act">
  <h:commandButton  rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener

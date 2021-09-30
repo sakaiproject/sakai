@@ -186,6 +186,8 @@
                 
                 <%-- description, rich text --%>
                 <div class="form-group row">
+  		    <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="signup_step1" /></f:verbatim>
+ 		    <f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="new" /></f:verbatim>
                     <h:outputLabel value="#{msgs.event_description}" styleClass="col-md-2"  escape="false"/>
                     <div class="col-md-10">
                         <sakai:inputRichText value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" cols="80" />

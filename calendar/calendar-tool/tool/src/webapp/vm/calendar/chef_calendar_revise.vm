@@ -619,6 +619,12 @@ $(function() {
          $timezone
 		</p>
 		<div class="longtext">
+			#set($contextkey = "ckeditor-autosave-context")
+			#set($entitykey = "ckeditor-autosave-entity-id")
+			#set( $entityval = "$!event.getId()" )
+			<input type="hidden" id="$contextkey" name="$contextkey" value="calendar_new">
+			<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
+
 			<label for="xbody" class="block">
 				$tlang.getString("new.descr")
 			</label>	

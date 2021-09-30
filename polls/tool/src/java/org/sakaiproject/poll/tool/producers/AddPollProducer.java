@@ -256,6 +256,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 
 		//the form fields
+		if ((poll != null) && (poll.getId() != null) && (! poll.getId().equalsIgnoreCase("null"))) {
+		    UIInput.make(newPoll, "ckeditor-autosave-entity-id", "#{poll.id}", poll.getId());
+		}
 		UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
 		
 		

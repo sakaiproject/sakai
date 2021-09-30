@@ -225,6 +225,8 @@
 					<div class="form-group row">
 						<h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12" escape="false"/>
 					</div>
+					<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="signup_modify" /></f:verbatim>
+					<h:panelGroup rendered="#{EditMeetingSignupMBean.signupMeetingId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{EditMeetingSignupMBean.signupMeetingId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
 					<sakai:inputRichText value="#{EditMeetingSignupMBean.signupMeeting.description}" rows="5"  />
 					
 					<%-- Attachments --%>
