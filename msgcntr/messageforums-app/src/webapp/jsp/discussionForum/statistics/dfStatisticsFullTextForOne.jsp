@@ -96,7 +96,7 @@
 								<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 							</h:outputText>
 						<f:verbatim></p></f:verbatim>						
-						<h:panelGroup style="display:block;float:right;width:15%;text-align:right;font-weight:bold">
+						<h:panelGroup rendered="#{ForumTool.instructor}" style="display:block;float:right;width:15%;text-align:right;font-weight:bold">
 							<h:commandLink action="#{ForumTool.processActionDisplayInThread}" title=" #{msgs.stat_display_in_thread}" >
 								<f:param value="#{stat.forumId}" name="forumId"/>
 		  				  		<f:param value="#{stat.topicId}" name="topicId"/>
