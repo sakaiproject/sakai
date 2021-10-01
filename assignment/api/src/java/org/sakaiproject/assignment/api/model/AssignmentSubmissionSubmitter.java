@@ -96,9 +96,9 @@ public class AssignmentSubmissionSubmitter {
     @Column(name = "TIME_SPENT", length = 255)
     private String timeSpent;
 
-    @OneToMany(mappedBy = "submitter", cascade = CascadeType.ALL, orphanRemoval = true)
-	@OrderBy("regDate ASC")
+    @OneToMany(mappedBy = "assignmentSubmissionSubmitter", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OrderBy("startTime ASC")
     @JsonManagedReference
-    private Set<AssignmentTimeSheet> timeSheet = new HashSet<>();
+    private Set<TimeSheetEntry> timeSheetEntries = new HashSet<>();
     
 }

@@ -24,7 +24,7 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.serialization.SerializableRepository;
 
 /**
@@ -56,6 +56,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     void updateSubmission(AssignmentSubmission submission);
 
     boolean existsSubmission(String submissionId);
+
+    boolean existsSubmissionSubmitter(Long submissionSubmitterId);
 
     AssignmentSubmission newSubmission(String assignmentId,
                        Optional<String> groupId,
@@ -93,12 +95,12 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
 
-    public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
+    void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry);
 
-    public boolean existsAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
+    boolean existsTimeSheetEntry(Long timeSheetId);
 
-    public AssignmentTimeSheet findTimeSheet(Long timeSheetId);
+    TimeSheetEntry findTimeSheetEntry(Long timeSheetId);
 
-    public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet);
+    void deleteTimeSheetEntry(Long timeSheetId);
 
 }

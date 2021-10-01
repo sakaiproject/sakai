@@ -851,7 +851,7 @@ ASN.toggleAutoAnnounceEstimate = function(checked){
     const reqEstimate = document.getElementById('checkreqestimate');
     const timeEstimate = document.getElementById('inputtimestimate');
     const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
-    const reqEstimateCheck = document.getElementById('new_assignment_check_add_req_estimate');
+    const reqEstimateCheck = document.getElementById('new_assignment_check_add_estimate_required');
     
     const display = checked ? 'block': 'none';
     const resizeState = checked ? 'grow': 'shrink';
@@ -973,20 +973,18 @@ ASN.changeVisibleDate = function()
 	}
 }
 
-// SAK-43155
 ASN.enableTimesheetSetupSection = function()
 {
     const el = document.getElementById('timesheetsetupsection');
     el && (el.style.display = 'block');
 }
 
-// SAK-43155
 ASN.disableTimesheetSetupSection = function()
 {
     const el = document.getElementById('timesheetsetupsection');
     el && (el.style.display = 'none');
     
-    const el2 = document.getElementById('new_assignment_check_add_is_estimate');
+    const el2 = document.getElementById('new_assignment_check_add_estimate');
     el2 && (el2.checked = false);
     
     ASN.toggleAutoAnnounceEstimate(false);

@@ -33,7 +33,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -759,6 +759,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
+    boolean isTimeSheetEnabled(String siteId);
+
     /**
      * This will return the internationalized title of the tool.
      * This is used when creating a new gradebook item.
@@ -819,13 +821,13 @@ public interface AssignmentService extends EntityProducer {
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
 
-    public boolean timeHasCorrectFormat(String timeSheet);
+    public boolean isValidTimesheetTime(String timeSheet);
 
-    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException;
+    public TimeSheetEntry getTimeSheetEntry(Long timeSheetId) throws PermissionException;
 	
-    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException;
+    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheet) throws PermissionException;
 
-    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException;
+    public void deleteTimeSheetEntry(Long timeSheetId) throws PermissionException;
 
     public String getTimeSpent(AssignmentSubmission submission);
 

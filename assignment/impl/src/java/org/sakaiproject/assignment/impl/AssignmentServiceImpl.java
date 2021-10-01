@@ -53,7 +53,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -92,7 +91,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -119,7 +118,6 @@ import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -252,6 +250,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
 
+    private Pattern timesheetTimePattern;
+
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
     public void init() {
@@ -282,23 +282,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         // this is needed to avoid a circular dependency, notice we set the AssignmentService proxy and not this
         assignmentSupplementItemService.setAssignmentService(applicationContext.getBean(AssignmentService.class));
 
-        try {
-            this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-        }catch(NullPointerException npe) {
-            this.pattern = Pattern.compile("");
-        }
-
         userMessagingService.importTemplateFromResourceXmlFile("templates/releaseGrade.xml", AssignmentConstants.TOOL_ID + ".releasegrade");
         userMessagingService.importTemplateFromResourceXmlFile("templates/releaseResubmission.xml", AssignmentConstants.TOOL_ID + ".releaseresubmission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/submission.xml", AssignmentConstants.TOOL_ID + ".submission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/dueReminder.xml", AssignmentConstants.TOOL_ID + ".duereminder");
 
-        try {
-            this.pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-        }catch(NullPointerException npe) {
-            this.pattern = Pattern.compile("");
-        }
+        timesheetTimePattern = Pattern.compile(serverConfigurationService.getString("assignment.timesheet.timePattern", SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT));
+    }
 
+    @Override
+    public boolean isTimeSheetEnabled(String siteId) {
+        List<String> timesheetConfig = serverConfigurationService.getStringList(SAK_PROP_ASSIGNMENT_TIMESHEET_SITES_ALLOWED, Collections.singletonList("none"));
+
+        // TODO logic for determining whether this feature is enabled in the current site
+        return Stream.of("all", siteId).filter(Objects::nonNull).anyMatch(timesheetConfig::contains);
     }
 
     @Override
@@ -861,33 +858,38 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public void setTimeSheet(AssignmentTimeSheet timeSheet, String siteId) throws PermissionException {
-        // security check
-        if (!allowAddSubmission(siteId)) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
+    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) throws PermissionException {
+        if (submissionSubmitter != null && timeSheetEntry != null) {
+            AssignmentSubmission submission = submissionSubmitter.getSubmission();
+            String siteId = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getContext();
+            if (!allowUpdateSubmission(siteId)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+            }
+            assignmentRepository.newTimeSheetEntry(submissionSubmitter, timeSheetEntry);
+            log.debug("Add time sheet entry for submitter: {}", submissionSubmitter);
         }
-        assignmentRepository.newAssignmentTimeSheet(timeSheet);
-        log.debug("Created new timeSheet {}", timeSheet.getId());
     }
 
     @Override
     @Transactional
-    public void deleteTimeSheet(AssignmentTimeSheet timeSheet) throws PermissionException {
-        // security check
-        if (!allowAddSubmission(timeSheet.getSubmitter().getSubmission().getAssignment().getContext())) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_TIMESHEET, null);
+    public void deleteTimeSheetEntry(Long timeSheetEntryId) throws PermissionException {
+        TimeSheetEntry timeSheetEntry = getTimeSheetEntry(timeSheetEntryId);
+        if (timeSheetEntry != null) {
+            String siteId = AssignmentReferenceReckoner.reckoner().submission(timeSheetEntry.getAssignmentSubmissionSubmitter().getSubmission()).reckon().getContext();
+            if (!allowAddSubmission(siteId)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+            }
+            assignmentRepository.deleteTimeSheetEntry(timeSheetEntryId);
+            log.debug("Deleting time sheet entry: {}", timeSheetEntryId);
+        } else {
+            log.warn("Attempted to delete time sheet entry: {} however it does not exist.", timeSheetEntryId);
         }
-        assignmentRepository.deleteAssignmentTimeSheet(timeSheet);
-        log.debug("Remove timeSheet {}", timeSheet.getId());
     }
 
     public String getTimeSpent(AssignmentSubmission submission) {
-        Optional<AssignmentSubmissionSubmitter> ass = getSubmissionSubmittee(submission);
-        if (ass.isPresent()) {
-            return ass.get().getTimeSpent();
-        }
-        return "";
+        return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
+
     private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
@@ -994,7 +996,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // for ContentReview service
                 assignment.setContentReview(existingAssignment.getContentReview());
 
-                assignment.setReqEstimate(existingAssignment.getReqEstimate());
+                assignment.setEstimateRequired(existingAssignment.getEstimateRequired());
                 assignment.setEstimate(existingAssignment.getEstimate());
 
                 //duplicating attachments
@@ -1713,18 +1715,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public AssignmentTimeSheet getTimeSheet(Long timeSheetId) throws PermissionException {
-        AssignmentTimeSheet timeSheet = assignmentRepository.findTimeSheet(timeSheetId);
-        if (timeSheet != null) {
-            String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getSubmitter().getSubmission()).reckon().getReference();
-            if (allowGetSubmission(reference)) {
-                return timeSheet;
+    public TimeSheetEntry getTimeSheetEntry(Long timeSheetId) throws PermissionException {
+        if (timeSheetId != null) {
+            TimeSheetEntry timeSheet = assignmentRepository.findTimeSheetEntry(timeSheetId);
+            if (timeSheet != null) {
+                String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getAssignmentSubmissionSubmitter().getSubmission()).reckon().getReference();
+                if (allowGetSubmission(reference)) {
+                    return timeSheet;
+                } else {
+                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+                }
             } else {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+                // timesheet not found
+                log.debug("TimeSheet does not exist {}", timeSheetId);
             }
-        } else {
-            // submission not found
-            log.debug("TimeSheet ID does not exist {}", timeSheetId);
         }
         return null;
     }
@@ -4084,7 +4088,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setMaxGradePoint(oAssignment.getMaxGradePoint());
                     nAssignment.setScaleFactor(oAssignment.getScaleFactor());
                     nAssignment.setReleaseGrades(oAssignment.getReleaseGrades());
-                    nAssignment.setReqEstimate(oAssignment.getReqEstimate());
+                    nAssignment.setEstimateRequired(oAssignment.getEstimateRequired());
                     nAssignment.setEstimate(oAssignment.getEstimate());
 
                     // If there is a LTI launch associated with this copy it over
@@ -4952,14 +4956,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return dupes;
     }
 
-    public boolean timeHasCorrectFormat(String timeSheet) {
-        Pattern pattern = Pattern.compile(serverConfigurationService.getString("assignment.patternTime"));
-        Matcher match = pattern.matcher(timeSheet);
-
-        if (!match.matches()) {
-            return false;
-        } else {
-            return true;
-        }
+    public boolean isValidTimesheetTime(String time) {
+        return timesheetTimePattern.matcher(time).matches();
     }
 }

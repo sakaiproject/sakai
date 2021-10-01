@@ -3,8 +3,8 @@
 <script>
     window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
     window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
-    window.i18nWlogTab['ts.add.err.regDate']=" $tlang.getString('ts.add.err.regDate')";
-    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.regComment')";
+    window.i18nWlogTab['ts.add.err.startTime']=" $tlang.getString('ts.add.err.startTime')";
+    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.comment')";
     window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
     window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
     window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
@@ -45,7 +45,7 @@
             #foreach ($timeSheetSubmit in $submitter.TimeSheet)
             <tr>
                 <td>
-                    $!service.getUsersLocalDateTimeString($timeSheetSubmit.regDate)
+                    $!service.getUsersLocalDateTimeString($timeSheetSubmit.startTime)
                 </td>
                 <td>
                     $timeSheetSubmit.comment
@@ -85,7 +85,6 @@
     #end
 
     ##BOOTSTRAP SMALL_MODAL
-    ##content: regDate - regComment - duration - submitterId
     <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -104,12 +103,12 @@
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" id="regDate" name="regDate" class="form-control datepicker" value="">
+                                    <input type="text" id="startTime" name="startTime" class="form-control datepicker" value="">
                                 </div>
 
                                 <script type="text/javascript">
                                     localDatePicker({
-                                        input:'#regDate',
+                                        input:'#startTime',
                                         useTime:1,
                                         val:"$value_TsDay$H$value_TsMonth$H$value_TsYear $value_TsHour:$value_TsMin",
                                         parseFormat: 'DD-MM-YYYY HH:mm',

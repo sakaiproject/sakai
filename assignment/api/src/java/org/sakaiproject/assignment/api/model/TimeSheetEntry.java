@@ -52,29 +52,29 @@ import java.time.Instant;
  * Notice that equals and hashcode also reflect this relationship.
  */
 @Entity
-@Table(name = "ASN_TIMESHEET")
+@Table(name = "ASN_SUBMITTER_TIMESHEET")
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"submitter"})
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class AssignmentTimeSheet {
+public class TimeSheetEntry {
 
     @Id
     @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "seq_id_asn_timesheet")
-    @SequenceGenerator(name = "seq_id_asn_timesheet", sequenceName = "SEQ_ID_ASN_TIMESHEET_S")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_submission_submitter_timesheet_sequence")
+    @SequenceGenerator(name = "assignment_submission_submitter_timesheet_sequence", sequenceName = "ASN_SUBMITTER_TIMESHEET_S")
     private Long id;
 
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SUBMITTER_ID", nullable = false)
+    @JoinColumn(name = "SUBMISSION_SUBMITTER_ID", nullable = false)
     @JsonBackReference
-    private AssignmentSubmissionSubmitter submitter;
+    private AssignmentSubmissionSubmitter assignmentSubmissionSubmitter;
 
     @Type(type = "org.hibernate.type.InstantType")
-    @Column(name = "REG_DATE", nullable = false)
-    private Instant regDate;
+    @Column(name = "START_TIME", nullable = false)
+    private Instant startTime;
 
     @Column(name = "DURATION", length = 255)
     private String duration;

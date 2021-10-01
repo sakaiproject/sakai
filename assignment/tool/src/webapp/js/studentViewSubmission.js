@@ -36,12 +36,11 @@ ASN_SVS.undoCancel = function()
 	confirmationDialogue.style.display = "none";
 };
 
-//SAK-43155
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/addTimeSheet.json";
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
-        "tsDate" : document.getElementById("regDate").value,
+        "tsStartTime" : document.getElementById("startTime").value,
         "new_ts_record_day" : document.getElementById("new_ts_record_day").value,
         "new_ts_record_month" : document.getElementById("new_ts_record_month").value,
         "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
@@ -49,8 +48,8 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
 
         "tsComment" : document.getElementById("comment").value,
-        "tsTime" : document.getElementById("duration").value,
-    }
+        "tsDuration" : document.getElementById("duration").value,
+    };
 
     button.classList.add("spinButton");
     button.disabled = true;
@@ -58,7 +57,6 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     ASN_TS_API._POST(endpoint, params, onSuccess, onError);
 };
 
-//SAK-43155
 ASN_TS_API.removeTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/removeTimeSheet.json";
     const params = {
@@ -72,7 +70,6 @@ ASN_TS_API.removeTimeSheet = function (button, onSuccess, onError) {
     ASN_TS_API._POST(endpoint, params, onSuccess, onError);
 };
 
-//SAK-43155
 ASN_TS_API._GET = function (url, data, onSuccess, onError, onComplete) {
     $.ajax(
     {
@@ -86,7 +83,6 @@ ASN_TS_API._GET = function (url, data, onSuccess, onError, onComplete) {
     });
 };
 
-//SAK-43155
 ASN_TS_API._POST = function (url, data, onSuccess, onError, onComplete) {
     $.ajax(
     {
@@ -99,7 +95,6 @@ ASN_TS_API._POST = function (url, data, onSuccess, onError, onComplete) {
     });
 };
 
-//SAK-43155
 ASN.switchTimesheetTab = function (source) {
     if (['tabAssignment', 'tabTimeSheet'].includes(source)) {
         document.getElementById('tabAssignmentCurrent').classList.toggle('hidden');
@@ -111,7 +106,6 @@ ASN.switchTimesheetTab = function (source) {
     }
 };
 
-//SAK-43155
 ASN.tsHandleAjaxAddSuccess = function (data) {
     if (data.error && data.error.message) {
         const button = document.getElementById("btnTimesheetAdd");
@@ -125,7 +119,6 @@ ASN.tsHandleAjaxAddSuccess = function (data) {
     }
 };
 
-//SAK-43155
 ASN.tsHandleAjaxRemoveSuccess = function (data) {
     if (data.error && data.error.message) {
         const button = document.getElementById("btnTimesheetDelete");
@@ -139,7 +132,6 @@ ASN.tsHandleAjaxRemoveSuccess = function (data) {
     }
 };
 
-//SAK-43155
 ASN.tsAddHandleAjaxError = function (xhr) {
     const button = document.getElementById("btnTimesheetAdd");
     button.classList.remove("spinButton");
@@ -148,7 +140,6 @@ ASN.tsAddHandleAjaxError = function (xhr) {
     console.error("Ajax call error when add time sheet register.");
 };
 
-//SAK-43155
 ASN.tsRemoveHandleAjaxError = function (xhr) {
     const button = document.getElementById("btnTimesheetDelete");
     button.classList.remove("spinButton");
@@ -157,14 +148,12 @@ ASN.tsRemoveHandleAjaxError = function (xhr) {
     console.error("Ajax call error when remove time sheet register.");
 };
 
-//SAK-43155
 ASN.checkTimesheetRecord = function () {
     const selected = document.querySelectorAll("input[name='selectedTimesheet']:checked").length > 0;
     document.getElementById("btnTimesheetDelete").disabled = !selected;
     document.getElementById("btnTimesheetDelete").className = (selected ? "btn btn-primary active" : "");
 };
 
-//SAK-43155
 ASN.checkTimesheetSpent = function (totalTimeRecord) {
     if (document.getElementById("timeTimesheet")?.checked) {
         document.getElementById("assignment_input_add_time_spent").disabled = true;

@@ -479,34 +479,34 @@
 				$tlang.getString("gen.estimate")
 			</h4>
 	
-			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
+			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
 				<div class="checkbox">
-					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
+					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE">
+					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
 					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
 					#end
 						$tlang.getString("gen.isestimate")
 					</label>
 				</div>
 	
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
+				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
 					<div id="checkreqestimate" class="checkbox">
 				#else
 					<div id="checkreqestimate" style="display:none" class="checkbox">
 				#end
-					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE.equals("true"))
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" type="checkbox" value="true" checked="checked" />
+					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
+					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" checked="checked" />
 					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE" type="checkbox" value="true" />
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" />
 					#end
 						$tlang.getString("gen.reqestimate")
 					</label>
 				</div>
 				
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)
+				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
 					<div id="inputtimestimate" class="form-group row form-required">
 				#else
 					<div id="inputtimestimate" style="display:none" class="form-group row form-required">

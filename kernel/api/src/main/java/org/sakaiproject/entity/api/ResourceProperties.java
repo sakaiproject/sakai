@@ -191,8 +191,8 @@ public interface ResourceProperties extends Serializable
 	static final String PROP_SECURED = "SAKAI:secured";
 
 	/** Property for whether an assignment's on estimate time. [String] */
-	static final String NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE = "new_assignment_check_add_is_estimate";
-	static final String NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE = "new_assignment_check_add_req_estimate";
+	static final String NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE = "new_assignment_check_add_estimate";
+	static final String NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED = "new_assignment_check_add_estimate_required";
 	static final String NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE = "new_assignment_input_add_time_estimate";
 	static final String ASSIGNMENT_INPUT_ADD_TIME_SPENT = "assignment_input_add_time_spent";
 	
@@ -448,18 +448,18 @@ public interface ResourceProperties extends Serializable
 	String getNamePropNewAssignmentCheckAddDueDate();
 
 	/**
-	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
 	 * 
-	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
 	 */
-	String getNamePropNewAssignmentCheckAddIsEstimate();
+	String getNamePropNewAssignmentCheckAddEstimate();
 	
 	/**
-	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
 	 * 
-	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
 	 */
-	String getNamePropNewAssignmentCheckAddReqEstimate();
+	String getNamePropNewAssignmentCheckAddEstimateRequired();
 	
 	/**
 	 * Get the static String of NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE

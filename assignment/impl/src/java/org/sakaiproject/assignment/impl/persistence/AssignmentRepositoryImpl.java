@@ -42,7 +42,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -102,25 +102,29 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void newAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
-        if (!existsAssignmentTimeSheet(timeSheet)) {
-            geCurrentSession().persist(timeSheet);
+    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) {
+        if (existsSubmissionSubmitter(submissionSubmitter.getId()) && !existsTimeSheetEntry(timeSheetEntry.getId())) {
+            timeSheetEntry.setAssignmentSubmissionSubmitter(submissionSubmitter);
+            submissionSubmitter.getTimeSheetEntries().add(timeSheetEntry);
+            geCurrentSession().merge(submissionSubmitter);
         }
     }
 
     @Override
     @Transactional
-    public void deleteAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
-        if(timeSheet!= null) {
-            geCurrentSession().delete(geCurrentSession().merge(timeSheet));
+    public void deleteTimeSheetEntry(Long timeSheetId) {
+        TimeSheetEntry timeSheetEntry = geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
+        if (timeSheetEntry != null) {
+            log.info("Deleting time sheet entry: {}", timeSheetEntry);
+            timeSheetEntry.getAssignmentSubmissionSubmitter().getTimeSheetEntries().remove(timeSheetEntry);
+            geCurrentSession().delete(timeSheetEntry);
         }
     }
 
     @Override
     @Transactional
-    public boolean existsAssignmentTimeSheet(AssignmentTimeSheet timeSheet) {
-        Long timeSheetId = timeSheet.getId();
-        return timeSheetId != null || geCurrentSession().get(AssignmentTimeSheet.class, timeSheetId) != null;
+    public boolean existsTimeSheetEntry(Long timeSheetId) {
+        return timeSheetId != null && geCurrentSession().get(TimeSheetEntry.class, timeSheetId) != null;
     }
 
     @Override
@@ -163,12 +167,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public AssignmentSubmission findSubmission(String submissionId) {
-        return (AssignmentSubmission) geCurrentSession().get(AssignmentSubmission.class, submissionId);
+        return geCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
     @Override
-    public AssignmentTimeSheet findTimeSheet(Long timeSheetId) {
-        return (AssignmentTimeSheet) geCurrentSession().get(AssignmentTimeSheet.class, timeSheetId);
+    public TimeSheetEntry findTimeSheetEntry(Long timeSheetId) {
+        return geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
     }
     
     @Override
@@ -184,6 +188,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public boolean existsSubmission(String submissionId) {
         if (submissionId != null && geCurrentSession().get(AssignmentSubmission.class, submissionId) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean existsSubmissionSubmitter(Long submissionSubmitterId) {
+        if (submissionSubmitterId != null && geCurrentSession().get(AssignmentSubmissionSubmitter.class, submissionSubmitterId) != null) {
             return true;
         }
         return false;

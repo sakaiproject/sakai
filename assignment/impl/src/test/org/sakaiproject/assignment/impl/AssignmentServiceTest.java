@@ -66,7 +66,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -1411,16 +1411,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             BeanUtils.copyProperties(s, submitter);
             submitter.setId(null);
             submitter.setSubmission(duplicateSubmission);
-            submitter.setTimeSheet(new HashSet<>());
-            s.getTimeSheet().forEach(ts -> {
-                AssignmentTimeSheet timeSheet = new AssignmentTimeSheet();
+            submitter.setTimeSheetEntries(new HashSet<>());
+            s.getTimeSheetEntries().forEach(ts -> {
+                TimeSheetEntry timeSheet = new TimeSheetEntry();
                 BeanUtils.copyProperties(ts, timeSheet);
                 timeSheet.setId(null);
                 timeSheet.setComment(ts.getComment());
-                timeSheet.setRegDate(ts.getRegDate());
+                timeSheet.setStartTime(ts.getStartTime());
                 timeSheet.setDuration(ts.getDuration());
-                timeSheet.setSubmitter(submitter);
-                submitter.getTimeSheet().add(timeSheet);
+                timeSheet.setAssignmentSubmissionSubmitter(submitter);
+                submitter.getTimeSheetEntries().add(timeSheet);
             });
             duplicateSubmission.getSubmitters().add(submitter);
         });

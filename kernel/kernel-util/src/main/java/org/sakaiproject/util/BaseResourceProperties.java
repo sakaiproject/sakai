@@ -731,25 +731,25 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 	}
 	
 	/**
-	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
 	 * 
-	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
 	 */
 	@Override
-	public String getNamePropNewAssignmentCheckAddIsEstimate()
+	public String getNamePropNewAssignmentCheckAddEstimate()
 	{
-		return NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE;
+		return NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE;
 	}
 	
 	/**
-	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
 	 * 
-	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
 	 */
 	@Override
-	public String getNamePropNewAssignmentCheckAddReqEstimate()
+	public String getNamePropNewAssignmentCheckAddEstimateRequired()
 	{
-		return NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE;
+		return NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED;
 	}
 	
 	/**

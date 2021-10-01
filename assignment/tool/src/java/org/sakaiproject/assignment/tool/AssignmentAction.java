@@ -123,7 +123,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.util.StringUtil;
 import org.json.simple.JSONObject;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -145,7 +144,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
-import org.sakaiproject.assignment.api.model.AssignmentTimeSheet;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
@@ -1768,9 +1767,9 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
 
-            if(submitterA.isPresent() && !submitterA.get().getTimeSheet().isEmpty()) {
+            if(submitterA.isPresent() && !submitterA.get().getTimeSheetEntries().isEmpty()) {
                 String timeSpent = "";
-               	timeSpent = getTotalTimeSheet(submitterA.get().getTimeSheet());
+               	timeSpent = getTotalTimeSheet(submitterA.get().getTimeSheetEntries());
                 state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
                 isAnyRegTimeSheet = true;
             }
@@ -2574,7 +2573,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             boolean isAnyRegTimeSheet = false;
-            if (submissionSubmitter.isPresent() && !submissionSubmitter.get().getTimeSheet().isEmpty()) {
+            if (submissionSubmitter.isPresent() && !submissionSubmitter.get().getTimeSheetEntries().isEmpty()) {
             	isAnyRegTimeSheet = true;
            		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             }
@@ -2821,12 +2820,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(PEER_ATTACHMENTS, entityManager.newReferenceList());
         context.put(PEER_ATTACHMENTS, entityManager.newReferenceList());
 
-        // set visible time context variables
-        boolean isTimesheet = false;
-        if (serverConfigurationService.getStrings("assignment.estimate.timesheet.active")!=null && ("all".equals(serverConfigurationService.getString("assignment.estimate.timesheet.active", "none")) || Arrays.asList(serverConfigurationService.getStrings("assignment.estimate.timesheet.active")).contains(contextString))) {
-            isTimesheet = true;
-        }
-        context.put("isTimesheet", isTimesheet);
+        // set time sheet visibility
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled(contextString));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_LIST_ASSIGNMENTS;
@@ -2967,8 +2962,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE", AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE);
         context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE", AssignmentConstants.NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE);
 
-        context.put("name_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE);
-        context.put("name_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE);
+        context.put("name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE);
+        context.put("name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED);
         context.put("name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE", ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
 
         context.put("name_title", NEW_ASSIGNMENT_TITLE);
@@ -3160,8 +3155,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 
-        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE));
-        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE));
+        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE));
+        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED));
         context.put("value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE));
 
         // don't show the choice when there is no Announcement tool yet
@@ -3260,12 +3255,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         rangeAndGroups.setAssignmentFormContext(state, context, contextString, this);
 
-        // set visible time context variables
-        boolean isTimesheet = false;
-        if (serverConfigurationService.getStrings("assignment.estimate.timesheet.active")!=null && ("all".equals(serverConfigurationService.getString("assignment.estimate.timesheet.active", "none")) || Arrays.asList(serverConfigurationService.getStrings("assignment.estimate.timesheet.active")).contains(contextString))) {
-            isTimesheet = true;
-        }
-        context.put("isTimesheet", isTimesheet);
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled(contextString));
 
         // the notification email choices
         // whether the choice of emails instructor submission notification is available in the installation
@@ -3588,8 +3578,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
-        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE));
-        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE));
+        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE));
+        context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED));
         context.put("value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE));
 
         context.put("value_CheckAnonymousGrading", Boolean.FALSE);
@@ -4846,8 +4836,8 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("scheduled", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
             context.put("announced", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 
-            context.put("value_NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE));
-            context.put("value_NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE));
+            context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE));
+            context.put("value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED));
             context.put("value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE));
 
             Map<String, Reference> attachmentReferences = new HashMap<>();
@@ -5338,11 +5328,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("currentTime", Instant.now());
 
         // set visible time context variables
-        boolean isTimesheet = false;
-        if (serverConfigurationService.getStrings("assignment.estimate.timesheet.active")!=null && ("all".equals(serverConfigurationService.getString("assignment.estimate.timesheet.active", "none")) || Arrays.asList(serverConfigurationService.getStrings("assignment.estimate.timesheet.active")).contains(contextString))) {
-            isTimesheet = true;
-        }
-        context.put("isTimesheet", isTimesheet);
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled(contextString));
 
         add2ndToolbarFields(data, context);
 
@@ -5639,7 +5625,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (StringUtils.isNotBlank(submitter.getTimeSpent())) {
                         submissionTimeSpent = submitter.getTimeSpent();
                     }
-                        timeSpent = getTotalTimeSheet(submitter.getTimeSheet());
+                        timeSpent = getTotalTimeSheet(submitter.getTimeSheetEntries());
                 }
                 state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
                 state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
@@ -6925,33 +6911,34 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             } else if (submissionType == Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION) {
                 // for the attachment only submission
-                List v = getNonInlineAttachments(state, assignment);
-                if ((v == null) || (v.size() == 0)) {
+                List<Reference> v = getNonInlineAttachments(state, assignment);
+                if (v.isEmpty()) {
                     addAlert(state, rb.getString("youmust1"));
                 }
             } else if (submissionType == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
                 // for the single uploaded file only submission
-                List v = getNonInlineAttachments(state, assignment);
-                if ((v == null) || (v.size() != 1)) {
+                List<Reference> v = getNonInlineAttachments(state, assignment);
+                if (v.size() != 1) {
                     addAlert(state, rb.getString("youmust8"));
                 }
             } else {
                 // for the inline and attachment submission / other submission types
                 // There must be at least one thing submitted: inline text or at least one attachment
-                List v = getNonInlineAttachments(state, assignment);
-                if (textIsEmpty && (v == null || v.size() == 0)) {
+                List<Reference> v = getNonInlineAttachments(state, assignment);
+                if (textIsEmpty && v.isEmpty()) {
                     addAlert(state, rb.getString("youmust2"));
                 }
             }
-            String timeSheet = (String)state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
-            if(StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getReqEstimate()) {
-    	        if (StringUtils.isBlank(timeSheet)) {
+
+            String timeSpent = (String)state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
+            if (StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getEstimateRequired()) {
+                if (StringUtils.isBlank(timeSpent)) {
     	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
+    	        } else if (!assignmentService.isValidTimesheetTime(timeSpent)) {
     	            addAlert(state, rb.getFormattedMessage("timeformat"));
     	        }
             }
-            if (StringUtils.isNotBlank(timeSheet) && !assignmentService.timeHasCorrectFormat(timeSheet)) {
+            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimesheetTime(timeSpent)) {
             	addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7136,12 +7123,12 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getString("assig3"));
         }
 
-        if(params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE) != null
-                && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if(params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) != null
+                && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
             String timeSheet = params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
             if (StringUtils.isBlank(timeSheet)) {
                 addAlert(state, rb.getString("timeempty"));
-            } else if (!assignmentService.timeHasCorrectFormat(timeSheet)) {
+            } else if (!assignmentService.isValidTimesheetTime(timeSheet)) {
                 addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7489,21 +7476,21 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE) != null
-                && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE, Boolean.TRUE.toString());
-            if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE) != null
-                    && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE, Boolean.TRUE.toString());
+        if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) != null
+                && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE, Boolean.TRUE.toString());
+            if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) != null
+                    && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED, Boolean.TRUE.toString());
             }else {
-                state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE, Boolean.FALSE.toString());
+                state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED, Boolean.FALSE.toString());
             }
             if (params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE) != null) {
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE, params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE));
             }
         }else {
-            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE, Boolean.FALSE.toString());
-            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE, Boolean.FALSE.toString());
+            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE, Boolean.FALSE.toString());
+            state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED, Boolean.FALSE.toString());
             state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE, StringUtils.EMPTY);
         }
 
@@ -8234,11 +8221,11 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean checkIsEstimate = false;
             boolean checkReqEstimate = false;
             String timeEstimate = StringUtils.EMPTY;
-            if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE) != null
-                    && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) != null
+                    && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 checkIsEstimate = Boolean.TRUE;
-                if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE) != null
-                        && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) != null
+                        && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED)).equalsIgnoreCase(Boolean.TRUE.toString())) {
                     checkReqEstimate = Boolean.TRUE;
                 }
                 if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE) != null) {
@@ -9211,7 +9198,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setDropDeadDate(dueTime);
         a.setVisibleDate(visibleTime);
 
-        a.setReqEstimate(checkReqEstimate);
+        a.setEstimateRequired(checkReqEstimate);
         a.setEstimate(timeEstimate);
         
         if (closeTime != null) a.setCloseDate(closeTime);
@@ -9746,8 +9733,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 
                 if(StringUtils.isNotBlank( a.getEstimate())) {
-                    state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE, Boolean.TRUE);
-                    state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE, a.getReqEstimate().toString());
+                    state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE, Boolean.TRUE);
+                    state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED, a.getEstimateRequired().toString());
                     state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE, a.getEstimate());
                 }
 
@@ -12006,8 +11993,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
         state.removeAttribute(AssignmentConstants.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE);
 
-        state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_IS_ESTIMATE);
-        state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_REQ_ESTIMATE);
+        state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE);
+        state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED);
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
 
         // reset the global navigaion alert flag
@@ -15658,9 +15645,9 @@ public class AssignmentAction extends PagedResourceActionII {
             return timeReturn;
         }
 
-        private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
+        private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
             int totalTime = 0;
-            for (AssignmentTimeSheet assignmentTimeSheet : ats) {
+            for (TimeSheetEntry assignmentTimeSheet : ats) {
                 totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
             }
             return intToTime(totalTime);
@@ -15983,9 +15970,9 @@ public class AssignmentAction extends PagedResourceActionII {
         return timeReturn;
     }
 
-    private String getTotalTimeSheet(Set<AssignmentTimeSheet> ats) {
+    private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
         int totalTime = 0;
-        for (AssignmentTimeSheet assignmentTimeSheet : ats) {
+        for (TimeSheetEntry assignmentTimeSheet : ats) {
             totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
         }
         return intToTime(totalTime);
