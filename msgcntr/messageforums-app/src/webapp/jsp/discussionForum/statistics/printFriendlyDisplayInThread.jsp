@@ -28,7 +28,7 @@
 			</li>	
 		</ul>
 		 <f:verbatim><div class="breadCrumb idnt2"><h3></f:verbatim>
-			<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
+			<h:outputText value="#{msgs.cdfm_discussions}"/>
 			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			<h:outputText value="#{msgs.stat_list}"/>
 			<h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " />

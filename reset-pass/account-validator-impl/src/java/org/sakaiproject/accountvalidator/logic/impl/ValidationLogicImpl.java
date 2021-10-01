@@ -49,8 +49,8 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -503,7 +503,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String userReference = userDirectoryService.userReference(account.getUserId());
 		List<String> userIds = new ArrayList<>();
 		List<String> emailAddresses = new ArrayList<>();
-		Map<String, String> replacementValues = new HashMap<>();
+		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("validationToken", account.getValidationToken());
 		//get the url
 		Map<String, String> parameters = new  HashMap<>();

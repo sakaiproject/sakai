@@ -173,7 +173,7 @@
         <property name="fileArchiveUtil" ref="org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil"/>
         <property name="headerRowPresent" value="false"/>
         <property name="archive" value="false"/>
-        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>

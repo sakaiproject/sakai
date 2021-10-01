@@ -47,7 +47,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -209,7 +209,7 @@ public class CheckValidations implements Job {
 				
 				
 				
-				Map<String, String> replacementValues = new HashMap<String, String>();
+				Map<String, Object> replacementValues = new HashMap<>();
 				replacementValues.put("userList", userText.toString());
 				replacementValues.put("creatorName", creator.getDisplayName());
 				replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());

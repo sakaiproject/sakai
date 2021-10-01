@@ -549,6 +549,11 @@ $(document).ready(function(){
 								<input type="hidden" name="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
 							#end
 							</p>
+							#set($contextkey = "ckeditor-autosave-context")
+  						        #set($entitykey = "ckeditor-autosave-entity-id")
+							#set($entityval = "$assignment.Id")
+                        				<input type="hidden" id="$contextkey" name="$contextkey" value="asn_student_view">
+                        				<input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
 							<table border="0">
 								<tr>
 									<td>

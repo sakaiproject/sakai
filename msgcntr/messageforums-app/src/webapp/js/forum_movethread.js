@@ -167,15 +167,15 @@ Licenses.
         var topics= getJSONData("topics").topics;
         var totalTopics= topics.length;
         for (var j = 0; j < totalTopics; j++) {
-		var sourcetitle = $(".sourcetitle").text();
-		var currtopic = topics[j].topictitle ;
-		if ( sourcetitle == currtopic) { 
-			// if current topic, greyed out disable radio selection
-            		itemHTML += makeSourceListItemDisabled(topics[j]);
-		}
-		else {
-            		itemHTML += makeSourceListItem(topics[j]);
-		}
+            var sourcetopicid = $("[id^='sourcetopicid-']")[0].id.split("-")[1];
+            var currtopicid = topics[j].topicid;
+            if (sourcetopicid == currtopicid) {
+                // if current topic, greyed out disable radio selection
+                itemHTML += makeSourceListItemDisabled(topics[j]);
+            }
+            else {
+                itemHTML += makeSourceListItem(topics[j]);
+            }
         }
         $(sourceList).html(itemHTML);
 /*

@@ -47,6 +47,9 @@
 
 <h3><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">
+    <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_editPart" /></f:verbatim>
+    <h:panelGroup rendered="#{sectionBean.sectionId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{sectionBean.sectionId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
     <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>

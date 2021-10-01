@@ -69,6 +69,9 @@
 			</h:panelGrid>
 
 			<p class="longtext">
+				<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="syllabus_read" /></f:verbatim>
+				<h:panelGroup rendered="#{SyllabusTool.syllabusDataId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{SyllabusTool.syllabusDataId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+
 				<label for="" style="float:none;display:block"> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
 				</label>

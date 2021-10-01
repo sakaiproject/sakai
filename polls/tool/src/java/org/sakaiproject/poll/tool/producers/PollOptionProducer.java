@@ -186,7 +186,10 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		UIForm form = UIForm.make(tofill,"opt-form");
 
 		//UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
-
+		
+		if ((option != null) && (option.getId() != null) && (! option.getId().equalsIgnoreCase("null"))) {
+		    UIInput.make(form, "ckeditor-autosave-entity-id", "#{option.id}", option.getId());    
+		}
 
 		if (option.getText() == null)
 			option.setText("");

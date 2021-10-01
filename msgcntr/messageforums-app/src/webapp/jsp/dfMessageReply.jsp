@@ -9,7 +9,7 @@
 <f:view>
 
 	<sakai:view title="#{msgs.cdfm_reply_tool_bar_message}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-	<!--jsp/dfMessageReplyThread.jsp-->    
+	<!--jsp/dfMessageReply.jsp-->    
 		<h:form id="dfCompose" styleClass="specialLink">
 			<f:verbatim><input type="hidden" id="currentMessageId" name="currentMessageId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedMessage.message.id}"/><f:verbatim>"/></f:verbatim>
 			<f:verbatim><input type="hidden" id="currentTopicId" name="currentTopicId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedTopic.topic.id}"/><f:verbatim>"/></f:verbatim>
@@ -116,6 +116,9 @@
 					<h:outputText value="#{msgs.cdfm_message_insert}" />
 				</a>
 		   	</div>
+	    <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="forums_dfMessageReploy" /></f:verbatim>
+       	    <h:panelGroup rendered="#{ForumTool.selectedMessage.message.id!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{ForumTool.selectedMessage.message.id}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+
             <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 			</sakai:inputRichText>
 			<script>

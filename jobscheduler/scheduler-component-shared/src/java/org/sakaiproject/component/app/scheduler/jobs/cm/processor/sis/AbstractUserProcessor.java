@@ -19,7 +19,7 @@ import lombok.Setter;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.scheduler.jobs.cm.processor.BaseCsvFileProcessor;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 abstract class AbstractUserProcessor extends BaseCsvFileProcessor {

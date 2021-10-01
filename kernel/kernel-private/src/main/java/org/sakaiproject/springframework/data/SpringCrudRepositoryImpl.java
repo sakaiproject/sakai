@@ -22,6 +22,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -104,8 +107,17 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     }
 
     @Override
-    public Iterable<T> findAll() {
+    public List<T> findAll() {
         return (List<T>) startCriteriaQuery().list();
+    }
+
+    @Override
+    public Page<T> findAll(Pageable pageable) {
+
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(domainClass);
+        criteria.setFirstResult((int) pageable.getOffset());
+        criteria.setMaxResults((int) pageable.getPageSize());
+        return new PageImpl(criteria.list());
     }
 
     @Override

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+  <emailTemplate>
+    <subject>${senderDisplayName} ${bundle["email.connectionconfirm.subject"]} ${localSakaiName}</subject>
+    <message>${senderDisplayName} ${bundle["email.connectionconfirm.subject"]} ${localSakaiName}
+
+    ${bundle["email.connectionconfirm.toview1"]} ${senderDisplayName} ${bundle["email.connectionconfirm.toview2"]}
+${connectionLink}
+
+    </message>
+    <messagehtml>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+&lt;p&gt;
+${bundle["email.connectionconfirm.toview1"]} ${senderDisplayName} ${bundle["email.connectionconfirm.toview2"]}
+&lt;br /&gt;&lt;a href="${connectionLink}"&gt;${connectionLink}&lt;/a&gt;
+&lt;/p&gt;
+    </messagehtml>
+	  <version>1</version>
+	  <owner>admin</owner>
+	  <key>sakai.profile2.connectionConfirm</key>
+    <locale></locale>
+    <localeLangTag></localeLangTag>
+  </emailTemplate>
+</emailTemplates>

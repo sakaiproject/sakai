@@ -64,7 +64,7 @@
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
 	</bean>
 	

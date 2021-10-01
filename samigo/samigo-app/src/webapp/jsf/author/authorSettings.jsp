@@ -203,6 +203,8 @@ if (releaseToVal === 'Anonymous Users') {
 
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
+  <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_authorSettings" /></f:verbatim>
+  <h:panelGroup rendered="#{assessmentSettings.assessmentId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{assessmentSettings.assessmentId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs" value="#{assessmentSettings.blockDivs}"/>
   <h:inputHidden id="itemNavigationUpdated" value="false" />

@@ -195,6 +195,11 @@
 						#end
 						<table border="0"><tr><td>
 						#if(!$view_only)
+						        #set($contextkey = "ckeditor-autosave-context")
+					                #set($entitykey = "ckeditor-autosave-entity-id")
+						        #set($entityval = "$submissionReference")
+                        			        <input type="hidden" id="$contextkey" name="$contextkey" value="asn_student_review">
+                        			        <input type="hidden" id="$entitykey" name="$entitykey" value="$entityval">
 							<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$formattedText.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
 							#chef_setupformattedtextarea($name_feedback_comment)
 						#else

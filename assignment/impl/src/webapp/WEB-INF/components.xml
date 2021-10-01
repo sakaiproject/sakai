@@ -28,8 +28,6 @@
         </property>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="contentReviewService" ref="org.sakaiproject.contentreview.service.ContentReviewService"/>
-        <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
-        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="emailUtil" ref="org.sakaiproject.assignment.impl.EmailUtil"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
@@ -258,7 +256,7 @@
           class="org.sakaiproject.assignment.impl.reminder.AssignmentDueReminderServiceImpl"
           init-method="init" destroy-method="destroy">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />

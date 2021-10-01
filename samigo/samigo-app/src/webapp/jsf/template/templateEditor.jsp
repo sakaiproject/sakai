@@ -96,7 +96,8 @@
       <h:inputText id="template_title" value="#{template.templateName}" size="30" maxlength="255"/>
 
       <!-- WYSIWYG -->
-
+      <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_templateEditor" /></f:verbatim>
+      <h:panelGroup rendered="#{template.idString!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{template.idString}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
       <h:outputLabel value="#{templateMessages.description_intro_opt}"/>
      <samigo:wysiwyg rows="140" value="#{template.templateDescription}" hasToggle="yes" >
        <f:validateLength maximum="4000"/>

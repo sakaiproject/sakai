@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+<emailTemplate>
+  <subject>[${localSakaiName}] ${bundle["noti.releasegrade.subject.content"]}</subject>
+  <message>${bundle["noti.site.title"]} ${siteTitle}
+    ${bundle["noti.site.url"]} &lt;a href="${siteUrl}"&gt;${siteUrl}&lt;/a&gt;
+
+    &lt;#if canSubmit>
+        ${bundle["noti.releaseresubmission.text"]?replace("{0}", assignmentTitle)?replace("{1}", assignmentUrl)}
+    &lt;#else&gt;
+        ${bundle["noti.releaseresubmission.noresubmit.text"]?replace("{0}", assignmentTitle)?replace("{1}", assignmentUrl)}
+    &lt;/#if&gt;
+  </message>
+  <messagehtml>${bundle["noti.site.title"]} ${siteTitle}
+    ${bundle["noti.site.url"]} &lt;a href="${siteUrl}">${siteUrl}&lt;/a&gt;
+    &lt;br /&gt;
+    &lt;#if canSubmit>
+        ${bundle["noti.releaseresubmission.text"]?replace("{0}", assignmentTitle)?replace("{1}", assignmentUrl)}
+    &lt;#else&gt;
+        ${bundle["noti.releaseresubmission.noresubmit.text"]?replace("{0}", assignmentTitle)?replace("{1}", assignmentUrl)}
+    &lt;/#if&gt;
+  </messagehtml>
+  <version>1</version>
+  <owner>admin</owner>
+  <key>sakai.assignment.grades.releaseresubmission</key>
+  <locale></locale>
+  <localeLangTag></localeLangTag>
+</emailTemplate>
+</emailTemplates>

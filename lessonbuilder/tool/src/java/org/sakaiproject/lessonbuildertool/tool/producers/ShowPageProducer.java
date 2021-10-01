@@ -1233,8 +1233,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(tofill, "lessonsSubnavItemId")
 			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
 
+		String currentPageId = String.valueOf(simplePageBean.getCurrentPage().getPageId());
 		UIOutput.make(tofill, "lessonsCurrentPageId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+		    .decorate(new UIFreeAttributeDecorator("value", currentPageId));
+		UIOutput.make(tofill, "ckeditor-autosave-entity-id")
+		    .decorate(new UIFreeAttributeDecorator("name", "ckeditor-autosave-entity-id"))
+		    .decorate(new UIFreeAttributeDecorator("value", currentPageId));
 	}
 
 	public void printSubpage(List<SimplePageItem> itemList, boolean first, UIBranchContainer sectionWrapper, UIBranchContainer sectionContainer, UIBranchContainer columnContainer, UIBranchContainer tableContainer, 
