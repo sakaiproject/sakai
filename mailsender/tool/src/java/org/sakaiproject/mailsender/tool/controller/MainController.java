@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,6 +52,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailEntry;
+import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 import org.sakaiproject.util.Web;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -86,6 +88,8 @@ public class MainController {
     private static final String TEMPLATE_COMPOSE = "compose";
     private static final String REDIRECT_COMPOSE = "redirect:/compose";
     private static final String TEMPLATE_RESULTS = "results";
+    private static final String TEMPLATE_OPTIONS = "options";
+    private static final String TEMPLATE_PERMISSIONS = "permissions";
             
     private Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
         String userId = sessionManager.getCurrentSessionUserId();
@@ -95,12 +99,12 @@ public class MainController {
         return loc;
     }
 
-    private void addEmailUsers(String fromEmail, HashMap<String, String> emailusers, List<User> users, List<String> invalids) {
+    private void addEmailUsers(String fromEmail, HashMap<String, String> emailusers, List<User> users, Set<String> invalids) {
         for (User user : users) {
             addEmailUser(fromEmail, emailusers, user,invalids);
         }
     }
-    private void addEmailUser(String fromEmail, HashMap<String, String> emailusers, User user, List<String> invalids) {
+    private void addEmailUser(String fromEmail, HashMap<String, String> emailusers, User user, Set<String> invalids) {
         if (!StringUtils.isEmpty(user.getEmail())) {
             if (!fromEmail.equals(user.getEmail())) {
             emailusers.put(user.getEmail(), user.getDisplayName());
@@ -110,7 +114,7 @@ public class MainController {
         }
     }
     //compile the list of emails to send to
-    private HashSet<String> compileEmailList(EmailEntry emailEntry, String fromEmail, HashMap<String, String> emailusers, List<String> invalids) {
+    private HashSet<String> compileEmailList(EmailEntry emailEntry, String fromEmail, HashMap<String, String> emailusers, Set<String> invalids) {
         HashSet<String> badEmails = new HashSet<>();
         if (emailEntry.isAllIds()) {
             try {
@@ -212,6 +216,7 @@ public class MainController {
             fromDisplay = curUser.getDisplayName();
         }
         newEmailEntry.setFrom(fromDisplay + " <" + fromEmail + ">");
+        model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
         model.addAttribute("emailEntry", newEmailEntry);
         model.addAttribute("addedTo", externalLogic.isEmailArchiveAddedToSite());
         model.addAttribute("noemail",StringUtils.isAllEmpty(fromEmail));
@@ -225,16 +230,23 @@ public class MainController {
     public String showOptions(Model model, HttpServletRequest request, HttpServletResponse response) {
         localeResolver(request, response);
         ConfigEntry opconf = configLogic.getConfig();
+        model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
         model.addAttribute("added",externalLogic.isEmailArchiveAddedToSite());
         model.addAttribute("prefix",configLogic.allowSubjectPrefixChange());
         model.addAttribute("config",opconf);
         model.addAttribute("siteID",externalLogic.getSiteID());
-        return "options";
+        return TEMPLATE_OPTIONS;
     }
 
     @RequestMapping(value = {"/options"}, method = RequestMethod.POST)
     public String submitOptions(Model model, HttpServletRequest request, HttpServletResponse response) {
         localeResolver(request, response);
+        Locale loc = localeResolver(request, response);
+        String cancel= request.getParameter("cancel");
+        if (cancel != null && cancel.equals("Cancel")) {
+            return REDIRECT_COMPOSE;
+        }
+        
         ConfigEntry confi = configLogic.getConfig();
         confi.setSendMeACopy(Boolean.parseBoolean(request.getParameter("sendMeACopy")));
         confi.setAddToArchive(Boolean.parseBoolean(request.getParameter("addToArchive")));
@@ -242,20 +254,28 @@ public class MainController {
         confi.setReplyTo(request.getParameter("replyto"));
         confi.setDisplayInvalidEmails(Boolean.parseBoolean(request.getParameter("InvalidEm")));
         confi.setDisplayEmptyGroups(Boolean.parseBoolean(request.getParameter("rcpsempty")));
-        if ("custom".equals(request.getParameter("prefix")) || (request.getParameter("subjectPrefix") != null && !request.getParameter("subjectPrefix").isEmpty())) {
-            confi.setSubjectPrefixType(request.getParameter("prefix"));
-            confi.setSubjectPrefix(request.getParameter("subjectPrefix"));
-        } else {
-            confi.setSubjectPrefixType(request.getParameter("prefix"));
-        }    
+        String reqPrefixType = request.getParameter("prefix");
+        String reqSubjPrefix = request.getParameter("subjectPrefix");
+        
+        if (reqPrefixType != null) {
+            if (SubjectPrefixType.custom.name().equals(reqPrefixType)&& reqSubjPrefix == null || reqSubjPrefix.isEmpty()) {
+                model.addAttribute("error",messageSource.getMessage("custom_prefix_required",null,loc));
+		return TEMPLATE_OPTIONS ;
+            } else {
+                confi.setSubjectPrefixType(reqPrefixType);
+                confi.setSubjectPrefix(reqSubjPrefix);
+		configLogic.saveConfig(confi);
+            }
+	}
+        
         configLogic.saveConfig(confi);
         return REDIRECT_COMPOSE;
     }
 
     @RequestMapping(value = {"/permissions"})
     public String showPermissions(Model model, HttpServletRequest request, HttpServletResponse response) {
-
         localeResolver(request, response);
+        model.addAttribute("notAdmin", externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
         return "permissions";
     }
 
@@ -275,7 +295,8 @@ public class MainController {
         String reqContent = request.getParameter("editor1");
         String reqSubject = request.getParameter("subject");
         String rcptsall = request.getParameter("rcptsall");
-        String reqSendMeACopy = request.getParameter("sendMeACopy");
+        //Get checkboxes values
+        String reqSendMeACopy = request.getParameter("smac");
         String reqAddToArchive = request.getParameter("addToArchive");
         String reqAppendRecipientList = request.getParameter("appendRecipientList");
 
@@ -290,15 +311,10 @@ public class MainController {
         if (StringUtils.isNotBlank(rcptsall)) {
             newEmailEntry.setAllIds(Boolean.parseBoolean(rcptsall));
         }
-        if (StringUtils.isNotBlank(reqSendMeACopy)) {
-            config.setSendMeACopy(Boolean.parseBoolean(reqSendMeACopy));
-        }
-        if (StringUtils.isNotBlank(reqAddToArchive)) {
-            config.setAddToArchive(Boolean.parseBoolean(reqAddToArchive));
-        }
-        if (StringUtils.isNotBlank(reqAppendRecipientList)) {
-            config.setAppendRecipientList(Boolean.parseBoolean(reqAppendRecipientList));
-        }
+        config.setSendMeACopy((reqSendMeACopy != null) ? Boolean.parseBoolean(reqSendMeACopy) : false);
+        config.setAddToArchive((reqAddToArchive != null) ? Boolean.parseBoolean(reqAddToArchive) : false);
+        config.setAppendRecipientList((reqAppendRecipientList != null) ? Boolean.parseBoolean(reqAppendRecipientList) : false);
+
         newEmailEntry.setConfig(config);
         String reqOtherRecipients= request.getParameter("otherRecipients");
         if (StringUtils.isNotBlank(reqOtherRecipients)) {
@@ -314,7 +330,6 @@ public class MainController {
         Map<String, String> groupsIds = new HashMap<>();
         Map<String, String> usersIds = new HashMap<>();
 
-        if (StringUtils.isNotBlank(rcptsall) && Boolean.parseBoolean(rcptsall)) {
             if (roleNameArray != null) {
                 for (String role : roleNameArray) {
                     rolesIds.put(role, role);
@@ -333,7 +348,6 @@ public class MainController {
                 }
                 newEmailEntry.setSectionIds(sectionsIds);
             }
-        }
 
         if (usersNameArray != null) {
             for (String user : usersNameArray) {
@@ -342,12 +356,12 @@ public class MainController {
             newEmailEntry.setUserIds(usersIds);
         }
         HashMap<String, String> emailusers = new HashMap<>();
-        List<String> invalids = new ArrayList<>();
-        compileEmailList(newEmailEntry,fromEmail, emailusers,invalids);
+        Set<String> invalids = new HashSet<>();
+        compileEmailList(newEmailEntry, fromEmail, emailusers, invalids);
         // handle the other recipients
         String otherRecipients = newEmailEntry.getOtherRecipients();
         ArrayList<String> emailOthers = new ArrayList<>();
-        if (StringUtils.isBlank(otherRecipients)) {
+        if (StringUtils.isNotBlank(otherRecipients)) {
             String [] rcpts = otherRecipients.replace(';', ',').split(",");
             for (String rcpt : rcpts) {
                 emailOthers.add(rcpt.trim());
@@ -398,8 +412,10 @@ public class MainController {
             }
             // send the message 
             List<String> invlist = new ArrayList<>();
-            invlist = externalLogic.sendEmail(config, fromEmail, fromDisplay,emailusers, subject, content, attachments);
-            invalids = ListUtils.union(invalids, invlist);
+            invlist = externalLogic.sendEmail(config, fromEmail, fromDisplay, emailusers, subject, content, attachments);
+            if(invlist.size() > 0){
+                invalids.addAll(invlist);
+            }
             // append to the email archive
             String siteId = externalLogic.getSiteID();
             String fromString = fromDisplay + " <" + fromEmail + ">";
@@ -425,6 +441,7 @@ public class MainController {
                 listaus.add(0,curUser.getDisplayName());
             }
             model.addAttribute("listaus",listaus);
+            model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
         } catch (MailsenderException me) {
             //Print this exception
             log.warn(me.getMessage()); 
@@ -432,6 +449,7 @@ public class MainController {
             if (msgs != null) {
                 for (Map<String, Object []> msg : msgs) {     
                     for (Map.Entry<String, Object []> e : msg.entrySet()) {
+                        model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
                         model.addAttribute("emailEntry", newEmailEntry);
                         model.addAttribute("addedTo", externalLogic.isEmailArchiveAddedToSite());
                         model.addAttribute("error",messageSource.getMessage(e.getKey(),e.getValue(), loc));
@@ -442,6 +460,7 @@ public class MainController {
                 }
                 return TEMPLATE_COMPOSE;
             } else {
+                model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
                 model.addAttribute("emailEntry", newEmailEntry);
                 model.addAttribute("addedTo", externalLogic.isEmailArchiveAddedToSite());
                 model.addAttribute("error",messageSource.getMessage("verbatim",new String [] { me.getMessage() }, loc));
@@ -451,6 +470,7 @@ public class MainController {
                 return TEMPLATE_COMPOSE;
             }
         } catch (AttachmentException ae) {
+            model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
             model.addAttribute("emailEntry", newEmailEntry);
             model.addAttribute("addedTo", externalLogic.isEmailArchiveAddedToSite());
             model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
@@ -458,6 +478,7 @@ public class MainController {
             model.addAttribute("comp",composeLogic);
             return TEMPLATE_COMPOSE;
         } catch (IllegalStateException me) {
+            model.addAttribute("notAdmin",externalLogic.isUserAllowedInLocation(externalLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,externalLogic.getCurrentLocationId()));
             model.addAttribute("emailEntry", newEmailEntry);
             model.addAttribute("addedTo", externalLogic.isEmailArchiveAddedToSite());
             model.addAttribute("error", messageSource.getMessage("verbatim", new String [] {me.getMessage()}, loc));
