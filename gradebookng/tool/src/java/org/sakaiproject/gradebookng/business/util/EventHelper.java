@@ -21,8 +21,8 @@ import org.sakaiproject.gradebookng.business.GbEvent;
 import org.sakaiproject.gradebookng.business.GbRole;
 
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.api.Event;
 
@@ -38,8 +38,8 @@ public class EventHelper {
             assignment.getName(),
             String.valueOf(assignment.getPoints()),
             String.valueOf(assignment.getDueDate() == null ? -1 : assignment.getDueDate().getTime()),
-            String.valueOf(assignment.isReleased()),
-            String.valueOf(assignment.isCounted()),
+            String.valueOf(assignment.getReleased()),
+            String.valueOf(assignment.getCounted()),
             assignment.getCategoryId() == null ? "uncategorized" : String.valueOf(assignment.getCategoryId()),
             currentRole.toString().toLowerCase()
         };
@@ -55,8 +55,8 @@ public class EventHelper {
             assignment.getName(),
             String.valueOf(assignment.getPoints()),
             String.valueOf(assignment.getDueDate() == null ? -1 : assignment.getDueDate().getTime()),
-            String.valueOf(assignment.isReleased()),
-            String.valueOf(assignment.isCounted()),
+            String.valueOf(assignment.getReleased()),
+            String.valueOf(assignment.getCounted()),
             assignment.getCategoryId() == null ? "uncategorized" : String.valueOf(assignment.getCategoryId()),
             currentRole.toString().toLowerCase()
         };

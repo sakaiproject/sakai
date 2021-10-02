@@ -40,7 +40,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryDefinition;
 
 @Slf4j
 public class FormatHelper {

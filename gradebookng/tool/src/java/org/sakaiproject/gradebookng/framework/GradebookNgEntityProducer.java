@@ -28,12 +28,11 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -50,17 +49,11 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	protected final static String LABEL = "GradebookNG";
 	protected final static String referenceRoot = "/gradebookng";
 
-	/**
-	 * These are shared with the GradebookNgContextObserver
-	 */
 	@Setter
 	protected EntityManager entityManager;
 
 	@Setter
-	protected GradebookService gradebookService;
-
-	@Setter
-	protected GradebookFrameworkService gradebookFrameworkService;
+	protected GradingService gradingService;
 
 	/**
 	 * Register this class as an EntityProducer.
@@ -135,13 +128,13 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
-		final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(fromContext);
+		final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(fromContext);
 
-		final GradebookInformation gradebookInformation = this.gradebookService.getGradebookInformation(gradebook.getUid());
+		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getUid());
 
-		final List<Assignment> assignments = this.gradebookService.getAssignments(fromContext);
+		final List<Assignment> assignments = this.gradingService.getAssignments(fromContext);
 
-		return this.gradebookService.transferGradebook(gradebookInformation, assignments, toContext, fromContext);
+		return this.gradingService.transferGradebook(gradebookInformation, assignments, toContext, fromContext);
 	}
 
 	@Override
@@ -149,15 +142,15 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		if (cleanup == true) {
 
-			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(toContext);
+			final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(toContext);
 
 			// remove assignments in 'to' site
-			final List<Assignment> assignments = this.gradebookService.getAssignments(gradebook.getUid());
-			assignments.forEach(a -> this.gradebookService.removeAssignment(a.getId()));
+			final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid());
+			assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
 
 			// remove categories in 'to' site
-			final List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
-			categories.forEach(c -> this.gradebookService.removeCategory(c.getId()));
+			final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid());
+			categories.forEach(c -> this.gradingService.removeCategory(c.getId()));
 		}
 
 		// now migrate

@@ -24,8 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -60,57 +59,6 @@ import org.sakaiproject.tool.cover.ToolManager;
 @Slf4j
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-
-  /**
-   * Does a gradebook exist?
-   * @param gradebookUId the gradebook id
-   * @param g  the Gradebook Service
-   * @return true if the given gradebook exists
-   */
-  public boolean gradebookExists(String gradebookUId, GradebookExternalAssessmentService g)
-  {
-    log.debug("GradebookService = " + g);
-    if (gradebookUId == null)
-    {
-      return false;
-    }
-    return g.isGradebookDefined(gradebookUId);
-  }
-  
-	/**
-	 *  Does a gradebook exist?
-	 * @param siteId  the site id
-	 * @return true if the given gradebook exists
-	 */
-	public boolean isGradebookExist(String siteId)
-	{
-		Site currentSite = getCurrentSite(siteId);
-		if (currentSite == null) {
-			return false;
-		}
-		SitePage page = null;
-		String toolId = null;
-		try {
-			// get page
-			List pageList = currentSite.getPages();
-			for (int i = 0; i < pageList.size(); i++) {
-				page = (SitePage) pageList.get(i);
-				List pageToolList = page.getTools();
-				try {
-					toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
-				} catch (Exception ee) {
-					log.warn(siteId + " contains a page (" + page.getTitle() + ") without a valid tool registration");
-				}
-				if (toolId != null && toolId.toLowerCase().contains("sakai.gradebook")) {
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-		}
-		return false;
-	}
-
 	private Site getCurrentSite(String id) {
 		Site site = null;
 		try {
@@ -121,24 +69,21 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		return site;
 	}
 	
-  /**
-   * Remove a published assessment from the gradebook.
-   * @param gradebookUId the gradebook id
-   * @param g  the Gradebook Service
-   * @param publishedAssessmentId the id of the published assessment
-   * @throws java.lang.Exception
-   */
-public void removeExternalAssessment(String gradebookUId,
-   String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception
-  {
-    if (g.isGradebookDefined(gradebookUId))
-    {
-      g.removeExternalAssessment(gradebookUId, publishedAssessmentId);
+   /**
+    * Remove a published assessment from the gradebook.
+    * @param gradebookUId the gradebook id
+    * @param g  the Gradebook Service
+    * @param publishedAssessmentId the id of the published assessment
+    * @throws java.lang.Exception
+    */
+    public void removeExternalAssessment(String gradebookUId, String publishedAssessmentId, org.sakaiproject.grading.api.GradingService g)
+        throws Exception {
+
+        g.removeExternalAssignment(gradebookUId, publishedAssessmentId);
     }
-  }
 
   public boolean isAssignmentDefined(String assessmentTitle,
-		  GradebookExternalAssessmentService g) throws Exception
+		  org.sakaiproject.grading.api.GradingService g) throws Exception
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
@@ -172,7 +117,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
-		  GradebookExternalAssessmentService g) throws
+		  org.sakaiproject.grading.api.GradingService g) throws
     Exception
   {
     boolean added = false;
@@ -182,23 +127,20 @@ public void removeExternalAssessment(String gradebookUId,
       return false;
     }
 
-    if (g.isGradebookDefined(gradebookUId))
+    String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
+    if(!g.isAssignmentDefined(gradebookUId, title))
     {
-      String title = StringEscapeUtils.unescapeHtml4(publishedAssessment.getTitle());
-      if(!g.isAssignmentDefined(gradebookUId, title))
-      {
-          g.addExternalAssessment(gradebookUId,
-                  publishedAssessment.getPublishedAssessmentId().toString(),
-                  null,
-                  title,
-                  publishedAssessment.getTotalScore(),
-                  publishedAssessment.getAssessmentAccessControl().getDueDate(),
-                  getAppName(), // Use the app name from sakai
-                  null,
-                  false,
-                  categoryId);
-        added = true;
-      }
+      g.addExternalAssessment(gradebookUId,
+              publishedAssessment.getPublishedAssessmentId().toString(),
+              null,
+              title,
+              publishedAssessment.getTotalScore(),
+              publishedAssessment.getAssessmentAccessControl().getDueDate(),
+              getAppName(), // Use the app name from sakai
+              null,
+              false,
+              categoryId);
+      added = true;
     }
     return added;
   }
@@ -211,7 +153,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
-		  GradebookExternalAssessmentService g) throws Exception
+		  org.sakaiproject.grading.api.GradingService g) throws Exception
   {
     log.debug("updateGradebook start");
     String gradebookUId = GradebookFacade.getGradebookUId();
@@ -238,7 +180,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @throws java.lang.Exception
    */
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
-		  GradebookExternalAssessmentService g) throws
+		  org.sakaiproject.grading.api.GradingService g) throws
     Exception
   {
     boolean testErrorHandling=false;
@@ -280,7 +222,7 @@ public void removeExternalAssessment(String gradebookUId,
   }
   
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
-		  GradebookExternalAssessmentService g) throws Exception {
+		  org.sakaiproject.grading.api.GradingService g) throws Exception {
 	  boolean testErrorHandling=false;
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);
@@ -297,7 +239,7 @@ public void removeExternalAssessment(String gradebookUId,
   }
   
   public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment,
-          GradebookExternalAssessmentService g) throws Exception {
+          org.sakaiproject.grading.api.GradingService g) throws Exception {
 	  boolean testErrorHandling=false;
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);
@@ -313,15 +255,13 @@ public void removeExternalAssessment(String gradebookUId,
 
 
 	public Long getExternalAssessmentCategoryId(String gradebookUId,
-			String publishedAssessmentId, GradebookExternalAssessmentService g) {
-		if (g.isGradebookDefined(gradebookUId)) {
-			try {
-				return g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
-			}
-			catch (AssessmentNotFoundException e) {
-				log.info("No category defined for publishedAssessmentId={} in gradebookUid={}", publishedAssessmentId, gradebookUId);
-			}
-		}
+        String publishedAssessmentId, org.sakaiproject.grading.api.GradingService g) {
+        try {
+            return g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
+        }
+        catch (AssessmentNotFoundException e) {
+            log.info("No category defined for publishedAssessmentId={} in gradebookUid={}", publishedAssessmentId, gradebookUId);
+        }
 		return null;
 	}
 

@@ -37,8 +37,7 @@ import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -65,7 +64,7 @@ public class MockingAbstractWebService {
 			instance.setAuthzGroupService(mock(AuthzGroupService.class));
 			instance.setCalendarService(mock(CalendarService.class));
 			instance.setEventTrackingService(mock(EventTrackingService.class));
-			instance.setGradebookService(mock(GradebookService.class));
+			instance.setGradingService(mock(GradingService.class));
 			instance.setSecurityService(mock(SecurityService.class));
 			instance.setServerConfigurationService(mock(ServerConfigurationService.class));
 			instance.setSiteService(mock(SiteService.class));
@@ -84,7 +83,6 @@ public class MockingAbstractWebService {
 			instance.setShortenedUrlService(mock(ShortenedUrlService.class));
 			instance.setSamLiteService(mock(SamLiteService.class));
 			instance.setIdManager(mock(IdManager.class));
-			instance.setGradebookExternalAssessmentService(mock(GradebookExternalAssessmentService.class));
 			instance.setActivityService(mock(ActivityService.class));
 			instance.setPreferencesService(mock(PreferencesService.class));
 			instance.setQuestionPoolServiceImpl(mock(QuestionPoolServiceImpl.class));

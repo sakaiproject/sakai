@@ -68,14 +68,13 @@ import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
 // We don't import either of these to make sure we are never confused and always fully qualify
-// import org.sakaiproject.service.gradebook.shared.Assignment;   // We call this a "column"
+// import org.sakaiproject.grading.api.Assignment;   // We call this a "column"
 // import org.sakaiproject.assignment.api.model.Assignment        // We call this an "assignment"
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -2355,8 +2354,8 @@ public class SakaiBLTIUtil {
 		}
 
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Make sure the user exists in the site
 		boolean userExistsInSite = false;
@@ -2405,7 +2404,7 @@ public class SakaiBLTIUtil {
 
 		SakaiLineItem lineItem = new SakaiLineItem();
 		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
 		if (gradebookColumn == null) {
 			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
@@ -2473,7 +2472,7 @@ public class SakaiBLTIUtil {
 		SakaiLineItem lineItem = new SakaiLineItem();
 		String siteId = site.getId();
 
-		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn;
+		org.sakaiproject.grading.api.Assignment gradebookColumn;
 
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
@@ -2511,8 +2510,8 @@ public class SakaiBLTIUtil {
 		log.debug("scoreGiven={} scoreMaximum={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Fall through to send the grade to a gradebook column
 		// Now read, set, or delete the grade...
@@ -2547,7 +2546,7 @@ public class SakaiBLTIUtil {
 				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
 				return Boolean.TRUE;
 			}
-		} catch (NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
+		} catch (NumberFormatException | AssessmentNotFoundException e) {
 			retval = "Grade failure " + e.getMessage() + " siteId=" + siteId;
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
@@ -2709,41 +2708,39 @@ public class SakaiBLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.service.gradebook.shared.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
 		// Look up the gradebook column so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 
 		String siteId = site.getId();
 
 		if ( lineItem == null ) lineItem = new SakaiLineItem();
 		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
-		org.sakaiproject.service.gradebook.shared.Assignment returnColumn = null;
+		org.sakaiproject.grading.api.Assignment returnColumn = null;
 
 		pushAdvisor();
 
 		try {
 			List gradeboolColumns = g.getAssignments(siteId);
 			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
-				org.sakaiproject.service.gradebook.shared.Assignment aColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
 
 				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
 					returnColumn = aColumn;
 					break;
 				}
 			}
-		} catch (GradebookNotFoundException e) {
-			returnColumn = null; // Just to make double sure
 		} finally {
 			popAdvisor();
 		}
 
 		// Attempt to add column to grade book
-		if (returnColumn == null && g.isGradebookDefined(siteId)) {
+		if (returnColumn == null) {
 			pushAdvisor();
 			try {
-				returnColumn = new org.sakaiproject.service.gradebook.shared.Assignment();
+				returnColumn = new org.sakaiproject.grading.api.Assignment();
 				returnColumn.setPoints(scoreMaximum);
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
@@ -2759,7 +2756,7 @@ public class SakaiBLTIUtil {
 				log.warn("ConflictingAssignmentNameException while adding gradebook column {}", e.getMessage());
 				returnColumn = null; // Just to make sure
 			} catch (Exception e) {
-				log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+				log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 				returnColumn = null; // Just to make double sure
 			} finally {
 				popAdvisor();

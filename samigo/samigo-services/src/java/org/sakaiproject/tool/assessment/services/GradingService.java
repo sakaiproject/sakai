@@ -59,7 +59,6 @@ import org.apache.commons.math3.util.Precision;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -1652,12 +1651,12 @@ public class GradingService
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     if (integrated)
     {
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-        getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+        getBean("org.sakaiproject.grading.api.GradingService");
     }
 
     GradebookServiceHelper gbsHelper =
@@ -1665,8 +1664,7 @@ public class GradingService
 
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(pub.getPublishedAssessmentId().toString());
-    if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)
-        && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+    if (toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
@@ -1678,7 +1676,7 @@ public class GradingService
     		gbsHelper.updateExternalAssessmentScore(data, g);
     		retryCount = 0;
     	}
-      catch (org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException ante) {
+      catch (org.sakaiproject.grading.api.AssessmentNotFoundException ante) {
     	  log.warn("problem sending grades to gradebook: {}", ante.getMessage());
           if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
         	  retryCount = retry(retryCount, ante, pub, true);
