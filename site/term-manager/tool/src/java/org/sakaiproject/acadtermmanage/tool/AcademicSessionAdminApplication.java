@@ -18,7 +18,7 @@ package org.sakaiproject.acadtermmanage.tool;
 import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -52,14 +52,14 @@ public class AcademicSessionAdminApplication extends WebApplication {
 		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
 		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(AcademicSessionAdminApplication.class, "empty.js"));
 		
-		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
+		getRequestCycleListeners().add(new IRequestCycleListener() {
 			@Override
 			 public IRequestHandler onException(RequestCycle cycle, Exception ex) {
 				 if (ex instanceof RuntimeException) {
 					 RuntimeException re = (RuntimeException)ex;
 					 throw re;
 				 }
-				 return super.onException(cycle, ex);
+				 return onException(cycle, ex);
 			}
 		});
 		
