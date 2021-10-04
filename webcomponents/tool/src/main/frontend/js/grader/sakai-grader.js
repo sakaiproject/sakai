@@ -188,7 +188,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       <div class="gradable">
         ${this.submission.ltiGradeLaunch ? html`
-          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)} ${unsafeHTML(this.i18n.lti_grade_not_automatic)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
             new-window-text="${this.i18n.lti_grade_launch_button}"
