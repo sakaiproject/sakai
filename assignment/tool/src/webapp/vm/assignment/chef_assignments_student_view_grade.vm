@@ -54,6 +54,7 @@
 
     #set($submitTime=false)
     #set($submitTime=$submission.DateSubmitted)
+    #set($extensionTime=$submission.properties.get("allow_extension_closeTime"))
     #set($returnTime=false)
     #set($returnTime=$submission.DateReturned)
     <table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
@@ -106,6 +107,12 @@
                     <br/>
                 </td>
             </tr>
+            #if ($!extensionTime)   ##put in some info about the extension deadline, if we have it.
+                <tr>
+                    <th>$tlang.getString("gen.extension")</th>
+                    <td>$!service.getUsersLocalDateTimeStringFromProperties($extensionTime)</td>
+                </tr>
+            #end
         #end
         #if ($withGrade)
             #set ($gradeScale = $!typeOfGradeString)
