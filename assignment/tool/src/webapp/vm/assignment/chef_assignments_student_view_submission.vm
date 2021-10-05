@@ -43,6 +43,7 @@ $(document).ready(function(){
 	#set($closeDate = false)
 	#set($closeDate = $assignment.CloseDate)
 	#set($timeSheetSource = "submission")
+	#set($extensionTime=$submission.properties.get("allow_extension_closeTime"))
 
 	#if ($!submission && $!allowResubmitNumber.equals("0"))
 		##override the close time setting for assignment by submission's individual setting
@@ -207,6 +208,16 @@ $(document).ready(function(){
 							<div class="itemSummaryValue">
 								$resubmitCloseTime
 							</div>
+						</div>
+					</div>
+				#end
+				#if ($!extensionTime)   ##put in some info about the extension deadline, if we have it.
+					<div class="row">
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryHeader" >$tlang.getString("gen.extension")</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryValue">$!service.getUsersLocalDateTimeStringFromProperties($extensionTime)</div>
 						</div>
 					</div>
 				#end

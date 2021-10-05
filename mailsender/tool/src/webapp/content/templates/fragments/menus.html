@@ -9,13 +9,13 @@
                         <a th:unless="${current} == 'compose'" href="#" th:href="@{/compose}" th:text="#{compose_toolbar}">Compose</a>
                     </span>
                 </li>
-                <li role="presentation">
+                <li th:if="${notAdmin}" role="presentation">
                     <span th:class="${current} == 'options' ? 'current'">
                         <span id="opt"th:if="${current} == 'options'" th:text="#{options_toolbar}">Options</span>
                         <a id="opt" th:unless="${current} == 'options'" href="#" th:href="@{/options}" th:text="#{options_toolbar}" th:onclick="|return losedata('#{navigate.lose.data}'); |">Options</a>
                     </span>
                 </li>
-                <li role="presentation">
+                <li th:if="${notAdmin}" role="presentation">
                     <span th:class="${current}=='permissions' ? 'current'">
                         <span id="perm" th:if="${current} == 'permissions'" th:text="#{mailsender.navbar.permissions}">Permissions</span>
                         <a id="perm" th:unless="${current} == 'permissions'" href="#" th:href="@{/permissions}" th:text="#{mailsender.navbar.permissions}" th:onclick="|return losedata('#{navigate.lose.data}'); |">Permissions</a>

@@ -20,6 +20,11 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT
 import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMIN;
 import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEMONTH;
 import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_RESUBMIT_CLOSEYEAR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEMONTH;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEDAY;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEYEAR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEHOUR;
+import static org.sakaiproject.assignment.api.AssignmentConstants.ALLOW_EXTENSION_CLOSEMIN;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ADD;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_ASSOCIATE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADEBOOK_INTEGRATION_NO;
@@ -1808,6 +1813,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             rangeAndGroups.buildStudentViewSubmissionContext(state, context, user.getId(), assignment, this);
 
@@ -2257,6 +2263,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
@@ -2429,6 +2436,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             if (state.getAttribute(SAVED_FEEDBACK) != null) {
                 context.put("savedFeedback", Boolean.TRUE);
@@ -3176,6 +3184,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // put resubmission option into context
         assignment_resubmission_option_into_context(context, state);
+        assignment_extension_option_into_context(context, state);
 
         // get all available assignments from Gradebook tool except for those created fromcategoryTable
         boolean gradebookExists = isGradebookDefined();
@@ -3765,7 +3774,13 @@ public class AssignmentAction extends PagedResourceActionII {
             // put the re-submission info into context
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
             assignment_resubmission_option_into_context(context, state);
-
+            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+            assignment_extension_option_into_context(context, state);
+            if (s.getDateSubmitted() != null){ //if there is a submission date, we assume the student submitted; then, extension options should not be available.
+                context.put("displayExtensionOptions", false);
+            } else {
+                context.put("displayExtensionOptions", true);
+            }
             boolean isAdditionalNotesEnabled = false;
             Site st = null;
             try {
@@ -4651,6 +4666,9 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_resubmission_option_into_state(assignment, null, state);
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
             assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_state(assignment, null, state);
+            putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+            assignment_extension_option_into_context(context, state);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -4819,6 +4837,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
             putExternalToolIntoContext(context, assignment, state);
@@ -5635,6 +5654,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put resubmission option into state
             assignment_resubmission_option_into_state(a, submission, state);
+            assignment_extension_option_into_state(a, submission, state);
 
             // show submission view unless group submission with group error
             String _mode = MODE_STUDENT_VIEW_SUBMISSION;
@@ -6056,6 +6076,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(STATE_VIEW_SUBS_ONLY);
 
         resetAllowResubmitParams(state);
+        resetAllowExtensionParams(state);
     }
 
     /**
@@ -9511,6 +9532,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else {
             // get resubmission option into state
             assignment_resubmission_option_into_state(a, null, state);
+            assignment_extension_option_into_state(a, null, state);
 
             // assignment read event
             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false));
@@ -9771,6 +9793,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // put the resubmission option into state
                 assignment_resubmission_option_into_state(a, null, state);
+                assignment_extension_option_into_state(a, null, state);
 
                 // set whether we use peer assessment or not
                 Instant peerAssessmentPeriod = a.getPeerAssessmentPeriodDate();
@@ -10278,7 +10301,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // SAK-29314 - put submission information into state
         boolean viewSubsOnlySelected = stringToBool((String) data.getParameters().getString(PARAMS_VIEW_SUBS_ONLY_CHECKBOX));
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
-
+        assignment_extension_option_into_state(getAssignment(assignmentId, "doGrade_submission", state), getSubmission(submissionId, "doGrade_submission", state), state);
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
             state.setAttribute(FROM_VIEW, (String) params.getString("option"));
@@ -10342,6 +10365,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // put the resubmission info into state
                 assignment_resubmission_option_into_state(a, s, state);
+                assignment_extension_option_into_state(a, s, state);
             }
         }
     }
@@ -10465,7 +10489,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // initialize the resubmission params
             assignment_resubmission_option_into_state(a, null, state);
-
+            assignment_extension_option_into_state(a, null, state);
             // we are changing the view, so start with first page again.
             resetPaging(state);
         }
@@ -11390,9 +11414,17 @@ public class AssignmentAction extends PagedResourceActionII {
                         resetAllowResubmitParams(state);
                     }
                 }
+                if (params.getString("allowExtensionToggle") != null){  //if the Allow Extension box is checked, we can read in the allowExtension params.
+                    readAllowExtensionParams(params, state, submission.getProperties());
+                } else {    //if it's not checked, State should have no data about it.
+                    state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+                    if (!"read".equals(gradeOption)) {
+                        resetAllowExtensionParams(state);
+                    }
+                }
                 // record whether the resubmission options has been changed or not
                 hasChange = hasChange || change_resubmit_option(state, submission.getProperties());
-
+                hasChange = hasChange || propertyValueChanged(state, submission.getProperties(), AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);    //same for Extension.
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
                     grade = (typeOfGrade == SCORE_GRADE_TYPE) ? scalePointGrade(state, grade, factor) : grade;
@@ -11499,6 +11531,32 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+    }
+
+    private Instant readAllowExtensionParams (ParameterParser params, SessionState state, Map<String, String> properties) { //put Param data about extensions into the State.
+        Instant extensionCloseTime = null;
+        int closeMonth = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEMONTH)); //parse the datepicker's data into Ints and put them in the State individually
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, closeMonth);
+        int closeDay = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEDAY));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, closeDay);
+        int closeYear = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEYEAR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEYEAR, closeYear);
+        int closeHour = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEHOUR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, closeHour);
+        int closeMin = Integer.valueOf(params.getString(ALLOW_EXTENSION_CLOSEMIN));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, closeMin);
+        extensionCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).atZone(timeService.getLocalTimeZone().toZoneId()).toInstant(); //turn the Ints we just made into a single Instant time
+        state.setAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, String.valueOf(extensionCloseTime.toEpochMilli()));
+        return extensionCloseTime;
+    }
+
+    protected void resetAllowExtensionParams (SessionState state){
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEYEAR, state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
+        state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
     }
 
     /**
@@ -11801,6 +11859,11 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, hour);
         state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, minute);
         state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, 1);
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMONTH, month);  //set default values for Extension date
+        state.setAttribute(ALLOW_EXTENSION_CLOSEDAY, day);
+        state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, year);
+        state.setAttribute(ALLOW_EXTENSION_CLOSEHOUR, hour);
+        state.setAttribute(ALLOW_EXTENSION_CLOSEMIN, minute);
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
@@ -11905,6 +11968,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // remove the resubmit number
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+        state.removeAttribute((AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)); //remove Extension date
 
         // remove the supplement attributes
         state.removeAttribute(MODELANSWER);
@@ -12009,6 +12073,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // remove the resubmit number
         state.removeAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+        state.removeAttribute((AssignmentConstants.ALLOW_EXTENSION_CLOSETIME));
 
         // remove the supplement attributes
         state.removeAttribute(MODELANSWER);
@@ -14103,6 +14168,34 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(NEW_ASSIGNMENT_MODEL_ANSWER_TEXT, text);
             state.setAttribute(NEW_ASSIGNMENT_MODEL_SHOW_TO_STUDENT, showTo);
             //state.setAttribute(NEW_ASSIGNMENT_MODEL_ANSWER_ATTACHMENT);
+        }
+    }
+
+    private void assignment_extension_option_into_context(Context context, SessionState state){
+        String allowExtensionTimeString = null;
+        if (state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null){
+            allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
+        }
+        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+    }
+
+    private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
+        String allowExtensionTimeString = null;
+        if (s != null) {    // if submission is present, get the resubmission values from submission object first
+            Map<String, String> sProperties = s.getProperties();
+            allowExtensionTimeString = sProperties.get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+        }
+        Instant allowExtensionTime = null;
+        if (allowExtensionTimeString != null) {
+            state.setAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME, allowExtensionTimeString);
+            allowExtensionTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+        } else {
+            state.removeAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+        }
+        if (allowExtensionTime != null) {   // set up related state variables
+            putTimePropertiesInState(state, allowExtensionTime, ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
         }
     }
 

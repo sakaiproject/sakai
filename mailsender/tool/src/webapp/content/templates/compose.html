@@ -53,7 +53,7 @@
                                 <input th:id="${rol.getRoleId()}" type="checkbox" name="rolename" th:value="${rol.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)" ></input>
                                 <label  style="font-weight: normal"><a th:text="${rol.getRoleId()}" href="#" onclick="showIndividuals(this)" /></label>
                                 <div class="hidden usersList" >
-                                    <div th:if="${comp.getUsersByRole(rol.getRoleId()).size() == 0}"><ul><li th:text=""></li></ul></div>
+                                    <div th:if="${comp.getUsersByRole(rol.getRoleId()).size() == 0}"><ul><li th:text="#{no.role.members.found}"></li></ul></div>
                                     <div th:unless="${comp.getUsersByRole(rol.getRoleId()).size() == 0}" th:each="user:${comp.getUsersByRole(rol.getRoleId())}" >
                                         <input th:id="${user.getId()}" type="checkbox" name="user" th:value="${user.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${user.getEmail().isEmpty()}?@{disabled}"/>
                                         <label th:text="${user.getDisplayName()}+'('+ ${user.getDisplayId()}+')'"/>
@@ -64,12 +64,12 @@
                         <div id="mailsender-sections" class="rolesArea hidden">
                             <div th:if="${comp.getEmailSections().size() == 0}" ><ul><li th:text="#{no.section.found}"></li></ul></div>
                             <div th:unless="${comp.getEmailSections().size() == 0}" th:each="rolsec:${comp.getEmailSections()}" class="userGroupsList" >
-                                <input  th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolesecname" th:value="${rolsec.getRoleSingular()}" onclick="RcptSelect.toggleSelectAll(this.id)"></input>
+                                <input  th:id="${rolsec.getRoleSingular()}" type="checkbox" name="rolesecname" th:value="${rolsec.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)"></input>
                                 <label  style="font-weight: normal"><a th:text="${rolsec.getRoleSingular()}" href="#" onclick="showIndividuals(this)"></a></label>
                                 <div  class="hidden usersList" >
-                                    <div th:if="${comp.countUsersByGroup() == 0}"><ul><li th:text="#{no.group.members.found}"></li></ul></div>
-                                    <div th:unless="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" th:each="usersec:${comp.getUsersByGroup(rolsec.getRoleSingular())}"  >
-                                        <input th:id="${usersec.getId()}" type="checkbox" name="user" th:value="${usersec.getId()" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${usersec.getEmail().isEmpty()}?@{disabled}" />
+                                    <div th:if="${comp.getEmailGroups().size() == 0}"><ul><li th:text="#{no.group.members.found}"></li></ul></div>
+                                    <div th:unless="${comp.countUsersByGroup(rolsec.getRoleId()) == 0}" th:each="usersec:${comp.getUsersByGroup(rolsec.getRoleId())}"  >
+                                        <input th:id="${usersec.getId()}" type="checkbox" name="user" th:value="${usersec.getId()}" onclick="RcptSelect.toggleIndividual(this.id)" th:attrappend="disabled=${usersec.getEmail().isEmpty()}?@{disabled}" />
                                         <label th:text="${usersec.getDisplayName()}+'('+ ${usersec.getDisplayId()}+')'" />
                                     </div>
                                 </div>
@@ -78,7 +78,7 @@
                         <div id="mailsender-groups" class="rolesArea hidden">
                             <div th:if="${comp.getEmailGroups().size() == 0}"><ul><li th:text="#{no.group.found}"></li></ul></div>
                             <div th:unless="${comp.getEmailGroups().size() == 0}" th:each="rolg:${comp.getEmailGroups()}" class="userGroupsList" >
-                                <input th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolegname" th:value="${rolg.getRoleSingular()}" onclick="RcptSelect.toggleSelectAll(this.id)"></input>
+                                <input th:id="${rolg.getRoleSingular()}" type="checkbox" name="rolegname" th:value="${rolg.getRoleId()}" onclick="RcptSelect.toggleSelectAll(this.id)"></input>
                                 <label  style="font-weight: normal"><a th:text="${rolg.getRoleSingular()}" href="#" onclick="showIndividuals(this)" ></a></label>
                                 <div class="hidden usersList" >
                                     <div th:if="${comp.countUsersByGroup(rolg.getRoleId()) == 0}" ><ul><li th:text="#{no.group.members.found}"></li></ul></div>
@@ -134,7 +134,7 @@
 
                     <div class="section">
                         <div class="headervalue">
-                            <input name="sendMeACopy" type="checkbox" id="sendMeACopy" value="true" th:attrappend="checked=*{config.isSendMeACopy() == true}?@{checked}"/>
+                            <input name="smac" type="checkbox" id="sendMeACopy" value="true" th:attrappend="checked=*{config.isSendMeACopy() == true}?@{checked}"/>
                             <label th:text="#{sendmeacopy}" for="sendMeCopy">Send me a copy</label>
                         </div>
                         <div th:if="${addedTo}" id="addToArchiveDiv" class="headervalue">
@@ -150,11 +150,13 @@
                     </div>
                     <div class="section headervalue act">
                         <input id="send-button" value="Send Mail" class="active" type="submit" th:attrappend="disabled=${email == true}?@{disabled}" />
-                        <input id="cancel-button" value="Cancel" type="submit" />
+                        <input id="cancel-button" value="Cancel" type="button" onclick="location.reload();" />
                     </div>
             </form>
             <script>  sakai.editor.launch("editor1", "{noop:0}");
                 CKEDITOR.instances.editor1.setData(/*[[${emailEntry.content}]]*/);
+
+
                 
                 var hroles = document.getElementById("mailsender-rcpt-link-roles");
                 var hsections = document.getElementById("mailsender-rcpt-link-sections");

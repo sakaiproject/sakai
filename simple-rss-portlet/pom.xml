@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>com.rometools</groupId>
 			<artifactId>rome</artifactId>
-			<version>1.15.0</version>
+			<version>1.16.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>
@@ -119,8 +119,6 @@
 	<properties>
 		<war.name>${project.artifactId}</war.name>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.sourceVersion>1.6</project.build.sourceVersion>
-		<project.build.targetVersion>1.6</project.build.targetVersion>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
 	</properties>

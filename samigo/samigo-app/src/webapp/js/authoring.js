@@ -625,13 +625,15 @@ function checkTimedRadio(){
 }
 
 function initTimedRadio(){
-	timedSettings = $('[id*="selTimeAssess"]')
+	timedSettings = $('[id*="selTimeAssess"]');
+	//false -> No; true -> Yes (time limit)
 	defaultValue = false ? 1 : 0;
 	//If no option is selected
 	if(timedSettings.filter(':checked').length == 0) {
 		//Select default value
 		timedSettings.slice(defaultValue, defaultValue + 1).prop('checked', 'checked');
 	}
+	checkTimedRadio();
 }
 
 function initAnononymousUsers(){

@@ -2322,6 +2322,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             if (submission != null) {
 
+                // check for allow resubmission or not
+                //if an Extension exists for the user, we switch out the assignment's overall Close date for the extension deadline. We do this if the grade has been actually released, or if the submission object has not actually been submitted yet. Additionally, we make sure that a Resubmission date is not set [make sure it's null], so that this date-switching happens ONLY under Extension-related circumstances.
+                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getSubmitted()))){
+                    Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
+                    isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
+                }
+
                 if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
                     // before the assignment close date
                     // and if no date then a submission was never never submitted
@@ -2329,7 +2336,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     return true;
                 }
 
-                // check for allow resubmission or not
+                // check for allow resubmission or not first
                 // return true if resubmission is allowed and current time is before resubmission close time
                 // get the resubmit settings from submission object first
                 String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
@@ -4631,6 +4638,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getUsersLocalDateTimeString(Instant date) {
         return userTimeService.dateTimeFormat(date, null, null);
+    }
+
+    @Override
+    public String getUsersLocalDateTimeStringFromProperties(String date){
+        if (date == null){
+            return null;
+        }
+        Long dateLong = Long.parseLong(date);
+        return getUsersLocalDateTimeString(Instant.ofEpochMilli(dateLong));
     }
 
     @Override
