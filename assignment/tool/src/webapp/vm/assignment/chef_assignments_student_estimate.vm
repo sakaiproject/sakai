@@ -1,0 +1,153 @@
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
+
+<script>
+    window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
+    window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
+    window.i18nWlogTab['ts.add.err.startTime']=" $tlang.getString('ts.add.err.startTime')";
+    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.comment')";
+    window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
+    window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
+    window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
+    window.i18nWlogTab['ts.rem.err.empty']=" $tlang.getString('ts.rem.err.empty')";
+    window.i18nWlogTab['ts.rem.err.submitterId']=" $tlang.getString('ts.rem.err.submitterId')";
+    window.i18nWlogTab['ts.rem.err.permission']=" $tlang.getString('ts.rem.err.permission')";
+    window.i18nWlogTab['ts.add.err.submitter']=" $tlang.getString('ts.add.err.submitter')";
+</script>
+
+<div id="StudentTimesheetCurrent" class="hidden">
+    <h4>$!tlang.getString("ts.title.timesheet")</h4>
+    <hr>
+    ##Checks for Timesheet records
+    ##BOOTSTRAP (red)
+    <div id="alertTsheetDelRecord" class="sak-banner-error hidden" role="alert"></div>
+    
+    #if ($!isAnyRegTimeSheet)
+        <div>
+        <table class="table table-hover table-striped table-bordered" summary="Tabla bitacora">
+            <tr>
+                <th id="1" scope="col">
+                    $!tlang.getString("ts.table.tab.date")
+                </th>
+                <th id="2" scope="col">
+                    $!tlang.getString("ts.table.tab.comment")
+                </th>
+                <th id="3" scope="col">
+                    $!tlang.getString("ts.table.tab.time")
+                </th>
+                #if ($!timeSheetSource == "submission")
+                    <th id="4" scope="col">
+                        $!tlang.getString("ts.table.tab.del")
+                    </th>
+                #end
+            </tr>
+
+        #foreach ($submitter in $submission.Submitters)
+            #foreach ($timeSheetSubmit in $submitter.TimeSheetEntries)
+            <tr>
+                <td>
+                    $!service.getUsersLocalDateTimeString($timeSheetSubmit.startTime)
+                </td>
+                <td>
+                    $timeSheetSubmit.comment
+                </td>
+                <td>
+                    $timeSheetSubmit.duration
+                </td>
+                #if ($!timeSheetSource == "submission")
+                    <td>
+                        <input type="checkbox" name="selectedTimesheet" value="$timeSheetSubmit.id" id="selectedTimesheet" onclick="ASN.checkTimesheetRecord();" />
+                    </td>
+                #end
+            </tr>
+            #end
+        #end
+        </table>
+        </div>
+    #else
+    ##No records
+    ##BOOTSTRAP (green)
+    <div class="sak-banner-info" role="alert">
+        $!tlang.getString("ts.msg.no.timesheet.record")
+    </div>
+    #end
+
+    ##Open lightbox
+    <input type="hidden" id="assignmentId" name="assignmentId" value="$assignment.id" />
+
+    ##Delete records
+    #if ($!allowSubmit && $!timeSheetSource == "submission")
+        <div class="act">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">$!tlang.getString("ts.btn.add.record")</button>
+            #if ($!isAnyRegTimeSheet)
+                <input type="button" name="btnTimesheetDelete" id="btnTimesheetDelete" onclick="ASN.removeTimeSheet(this);" disabled="disabled" value=$!tlang.getString("ts.btn.del.record")>
+            #end
+        </div>
+    #end
+
+    ##BOOTSTRAP SMALL_MODAL
+    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">$!tlang.getString("ts.modal.new")</h5>
+                    <div class="modal-body">
+                        ##BOOTSTRAP (red)
+                        <div id="alertTsheetAddRecord" class="alert alert-danger hidden" role="alert">
+                                $!tlang.getString("ts.modal.msg.err")
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <div class="form-group form-required">
+                                    <div class="col-4">
+                                        <label for="timesheet_record_date" class="form-control-label">$tlang.getString("ts.modal.field.date")</label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" id="startTime" name="startTime" class="form-control datepicker" value="">
+                                </div>
+
+                                <script type="text/javascript">
+                                    localDatePicker({
+                                        input:'#startTime',
+                                        useTime:1,
+                                        val:"$value_TsDay$H$value_TsMonth$H$value_TsYear $value_TsHour:$value_TsMin",
+                                        parseFormat: 'DD-MM-YYYY HH:mm',
+                                        ashidden:{
+                                            day:"new_ts_record_day",
+                                            month:"new_ts_record_month",
+                                            year:"new_ts_record_year",
+                                            hour:"new_ts_record_hour",
+                                            minute:"new_ts_record_minute"
+                                        }
+                                    });
+                                </script>
+                            </div>
+                            <div class="form-group form-required">
+                                <div class="col-4">
+                                    <label for="timesheet_record_comment" class="col-form-label">$!tlang.getString("ts.modal.field.comment")</label>
+                                </div>
+                                <div class="col-8">
+                                    <textarea class="form-control" id="comment" name="comment" maxlength="4096"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group form-required">
+                                <div class="col-4">
+                                    <label for="timesheet_record_time_spent" class="col-form-label">$!tlang.getString("ts.modal.field.tspent")</label>
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" class="form-control" id="duration" name="duration" placeholder="$!tlang.getString('ts.modal.field.tspent.format')">
+                                </div>
+                            </div>
+                        </form>
+
+                        #if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+                            <div class="modal-footer">
+                                <button name="btnTimesheetAdd" id="btnTimesheetAdd" class="btn btn-primary" onclick="ASN.addTimeSheet(this);">$!tlang.getString("ts.modal.btn.save")</button>
+                            </div>
+                        #end
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

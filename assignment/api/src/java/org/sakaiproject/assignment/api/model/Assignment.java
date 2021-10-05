@@ -251,6 +251,12 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview = Boolean.FALSE;
 
+    @Column(name = "ESTIMATE_REQUIRED", length = 1, nullable = false)
+    private Boolean estimateRequired = Boolean.FALSE;
+
+    @Column(name = "ESTIMATE", length = 255)
+    private String estimate;
+
     @Column(name = "CONTENT_ID")
     private Integer contentId = null;
 

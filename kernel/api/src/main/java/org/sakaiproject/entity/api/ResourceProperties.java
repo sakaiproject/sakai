@@ -190,6 +190,12 @@ public interface ResourceProperties extends Serializable
 	/** Property name on a ContentEntity indicating if the item is secured and can be served using a token.*/
 	static final String PROP_SECURED = "SAKAI:secured";
 
+	/** Property for whether an assignment's on estimate time. [String] */
+	static final String NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE = "new_assignment_check_add_estimate";
+	static final String NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED = "new_assignment_check_add_estimate_required";
+	static final String NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE = "new_assignment_input_add_time_estimate";
+	static final String ASSIGNMENT_INPUT_ADD_TIME_SPENT = "assignment_input_add_time_spent";
+	
 	/**
 	 * Property name on a Resource or Collection which will allow resources with
 	 * a text/html content type to be output with an inline content-disposition
@@ -441,6 +447,34 @@ public interface ResourceProperties extends Serializable
 	 */
 	String getNamePropNewAssignmentCheckAddDueDate();
 
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE
+	 */
+	String getNamePropNewAssignmentCheckAddEstimate();
+	
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED
+	 */
+	String getNamePropNewAssignmentCheckAddEstimateRequired();
+	
+	/**
+	 * Get the static String of NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE
+	 * 
+	 * @return The static String of NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE
+	 */
+	String getNamePropNewAssignmentInputAddTimeEstimate();
+	
+	/**
+	 * Get the static String of ASSIGNMENT_INPUT_ADD_TIME_SPENT
+	 * 
+	 * @return The static String of ASSIGNMENT_INPUT_ADD_TIME_SPENT
+	 */
+	String getNamePropAssignmentInputAddTimeSpent();
+	
 	/**
 	 * Get the static String of NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE
 	 * 

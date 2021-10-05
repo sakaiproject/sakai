@@ -125,6 +125,8 @@ public final class AssignmentServiceConstants {
 
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final String SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS = "assignment.merge.import.submissions";
+    public static final String SAK_PROP_ASSIGNMENT_TIMESHEET_SITES_ALLOWED = "assignment.timesheet.sites.allowed";
+    public static final String SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT = "^([0-9]?[0-9]h|[0-9]?[0-9]H)$|([0-9]?[0-9]m|[0-9]?[0-9]M)$|(([0-9]?[0-9]h|[0-9]?[0-9]H)[ ]?([0-9]?[0-9]m|[0-9]?[0-9]M))$";
 
     private AssignmentServiceConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");

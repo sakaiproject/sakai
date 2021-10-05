@@ -42,6 +42,7 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -55,6 +56,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional(readOnly = true)
 public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assignment, String> implements AssignmentRepository {
+
+    public Session geCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
 
     @Override
     public Assignment findAssignment(String id) {
@@ -91,8 +96,36 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public void newAssignment(Assignment assignment) {
         if (!existsAssignment(assignment.getId())) {
             assignment.setDateCreated(Instant.now());
-            sessionFactory.getCurrentSession().persist(assignment);
+            geCurrentSession().persist(assignment);
         }
+    }
+
+    @Override
+    @Transactional
+    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) {
+        if (existsSubmissionSubmitter(submissionSubmitter.getId()) && !existsTimeSheetEntry(timeSheetEntry.getId())) {
+            timeSheetEntry.setAssignmentSubmissionSubmitter(submissionSubmitter);
+            submissionSubmitter.getTimeSheetEntries().add(timeSheetEntry);
+            geCurrentSession().merge(submissionSubmitter);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteTimeSheetEntry(Long timeSheetId) {
+        TimeSheetEntry timeSheetEntry = geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
+        if (timeSheetEntry != null) {
+            log.info("Deleting time sheet entry: {}", timeSheetEntry);
+            AssignmentSubmissionSubmitter submissionSubmitter = timeSheetEntry.getAssignmentSubmissionSubmitter();
+            submissionSubmitter.getTimeSheetEntries().remove(timeSheetEntry);
+            geCurrentSession().merge(submissionSubmitter);
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean existsTimeSheetEntry(Long timeSheetId) {
+        return timeSheetId != null && geCurrentSession().get(TimeSheetEntry.class, timeSheetId) != null;
     }
 
     @Override
@@ -116,13 +149,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void deleteSubmission(String submissionId) {
-        Session session = sessionFactory.getCurrentSession();
-        AssignmentSubmission submission = session.get(AssignmentSubmission.class, submissionId);
+        AssignmentSubmission submission = geCurrentSession().get(AssignmentSubmission.class, submissionId);
         if (submission != null) {
             log.info("Deleting submission {}", submission);
             Assignment assignment = submission.getAssignment();
             assignment.getSubmissions().remove(submission);
-            session.delete(submission);
+            geCurrentSession().delete(submission);
         }
     }
 
@@ -136,22 +168,36 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public AssignmentSubmission findSubmission(String submissionId) {
-        return (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
+        return geCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
+    @Override
+    public TimeSheetEntry findTimeSheetEntry(Long timeSheetId) {
+        return geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
+    }
+    
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
         if (existsSubmission(submission.getId())) {
             submission.setDateModified(Instant.now());
-            sessionFactory.getCurrentSession().merge(submission);
+            geCurrentSession().merge(submission);
         }
     }
 
     @Override
     @Transactional
     public boolean existsSubmission(String submissionId) {
-        if (submissionId != null && sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId) != null) {
+        if (submissionId != null && geCurrentSession().get(AssignmentSubmission.class, submissionId) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean existsSubmissionSubmitter(Long submissionSubmitterId) {
+        if (submissionSubmitterId != null && geCurrentSession().get(AssignmentSubmissionSubmitter.class, submissionSubmitterId) != null) {
             return true;
         }
         return false;
@@ -162,10 +208,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment != null) {
-            Session session = sessionFactory.getCurrentSession();
             // Since this transaction is going to add a submission to the assignment we lock the assignment
             // the lock is freed once transaction is committed or rolled back
-            session.buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_WRITE).lock(assignment);
+            geCurrentSession().buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_WRITE).lock(assignment);
 
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
@@ -179,7 +224,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             submission.setAssignment(assignment);
             assignment.getSubmissions().add(submission);
 
-            session.persist(assignment);
+            geCurrentSession().persist(assignment);
             return submission;
         }
         return null;
@@ -189,7 +234,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     @SuppressWarnings("unchecked")
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
-        List<AssignmentSubmission> submissions = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .createAlias("submitters", "s")
                 .add(Restrictions.eq("s.submitter", userId))
@@ -233,7 +278,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds) {
-        List<AssignmentSubmission> submissions = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .createAlias("submitters", "s")
                 .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
@@ -243,7 +288,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
-        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        return (AssignmentSubmission) geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("groupId", groupId))
                 .uniqueResult();
@@ -251,7 +296,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        Criteria criteria = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .add(Restrictions.eq("submitted", Boolean.TRUE))
@@ -302,7 +347,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         ParameterExpression<String> paramAssignmentId = builder.parameter(String.class);
         query.where(builder.equal(root.get("id"), paramAssignmentId));
         query.select(builder.tuple(root.join("groups")));
-        List<Tuple> result = sessionFactory.getCurrentSession()
+        List<Tuple> result = geCurrentSession()
                 .createQuery(query)
                 .setParameter(paramAssignmentId, assignmentId)
                 .getResultList();

@@ -100,9 +100,9 @@
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title"))
 								#if ($sortedAsc.equals("true"))
-									<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -113,9 +113,9 @@
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <i class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyforasc")"></i></a>
 								#else
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <i class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyfordesc")"></i></a>
 								#end
 							#end
 						</th>
@@ -125,9 +125,9 @@
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status"))
 								#if ($sortedAsc.equals("true"))
-									<img id="sortascendingstatus" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									<i id="sortascendingstatus" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<img id="sortdescendingstatus" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									<i id="sortdescendingstatus" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -137,9 +137,9 @@
 							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
 								#if ($sortedAsc.equals("true"))
-									<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -149,13 +149,31 @@
 							$tlang.getString("gen.duedat")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
-									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
 					</th>
+					#if ($!isTimesheet)
+						<th id="timeSheet">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=timesheet")'; return false;"  title="$tlang.getString("gen.sorbytime")">
+								#if ($!allowGradeSubmission)
+									$tlang.getString("gen.timesheet.instructor")
+								#else
+									$tlang.getString("gen.timesheet.student")
+								#end
+								#if ($sortedBy.equals("timesheet"))
+									#if ($sortedAsc.equals("true"))
+										<i id="sortascendingtimesheet" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									#else
+										<i id="sortdescendingtimesheet" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									#end
+								#end
+							</a>
+						</th>
+					#end
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
@@ -164,9 +182,9 @@
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
 										#if ($sortedAsc.equals("true"))
-											<img id="sortascendingtotalsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+											<i id="sortascendingtotalsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<img id="sortdescendingtotalsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+											<i id="sortdescendingtotalsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -175,9 +193,9 @@
 								#if ($sortedBy.equals("num_ungraded"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"   title="$tlang.getString("listassig.sorbynum2")">
 										#if ($sortedAsc.equals("true"))
-											<img id="sortascendingungradedsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<img id="sortdescendingungradedsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -191,9 +209,9 @@
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
 									#if ($sortedAsc.equals("true"))
-										<img id="sortascendingungraded" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+										<i id="sortascendingungraded" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
 									#else
-										<img id="sortdescendingungraded" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+										<i id="sortdescendingungraded" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
 									#end
 								#end
 							</a>
@@ -489,7 +507,33 @@
 							#end
 
 							</td>
-
+							#if ($!isTimesheet)
+								#if ($!allowGradeSubmission)
+									<td headers="timeSheet">
+									#if (!$assignment.Estimate || $assignment.Estimate.equals(""))
+										-
+									#else
+										#if (!$!rate.get($assignment.Id) || $!rate.get($assignment.Id).equals(""))
+											-/$!assignment.Estimate
+										#else
+											$!rate.get($assignment.Id)/$!assignment.Estimate
+										#end
+									#end	
+									</td>
+								#else
+									<td headers="timeSheet">
+									#if (!$assignment.Estimate || $assignment.Estimate.equals(""))
+										-
+									#else
+										#if (!$!rateStudent.get($assignment.Id) || $!rateStudent.get($assignment.Id).equals(""))
+											-/$!assignment.Estimate
+										#else
+											$!rateStudent.get($assignment.Id)/$!assignment.Estimate
+										#end
+									#end	
+									</td>
+								#end
+							#end
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)

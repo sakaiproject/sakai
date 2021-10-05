@@ -846,6 +846,25 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     }
 };
 
+// SAK-43155
+ASN.toggleAutoAnnounceEstimate = function(checked){
+    const estimateRequired = document.getElementById('checkestimaterequired');
+    const timeEstimate = document.getElementById('inputtimestimate');
+    const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
+    const estimateRequiredCheck = document.getElementById('new_assignment_check_add_estimate_required');
+    
+    const display = checked ? 'block': 'none';
+    const resizeState = checked ? 'grow': 'shrink';
+    
+    estimateRequired && (estimateRequired.style.display = display);
+    timeEstimate && (timeEstimate.style.display = display);
+    ASN.resizeFrame(resizeState);
+    if (!checked) {
+        timeEstimateInput && (timeEstimateInput.value = '');
+        estimateRequiredCheck && (estimateRequiredCheck.checked = '');
+    }
+};
+
 // SAK-30032
 ASN.setupPeerReviewAttachment = function(){
     $('#submissionFileCount').val(1);
@@ -952,6 +971,23 @@ ASN.changeVisibleDate = function()
 		$('#new_assignment_visiblemin').val('');
 		$('.visibleDatePanel').hide();
 	}
+}
+
+ASN.enableTimesheetSetupSection = function()
+{
+    const el = document.getElementById('timesheetsetupsection');
+    el && (el.style.display = 'block');
+}
+
+ASN.disableTimesheetSetupSection = function()
+{
+    const el = document.getElementById('timesheetsetupsection');
+    el && (el.style.display = 'none');
+    
+    const el2 = document.getElementById('new_assignment_check_add_estimate');
+    el2 && (el2.checked = false);
+    
+    ASN.toggleAutoAnnounceEstimate(false);
 }
 
 $(document).ready(() => {

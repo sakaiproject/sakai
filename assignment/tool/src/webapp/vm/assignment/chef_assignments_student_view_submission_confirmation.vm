@@ -151,6 +151,14 @@
                 </p>
             #end
         #end
+        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+            <div>
+                <h4>
+                    $tlang.getString("gen.totaltimespentconfirm")
+                </h4>
+                $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+            </div>
+        #end
         ## only show the following if attachment submission is allowed
         #if (!$textSubmissionOnly)
             <h4>

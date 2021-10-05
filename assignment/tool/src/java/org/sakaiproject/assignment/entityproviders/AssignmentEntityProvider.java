@@ -15,7 +15,9 @@
  */
 package org.sakaiproject.assignment.entityproviders;
 
+import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 @Setter
@@ -99,7 +102,40 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private ServerConfigurationService serverConfigurationService;
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
+    private FormattedText formattedText;
 
+    @Setter
+    @Getter
+    public class BuildTimeSheetReturnMessage implements Serializable {
+
+        @Setter
+        @Getter
+        public class ErrorTimeSheetReturnMessage implements Serializable {
+            private int code;
+            private String message;
+
+            private ErrorTimeSheetReturnMessage() {}
+
+            private ErrorTimeSheetReturnMessage(int codeMsg, String textMsg) {
+                this.code = codeMsg;
+                this.message = textMsg;
+            }
+        }
+
+        private ErrorTimeSheetReturnMessage error;
+        private boolean success;
+
+        public BuildTimeSheetReturnMessage () {}
+
+        public BuildTimeSheetReturnMessage (boolean isSuccess, int codeMsg, String textMsg) {
+            this.success = isSuccess;
+            if (!isSuccess) {
+                this.error = new ErrorTimeSheetReturnMessage(codeMsg, textMsg);
+            }
+        }
+    }
+
+    
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
         return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
@@ -455,6 +491,168 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.sortName = sakaiUser.getSortName();
             this.id = sakaiUser.getId();
         }
+    }
+
+    @EntityCustomAction(action = "addTimeSheet", viewKey = EntityView.VIEW_NEW)
+    public BuildTimeSheetReturnMessage addTimeSheet(Map<String, Object> params) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("You need to be logged in to add time sheet register");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
+        }
+
+        User user;
+        try {
+            user = userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException unde) {
+            log.warn("You need to be logged in to add time sheet register");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
+        }
+
+        String assignmentId = (String) params.get("tsAssignmentId");
+        if (StringUtils.isBlank(assignmentId)) {
+            log.warn("You need to supply the assignmentId and ref");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
+        }
+
+        AssignmentSubmission submission;
+        try {
+            submission = assignmentService.getSubmission(assignmentId, user);
+        } catch (PermissionException pe) {
+            log.warn("You can't modify this sumbitter");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+        }
+
+        if (submission == null) {
+            String submitterId = user.getId();
+
+            try {
+                submission = assignmentService.addSubmission(assignmentId, submitterId);
+                if (submission != null) {
+                    submission.setSubmitted(true);
+                    submission.setUserSubmission(false);
+                    submission.setDateModified(Instant.now());
+                    submission.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
+                    assignmentService.updateSubmission(submission);
+                }
+            } catch (PermissionException e) {
+                log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.toString());
+                return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
+            }
+        }
+
+        String duration = (String) params.get("tsDuration");
+
+        if (!assignmentService.isValidTimesheetTime(duration)) {
+
+            log.warn("Wrong time format. Must match XXHXXM");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
+        }
+
+        String comment = (String) params.get("tsComment");
+        StringBuilder alertMsg = new StringBuilder();
+        comment = formattedText.processFormattedText(comment, alertMsg);
+        if (alertMsg.length() > 0) {
+            log.warn("Comment field format is not valid");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.comment");
+        }
+
+        Instant startTime;
+        try {
+            int month = Integer.parseInt((String) params.get("new_ts_record_month"));
+            int day = Integer.parseInt((String) params.get("new_ts_record_day"));
+            int year = Integer.parseInt((String) params.get("new_ts_record_year"));
+            int hour = Integer.parseInt((String) params.get("new_ts_record_hour"));
+            int min = Integer.parseInt((String) params.get("new_ts_record_minute"));
+
+            startTime = LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+        } catch (NumberFormatException nfe) {
+            startTime = Instant.now();
+        }
+
+        AssignmentSubmissionSubmitter submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(user.getId())).findAny().orElse(null);
+
+        if (submissionSubmitter == null) {
+            log.warn("You submitter does not exist");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
+        }
+
+        TimeSheetEntry timeSheet = new TimeSheetEntry();
+        timeSheet.setComment(comment);
+        timeSheet.setStartTime(startTime);
+        timeSheet.setDuration(duration);
+
+        try {
+            assignmentService.newTimeSheetEntry(submissionSubmitter, timeSheet);
+        } catch (PermissionException e) {
+            log.warn("You can't modify this sumbitter");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+        }
+        return new BuildTimeSheetReturnMessage(true, 0, "");
+    }
+
+    @EntityCustomAction(action = "removeTimeSheet", viewKey = EntityView.VIEW_NEW)
+    public BuildTimeSheetReturnMessage removeTimeSheet(Map<String, Object> params) {
+
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(userId)) {
+            log.warn("You need to be logged in to add time sheet register");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
+
+        }
+
+        User user;
+        try {
+            user = userDirectoryService.getUser(userId);
+        } catch (UserNotDefinedException unde) {
+            log.warn("You need to be logged in to add time sheet register");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
+        }
+
+        String assignmentId = (String) params.get("tsAssignmentId");
+        if (StringUtils.isBlank(assignmentId)) {
+            log.warn("You need to supply the assignmentId and ref");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
+        }
+
+        AssignmentSubmission submission;
+        try {
+            submission = assignmentService.getSubmission(assignmentId, user);
+        } catch (PermissionException e1) {
+            log.warn("You can't modify this sumbitter");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+        }
+
+        List<Long> timeSheetIds;
+        Object ts = params.get("selectedTimeSheets[]");
+        if (ts instanceof String[]) {
+            List<String> list = Arrays.asList((String[]) ts);
+            timeSheetIds = list.stream().filter(Objects::nonNull).map(Long::parseLong).collect(Collectors.toList());
+        } else if (ts instanceof String) {
+            timeSheetIds = Collections.singletonList(Long.parseLong(ts.toString()));
+        } else {
+            log.warn("Selected time sheets could not be retrieved from request parameters");
+            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.empty");
+        }
+
+        for (Long timeSheetId : timeSheetIds) {
+            if (null == timeSheetId) {
+                log.warn("A selected time sheet was null");
+                return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.submitterId");
+            }
+
+            try {
+                assignmentService.deleteTimeSheetEntry(timeSheetId);
+            } catch (PermissionException e) {
+                log.warn("Could not delete the selected time sheet");
+                return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
+            }
+        }
+
+        return new BuildTimeSheetReturnMessage(true, 0, "");
     }
 
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
@@ -1129,6 +1327,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private boolean anonymousGrading;
 
+
+        private Boolean estimateRequired;
+
+        private String estimate;
+
         private Boolean allowPeerAssessment;
 
         private String maxGradePoint;
@@ -1242,6 +1445,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
+            this.estimateRequired = a.getEstimateRequired();
+            this.estimate = a.getEstimate();
 
             this.allowPeerAssessment = a.getAllowPeerAssessment();
         }

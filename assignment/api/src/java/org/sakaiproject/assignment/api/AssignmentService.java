@@ -33,6 +33,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -758,6 +759,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
+    boolean isTimeSheetEnabled(String siteId);
+
     /**
      * This will return the internationalized title of the tool.
      * This is used when creating a new gradebook item.
@@ -819,6 +822,16 @@ public interface AssignmentService extends EntityProducer {
      * @return list of submission group users with multiple group memberships and the groups they belong to
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
+
+    public boolean isValidTimesheetTime(String timeSheet);
+
+    public TimeSheetEntry getTimeSheetEntry(Long timeSheetId) throws PermissionException;
+	
+    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheet) throws PermissionException;
+
+    public void deleteTimeSheetEntry(Long timeSheetId) throws PermissionException;
+
+    public String getTimeSpent(AssignmentSubmission submission);
 
     /**
      * Returns true if the content review implementation successfully created the assignment

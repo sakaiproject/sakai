@@ -93,6 +93,9 @@ public class O11AssignmentContent {
     // typeofgrade="3"
     private Integer typeofgrade;
 
+    private String estimate;
+    private Boolean estimateRequired = Boolean.FALSE;
+
     /**
      * List of name=value where value is enc is the encoding used in value<br/>
      * <property enc="BASE64" name="XXX" value="YYY"/>
