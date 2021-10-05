@@ -1066,7 +1066,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
                     message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
 	 
-            	this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
+            	message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
 
         	if (isMessageFromForums)
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));

@@ -2378,7 +2378,7 @@ public class DiscussionForumTool {
 	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
 	  	
 	  	setTopicBeanAssign();
-	  	getSelectedTopic();
+	  	selectedTopic = getSelectedTopic();
 	    
 	    List msgsList = selectedTopic.getMessages();
 	    
@@ -2611,7 +2611,7 @@ public class DiscussionForumTool {
     }
     selectedTopic = getDecoratedTopic(topic);
     setTopicBeanAssign();
-    getSelectedTopic();
+    selectedTopic = getSelectedTopic();
     //get thread from message
     getThreadFromMessage();
     refreshSelectedMessageSettings(message);
