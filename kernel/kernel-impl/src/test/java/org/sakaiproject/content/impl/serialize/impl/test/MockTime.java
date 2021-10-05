@@ -51,7 +51,7 @@ public class MockTime implements Time
 	 *        time format string
 	 * @throws ParseException 
 	 */
-	public MockTime(String str) 
+	public MockTime(String str)
 	{
 		// use formatter A: yyyyMMddHHmmssSSS
 		DateFormat fmt = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));

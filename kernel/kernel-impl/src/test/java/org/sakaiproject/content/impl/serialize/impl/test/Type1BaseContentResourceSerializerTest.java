@@ -27,6 +27,7 @@ import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSe
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 
+
 public class Type1BaseContentResourceSerializerTest
 {
 	/**
@@ -37,7 +38,8 @@ public class Type1BaseContentResourceSerializerTest
 	public final void testParse() throws Exception
 	{
 		Type1BaseContentResourceSerializer t1 = new Type1BaseContentResourceSerializer();
-		t1.setTimeService(new MockTimeService());
+		// Construct mock object
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableResourceAcccess sc = new MockSerializableResourceAcccess();
 		byte[] serialized = t1.serialize(sc);
 		t1.parse(sc, serialized);
@@ -52,7 +54,8 @@ public class Type1BaseContentResourceSerializerTest
 	public final void testSerialize() throws Exception
 	{
 		Type1BaseContentResourceSerializer t1 = new Type1BaseContentResourceSerializer();
-		t1.setTimeService(new MockTimeService());
+		// Construct mock object
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableResourceAcccess sc = new MockSerializableResourceAcccess();
 		byte[] s = t1.serialize(sc);
 		MockSerializableCollectionAcccess sr = new MockSerializableCollectionAcccess();

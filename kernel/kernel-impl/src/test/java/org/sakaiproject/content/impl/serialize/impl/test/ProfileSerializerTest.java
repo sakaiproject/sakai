@@ -40,7 +40,8 @@ public class ProfileSerializerTest
 	public final void testParse() throws Exception
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
-		t1.setTimeService(new MockTimeService());
+		// Construct mock object
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
 		byte[] serialized = null;
 		Runtime r = Runtime.getRuntime();

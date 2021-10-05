@@ -37,7 +37,8 @@ public class Type1BaseContentCollectionSerializerTest
 	public final void testParse() throws Exception
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
-		t1.setTimeService(new MockTimeService());
+		// Construct mock object
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
 		byte[] serialized = t1.serialize(sc);
 		t1.parse(sc, serialized);
@@ -52,7 +53,8 @@ public class Type1BaseContentCollectionSerializerTest
 	public final void testSerialize() throws Exception
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
-		t1.setTimeService(new MockTimeService());
+		// Construct mock object
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
 		byte[] s = t1.serialize(sc);
 		MockSerializableResourceAcccess sr = new MockSerializableResourceAcccess();
