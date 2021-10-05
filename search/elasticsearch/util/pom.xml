@@ -4,7 +4,7 @@
     <parent>
         <artifactId>elasticsearch-base</artifactId>
         <groupId>org.sakaiproject.search.elasticsearch</groupId>
-        <version>22-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>23-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.sakaiproject.search.elasticsearch</groupId>

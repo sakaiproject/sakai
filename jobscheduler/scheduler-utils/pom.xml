@@ -5,7 +5,7 @@
     <parent>
         <artifactId>scheduler</artifactId>
         <groupId>org.sakaiproject.scheduler</groupId>
-        <version>22-SNAPSHOT</version>
+        <version>23-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

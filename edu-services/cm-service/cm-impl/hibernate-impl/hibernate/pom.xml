@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>course-management</artifactId>
 		<groupId>org.sakaiproject.edu-services.course-management</groupId>
-		<version>22-SNAPSHOT</version><!-- ProjectVersion -->
+		<version>23-SNAPSHOT</version><!-- ProjectVersion -->
 		<relativePath>../../../pom.xml</relativePath>
 	</parent>
 	<name>coursemanagement-hibernate-model</name>

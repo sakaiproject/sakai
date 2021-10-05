@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
-    <version>22-SNAPSHOT</version><!-- sitestats.version --> 
+    <version>23-SNAPSHOT</version><!-- sitestats.version --> 
   </parent>
   
   <!-- Packaging -->

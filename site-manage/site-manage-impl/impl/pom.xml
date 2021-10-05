@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>22-SNAPSHOT</version>
+        <version>23-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
-            <version>22-SNAPSHOT</version>
+            <version>23-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
