@@ -789,7 +789,7 @@ function showExternalIframe(title, doreload) {
 					</div>
 				#end
 
-				#if ($!value_UseReviewService && $!value_SubmissionType != 4)
+				#if ($!value_UseReviewService == true && $!value_SubmissionType != 4)
 					<div id="reviewServiceOptions" class="indnt3">
 				#else
 					<div id="reviewServiceOptions" style="display:none" class="indnt3">
