@@ -22,6 +22,10 @@ copyright options and setting up documentation around copyright options (default
 /content/content-copyright/README.md
 ```
 
+# Drop Box
+
+The Drop Box tool is also contained within the content project. Drop Box specific documentation can be found [here](./DropBox.md).
+
 ## Release Notes
 
 ### Sakai 10.0

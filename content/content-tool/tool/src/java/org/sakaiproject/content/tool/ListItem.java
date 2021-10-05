@@ -151,6 +151,14 @@ public class ListItem
 	private static GroupTitleComparator groupComparator = new GroupTitleComparator();
 	
 	/**
+	 * Overload
+	 */
+	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String>expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
+	{
+		return getListItem(entity, parent, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth, userSelectedSort, preventPublicDisplay, addFilter, null);
+	}
+
+	/**
 	 * @param entity
 	 * @param parent
 	 * @param registry
@@ -162,9 +170,10 @@ public class ListItem
 	 * @param userSelectedSort
 	 * @param preventPublicDisplay
 	 * @param addFilter TODO
+	 * @param dropboxAuthz authz information to improve performance in dropbox contexts. Pass null if outside of a dropbox context
 	 * @return
 	 */
-	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String>expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
+	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String>expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter, DropboxAuthz dropboxAuthz)
 	{
 		ListItem item = null;
 			
@@ -188,13 +197,18 @@ public class ListItem
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
         /*
-         * calculate permissions for this entity.  If its access mode is 
-         * GROUPED, we need to calculate permissions based on current user's 
+         * Calculate permissions for this entity.  Dropbox is authorized
+         * via dropboxAuthz. Otherwise, if its access mode is GROUPED,
+         * we need to calculate permissions based on current user's
          * role in group. Otherwise, we inherit from containing collection
          * and check to see if additional permissions are set on this entity
          * that were't set on containing collection...
          */
-        if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
+        if (dropboxAuthz != null)
+        {
+            DropboxHelper.configureDropboxItemPermissions(dropboxAuthz, item);
+        }
+        else if(GroupAwareEntity.AccessMode.INHERITED == entity.getAccess())
         {
         	// permissions are same as parent or site
         	if(parent == null)
@@ -300,8 +314,13 @@ public class ListItem
 						{
 							continue;
 						}
+						if (dropboxAuthz != null && !DropboxHelper.getDropboxPermissionsForEntity(dropboxAuthz, childEntity).contains(ContentPermissions.READ))
+						{
+							// This is a Drop Box context and we don't have read permission on this entity; exclude it
+							continue;
+						}
 	
-					ListItem child = getListItem(childEntity, item, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
+					ListItem child = getListItem(childEntity, item, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter, dropboxAuthz);
 		        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
 		        		{
 		        			child.setSelectedForCopy(true);

@@ -183,6 +183,18 @@ public interface ContentHostingService extends EntityProducer
 	/** Security function for those who may maintain dropboxes. */
 	public static final String AUTH_DROPBOX_MAINTAIN = "dropbox.maintain";
 
+	/** Security function for those who may modify their own content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_WRITE_OWN = "dropbox.write.own";
+
+	/** Security function for those who may modify any content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_WRITE_ANY = "dropbox.write.any";
+
+	/** Security function for those who may remove their own content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_REMOVE_OWN = "dropbox.delete.own";
+
+	/** Security function for those who may remove any content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_REMOVE_ANY = "dropbox.delete.any";
+
 	/** Security function for accessing hidden entities */
 	public static final String AUTH_RESOURCE_HIDDEN = "content.hidden";
 	
@@ -1820,6 +1832,27 @@ public interface ContentHostingService extends EntityProducer
 	 * @return true if the entity is a dropbox or in a dropbox, false otherwise. 
 	 */
 	public boolean isInDropbox(String entityId);
+
+	/**
+	 * Check whether an id would identify as a site level dropbox. Does not determine existence of the entity,
+	 * just whether its id indicates that it is a site level dropbox.
+	 * @return true if the entity is a site level dropbox.
+	 */
+	public boolean isSiteLevelDropbox(String entityId);
+
+	/**
+	 * Check whether an id would identify as a user's dropbox. Does not determine existence of the entity nor of the user,
+	 * just whether the entityId matches the format of a user dropbox (I.e. that it's a child of a site level dropbox)
+	 * @return true if the entityId matches the format of a user's dropbox.
+	 */
+	public boolean isIndividualDropbox(String entityId);
+
+	/**
+	 * Check whether an id would identify as being inside a user's dropbox. Does not determine existence of the entity nor of the user,
+	 * just whether its id indicates that it is inside a dropbox for a user (I.e. a descendent of an individual dropbox)
+	 * @return true if the entityId's format suggests that it's inside a user's dropbox.
+	 */
+	public boolean isInsideIndividualDropbox(String entityId);
 	
 	/**
 	 * Construct a content hosting comparator.

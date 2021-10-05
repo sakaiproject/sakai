@@ -284,4 +284,11 @@
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
 
+    <bean id="org.sakaiproject.content.impl.DropboxAuthzHandler" class="org.sakaiproject.content.impl.DropboxAuthzHandler">
+        <property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
 </beans>

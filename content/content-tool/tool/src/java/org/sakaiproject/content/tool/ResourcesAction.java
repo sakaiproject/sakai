@@ -2091,16 +2091,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			pathitems.add(currentCollectionId);
 			previousCollectionId = currentCollectionId;
 			currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
+			if (previousCollectionId != null && previousCollectionId.startsWith(ContentHostingService.COLLECTION_DROPBOX))
+			{
+				String[] parts = previousCollectionId.split("/");
+				// "/group-user/siteId/" parts: "", "group-user", "siteId", ""
+				if (parts.length == 3 || (parts.length == 4 && StringUtils.isEmpty(parts[3])))
+				{
+					// This is the site dropbox; proceed no higher.
+					break;
+				}
+			}
 		}
 		
-		if(navRoot != null && (pathitems.isEmpty() || (! navRoot.equals(previousCollectionId) && ! navRoot.equals(currentCollectionId))))
+		if (!ContentHostingService.COLLECTION_DROPBOX.equals(currentCollectionId))
 		{
-			pathitems.add(navRoot);
+			if(navRoot != null && (pathitems.isEmpty() || (! navRoot.equals(previousCollectionId) && ! navRoot.equals(currentCollectionId))))
+			{
+				pathitems.add(navRoot);
 
-		}
-		if(homeCollectionId != null && (pathitems.isEmpty() || (!homeCollectionId.equals(navRoot) && ! homeCollectionId.equals(previousCollectionId) && ! homeCollectionId.equals(currentCollectionId))))
-		{
-			pathitems.add(homeCollectionId);
+			}
+			if(homeCollectionId != null && (pathitems.isEmpty() || (!homeCollectionId.equals(navRoot) && ! homeCollectionId.equals(previousCollectionId) && ! homeCollectionId.equals(currentCollectionId))))
+			{
+				pathitems.add(homeCollectionId);
+			}
 		}
 
 		Iterator items = pathitems.iterator();
@@ -4294,9 +4307,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Set<String> expandedCollections = getExpandedCollections(state);
 			expandedCollections.add(collectionId);
 
+			DropboxAuthz dropboxAuthz = dropboxMode ? DropboxHelper.getAuthorization() : null;
+
 			ContentCollection collection = contentHostingService.getCollection(collectionId);
 			
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null);
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null, dropboxAuthz);
 			
 			Map<String, ResourceToolAction> listActions = new HashMap<>();
 			
