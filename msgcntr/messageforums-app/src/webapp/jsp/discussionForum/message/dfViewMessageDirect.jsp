@@ -42,20 +42,32 @@
 		return;
 
 	}else if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
-		target = "/jsp/discussionForum/message/dfViewMessage.jsf?messageId="
-				+ request.getParameter("messageId") + "&topicId="
+		String placementId = null;
+		String siteId = null
+		try {
+			siteId = ToolManager.getCurrentPlacement().getContext();
+			if (SiteService.getSite(siteId).getToolForCommonId("sakai.forums") != null) {
+				placementId = SiteService.getSite(siteId).getToolForCommonId("sakai.forums").getId();
+			}else if (SiteService.getSite(siteId).getToolForCommonId("sakai.messagecenter") != null) {
+				placementId = SiteService.getSite(siteId).getToolForCommonId("sakai.messagecenter").getId();
+			}
+		}
+		catch (Exception e) {
+			log.warn("dfViewThreadDirect - error while trying to get Forums tool id : {}", e.getMessage());
+			return;
+		}
+
+		target = portalPath + "/site/" + siteId + "/tool/" + placementId + "/discussionForum/message/dfViewMessage?messageId="
+				+ request.getParameter("messageId") + "&placementId=" + placementId + "&topicId="
 				+ request.getParameter("topicId") + "&forumId="
 				+ request.getParameter("forumId");
 	
 		forumTool.processActionDisplayThread();
 		forumTool.processActionDisplayMessage();
-	
-		// dispatch to the target
-		RequestDispatcher dispatcher = getServletContext()
-				.getRequestDispatcher(target);
+
 		try {
-			dispatcher.forward(request, response);
-		} catch (ServletException e) {
+			response.sendRedirect(target);
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 	}else{
