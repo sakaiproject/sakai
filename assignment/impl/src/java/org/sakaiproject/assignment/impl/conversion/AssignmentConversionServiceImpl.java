@@ -365,7 +365,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         a.setVisibleDate(convertStringToTime(assignment.getVisibledate()));
 
         a.setEstimate(content.getEstimate());
-        a.setEstimateRequired(content.getReqEstimate());
+        a.setEstimateRequired(content.getEstimateRequired());
 
         // support for list of attachment0
         Set<String> attachmentKeys = Arrays.stream(contentAnyKeys).filter(attachmentFilter).collect(Collectors.toSet());

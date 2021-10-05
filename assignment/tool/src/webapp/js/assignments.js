@@ -848,20 +848,20 @@ ASN.toggleAutoAnnounceOptions = function(checked){
 
 // SAK-43155
 ASN.toggleAutoAnnounceEstimate = function(checked){
-    const reqEstimate = document.getElementById('checkreqestimate');
+    const estimateRequired = document.getElementById('checkestimaterequired');
     const timeEstimate = document.getElementById('inputtimestimate');
     const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
-    const reqEstimateCheck = document.getElementById('new_assignment_check_add_estimate_required');
+    const estimateRequiredCheck = document.getElementById('new_assignment_check_add_estimate_required');
     
     const display = checked ? 'block': 'none';
     const resizeState = checked ? 'grow': 'shrink';
     
-    reqEstimate && (reqEstimate.style.display = display);
+    estimateRequired && (estimateRequired.style.display = display);
     timeEstimate && (timeEstimate.style.display = display);
     ASN.resizeFrame(resizeState);
     if (!checked) {
         timeEstimateInput && (timeEstimateInput.value = '');
-        reqEstimateCheck && (reqEstimateCheck.checked = '');
+        estimateRequiredCheck && (estimateRequiredCheck.checked = '');
     }
 };
 

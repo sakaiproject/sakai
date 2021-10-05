@@ -116,8 +116,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         TimeSheetEntry timeSheetEntry = geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
         if (timeSheetEntry != null) {
             log.info("Deleting time sheet entry: {}", timeSheetEntry);
-            timeSheetEntry.getAssignmentSubmissionSubmitter().getTimeSheetEntries().remove(timeSheetEntry);
-            geCurrentSession().delete(timeSheetEntry);
+            AssignmentSubmissionSubmitter submissionSubmitter = timeSheetEntry.getAssignmentSubmissionSubmitter();
+            submissionSubmitter.getTimeSheetEntries().remove(timeSheetEntry);
+            geCurrentSession().merge(submissionSubmitter);
         }
     }
 

@@ -8240,14 +8240,14 @@ public class AssignmentAction extends PagedResourceActionII {
                 allowResubmitNumber = null;
             }
             boolean checkIsEstimate = false;
-            boolean checkReqEstimate = false;
+            boolean checkEstimateRequired = false;
             String timeEstimate = StringUtils.EMPTY;
             if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) != null
                     && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 checkIsEstimate = Boolean.TRUE;
                 if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) != null
                         && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED)).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                    checkReqEstimate = Boolean.TRUE;
+                    checkEstimateRequired = Boolean.TRUE;
                 }
                 if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE) != null) {
                     timeEstimate = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
@@ -8346,7 +8346,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, rangeAndGroupSettings.isGroupSubmit, rangeAndGroupSettings.groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted,
-                        excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow, checkIsEstimate, checkReqEstimate, timeEstimate);
+                        excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow, checkIsEstimate, checkEstimateRequired, timeEstimate);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
                 rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
@@ -9201,7 +9201,7 @@ public class AssignmentAction extends PagedResourceActionII {
 								  Integer contentId,
                                   boolean contentLaunchNewWindow,
                                   boolean checkIsEstimate,
-                                  boolean checkReqEstimate,
+                                  boolean checkEstimateRequired,
                                   String timeEstimate) {
         a.setTitle(title);
         a.setContext((String) state.getAttribute(STATE_CONTEXT_STRING));
@@ -9219,7 +9219,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setDropDeadDate(dueTime);
         a.setVisibleDate(visibleTime);
 
-        a.setEstimateRequired(checkReqEstimate);
+        a.setEstimateRequired(checkEstimateRequired);
         a.setEstimate(timeEstimate);
         
         if (closeTime != null) a.setCloseDate(closeTime);

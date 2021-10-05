@@ -492,9 +492,9 @@
 				</div>
 	
 				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="checkreqestimate" class="checkbox">
+					<div id="checkestimaterequired" class="checkbox">
 				#else
-					<div id="checkreqestimate" style="display:none" class="checkbox">
+					<div id="checkestimaterequired" style="display:none" class="checkbox">
 				#end
 					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
 					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))

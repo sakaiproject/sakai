@@ -94,7 +94,7 @@ public class O11AssignmentContent {
     private Integer typeofgrade;
 
     private String estimate;
-    private Boolean reqEstimate = Boolean.FALSE;
+    private Boolean estimateRequired = Boolean.FALSE;
 
     /**
      * List of name=value where value is enc is the encoding used in value<br/>

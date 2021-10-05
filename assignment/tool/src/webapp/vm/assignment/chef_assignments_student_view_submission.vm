@@ -665,7 +665,7 @@ $(document).ready(function(){
 					$tlang.getString("gen.spenttime")
 				</h3>
 				<div class="row">
-					#if ($assignment.ReqEstimate)
+					#if ($assignment.estimateRequired)
 						<div class="col-sm-5 form-required">
 					#else
 						<div class="col-sm-5">

@@ -74,7 +74,7 @@ public class O11Assignment {
     private String visibledate;
 
     private String estimate;
-    private Boolean reqEstimate = Boolean.FALSE;
+    private Boolean estimateRequired = Boolean.FALSE;
 
     // List of authzGroups
     // <group authzGroup="/site/BVCC_942A_9301/group/b9ff34b8-1465-4ba8-b532-ed8e097b88fa"/>
