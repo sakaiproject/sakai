@@ -862,8 +862,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submissionSubmitter != null && timeSheetEntry != null) {
             AssignmentSubmission submission = submissionSubmitter.getSubmission();
             String siteId = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getContext();
-            if (!allowUpdateSubmission(siteId)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+            if (!allowAddSubmission(siteId)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, null);
             }
             assignmentRepository.newTimeSheetEntry(submissionSubmitter, timeSheetEntry);
             log.debug("Add time sheet entry for submitter: {}", submissionSubmitter);

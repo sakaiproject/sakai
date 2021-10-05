@@ -102,7 +102,7 @@
                     $tlang.getString("gen.totaltimespent")
                 </th>
                 <td>
-                    $formattedText.escapeHtml($!value_ASSIGNMENT_INPUT_ADD_TIME_SPENT)
+                    $formattedText.escapeHtml($!assignment_input_add_time_spent)
                 </td>
             </tr>
         #end
