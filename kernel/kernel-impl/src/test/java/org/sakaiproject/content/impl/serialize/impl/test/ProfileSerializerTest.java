@@ -26,17 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
-import java.util.Locale;
-import org.sakaiproject.time.api.TimeRange;
-import java.util.TimeZone;
-import java.time.Instant;
-import java.util.GregorianCalendar;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.api.Time;
-import java.time.format.FormatStyle;
-import java.time.LocalDate;
-import java.util.Date;
 
 @Slf4j
 public class ProfileSerializerTest
@@ -52,7 +41,7 @@ public class ProfileSerializerTest
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
 		// Construct mock object
-		t1.setTimeService(MockTimeService.mockTimeService1());
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
 		byte[] serialized = null;
 		Runtime r = Runtime.getRuntime();

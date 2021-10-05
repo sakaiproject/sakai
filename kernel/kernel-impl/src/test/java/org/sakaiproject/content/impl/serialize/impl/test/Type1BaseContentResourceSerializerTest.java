@@ -39,7 +39,7 @@ public class Type1BaseContentResourceSerializerTest
 	{
 		Type1BaseContentResourceSerializer t1 = new Type1BaseContentResourceSerializer();
 		// Construct mock object
-		t1.setTimeService(MockTimeService.mockTimeService1());
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableResourceAcccess sc = new MockSerializableResourceAcccess();
 		byte[] serialized = t1.serialize(sc);
 		t1.parse(sc, serialized);
@@ -55,7 +55,7 @@ public class Type1BaseContentResourceSerializerTest
 	{
 		Type1BaseContentResourceSerializer t1 = new Type1BaseContentResourceSerializer();
 		// Construct mock object
-		t1.setTimeService(MockTimeService.mockTimeService1());
+		t1.setTimeService(MockTimeService.mockTimeMillisSince());
 		MockSerializableResourceAcccess sc = new MockSerializableResourceAcccess();
 		byte[] s = t1.serialize(sc);
 		MockSerializableCollectionAcccess sr = new MockSerializableCollectionAcccess();

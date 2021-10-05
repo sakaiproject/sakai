@@ -22,7 +22,10 @@
 package org.sakaiproject.content.impl.serialize.impl.test;
 
 import org.sakaiproject.time.api.TimeService;
-import static org.mockito.Mockito.*;
+
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author ieb
@@ -31,12 +34,12 @@ import static org.mockito.Mockito.*;
 public class MockTimeService
 {
 
-	public static TimeService mockTimeService1() {
-		TimeService mockInstance = mock(TimeService.class);
-		when(mockInstance.newTime(anyLong())).thenAnswer((stubInvo) -> {
-			long value = stubInvo.getArgument(0);
+	public static TimeService mockTimeMillisSince() {
+		TimeService timeService = mock(TimeService.class);
+		when(timeService.newTime(anyLong())).thenAnswer((onMock) -> {
+			long value = onMock.getArgument(0);
 			return new MockTime(value);
 		});
-		return mockInstance;
+		return timeService;
 	}
 }
