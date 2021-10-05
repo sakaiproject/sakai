@@ -16,6 +16,7 @@
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -110,4 +111,36 @@ public interface SecureDeliveryModuleIfc {
 	 * @return the plain text password
 	 */
 	public String decryptPassword( String password );
+
+	/**
+	 * Returns an absolute URL to an alternative location to take the assessment.
+	 * For example, a cloud proctoring company could use this URL to embed the Samigo assessment in an iframe.
+	 * @param assessmentId
+	 * @param uid
+	 * @return
+	 */
+	default Optional<String> getAlternativeDeliveryUrl(Long assessmentId, String uid) {
+		return Optional.empty();
+	}
+
+	/**
+	 * Returns an absolute URL to an alternative location to review the student's taking of the proctored assessment.
+	 * @param assessmentId
+	 * @param studentId (internal user id)
+	 * @return
+	 */
+	default Optional<String> getInstructorReviewUrl(Long assessmentId, String studentId) {
+		return Optional.empty();
+	}
+
+	/**
+	 * Returns whether the SecureDelivery service is implemented for this one assessment
+	 * Some institutions may want to limit what assessments or sites are allowed to use the service.
+	 * @param assessment
+	 * @return
+	 */
+	default boolean isEnabled(Long assessmentId) {
+		return isEnabled();
+	}
+
 }

@@ -327,19 +327,16 @@ $(document).ready(function(){
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
      </h:panelGroup>
-     <f:verbatim><br/></f:verbatim>
-	 <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
-		 <h:outputText value="<a href=\"mailto:" escape="false" />
-	     <h:outputText value="#{description.email}" />
-	     <h:outputText value="?subject=" escape="false" />
-		 <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
-         <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
-         <h:outputText value="</a>" escape="false" />
-	   </h:panelGroup>
-	 </span>
-   	</span>
-	
+     <span class="itemAction">
+       <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+         <h:outputText value="<a href=\"mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+         <h:outputText value="<span class=\"fa fa-envelope\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.email}</span></a> " escape="false" />
+       </h:panelGroup>
+       <h:panelGroup rendered="#{not empty description.alternativeInstructorReviewUrl}">
+         <h:outputText value="<a target=\"blank\" href=\"#{description.alternativeInstructorReviewUrl}\"><span class=\"fa fa-video-camera\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.instructor_review}</span></a>" escape="false" />
+       </h:panelGroup>
+     </span>
+    </span>
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
@@ -376,19 +373,17 @@ $(document).ready(function(){
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
      </h:panelGroup>
-     <f:verbatim><br/></f:verbatim>
-	 <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
-		 <h:outputText value="<a href=\"mailto:" escape="false" />
-	     <h:outputText value="#{description.email}" />
-	     <h:outputText value="?subject=" escape="false" />
-		 <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
-         <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
-         <h:outputText value="</a>" escape="false" />
-	   </h:panelGroup>
-	 </span>
-   	</span>
-	
+     <span class="itemAction">
+       <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+         <h:outputText value="<a href=\"mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+         <h:outputText value="<span class=\"fa fa-envelope\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.email}</span></a> " escape="false" />
+       </h:panelGroup>
+       <h:panelGroup rendered="#{not empty description.alternativeInstructorReviewUrl}">
+         <h:outputText value="<a target=\"_blank\" href=\"#{description.alternativeInstructorReviewUrl}\"><span class=\"fa fa-video-camera\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.instructor_review}</span></a>" escape="false" />
+       </h:panelGroup>
+    </span>
+   </span>
+
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">

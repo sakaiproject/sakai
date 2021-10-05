@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.grading"
+                   default-lazy="false">
+
+  <class name="org.sakaiproject.tool.assessment.data.dao.grading.SecureDeliveryData" table="SAM_SECUREDELIVERY_T">
+    <id name="id" column="ID" type="java.lang.Long" unsaved-value="0" >
+      <generator class="native">
+        <param name="sequence">SAM_SECUREDELIVERY_ID_S</param>
+      </generator>
+    </id>
+    <property name="publishedAssessmentId" type="long" column="PUB_ASSESSMENT_ID" not-null="true" index="SAM_SECURE_INDEX" />
+    <property name="agentId" type="string" length="99" column="AGENTID" not-null="true" index="SAM_SECURE_INDEX" />
+    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="false" />
+    <property name="createdDate" type="timestamp" column="CREATED_DATE" not-null="true" />
+    <property name="instructorUrl" type="string" length="1000" column="INSTRUCTOR_URL" not-null="false" />
+    <property name="studentUrl" type="string" length="1000" column="STUDENT_URL" not-null="false" />
+  </class>
+
+    <query name="getEntriesForAssessment">
+        <![CDATA[FROM SecureDeliveryData WHERE publishedAssessmentId = :publishedId]]>
+    </query>
+    <query name="getEntriesForAssessmentAndUser">
+        <![CDATA[FROM SecureDeliveryData WHERE publishedAssessmentId = :publishedId AND agentId = :agentId]]>
+    </query>
+</hibernate-mapping>
