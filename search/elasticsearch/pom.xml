@@ -15,13 +15,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- maven-compiler-plugin config -->
-        <maven.compiler.source>${sakai.jdk.version}</maven.compiler.source>
-        <maven.compiler.target>${sakai.jdk.version}</maven.compiler.target>
     </properties>
-
-
 
     <modules>
         <module>api</module>

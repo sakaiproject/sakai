@@ -16,28 +16,6 @@
     <deploy.target>components</deploy.target>
   </properties>
 
-    <profiles>
-        <profile>
-            <id>1.7</id>
-            <activation>
-                <jdk>[1.7,)</jdk>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.sakaiproject.search</groupId>
-                    <artifactId>search-test-1.7</artifactId>
-                    <version>${project.version}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-            <properties>
-                <maven.test.jvmargs />
-                <lucene.version>4.5.0</lucene.version>
-                <bouncycastle.artifact.version>jdk15on</bouncycastle.artifact.version>
-            </properties>
-        </profile>
-    </profiles>
-
   <build>
     <resources>
       <resource>
@@ -147,12 +125,12 @@
     <!-- PDF box uses BouncyCastle for crypotgraphic functions at runtime -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-${bouncycastle.artifact.version}</artifactId>
+      <artifactId>bcprov-jdk15on</artifactId>
       <version>1.69</version>
     </dependency>
      <dependency>
        <groupId>org.bouncycastle</groupId>
-       <artifactId>bcmail-${bouncycastle.artifact.version}</artifactId>
+       <artifactId>bcmail-jdk15on</artifactId>
        <version>1.69</version>
     </dependency>
     <dependency>
