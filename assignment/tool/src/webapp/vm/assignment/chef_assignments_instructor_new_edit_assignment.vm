@@ -60,6 +60,7 @@
 		if(document.getElementById('subType').value == 6)
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
+			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
 			document.getElementById('assignToSection').style.display = 'none';
 			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
@@ -71,6 +72,7 @@
 			document.getElementById('peerAssessmentContainer').style.display = 'none';
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
+			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
 			document.getElementById('assignToSection').style.display = 'block';
 			document.getElementById('notificationOptions').style.display = 'block';
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
@@ -726,6 +728,9 @@ function showExternalIframe(title, doreload) {
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
 			</div>
+		    <p class="sak-banner-info" id="ltiSubmissionResubmitNote" #if ($value_SubmissionType != 6) style = "display:none"#end>
+			    $tlang.getString("external.tool.resubmission")
+            </p>
 		</div>
 
 		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
