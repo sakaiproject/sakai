@@ -451,6 +451,7 @@
           </li>
         </ul>
         <h:outputLabel id="lateHandlingHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
+        <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_stop_accepting_now}" action="confirmAssessmentRetract" />
       </div>
     </div>
   </h:panelGroup>
