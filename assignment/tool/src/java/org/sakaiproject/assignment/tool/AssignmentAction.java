@@ -8171,7 +8171,7 @@ public class AssignmentAction extends PagedResourceActionII {
             Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
 
             boolean emailReminder = (Boolean) state.getAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL);
-            
+
             // close time
             Instant closeTime = dueTime;
             boolean enableCloseDate = (Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
@@ -8244,10 +8244,10 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean checkEstimateRequired = false;
             String timeEstimate = StringUtils.EMPTY;
             if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) != null
-                    && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                    && ((String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)).equalsIgnoreCase(Boolean.TRUE.toString())) {
                 checkIsEstimate = Boolean.TRUE;
                 if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) != null
-                        && ((String)state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED)).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                        && ((String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED)).equalsIgnoreCase(Boolean.TRUE.toString())) {
                     checkEstimateRequired = Boolean.TRUE;
                 }
                 if (state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE) != null) {
@@ -8428,7 +8428,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         if (!aOldAccess.equals(a.getTypeOfAccess())) {
                             //SAK-45992
-                            if(openTime.isBefore(Instant.now())){
+                            if (openTime.isBefore(Instant.now())) {
                                 // site-group access setting changed
                                 eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                             }
@@ -8437,7 +8437,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             if (!(aOldGroups == null && aGroups == null)
                                     && !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups))) {
                                 //SAK-45992
-                                if(openTime.isBefore(Instant.now())){
+                                if (openTime.isBefore(Instant.now())) {
                                     //group changed
                                     eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
                                 }
@@ -8474,27 +8474,28 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
             // SAK-45967 && SAK-44623 && SAK-45992
-            if ( (newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
+            if ((newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
 
                 Collection aGroups = a.getGroups();
-                if(aGroups.size() != 0){
+                if (aGroups.size() != 0) {
                     //SAK-45992
-                    if(openTime.isBefore(Instant.now())){
+                    if (openTime.isBefore(Instant.now())) {
                         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
-                    }else{
+                    } else {
                         // SAK-44623
                         eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
                                 true), openTime);
                     }
-                }else {
+                } else {
                     //SAK-44623
-                    if(openTime.isBefore(Instant.now())){
+                    if (openTime.isBefore(Instant.now())) {
                         // post new assignment event since it is fully initialized by now
                         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
-                    }else{
+                    } else {
                         eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
                     }
                 }
+            }
         }
     }
 
