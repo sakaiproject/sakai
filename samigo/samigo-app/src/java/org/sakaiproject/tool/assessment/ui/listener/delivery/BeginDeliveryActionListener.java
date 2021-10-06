@@ -79,7 +79,6 @@ public class BeginDeliveryActionListener implements ActionListener
 {
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
-  private final static String PUBLISHED_ASSESSMENT_RBC_PREFIX = "pub.";
 
   /**
    * ACTION.
@@ -303,10 +302,10 @@ public class BeginDeliveryActionListener implements ActionListener
     PublishedAssessmentService service = new PublishedAssessmentService();
     
     if (author.getIsEditPendingAssessmentFlow()) {
-    	delivery.setRbcAssociation(pubAssessment.getAssessmentId().toString());
+    	delivery.setRubricAssociation(pubAssessment.getAssessmentId().toString());
     }
     else {
-    	delivery.setRbcAssociation(PUBLISHED_ASSESSMENT_RBC_PREFIX + publishedAssessmentId.toString());
+    	delivery.setRubricAssociation("pub." + publishedAssessmentId.toString());
     }
 
     // #0 - global information
