@@ -49,6 +49,7 @@ import static org.sakaiproject.assignment.api.model.Assignment.GradeType.SCORE_G
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.UNGRADED_GRADE_TYPE;
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.values;
 
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.CalendarUtil;
 
 import java.io.ByteArrayInputStream;
@@ -8443,6 +8444,18 @@ public class AssignmentAction extends PagedResourceActionII {
                             }
                         }
 
+                        // SAK-44623
+                        if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
+                            //cancel not fired event
+                            eventTrackingService.cancelDelays(assignmentReference, AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT);
+                            // open time change
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
+                            if (a.getOpenDate().isAfter(Instant.now())) {
+                                eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                        true), openTime);
+                            }
+                        }
+
                         if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenDate())) {
                             // open time change
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentReference, true));
@@ -8460,11 +8473,28 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             }
-            //SAK-45967
-            if (newAssignment || !a.getDraft()) {
-                // post new assignment event since it is fully initialized by now
-                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
-            }
+            // SAK-45967 && SAK-44623 && SAK-45992
+            if ( (newAssignment && !a.getDraft()) || (!a.getDraft() && !newAssignment)) {
+
+                Collection aGroups = a.getGroups();
+                if(aGroups.size() != 0){
+                    //SAK-45992
+                    if(openTime.isBefore(Instant.now())){
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentReference, true));
+                    }else{
+                        // SAK-44623
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference,
+                                true), openTime);
+                    }
+                }else {
+                    //SAK-44623
+                    if(openTime.isBefore(Instant.now())){
+                        // post new assignment event since it is fully initialized by now
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignmentReference, true));
+                    }else{
+                        eventTrackingService.delay(eventTrackingService.newEvent(AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT, assignmentReference, true), openTime);
+                    }
+                }
         }
     }
 

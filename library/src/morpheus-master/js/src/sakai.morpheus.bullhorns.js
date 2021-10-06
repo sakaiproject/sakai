@@ -177,7 +177,7 @@
 
     bunch.alerts.forEach(alert => {
 
-      if ("asn.new.assignment" === alert.event || "asn.revise.access" === alert.event) {
+      if ("asn.new.assignment" === alert.event || "asn.revise.access" === alert.event || "asn.available.assignment" === alert.event) {
         messageTemplate = i18n.assignmentCreated;
       } else if ("asn.grade.submission" === alert.event) {
         messageTemplate = i18n.assignmentSubmissionGraded;

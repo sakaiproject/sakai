@@ -32,6 +32,7 @@ import org.hibernate.type.StringType;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_ADD_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.EVENT_AVAILABLE_ASSIGNMENT;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -86,6 +87,7 @@ public class AddAssignmentBullhornHandler extends AbstractBullhornHandler {
             Assignment assignment = assignmentService.getAssignment(assignmentId);
             switch (e.getEvent()) {
                 case EVENT_ADD_ASSIGNMENT:
+                case EVENT_AVAILABLE_ASSIGNMENT:
                     return bhAlreadyExists(ref) ? Optional.empty() : Optional.of(handleAdd(from, siteId, assignmentId, assignment));
                 case EVENT_UPDATE_ASSIGNMENT_ACCESS:
                     return Optional.of(handleUpdateAccess(from, ref, siteId, assignmentId, assignment));
