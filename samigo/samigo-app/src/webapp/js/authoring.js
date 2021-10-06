@@ -389,30 +389,15 @@ function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
 // If we select "No, do not display any feedback to the student"
 // it will uncheck feedback as well as blank out text, otherwise,
 // if a different radio button is selected, we reenable feedback checkboxes & text.
-function disableAllFeedbackCheck(feedbackType) {
-    var noFeedback = 3;
-
-    if (feedbackType == noFeedback) {
-        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
-        $(".respChoice input").prop({checked:false});
-        $('input[id*=feedbackComponentOption][value=1]')[0].checked = true;
-    }
-    else {
-        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
-        if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
-                $(".respChoice input").prop({checked:false});
-        }
-        else {
-                $(".respChoice input").prop("disabled", false);
-        }
-    }
-    disableFeedbackDateCheck(feedbackType);
-    disableOtherFeedbackComponentOption();
+function disableAllFeedbackCheck() {
+	disableFeedbackDateCheck();
+	disableOtherFeedbackComponentOption();
 }
 
 // Display the date selectors when the feedback is shown by date.
-function disableFeedbackDateCheck(feedbackType) {
-	var dateFeedback = 2;
+function disableFeedbackDateCheck() {
+    const dateFeedback = 2;
+    const feedbackType = document.querySelector("input[id*=feedbackDelivery]:checked").value;
 
     if (feedbackType == dateFeedback) {
         $("#feedbackByDatePanel").show();
@@ -473,33 +458,21 @@ function disableAllFeedbackCheckTemplate(feedbackType)
 	}
 }
 
-$(window).load( function() {
-	checkNoFeedbackOnLoad();
-});
+function disableOtherFeedbackComponentOption (){
+	const noFeedback = 3;
+	const feedbackType = document.querySelector("input[id*=feedbackDelivery]:checked").value;
+	const fields = document.querySelectorAll("input[id*=feedbackComponentOption]");
+	const field = Array.from(fields).find(radio => radio.checked);
+	const respChoice = document.querySelector('.respChoice');
 
-function checkNoFeedbackOnLoad(){
-	var noFeedback = 3;
-	var feedbackByDate = 2;
-	var feedbackType = $("input[name=assessmentSettingsAction\\:feedbackDelivery]:checked").val();
+	fields.forEach(radio => {
+		radio.disabled = feedbackType == noFeedback;
+	});
 
-	if(feedbackType == noFeedback) {
-		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
-		$(".respChoice input").prop('disabled', true);
-	}
-	if(feedbackType == feedbackByDate) {
-		$("#feedbackByDatePanel").show();
-	}
-	disableFeedbackDateCheck(feedbackType);
-}
-
-function disableOtherFeedbackComponentOption()
-{
-	var fieldValue = $("input[id*=feedbackComponentOption]:checked")[0].value;
-	if(fieldValue == "1" ){
-		$(".respChoice")[0].style.display = "none";
-	}
-	else{
-		$(".respChoice")[0].style.display = "block";
+	if (field.value == "2" && !field.disabled) {
+		respChoice.style.display = "block";
+	} else {
+		respChoice.style.display = "none";
 	}
 }
 
