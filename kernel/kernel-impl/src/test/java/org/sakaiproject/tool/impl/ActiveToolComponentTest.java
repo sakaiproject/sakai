@@ -21,10 +21,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -214,6 +216,22 @@ public class ActiveToolComponentTest {
 		for (int i = 0; i< 100; i++) {
 			activeToolManager.register(getClass().getResourceAsStream("site-info-original.xml"));
 		}
+	}
+
+	@Test
+	public void testFlatmapOrdering() {
+		Properties props = new Properties();
+		props.put(ToolManager.TOOLCONFIG_REQUIRED_PERMISSIONS,
+				"dropbox.own | dropbox.maintain | dropbox.maintain.own.groups | dropbox.delete.any | dropbox.delete.own | dropbox.write.any | dropbox.write.own");
+
+		ToolConfiguration config = mock(ToolConfiguration.class);
+		when(config.getConfig()).thenReturn(props);
+
+		List<String> permissions = activeToolManager.getRequiredPermissions(config)
+				.stream().flatMap(Collection::stream).collect(Collectors.toList());
+
+		assertTrue("Order is maintained for item one", permissions.get(0).equals("dropbox.own"));
+		assertTrue("Order is maintained for item two", permissions.get(1).equals("dropbox.maintain"));
 	}
 
 	@Test
