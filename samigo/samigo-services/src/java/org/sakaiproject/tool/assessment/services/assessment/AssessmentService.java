@@ -50,7 +50,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -65,14 +64,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
-import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -459,7 +455,6 @@ public class AssessmentService {
 				// need to reload
 				section = getSection(section.getSectionId().toString());
 
-				// ItemService itemservice = new ItemService();
 				boolean hasRandomPartScore = false;
 				Double score = null;
 				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
@@ -548,11 +543,11 @@ public class AssessmentService {
 		return UPDATE_SUCCESS;		
 	}
 
-	public int updateAllRandomPoolQuestions(AssessmentFacade assessment){
+	public int updateAllRandomPoolQuestions(AssessmentIfc assessment){
 		return updateAllRandomPoolQuestions(assessment, false);
 	}
 	
-	public int updateAllRandomPoolQuestions(AssessmentFacade assessment, boolean publishing){		
+	public int updateAllRandomPoolQuestions(AssessmentIfc assessment, boolean publishing){		
 		//verify that we can update the sections first:
 		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){			
 			if(!verifyItemsDrawSize(section)){
@@ -996,32 +991,16 @@ public class AssessmentService {
 	
 	public void copyAllAssessments(String fromContext, String toContext, Map<String, String>transversalMap) {
 		try {
-			PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.copyAllAssessments(fromContext, toContext, transversalMap);
-			List<PublishedAssessmentFacade> publist =
-			    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
-			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, fromContext);
-			for (PublishedAssessmentFacade facade: publist) {
-			    PublishedAssessmentData data = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(facade.getPublishedAssessmentId());
-			    if (data != null) {
-				String oldRef = PublishedAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getPublishedAssessmentId();
-				String oldCore = CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentId();
-				String newCore = transversalMap.get(oldCore);
-				if (oldRef != null && newCore != null)
-				    transversalMap.put(oldRef, newCore);
-			    }
-			}
-
+			PersistenceService.getInstance().getAssessmentFacadeQueries().copyAllAssessments(fromContext, toContext, transversalMap);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public void copyAssessment(String assessmentId, String appendCopyTitle) {
+	public void copyAssessment(String assessmentId, String appendCopyTitle, boolean isPublished) {
 		try {
-			PersistenceService.getInstance().getAssessmentFacadeQueries()
-					.copyAssessment(assessmentId, appendCopyTitle);
+			PersistenceService.getInstance().getAssessmentFacadeQueries().copyAssessment(assessmentId, appendCopyTitle, isPublished);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -1139,12 +1118,12 @@ public class AssessmentService {
 	 * @param bundle
 	 * @return
 	 */
-	public String exportAssessmentToMarkupText(AssessmentFacade assessment, Map<String,String> bundle) {
+	public String exportAssessmentToMarkupText(AssessmentIfc assessment, Map<String,String> bundle) {
 		StringBuilder markupText = new StringBuilder(); 
 		int nQuestion = 1;
 		
 		for (Object sectionObj : assessment.getSectionArray()) {
-			SectionFacade section = (SectionFacade)sectionObj;
+			SectionDataIfc section = (SectionDataIfc)sectionObj;
 			List<ItemDataIfc> items = null;
 			boolean hasRandomPartScore = false;
 			Double score = null;
@@ -1158,7 +1137,6 @@ public class AssessmentService {
 			else 
 			{
 				String requestedScore = StringUtils.trimToEmpty(section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
-						                 
 				if (StringUtils.isNotEmpty(requestedScore)) {
 					hasRandomPartScore = true;
 					try {
@@ -1286,11 +1264,11 @@ public class AssessmentService {
 	 * @param assessment
 	 * @return
 	 */
-	public boolean isExportable(AssessmentFacade assessment) {
+	public boolean isExportable(AssessmentIfc assessment) {
 		boolean exportToMarkupText = false;
 		
 		for (Object sectionObj : assessment.getSectionArray()) {
-			SectionFacade section = (SectionFacade)sectionObj;
+			SectionDataIfc section = (SectionDataIfc)sectionObj;
 			List<ItemDataIfc> items = null;
 			if (section != null) {
 				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))

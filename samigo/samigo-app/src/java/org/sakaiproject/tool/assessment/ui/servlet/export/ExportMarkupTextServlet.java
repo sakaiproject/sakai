@@ -38,9 +38,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -77,27 +79,36 @@ public class ExportMarkupTextServlet extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 		String assessmentId = req.getParameter("assessmentId");
+		boolean published = Boolean.valueOf(req.getParameter("isFromPublished"));
 
-		//update random question pools (if any) before exporting
+		AssessmentIfc assessment = null;
 		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-		int success = assessmentService.updateAllRandomPoolQuestions(assessment);
+		String currentSiteId = null;
+		String assessmentCreatedBy = null;
+		if (published) {
+			PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+			assessment = pubAssessmentService.getAssessment(Long.valueOf(assessmentId));
+			currentSiteId = pubAssessmentService.getAssessmentSiteId(assessmentId);
+			assessmentCreatedBy = pubAssessmentService.getAssessmentCreatedBy(assessmentId);
+		} else {
+			assessment = assessmentService.getAssessment(assessmentId);
+			currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
+			assessmentCreatedBy = assessmentService.getAssessmentCreatedBy(assessmentId);
+		}
+
+		int success = published ? AssessmentService.UPDATE_SUCCESS : assessmentService.updateAllRandomPoolQuestions(assessment);
 		if(success == AssessmentService.UPDATE_SUCCESS){
 			String agentIdString = getAgentString(req, res);
-			String currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
-			String assessmentCreatedBy = assessmentService.getAssessmentCreatedBy(assessmentId);
 			boolean accessDenied = true;
 			if (canExport(req, res, agentIdString, currentSiteId,
 					assessmentCreatedBy)) {
 				accessDenied = false;
 			}
-
 			if (accessDenied) {
 				String path = "/jsf/qti/exportDenied.faces";
 				RequestDispatcher dispatcher = req.getRequestDispatcher(path);
 				dispatcher.forward(req, res);
 			} else {
-				
 				Map<String, String> bundle = new HashMap<>();
 				String points = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "points_lower_case");
 				String discount = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.SamLite", "samlite_discount");

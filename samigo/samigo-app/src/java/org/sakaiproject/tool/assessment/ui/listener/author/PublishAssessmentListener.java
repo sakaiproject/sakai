@@ -67,6 +67,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -153,11 +154,10 @@ public class PublishAssessmentListener
 
   			AssessmentService assessmentService = new AssessmentService();
 
-  			AssessmentFacade assessment = assessmentService.getAssessment(
-  					assessmentSettings.getAssessmentId().toString());
+			AssessmentIfc assessmentIfc = assessmentService.getAssessment(assessmentSettings.getAssessmentId());
 
   			// 0. sorry need double checking assesmentTitle and everything
-  			boolean error = checkTitle(assessment);
+  			boolean error = checkTitle(assessmentIfc);
   			if (error){
   				return;
   			}
@@ -167,11 +167,11 @@ public class PublishAssessmentListener
   			author.setJustPublishedAnAssessment(true);
 
   			//update any random draw questions from pool since they could have changed
-  			int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
+  			int success = assessmentService.updateAllRandomPoolQuestions(assessmentIfc, true);
   			if(success == assessmentService.UPDATE_SUCCESS){
 
   				//grab new updated assessment
-  				assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());	
+  				AssessmentFacade assessment = assessmentService.getAssessment(assessmentIfc.getAssessmentId().toString());	
 
   				publish(assessment, assessmentSettings);
 
@@ -318,7 +318,7 @@ public class PublishAssessmentListener
 
   }
 
-  private boolean checkTitle(AssessmentFacade assessment){
+  private boolean checkTitle(AssessmentIfc assessment){
     boolean error=false;
     String assessmentName = assessment.getTitle();
     AssessmentService assessmentService = new AssessmentService();

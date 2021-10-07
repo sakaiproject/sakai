@@ -314,8 +314,7 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
       resetOriginalDateString();
       
       // these are properties in AssessmentAccessControl
-      AssessmentAccessControlIfc accessControl;
-      accessControl = assessment.getAssessmentAccessControl();
+      AssessmentAccessControlIfc accessControl = assessment.getAssessmentAccessControl();
       if (accessControl != null) {
         this.startDate = accessControl.getStartDate();
         this.dueDate = accessControl.getDueDate();

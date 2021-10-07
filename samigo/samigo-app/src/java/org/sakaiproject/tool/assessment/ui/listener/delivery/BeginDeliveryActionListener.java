@@ -556,7 +556,7 @@ public class BeginDeliveryActionListener implements ActionListener
   }
 
   private int updateQuestionPoolQuestions(String assessmentId, AssessmentService assessmentService){
-	  int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(assessmentId));
+	  int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(Long.valueOf(assessmentId)));
 	  if(success == AssessmentService.UPDATE_SUCCESS){
 		  String fromEditStr = ContextUtil.lookupParam("fromEdit");
 		  if(fromEditStr != null && "true".equals(fromEditStr)){

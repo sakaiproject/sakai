@@ -29,9 +29,11 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLDisplay;
@@ -55,12 +57,19 @@ public class ExportAssessmentListener implements ActionListener
 	  String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
 	  XMLDisplay xmlDisp = (XMLDisplay) ContextUtil.lookupBean("xml");
 	  log.info("ExportAssessmentListener assessmentId="+assessmentId);
-	  
+
+	  boolean published = Boolean.valueOf((String)ContextUtil.lookupParam("isFromPublished"));
 	  AssessmentService assessmentService = new AssessmentService();
-	  AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
+	  AssessmentIfc assessment = null;
+	  	if (published) {
+			PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+			assessment = pubAssessmentService.getAssessment(Long.valueOf(assessmentId));
+		} else {
+			assessment = assessmentService.getAssessment(Long.valueOf(assessmentId));
+		}
 	  
 	  AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-	  if (!authzBean.isUserAllowedToEditAssessment(assessmentId, assessmentFacade.getCreatedBy(), false)) {
+	  if (!authzBean.isUserAllowedToEditAssessment(assessmentId, assessment.getCreatedBy(), published)) {
 		  xmlDisp.setOutcome("exportDenied");
 		  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
 		  // logging IP , as requested in SAK-17984
@@ -68,14 +77,14 @@ public class ExportAssessmentListener implements ActionListener
 		  return;
 	  }
 
-
 	  //update random question pools (if any) before exporting
-	  int success = assessmentService.updateAllRandomPoolQuestions(assessmentFacade);
+	  int success = published ? AssessmentService.UPDATE_SUCCESS : assessmentService.updateAllRandomPoolQuestions(assessment);
 	  if(success == AssessmentService.UPDATE_SUCCESS){
 
 		  XMLController xmlController = (XMLController) ContextUtil.lookupBean(
 				  "xmlController");
 		  xmlController.setId(assessmentId);
+		  xmlController.setPublished(published);
 		  xmlController.setQtiVersion(1);
 		  xmlController.displayAssessmentXml();
 		  xmlDisp.setOutcome("xmlDisplay");

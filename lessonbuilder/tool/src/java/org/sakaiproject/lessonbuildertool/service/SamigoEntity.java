@@ -489,7 +489,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public Document exportObject(String assessmentId) {
 	try {
 	    QTIService qtiService = new QTIService();
-	    return qtiService.getExportedAssessment(assessmentId, QTIVersion.VERSION_1_2);
+	    return qtiService.getExportedAssessment(assessmentId, QTIVersion.VERSION_1_2, false);
 	} catch (Exception e) {
 	    log.info("exception in exportobject " + e);
 	    return null;

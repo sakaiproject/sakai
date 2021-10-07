@@ -30,12 +30,12 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class CopyAssessmentListener implements ActionListener {
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
-		log.debug("Enter processAction()");
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		log.debug("Enter processAction() - from published? " + assessmentBean.getIsFromPublished());
 		String assessmentId = assessmentBean.getAssessmentId();
 		log.debug("assessmentId = " + assessmentId);
 		AssessmentService assessmentService = new AssessmentService();
 		String appendCopyTitle = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "append_copy_title");
-		assessmentService.copyAssessment(assessmentId, appendCopyTitle);
+		assessmentService.copyAssessment(assessmentId, appendCopyTitle, assessmentBean.getIsFromPublished());
 	}
 }

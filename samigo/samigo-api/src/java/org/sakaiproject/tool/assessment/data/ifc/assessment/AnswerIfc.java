@@ -19,76 +19,87 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public  interface AnswerIfc
-    extends Comparable<AnswerIfc>, java.io.Serializable
-{
-  Long getId();
+import lombok.Setter;
+import lombok.Getter;
 
-  void setId(Long id);
+public abstract class AnswerIfc implements Comparable<AnswerIfc> {
 
-  ItemTextIfc getItemText();
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected ItemTextIfc itemText;
+  @Setter @Getter protected ItemDataIfc item;
+  @Setter @Getter protected String text;
+  @Setter @Getter protected Long sequence;
+  @Setter @Getter protected String label;
+  @Setter @Getter protected Boolean isCorrect;
+  @Setter @Getter protected String grade;
+  @Setter @Getter protected Double score;
+  protected Double discount;
+  @Setter @Getter protected Double partialCredit; //partial credit
+  @Setter @Getter protected Set<AnswerFeedbackIfc> answerFeedbackSet;
+  @Setter protected HashMap answerFeedbackMap;
+ 
+  public Double getDiscount() {
+	  if (this.discount==null){
+		  this.discount=Double.valueOf(0);
+	  }
+	  return this.discount;
+  }
 
-  void setItemText(ItemTextIfc itemText);
+  public void setDiscount(Double discount) {
+	  if (discount==null){
+		  discount=Double.valueOf(0);
+	  }
+	  this.discount = discount;
+  }
 
-  ItemDataIfc getItem();
+  public List<AnswerFeedbackIfc> getAnswerFeedbackArray() {
+    ArrayList list = new ArrayList();
+    Iterator iter = answerFeedbackSet.iterator();
+    while (iter.hasNext()){
+      list.add(iter.next());
+    }
+    return list;
+  }
 
-  void setItem(ItemDataIfc item) ;
+  public String getAnswerFeedback(String typeId) {
+    if (this.answerFeedbackMap == null)
+      this.answerFeedbackMap = getAnswerFeedbackMap();
+    return (String)this.answerFeedbackMap.get(typeId);
+  }
 
-  String getText();
+  public HashMap getAnswerFeedbackMap() {
+    HashMap answerFeedbackMap = new HashMap();
+    if (this.answerFeedbackSet != null){
+      for (Iterator i = this.answerFeedbackSet.iterator(); i.hasNext(); ) {
+        AnswerFeedbackIfc answerFeedback = (AnswerFeedbackIfc) i.next();
+        answerFeedbackMap.put(answerFeedback.getTypeId(), answerFeedback.getText());
+      }
+    }
+    return answerFeedbackMap;
+  }
 
-  void setText(String text);
+  public String getCorrectAnswerFeedback() {
+    return getAnswerFeedback(AnswerFeedbackIfc.CORRECT_FEEDBACK);
+  }
 
-  Long getSequence();
+  public String getInCorrectAnswerFeedback() {
+    return getAnswerFeedback(AnswerFeedbackIfc.INCORRECT_FEEDBACK);
+  }
 
-  void setSequence(Long sequence);
+  public String getGeneralAnswerFeedback() {
+    return getAnswerFeedback(AnswerFeedbackIfc.GENERAL_FEEDBACK);
+  }
 
-  String getLabel();
-
-  void setLabel(String label);
-
-  Boolean getIsCorrect();
-
-  void setIsCorrect(Boolean isCorrect);
-
-  Double getDiscount();
-  
-  void setDiscount(Double discount);
-  
-  String getGrade();
-
-  void setGrade(String grade);
-
-  Double getScore();
-
-  void setScore(Double score);
-  
-  // to incorporate partial credit we need to add field for partial credit
-  void setPartialCredit(Double partialCredit);
-  
-  Double getPartialCredit();
-
-  Set<AnswerFeedbackIfc> getAnswerFeedbackSet();
-
-  List<AnswerFeedbackIfc> getAnswerFeedbackArray();
-
-  void setAnswerFeedbackSet(Set<AnswerFeedbackIfc> answerFeedbackSet);
-
-  String getAnswerFeedback(String typeId);
-
-  HashMap<String, String> getAnswerFeedbackMap();
-
-  String getCorrectAnswerFeedback();
-
-  String getInCorrectAnswerFeedback();
-
-  String getGeneralAnswerFeedback();
+  public String getTheAnswerFeedback() {
+    return getAnswerFeedback(AnswerFeedbackIfc.ANSWER_FEEDBACK);
+  }
 
 }

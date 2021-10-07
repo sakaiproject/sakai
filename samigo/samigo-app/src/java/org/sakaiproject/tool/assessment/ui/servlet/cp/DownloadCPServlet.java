@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.cp;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,8 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.contentpackaging.ManifestGenerator;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -79,16 +80,26 @@ public class DownloadCPServlet extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 		String assessmentId = req.getParameter("assessmentId");
+		boolean published = Boolean.valueOf(req.getParameter("isFromPublished"));
 
 		//update random question pools (if any) before exporting
 		AssessmentService assessmentService = new AssessmentService();
-		int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(assessmentId));
+		AssessmentIfc assessment = null;
+		String currentSiteId = null;
+		String assessmentCreatedBy = null;
+		if(published) {
+			PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+			assessment = pubAssessmentService.getAssessment(Long.valueOf(assessmentId));
+			currentSiteId = pubAssessmentService.getAssessmentSiteId(assessmentId);
+			assessmentCreatedBy = pubAssessmentService.getAssessmentCreatedBy(assessmentId);
+		} else {
+			assessment = assessmentService.getAssessment(Long.valueOf(assessmentId));
+			currentSiteId = assessmentService.getAssessmentSiteId(assessmentId);
+			assessmentCreatedBy = assessmentService.getAssessmentCreatedBy(assessmentId);
+		}
+		int success = published ? AssessmentService.UPDATE_SUCCESS : assessmentService.updateAllRandomPoolQuestions(assessment);
 		if(success == AssessmentService.UPDATE_SUCCESS){
 			String agentIdString = getAgentString(req, res);
-			String currentSiteId = assessmentService
-			.getAssessmentSiteId(assessmentId);
-			String assessmentCreatedBy = assessmentService
-			.getAssessmentCreatedBy(assessmentId);
 			boolean accessDenied = true;
 			if (canExport(req, res, agentIdString, currentSiteId,
 					assessmentCreatedBy)) {
@@ -106,7 +117,6 @@ public class DownloadCPServlet extends HttpServlet {
 						+ zipFilename + "\";");
 
 				ServletOutputStream outputStream = null;
-				//BufferedInputStream bufInputStream = null;
 				ZipOutputStream zos = null;
 				ZipEntry ze = null;
 
@@ -122,6 +132,7 @@ public class DownloadCPServlet extends HttpServlet {
 					.lookupBeanFromExternalServlet("xmlController", req,
 							res);
 					xmlController.setId(assessmentId);
+					xmlController.setPublished(published);
 					xmlController.setQtiVersion(1);
 					xmlController.displayAssessmentXml();
 					String qtiString = xmlController.getXmlBean().getXml();

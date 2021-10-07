@@ -226,7 +226,7 @@ public interface AssessmentFacadeQueriesAPI {
 
     public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap);
 	
-	public void copyAssessment(String assessmentId, String appendCopyTitle);
+	public void copyAssessment(String assessmentId, String appendCopyTitle, boolean isPublished);
 	
 	public List getAllActiveAssessmentsByAgent(String fromContext);
 

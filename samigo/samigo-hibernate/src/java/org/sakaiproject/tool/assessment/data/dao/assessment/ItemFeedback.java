@@ -21,23 +21,12 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import java.io.IOException;
-import java.io.Serializable;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 
-public class ItemFeedback
-    implements Serializable, ItemFeedbackIfc {
+public class ItemFeedback extends ItemFeedbackIfc {
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static final String CORRECT_FEEDBACK = "Correct Feedback";
-  public static final String INCORRECT_FEEDBACK = "InCorrect Feedback";
-
-  private Long id;
-  private ItemDataIfc item;
-  private String typeId;
-  private String text;
 
   public ItemFeedback() {}
 
@@ -45,47 +34,6 @@ public class ItemFeedback
     this.item = item;
     this.typeId = typeId;
     this.text = text;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public ItemDataIfc getItem() {
-    return item;
-  }
-
-  public void setItem(ItemDataIfc item) {
-    this.item = item;
-  }
-
-  public String getTypeId() {
-    return typeId;
-  }
-
-  public void setTypeId(String typeId) {
-    this.typeId = typeId;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
-  }
-
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-  }
-
-  private void readObject(java.io.ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
-    in.defaultReadObject();
   }
 
 }

@@ -27,8 +27,7 @@ import java.io.Serializable;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 
-public class SectionMetaData
-    implements Serializable, SectionMetaDataIfc {
+public class SectionMetaData extends SectionMetaDataIfc {
 
   private static final long serialVersionUID = 7526471155622776147L;
 
@@ -39,11 +38,6 @@ public class SectionMetaData
   public static final String BGCOLOR = "ASSESSMENT_BGCOLOR";
   public static final String BGIMAGE = "ASSESSMENT_BGIMAGE";
 
-  private Long id;
-  private SectionDataIfc section;
-  private String label;
-  private String entry;
-
   public SectionMetaData() {}
 
   public SectionMetaData(SectionDataIfc section, String label, String entry) {
@@ -52,44 +46,4 @@ public class SectionMetaData
     this.entry = entry;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public SectionDataIfc getSection() {
-    return section;
-  }
-
-  public void setSection(SectionDataIfc section) {
-    this.section= section;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  public String getEntry() {
-    return entry;
-  }
-
-  public void setEntry(String entry) {
-    this.entry = entry;
-  }
-
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-  }
-
-  private void readObject(java.io.ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
-    in.defaultReadObject();
-  }
 }

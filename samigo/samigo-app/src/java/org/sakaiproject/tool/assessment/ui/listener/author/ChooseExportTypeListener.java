@@ -27,8 +27,10 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -49,14 +51,24 @@ public class ChooseExportTypeListener implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
-    log.info("ExportAssessmentListener assessmentId="+assessmentId);
-    
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-    "assessmentBean");
-    AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
-    assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-    assessmentBean.setTitle(assessment.getTitle());
+    log.info("ChooseExportTypeListener assessmentId="+assessmentId);
+    boolean published = ContextUtil.lookupParam("publishedId") != null;
+
+    String title = "";
+    if (published) {
+        assessmentId = (String) ContextUtil.lookupParam("publishedId");
+        PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+        PublishedAssessmentData pubAssessmentData = pubAssessmentService.getBasicInfoOfPublishedAssessment(assessmentId);
+        title = pubAssessmentData.getTitle();
+    } else {
+        AssessmentService assessmentService = new AssessmentService();
+        AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+        title = assessment.getTitle();
+    }
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+    assessmentBean.setIsFromPublished(published);
+    assessmentBean.setAssessmentId(assessmentId);
+    assessmentBean.setTitle(title);
   }
 
 }

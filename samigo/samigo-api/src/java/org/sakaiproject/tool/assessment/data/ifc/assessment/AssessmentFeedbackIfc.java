@@ -19,13 +19,12 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-public interface AssessmentFeedbackIfc
-    extends java.io.Serializable
-{
+import lombok.Setter;
+import lombok.Getter;
+
+public abstract class AssessmentFeedbackIfc {
 
   public static final Integer IMMEDIATE_FEEDBACK = 1;
   public static final Integer FEEDBACK_BY_DATE = 2;
@@ -38,64 +37,20 @@ public interface AssessmentFeedbackIfc
   public static final Integer SELECT_COMPONENTS = 2;  // select feedback components
   public static final Integer SHOW_TOTALSCORE_ONLY = 1;  // select feedback components
 
-  Long getId();
-
-  void setId(Long id);
-
-  void setAssessmentBase(AssessmentBaseIfc assessmentBase);
-
-  AssessmentBaseIfc getAssessmentBase();
-
-  Integer getFeedbackDelivery();
-
-  void setFeedbackDelivery(Integer feedbackDelivery);
-
-  Integer getFeedbackAuthoring();
-
-  void setFeedbackAuthoring(Integer feedbackAuthoring);
-
-  Integer getEditComponents();
-
-  void setEditComponents(Integer editComponents);
-
-  Boolean getShowQuestionText();
-
-  void setShowQuestionText(Boolean showQuestionText);
-
-  Boolean getShowStudentResponse();
-
-  void setShowStudentResponse(Boolean showStudentResponse);
-
-  Boolean getShowCorrectResponse();
-
-  void setShowCorrectResponse(Boolean showCorrectResponse);
-
-  Boolean getShowStudentScore();
-
-  void setShowStudentScore(Boolean showStudentScore);
-
-  Boolean getShowStudentQuestionScore();
-
-  void setShowStudentQuestionScore(Boolean showStudentQuestionScore);
-
-  Boolean getShowQuestionLevelFeedback();
-
-  void setShowQuestionLevelFeedback(Boolean showQuestionLevelFeedback);
-
-  Boolean getShowSelectionLevelFeedback();
-
-  void setShowSelectionLevelFeedback(Boolean showSelectionLevelFeedback);
-
-  Boolean getShowGraderComments();
-
-  void setShowGraderComments(Boolean showGraderComments);
-
-  Boolean getShowStatistics();
-
-  void setShowStatistics(Boolean showStatistics);
-
-  Integer getFeedbackComponentOption();
-
-  void setFeedbackComponentOption(Integer feedbackComponentOption);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected AssessmentBaseIfc assessmentBase;
+  @Setter @Getter protected Integer feedbackDelivery; // immediate, on specific date , no feedback
+  @Setter @Getter protected Integer feedbackComponentOption; // total scores only, or select components 
+  @Setter @Getter protected Integer feedbackAuthoring; //questionlevel, sectionlevel, both, 
+  @Setter @Getter protected Integer editComponents; // 0 = cannot
+  @Setter @Getter protected Boolean showQuestionText;
+  @Setter @Getter protected Boolean showStudentResponse;
+  @Setter @Getter protected Boolean showCorrectResponse;
+  @Setter @Getter protected Boolean showStudentScore;
+  @Setter @Getter protected Boolean showStudentQuestionScore;
+  @Setter @Getter protected Boolean showQuestionLevelFeedback;
+  @Setter @Getter protected Boolean showSelectionLevelFeedback; // must be MC
+  @Setter @Getter protected Boolean showGraderComments;
+  @Setter @Getter protected Boolean showStatistics;
 
 }

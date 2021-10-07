@@ -19,20 +19,19 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
 import java.util.Date;
+
+import lombok.Setter;
+import lombok.Getter;
 
 /**
  * This keeps track of the submission scheme, and the number allowed.
  *
  * @author Rachel Gollub
  */
-public interface AssessmentAccessControlIfc
-    extends java.io.Serializable
-{
+public abstract class AssessmentAccessControlIfc {
   // flag it when no editing on the property is desire
   public static final Integer NO_EDIT = -1;
   // timedAssessment
@@ -70,120 +69,36 @@ public interface AssessmentAccessControlIfc
   // group release
   public static final String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";
 
-  Long getId();
+  @Setter @Getter protected Long id;
 
-  void setId(Long id);
-
-  void setAssessmentBase(AssessmentBaseIfc assessmentBase);
-
-  AssessmentBaseIfc getAssessmentBase();
-
-  Integer getSubmissionsAllowed();
-
-  void setSubmissionsAllowed(Integer submissionsAllowed);
-
-  Integer getSubmissionsSaved();
-
-  void setSubmissionsSaved(Integer submissionsSaved);
-
-  Integer getAssessmentFormat();
-
-  void setAssessmentFormat(Integer assessmentFormat);
-
-  Integer getBookMarkingItem();
-
-  void setBookMarkingItem(Integer bookMarkingItem);
-
-  Integer getTimeLimit();
-
-  void setTimeLimit(Integer timeLimit);
-
-  Integer getTimedAssessment();
-
-  void setRetryAllowed(Integer retryAllowed);
-
-  Integer getRetryAllowed();
-
-  void setLateHandling(Integer lateHandling);
-
-  Integer getLateHandling();
-
-  void setInstructorNotification(Integer instructorNotification);
-
-  Integer getInstructorNotification();
-
-  void setTimedAssessment(Integer timedAssessment);
-
-  Date getStartDate();
-
-  void setStartDate(Date startDate);
-
-  Date getDueDate();
-
-  void setDueDate(Date dueDate);
-
-  Date getScoreDate();
-
-  void setScoreDate(Date scoreDate);
-
-  Date getFeedbackDate();
-
-  void setFeedbackDate(Date feedbackDate);
-
-  Date getFeedbackEndDate();
-
-  void setFeedbackEndDate(Date feedbackEndDate);
-
-  Double getFeedbackScoreThreshold();
-
-  void setFeedbackScoreThreshold(Double feedbackScoreThreshold);
-
-  Date getRetractDate();
-
-  void setRetractDate(Date retractDate);
-
-  void setAutoSubmit(Integer autoSubmit);
-
-  Integer getAutoSubmit();
-
-  void setItemNavigation(Integer itemNavigation);
-
-  Integer getItemNavigation();
-
-  void setItemNumbering(Integer itemNumbering);
-
-  Integer getItemNumbering();
+  @Setter @Getter protected AssessmentBaseIfc assessmentBase;
   
-  void setDisplayScoreDuringAssessments(Integer displayScore);
-  
-  Integer getDisplayScoreDuringAssessments();
-
-  void setSubmissionMessage(String submissionMessage);
-
-  String getSubmissionMessage();
-
-  String getReleaseTo();
-
-  void setReleaseTo(String releaseTo);
-
-  String getPassword();
-
-  void setPassword(String password);
-
-  void setFinalPageUrl(String finalPageUrl);
-
-  String getFinalPageUrl();
-
-  Boolean getUnlimitedSubmissions();
-
-  void setUnlimitedSubmissions(Boolean unlimitedSubmissions);
-
-  Integer getMarkForReview();
-
-  void setMarkForReview(Integer markForReview);
-
-  Boolean getHonorPledge();
-
-  void setHonorPledge(Boolean honorPledge);
+  @Setter @Getter protected Integer submissionsAllowed;
+  @Setter @Getter protected Boolean unlimitedSubmissions;
+  @Setter @Getter protected Integer submissionsSaved;
+  @Setter @Getter protected Integer assessmentFormat;
+  @Setter @Getter protected Integer bookMarkingItem;
+  @Setter @Getter protected Integer timeLimit;
+  @Setter @Getter protected Integer timedAssessment;
+  @Setter @Getter protected Integer retryAllowed;
+  @Setter @Getter protected Integer lateHandling;
+  @Setter @Getter protected Integer instructorNotification;
+  @Setter @Getter protected Date startDate;
+  @Setter @Getter protected Date dueDate;
+  @Setter @Getter protected Date scoreDate;
+  @Setter @Getter protected Date feedbackDate;
+  @Setter @Getter protected Date feedbackEndDate;
+  @Setter @Getter protected Double feedbackScoreThreshold;
+  @Setter @Getter protected Date retractDate;
+  @Setter @Getter protected Integer autoSubmit;  // auto submit when time expires
+  @Setter @Getter protected Integer itemNavigation; // linear (1)or random (0)
+  @Setter @Getter protected Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
+  @Setter @Getter protected Integer displayScoreDuringAssessments;
+  @Setter @Getter protected String submissionMessage;
+  @Setter @Getter protected String finalPageUrl;
+  @Setter @Getter protected String releaseTo;
+  @Setter @Getter protected String password;
+  @Setter @Getter protected Integer markForReview;
+  @Setter @Getter protected Boolean honorPledge;
 
 }

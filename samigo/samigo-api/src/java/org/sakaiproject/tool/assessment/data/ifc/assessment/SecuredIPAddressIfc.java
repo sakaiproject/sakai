@@ -19,28 +19,16 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-public interface SecuredIPAddressIfc
-    extends java.io.Serializable
-{
+import lombok.Setter;
+import lombok.Getter;
 
-  Long getId();
+public abstract class SecuredIPAddressIfc {
 
-  void setId(Long id);
-
-  void setAssessment(AssessmentBaseIfc assessmentBase);
-
-  AssessmentBaseIfc getAssessment();
-
-  String getHostname();
-
-  void setHostname(String hostname);
-
-  String getIpAddress();
-
-  void setIpAddress(String ipAddress);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected AssessmentBaseIfc assessment;
+  @Setter @Getter protected String hostname;
+  @Setter @Getter protected String ipAddress;
 
 }

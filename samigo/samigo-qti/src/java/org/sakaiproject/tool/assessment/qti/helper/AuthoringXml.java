@@ -158,55 +158,8 @@ public class AuthoringXml
       log.error(e.getMessage(), e);
     }
 
-
     return is;
   }
-
-  /**
-   * get template as stream using local context
-   * this presupposes a path of TEMPLATE_PATH off of /
-   * this is useful for unit testing
-   * @param templateName
-   * @return the input stream
-   */
-/*
-  This method is probably not needed now that FacesContext has been
-  replaced for ClassPathResource (which just needs spring)..
-
-  public InputStream getTemplateInputStream(String templateName)
-  {
-    InputStream is = null;
-
-    try
-    {
-
-    Properties props =
-        PathInfo.getInstance().getSettingsProperties(SETTINGS_FILE);
-    String basePath = props.getProperty("templateBasePath");
-
-      if (!this.valid(templateName))
-      {
-        throw new IllegalArgumentException("not a valid template: " +
-          templateName);
-      }
-	is = new FileInputStream(basePath + TEMPLATE_PATH + "/" + qtiPath + "/" + templateName);
-
-    }
-    catch (FileNotFoundException e)
-    {
-      log.error(e.getMessage(), e);
-    }
-    catch (IOException e1)
-    {
-      log.error(e1.getMessage(), e1);
-    }
-    catch (Exception e)
-    {
-      log.error(e.getMessage(), e);
-    }
-    return is;
-  }
-*/
 
   /**
    * get a template as a string from its input stream

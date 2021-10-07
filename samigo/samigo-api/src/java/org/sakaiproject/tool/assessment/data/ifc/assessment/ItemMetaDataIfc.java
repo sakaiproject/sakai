@@ -23,10 +23,11 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
+import lombok.Setter;
+import lombok.Getter;
 
-public interface ItemMetaDataIfc
-    extends java.io.Serializable
-{
+public abstract class ItemMetaDataIfc {
+
   public static final String OBJECTIVE = "OBJECTIVE";
   public static final String KEYWORD= "KEYWORD";
   public static final String RUBRIC= "RUBRIC";
@@ -71,21 +72,9 @@ public interface ItemMetaDataIfc
   public static final String SURVEY_SCALEFIVE= "SCALEFIVE";
   public static final String SURVEY_SCALETEN= "SCALETEN";
 
-
-  Long getId();
-
-  void setId(Long id);
-
-  ItemDataIfc getItem();
-
-  void setItem(ItemDataIfc item);
-
-  String getLabel();
-
-  void setLabel(String label);
-
-  String getEntry();
-
-  void setEntry(String entry);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected ItemDataIfc item;
+  @Setter @Getter protected String label;
+  @Setter @Getter protected String entry;
 
 }

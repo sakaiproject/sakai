@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
-public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
+public class SectionFacade extends SectionDataIfc implements Comparable {
   private static final long serialVersionUID = 7526471155622776147L;
 
   protected org.osid.assessment.Section section;
@@ -62,22 +62,9 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   protected org.osid.shared.Type sectionType;
   // #2) properties according to SectionDataIfc
   protected Long sectionId;
-  protected Long assessmentId;
-  protected AssessmentBaseIfc assessment;
-  protected Integer duration;
-  protected Integer sequence;
-  protected String title;
-  protected Long typeId;
-  protected Integer status;
-  protected String createdBy;
-  protected Date createdDate;
-  protected String lastModifiedBy;
-  protected Date lastModifiedDate;
-  protected Set itemSet;
   protected Set metaDataSet= new HashSet();
   protected HashMap metaDataMap= new HashMap();
   protected Set itemFacadeSet;
-  protected Set sectionAttachmentSet;
 
   /** SectionFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -120,7 +107,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
     }
-    this.id = getId();
+    this.id = getFacadeId();
     this.description = getDescription();
     this.assessmentId= getAssessmentId();
     this.sectionType = getSectionType();
@@ -146,7 +133,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
    * Get the Id for this SectionFacade.
    * @return org.osid.shared.Id
    */
-  org.osid.shared.Id getId(){
+  public org.osid.shared.Id getFacadeId(){
     try {
       this.data = (SectionDataIfc) section.getData();
     }

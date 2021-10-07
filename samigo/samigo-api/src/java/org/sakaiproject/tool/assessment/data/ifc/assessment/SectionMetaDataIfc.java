@@ -19,32 +19,21 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-public interface SectionMetaDataIfc
-    extends java.io.Serializable
-{
+import lombok.Setter;
+import lombok.Getter;
+
+public abstract class SectionMetaDataIfc {
+
   public static final String KEYWORDS = "SECTION_KEYWORDS";
   public static final String OBJECTIVES = "SECTION_OBJECTIVES";
   public static final String RUBRICS = "SECTION_RUBRICS";
   public static final String ATTACHMENTS = "ATTACHMENTS";
-  
-  Long getId();
 
-  void setId(Long id);
-
-  SectionDataIfc getSection();
-
-  void setSection(SectionDataIfc section);
-
-  String getLabel();
-
-  void setLabel(String label);
-
-  String getEntry();
-
-  void setEntry(String entry);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected SectionDataIfc section;
+  @Setter @Getter protected String label;
+  @Setter @Getter protected String entry;
 
 }

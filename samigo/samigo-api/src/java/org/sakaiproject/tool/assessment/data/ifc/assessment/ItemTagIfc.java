@@ -21,32 +21,16 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-import java.io.Serializable;
+import lombok.Setter;
+import lombok.Getter;
 
-public interface ItemTagIfc extends Serializable {
+public abstract class ItemTagIfc {
 
-    Long getId();
-
-    void setId(Long id);
-
-    ItemDataIfc getItem();
-
-    void setItem(ItemDataIfc item);
-
-    String getTagId();
-
-    void setTagId(String tagId);
-
-    String getTagLabel();
-
-    void setTagLabel(String tagLabel);
-
-    String getTagCollectionId();
-
-    void setTagCollectionId(String tagCollectionId);
-
-    String getTagCollectionName();
-
-    void setTagCollectionName(String tagCollectionName);
+    @Setter @Getter protected Long id;
+    @Setter @Getter protected ItemDataIfc item;
+    @Setter @Getter protected String tagId;
+    @Setter @Getter protected String tagLabel;
+    @Setter @Getter protected String tagCollectionId;
+    @Setter @Getter protected String tagCollectionName;
 
 }

@@ -1,37 +1,34 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/**
+ * Copyright (c) 2004-2021 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- **********************************************************************************/
-
-
+ */
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
 
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import lombok.Setter;
+import lombok.Getter;
 
-public interface SectionDataIfc
-    extends java.io.Serializable{
+public abstract class SectionDataIfc implements java.io.Serializable {
 
   public static final String AUTHOR_TYPE= "AUTHOR_TYPE";  // author questions one at a time, or random draw from qpool.
   public static final Integer QUESTIONS_AUTHORED_ONE_BY_ONE= 1;
@@ -52,87 +49,84 @@ public interface SectionDataIfc
   public static final String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
   public static final String DISCOUNT_VALUE_FOR_QUESTION = "DISCOUNT_VALUE_FOR_QUESTION";
 
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected Long assessmentId;
+  @Setter @Getter protected AssessmentIfc assessment;
+  @Setter @Getter protected Integer duration;
+  @Setter @Getter protected Integer sequence;
+  @Setter @Getter protected String title;
+  @Setter @Getter protected String description;
+  @Setter @Getter protected Long typeId;
+  @Setter @Getter protected Integer status;
+  @Setter @Getter protected String createdBy;
+  @Setter @Getter protected Date createdDate;
+  @Setter @Getter protected String lastModifiedBy;
+  @Setter @Getter protected Date lastModifiedDate;
+  @Setter @Getter protected Set itemSet;
+  @Setter @Getter protected HashMap sectionMetaDataMap;
+  @Setter @Getter protected Set sectionAttachmentSet;
+  @Getter protected Set sectionMetaDataSet;
+
+  public void setSectionMetaDataSet(Set param) {
+    this.sectionMetaDataSet= param;
+    this.sectionMetaDataMap = getSectionMetaDataMap(sectionMetaDataSet);
+  }
+
+  public HashMap getSectionMetaDataMap(Set metaDataSet) {
+    HashMap metaDataMap = new HashMap();
+    if (metaDataSet != null){
+      for (Iterator i = metaDataSet.iterator(); i.hasNext(); ) {
+        SectionMetaDataIfc metaData = (SectionMetaDataIfc) i.next();
+        metaDataMap.put(metaData.getLabel(), metaData.getEntry());
+      }
+    }
+    return metaDataMap;
+  }
+
+  public ArrayList getItemArray() {
+    ArrayList list = new ArrayList();
+    if(itemSet == null) itemSet = new HashSet();
+    Iterator iter = itemSet.iterator();
+    while (iter.hasNext()){
+      list.add(iter.next());
+    }
+    return list;
+  }
+
+  public String getSectionMetaDataByLabel(String label) {
+    return (String)this.sectionMetaDataMap.get(label);
+  }
   
-   Long getSectionId() ;
+  public Long getSectionId() {
+    return this.id;
+  }
 
-   void setSectionId(Long sectionId);
+  public void setSectionId(Long id) {
+    this.id = id;
+  }
 
-   Long getAssessmentId() ;
+  public ArrayList getItemArraySortedForGrading() {
+    ArrayList list = getItemArray();
+    Collections.sort(list);
+    return list;
+  }
 
-   void setAssessmentId(Long assessmentId);
+  public List getSectionAttachmentList() {
+    ArrayList list = new ArrayList();
+    if (sectionAttachmentSet !=null ){
+      Iterator iter = sectionAttachmentSet.iterator();
+      while (iter.hasNext()){
+        SectionAttachmentIfc a = (SectionAttachmentIfc)iter.next();
+        list.add(a);
+      }
+    }
+    return list;
+  }
 
-   AssessmentIfc getAssessment();
-   //AssessmentData getAssessment();
-
-   void setAssessment(AssessmentIfc assessment);
-
-   Integer getDuration();
-
-   void setDuration(Integer duration);
-
-   Integer getSequence();
-
-   void setSequence(Integer sequence);
-
-   String getTitle();
-
-   void setTitle(String title);
-
-   String getDescription();
-
-   void setDescription(String description);
-
-   Long getTypeId();
-
-   void setTypeId(Long typeId);
-
-   Integer getStatus();
-
-   void setStatus(Integer status);
-
-   String getCreatedBy();
-
-   void setCreatedBy(String createdBy);
-
-   Date getCreatedDate();
-
-   void setCreatedDate(Date createdDate);
-
-   String getLastModifiedBy();
-
-   void setLastModifiedBy(String lastModifiedBy);
-
-   Date getLastModifiedDate();
-
-   void setLastModifiedDate(Date lastModifiedDate);
-
-   Set getItemSet();
-
-   void setItemSet(Set itemSet);
-
-   void addItem(ItemDataIfc item);
-
-   TypeIfc getType();
-
-   ArrayList getItemArray();
-
-   ArrayList getItemArraySortedForGrading();
-
-   Set getSectionMetaDataSet();
-
-   void setSectionMetaDataSet(Set param);
-
-   HashMap getSectionMetaDataMap(Set param) ;
-
-   String getSectionMetaDataByLabel(String label);
-
-   void addSectionMetaData(String label, String entry);
-
-   Set getSectionAttachmentSet();
-
-   void setSectionAttachmentSet(Set sectionAttachmentSet);
-
-   List getSectionAttachmentList();
-
+  public void addItem(ItemDataIfc item) {
+    if (itemSet == null)
+      itemSet = new HashSet();
+    itemSet.add(item);
+  }
 
 }

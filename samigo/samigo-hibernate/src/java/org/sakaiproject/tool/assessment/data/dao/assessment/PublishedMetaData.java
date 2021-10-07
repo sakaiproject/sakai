@@ -21,20 +21,12 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import java.io.*;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 
-public class PublishedMetaData
-    implements Serializable, AssessmentMetaDataIfc {
+public class PublishedMetaData extends AssessmentMetaDataIfc {
 
   private static final long serialVersionUID = 7526471155622776147L;
-
-  private Long id;
-  private AssessmentBaseIfc assessment;
-  private String label;
-  private String entry;
 
   public PublishedMetaData() {}
 
@@ -44,44 +36,4 @@ public class PublishedMetaData
     this.entry = entry;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public AssessmentBaseIfc getAssessment() {
-    return assessment;
-  }
-
-  public void setAssessment(AssessmentBaseIfc assessment) {
-    this.assessment = assessment;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  public String getEntry() {
-    return entry;
-  }
-
-  public void setEntry(String entry) {
-    this.entry = entry;
-  }
-
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-  }
-
-  private void readObject(java.io.ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
-    in.defaultReadObject();
-  }
 }

@@ -187,15 +187,13 @@ public class QTIService implements QTIServiceAPI
    * @param qtiVersion either QTIVersion.VERSION_1_2 or QTIVersion.VERSION_2_0;
    * @return the Document with the assessment data
    */
-  public Document getExportedAssessment(String assessmentId,
-    int qtiVersion)
-  {
+  public Document getExportedAssessment(String assessmentId, int qtiVersion, boolean published) {
     testQtiVersion(qtiVersion);
 
     try
     {
       AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.getAssessment(assessmentId);
+      return helper.getAssessment(assessmentId, published);
     }
     catch (Exception ex)
     {
@@ -214,7 +212,7 @@ public class QTIService implements QTIServiceAPI
    */
     public String getExportedAssessmentAsString(String assessmentId, int qtiVersion) 
   {
-      return XmlUtil.getDOMString(getExportedAssessment(assessmentId, qtiVersion));
+      return XmlUtil.getDOMString(getExportedAssessment(assessmentId, qtiVersion, false));
   }
 
 

@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.qti.helper.assessment;
 
 import java.io.InputStream;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -79,10 +80,9 @@ public interface AssessmentHelperIfc
   public void updateIPAddressSet(Assessment assessmentXml,
                                   Set securedIPAddressSet);
   
-  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet);
+  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet, boolean published);
 
-  public void updateMetaData(Assessment assessmentXml,
-                             AssessmentFacade assessment);
+  public void updateMetaData(Assessment assessmentXml, AssessmentIfc assessment);
 
   /**
    * Set the assessment description.

@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -81,6 +82,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -131,13 +133,13 @@ public class AuthoringHelper
    * @param assessmentId the published assessment's Id
    * @return the Document with the published assessment data
    */
-  public Document getAssessment(String assessmentId)
+  public Document getAssessment(String assessmentId, boolean published)
   {
 
     InputStream is =
       ax.getTemplateInputStream(ax.ASSESSMENT);
 
-    return getAssessment(assessmentId, is);
+    return getAssessment(assessmentId, is, published);
   }
 
   /**
@@ -147,7 +149,7 @@ public class AuthoringHelper
    * @param is a stream containing the unpopulated XML document
    * @return the Document with the published assessment data
    */
-  public Document getAssessment(String assessmentId, InputStream is)
+  public Document getAssessment(String assessmentId, InputStream is, boolean published)
   {
     try
     {
@@ -158,14 +160,19 @@ public class AuthoringHelper
       String bgColor;
       String bgImage;
 
-      AssessmentService assessmentService = new AssessmentService();
       QTIHelperFactory factory = new QTIHelperFactory();
 
-      AssessmentFacade assessment =
-        assessmentService.getAssessment(assessmentId);
+	  AssessmentIfc assessment = null;
+	  if (published) {
+	    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+	    assessment = pubAssessmentService.getAssessment(Long.valueOf(assessmentId));
+	  } else {
+	    AssessmentService assessmentService = new AssessmentService();
+	    assessment = assessmentService.getAssessment(Long.valueOf(assessmentId));
+	  }
+
       // convert assessment to document
-      AssessmentHelperIfc assessmentHelper =
-        factory.getAssessmentHelperInstance(this.qtiVersion);
+      AssessmentHelperIfc assessmentHelper = factory.getAssessmentHelperInstance(this.qtiVersion);
       Assessment assessmentXml = assessmentHelper.readXMLDocument(is);
       assessmentXml.setIdent(assessmentId);
       assessmentXml.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
@@ -275,7 +282,7 @@ public class AuthoringHelper
       
    	  if (attachmentSet != null && attachmentSet.size() != 0)    	  
       {
-        assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet);
+        assessmentHelper.updateAttachmentSet(assessmentXml, attachmentSet, published);
       }
 
       assessmentHelper.updateMetaData(assessmentXml, assessment);
@@ -347,7 +354,7 @@ public class AuthoringHelper
     ob.setAttribute("ident", objectBankIdent);
     for (int i = 0; i < assessmentIds.length; i++)
     {
-      Document itemDoc = getAssessment(assessmentIds[i]);
+      Document itemDoc = getAssessment(assessmentIds[i], false);
       Element itemElement = itemDoc.getDocumentElement();
       Node itemImport = objectBank.importNode(itemElement, true);
       ob.appendChild(itemImport);

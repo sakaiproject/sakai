@@ -111,6 +111,14 @@ public class PublishedAssessmentService extends AssessmentService{
       return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getAllPublishedAssessments(orderBy, status); // signalling all & no paging
   }
 
+  public String getAssessmentSiteId(String assessmentId){
+      return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getAssessmentSiteId(assessmentId);
+  }
+
+  public String getAssessmentCreatedBy(String assessmentId){
+      return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getAssessmentCreatedBy(assessmentId);
+  }
+
   public List getAllPublishedAssessments(
       int pageSize, int pageNumber, String orderBy, Integer status) {
     try {

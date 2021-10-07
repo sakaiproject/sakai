@@ -21,8 +21,10 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -37,22 +39,39 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		String assessmentId = (String) FacesContext.getCurrentInstance()
 				.getExternalContext().getRequestParameterMap().get("assessmentId");
 
+		// #1b - check if there is publishedId
+		boolean published = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishedId") != null;
+
 		// #2 -  and use it to set author bean, goto removeAssessment.jsp
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-		AssessmentService assessmentService = new AssessmentService();
-		AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+		assessmentBean.setIsFromPublished(published);
+		
+		String title = "";
+		String creator = "";
+		if (published) {
+			assessmentId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishedId");
+			PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+			PublishedAssessmentData pubAssessmentData = pubAssessmentService.getBasicInfoOfPublishedAssessment(assessmentId);
+			creator = pubAssessmentData.getCreatedBy();
+			title = pubAssessmentData.getTitle();
+		} else {
+			AssessmentService assessmentService = new AssessmentService();
+			AssessmentFacade assessment = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+			creator = assessment.getCreatedBy();
+			title = assessment.getTitle();
+		}
 
 		// #3 - permission checking before proceeding - daisyf
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		author.setOutcome("confirmCopyAssessment");
 
 		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, assessment.getCreatedBy(), false)) {
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, creator, published)) {
 			author.setOutcome("author");
 			return;
 		}
 
-		assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-		assessmentBean.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(assessment.getTitle()));
+		assessmentBean.setAssessmentId(assessmentId);
+		assessmentBean.setTitle(ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(title));
 	}
 }

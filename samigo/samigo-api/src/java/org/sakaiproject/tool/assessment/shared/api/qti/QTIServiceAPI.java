@@ -65,7 +65,7 @@ public interface QTIServiceAPI
    * @param qtiVersion either 1=QTI VERSION 1.2  or 2=QTI Version 2.0
    * @return the Document with the assessment data
    */
-  public Document getExportedAssessment(String assessmentId, int qtiVersion);
+  public Document getExportedAssessment(String assessmentId, int qtiVersion, boolean published);
 
   /**
    * Get an assessment in String form.

@@ -52,7 +52,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 @Slf4j
 @ManagedBean(name="assessmentBean")
 @SessionScoped
-public class AssessmentBean  implements Serializable {
+public class AssessmentBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -73,6 +73,7 @@ public class AssessmentBean  implements Serializable {
   private boolean hasGradingData = false;
   private boolean hasSubmission = false;
   private Boolean showPrintAssessment = null;
+  private boolean isFromPublished = false;
 
   /*
    * Creates a new AssessmentBean object.
@@ -338,13 +339,27 @@ public class AssessmentBean  implements Serializable {
 	  AssessmentService assessmentService = new AssessmentService();
 	  boolean result = false;
 	  if (assessmentId != null) {
-		  AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-		  result =  assessmentService.isExportable(assessment);
+		  AssessmentIfc assessment = null;
+		  if(!isFromPublished) {
+		    assessment = assessmentService.getAssessment(assessmentId);
+		  } else {
+		    PublishedAssessmentService pubAsessmentService = new PublishedAssessmentService();
+	        assessment = pubAsessmentService.getAssessment(Long.valueOf(assessmentId));
+		  }
+		  result = assessmentService.isExportable(assessment);
 	  }
 	  return result;
   }
 
   public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
+  }
+
+  public boolean getIsFromPublished(){
+    return isFromPublished;
+  }
+
+  public void setIsFromPublished(boolean isFromPublished){
+    this.isFromPublished = isFromPublished;
   }
 }

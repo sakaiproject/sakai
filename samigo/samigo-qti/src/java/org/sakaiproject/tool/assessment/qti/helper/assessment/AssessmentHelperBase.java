@@ -35,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -453,20 +455,28 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
    * @param assessmentXml the XML
    * @param securedIPAddressSet the Set
    */
-  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet)
+  public void updateAttachmentSet(Assessment assessmentXml, Set attachmentSet, boolean published)
   {
     Iterator iter = attachmentSet.iterator();
-    AttachmentData attachmentData = null;
     StringBuffer attachment = new StringBuffer();
-    while (iter.hasNext())
-    {
-    	attachmentData = (AttachmentData) iter.next();
-    	attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
-    	attachment.append("|");
-    	attachment.append(attachmentData.getFilename());
-    	attachment.append("|");
-    	attachment.append(attachmentData.getMimeType());
-    	attachment.append("\n");
+    while (iter.hasNext()) {
+      if(!published) {
+        AttachmentData attachmentData = (AttachmentData) iter.next();
+        attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
+        attachment.append("|");
+        attachment.append(attachmentData.getFilename());
+        attachment.append("|");
+        attachment.append(attachmentData.getMimeType());
+        attachment.append("\n");
+      } else {
+        PublishedAttachmentData pubAttachmentData = (PublishedAttachmentData) iter.next();
+        attachment.append(pubAttachmentData.getResourceId().replaceAll(" ", ""));
+        attachment.append("|");
+        attachment.append(pubAttachmentData.getFilename());
+        attachment.append("|");
+        attachment.append(pubAttachmentData.getMimeType());
+        attachment.append("\n");
+      }
     }
     assessmentXml.setFieldentry("ATTACHMENT", attachment.toString());
   }
@@ -477,9 +487,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
    * @param assessmentXml
    * @param assessment
    */
-  public void updateMetaData(Assessment assessmentXml,
-                             AssessmentFacade assessment)
-  {
+  public void updateMetaData(Assessment assessmentXml, AssessmentIfc assessment) {
     String[] editKeys =
       {
       "templateInfo_isInstructorEditable",
@@ -539,9 +547,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
    * @param translationKey
    * @param key
    */
-  private void setField(Assessment assessmentXml, AssessmentFacade assessment,
-                        String key, String translationKey)
-  {
+  private void setField(Assessment assessmentXml, AssessmentIfc assessment, String key, String translationKey) {
 
     String value = assessment.getAssessmentMetaDataByLabel(key);
     log.debug("setField(Assessment assessmentXml, AssessmentFacade assessment, String key, String translationKey)");
@@ -563,9 +569,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
    * @param assessment
    * @param key
    */
-  private void setField(Assessment assessmentXml, AssessmentFacade assessment,
-                        String key)
-  {
+  private void setField(Assessment assessmentXml, AssessmentIfc assessment, String key) {
     setField(assessmentXml, assessment, key, key);
   }
 

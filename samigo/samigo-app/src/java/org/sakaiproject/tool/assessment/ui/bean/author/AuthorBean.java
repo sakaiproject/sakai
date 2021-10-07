@@ -841,6 +841,8 @@ public class AuthorBean implements Serializable {
 			  publishedActionList.add(new SelectItem("print_published", com.getString("action_print")));
 		  }
 		  publishedActionList.add(new SelectItem("settings_published", com.getString("settings_action")));
+		  publishedActionList.add(new SelectItem("duplicate", com.getString("action_duplicate")));
+		  publishedActionList.add(new SelectItem("export", com.getString("export_action")));
 	  }
 
 	  return publishedActionList;

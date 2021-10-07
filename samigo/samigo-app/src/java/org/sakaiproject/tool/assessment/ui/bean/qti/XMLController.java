@@ -55,6 +55,7 @@ public class XMLController implements Serializable {
   private XMLDisplay xmlBean;
   private String documentType;
   private String id;
+  private boolean published = false;
   private int qtiVersion;
 
   public XMLController()
@@ -162,6 +163,14 @@ public class XMLController implements Serializable {
     this.id = id;
   }
 
+  public boolean getPublished() {
+    return published;
+  }
+
+  public void setPublished(boolean published) {
+    this.published = published;
+  }
+
   private void assessment()
   {
     xmlBean.setId(id);
@@ -171,10 +180,10 @@ public class XMLController implements Serializable {
     {
       QTIService qtiService = new QTIService();
       log.debug("XMLController.assessment() assessment " +
-                         "qtiService.getExportedAssessment(id=" + id +
+                         "qtiService.getExportedAssessment(id=" + id + ", published=" + published +
                          ", qtiVersion=" +
                          qtiVersion + ")");
-      Document doc = qtiService.getExportedAssessment(id, qtiVersion);
+      Document doc = qtiService.getExportedAssessment(id, qtiVersion, published);
       xmlBean.setDescription(
         "Exported QTI XML produced by Sakai's Tests and Quizzes tool (Samigo)");
       xmlBean.setName("assessment " + id);

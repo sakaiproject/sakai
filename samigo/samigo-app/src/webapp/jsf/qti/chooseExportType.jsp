@@ -103,9 +103,9 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
     <p class="act">
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       styleClass="active" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
-       '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
-       '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
+       styleClass="active" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}&isFromPublished=#{assessmentBean.isFromPublished}',
+       '/samigo-app/servlet/DownloadCP?assessmentId=#{assessmentBean.assessmentId}&isFromPublished=#{assessmentBean.isFromPublished}', 
+       '/samigo-app/servlet/ExportMarkupText?assessmentId=#{assessmentBean.assessmentId}&isFromPublished=#{assessmentBean.isFromPublished}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        action="author" immediate="true"/>

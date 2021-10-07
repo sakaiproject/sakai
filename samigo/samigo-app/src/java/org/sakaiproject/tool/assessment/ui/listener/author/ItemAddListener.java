@@ -1178,7 +1178,7 @@ public class ItemAddListener
 	  choicetext.setText(stripPtags(choicebean.getChoice()));
 
 	  // loop through matches for in validAnswers list and add all to this choice
-	  Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
+	  Set<AnswerIfc> answerSet = new HashSet<>();
 	  for (int i = 0; i < validAnswers.size(); i++) {
 		  Answer answer = null;
 		  MatchItemBean answerbean = validAnswers.get(i);
@@ -1199,7 +1199,7 @@ public class ItemAddListener
 		  }
 
 		  // record answers for all combination of pairs
-		  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
+		  HashSet<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
 		  answerFeedbackSet.add(new AnswerFeedback(answer,
 				  AnswerFeedbackIfc.CORRECT_FEEDBACK,
 				  stripPtags(answerbean.getCorrMatchFeedback())));
@@ -1681,7 +1681,7 @@ public class ItemAddListener
 			choicetext.setSequence(choicebean.getSequence());
 			choicetext.setText(stripPtags(choicebean.getChoice()));
 
-			HashSet<Answer> answerSet = new HashSet<Answer>();
+			HashSet<Answer> answerSet = new HashSet<>();
 
 			// correct answer
 			Answer  answer = new Answer(choicetext, 
@@ -1693,7 +1693,7 @@ public class ItemAddListener
 										Double.valueOf(bean.getItemScore()), 
 										Double.valueOf(0d), 
 										Double.valueOf(bean.getItemDiscount()));
-			HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
+			HashSet<AnswerFeedbackIfc> answerFeedbackSet = new HashSet<>();
 			answerFeedbackSet.add(new AnswerFeedback(answer, AnswerFeedbackIfc.CORRECT_FEEDBACK, stripPtags(choicebean.getCorrImageMapFeedback())));
 			answerFeedbackSet.add(new AnswerFeedback(answer, AnswerFeedbackIfc.INCORRECT_FEEDBACK, stripPtags(choicebean.getIncorrImageMapFeedback())));
 			answer.setAnswerFeedbackSet(answerFeedbackSet);

@@ -2804,4 +2804,25 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
     		}
     	}
     }
+
+	public String getAssessmentSiteId (String assessmentId) {
+		List<AuthorizationData> l = (List<AuthorizationData>) getHibernateTemplate()
+				.findByNamedParam("select a from AuthorizationData a where a.functionId = :fid and a.qualifierId = :id",
+						new String[] {"fid", "id"},
+						new Object[] {"OWN_PUBLISHED_ASSESSMENT", assessmentId});
+		if (!l.isEmpty()) {
+			AuthorizationData a = l.get(0);
+			return a.getAgentIdString();
+		}
+		return null;
+	}
+
+	public String getAssessmentCreatedBy(String assessmentId) {
+		List<PublishedAssessmentData> l = (List<PublishedAssessmentData>) getHibernateTemplate().findByNamedParam("select a from PublishedAssessmentData a where a.publishedAssessmentId = :id", "id", Long.parseLong(assessmentId));
+		if (!l.isEmpty()) {
+			PublishedAssessmentData a = l.get(0);
+			return a.getCreatedBy();
+		}
+		return null;
+	}
 }

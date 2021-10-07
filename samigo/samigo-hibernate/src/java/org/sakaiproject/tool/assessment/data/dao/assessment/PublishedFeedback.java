@@ -21,33 +21,19 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
+import lombok.Setter;
+import lombok.Getter;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 
-public class PublishedFeedback
-    implements java.io.Serializable, AssessmentFeedbackIfc
-{
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = 6725754767789047244L;
-private Long id;
+public class PublishedFeedback extends AssessmentFeedbackIfc {
+
+  private static final long serialVersionUID = 6725754767789047244L;
   private AssessmentIfc assessment;
-  private Integer feedbackDelivery; // 0 = cannot edit, 1=immediate, 2=on specific date , 3= no feedback
-  private Integer feedbackComponentOption; // total scores only, or select components 
-  private Integer feedbackAuthoring; // 0 = cannot edit, 1=questionlevel, 2=sectionlevel, 3= both feedback
-  private Integer editComponents; // 0 = cannot
-  private Boolean showQuestionText;
-  private Boolean showStudentResponse;
-  private Boolean showCorrectResponse;
-  private Boolean showStudentScore;
-  private Boolean showStudentQuestionScore;
-  private Boolean showQuestionLevelFeedback;
-  private Boolean showSelectionLevelFeedback; // must be MC
-  private Boolean showGraderComments;
-  private Boolean showStatistics;
-  private Long assessmentId;
+
+  @Setter @Getter private Long assessmentId;
 
   /**
    * Creates a new SubmissionModel object.
@@ -125,16 +111,6 @@ private Long id;
     return cloned;
   }
 
-  public Long getId()
-  {
-    return id;
-  }
-
-  public void setId(Long id)
-  {
-    this.id = id;
-  }
-
   public void setAssessment(AssessmentIfc assessment)
   {
     this.assessment = assessment;
@@ -154,140 +130,5 @@ private Long id;
   {
     return getAssessment();
   }
-
-  public Integer getFeedbackDelivery()
-  {
-    return feedbackDelivery;
-  }
-
-  public void setFeedbackDelivery(Integer feedbackDelivery)
-  {
-    this.feedbackDelivery = feedbackDelivery;
-  }
-
-  public Integer getFeedbackAuthoring()
-  {
-    return feedbackAuthoring;
-  }
-
-  public void setFeedbackAuthoring(Integer feedbackAuthoring)
-  {
-    this.feedbackAuthoring = feedbackAuthoring;
-  }
-
-  public Integer getEditComponents() {
-    return editComponents;
-  }
-
-  public void setEditComponents(Integer editComponents) {
-    this.editComponents = editComponents;
-  }
-
-  public Boolean getShowQuestionText()
-  {
-    return showQuestionText;
-  }
-
-  public void setShowQuestionText(Boolean showQuestionText)
-  {
-    this.showQuestionText = showQuestionText;
-  }
-
-  public Boolean getShowStudentResponse()
-  {
-    return showStudentResponse;
-  }
-
-  public void setShowStudentResponse(Boolean showStudentResponse)
-  {
-    this.showStudentResponse = showStudentResponse;
-  }
-
-  public Boolean getShowCorrectResponse()
-  {
-    return showCorrectResponse;
-  }
-
-  public void setShowCorrectResponse(Boolean showCorrectResponse)
-  {
-    this.showCorrectResponse = showCorrectResponse;
-  }
-
-  public Boolean getShowStudentScore()
-  {
-    return showStudentScore;
-  }
-
-  public void setShowStudentScore(Boolean showStudentScore)
-  {
-    this.showStudentScore = showStudentScore;
-  }
-
-   public Boolean getShowStudentQuestionScore()
-  {
-    return showStudentQuestionScore;
-  }
-
-  public void setShowStudentQuestionScore(Boolean showStudentQuestionScore)
-  {
-    this.showStudentQuestionScore = showStudentQuestionScore;
-  }
-
-  public Boolean getShowQuestionLevelFeedback()
-  {
-    return showQuestionLevelFeedback;
-  }
-
-  public void setShowQuestionLevelFeedback(Boolean showQuestionLevelFeedback)
-  {
-    this.showQuestionLevelFeedback = showQuestionLevelFeedback;
-  }
-
-  public Boolean getShowSelectionLevelFeedback()
-  {
-    return showSelectionLevelFeedback;
-  }
-
-  public void setShowSelectionLevelFeedback(Boolean showSelectionLevelFeedback)
-  {
-    this.showSelectionLevelFeedback = showSelectionLevelFeedback;
-  }
-
-  public Boolean getShowGraderComments()
-  {
-    return showGraderComments;
-  }
-
-  public void setShowGraderComments(Boolean showGraderComments)
-  {
-    this.showGraderComments = showGraderComments;
-  }
-
-  public Boolean getShowStatistics()
-  {
-    return showStatistics;
-  }
-
-  public void setShowStatistics(Boolean showStatistics)
-  {
-    this.showStatistics = showStatistics;
-  }
-
-  public Long getAssessmentId() {
-    return this.assessmentId;
-  }
-
-  public void setAssessmentId(Long assessmentId) {
-    this.assessmentId = assessmentId;
-  }
-
-public Integer getFeedbackComponentOption() {
-	return feedbackComponentOption;
-}
-
-public void setFeedbackComponentOption(Integer feedbackComponentOption) {
-	this.feedbackComponentOption = feedbackComponentOption;
-	
-}
 
 }

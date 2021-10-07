@@ -39,7 +39,7 @@
  <div class="tier1">
  <h:form id="exportAssessmentForm">
   <h:outputText escape="false"
-      value="<input type='hidden' name='assessmentId' value='#{param.exportAssessmentId}'" />
+      value="<input type='hidden' name='assessmentId' value='#{param.exportAssessmentId}'/><input type='hidden' name='isFromPublished' value='#{param.isFromPublished}'/>" />
   <h3 style="insColor insBak"><h:outputText  value="#{authorImportExport.export_a}" /></h3>
   <div class="validation">
         <h:outputText value="#{authorImportExport.export_instructions}" escape="false" />

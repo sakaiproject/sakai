@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
-public class PublishedSectionFacade extends SectionFacade implements Serializable, Comparable {
+public class PublishedSectionFacade extends SectionFacade implements Comparable {
 
 	private static final long serialVersionUID = 5788637014806801101L;
 
@@ -60,7 +60,7 @@ public class PublishedSectionFacade extends SectionFacade implements Serializabl
    * Get the Id for this SectionFacade.
    * @return org.osid.shared.Id
    */
-  org.osid.shared.Id getId(){
+  public org.osid.shared.Id getFacadeId(){
     try {
       this.data = (SectionDataIfc) section.getData();
     }

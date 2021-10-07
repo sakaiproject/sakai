@@ -19,33 +19,21 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
+import lombok.Setter;
+import lombok.Getter;
 
-public interface AnswerFeedbackIfc
-    extends java.io.Serializable
-{
+public abstract class AnswerFeedbackIfc {
+
   public static final String CORRECT_FEEDBACK = "Correct Feedback";
   public static final String INCORRECT_FEEDBACK = "InCorrect Feedback";
   public static final String GENERAL_FEEDBACK = "General Feedback";
   public static final String ANSWER_FEEDBACK = "answerfeedback";
 
-  Long getId();
-
-  void setId(Long id);
-
-  AnswerIfc getAnswer();
-
-  void setAnswer(AnswerIfc answer);
-
-  String getTypeId();
-
-  void setTypeId(String typeId);
-
-  String getText();
-
-  void setText(String text);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected AnswerIfc answer;
+  @Setter @Getter protected String typeId;
+  @Setter @Getter protected String text;
 
 }

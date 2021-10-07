@@ -19,13 +19,13 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-public interface AssessmentMetaDataIfc
-    extends java.io.Serializable
-{
+import lombok.Setter;
+import lombok.Getter;
+
+public abstract class AssessmentMetaDataIfc {
+
   public static final String AUTHORS = "ASSESSMENT_AUTHORS";
   public static final String KEYWORDS = "ASSESSMENT_KEYWORDS";
   public static final String OBJECTIVES = "ASSESSMENT_OBJECTIVES";
@@ -36,20 +36,9 @@ public interface AssessmentMetaDataIfc
 
   public static final String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
   
-  Long getId();
-
-  void setId(Long id);
-
-  AssessmentBaseIfc getAssessment();
-
-  void setAssessment(AssessmentBaseIfc assessment);
-
-  String getLabel();
-
-  void setLabel(String label);
-
-  String getEntry();
-
-  void setEntry(String entry);
+  @Setter @Getter protected Long id;
+  @Setter @Getter protected AssessmentBaseIfc assessment;
+  @Setter @Getter protected String label;
+  @Setter @Getter protected String entry;
 
 }
