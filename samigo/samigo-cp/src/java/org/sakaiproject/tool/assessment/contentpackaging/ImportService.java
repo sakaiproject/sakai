@@ -98,7 +98,7 @@ public class ImportService {
 	    					if (!(d.exists() && d.isDirectory())) {
 	    						// Try to create the directory, warn if it fails
 	    						if (!d.mkdirs()) {
-	    							log.error("unable to mkdir " + dir.getPath() + "/" + dirName);
+	    							log.error("unable to mkdir {}/{}", dir.getPath(), dirName);
 	    						}
 	    						dirsMade.add(dirName);
 	    					}
