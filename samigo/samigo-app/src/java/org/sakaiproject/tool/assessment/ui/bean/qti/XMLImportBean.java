@@ -23,12 +23,17 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -371,23 +376,20 @@ public class XMLImportBean implements Serializable {
 	  String final_filename = temp_filename_3 + temp_filename_2;
 	  return final_filename;
   }
+  
   private void deleteDirectory(File directory) {
-	  if(directory.exists()) {
-		  File[] files = directory.listFiles();
-		  for(int i=0; i < files.length; i++) {
-			  if(files[i].isDirectory()) {
-				  deleteDirectory(files[i]);
-			  }
-			  else {
-				boolean success = files[i].delete();
-    				if (!success)
-      					log.error("Delete Failed.");
-			  }
-		  }
-	  }
-		boolean success = directory.delete();
-    		if (!success)
-  			log.error("Delete Failed.");
+	try (Stream<Path> walk = Files.walk(directory.toPath())) {
+		walk.sorted(Comparator.reverseOrder())
+			.forEach(f -> {
+				try {
+					Files.delete(f);
+				} catch (IOException e) {
+					log.error("Delete failed for file " + f.getFileName(), e);
+				}
+			});
+	} catch (IOException e) {
+		log.error("Delete failed ", e);
+	}
   }
 
   /**
