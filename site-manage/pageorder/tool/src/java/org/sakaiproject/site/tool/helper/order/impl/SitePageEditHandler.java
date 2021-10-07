@@ -614,8 +614,14 @@ public class SitePageEditHandler {
                 // We never change SITE_UPD at all.
                 permissions.remove(SiteService.SECURE_UPDATE_SITE);
                 permissions.remove(SiteService.SITE_VISIT);
-                Set<Role> roles = getRolesWithout(authzGroup, SiteService.SECURE_UPDATE_SITE);
 
+                // When re-enabling permissions and there are multiple permissions,
+                // e.g., dropbox.own and dropbox.maintain, grab the first in list only.
+                if (enabled && permissions.size() > 1) {
+                    permissions = Collections.singletonList(permissions.get(0));
+                }
+
+                Set<Role> roles = getRolesWithout(authzGroup, SiteService.SECURE_UPDATE_SITE);
                 for (Role role : roles) {
                     if (enabled) {
                         role.allowFunctions(permissions);
