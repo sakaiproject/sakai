@@ -60,8 +60,20 @@
                 <span th:text="#{groups.joinableset.allowunjoin}"></span>
               </label>
             </div>
-            <label for="joinableSetNumOfMembers" class="form-control-label block" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
+            <div class="block">
+              <label for="joinableSetNumOfMembers" class="form-control-label" th:text="#{groups.joinableset.maxmembers}">Max members:</label>
+              <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.maxmembers.info}+''"></a>
+            </div>
             <input name="joinableSetNumOfMembers" id="joinableSetNumOfMembers" type="number" th:field="*{joinableSetNumOfMembers}" min="1" max="999" class="form-control"/>
+          </div>
+        </div>
+        <div class="col-sm-8">
+          <div class="checkbox block">
+            <label for="groupJoinableShowAllUsers" class="form-control-label">
+              <input id="groupJoinableShowAllUsers" class="form-control" type="checkbox" th:field="*{groupJoinableShowAllUsers}" th:checked="${groupForm.groupJoinableShowAllUsers}"/>
+              <span th:text="#{groups.joinableset.show.all}">Show all site participants, even if they already joined a group of this joinable set</span>
+            </label>
+            <a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" th:attr="data-content=''+#{groups.joinableset.show.all.info}+''"></a>
           </div>
         </div>
       </div>
@@ -81,7 +93,7 @@
             <select name="groupMembers" th:field="*{groupMembers}" id="groupMembers" class="form-control" multiple="multiple">
               <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteRole.id)}" th:each="siteRole : ${siteRoleList}" th:value="${siteRole.id}" th:text="|#{groups.role} ${siteRole.id}|"></option>
               <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteSection.title)}" th:each="siteSection : ${sectionList}" th:value="${siteSection.title}" th:text="|#{groups.section} ${siteSection.title}|"></option>
-              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${siteMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
+              <option th:selected="${groupForm.groupMembers != null && groupForm.groupMembers.contains(siteMember.id)}" th:each="siteMember : ${selectableMemberList}" th:value="${siteMember.id}" th:text="|${siteMember.sortName} (${siteMember.eid})|"></option>
             </select>
           </div>
       </div>
