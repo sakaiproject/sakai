@@ -594,7 +594,7 @@ if (releaseToVal === 'Anonymous Users') {
       <h:outputLabel styleClass="col-md-2" for="feedbackDelivery" value="#{assessmentSettingsMessages.feedback_type}"/>
       <div class="col-md-10">
         <t:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}" onclick="setBlockDivs();disableAllFeedbackCheck();" layout="spread">
-          <f:selecValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
+          <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.on_submission_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
