@@ -309,8 +309,8 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 				securityService.pushAdvisor(new SecurityAdvisor() {
 				    public SecurityAdvice isAllowed(String userId, String function, String reference) {
 
-						//SAK-44623: bullhorn notification execution of delayed "asn.available.assignment" event would build wrong DeepLink for users with "asn.new" permission.
-						if(userId != null && userId != ""){
+						//SAK-44623: bullhorn notification execution of delayed "asn.available.assignment" event would build wrong DeepLink for users with no "asn.new" permission.
+						if(StringUtils.isNotEmpty(userId)){
 							if(event.getUserId().equals(userId)){
 								if (securityService.unlock(event.getUserId(), function, reference)) {
 									return SecurityAdvice.ALLOWED;
