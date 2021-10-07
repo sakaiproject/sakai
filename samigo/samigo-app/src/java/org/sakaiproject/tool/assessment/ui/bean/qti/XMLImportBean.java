@@ -384,7 +384,7 @@ public class XMLImportBean implements Serializable {
 				try {
 					Files.delete(f);
 				} catch (IOException e) {
-					log.error("Delete failed for file " + f.getFileName(), e);
+					log.error("Delete failed for file {}", f.getFileName(), e);
 				}
 			});
 	} catch (IOException e) {
