@@ -86,7 +86,7 @@ public class ImportService {
 	    		// Get the name of the imported zip file name. The value of "filename" has timestamp append to it.
 	    		String tmpName = filename.substring(filename.lastIndexOf("/") + 1);
 	    		qtiFilename = "exportAssessment.xml";
-	    		ArrayList xmlFilenames = new ArrayList();
+	    		List<String> xmlFilenames = new ArrayList<>();
 	    		while (entry != null) {
 	    			String zipName = entry.getName();
 	    			int ix = zipName.lastIndexOf('/');
