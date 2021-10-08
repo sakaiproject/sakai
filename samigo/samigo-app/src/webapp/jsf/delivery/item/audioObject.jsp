@@ -28,7 +28,7 @@
 
   <h:panelGroup layout="block" styleClass="audio-recorder-container" id="audio-recorder">
 
-<f:verbatim><div class="sakai-recorder-error" style="display:none" class="sak-banner-error"></f:verbatim>
+<f:verbatim><div class="sakai-recorder-error sak-banner-error" style="display:none"></f:verbatim>
     <h:outputFormat value="#{deliveryMessages.audio_not_allowed} " escape="false"/> 
 <f:verbatim></div></f:verbatim>
 
