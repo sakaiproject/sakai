@@ -44,7 +44,7 @@
       <script>
         $(document).ready(function() {
           // set up the accordion for settings
-          var accordionPanel = 0;
+          var accordionPanel = 2;
           var itemName = "samigo_assessmentsettings_" + <h:outputText value="#{assessmentSettings.assessmentId}"/>;
           if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
               accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
