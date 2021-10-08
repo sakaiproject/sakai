@@ -175,34 +175,11 @@ public class ShowMediaServlet extends HttpServlet
       
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
-      FileInputStream inputStream = null;
-      BufferedInputStream buf_inputStream = null;
-      ServletOutputStream outputStream = res.getOutputStream();
-      BufferedOutputStream buf_outputStream = null;
-      ByteArrayInputStream byteArrayInputStream = null;
-      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
-        try{
-          byteArrayInputStream = new ByteArrayInputStream(mediaData.getMedia());
-          buf_inputStream = new BufferedInputStream(byteArrayInputStream);
-        }
-        catch(Exception e){
-          log.error("****empty media save to DB="+e.getMessage());
-        }
-      }
-      else{
-    	  try{
-    		  inputStream = getFileStream(mediaLocation);
-    		  buf_inputStream = new BufferedInputStream(inputStream);
-    	  }
-    	  catch(Exception e){
-    		  log.error("****empty media save to file ="+e.getMessage());
-    	  }
+      try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(mediaData.getMedia());
+    		  FileInputStream inputStream = getFileStream(mediaLocation);
+    		  BufferedInputStream buf_inputStream = (mediaLocation == null || (mediaLocation.trim()).equals("")) ? new BufferedInputStream(byteArrayInputStream) : new BufferedInputStream(inputStream);
+    		  ServletOutputStream outputStream = res.getOutputStream(); BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream)){
 
-      }
-
-      try{
-    	  
-    	  buf_outputStream = new BufferedOutputStream(outputStream);
         int i=0;
         if (buf_inputStream != null)  {
         	// skip to the start of the possible range request
@@ -222,48 +199,6 @@ public class ShowMediaServlet extends HttpServlet
       }
       catch(Exception e){
         log.warn(e.getMessage());
-      }
-      finally {
-    	  if (buf_outputStream != null) {
-			  try {
-				  buf_outputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-    	  }
-    	  if (buf_inputStream != null) {
-			  try {
-				  buf_inputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-    	  }
-          if (inputStream != null) {
-			  try {
-				  inputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
-          if (outputStream != null) {
-			  try {
-				  outputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
-          if (byteArrayInputStream != null) {
-			  try {
-				  byteArrayInputStream.close();
-			  }
-			  catch(IOException e) {
-				  log.error(e.getMessage());
-			  }
-          }
       }
     }
   }
