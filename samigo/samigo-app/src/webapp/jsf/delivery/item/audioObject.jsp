@@ -39,6 +39,10 @@
   <h:outputText value="#{part.questions}" escape="false"/>
 <f:verbatim></div></f:verbatim>
 
+<h:panelGroup styleClass="audio-popup-question-text" layout="block">
+  <h:outputText value="#{question.text} "  escape="false"/>
+</h:panelGroup>
+
 <f:verbatim><div class="audio-recorder-intro"></f:verbatim>
   <f:verbatim><div class="time-allowed"></f:verbatim>
     <h:outputFormat value=" #{deliveryMessages.audio_recorder_timelimit}" escape="false"> <f:param value="<span class=\"audio-time-allowed\"> </span>" /> </h:outputFormat>
