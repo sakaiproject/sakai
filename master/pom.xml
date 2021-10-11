@@ -35,7 +35,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>6.8.18</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>6.8.19</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
