@@ -21,17 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.util.TextFormat;
-
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -42,6 +31,17 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+
+import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
  * <p>
@@ -152,13 +152,13 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
 	ServletOutputStream outputStream = res.getOutputStream();
     BufferedOutputStream buf_outputStream = null;
-	  try {
+    try{
     	buf_outputStream = new BufferedOutputStream(outputStream);
 
     	int i=0;
     	while ((i=buf_inputStream.read()) != -1){
     		buf_outputStream.write(i);
-		}
+    	}
 
     	//res.setContentLength(count);
     	res.flushBuffer();
