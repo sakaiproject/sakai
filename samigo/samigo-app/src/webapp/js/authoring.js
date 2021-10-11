@@ -469,10 +469,12 @@ function disableOtherFeedbackComponentOption (){
 		radio.disabled = feedbackType == noFeedback;
 	});
 
-	if (field.value == "2" && !field.disabled) {
-		respChoice.style.display = "block";
+	if (field !== undefined) {
+		respChoice.style.display = (field.value === "2" && !field.disabled) ? "block" : "none";
 	} else {
-		respChoice.style.display = "none";
+		//Set default value when no radio is selected and call function again
+		fields[0].checked = true;
+		disableOtherFeedbackComponentOption();
 	}
 }
 
