@@ -25,6 +25,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 		"resourceLinkId" : "1g3k4dlk49fk"
 		"startDateTime": "2018-03-06T20:05:02Z",
 		"endDateTime": "2018-04-06T22:05:03Z"
+		"submissionReview": {
+			"reviewableStatus": ["InProgress", "Submitted", "Completed"],
+			"label": "Open My Tool Viewer",
+			"url": "https://platform.example.com/act/849023/sub",
+			"custom": {
+					"action": "review",
+					"a_id": "23942"
+			}
+		}
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?
@@ -50,6 +59,9 @@ public class LineItem extends org.tsugi.jackson.objects.JacksonBase {
 
 	@JsonProperty("endDateTime")
 	public String endDateTime;
+
+	@JsonProperty("submissionReview")
+	public SubmissionReview submissionReview;
 
 	@JsonProperty("id")
 	public String id;			// Output only

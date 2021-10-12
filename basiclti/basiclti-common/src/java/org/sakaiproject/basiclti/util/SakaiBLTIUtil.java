@@ -1756,18 +1756,25 @@ public class SakaiBLTIUtil {
 			String user_id = (String) ltiProps.getProperty(BasicLTIConstants.USER_ID);
 
 			// Lets make a JWT from the LTI 1.x data
-			String messageTypeParm = req.getParameter(MESSAGE_TYPE_PARAMETER);
 			boolean deepLink = false;
 			SakaiLaunchJWT lj = new SakaiLaunchJWT();
+			lj.target_link_uri = launch_url;  // The actual launch URL
+
+			// See if we have a lineItem associated with this launch in case we need it later
+			String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
+			SakaiLineItem sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
+
+			String messageTypeParm = req.getParameter(MESSAGE_TYPE_PARAMETER);
 			if ( MESSAGE_TYPE_PARAMETER_PRIVACY.equals(messageTypeParm)) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST;
 			} else if ( MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST;
+				if ( sakaiLineItem != null && sakaiLineItem.submissionReview != null && StringUtils.isNotEmpty(sakaiLineItem.submissionReview.url) ) lj.target_link_uri = sakaiLineItem.submissionReview.url;
 			} else if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
 				lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 				deepLink = true;
 			}
-			lj.target_link_uri = launch_url;  // The actual launch URL
+
 			lj.launch_presentation.css_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL);
 			lj.locale = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
 			lj.launch_presentation.return_url = ltiProps.getProperty(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);

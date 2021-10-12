@@ -534,7 +534,6 @@ public class LineItemUtil {
 	 */
 	public static SakaiLineItem extractLineItem(String response_str) {
 
-		SakaiLineItem sakaiLineItem = null;
 
 		JSONObject response = org.tsugi.basiclti.BasicLTIUtil.parseJSONObject(response_str);
 		if ( response == null ) return null;
@@ -547,19 +546,30 @@ public class LineItemUtil {
 		if ( lineItem == null ) return null;
 
 		String lineItemStr = lineItem.toString();
-		try {
-			sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
-		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-			log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
-			return null;
-		}
+		SakaiLineItem sakaiLineItem = parseLineItem(lineItemStr);
+		if ( sakaiLineItem == null ) return null;
 
 		// See if we can find the scoreMaximum the old way
 		Double scoreMaximum = ContentItem.getScoreMaximum(lineItem);
 		if ( scoreMaximum != null ) sakaiLineItem.scoreMaximum = scoreMaximum;
 
 		return sakaiLineItem;
+	}
 
+	/**
+	 * Parse a LineItem from a string
+	 */
+	public static SakaiLineItem parseLineItem(String lineItemStr) {
+
+		SakaiLineItem sakaiLineItem = null;
+
+		try {
+			sakaiLineItem = (SakaiLineItem) new ObjectMapper().readValue(lineItemStr, SakaiLineItem.class);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+			log.warn("Could not parse input as SakaiLineItem {}",lineItemStr);
+			return null;
+		}
+		return sakaiLineItem;
 	}
 
 	/**
