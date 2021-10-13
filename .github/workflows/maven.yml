@@ -5,10 +5,9 @@ name: Java CI with Maven
 
 on:
   pull_request:
-    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x ]
 
 jobs:
-  build:
+  maven-build:
     runs-on: ubuntu-20.04
     steps:
       - name: Git Checkout
@@ -29,7 +28,6 @@ jobs:
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn --batch-mode -PskipBrokenTests test
-      - name: Report jUnit Annotations as Github Actions Annotations
-        uses: shyim/junit-report-annotations-action@0.2.0
-        with:
-          path: '**/surefire-reports/*.xml'
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
