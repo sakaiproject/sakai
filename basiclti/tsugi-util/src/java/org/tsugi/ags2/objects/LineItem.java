@@ -22,9 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 		"label" : "Chapter 5 Test",
 		"resourceId" : "a-9334df-33",
 		"tag" : "grade",
-		"resourceLinkId" : "1g3k4dlk49fk"
+		"resourceLinkId" : "1g3k4dlk49fk",
 		"startDateTime": "2018-03-06T20:05:02Z",
-		"endDateTime": "2018-04-06T22:05:03Z"
+		"endDateTime": "2018-04-06T22:05:03Z",
 		"submissionReview": {
 			"reviewableStatus": ["InProgress", "Submitted", "Completed"],
 			"label": "Open My Tool Viewer",

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.json.simple.JSONObject;
 
 import org.tsugi.basiclti.ContentItem;
@@ -560,6 +562,8 @@ public class LineItemUtil {
 	 * Parse a LineItem from a string
 	 */
 	public static SakaiLineItem parseLineItem(String lineItemStr) {
+
+		if ( lineItemStr == null || StringUtils.isEmpty(lineItemStr) ) return null;
 
 		SakaiLineItem sakaiLineItem = null;
 
