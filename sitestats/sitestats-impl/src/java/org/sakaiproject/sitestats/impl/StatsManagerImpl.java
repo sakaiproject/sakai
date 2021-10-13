@@ -1305,7 +1305,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 }
             }
             // hack for hibernate-oracle bug producing duplicate lines
-            else if(getDbVendor().equals("oracle") && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
+            else if("oracle".equals(getDbVendor()) && totalsBy != null && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
                 List<Stat> consolidated = new ArrayList<>();
                 for(Stat s : results) {
                     EventStat es = (EventStat) s;
