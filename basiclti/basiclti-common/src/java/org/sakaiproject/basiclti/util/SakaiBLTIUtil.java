@@ -1761,8 +1761,12 @@ public class SakaiBLTIUtil {
 			lj.target_link_uri = launch_url;  // The actual launch URL
 
 			// See if we have a lineItem associated with this launch in case we need it later
-			String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
-			SakaiLineItem sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
+
+			SakaiLineItem sakaiLineItem = null;
+			if ( content != null ) {
+				String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
+				sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
+			}
 
 			String messageTypeParm = req.getParameter(MESSAGE_TYPE_PARAMETER);
 			if ( MESSAGE_TYPE_PARAMETER_PRIVACY.equals(messageTypeParm)) {
