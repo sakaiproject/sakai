@@ -1347,7 +1347,7 @@ public class SimplePageBean {
 			return true;
 		SimplePageItem item = findItem(itemId);
 		
-		return item.getPageId() == getCurrentPageId();
+		return item != null ? item.getPageId() == getCurrentPageId() : true;
 	}
 	
 	public Integer getFilterLevel(Placement placement) {
