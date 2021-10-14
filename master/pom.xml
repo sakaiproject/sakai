@@ -2506,7 +2506,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.2.2</version>
+          <version>4.4.2</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2517,7 +2517,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.2.2</version>
+               <version>4.4.2</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2557,7 +2557,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.0</version>
+            <version>4.1</version>
             <configuration>
                 <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
                 <includes>
@@ -2581,7 +2581,7 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
                     <!-- make sure you use the same version as license-maven-plugin -->
-                    <version>4.0</version>
+                    <version>4.1</version>
                 </dependency>
             </dependencies>
         </plugin>
