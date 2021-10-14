@@ -221,4 +221,7 @@ public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializab
   Boolean getScoreDisplayFlag();
   void setScoreDisplayFlag(Boolean scoreDisplayFlag);
   public String getTagListToJsonString();
+  
+  public Long getOriginalItemId();
+  public void setOriginalItemId(Long originalItemId);
 }
