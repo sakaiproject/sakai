@@ -121,6 +121,8 @@
                                     <span class="text-success">$!grade</span>
                                 #elseif ($!grade == $tlang.getString("fail"))
                                     <span class="text-danger">$!grade</span>
+                                #else
+                                    $!grade
                                 #end
                             #else
                                 $tlang.getString("gen.nograd")
