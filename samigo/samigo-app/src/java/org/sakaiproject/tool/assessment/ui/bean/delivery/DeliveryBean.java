@@ -446,6 +446,8 @@ public class DeliveryBean implements Serializable {
   // Rubrics
   @Getter @Setter
   private String rbcsToken;
+  @Getter @Setter
+  private String rubricAssociation;
 
   private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static final String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
