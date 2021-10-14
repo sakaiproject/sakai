@@ -60,11 +60,27 @@
 		if(document.getElementById('subType').value == 6)
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
+			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
+			document.getElementById('assignToSection').style.display = 'none';
+			document.getElementById('site').checked = true;
+			document.getElementById('notificationOptions').style.display = 'none';
+			document.getElementById('notsendnotif').checked = true;
+			document.getElementById('releaseGradeNotifications').style.display = 'none';
+			document.getElementById('notsendreleasegradenotif').checked = true;
+			document.getElementById('additionalInformation').style.display = 'none';
+			document.getElementById('peerAssessmentCheckboxLabel').checked = false;
+			document.getElementById('peerAssessmentContainer').style.display = 'none';
         } else {
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
+			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
+			document.getElementById('assignToSection').style.display = 'block';
+			document.getElementById('notificationOptions').style.display = 'block';
+			document.getElementById('releaseGradeNotifications').style.display = 'block';
+			document.getElementById('additionalInformation').style.display = 'block';
+			document.getElementById('peerAssessmentContainer').style.display = 'block';
         }
 
-		if(document.getElementById('subType').value != 4)
+		if(document.getElementById('subType').value != 4 )
 		{
 			#if ($allowReviewService)
 				reviewSwitchNe1.style.display='none';
@@ -409,7 +425,7 @@
 				</select>
 			#end
 		</div>
-		<div class="checkbox">
+		<div class="checkbox" id="div_$name_CheckEmailReminder">
 			<label for="$name_CheckEmailReminder">
 				<input type="checkbox" name="$name_CheckEmailReminder" id="$name_CheckEmailReminder" value="true" 
 				#if ($!value_CheckEmailReminder)
@@ -444,7 +460,7 @@
 		#end
 
 		#if ($!name_CheckAutoAnnounce)
-			<div class="checkbox">
+			<div class="checkbox" id="div_$name_CheckAutoAnnounce">
 				<label for="$name_CheckAutoAnnounce">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceOptions(this.checked)" />
@@ -470,8 +486,172 @@
 			</div>
 		#end
 
-		<h4>$!tlang.getString('accessSectionHeader')</h4>
-		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
+		<h4>
+			$tlang.getString("gen.stusub")
+		</h4>
+		<div class="form-group row form-required">
+			<label for="subType" class="col-sm-2 form-control-label">
+				$tlang.getString("gen.submissionType")
+			</label>
+			<div class="col-sm-6">
+				<select name="$name_SubmissionType" id="subType" onchange="switchAssignmentSubmissionType();" class="assignment-submission-type">
+				#foreach ($i in [1..$!value_totalSubmissionTypes])
+					#if ($i == $value_SubmissionType)
+						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
+					#else
+						<option value="$i">$submissionTypeTable.get($i)</option>
+					#end
+				#end
+				</select>
+			</div>
+			<div id="review.switch.ne.2" class="sak-banner-info" style="display:none;">$reviewSwitchNe2</div>
+		</div>
+
+		<div id="External_Tool_Fieldset" #if ($value_SubmissionType != 6) style = "display:none"#end>
+        <fieldset>
+		<h4>
+			$tlang.getString("external.tool.label")
+		</h4>
+		<p class="sak-banner-info">
+			$tlang.getString("external.tool.detail")
+        </p>
+		<div class="form-group row">
+			<label class="col-sm-12 control-label block" for="tempContentId">
+				$tlang.getString("launchContentId")
+			</label>
+			<div class="col-sm-6" id="tempContentId">
+					<input type="text" readonly id="returnToolTitle" name="$name_ContentTitle" size="30"
+                        class="form-control" maxlength="100"
+                        placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
+					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
+                    <script>
+                        window.returnContentItem = function (contentItem) {
+                            console.log("returnContentItem", contentItem);
+                            if ( ! Array.isArray(contentItem) ) return;
+                            if ( contentItem.length != 1 ) return;
+                            var item = contentItem[0];
+                            console.log("item", item);
+                            // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
+                            // Content Item Variant
+                            if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
+                                var scoreConstraints = item.lineItem.scoreConstraints;
+                                console.log("item.lineItem.scoreConstraints", scoreConstraints);
+                                if ( scoreConstraints.normalMaximum  ) {
+                                    $("#new_assignment_grade_points").val(scoreConstraints.normalMaximum);
+                                }
+                                if ( scoreConstraints.totalMaximum  ) {
+                                    $("#new_assignment_grade_points").val(scoreConstraints.totalMaximum);
+                                }
+                            }
+
+                            // Deep Linking variant
+                            if ( item && item.lineItem && item.lineItem.scoreMaximum ) {
+                                $("#new_assignment_grade_points").val(item.lineItem.scoreMaximum);
+                            }
+
+                            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
+                            // https://stackoverflow.com/a/63160519/1994792
+                            var options = {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+                            if ( item && item.submission ) {
+                                var submission = item.submission;
+                                if ( submission.startDateTime ) {
+                                    var tdate = new Date(submission.startDateTime);
+                                    tdate = tdate.toLocaleString([], options).replace(',','');
+                                    $("#opendate").val(tdate);
+                                }
+                                if ( submission.endDateTime ) {
+                                    var tdate = new Date(submission.endDateTime);
+                                    tdate = tdate.toLocaleString([], options).replace(',','');
+                                    $("#duedate").val(tdate);
+                                }
+                            }
+                            if ( item && item.available ) {
+                                var available = item.available;
+                                if ( available.startDateTime ) {
+                                    var tdate = new Date(available.startDateTime);
+                                    tdate = tdate.toLocaleString([], options).replace(',','');
+                                    $("#opendate").val(tdate);
+                                }
+                                if ( available.endDateTime ) {
+                                    var tdate = new Date(available.endDateTime);
+                                    tdate = tdate.toLocaleString([], options).replace(',','');
+                                    $("#closedate").val(tdate);
+                                }
+                            }
+                        };
+                        window.returnContentTitle = function (newTitle) {
+                            setTimeout(function(){
+                                if ( confirm('$tlang.getString("launchContentTitle")'+" "+newTitle) ) {
+                                    $("#new_assignment_title").val(newTitle);
+                                }
+                            }, 500);
+                        };
+                    </script>
+			</div>
+        </div>
+		<div class="form-group row">
+			<div class="col-sm-6" id="tempContentId">
+                    <a title="$tlang.getString('external.tool.find')" target="sakai-basiclti-admin-iframe" onclick="showExternalIframe(this.title, false);"
+                        class="btn btn-primary" role="button"
+                        href="$findExternalToolUrl">$tlang.getString('external.tool.find')</a>
+            </div>
+		</div>
+
+		<div class="checkbox">
+			<label for="$name_ContentLaunchNewWindow">
+			#if ($!value_ContentLaunchNewWindow == true)
+				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" checked="checked" />
+			#else
+				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" />
+			#end
+				$tlang.getString("launchContentNewWindow")
+			</label>
+		</div>
+		</fieldset>
+        </div>
+        <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
+            <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
+        </div>
+<style>
+.ui-widget-overlay.ui-front {
+    opacity:.75;
+}
+</style>
+<script>
+//<![CDATA[
+function showExternalIframe(title, doreload) {
+    $("#external-modal-iframe-div").dialog({
+        title: title,
+        width: modalDialogWidth(),
+        height: modalDialogHeight(),
+        modal: true,
+        draggable: false,
+        open: function() {
+            $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
+            $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
+            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+            // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
+            $(this).parent().focus();
+        },
+        close: function() {
+            if ( doreload ) {
+                location.reload();
+            } else {
+                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+            }
+        }
+    });
+
+    $(window).resize(function() {
+        $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
+        $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
+        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
+        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
+    });
+}
+//]]>
+</script>
 
 		#if ($!isTimesheet)
 		<div id="timesheetsetupsection" style="display: block">
@@ -527,26 +707,10 @@
 			#end
 		#end
 
-		<h4>
-			$tlang.getString("gen.stusub")
-		</h4>
-		<div class="form-group row form-required">
-			<label for="subType" class="col-sm-2 form-control-label">
-				$tlang.getString("gen.submissionType")
-			</label>
-			<div class="col-sm-6">
-				<select name="$name_SubmissionType" id="subType" onchange="switchAssignmentSubmissionType();" class="assignment-submission-type">
-				#foreach ($i in [1..$!value_totalSubmissionTypes])
-					#if ($i == $value_SubmissionType)
-						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
-					#else
-						<option value="$i">$submissionTypeTable.get($i)</option>
-					#end
-				#end
-				</select>
-			</div>
-			<div id="review.switch.ne.2" class="sak-banner-info" style="display:none;">$reviewSwitchNe2</div>
-		</div>
+        <fieldset id="assignToSection" #if ($value_SubmissionType == 6) style = "display:none"#end>
+		<h4>$!tlang.getString('accessSectionHeader')</h4>
+		#parse("vm/assignment/instructor_new_edit/assignto_section.vm")
+		</fieldset>
 
 		##show it only for those assignments not of type non-electronic submission
 		#if($!value_allowResubmitNumber && $value_SubmissionType != 4)
@@ -555,7 +719,7 @@
 			#set($resubmitStyle="display:none")
 		#end
 
-		<div class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
+		<div id="allowResubmissionContainer" class="form-group row" #if ($value_SubmissionType == 4) style = "display:none"#end>
 			<label class="col-sm-2 control-label" for="allowResToggle">
 				$tlang.getString("allowResubmit")
 			</label>
@@ -564,6 +728,9 @@
 					<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" />
 				</div>
 			</div>
+		    <p class="sak-banner-info" id="ltiSubmissionResubmitNote" #if ($value_SubmissionType != 6) style = "display:none"#end>
+			    $tlang.getString("external.tool.resubmission")
+            </p>
 		</div>
 
 		<div class="form-group row" id="allowResubmitNumber" style="$!resubmitStyle">
@@ -627,171 +794,9 @@
 			</div>
 		</div>
 
-		<div #if ($value_SubmissionType != 6) style = "display:none"#end  id="External_Tool_Fieldset">
-		<fieldset>
-		<h4>
-			$tlang.getString("external.tool.label")
-		</h4>
-		<div class="form-group row">
-			<label class="col-sm-12 control-label block" for="tempContentId">
-				$tlang.getString("launchContentId")
-			</label>
-			<div class="col-sm-6" id="tempContentId">
-					<input type="text" readonly id="returnToolTitle" name="$name_ContentTitle" size="30"
-                        class="form-control" maxlength="100"
-                        placeholder="$tlang.getString('external.tool.placeholder')" value="$!value_ContentTitle">
-					<input type="hidden" id="returnContentId" name="$name_ContentId" value="$value_ContentId">
-                    <script>
-                        window.returnContentItem = function (contentItem) {
-                            console.log("returnContentItem", contentItem);
-                            if ( ! Array.isArray(contentItem) ) return;
-                            if ( contentItem.length != 1 ) return;
-                            var item = contentItem[0];
-                            console.log("item", item);
-                            // Likely redundant
-                            if ( item && item.lineItem && item.lineItem["https://www.sakailms.org/spec/lti-ags/v2p0/includeInComputation"] ) {
-                                $("#gradeAssignment").prop('checked', true);
-                                $("#assignmentGradingGradebookOptionsPanel").show();
-                                $("#new_assignment_send_to_gradebook").prop('checked', true);
-                                $("#add").prop('checked', true);
-                                $("#assignmentGradingPanel").show();
-                            }
-                            // Strangely, https://www.sakailms.org/spec/lti-ags/v2p0/releaseToStudent does not have an analog in Assignments
-                            // Content Item Variant
-                            if ( item && item.lineItem && item.lineItem.scoreConstraints ) {
-                                $("#gradeAssignment").prop('checked', true);
-                                $("#assignmentGradingGradebookOptionsPanel").show();
-                                $("#new_assignment_send_to_gradebook").prop('checked', true);
-                                $("#add").prop('checked', true);
-                                $("#assignmentGradingPanel").show();
-                                var scoreConstraints = item.lineItem.scoreConstraints;
-                                console.log("item.lineItem.scoreConstraints", scoreConstraints);
-                                if ( scoreConstraints.normalMaximum  ) {
-                                    $("#new_assignment_grade_points").val(scoreConstraints.normalMaximum);
-                                }
-                                if ( scoreConstraints.totalMaximum  ) {
-                                    $("#new_assignment_grade_points").val(scoreConstraints.totalMaximum);
-                                }
-                            }
-
-                            // Deep Linking variant
-                            if ( item && item.lineItem && item.lineItem.scoreMaximum ) {
-                                $("#gradeAssignment").prop('checked', true);
-                                $("#assignmentGradingGradebookOptionsPanel").show();
-                                $("#new_assignment_send_to_gradebook").prop('checked', true);
-                                $("#add").prop('checked', true);
-                                $("#assignmentGradingPanel").show();
-                                $("#new_assignment_grade_points").val(item.lineItem.scoreMaximum);
-                            }
-
-                            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
-                            // https://stackoverflow.com/a/63160519/1994792
-                            var options = {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
-                            if ( item && item.submission ) {
-                                var submission = item.submission;
-                                if ( submission.startDateTime ) {
-                                    var tdate = new Date(submission.startDateTime);
-                                    tdate = tdate.toLocaleString([], options).replace(',','');
-                                    $("#opendate").val(tdate);
-                                }
-                                if ( submission.endDateTime ) {
-                                    var tdate = new Date(submission.endDateTime);
-                                    tdate = tdate.toLocaleString([], options).replace(',','');
-                                    $("#duedate").val(tdate);
-                                }
-                            }
-                            if ( item && item.available ) {
-                                var available = item.available;
-                                if ( available.startDateTime ) {
-                                    var tdate = new Date(available.startDateTime);
-                                    tdate = tdate.toLocaleString([], options).replace(',','');
-                                    $("#opendate").val(tdate);
-                                }
-                                if ( available.endDateTime ) {
-                                    var tdate = new Date(available.endDateTime);
-                                    tdate = tdate.toLocaleString([], options).replace(',','');
-                                    $("#closedate").val(tdate);
-                                }
-                            }
-                        };
-                        window.returnContentTitle = function (newTitle) {
-                            setTimeout(function(){
-                                if ( confirm('$tlang.getString("launchContentTitle")'+" "+newTitle) ) {
-                                    $("#new_assignment_title").val(newTitle);
-                                }
-                            }, 500);
-                        };
-                    </script>
-			</div>
-        </div>
-		<div class="form-group row">
-			<div class="col-sm-6" id="tempContentId">
-                    <a title="$tlang.getString('external.tool.find')" target="sakai-basiclti-admin-iframe" onclick="showExternalIframe(this.title, false);"
-                        class="btn btn-primary" role="button"
-                        href="$findExternalToolUrl">$tlang.getString('external.tool.find')</a>
-            </div>
-		</div>
-
-		<div class="checkbox">
-			<label for="$name_ContentLaunchNewWindow">
-			#if ($!value_ContentLaunchNewWindow == true)
-				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" checked="checked" />
-			#else
-				<input id="$name_ContentLaunchNewWindow" name="$name_ContentLaunchNewWindow" type="checkbox" value="true" />
-			#end
-				$tlang.getString("launchContentNewWindow")
-			</label>
-		</div>
-		</fieldset>
-		</div>
-        <div id="external-modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-            <iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" tabindex="0"></iframe>
-        </div>
-<style>
-.ui-widget-overlay.ui-front {
-    opacity:.75;
-}
-</style>
-<script>
-//<![CDATA[
-function showExternalIframe(title, doreload) {
-    $("#external-modal-iframe-div").dialog({
-        title: title,
-        width: modalDialogWidth(),
-        height: modalDialogHeight(),
-        modal: true,
-        draggable: false,
-        open: function() {
-            $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
-            $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-            $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-            $('#sakai-basiclti-admin-iframe').attr('height', '100%');
-            // https://stackoverflow.com/questions/1202079/prevent-jquery-ui-dialog-from-setting-focus-to-first-textbox
-            $(this).parent().focus();
-        },
-        close: function() {
-            if ( doreload ) {
-                location.reload();
-            } else {
-                $('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
-            }
-        }
-    });
-
-    $(window).resize(function() {
-        $("#external-modal-iframe-div").dialog("option", "width", modalDialogWidth());
-        $("#external-modal-iframe-div").dialog("option", "height", modalDialogHeight());
-        $('#sakai-basiclti-admin-iframe').attr('width', '100%');
-        $('#sakai-basiclti-admin-iframe').attr('height', '100%');
-    });
-}
-//]]>
-</script>
-
-
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
-		<fieldset>
+		<fieldset id="notificationOptions" #if ($value_SubmissionType == 6) style = "display:none"#end>
 			<h4>
 				$tlang.getString("receive.confirm.submission.email.options")
 			</h4>
@@ -1241,7 +1246,7 @@ function showExternalIframe(title, doreload) {
 		#parse("vm/assignment/instructor_new_edit/grading_section.vm")
 
 		## whether to notify student about released grade
-		<fieldset>
+		<fieldset id="releaseGradeNotifications" #if ($value_SubmissionType == 6) style = "display:none"#end>
 			<h4>
 				$tlang.getString("send.submission.releasegrade.email.options")
 			</h4>
@@ -1260,6 +1265,8 @@ function showExternalIframe(title, doreload) {
 		</fieldset>
 
 	<a name="extraNodesTop"></a>
+
+    <div id="additionalInformation" #if ($value_SubmissionType == 6) style = "display:none"#end>
 	<h4>
 		$tlang.getString("additional_information")
 	</h4>
@@ -1704,6 +1711,7 @@ function showExternalIframe(title, doreload) {
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
+</div> <!-- id="additionalInformation" -->
 		<div class="row col-sm-12">
 			#buttonBar()
 		</div>

@@ -74,6 +74,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -103,6 +104,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
     private FormattedText formattedText;
+    private LTIService ltiService;
 
     @Setter
     @Getter
@@ -698,6 +700,31 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        Integer contentKey = assignment.getContentId();
+        if ( contentKey != null ) {
+            // Fall back launch for SimpleAssignments without any user-submission
+            simpleAssignment.ltiGradableLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey;
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+
+            for (SimpleSubmission submission : submissions) {
+                if ( ! submission.userSubmission ) continue;
+				String ltiSubmissionLaunch = null;
+                for(SimpleSubmitter submitter: submission.submitters) {
+                    if ( submitter.id != null ) {
+                        ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                        }
+                    }
+                }
+                submission.ltiSubmissionLaunch = ltiSubmissionLaunch;
+            }
+        }
 
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
@@ -1336,6 +1363,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String maxGradePoint;
 
+        private String ltiGradableLaunch;
+
         public SimpleAssignment() {
         }
 
@@ -1346,6 +1375,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (a == null) {
                 return;
             }
+
             this.id = a.getId();
             this.openTime = a.getOpenDate();
             this.openTimeString = a.getOpenDate().toString();
@@ -1499,6 +1529,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant assignmentCloseTime;
         private boolean draft;
         private boolean visible;
+        public String ltiSubmissionLaunch = null;
 
         public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa, Set<String> activeSubmitters) throws Exception {
 

@@ -57,9 +57,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class BaseLTIService implements LTIService {
-	/** Constants */
-	private final String ADMIN_SITE = "!admin";
-	public final String LAUNCH_PREFIX = "/access/basiclti/site/";
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -280,7 +277,7 @@ public abstract class BaseLTIService implements LTIService {
 		if (siteId == null) {
 			return null;
 		}
-		return "/access/basiclti/site/" + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
+		return LAUNCH_PREFIX + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
 	}
 
 	@Override

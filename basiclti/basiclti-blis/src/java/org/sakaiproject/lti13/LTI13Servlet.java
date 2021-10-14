@@ -88,6 +88,7 @@ import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.ags2.objects.Result;
+import org.tsugi.ags2.objects.Score;
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.PlatformConfiguration;
 import org.tsugi.lti13.objects.LTIPlatformConfiguration;
@@ -986,16 +987,17 @@ public class LTI13Servlet extends HttpServlet {
 	protected void handleLineItemScore(String signed_placement, String lineItemId, HttpServletRequest request, HttpServletResponse response) {
 
 		// Make sure the lineItemId is a long
-		Long assignment_id = null;
+		Long lineitem_key = null;
 		if ( lineItemId != null ) {
 			try {
-				assignment_id = Long.parseLong(lineItemId);
+				lineitem_key = Long.parseLong(lineItemId);
 			} catch (NumberFormatException e) {
-				LTI13Util.return400(response, "Bad value for assignment_id "+lineItemId);
-				log.error("Bad value for assignment_id "+lineItemId);
+				LTI13Util.return400(response, "Bad value for lineitem_key "+lineItemId);
+				log.error("Bad value for lineitem_key "+lineItemId);
 				return;
 			}
 		}
+
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		log.debug("sat={}", sat);
@@ -1020,20 +1022,17 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		log.debug("jsonString={}", jsonString);
 
-		Object js = JSONValue.parse(jsonString);
-		if (js == null || !(js instanceof JSONObject)) {
-			LTI13Util.return400(response, "Badly formatted JSON");
+		Score scoreObj;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			scoreObj = mapper.readValue(jsonString, Score.class);
+		} catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+			log.error("Could not read POST Data Jackson {}", ex.getMessage());
+			LTI13Util.return400(response, "Could not read POST Data Jackson");
 			return;
 		}
-		JSONObject jso = (JSONObject) js;
 
-		// An empty / null score given means to delete the score
-		Double scoreGiven = SakaiBLTIUtil.getDoubleNull(jso.get("scoreGiven"));
-		Double scoreMaximum = SakaiBLTIUtil.getDoubleNull(jso.get("scoreMaximum"));
-		String userId = SakaiBLTIUtil.getStringNull(jso.get("userId"));  // TODO: LTI13 quirk - should be subject
-		String comment = SakaiBLTIUtil.getStringNull(jso.get("comment"));
-		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
-
+		String userId = scoreObj.userId;
 		if (userId == null) {
 			LTI13Util.return400(response, "Missing userId");
 			return;
@@ -1041,13 +1040,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
-			return;
-		}
-
-		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
-		if (assignment_name == null || assignment_name.length() < 1) {
-			log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
-			LTI13Util.return400(response, "Could not determine assignment_name");
 			return;
 		}
 
@@ -1069,33 +1061,23 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// In case we are creating the gradebook entry at this very moment
-		SakaiLineItem lineItem = new SakaiLineItem();
-		lineItem.scoreMaximum = scoreMaximum;
+		// TODO: Check if sat and tool match
 
-		// Note when scoreGiven is null, it means to delete the score
-		Object retval;
-		if ( assignment_id == null ) {
-			if ( scoreGiven == null ) {
-				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
-			} else {
-				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, lineItem, comment);
-			}
-			log.debug("Lineitem retval={}",retval);
-		} else {
-			// TODO: Could make a new method collapsing these tool calls into a single scan
-			Assignment assnObj = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
-			if ( assnObj == null || assnObj.getName() == null ) {
-				LTI13Util.return400(response, "Unable to load assignment "+assignment_id);
-				return;
-			}
-			assignment_name = assnObj.getName();
-			if ( scoreGiven == null ) {
-				retval = SakaiBLTIUtil.deleteGradeLTI13(site, sat.tool_id, content, userId, assignment_name, comment);
-			} else {
-				retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, lineItem, comment);
-			}
-			log.debug("Lineitem retval={}",retval);
+		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment_name == null || assignment_name.length() < 1) {
+			log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
+			LTI13Util.return400(response, "Could not determine assignment_name");
+			return;
+		}
+
+		// When lineitem_key is null we are the "default" lineitem associated with the content object
+		// if the content item is associated with an assignment, we talk to the assignment API,
+		// if the content item is not associated with an assignment, we talk to the gradebook API
+		Object retval = SakaiBLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
+		log.debug("handleGradebookLTI13 retval={}",retval);
+		if ( retval instanceof String ) {
+			LTI13Util.return400(response, (String) retval);
+			return;
 		}
 	}
 
@@ -1793,12 +1775,12 @@ public class LTI13Servlet extends HttpServlet {
 	private void handleLineItemsUpdate(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		// Make sure the lineItem id is a long
-		Long assignment_id;
+		Long lineitem_key;
 		try {
-			assignment_id = Long.parseLong(lineItem);
+			lineitem_key = Long.parseLong(lineItem);
 		} catch (NumberFormatException e) {
-			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
-			log.error("Bad value for assignment_id "+lineItem);
+			LTI13Util.return400(response, "Bad value for lineitem_key "+lineItem);
+			log.error("Bad value for lineitem_key "+lineItem);
 			return;
 		}
 
@@ -1836,7 +1818,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Assignment retval;
 		try {
-			retval = LineItemUtil.updateLineItem(site, sat.tool_id, assignment_id, item);
+			retval = LineItemUtil.updateLineItem(site, sat.tool_id, lineitem_key, item);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			LTI13Util.return400(response, "Could not update lineitem: "+e.getMessage());
@@ -1947,13 +1929,13 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signed_placement={}", signed_placement);
 
 		// Make sure the lineItem id is a long
-		Long assignment_id = null;
+		Long lineitem_key = null;
 		if ( lineItem != null ) {
 			try {
-				assignment_id = Long.parseLong(lineItem);
+				lineitem_key = Long.parseLong(lineItem);
 			} catch (NumberFormatException e) {
-				LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
-				log.error("Bad value for assignment_id "+lineItem);
+				LTI13Util.return400(response, "Bad value for lineitem_key "+lineItem);
+				log.error("Bad value for lineitem_key "+lineItem);
 				return;
 			}
 		}
@@ -1993,16 +1975,16 @@ public class LTI13Servlet extends HttpServlet {
 
 		Assignment a;
 
-		if ( assignment_id != null ) {
-			a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+		if ( lineitem_key != null ) {
+			a = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, lineitem_key);
 		} else {
 			String assignment_label = (String) content.get(LTIService.LTI_TITLE);
-			a = LineItemUtil.getAssignmentByLabelDAO(context_id, sat.tool_id, assignment_label);
+			a = LineItemUtil.getColumnByLabelDAO(context_id, sat.tool_id, assignment_label);
 		}
 
 		if ( a == null ) {
-			LTI13Util.return400(response, "Could not load assignment");
-			log.error("Could not load assignment_id={}", assignment_id);
+			LTI13Util.return400(response, "Could not load column");
+			log.error("Could not load column={}", lineitem_key);
 			return;
 		}
 
@@ -2019,12 +2001,12 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		resultsForAssignment(signed_placement, site, a, assignment_id, user_id, request, response);
+		resultsForAssignment(signed_placement, site, a, lineitem_key, user_id, request, response);
 
 	}
 
 	private void resultsForAssignment(String signed_placement, Site site, Assignment a,
-			Long assignment_id, String user_id, HttpServletRequest request, HttpServletResponse response)
+			Long lineitem_key, String user_id, HttpServletRequest request, HttpServletResponse response)
 	{
 		log.debug("signed_placement={} user_id={}", signed_placement, user_id);
 		// TODO: Is the outer container an array or an object - the spec and swagger doc disagree
@@ -2088,9 +2070,9 @@ public class LTI13Servlet extends HttpServlet {
 				result.resultMaximum = a.getPoints();
 
 				if ( signed_placement != null ) {
-					if ( assignment_id != null ) {
-						result.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + assignment_id + "/results/" + user.getId();
-						result.scoreOf = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + assignment_id;
+					if ( lineitem_key != null ) {
+						result.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + lineitem_key + "/results/" + user.getId();
+						result.scoreOf = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + lineitem_key;
 					}  else {
 						result.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement + "/results/" + user.getId();
 						result.scoreOf = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
@@ -2156,12 +2138,12 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signed_placement={}", signed_placement);
 
 		// Make sure the lineItem id is a long
-		Long assignment_id;
+		Long lineitem_key;
 		try {
-			assignment_id = Long.parseLong(lineItem);
+			lineitem_key = Long.parseLong(lineItem);
 		} catch (NumberFormatException e) {
-			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
-			log.error("Bad value for assignment_id "+lineItem);
+			LTI13Util.return400(response, "Bad value for lineitem_key "+lineItem);
+			log.error("Bad value for lineitem_key "+lineItem);
 			return;
 		}
 
@@ -2198,12 +2180,12 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String context_id = site.getId();
-		if ( LineItemUtil.deleteAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id) ) {
+		if ( LineItemUtil.deleteAssignmentByKeyDAO(context_id, sat.tool_id, lineitem_key) ) {
 			return;
 		}
 
-		LTI13Util.return400(response, "Could not delete assignment "+assignment_id);
-		log.error("Could delete assignment={}", assignment_id);
+		LTI13Util.return400(response, "Could not delete line item "+lineitem_key);
+		log.error("Could delete line item={}", lineitem_key);
 	}
 
 }

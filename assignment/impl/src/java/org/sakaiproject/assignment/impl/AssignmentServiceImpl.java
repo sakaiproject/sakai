@@ -2016,8 +2016,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
         }
+        // If it is submitted, "in progress" is assumed (i.e. for LTI Assignments)
         if (submission.getSubmitted() && submission.getUserSubmission()) {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
         } else {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
         }

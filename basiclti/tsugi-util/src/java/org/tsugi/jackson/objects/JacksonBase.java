@@ -15,20 +15,30 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.tsugi.jackson.JacksonUtil;
 
-public class JacksonBase 
+public class JacksonBase
 {
 
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	public String prettyPrint() 
+	public String prettyPrint()
 		throws com.fasterxml.jackson.core.JsonProcessingException
 	{
 		return JacksonUtil.prettyPrint(this);
 	}
 
-	public String prettyPrintLog() 
+	public String prettyPrintLog()
 	{
 		return JacksonUtil.prettyPrintLog(this);
+	}
+
+	public Object getKey(String key)
+	{
+		return additionalProperties.get(key);
+	}
+
+	public Object setKey(String key, Object value)
+	{
+		return additionalProperties.put(key, value);
 	}
 
 	@JsonAnyGetter

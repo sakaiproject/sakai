@@ -40,5 +40,20 @@ public class LineItemUtilTest {
 		li = LineItemUtil.extractLineItem(fakeContentItem);
 		assertEquals(li.scoreMaximum, new Double(8675));
 	}
-	
+
+	@Test
+	public void testTwo() {
+		SakaiLineItem li = LineItemUtil.extractLineItem(null);
+		assertNull(li);
+		li = LineItemUtil.extractLineItem("");
+		assertNull(li);
+
+		String fakeLineItem = "{ \"id\" : \"https://lms.example.com/context/2923/lineitems/1\", \"scoreMaximum\" : 60, \"label\" : \"Chapter 5 Test\", \"resourceId\" : \"a-9334df-33\", \"tag\" : \"grade\", \"resourceLinkId\" : \"1g3k4dlk49fk\", \"startDateTime\": \"2018-03-06T20:05:02Z\", \"endDateTime\": \"2018-04-06T22:05:03Z\", \"submissionReview\": { \"reviewableStatus\": [\"InProgress\", \"Submitted\", \"Completed\"], \"label\": \"Open My Tool Viewer\", \"url\": \"https://platform.example.com/act/849023/sub\", \"custom\": { \"action\": \"review\", \"a_id\": \"23942\" } } }";
+		li = LineItemUtil.parseLineItem(fakeLineItem);
+		assertNotNull(li);
+		assertNotNull(li.submissionReview);
+		assertNotNull(li.submissionReview.url);
+		assertEquals(li.submissionReview.url, "https://platform.example.com/act/849023/sub");
+	}
+
 }

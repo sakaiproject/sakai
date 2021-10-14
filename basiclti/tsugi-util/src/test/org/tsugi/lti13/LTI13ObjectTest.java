@@ -89,7 +89,6 @@ public class LTI13ObjectTest {
 
 		lj.custom = new TreeMap<String, String>();
 		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
-			System.out.println(entry.getKey() + " : " + entry.getValue());
 			String custom_key = (String) entry.getKey();
 			String custom_val = (String) entry.getValue();
 			if (!custom_key.startsWith("custom_")) {
@@ -169,6 +168,35 @@ public class LTI13ObjectTest {
 			System.out.println(pcs);
 		}
 		assertEquals(pcs, expected);
+	}
+
+	@Test
+	public void testThree() throws com.fasterxml.jackson.core.JsonProcessingException {
+
+		LaunchJWT lj = new LaunchJWT();
+		String expected =
+"{\"https://purl.imsglobal.org/spec/lti/claim/message_type\":\"LtiResourceLinkRequest\",\"https://purl.imsglobal.org/spec/lti/claim/version\":\"1.3.0\",\"https://purl.imsglobal.org/spec/lti/claim/roles\":[],\"https://purl.imsglobal.org/spec/lti/claim/role_scope_mentor\":[],\"https://purl.imsglobal.org/spec/lti/claim/launch_presentation\":{\"document_target\":\"iframe\"}}";
+		String ljs = JacksonUtil.toString(lj);
+		assertEquals(expected,ljs);
+
+		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LAUNCH);
+		ljs = JacksonUtil.toString(lj);
+		assertEquals(expected,ljs);
+
+		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_DEEP_LINK);
+		ljs = JacksonUtil.toString(lj);
+		String expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiDeepLinkingRequest");
+		assertEquals(expected2,ljs);
+
+		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST);
+		ljs = JacksonUtil.toString(lj);
+		expected2 = expected.replaceAll("LtiResourceLinkRequest", "DataPrivacyLaunchRequest");
+		assertEquals(expected2,ljs);
+
+		lj = new LaunchJWT(LaunchJWT.MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST);
+		ljs = JacksonUtil.toString(lj);
+		expected2 = expected.replaceAll("LtiResourceLinkRequest", "LtiSubmissionReviewRequest");
+		assertEquals(expected2,ljs);
 	}
 
 }
