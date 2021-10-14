@@ -2893,16 +2893,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
                     // get localized number format
-                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
-                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                    NumberFormat numberFormat = formattedText.getNumberFormat(dec, dec, false);
+                    DecimalFormat decimalFormat = (DecimalFormat) numberFormat;
                     // show grade in localized number format
+                    Double aDouble = 0D;
                     try {
-                        Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
-                        decimalGradePoint = nbFormat.format(dblGrade);
-                        returnGrade = decimalGradePoint;
+                        aDouble = decimalFormat.parse(decimalGradePoint).doubleValue();
                     } catch (Exception e) {
-                        log.warn("Could not parse grade [{}], {}", returnGrade, e.getMessage());
+                        log.warn("Parsing the grade [{}] as a SCORE_TYPE failed, {}, returning grade as a 0", returnGrade, e.toString());
                     }
+                    decimalGradePoint = numberFormat.format(aDouble);
+                    returnGrade = decimalGradePoint;
                 }
                 break;
             case UNGRADED_GRADE_TYPE:
