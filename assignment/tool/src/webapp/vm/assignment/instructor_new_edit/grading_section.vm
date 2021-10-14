@@ -155,7 +155,7 @@ This section contains the options for grading this assignment, including rubrics
 				#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
 					#set($groupAssignment = true)
 				#end
-				<div class="peerAssessmentContainer form-group">
+				<div class="peerAssessmentContainer form-group" id="peerAssessmentContainer" #if ($value_SubmissionType == 6) style = "display:none"#end>
 					<div class="checkbox">
 						<label id="peerAssessmentCheckboxLabel" for="usePeerAssessment">
 							<input id="usePeerAssessment" name="$name_UsePeerAssessment" type="checkbox" value="true"

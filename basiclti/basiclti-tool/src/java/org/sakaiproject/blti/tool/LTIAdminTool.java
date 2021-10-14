@@ -486,7 +486,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				}
 
 				//get LTI url based on site id and tool id
-				content.put("tool_url", "/access/basiclti/site/" + siteId + "/content:" + content.get(LTIService.LTI_ID));
+				content.put("tool_url", LTIService.LAUNCH_PREFIX + siteId + "/content:" + content.get(LTIService.LTI_ID));
 			}
 		}
 		context.put("contents", contents);
@@ -550,6 +550,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// this is for the system tool panel
 		List<Map<String, Object>> tools = ltiService.getTools(null, null, 0, 0, getSiteId(state));
+		for (Map<String, Object> tool : tools) {
+			String privacyUrl = LTIService.LAUNCH_PREFIX + getSiteId(state) + "/tool:" + tool.get(LTIService.LTI_ID)+"?"+
+					SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER + "=" + SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER_PRIVACY;
+			tool.put("privacy_url", privacyUrl);
+		}
+
 		context.put("ltiTools", tools);
 
 		// top navigation menu

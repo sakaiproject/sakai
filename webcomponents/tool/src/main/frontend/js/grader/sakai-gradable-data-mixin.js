@@ -23,6 +23,8 @@ const gradableDataMixin = Base => class extends Base {
 
           this.closeTime = gradableData.gradable.closeTimeString;
 
+          this.ltiGradableLaunch = gradableData.gradable.ltiGradableLaunch;
+
           this.groups = gradableData.groups;
 
           this.originalSubmissions = gradableData.submissions.map(s => new Submission(s, gradableData.groups, this.i18n));

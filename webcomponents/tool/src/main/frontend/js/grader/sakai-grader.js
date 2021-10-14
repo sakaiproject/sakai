@@ -6,6 +6,7 @@ import "./sakai-grader-file-picker.js";
 import "../sakai-date-picker.js";
 import "../sakai-group-picker.js";
 import "../sakai-document-viewer.js";
+import "../sakai-lti-iframe.js";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { Submission } from "./submission.js";
 import "/webcomponents/rubrics/rubric-association-requirements.js";
@@ -65,6 +66,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       rubric: { type: Object },
       assignmentsI18n: Object,
       showingHistory: Boolean,
+      ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
     };
   }
 
@@ -180,6 +182,22 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     return html`
       <div class="gradable">
+        ${this.submission.ltiSubmissionLaunch ? html`
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)} ${unsafeHTML(this.i18n.lti_grade_not_automatic)}</div>
+          <sakai-lti-iframe
+            allow-resize="yes"
+            new-window-text="${this.i18n.lti_grade_launch_button}"
+            launch-url="${this.submission.ltiSubmissionLaunch}"
+         />
+        ` : "" }
+        ${(this.ltiGradableLaunch && ! this.submission.ltiSubmissionLaunch )  ? html`
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)} ${unsafeHTML(this.i18n.lti_grade_not_automatic)}</div>
+          <sakai-lti-iframe
+            allow-resize="yes"
+            new-window-text="${this.i18n.lti_grade_launch_button}"
+            launch-url="${this.ltiGradableLaunch}"
+         />
+        ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
             <div class="sak-banner-info">${unsafeHTML(this.i18n["inline_feedback_instruction"])}</div>

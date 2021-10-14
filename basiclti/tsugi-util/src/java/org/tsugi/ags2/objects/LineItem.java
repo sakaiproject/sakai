@@ -22,13 +22,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 		"label" : "Chapter 5 Test",
 		"resourceId" : "a-9334df-33",
 		"tag" : "grade",
-		"resourceLinkId" : "1g3k4dlk49fk"
+		"resourceLinkId" : "1g3k4dlk49fk",
 		"startDateTime": "2018-03-06T20:05:02Z",
-		"endDateTime": "2018-04-06T22:05:03Z"
+		"endDateTime": "2018-04-06T22:05:03Z",
+		"submissionReview": {
+			"reviewableStatus": ["InProgress", "Submitted", "Completed"],
+			"label": "Open My Tool Viewer",
+			"url": "https://platform.example.com/act/849023/sub",
+			"custom": {
+					"action": "review",
+					"a_id": "23942"
+			}
+		}
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?
-public class LineItem {
+public class LineItem extends org.tsugi.jackson.objects.JacksonBase {
 
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.lineitem+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.lineitemcontainer+json";
@@ -50,6 +59,9 @@ public class LineItem {
 
 	@JsonProperty("endDateTime")
 	public String endDateTime;
+
+	@JsonProperty("submissionReview")
+	public SubmissionReview submissionReview;
 
 	@JsonProperty("id")
 	public String id;			// Output only

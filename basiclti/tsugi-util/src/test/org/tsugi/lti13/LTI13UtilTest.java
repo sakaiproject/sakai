@@ -167,8 +167,8 @@ public class LTI13UtilTest {
 		// If you want a sample, B64 format public and private key,
 		// uncomment these two lines, run the unit tests, and look at
 		// ./target/surefire-reports/org.tsugi.lti13.LTI13UtilTest-output.txt
-		System.out.println("privateB64="+privateB64);
-		System.out.println("publicB64="+publicB64);
+		// System.out.println("privateB64="+privateB64);
+		// System.out.println("publicB64="+publicB64);
 	}
 
 	@Test
@@ -318,7 +318,6 @@ public class LTI13UtilTest {
 		String token = LTI13Util.timeStampSign("xyzzy", "secret");
 		assertTrue(token.contains(":xyzzy:"));
 		assertFalse(token.contains("secret"));
-		System.out.println("token="+token);
 		boolean good = LTI13Util.timeStampCheckSign(token, "secret", 100);
 		assertTrue(good);
 		good = LTI13Util.timeStampCheckSign(token, "xsecret", 100);

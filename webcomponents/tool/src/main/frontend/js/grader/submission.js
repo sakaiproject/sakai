@@ -46,6 +46,8 @@ export class Submission {
 
       this.submitters = init.submitters;
 
+      this.ltiSubmissionLaunch = init.ltiSubmissionLaunch;
+
       if (init.submitters) {
         this.firstSubmitterName = init.submitters[0].sortName;
         this.firstSubmitterId = init.submitters[0].id;
@@ -67,6 +69,7 @@ export class Submission {
       if (this.resubmitsAllowed === -1 || this.resubmitsAllowed > 0) {
         this.resubmitDate = moment(parseInt(init.properties["allow_resubmit_closeTime"], 10)).valueOf();
       }
+
 
       // We need this for setting the default resubmission date
       this.assignmentCloseTime = init.assignmentCloseTime.epochSecond * 1000;

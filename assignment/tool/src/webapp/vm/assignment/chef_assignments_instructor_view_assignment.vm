@@ -177,17 +177,20 @@
 					#end
 				</td>
 			</tr>
-			#if($assignment.TypeOfSubmission.ordinal() == 6)
-			<tr>
-				<th>
-					$tlang.getString("external.tool.label")
-				</th>
-				<td>
-					$value_ContentTitle <br/>
-					<a href="#toolLinkParam("$action" "doView_external_tool_launch")">$tlang.getString("external.tool.goto")</a>
-				</td>
-			</tr>
-			#end
+            #if($assignment.TypeOfSubmission.ordinal() == 6)
+            <tr>
+                    <th>
+                            $tlang.getString("external.tool.header")
+                    </th>
+                    <td>
+                        #if ( $value_ContentId && $value_ContentLaunchURL )
+                            $!value_ContentTitle
+                        #else
+                            $tlang.getString("external.tool.missing")
+                        #end
+                    </td>
+            </tr>
+            #end
 			<tr> 
 				<th>
 					$tlang.getString("gen.honple")
@@ -385,7 +388,10 @@
 				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="submit"accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#else
-				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="btn btn-normal active" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#if($assignment.TypeOfSubmission.ordinal() == 6 && $value_ContentId && $value_ContentLaunchURL)
+				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("external.tool.goto")" class="btn btn-normal active" onclick="window.location='#toolLinkParam("$action" "doView_external_tool_launch")';return false;" />
+			#end
 		#end
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

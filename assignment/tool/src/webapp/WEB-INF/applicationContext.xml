@@ -33,6 +33,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 	</bean>
 	
 </beans>
