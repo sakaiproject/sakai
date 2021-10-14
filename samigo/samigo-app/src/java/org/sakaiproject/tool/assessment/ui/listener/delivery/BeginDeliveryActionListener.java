@@ -296,9 +296,17 @@ public class BeginDeliveryActionListener implements ActionListener
    */
   private void populateDelivery(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
 
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     Long publishedAssessmentId = pubAssessment.getPublishedAssessmentId();
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     PublishedAssessmentService service = new PublishedAssessmentService();
+    
+    if (author.getIsEditPendingAssessmentFlow()) {
+    	delivery.setRubricAssociation(pubAssessment.getAssessmentId().toString());
+    }
+    else {
+    	delivery.setRubricAssociation("pub." + publishedAssessmentId.toString());
+    }
 
     // #0 - global information
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
