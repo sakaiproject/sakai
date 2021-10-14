@@ -160,6 +160,11 @@
             <artifactId>log4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Required by Tomcat 7.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
         <dependency>
