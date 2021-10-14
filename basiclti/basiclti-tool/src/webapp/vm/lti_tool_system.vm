@@ -166,7 +166,9 @@ ${includeLatestJQuery}
                                 #end
                                 #set($privacy=0)
                                 #set($privacy=$tool.get("pl_privacy"))
-                                #if ( $privacy == 1 )
+                                #set($lti13=0)
+                                #set($lti13=$tool.get("lti13"))
+                                #if ( $lti13 == 1 && $privacy == 1 )
                                 <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$tool.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
                                 #end
                                 </ul>
