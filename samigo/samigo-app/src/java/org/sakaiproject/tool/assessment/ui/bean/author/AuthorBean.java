@@ -98,7 +98,7 @@ public class AuthorBean implements Serializable {
   private String selectActionOutcome;
   private String importOutcome;
   private boolean showTemplateList;
-  private boolean isEditPendingAssessmentFlow = true;
+  private boolean isEditPendingAssessmentFlow;
   private String fromPage;
   private String firstFromPage;
   private boolean isRetractedForEdit = false;
