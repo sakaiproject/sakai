@@ -703,26 +703,27 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Integer contentKey = assignment.getContentId();
         if ( contentKey != null ) {
-             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+            // Fall back launch for SimpleAssignments without any user-submission
+            simpleAssignment.ltiGradableLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey;
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
             for (SimpleSubmission submission : submissions) {
                 if ( ! submission.userSubmission ) continue;
-                String ltiGradeLaunch = null;
+				String ltiSubmissionLaunch = null;
                 for(SimpleSubmitter submitter: submission.submitters) {
                     if ( submitter.id != null ) {
-                        ltiGradeLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+                        ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
 
                         // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
                         // Delegate the complex understanding of the launch to SakaiBLTIUtil
                         if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
-                            ltiGradeLaunch = ltiGradeLaunch + "&message_type=content_review";
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
                         }
                     }
                 }
-                submission.ltiGradeLaunch = ltiGradeLaunch;
+                submission.ltiSubmissionLaunch = ltiSubmissionLaunch;
             }
-
         }
 
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
@@ -1362,6 +1363,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String maxGradePoint;
 
+        private String ltiGradableLaunch;
+
         public SimpleAssignment() {
         }
 
@@ -1526,7 +1529,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant assignmentCloseTime;
         private boolean draft;
         private boolean visible;
-        public String ltiGradeLaunch = null;
+        public String ltiSubmissionLaunch = null;
 
         public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa, Set<String> activeSubmitters) throws Exception {
 

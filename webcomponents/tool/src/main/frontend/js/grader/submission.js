@@ -48,7 +48,7 @@ export class Submission {
 
       this.submitters = init.submitters;
 
-      this.ltiGradeLaunch = init.ltiGradeLaunch;
+      this.ltiSubmissionLaunch = init.ltiSubmissionLaunch;
 
       if (init.submitters) {
         this.firstSubmitterName = init.submitters[0].sortName;
