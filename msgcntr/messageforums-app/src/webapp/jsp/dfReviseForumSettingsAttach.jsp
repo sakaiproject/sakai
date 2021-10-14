@@ -91,6 +91,13 @@
 					$(this).attr('aria-labelledby', 'forum_posting_head ' + $(this).attr('id') + '_label');
 				});
 
+                $('#revise\\:availabilityRestricted\\:0, #revise\\:availabilityRestricted\\:1').each(function() {
+                   let label = $('#revise\\:forumAvailabilityLabel2').text() + " " + $(this).next().text();
+                   $(this).attr('aria-label', label);
+                });
+                $('input[id*="forum_siteGroupCheck"]').each(function() {
+                      $(this).attr('aria-labelledby', 'revise:createForumsForGroups:1 ' + $(this).attr('id') + '_label');
+                });
 				$('.displayMore').click(function(e){
 					e.preventDefault();
 					$('.displayMorePanel').fadeIn('slow')
@@ -264,7 +271,7 @@
 					<h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
 
-			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
+			<h2><h:outputText id="forumAvailabilityLabel2" value="#{msgs.cdfm_forum_availability}" /></h2>
 			<h:panelGroup layout="block" styleClass="indnt1">
               <h:panelGroup styleClass="checkbox">
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedForum.availabilityRestricted}">
@@ -388,8 +395,8 @@
 					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
 								 rendered="#{ForumTool.selectedForum.forum.id==null}">
 						<h:column>
-							<h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" />
-							<h:outputText value="#{siteGroup.group.title}" />
+						    <h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" id="forum_siteGroupCheck" />
+                            <h:outputText value="#{siteGroup.group.title}" id="forum_siteGroupCheck_label" />
 						</h:column>
 					</h:dataTable>
 				</h:panelGroup>
