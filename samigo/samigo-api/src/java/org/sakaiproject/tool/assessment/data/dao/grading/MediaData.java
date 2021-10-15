@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -50,7 +51,6 @@ public class MediaData implements Serializable {
 	private String location;
 	private String filename;
 	private boolean isLink;
-	private boolean isHtmlInline;
 	private Integer status;
 	private String createdBy;
 	private Date createdDate;
@@ -68,7 +68,7 @@ public class MediaData implements Serializable {
 	public MediaData(ItemGradingData itemGradingData, byte[] media,
 			Long fileSize, String mimeType, String description,
 			String location, String filename, boolean isLink,
-			boolean isHtmlInline, Integer status, String createdBy,
+			Integer status, String createdBy,
 			Date createdDate, String lastModifiedBy, Date lastModifiedDate,
 			String duration) {
 		this.itemGradingData = itemGradingData;
@@ -79,7 +79,6 @@ public class MediaData implements Serializable {
 		this.location = location;
 		this.filename = filename;
 		this.isLink = isLink;
-		this.isHtmlInline = isHtmlInline;
 		this.status = status;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
@@ -91,7 +90,7 @@ public class MediaData implements Serializable {
 	public MediaData(Long mediaId, ItemGradingData itemGradingData,
 			Long fileSize, String mimeType, String description,
 			String location, String filename, boolean isLink,
-			boolean isHtmlInline, Integer status, String createdBy,
+			Integer status, String createdBy,
 			Date createdDate, String lastModifiedBy, Date lastModifiedDate,
 			String duration) {
 		this.mediaId = mediaId;
@@ -102,7 +101,6 @@ public class MediaData implements Serializable {
 		this.location = location;
 		this.filename = filename;
 		this.isLink = isLink;
-		this.isHtmlInline = isHtmlInline;
 		this.status = status;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
@@ -154,14 +152,6 @@ public class MediaData implements Serializable {
 	}
 
 	public void setMedia(byte[] media) {
-		this.media = media;
-	}
-
-	public byte[] getDbMedia() {
-		return media;
-	}
-
-	public void setDbMedia(byte[] media) {
 		this.media = media;
 	}
 
@@ -231,14 +221,6 @@ public class MediaData implements Serializable {
 
 	public void setIsLink(boolean isLink) {
 		this.isLink = isLink;
-	}
-
-	public boolean getIsHtmlInline() {
-		return isHtmlInline;
-	}
-
-	public void setIsHtmlInline(boolean isHtmlInline) {
-		this.isHtmlInline = isHtmlInline;
 	}
 
 	public Integer getStatus() {
@@ -320,7 +302,6 @@ public class MediaData implements Serializable {
         builder.append(durationIsOver);
         builder.append(fileSize);
         builder.append(filename);
-        builder.append(isHtmlInline);
         builder.append(isLink);
         builder.append(itemGradingData);
         builder.append(lastModifiedBy);
@@ -352,7 +333,6 @@ public class MediaData implements Serializable {
 		builder.append(durationIsOver, other.durationIsOver);
 		builder.append(fileSize, other.fileSize);
 		builder.append(filename, other.filename);
-		builder.append(isHtmlInline, other.isHtmlInline);
 		builder.append(isLink, other.isLink);
 		builder.append(itemGradingData, other.itemGradingData);
 		builder.append(lastModifiedBy, other.lastModifiedBy);
