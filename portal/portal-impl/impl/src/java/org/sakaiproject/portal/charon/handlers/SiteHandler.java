@@ -22,8 +22,11 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +45,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -65,6 +69,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -141,6 +146,9 @@ public class SiteHandler extends WorksiteHandler
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
 	protected ProfileImageLogic imageLogic;
+	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+
+	private UserTimeService userTimeService;
 
 	public SiteHandler()
 	{
@@ -152,6 +160,7 @@ public class SiteHandler extends WorksiteHandler
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 		imageLogic = ComponentManager.get(ProfileImageLogic.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
 	}
 
 	@Override
@@ -599,7 +608,39 @@ public class SiteHandler extends WorksiteHandler
 
 		//Show a confirm dialog when publishing an unpublished site.
 		rcontext.put("publishSiteDialogEnabled", ServerConfigurationService.getBoolean("portal.publish.site.confirm.enabled", false));
+		for (SitePage pageNow: site.getPages()){	//build Manage link for site access
+			if(pageNow.getTools().get(0).getToolId().equals("sakai.siteinfo")){
+				rcontext.put("manageurl", pageNow.getUrl() + "?sakai_action=doMenu_edit_access");
+				break;
+			}
+		}
 
+		if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "scheduled")) {	// custom-scheduled availability date
+			Date scheduledDate = userTimeService.parseISODateInUserTimezone(site.getProperties().getProperty("publish_date"));
+			if (scheduledDate.toInstant().isAfter(Instant.now())) {
+				rcontext.put("scheduledate", userTimeService.dateTimeFormat(scheduledDate, rb.getLocale(), DateFormat.SHORT));
+			} else {
+				// schedule date is in the past so set to false
+				rcontext.put("scheduledate", false);
+			}
+		} else if (StringUtils.equals(site.getProperties().getProperty("publish_type"), "auto")) {	// automatically-managed publishing
+			try {
+				if (cms.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate() != null) {
+					long leadtime = ServerConfigurationService.getInt("course_site_publish_service.num_days_before_term_starts", 0) * 1000L * 60L * 60L * 24L;
+					Date publishDate = new Date(cms.getAcademicSession(site.getProperties().getProperty("term_eid")).getStartDate().getTime() - leadtime);
+					if (publishDate.toInstant().isAfter(Instant.now())) {
+						rcontext.put("scheduledate", userTimeService.dateFormat(publishDate, rb.getLocale(), DateFormat.LONG));
+					} else {
+						rcontext.put("scheduledate", false);
+					}
+				} else {
+					rcontext.put("scheduledate", false);
+				}
+			} catch(IdNotFoundException ignored) {
+				log.debug("Error getting term for auto start term date.");
+				rcontext.put("scheduledate", false);
+			}
+		}
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
 		if (userId != null) {

@@ -80,6 +80,14 @@ public class SiteConstants {
 
 	public final static String SITE_INACTIVE = "inactive";
 
+	// SAKAI-5903 Site Publish Type
+	public final static String SITE_PUBLISH_TYPE = "publish_type";
+	public final static String SITE_PUBLISH_TYPE_AUTO = "auto";
+	public final static String SITE_PUBLISH_TYPE_SCHEDULED = "scheduled";
+	public final static String SITE_PUBLISH_TYPE_MANUAL = "manual";
+	public final static String SITE_PUBLISH_DATE = "publish_date";
+	public final static String SITE_UNPUBLISH_DATE = "unpublish_date";
+
 	//SAK-32127
 	public final static String SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN = "poh.resources.content.sync.visibility";
 	public final static boolean SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT = true;

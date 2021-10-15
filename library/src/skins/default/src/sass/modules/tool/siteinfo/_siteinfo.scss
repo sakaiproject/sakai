@@ -189,3 +189,41 @@
 		padding: 0 0 0 0;
 	}
 }
+.publish-type-label {
+	display: inline-block;
+	padding-top: 2px;
+	padding-left: 1rem;
+}
+#autoPublishing, #datePublishing, #manualPublishing {
+	display: inline-block;
+	vertical-align: top;
+}
+#autosection, #datesection, #manualsection {
+	margin-left: 4rem;
+}
+.autoSubsection {
+	margin: 0 1em 1em 2em;
+	display: inline-block;
+}
+.scheduleSubsection, .manualsection-options {
+	margin: 1em 1em 1em 2em;
+}
+label.publishOptionLabel {
+	font-weight: normal;
+	padding-left: 1rem;
+}
+#site_status_inst {
+	max-width: 65em;
+}
+#manualsection-options {
+	padding-left: 2em;
+}
+.publishStatusLabel {
+	font-weight: bold;
+	display: inline-block;
+}
+.form-control.custom-datepicker {
+	width: calc(100% - 200px);
+	display: inline-block;
+	min-width: initial !important;
+}

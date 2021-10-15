@@ -24,6 +24,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
+import org.sakaiproject.coursemanagement.util.CourseManagementConstants;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -202,16 +203,20 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                   //We will check only unpublished sites and not softlyDeleted
                   if (!site.isPublished() && (!site.isSoftlyDeleted())) {
                      ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
-                     String siteProperty = siteProperties.getProperty(SITE_PROPERTY_COURSE_SITE_PUBLISHED);
+                     String publishTypeProperty = siteProperties.getProperty(CourseManagementConstants.SITE_PUBLISH_TYPE);
 
-                     if (!"set".equals(siteProperty)) {
+                     // if set to auto publish or unset default publish the site
+                     if (publishTypeProperty == null || CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO.equals(publishTypeProperty)) {
                         // check permissions
                         if (!checkPermission(PERMISSION_COURSE_SITE_PUBLISH, site.getId())) {
                            log.error("You do not have permission to publish the " + site.getTitle() + " (" + site.getId() + ").");
                         } else {
                            // publish the course site
                            log.debug("publishing course site " + site.getTitle() + " (" + site.getId() + ").");
-                           siteProperties.addProperty(SITE_PROPERTY_COURSE_SITE_PUBLISHED, "set");
+                           if (publishTypeProperty == null) {
+                              // Set to auto for future
+                              siteProperties.addProperty(CourseManagementConstants.SITE_PUBLISH_TYPE, CourseManagementConstants.SITE_PUBLISH_TYPE_AUTO);
+                           }
                            site.setPublished(true);
                            siteService.save(site);
                            numSitesPublished++;

@@ -442,12 +442,6 @@ sakai.siteTypeSetup = function(){
                         else {
                             $('#copyUsersWrapper input').prop('disabled', false);
                         }
-                        if (this.publishSiteVis === true) {
-                            $('#publishSiteWrapper').show();
-                        }
-                        else {
-                            $('#publishSiteWrapper').hide();
-                        }
                         if (this.publishSiteChecked === true) {
                             $('#publishSiteWrapper input').prop('checked', true);
                         }

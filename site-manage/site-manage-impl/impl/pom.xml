@@ -122,7 +122,10 @@
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-util</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
