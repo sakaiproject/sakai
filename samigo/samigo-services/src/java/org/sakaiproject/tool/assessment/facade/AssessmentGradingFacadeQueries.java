@@ -641,8 +641,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             mediaData.getMimeType(),
                             mediaData.getMedia());
                 }
-                // Free the byte array since it has been stored in content. Hold the new ContentResource
-                mediaData.setDbMedia(null);
                 mediaData.setContentResource(chsMedia);
                 return mediaPath;
             } catch (PermissionException | IdUsedException | IdInvalidException | InconsistentException | ServerOverloadException | OverQuotaException | VirusFoundException | IdUnusedException | TypeException | InUseException e) {
@@ -763,7 +761,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         // Only try to read from Content Hosting if this isn't a link and
         // there is no media content in the database
-        if (mediaData.getLocation() == null && mediaData.getDbMedia() == null) {
+        if (mediaData.getLocation() == null) {
             mediaData.setContentResource(getMediaContentResource(mediaData));
         }
         return mediaData;
@@ -1130,19 +1128,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
         return success;
-    }
-
-    private byte[] getMediaStream(Long mediaId) {
-        byte[] b = new byte[4000];
-        Session session = null;
-        try {
-            session = getSessionFactory().getCurrentSession();
-            MediaData media = (MediaData) session.get(MediaData.class, mediaId);
-            b = media.getDbMedia();
-        } catch (HibernateException e) {
-            log.warn(e.getMessage(), e);
-        }
-        return b;
     }
 
     public List<Long> getAssessmentGradingIds(final Long publishedItemId) {
