@@ -152,6 +152,7 @@ public class ShowMediaServlet extends HttpServlet
                 if (serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
                     int hostLength = new String(directLink.getScheme() + "://" + directLink.getHost()).length();
                     String linkPath = "/sendfile" + directLink.toString().substring(hostLength);
+                    log.debug("cloud.content.sendfile; path={}", linkPath);
 
                     // Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
                     res.addHeader("X-Accel-Redirect", linkPath);
@@ -159,6 +160,7 @@ public class ShowMediaServlet extends HttpServlet
                     return;
                 }
                 else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+                    log.debug("cloud.content.directurl; path={}", directLink.toString());
                     res.sendRedirect(directLink.toString());
                     return;
                 }

@@ -21,16 +21,17 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -66,7 +67,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 {
 
   private static final long serialVersionUID = 2203681863823855810L;
-	private static final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+  private static final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
   public ShowAttachmentMediaServlet()
   {
