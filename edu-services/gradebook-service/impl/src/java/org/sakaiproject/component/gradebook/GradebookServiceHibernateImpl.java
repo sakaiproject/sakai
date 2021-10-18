@@ -3136,9 +3136,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			totalEarned = totalEarned.add(grade);
 
 			// keep running total of averages in case the category is equal weighted
-			totalEarnedMean = totalEarnedMean.add(
-				grade.divide(possiblePoints, GradebookService.MATH_CONTEXT)
-			);
+			try {
+				totalEarnedMean = totalEarnedMean.add(
+					grade.divide(possiblePoints, GradebookService.MATH_CONTEXT)
+				);
+			} catch(ArithmeticException ae) {
+				totalEarnedMean = totalEarnedMean.add(new BigDecimal("0"));
+			}
 		}
 
 		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
