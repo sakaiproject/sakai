@@ -212,7 +212,7 @@ ASN.setupAssignNew = function(){
             else {
                 textOK = true;
             }
-            if (To === 0) {
+            if (To === '0') {
                 $('#' + nodeType + '_to_message').show();
                 validation = 'failed';
             }
