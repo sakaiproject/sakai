@@ -73,17 +73,17 @@ jobs:
           working-directory: cypress-sakai
           wait-on: 'http://localhost:8080/portal/'
           wait-on-timeout: 1800
-          record: false
+          record: true
           browser: chrome
           headless: true
         env:
-          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       - name: Check number of MySQL statements
         if: ${{ always() }}
         run: |
-          grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l >> $QUERIES
+          export QUERIES=$(grep ProtocolLoggingProxy tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
-      - name: Sleep two hours
-        if: ${{ failure() }}
-        run: sleep 2h
+      - name: Sleep four hours to allow testing
+        if: ${{ always() }}
+        run: sleep 4h
