@@ -2569,6 +2569,7 @@
                     <!-- Columbia header -->
                     <exclude>**/delegatedaccess/**</exclude>
                     <exclude>**/jsf/**</exclude>
+                    <exclude>**/gradebookng/**</exclude>
                 </excludes>
                 <properties>
                     <holder>The Apereo Foundation</holder>
