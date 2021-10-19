@@ -6535,11 +6535,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (submission != null) {
                     // the submission already exists, change the text and honor pledge value, post it
-                    submission.setUserSubmission(true);
-                    submission.setSubmittedText(text);
-                    submission.setDateSubmitted(Instant.now());
-                    submission.setSubmitted(post);
-
                     Map<String, String> properties = submission.getProperties();
 
                     if (a.getIsGroup()) {
@@ -6555,9 +6550,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     if (NumberUtils.isParsable(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER))) {
-                        // if this submission has been already been submitted previously.
-                        boolean isResub = properties.entrySet().stream().anyMatch(e -> e.getKey().startsWith("log") && e.getValue().contains("submitted"));
-                        if (submission.getSubmitted() && isResub) {
+                        // if this submission has been already been submitted previously
+                        if (post && submission.getDateSubmitted() != null) {
                             // decrease the allow_resubmit_number,
                             int number = Integer.parseInt(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
                             // minus 1 from the submit number, if the number is not -1 (not unlimited)
@@ -6567,6 +6561,15 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     } else {
                         setResubmissionProperties(a, submission);
+                    }
+
+                    // update submission info after resubmission which prevents updating resubmission count for the first submission
+                    submission.setUserSubmission(true);
+                    submission.setSubmittedText(text);
+                    submission.setSubmitted(post);
+                    // post differentiates a submission from saving a draft
+                    if (post) {
+                        submission.setDateSubmitted(Instant.now());
                     }
 
                     String currentUser = sessionManager.getCurrentSessionUserId();
