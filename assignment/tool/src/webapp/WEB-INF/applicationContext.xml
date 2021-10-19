@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="assignmentToolUtils"
+    <bean id="org.sakaiproject.assignment.tool.AssignmentToolUtils"
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
@@ -20,7 +20,7 @@
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-		<property name="assignmentToolUtils" ref="assignmentToolUtils" />
+		<property name="assignmentToolUtils" ref="org.sakaiproject.assignment.tool.AssignmentToolUtils" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
