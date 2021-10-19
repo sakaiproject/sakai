@@ -190,15 +190,6 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer.answerFeedbackSet"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
-                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData.itemGradingAttachmentSet"/>
-                </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
-                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.itemGradingSet"/>
-                </bean>
-                <bean parent="org.sakaiproject.ignite.cache.transactional">
-                    <property name="name" value="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData.assessmentGradingAttachmentSet"/>
-                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/>
                 </bean>
