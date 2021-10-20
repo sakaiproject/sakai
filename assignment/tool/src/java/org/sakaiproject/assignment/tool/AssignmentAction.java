@@ -5996,9 +5996,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     submission.setSubmittedText(text);
                     submission.setSubmitted(post);
                     // post differentiates a submission from saving a draft
-                    if (post) {
-                        submission.setDateSubmitted(Instant.now());
-                    }
+                    if (post) submission.setDateSubmitted(Instant.now());
 
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
@@ -6116,8 +6114,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         submission.setUserSubmission(true);
                         submission.setSubmittedText(text);
-                        submission.setDateSubmitted(Instant.now());
                         submission.setSubmitted(post);
+                        if (post) submission.setDateSubmitted(Instant.now());
 
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
