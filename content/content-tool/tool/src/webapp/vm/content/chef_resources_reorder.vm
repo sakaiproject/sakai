@@ -33,11 +33,8 @@
 				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$clang.getString("sort.undo.all.label")</span>
 					<a id="undo-all" href="#"  style="display:none">$clang.getString("sort.undo.all.label")</a>
 			</li>
-			<li style="display:inline;color:#000">
-				<span id="failedValidMessage" style="display:none">$clang.getString("sort.fail.valid.message")</span>
-				<span id="messageHolder" class="sak-banner-success-inline" style="display:none"></span>
-			</li>
 		</ul>	
+		<span id="messageHolder" class="sak-banner-error" style="display:none">$clang.getString("sort.fail.valid.message")</span>
 		<span id="lastMoveArray" style="display:none"></span>
 		<span id="lastMoveArrayInit" style="display:none"></span>
 		<span id="lastItemMoved"  style="display:none"></span>
@@ -51,7 +48,7 @@
 				#foreach($member in $collectionMembers)
 					<li class="sortable row well reorder-element" tabindex="0" id="listitem.orderable$count">
 						<div title="$member.name" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-							<span style="display:none" class="grabHandle">
+							<span class="grabHandle">
 								<input type="text" size="3" value="$count" id="index$count"/>
 								<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 							</span>
@@ -86,7 +83,7 @@
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
-.
+
 </div>
 <script type="text/javascript">
 	<!--

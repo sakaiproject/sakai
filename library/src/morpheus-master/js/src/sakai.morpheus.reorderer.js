@@ -1,9 +1,4 @@
 $PBJQ(document).ready(function(){
-    if ($PBJQ('[id$="reorder-list"] .reorder-element').size() - 1 > 15) {
-        $PBJQ('.grabHandle').show();
-        $PBJQ('#inputFieldMessage').show();
-        $PBJQ('#inputKbdMessage').remove();
-    }
     //get the initial order TODO - make an  array instead of putting the values in a span
     $PBJQ('[id$="reorder-list"] .reorder-element').each(function(n){
         $PBJQ('#lastMoveArrayInit').append($PBJQ(this).attr('id') + ' ');
@@ -65,18 +60,9 @@ $PBJQ(document).ready(function(){
         // the new value in the text field
         var newVal = parseInt(this.value);
         if (isNaN(newVal) || newVal > $PBJQ('input[id^="index"]').size()) {
-            var failedValidMessage = $PBJQ('#failedValidMessage').text();
+            var failedValidMessage = $PBJQ('#messageHolder').text();
             $PBJQ('#messageHolder').text(failedValidMessage.replace('#', $PBJQ('input[id^="index"]').size()));
             $PBJQ('.orderable-selected').removeClass('orderable-selected');
-            $PBJQ('#messageHolder').removeClass('messageSuccess');
-            $PBJQ('#messageHolder').addClass('messageValidation');
-			var messagePos = $PBJQ(that).position();
-			$PBJQ("#messageHolder").css({
-				'position':'absolute',
-				'height':'1.3em',
-				'top':messagePos.top,
-				'left':55
-			});
             $PBJQ('#messageHolder').fadeIn('slow');
             $PBJQ("#messageHolder").animate({
                 opacity: 1.0
