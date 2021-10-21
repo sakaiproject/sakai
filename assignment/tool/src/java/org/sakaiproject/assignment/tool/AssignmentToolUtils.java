@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.assignment.tool;
 
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -23,22 +26,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-
-import static org.sakaiproject.assignment.api.AssignmentConstants.*;
-import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
-
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -46,29 +43,26 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
-import org.sakaiproject.lti13.LineItemUtil;
-import org.sakaiproject.lti13.util.SakaiLineItem;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
@@ -277,8 +271,7 @@ public class AssignmentToolUtils {
     /**
      * Common grading routine plus specific operation to differentiate cases when saving, releasing or returning grade.
      */
-    @Transactional
-    public AssignmentSubmission gradeSubmission(AssignmentSubmission submission, String gradeOption, Map<String, Object> options, List<String> alerts) {
+    public void gradeSubmission(AssignmentSubmission submission, String gradeOption, Map<String, Object> options, List<String> alerts) {
 
         if (submission != null) {
             boolean withGrade = options.get(WITH_GRADES) != null && (Boolean) options.get(WITH_GRADES);
@@ -410,7 +403,7 @@ public class AssignmentToolUtils {
                 assignmentService.updateSubmission(submission);
             } catch (PermissionException e) {
                 log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
-                return null;
+                return;
             }
 
             // update grades in gradebook
@@ -424,14 +417,6 @@ public class AssignmentToolUtils {
                 //remove grade from gradebook
                 alerts.addAll(integrateGradebook(options, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1));
             }
-
-            try {
-                return assignmentService.getSubmission(submission.getId());
-            } catch (Exception e) {
-                return null;
-            }
-        } else {
-            return null;
         }
     } // grade_submission_option
 

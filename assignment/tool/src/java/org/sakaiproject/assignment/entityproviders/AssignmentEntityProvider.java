@@ -667,7 +667,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1393,7 +1393,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.graded = as.getGraded();
-            this.properties = as.getProperties();
+            this.properties.putAll(as.getProperties());
         }
     }
 

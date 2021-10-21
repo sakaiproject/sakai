@@ -1178,7 +1178,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         super.init(config);
         WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-        assignmentToolUtils = applicationContext.getBean("assignmentToolUtils", AssignmentToolUtils.class);
+        assignmentToolUtils = applicationContext.getBean("org.sakaiproject.assignment.tool.AssignmentToolUtils", AssignmentToolUtils.class);
     }
 
     /**
