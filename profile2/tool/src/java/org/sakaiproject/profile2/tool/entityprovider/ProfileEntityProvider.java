@@ -67,6 +67,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -506,9 +507,9 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 
 						if (httpRanges.size() == 1) {
 							ResourceRegion resourceRegion = httpRanges.get(0).toResourceRegion(resource);
-							messageConverter.write(resourceRegion, null, outputMessage);
+							messageConverter.write(resourceRegion, MediaType.parseMediaType(mtba.getMimeType()), outputMessage);
 						} else {
-							messageConverter.write(HttpRange.toResourceRegions(httpRanges, resource), null, outputMessage);
+							messageConverter.write(HttpRange.toResourceRegions(httpRanges, resource), MediaType.parseMediaType(mtba.getMimeType()), outputMessage);
 						}
 					} catch (IllegalArgumentException iae) {
 						response.setHeader("Content-Range", "bytes */" + resource.contentLength());
