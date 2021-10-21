@@ -45,17 +45,11 @@ $(document).ready(function(){
 	#set($timeSheetSource = "submission")
 	#set($extensionTime=$submission.properties.get("allow_extension_closeTime"))
 
-	#if ($!submission && $!allowResubmitNumber.equals("0"))
-		##override the close time setting for assignment by submission's individual setting
-		#set($closeDate = $submission.CloseDate)
-	#end
 	#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
-	#if ($allowSubmit && !$submission && $closeDate && $currentTime.isAfter($closeDate) )
-		<div class="sak-banner-error">$tlang.getString("stuviewsubm.theclodat")</div>
-	#end
+
+	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 
 	#if ($!canSubmit)
-		#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if ($!submission && $dateSubmitted)
 			## if there is a submitted submission
 			## get the properies

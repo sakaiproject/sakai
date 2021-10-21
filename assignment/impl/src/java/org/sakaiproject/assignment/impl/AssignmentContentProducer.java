@@ -66,7 +66,7 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public void init() {
 
-        if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
+        if (serverConfigurationService.getBoolean("search.enable", false)) {
             addingEvents.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
             addingEvents.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT_CONTENT);
             addingEvents.add(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT);
