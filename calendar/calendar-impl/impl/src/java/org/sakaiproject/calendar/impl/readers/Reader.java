@@ -24,6 +24,7 @@ package org.sakaiproject.calendar.impl.readers;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -309,7 +310,7 @@ public abstract class Reader
 	 * @param tzid
 	 * @throws ImportException
 	 */
-	abstract public List filterEvents(List events, String[] customFieldNames, String tzid) throws ImportException;
+	abstract public List filterEvents(List events, String[] customFieldNames, ZoneId tzid) throws ImportException;
 
 	/**
 	 * Derived classes must provide a default mapping of text column header labels in the import file to

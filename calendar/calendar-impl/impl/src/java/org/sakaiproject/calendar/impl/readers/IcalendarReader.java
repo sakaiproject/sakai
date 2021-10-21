@@ -188,18 +188,8 @@ public class IcalendarReader extends Reader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
 	 */
-	public List filterEvents(List events, String[] customFieldNames, String tzid) throws ImportException
+	public List filterEvents(List events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
 	{
-		// Time is converted from calendar tzid to current user tzid
-		// because org.sakaiproject.time.api.TimeRange works with millis 
-		ZoneId dstZoneId = ZoneId.of(getTimeService().getLocalTimeZone().getID());		
-		ZoneId srcZoneId;
-		if (tzid != null) {
-			srcZoneId = ZoneId.of(tzid);
-		} else {
-			srcZoneId = dstZoneId;
-		}
-		
 		Iterator it = events.iterator();
 		int lineNumber = 1;
 		
