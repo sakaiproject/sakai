@@ -19,8 +19,10 @@
 	
     #progressBar($!service.getProgressBarStatus($!submission))
 
-	<div class="sak-banner-warn">  <strong>$tlang.getString("gen.alert")</strong> $!submissionConfirmAlert</div>
-	
+    #if ($!canSubmit)
+        <div class="sak-banner-warn"><strong>$tlang.getString("gen.alert")</strong> $!submissionConfirmAlert</div>
+    #end
+
     #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
