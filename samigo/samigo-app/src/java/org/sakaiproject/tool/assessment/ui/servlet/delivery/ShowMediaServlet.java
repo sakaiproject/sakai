@@ -177,7 +177,7 @@ public class ShowMediaServlet extends HttpServlet
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
       try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(mediaData.getMedia());
     		  FileInputStream inputStream = getFileStream(mediaLocation);
-    		  BufferedInputStream buf_inputStream = (mediaLocation == null || (mediaLocation.trim()).equals("")) ? new BufferedInputStream(byteArrayInputStream) : new BufferedInputStream(inputStream);
+    		  BufferedInputStream buf_inputStream = (StringUtils.isNotBlank(mediaLocation)) ? new BufferedInputStream(byteArrayInputStream) : new BufferedInputStream(inputStream);
     		  ServletOutputStream outputStream = res.getOutputStream(); BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream)){
 
         int i=0;
