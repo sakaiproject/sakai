@@ -1470,7 +1470,7 @@ public class GradingService
       case 11: // FIN
     	  try {
     	      if (type == 15) {  // CALCULATED_QUESTION
-    	          Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
+	              Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item, calcQuestionAnswerSequence);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
@@ -2768,9 +2768,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param item
    * @return map of calc answers
    */
-  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
+  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      if (answersMap.isEmpty()) {
+      if (calcQuestionAnswerSequence == 1) {
           extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       }
       return answersMap;
