@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -175,10 +174,11 @@ public class ShowMediaServlet extends HttpServlet
       
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
-      try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(mediaData.getMedia());
-    		  FileInputStream inputStream = getFileStream(mediaLocation);
-    		  BufferedInputStream buf_inputStream = (StringUtils.isNotBlank(mediaLocation)) ? new BufferedInputStream(byteArrayInputStream) : new BufferedInputStream(inputStream);
-    		  ServletOutputStream outputStream = res.getOutputStream(); BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream)){
+      try (BufferedInputStream buf_inputStream = (StringUtils.isBlank(mediaLocation)) ?
+    		  new BufferedInputStream(new ByteArrayInputStream(mediaData.getMedia()))
+    		  :
+    		  new BufferedInputStream(getFileStream(mediaLocation));
+    		  BufferedOutputStream buf_outputStream = new BufferedOutputStream(res.getOutputStream());){
 
         int i=0;
         if (buf_inputStream != null)  {
@@ -196,6 +196,9 @@ public class ShowMediaServlet extends HttpServlet
         log.debug("**** mediaLocation="+mediaLocation);
         
         res.flushBuffer();
+      }
+      catch(IOException ioe) {
+    	  log.warn("Error handling with IO in doPost", ioe);
       }
       catch(Exception e){
         log.warn(e.getMessage());
