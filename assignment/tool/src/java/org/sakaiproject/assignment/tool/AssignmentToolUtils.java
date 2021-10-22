@@ -47,6 +47,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti13.LineItemUtil;
+import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
