@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.assignment.api;
 
+import java.time.Instant;
+import java.util.Date;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
@@ -67,6 +70,15 @@ public class ContentReviewResult {
 	 */
 	public Long getStatus(){
 		return contentReviewItem.getStatus();
+	}
+
+	/**
+	 * Gets the date the originality report was received
+	 */
+	public Instant getDateReportReceived()
+	{
+		Date dateReportReceived = contentReviewItem.getDateReportReceived();
+		return dateReportReceived == null ? null : dateReportReceived.toInstant();
 	}
 
 	/**

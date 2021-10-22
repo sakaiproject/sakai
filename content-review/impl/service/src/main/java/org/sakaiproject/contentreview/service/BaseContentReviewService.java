@@ -199,6 +199,24 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	}
 	
 	@Override
+	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
+		ContentReviewItem item = crqs.getItemByContentId(contentId).orElse(null);
+		if (item != null && getProviderId().equals(item.getProviderId())) {
+			additionalContentReviewItemPreparation(item);
+		}
+		return item;
+	}
+
+	/**
+	 * Override to do any additional work when retrieving a content review item (only invoked when the item is in fact associated with this content review provider).
+	 * This method may result in a mutation of the specified ContentReviewItem -
+	 * for instance, particular content review services may have additional features, corresponding to properties we need to populate on the ContentReviewItem.
+	 */
+	protected void additionalContentReviewItemPreparation(ContentReviewItem item) {
+		// Default implementation: NoOp
+	}
+
+	@Override
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
 		return formatRedirectUrl(contentId, assignmentRef, userId);
@@ -385,5 +403,10 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	@Override
 	public boolean allowSubmissionsOnBehalf() {
 		return false;
+	}
+
+	@Override
+	public boolean itemsExistForSiteAndTaskId(String siteId, String taskId) {
+		return crqs.itemsExistForSiteAndTaskId(siteId, taskId);
 	}
 }

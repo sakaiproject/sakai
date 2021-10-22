@@ -98,6 +98,14 @@ public interface ContentReviewQueueService {
 	List<ContentReviewItem> getContentReviewItems(Integer providerId, String siteId, String taskId);
 
 	/**
+	 * Gets an item by its contentId without filtering to a specific provider
+	 * @contentId the id of the content item
+	 * @return the ContentReviewItem associated with the specified id
+	 */
+	 Optional<ContentReviewItem> getItemByContentId(String contentId);
+
+
+	/**
 	 * Get an item that has been queued and contentId.
 	 * @param providerId the id of content review implementation
 	 * @param contentId the id of the content item
@@ -161,6 +169,12 @@ public interface ContentReviewQueueService {
 	 * @return {@code List<String>} list containing siteIds ordered by most recently used sites
 	 */
 	List<String> getContentReviewItemsGroupedBySite(Integer providerId);
+
+	/**
+	 * Returns true if and only if items exist for this siteId and taskId.
+	 * This does not filter items by provider.
+	 */
+	public boolean itemsExistForSiteAndTaskId(String siteId, String taskId);
 
 	/* Its not ideal to directly expose the direct DAO methods here, 
 	 * but this was needed in order to not have to change the

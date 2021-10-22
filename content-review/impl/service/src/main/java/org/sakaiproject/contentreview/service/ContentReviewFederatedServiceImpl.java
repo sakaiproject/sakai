@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +40,9 @@ import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -61,12 +66,26 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	@Setter
 	private List<ContentReviewService> providers;
 
+	@Setter
+	private MemoryService memoryService;
+
 	private int defaultProvider = -1;
 
 	private Set<Integer> enabledProviders;
 
+	/**
+	 * Cache for documentation URLs we direct users to when a content review service has been disabled.
+	 * To support i18n, locale and country codes are appeneded to the URLs only if such a URL is reachable (ie. an HTTP connection returns status 200)
+	 * This allows the addition of documentation for new locales as necessary during runtime.
+	 * To reduce the number of unnecessary connections to these URLs, we cache each URL we try, mapping it to whether or not the result was a 200 status.
+	 */
+	private Cache PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE;
+
 
 	public void init() {
+		// One institution is unlikely to have more than 25 different locale/country code combinations in its user base. Cache duration: 30 minutes
+		PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE = memoryService.createCache("org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl.UNSUPPORTED_URL", new SimpleConfiguration<>(25, 30 * 60, -1));
+
 		enabledProviders = configureEnabledProviders();
 
 		if (enabledProviders.isEmpty()) {
@@ -222,12 +241,85 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 
 	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		if (!isItemSupportedBySelectedProvider(contentId)) {
+			return getProviderUnsupportedURL();
+		}
 		return getSelectedProvider().getReviewReportInstructor(contentId, assignmentRef, userId);
 	}
 
 	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
+		if (!isItemSupportedBySelectedProvider(contentId)) {
+			return getProviderUnsupportedURL();
+		}
 		return getSelectedProvider().getReviewReportStudent(contentId, assignmentRef, userId);
+	}
+
+	/**
+	 * Determines if the ContentReviewItem with the specified contentId is associated with the selected provider for this context
+	 */
+	private boolean isItemSupportedBySelectedProvider(String contentId) {
+		Optional<Integer> providerId = crqs.getItemByContentId(contentId).map(ContentReviewItem::getProviderId);
+		return providerId.isPresent() && providerId.get().equals(getSelectedProvider().getProviderId());
+	}
+
+	/**
+	 * When a ContentReviewItem's providerID no longer matches the selected provider for a given context, the user is presented a link to documentation explaining the situation.
+	 * This method returns the URL to such documentation.
+	 * To support I18N, country and language codes will be appended in the URL as appropriate iff such an http request returns a 200 status.
+	 */
+	private String getProviderUnsupportedURL() {
+		// Sakai.property to override the documentation's location (can send the user to external documentation for instance).
+		// Default: <serverUrl>/library/content/contentreview_provider_unsupported.html
+		String contentreview_unsupported_url = serverConfigurationService.getString("contentreview.provider.unsupported.url", serverConfigurationService.getServerUrl() + "/library/content/contentreview_provider_unsupported.html");
+
+		int extIndex = contentreview_unsupported_url.indexOf(".html");
+		String minus_extension = contentreview_unsupported_url.substring(0, extIndex).trim();
+		String locale = new ResourceLoader().getLocale().getLanguage();
+		String country = new ResourceLoader().getLocale().getCountry();
+
+		if (!StringUtils.isBlank(locale) && !locale.equalsIgnoreCase("en")) {
+			// test url_locale_country.html:
+			String url = String.format("%s_%s_%s.html", minus_extension, locale, country);
+			if (isProviderUnsupportedURLReachable(url)) {
+				return url;
+			}
+			// test url_locale.html:
+			url = String.format("%s_%s.html", minus_extension, locale);
+			if (isProviderUnsupportedURLReachable(url)) {
+				return url;
+			}
+			// i18n urls are unreachable; fall back to default below
+		}
+		return contentreview_unsupported_url;
+	}
+
+	/**
+	 * Taking advantage of caching, determines whether a connection to the specified URL via HTTP returns a 200.
+	 */
+	private boolean isProviderUnsupportedURLReachable(String url) {
+		if (PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE.containsKey(url)) {
+			// Looks silly, but saves casting:
+			return Boolean.TRUE.equals(PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE.get(url));
+		}
+		else {
+			try {
+				HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+				con.setInstanceFollowRedirects(false);
+				con.setRequestMethod("HEAD");
+				Object responseCode = Integer.valueOf(con.getResponseCode());
+
+				Boolean isReachable = responseCode != null && responseCode.equals(HttpURLConnection.HTTP_OK);
+				PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE.put(url, isReachable);
+				return isReachable;
+			} catch (Exception e) {
+				log.warn("Exception establishing connection to URL: " + url, e);
+				// Will cache and return false below
+			}
+		}
+		// Encountered a problem; cache and return false
+		PROVIDER_UNSUPPORTED_URL_IS_REACHABLE_CACHE.put(url, Boolean.FALSE);
+		return Boolean.FALSE;
 	}
 
 	public Long getReviewStatus(String contentId) throws QueueException {
@@ -285,8 +377,14 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 		return getSelectedProvider().getReviewScore(contentId, assignmentRef, userId);
 	}
 
+	@Override
 	public ContentReviewItem getContentReviewItemByContentId(String arg0) {
 		return getSelectedProvider().getContentReviewItemByContentId(arg0);
+	}
+
+	@Override
+	public void additionalContentReviewItemPreparation(ContentReviewItem item) {
+		throw new UnsupportedOperationException("There is no additional ContentReviewItem preparation for ContentReviewFederatedServiceImpl - the delegated ContentReviewService should be invoked instead");
 	}
 
 	@Override

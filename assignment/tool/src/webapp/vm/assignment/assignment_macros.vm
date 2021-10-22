@@ -455,18 +455,40 @@
 	<div>
 		<div class="contentReviewDisclosure">
 			#set ($props = $reviewResult.getContentResource().Properties)
-			#set ($hasScore = !$reviewResult.getReviewReport().equals("Error"))
+			#set ($hasLink = !$reviewResult.getReviewReport().equals("Error"))
+			#set ($reviewScore = $reviewResult.getReviewScore())
+			#if ($hasLink)
+				<a class="contentReviewReport" href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
+			#end
 			<span class="reportIcon">
-				#if ($hasScore)
-					<a href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
+				#set ($titleText = false)
+				#if (!$hasLink)
+					#if ($reviewResult.isPending())
+						#set($titleText = $tlang.getString('content_review.disclosure.pending'))
+					#else
+						#set($titleText = $tlang.getString('content_review.disclosure.error'))
+					#end
+				#elseif ($reviewScore >= 0)
+					#set($titleText = $tlang.getString('review.viewreport'))
 				#end
-				<span class="$reviewResult.getReviewIconCssClass()" title="#if(!$hasScore)$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
-				#if ($hasScore)
-					</a>
-				#end
+				<span class="$reviewResult.getReviewIconCssClass()" #if ($titleText) title="$titleText" #end"></span>
 			</span>
-			#if ($hasScore)
-				$tlang.getFormattedMessage("content_review.score.display", $reviewResult.getReviewScore())
+			#if ($hasLink)
+				#if ($reviewScore >= 0)
+					$tlang.getFormattedMessage("content_review.score.display", $reviewScore)
+					#set($dateReportReceived = $!service.getUsersLocalDateString($!reviewResult.getDateReportReceived()))
+					#if($dateReportReceived)
+						#set($lastUpdated = $tlang.getString("review.lastUpdated"))
+						<span class="contentReview_lastUpated" title="$lastUpdated">
+							($dateReportReceived)
+						</span>
+					#end 
+					</a>
+					$tlang.getString("content_review.delimiter")
+				#else
+					</a>
+					## leave the score blank
+				#end
 			#else
 				<a href="#" class="contentReviewDisclosure" onclick="ASN.handleReportsTriangleDisclosure(this, this.children[0], this.parentNode.parentNode.children[1], '$tlang.getString('review.report.error.expand')', '$tlang.getString('review.report.error.collapse')'); return false;" aria-label="$tlang.getString('review.report.error.expand')" aria-expanded="false" aria-controls="contentReviewMessage_$reviewResult.id">
 					<img class="disclosureTriangle" src="#imageLink("sakai/expand.gif")" alt="" />
@@ -476,18 +498,18 @@
 						$tlang.getString("content_review.disclosure.error")
 					#end
 				</a>
+				$tlang.getString("content_review.delimiter")
 			#end
-			$tlang.getString("content_review.delimiter")
 			#if ($reviewResult.isInline())
 				$tlang.getString("submission.inline")
 			#else
 				$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
 			#end
-			#if ($displayUrkundOptOut && $hasScore && $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
+			#if ($displayUrkundOptOut && $hasLink && $reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
 					(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank" rel="noreferrer">$tlang.getString("review.report.urkund.optoutlink")</a>)
 			#end
 		</div>
-	#if (!$hasScore)
+	#if (!$hasLink)
 		<div id="contentReviewMessage_$reviewResult.id" class="contentReviewMessage" style="display:none;">
 			$reviewResult.getReviewError()
 		</div>

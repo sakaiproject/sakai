@@ -221,6 +221,11 @@ public class ConversionTimeService implements TimeService
 	}
 
 	@Override
+	public String dateFormat(Instant date, FormatStyle dateStyle) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
 	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}

@@ -2473,43 +2473,32 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	@Override
-	public ContentReviewItem getContentReviewItemByContentId(String contentId){
-		Optional<ContentReviewItem> cri = getItemByContentId(contentId);
-		if(cri.isPresent()){
-			ContentReviewItem item = cri.get();
-			
-			//TII specific work
-		
-			// Sync Grades
-			if (turnitinConn.getUseGradeMark()) {
-				try {				
-					String[] assignData = getAssignData(contentId);
-					String siteId = "", taskId = "", taskTitle = "";
-					Map<String, Object> data = new HashMap<String, Object>();
-					if (assignData != null) {
-						siteId = assignData[0];
-						taskId = assignData[1];
-						taskTitle = assignData[2];
-					} else {
-						siteId = item.getSiteId();
-						taskId = item.getTaskId();
-						taskTitle = getAssignmentTitle(taskId);
-						data.put("assignment1", "assignment1");
-					}
-					data.put("siteId", siteId);
-					data.put("taskId", taskId);
-					data.put("taskTitle", taskTitle);
-					syncGrades(data);
-				} catch (Exception e) {
-					log.error("Error syncing grades. " + e);
+	public void additionalContentReviewItemPreparation(ContentReviewItem item) {
+		// Sync Grades
+		if (turnitinConn.getUseGradeMark()) {
+			String contentId = item.getContentId();
+			try {				
+				String[] assignData = getAssignData(contentId);
+				String siteId = "", taskId = "", taskTitle = "";
+				Map<String, Object> data = new HashMap<String, Object>();
+				if (assignData != null) {
+					siteId = assignData[0];
+					taskId = assignData[1];
+					taskTitle = assignData[2];
+				} else {
+					siteId = item.getSiteId();
+					taskId = item.getTaskId();
+					taskTitle = getAssignmentTitle(taskId);
+					data.put("assignment1", "assignment1");
 				}
+				data.put("siteId", siteId);
+				data.put("taskId", taskId);
+				data.put("taskTitle", taskTitle);
+				syncGrades(data);
+			} catch (Exception e) {
+				log.error("Error syncing grades. " + e);
 			}
-
-			return item;
-		} else {
-			log.debug("Content " + contentId + " has not been queued previously");
 		}
-		return null;
 	}
 
 	@Override

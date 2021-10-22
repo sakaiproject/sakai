@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -4649,6 +4650,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return getUsersLocalDateTimeString(Instant.ofEpochMilli(dateLong));
     }
 
+    public String getUsersLocalDateString(Instant date) {
+        return userTimeService.dateFormat(date, null);
+    }
+
     @Override
     public String removeReferencePrefix(String referenceId) {
         if (referenceId.startsWith(REF_PREFIX)) {
@@ -4675,8 +4680,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             AssignmentReferenceReckoner.AssignmentReference referenceReckoner = AssignmentReferenceReckoner.reckoner().assignment(s.getAssignment()).reckon();
             reviewResult.setReviewReport(getReviewReport(cr, referenceReckoner.getReference()));
-            String iconUrl = getReviewIconCssClass(reviewResult);
-            reviewResult.setReviewIconCssClass(iconUrl);
+            String iconCssClass = getReviewIconCssClass(reviewResult);
+            reviewResult.setReviewIconCssClass(iconCssClass);
             reviewResult.setReviewError(getReviewError(reviewResult));
 
             if ("true".equals(reviewResult.isInline())) {
@@ -4686,6 +4691,29 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         return reviewResults;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contentItemsMustBeReQueued(String siteId, String taskId, Collection<AssignmentSubmission> submissions) {
+        if (!contentReviewService.itemsExistForSiteAndTaskId(siteId, taskId)) {
+            // Short circuit
+            return false;
+        }
+
+        for (AssignmentSubmission submission : submissions) {
+            List<ContentResource> contentResources = getAllAcceptableAttachments(submission);
+            for (ContentResource cr : contentResources) {
+                ContentReviewItem cri = contentReviewService.getContentReviewItemByContentId(cr.getId());
+                if (cri != null && !contentReviewService.getProviderId().equals(cri.getProviderId())) {
+                    // We have an attachment associated with a content-review item on an old provider; this attachment must be requeued.
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<ContentReviewResult> getSortedContentReviewResults(AssignmentSubmission s){
@@ -4761,7 +4789,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String reviewReport = reviewResult.getReviewReport();
         String iconCssClass = null;
 
-        if (!"Error".equals(reviewReport)) {
+        if (!Objects.equals(reviewResult.getContentReviewItem().getProviderId(), contentReviewService.getProviderId())) {
+            iconCssClass = "contentReviewIconServiceUnsupported";
+        } else if (!"Error".equals(reviewReport)) {
             iconCssClass = contentReviewService.getIconCssClassforScore(reviewResult.getReviewScore(), reviewResult.getContentResource().getId());
         } else if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
             iconCssClass = "contentReviewIconPending";

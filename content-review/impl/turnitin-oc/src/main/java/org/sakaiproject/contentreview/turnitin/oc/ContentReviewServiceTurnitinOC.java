@@ -1673,10 +1673,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	@Override
-	public ContentReviewItem getContentReviewItemByContentId(String contentId) {
-		Optional<ContentReviewItem> optionalItem = crqs.getQueuedItem(getProviderId(), contentId);
-		ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
-		if(item != null && ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE.equals(item.getStatus())) {
+	protected void additionalContentReviewItemPreparation(ContentReviewItem item) {
+		if (ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE.equals(item.getStatus()))
+		{
 			//user initiated this request but the report timed out, let's requeue this report and try again:
 			item.setStatus(StringUtils.isEmpty(item.getExternalId()) ? ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE : ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
 			item.setRetryCount(0l);
@@ -1684,7 +1683,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			item.setNextRetryTime(Calendar.getInstance().getTime());
 			crqs.update(item);
 		}
-		return item;
 	}
 	
 	@Override

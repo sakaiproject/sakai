@@ -177,6 +177,17 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
+    public String dateFormat(Instant date, FormatStyle dateStyle) {
+        if (date == null) return "";
+        if (dateStyle == null) { dateStyle = FormatStyle.MEDIUM; }
+        Locale locale = preferencesService.getLocale(sessionManager.getCurrentSessionUserId());
+        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(dateStyle)
+                                                .withZone(getLocalTimeZone().toZoneId())
+                                                .withLocale(locale);
+        return df.format(date);
+    }
+
+    @Override
     public String dayOfWeekFormat(Date date, Locale locale, int df) {
         String format = df > 1 ? "EEEEE" : "E";
 

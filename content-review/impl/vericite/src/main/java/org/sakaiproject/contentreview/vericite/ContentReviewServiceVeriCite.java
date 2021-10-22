@@ -940,46 +940,38 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	}
 
 	@Override
-	public ContentReviewItem getContentReviewItemByContentId(String contentId){
-		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
-		if(cri.isPresent()){
-			ContentReviewItem item = cri.get();
-			
-			//Vericite specific work			
-			try {
-				//get most up to date score
-				Integer scoreInt = getReviewScore(contentId, item.getTaskId(), null);
-				int score = scoreInt == null ? -1 : scoreInt.intValue();
-				log.debug(" getReviewScore returned a score of: {} ", score);
-				//update the score in the db if it changed (update status as well)
-				if(item.getReviewScore() == null || item.getReviewScore().intValue() != score){
-					//score has changed, update it and save it in the db
-					item.setReviewScore(score);
-					if(score < 0) {
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
-					}else {
-						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
-					}
-					crqs.update(item);
+	public void additionalContentReviewItemPreparation(ContentReviewItem item){
+		String contentId = item.getContentId();
+		try {
+			//get most up to date score
+			Integer scoreInt = getReviewScore(contentId, item.getTaskId(), null);
+			int score = scoreInt == null ? -1 : scoreInt.intValue();
+			log.debug(" getReviewScore returned a score of: {} ", score);
+			//update the score in the db if it changed (update status as well)
+			if(item.getReviewScore() == null || item.getReviewScore().intValue() != score){
+				//score has changed, update it and save it in the db
+				item.setReviewScore(score);
+				if(score < 0) {
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+				}else {
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
 				}
-
-				if(score < 0 && needsRequeue(item)){
-					//need to make sure this content item get's requeued
-					ContentResource cr = contentHostingService.getResource(contentId);
-					if(cr != null) {
-						log.info("Requeuing contentId: " + contentId);
-						//in order to requeue, we need to delete the old queue:
-						removeFromQueue(contentId);
-						queueContent(item.getUserId(), item.getSiteId(), item.getTaskId(), Arrays.asList(cr));
-					}
-				}
-			} catch(Exception e) {
-				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
+				crqs.update(item);
 			}
-			
-			return item;
+
+			if(score < 0 && needsRequeue(item)){
+				//need to make sure this content item get's requeued
+				ContentResource cr = contentHostingService.getResource(contentId);
+				if(cr != null) {
+					log.info("Requeuing contentId: " + contentId);
+					//in order to requeue, we need to delete the old queue:
+					removeFromQueue(contentId);
+					queueContent(item.getUserId(), item.getSiteId(), item.getTaskId(), Arrays.asList(cr));
+				}
+			}
+		} catch(Exception e) {
+			log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
 		}
-		return null;
 	}
 
 	@Override
