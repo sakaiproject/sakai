@@ -405,7 +405,7 @@
                                             <h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot"/>
                                         </div>
                                         <div class="col-xs-12 col-sm-2">
-                                            <h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
+                                            <h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" onblur="noEmptyNumberOnBlurSlotsNumber();return false;" style="margin-left:12px" />
                                         </div>
                                     </div>
                                     <div class="row">
@@ -413,7 +413,7 @@
                                             <h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" for="numberOfAttendees"/>
                                         </div>
                                         <div class="col-xs-12 col-sm-2">
-                                            <h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
+                                            <h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" onblur="noEmptyNumberOnBlurAttendeeNum();return false;"/>
                                         </div>
                                     </div>
                                     <div class="row">
