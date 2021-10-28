@@ -162,7 +162,6 @@
               lockdownGradebook(releaseToVal);
           }
           showHideReleaseGroups();
-          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();

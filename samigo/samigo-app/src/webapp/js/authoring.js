@@ -612,9 +612,10 @@ function initTimedRadio(){
 }
 
 function initAnononymousUsers(){
-	var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-	if (releaseToVal === 'Anonymous Users') {
-		handleAnonymousUsers(releaseToVal, "");
+	var releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
+	releaseTo.prevValue = releaseTo.value;
+	if (releaseTo.value === 'Anonymous Users') {
+		handleAnonymousUsers(releaseTo.value, releaseTo.value);
 	}
 }
 
