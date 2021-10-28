@@ -2523,6 +2523,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
 	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
+		log.debug("Fill in the blank match called with inputs:\nAnswer={}\nInput={}\nCase Sensitive={}\nIgnore Spaces={}", rawAnswer, rawInput, casesensitive, ignorespaces);
+
 		try {
 		 // User on Mac will input &uuml; instead of ü
 		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
@@ -2563,6 +2565,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
  		 return result;
 		}
 		catch (Exception e){
+			log.warn("Fill in the blank match failed returning false, {}", e.toString());
 			return false;
 		}
 	}
