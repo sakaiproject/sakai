@@ -241,10 +241,9 @@
 				onclick='togglePostAnonymousOption(this.checked);'
 				disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
 			</h:selectBooleanCheckbox>
-			<h:outputLabel for="topic_postAnonymous">
-				<h:outputText value="#{msgs.cdfm_postAnonymous}"/>
-				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
-				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
+			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;">
+				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
+				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 			</h:outputLabel>
 		</t:htmlTag>
 		<t:htmlTag value="div" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="indnt2 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
@@ -254,10 +253,9 @@
 					id="topic_revealIDsToRoles"
 					disabled="#{!ForumTool.newTopicOrRevealIDsToRolesRevisable}">
 				</h:selectBooleanCheckbox>
-				<h:outputLabel for="topic_revealIDsToRoles">
-					<h:outputText value="#{msgs.cdfm_revealIDsToRoles}"/>
-					<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
-					<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
+				<h:outputLabel escape="false" for="topic_revealIDsToRoles" value="#{msgs.cdfm_revealIDsToRoles} &nbsp;">
+					<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
+					<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
 				</h:outputLabel>
 			</p>
 		</t:htmlTag>
