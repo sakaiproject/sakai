@@ -323,7 +323,21 @@
 				return prev_ValueHolder;
 		
 		}
-           
+
+		function noEmptyNumberOnBlurSlotsNumber(){
+			let slotsNumberTag = document.getElementById("meeting:numberOfSlot");
+			if (slotsNumberTag.value.length < 1) {
+				slotsNumberTag.value = prev_slotNum;
+			}
+		}
+
+		function noEmptyNumberOnBlurAttendeeNum(){
+			let attendeeNumberTag = document.getElementById("meeting:numberOfAttendees");
+			if (attendeeNumberTag.value.length < 1) {
+				attendeeNumberTag.value = prev_attendeeNum;
+			}
+		}
+
 		var prev_slotNum=4;//default
 		function getSignup_Duration(showDecimal){
 					if (signupMeetingType !=INDIVIDUAL_TYPE)
