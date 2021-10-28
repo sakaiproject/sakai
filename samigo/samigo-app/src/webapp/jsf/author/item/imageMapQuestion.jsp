@@ -56,7 +56,11 @@
 		if($('#itemForm\\:serialized').val() != '')
 			dynamicList.fillElements();
 		else
-			dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true,true);
+			dynamicList.addElement("<h:outputText value='#{authorMessages.im_description}' escape="false" />", true,true);
+
+		document.getElementById('addNewElement').addEventListener('click', function(e) {
+			dynamicList.addElement("<h:outputText value='#{authorMessages.im_description}' escape="false" />", true,true);
+		}, false);
 	});
 	
 	function resetList()
@@ -221,7 +225,7 @@
     <h:inputHidden id="serialized" value="#{itemauthor.currentItem.serializedImageMap}" /> 
 
     <div>
-        <input type='button' onclick="dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true,true)" value="+" style="margin-left: 45px" />
+        <input type='button' id='addNewElement' value="+" style="margin-left: 45px" />
         <div id='template' style='display:none'>	
             <span name='position_'></span>
             <span>
