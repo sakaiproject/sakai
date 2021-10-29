@@ -21,7 +21,6 @@
 
 package org.sakaiproject.messagebundle.api;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,9 +32,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,8 +45,6 @@ import lombok.NoArgsConstructor;
             @Index(name = "SMB_PROPNAME_IDX", columnList = "PROP_NAME"),
             @Index(name = "SMB_SEARCH", columnList = "BASENAME, MODULE_NAME, LOCALE, PROP_NAME")
 })
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQueries({
         @NamedQuery(name = "findProperty", query = "from MessageBundleProperty where baseName = :basename and moduleName = :module and propertyName = :name and locale = :locale"),
         @NamedQuery(name = "findPropertyWithNullValue", query = "from MessageBundleProperty where baseName = :basename and moduleName = :module and locale = :locale and value is not null"),
