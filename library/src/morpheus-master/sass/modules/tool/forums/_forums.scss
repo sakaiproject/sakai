@@ -207,6 +207,9 @@
 						vertical-align: middle;
 					}
 				}
+				&#revise\:topic_postAnonymous{
+					margin-top: 13px;
+				}
 			}
 			&.openDateSpan{
 				label{
@@ -235,10 +238,6 @@
 		
 		&\:alert-delete{
 			margin: 2em 0 0 0;
-		}
-		
-		& #forum_grading{
-			margin-top: 2em;
 		}
 	}
 
