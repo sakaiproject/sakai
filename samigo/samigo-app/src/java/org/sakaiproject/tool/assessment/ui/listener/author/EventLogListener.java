@@ -81,21 +81,32 @@ implements ActionListener, ValueChangeListener
 	}
 	
 	private List<EventLogData> updateData(List<EventLogData> eventLogDataList) {
-		List<EventLogData> updatedEventLogDataList = new ArrayList<EventLogData>();
+		List<EventLogData> updatedEventLogDataList = new ArrayList<>();
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();	
-		Map<String, PublishedAccessControl> assessmentIdSettingMap = new HashMap<String, PublishedAccessControl>();
+		Map<String, PublishedAccessControl> assessmentIdSettingMap = new HashMap<>();
 		PublishedAccessControl control = null;
-		for(EventLogData data:eventLogDataList) {
+
+		for (EventLogData data : eventLogDataList) {
 			String assessmentId = data.getAssessmentIdStr();
-			if(assessmentIdSettingMap.containsKey(assessmentId)) {
-				control = (PublishedAccessControl)assessmentIdSettingMap.get(assessmentId);
-			} else {
-				PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);	
-				control = (PublishedAccessControl)assessment.getAssessmentAccessControl();	
-				assessmentIdSettingMap.put(assessmentId, control);
+			String releaseInfo = "";
+
+			try {
+				if (assessmentIdSettingMap.containsKey(assessmentId)) {
+					control = assessmentIdSettingMap.get(assessmentId);
+					releaseInfo = control.getReleaseTo();
+				}
+				else {
+					PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);	
+					control = (PublishedAccessControl) assessment.getAssessmentAccessControl();	
+					releaseInfo = control.getReleaseTo();
+					assessmentIdSettingMap.put(assessmentId, control);
+				}
 			}
-			String releaseInfo = control.getReleaseTo();
-			if("Anonymous Users".equals(releaseInfo)) {
+			catch (Exception e) {
+				log.warn("Could not fetch assessmentId={} reference in EventLog", assessmentId);
+			}
+
+			if ("Anonymous Users".equals(releaseInfo)) {
 				data.setUserDisplay("N/A");
 				data.setIpAddress("N/A");
 				updatedEventLogDataList.add(data);
