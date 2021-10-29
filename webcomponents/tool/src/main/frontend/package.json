@@ -8,8 +8,7 @@
     "buildcss": "webpack --config conf/css.config.js -p",
     "empathise": "empathise install",
     "storybook": "npm install && empathise install --assets-directory=js/assets && start-storybook -s ./storybook-resources -p 6006",
-    "build-storybook": "build-storybook",
-    "test": "mocha -r esm"
+    "build-storybook": "build-storybook"
   },
   "keywords": [],
   "author": "",
