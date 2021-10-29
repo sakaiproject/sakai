@@ -42,6 +42,7 @@ import java.util.Map;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -264,31 +265,31 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 			roleId = parameters.get(KEY_ROLE_ID).toString();
 		}
 
-		List<RosterMember> membership = new ArrayList();
-		Map<String, Integer> roleCounts = new HashMap(1);
+		List<RosterMember> membership = new ArrayList<>();
+		Map<String, Integer> roleCounts = new HashMap<>(1);
 
 		for (String userId : userIds) {
 			RosterMember member = sakaiProxy.getMember(siteId, userId, groupId, enrollmentSetId);
-
-			if (null == member) {
-				throw new EntityException("Unable to retrieve membership", reference.getReference());
-			}
-			
-			if(roleId != null) {
-				if(StringUtils.equals(member.getRole(), roleId)) {
+			if (member != null) {
+				if(roleId != null) {
+					if(StringUtils.equals(member.getRole(), roleId)) {
+						membership.add(member);
+					}
+				} else {
 					membership.add(member);
 				}
-			} else {
-				membership.add(member);
-			}
-			
 
-			String role = member.getRole();
-			if (!roleCounts.containsKey(role)) {
-				roleCounts.put(role, 1);
-			} else {
-				roleCounts.put(role, roleCounts.get(role) + 1);
+				String role = member.getRole();
+				if (!roleCounts.containsKey(role)) {
+					roleCounts.put(role, 1);
+				} else {
+					roleCounts.put(role, roleCounts.get(role) + 1);
+				}
 			}
+		}
+
+		if (CollectionUtils.isEmpty(membership)) {
+			throw new EntityException("Unable to retrieve membership", reference.getReference());
 		}
 
 		RosterData data = new RosterData();
