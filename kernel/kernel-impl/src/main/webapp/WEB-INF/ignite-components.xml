@@ -148,9 +148,6 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.taggable.impl.LinkImpl"/>
                 </bean>
-                <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.messagebundle.api.MessageBundleProperty"/>
-                </bean>
                 <bean parent="org.sakaiproject.ignite.cache.transactional">
                     <property name="name" value="org.sakaiproject.assignment.api.model.Assignment"/>
                 </bean>
