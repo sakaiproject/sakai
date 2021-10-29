@@ -402,7 +402,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 
 		//Get the default title from the current placement
 		if (placement != null) {
-			defaultTitle = placement.getTitle();
+			return placement.getTitle();
 		}
 
 		return pref.getValue(PREF_PORTLET_TITLE, defaultTitle);
