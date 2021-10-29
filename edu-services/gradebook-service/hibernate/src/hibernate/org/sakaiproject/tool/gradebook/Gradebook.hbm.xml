@@ -18,7 +18,7 @@
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
-		<many-to-one name="selectedGradeMapping" column="SELECTED_GRADE_MAPPING_ID" cascade="all" />
+		<many-to-one name="selectedGradeMapping" column="SELECTED_GRADE_MAPPING_ID" cascade="all" index="FK_GB_SEL_GRADE_MAP_I" />
 
 		<set name="gradeMappings" inverse="true" lazy="true" cascade="all">
 			<key column="GRADEBOOK_ID"/>

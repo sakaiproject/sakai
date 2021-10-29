@@ -65,7 +65,8 @@ import lombok.NonNull;
         "criterionOutcomes", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_evaluation",
-    indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId") },
+    indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId"),
+    	    @Index(name = "FK_faohmo8ewmybgp67w10g53dtm",  columnList="association_id")},
     uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
 )
 @ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})

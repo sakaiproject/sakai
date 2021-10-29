@@ -67,7 +67,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name = "ASN_SUBMISSION")
+@Table(name = "ASN_SUBMISSION", indexes = @Index(name = "FK_ASN_ASSIGMENTS_SUB_I", columnList = "ASSIGNMENT_ID") )
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
@@ -178,7 +178,7 @@ public class AssignmentSubmission {
     @MapKeyColumn(name = "NAME")
     @Lob
     @Column(name = "VALUE", length = 65535)
-    @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(name = "FK_ASN_SUBMISSION_PROP", columnList = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();
 }

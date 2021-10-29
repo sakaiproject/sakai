@@ -27,7 +27,7 @@
       </generator> 
     </id>
     <many-to-one name="favoriteChoice" class="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices">
-     <column name="FAVORITEID" not-null="true"/>
+     <column name="FAVORITEID" not-null="true" index="FK_SAM_FAV_CHOICE_I" />
      </many-to-one> 
     <property name="sequence" type="integer" column="SEQUENCE" not-null="true" />
     <property name="choiceText" type="string" length="1000" column="TEXT" not-null="false" />

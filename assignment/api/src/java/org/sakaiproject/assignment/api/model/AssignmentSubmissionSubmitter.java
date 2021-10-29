@@ -61,7 +61,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "ASN_SUBMISSION_SUBMITTER",
         uniqueConstraints = @UniqueConstraint(columnNames = {"SUBMISSION_ID", "SUBMITTER"}),
-        indexes = @Index(columnList = "SUBMITTER"))
+        indexes = {	@Index(columnList = "SUBMITTER"),
+                @Index(name = "FK_ASN_SUBMISSION_SUB_I", columnList = "SUBMISSION_ID")
+        })
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"submission"})

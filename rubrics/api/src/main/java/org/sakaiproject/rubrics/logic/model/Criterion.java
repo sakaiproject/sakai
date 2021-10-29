@@ -34,6 +34,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.JoinTable;
@@ -85,7 +86,9 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "rbc_criterion_ratings",
             joinColumns = @JoinColumn(name = "rbc_criterion_id", referencedColumnName = "id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "ratings_id", referencedColumnName = "id", nullable = false))
+            inverseJoinColumns = @JoinColumn(name = "ratings_id", referencedColumnName = "id", nullable = false),
+            indexes = @Index(name = "FK_h4u89cj06chitnt3vcdsu5t7m", columnList = "rbc_criterion_id")
+            )
     @OrderColumn(name = "order_index")
     private List<Rating> ratings;
 
