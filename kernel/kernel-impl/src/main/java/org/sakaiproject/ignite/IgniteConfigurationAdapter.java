@@ -29,6 +29,7 @@ import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
+import org.apache.ignite.plugin.segmentation.SegmentationPolicy;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
 import org.apache.ignite.spi.collision.fifoqueue.FifoQueueCollisionSpi;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
@@ -138,6 +139,8 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             if (stopOnFailure) {
                 igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
             }
+
+            igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
 
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
