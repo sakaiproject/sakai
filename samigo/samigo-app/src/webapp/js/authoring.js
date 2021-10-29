@@ -522,16 +522,6 @@ function showHideReleaseGroups(){
   }
 }
 
-function showHideSurveyHelp() {
-	var selectedValue = $('select[id*="releaseTo"]').val();
-	var helpText = $('[id*="releaseToHelp"]');
-	if(selectedValue == "Anonymous Users") {
-		helpText.show();
-	} else {
-		helpText.hide();
-	}
-}
-
 function setBlockDivs()
 {  
    //alert("setBlockDivs()");
