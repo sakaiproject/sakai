@@ -105,20 +105,17 @@ public class ChangeProfilePictureUpload extends Panel{
 				FileUpload upload = uploadField.getFileUpload();
 				
 				if (upload == null) {
-					log.error("Profile.ChangeProfilePicture.onSubmit: upload was null.");
-					//error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
-					feedback.setDefaultModel(new ResourceModel("error.no.file.uploaded"));
-				    return;
+					log.warn("Profile.ChangeProfilePicture.onSubmit: upload was null.");
+					error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
+					return;
 				} else if (upload.getSize() == 0) {
-				    log.error("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
-					//error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
-					feedback.setDefaultModel(new ResourceModel("error.empty.file.uploaded"));
+					log.warn("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
+					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
 				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload.getContentType())) {
-					log.error("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
-					//error(new StringResourceModel("error.invalid.image.type", this, null).getString());
-					feedback.setDefaultModel(new ResourceModel("error.invalid.image.type"));
-				    return;
+					log.warn("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
+					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
+					return;
 				} else {
 					
 					String mimeType = upload.getContentType();
@@ -147,8 +144,7 @@ public class ChangeProfilePictureUpload extends Panel{
 							setResponsePage(new MyProfile());
 						}
 					} else {
-						//error(new StringResourceModel("error.file.save.failed", this, null).getString());
-						feedback.setDefaultModel(new ResourceModel("error.file.save.failed"));
+						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 						return;
 					}
 										
