@@ -220,6 +220,7 @@ export class SakaiRubricGrading extends RubricsElement {
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
               c.selectedvalue = ratingItem.points;
+              ratingItem.selected = true;
             }
           } else {
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
