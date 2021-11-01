@@ -62,13 +62,14 @@
             });
 
             var notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
+            var assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
             if (notEmptyTableTd > 0) {
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                     "pageLength": 20,
-                    "aaSorting": [[2, "desc"]],
+                    "aaSorting": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
                         {"bSortable": true, "bSearchable": true, "type": "span"},
                         {"bSortable": false, "bSearchable": false},
