@@ -11,7 +11,7 @@
     </id>
     <many-to-one name="itemGradingData"
       class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"
-      column="ITEMGRADINGID" />
+      column="ITEMGRADINGID" index="FK_SAM_MEDIA_ITEM_I" />
 <!--
     <property name="dbMedia">
       <column name="MEDIA" not-null="false" length="1000000000"/>

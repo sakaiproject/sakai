@@ -94,7 +94,7 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
     private Boolean active = Boolean.TRUE;
 
     @ElementCollection
-    @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))
+    @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"), indexes = @Index(name = "FK_rdpid6jl4csvfv6la80ppu6p9", columnList = "association_id"))
     @MapKeyColumn(name = "parameter_label")
     @Column(name="parameters")
     @Fetch(FetchMode.SUBSELECT)

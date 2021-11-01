@@ -18,7 +18,7 @@
 
 		<many-to-one name="gradebook" class="org.sakaiproject.tool.gradebook.Gradebook" column="GRADEBOOK_ID" not-null="true"/>
 
-		<many-to-one name="gradingScale" column="GB_GRADING_SCALE_T" not-null="false" />
+		<many-to-one name="gradingScale" column="GB_GRADING_SCALE_T" not-null="false" index="FK_GB_GRADE_MAP_SCALE_I" />
 
 		<map name="gradeMap" table="GB_GRADE_TO_PERCENT_MAPPING_T" cascade="all" lazy="false">
 			<key column="GRADE_MAP_ID"/>

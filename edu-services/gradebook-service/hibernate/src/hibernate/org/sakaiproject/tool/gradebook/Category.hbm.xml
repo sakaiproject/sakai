@@ -14,7 +14,7 @@
 
 		<version name="version" type="integer" column="VERSION"/>
 
-		<many-to-one name="gradebook" column="GRADEBOOK_ID" class="org.sakaiproject.tool.gradebook.Gradebook" not-null="true"/>
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" class="org.sakaiproject.tool.gradebook.Gradebook" not-null="true" index="GB_CATEGORY_GB_INDX" />
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
@@ -40,7 +40,7 @@
 		</class>
   
  	<database-object>
-		<create>create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID)</create>
+		<create>create index GB_CATEGORY_GB_INDX on GB_CATEGORY_T (GRADEBOOK_ID)</create>
 		<drop></drop>
 		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
 		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>

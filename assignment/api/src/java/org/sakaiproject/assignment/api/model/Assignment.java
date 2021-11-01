@@ -180,7 +180,7 @@ public class Assignment {
     @ElementCollection
     @MapKeyColumn(name = "NAME")
     @Column(name = "VALUE", length = 4000)
-    @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
+    @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"), indexes = @Index(name="FK_ASN_ASSIGMENTS_PROP_I", columnList = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();
 

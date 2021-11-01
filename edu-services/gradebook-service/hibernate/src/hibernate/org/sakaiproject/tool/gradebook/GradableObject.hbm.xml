@@ -40,7 +40,7 @@
 			<property name="extraCredit" column="IS_EXTRA_CREDIT" type="java.lang.Boolean"/>
 			<property name="assignmentWeighting" column="ASSIGNMENT_WEIGHTING" type="java.lang.Double"/>
 			<property name="released" column="RELEASED" type="java.lang.Boolean"/>
-			<many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category"/>
+			<many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" index="GB_GRADABLE_OBJ_CT_IDX"/>
 			<property name="ungraded" column="UNGRADED" type="java.lang.Boolean"/>
 			<property name="countNullsAsZeros" column="IS_NULL_ZERO" type="java.lang.Boolean"/>
 			<property name="hideInAllGradesTable" column="HIDE_IN_ALL_GRADES_TABLE" type="java.lang.Boolean"/>
