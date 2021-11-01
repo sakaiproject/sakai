@@ -110,7 +110,10 @@ export class SakaiRubricGradingComment extends RubricsElement {
     if (!this.criterion.comments) {
       this.criterion.comments = "";
     }
-    this.dispatchEvent(new CustomEvent('update-comment', { detail: { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments }, bubbles: true, composed: true }));
+
+    if (e) {
+      this.dispatchEvent(new CustomEvent('update-comment', { detail: { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments }, bubbles: true, composed: true }));
+    }
     this.requestUpdate();
   }
 
