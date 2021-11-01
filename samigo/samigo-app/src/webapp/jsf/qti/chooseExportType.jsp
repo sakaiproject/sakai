@@ -30,20 +30,17 @@
       <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
 <script type="text/JavaScript">
 function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
-  if ( $("#exportAssessmentForm\\:exportType\\:0").prop("checked") ) {
+  if ( $("#exportAssessmentForm\\:exportType\\:1").prop("checked") ) {
     window.open( qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes');
   }
-  else if ($("#exportAssessmentForm\\:exportType\\:1").prop("checked")) {
+  else if ($("#exportAssessmentForm\\:exportType\\:0").prop("checked")) {
     window.location = cpUrl;
   }
-  else {
-	//alert("emtUrl.....");
-	if (e2mt === 'false') {
-		window.location = emtUrl;
-	} 
-	else if (confirm('<h:outputText value="#{authorImportExport.export_confirm}" />')) {
-		window.location = emtUrl;	
-	}
+  else if (e2mt === 'false') {
+    window.location = emtUrl;
+  } 
+  else if (confirm('<h:outputText value="#{authorImportExport.export_confirm}" />')) {
+    window.location = emtUrl;  
   }
 }
 </script>
