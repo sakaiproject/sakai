@@ -974,4 +974,8 @@ public class AuthorBean implements Serializable {
 		}
 		return Boolean.FALSE;
 	}
+
+	public int getAssessmentSortingColumn() {
+		return ServerConfigurationService.getInt("samigo.assessmentSortingColumn", 2);
+	}
 }
