@@ -25,10 +25,6 @@ class SakaiGraderFilePicker extends SakaiElement {
     this.requestUpdate();
   }
 
-  shouldUpdate() {
-    return this.i18n;
-  }
-
   render() {
 
     return html`
