@@ -107,8 +107,6 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 		}
 
 		res.setContentLength((int) cr.getContentLength());
-	    log.debug("**** media.length = {}", media.length);
-		
 	} catch (PermissionException e) {
 		log.warn("PermissionException from doPost(): " +  e.getMessage());
 	} catch (IdUnusedException e) {
