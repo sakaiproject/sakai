@@ -1340,7 +1340,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
 	private Comment getInternalComment(final String gradebookUid, final Long assignmentId, final String studentUid) {
 		return (Comment) getHibernateTemplate().execute(session -> session
-                .createQuery("from org.sakaiproject.tool.gradebook.Comment as c where c.studentId = :studentId and c.gradableObject.gradebook.uid = :gradebookUid and c.gradableObject.id = :assignmentId and gradableObject.removed is false")
+                .createQuery("from Comment as c where c.studentId = :studentId and c.gradableObject.gradebook.uid = :gradebookUid and c.gradableObject.id = :assignmentId and gradableObject.removed is false")
                 .setString("studentId", studentUid)
                 .setString("gradebookUid", gradebookUid)
                 .setLong("assignmentId", assignmentId)

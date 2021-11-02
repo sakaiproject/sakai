@@ -278,7 +278,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					.executeUpdate();
 			log.info("Deleted {} externally defined scores", numDeleted);
 
-			numDeleted = session.createQuery("delete org.sakaiproject.tool.gradebook.Comment where gradableObject=:go").setParameter("go", asn).executeUpdate();
+			numDeleted = session.createQuery("delete Comment where gradableObject=:go").setParameter("go", asn).executeUpdate();
 			log.info("Deleted {} externally defined comments", numDeleted);
 			return null;
 		});

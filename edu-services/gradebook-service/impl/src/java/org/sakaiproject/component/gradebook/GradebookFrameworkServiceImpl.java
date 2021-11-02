@@ -351,7 +351,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         hibTempl.deleteAll(toBeDeleted);
         log.debug("Deleted {} grading events", numberDeleted);
 
-        toBeDeleted = hibTempl.findByNamedParam("from org.sakaiproject.tool.gradebook.Comment as gc where gc.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from Comment as gc where gc.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         log.debug("Deleted {} grade comments", numberDeleted);
