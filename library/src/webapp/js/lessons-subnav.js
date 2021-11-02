@@ -176,6 +176,10 @@
         var $expandedMenuPlaceholder = document.createElement('span');
         $expandedMenuPlaceholder.classList.add('Mrphs-toolsNav__menuitem--link');
         $expandedMenuPlaceholder.classList.add('lessons-top-level-placeholder');
+        if ($menu.querySelector('.Mrphs-toolsNav__menuitem--status-block').innerHTML.trim()) {
+            $expandedMenuPlaceholder.classList.add('is-invisible');
+        }
+        $expandedMenuPlaceholder.innerHTML = $menu.querySelector('.Mrphs-toolsNav__menuitem--icon').outerHTML + $menu.querySelector('.Mrphs-toolsNav__menuitem--title').outerHTML + $menu.querySelector('.Mrphs-toolsNav__menuitem--status-block').outerHTML;
         $expandedMenuPlaceholder.style.display = 'none';
 
         // create a link to close an expanded menu
@@ -185,7 +189,6 @@
         $collapseToggle.setAttribute('aria-expanded', true);
         $collapseToggle.setAttribute('title', self.i18n.collapse);
         $collapseToggle.classList.add("lessons-expand-collapse-icon");
-        $collapseToggle.innerHTML = $menu.querySelector('.Mrphs-toolsNav__menuitem--icon').outerHTML;
         $expandedMenuPlaceholder.appendChild($collapseToggle);
 
         // create a link to go to the top level page (only visible when expanded)
@@ -193,7 +196,6 @@
         $expandedGoToTopItem.setAttribute('href', topLevelPageHref);
         $expandedGoToTopItem.setAttribute('title', self.i18n.open_top_level_page);
         $expandedGoToTopItem.classList.add("lessons-goto-top-page");
-        $expandedGoToTopItem.innerHTML = $menu.querySelector('.Mrphs-toolsNav__menuitem--title').outerHTML;
         $expandedMenuPlaceholder.appendChild($expandedGoToTopItem);
 
         // insert the placeholder menu item before the $menu link
@@ -237,7 +239,7 @@
                     event.stopImmediatePropagation();
 
                     self.expand($li, true, function() {
-                        $collapseToggle.focus();
+                        $expandedMenuPlaceholder.focus();
                     });
 
                     return false;
@@ -247,14 +249,14 @@
             return true;
         });
 
-        $collapseToggle.addEventListener('click', function(event) {
+        $expandedMenuPlaceholder.addEventListener('click', function(event) {
             // We have jQuery now... YAY, get on that.
             var $li = $PBJQ(event.target).closest('li');
 
             self.collapse($li);
         });
 
-        $collapseToggle.addEventListener('keyup', function(event) {
+        $expandedMenuPlaceholder.addEventListener('keyup', function(event) {
              // We have jQuery now... YAY, get on that.
              var $li = $PBJQ(event.target).closest('li');
 
