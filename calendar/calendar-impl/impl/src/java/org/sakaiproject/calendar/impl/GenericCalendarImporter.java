@@ -24,6 +24,7 @@ package org.sakaiproject.calendar.impl;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -760,8 +761,13 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 		// Calendar time zone remains over user time zone
 		String tzid = calendarTzid==null ? userTzid:calendarTzid;
-		
-		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames, tzid), customFieldPropertyNames);
+		ZoneId srcZoneId;
+		if (tzid != null) {
+			srcZoneId = ZoneId.of(tzid);
+		} else {
+			srcZoneId = ZoneId.of(getTimeService().getLocalTimeZone().getID());
+		}
+		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames, srcZoneId), customFieldPropertyNames);
 	}
 
 	/**

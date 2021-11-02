@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
@@ -216,16 +217,8 @@ public class CSVReader extends Reader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[], String)
 	 */
-	public List filterEvents(List events, String[] customFieldNames, String tzid) throws ImportException
+	public List filterEvents(List events, String[] customFieldNames, ZoneId srcZoneId) throws ImportException
 	{
-		ZoneId dstZoneId = ZoneId.of(getTimeService().getLocalTimeZone().getID());		
-		ZoneId srcZoneId;
-		if (tzid != null) {
-			srcZoneId = ZoneId.of(tzid);
-		} else {
-			srcZoneId = dstZoneId;
-		}
-		
 		setColumnDelimiter(",");
 		
 		Map augmentedMapping = getDefaultColumnMap();
@@ -280,7 +273,11 @@ public class CSVReader extends Reader
 			// Raw + calendar/owner TZ's offset
 			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
 			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
-			
+			TimeZone tz = TimeZone.getTimeZone(srcZoneId);
+			if( tz.inDaylightTime(startDate) ) {
+				millis = millis - tz.getDSTSavings();
+			}
+
 			// Duration of event
 			Duration gapMinutes = Duration.ofMinutes(durationInMinutes);
 			
