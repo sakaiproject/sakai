@@ -116,4 +116,15 @@ public class SimpleEncryptionTest {
 	public void testNullDecrypt() {
 		assertNull(SimpleEncryption.decrypt("key", null));
 	}
+
+	// SAK-44311 - Test double encryption
+	@Test
+	public void testDoubleEncrypt() {
+		assertEquals("Hello", SimpleEncryption.decrypt("key", SimpleEncryption.encrypt("key", SimpleEncryption.encrypt("key", "Hello"))));
+	}
+
+	@Test (expected = RuntimeException.class)
+	public void testDoubledecrypt() {
+		String pitch = SimpleEncryption.decrypt("key", SimpleEncryption.decrypt("key", SimpleEncryption.encrypt("key", "Hello")));
+	}
 }
