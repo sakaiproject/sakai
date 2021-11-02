@@ -150,13 +150,7 @@
               val: '<h:outputText value="#{assessmentSettings.extendedTimeRetractString}"/>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
-          
-var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-if (releaseToVal === 'Anonymous Users') {
-  handleAnonymousUsers(releaseToVal, "");
-}
           showHideReleaseGroups();
-          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
