@@ -3408,8 +3408,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
-        String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
-        context.put("value_GradePoints", displayGrade(state, maxGrade, assignmentService.getScaleFactor()));
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
         context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
         context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
@@ -3450,6 +3448,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
                 context.put("isDraft", a.getDraft());
                 if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                    String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
                     context.put("value_GradePoints", displayGrade(state, maxGrade, a.getScaleFactor()));
                 }
             }
@@ -3538,6 +3537,10 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             a.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", attachmentReferences);
+
+            if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
+            }
         }
 
         String submissionRef = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
@@ -3652,8 +3655,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
-        context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
-
 
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
