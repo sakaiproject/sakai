@@ -167,62 +167,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			UrlItem mainLink = null;
 			int toolcount = 0;
 
-			UIBranchContainer toolListContainer = null;
-			if(appStoresOnly) {
-				// If we have one store, we get two links, the last one is the "Cancel/panel=Main" link
-				if ( createLinks.size() <= 2 ) {
-					toolListContainer = UIBranchContainer.make(tofill, "app-store-shortcut:");
-				} else {
-					toolListContainer = UIBranchContainer.make(tofill, "app-store-container:");
-				}
-			} else {
-				toolListContainer = UIBranchContainer.make(tofill, "external-tool-container:");
-				UIOutput.make(toolListContainer, "blti-name-header", messageLocator.getMessage("simplepage.blti.tool.name"));
-				UIOutput.make(toolListContainer, "blti-description-header", messageLocator.getMessage("simplepage.blti.tool.description"));
-			}
-
-			for (UrlItem createLink: createLinks) {
-			    if (createLink.Url.indexOf("panel=Main") >= 0) {
-				mainLink = createLink;
-				continue;
-			    }
-			    toolcount = 1;
-				UIBranchContainer linkContainer = UIBranchContainer.make(toolListContainer, "blti-create:");
-
-				UILink link = UILink.make(linkContainer, "blti-create-link", createLink.Url);
-				link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
-				UIOutput.make(linkContainer, "blti-create-text", (bltiTool == null ? createLink.label : bltiTool.addText));
-				UIOutput.make(linkContainer, "blti-create-description", (bltiTool == null ? createLink.description : bltiTool.description));
-
-			    if ( createLink.fa_icon != null && !createLink.search ) {
-			        UIOutput.make(linkContainer, "blti-create-icon", "")
-				    .decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
-			    }
-
-			    if ( createLink.search ) {
-			        UIOutput.make(linkContainer, "blti-search-icon");
-			    }
-
-			}
-			
-			if ( toolcount > 0 ) {
-				UIOutput.make(tofill, "blti-tools-text", appStoresOnly ? messageLocator.getMessage("simplepage.blti.app.store.text") : messageLocator.getMessage("simplepage.blti.tools.text"));
-			} else { 
-			    UIOutput.make(tofill, "no-blti-tools");
-			    UIOutput.make(tofill, "no-blti-tools-text", messageLocator.getMessage("simplepage.no_blti_tools"));
-			}
-
-			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-
-			// only show manage link if we aren't simulating a native tool
-			if (bltiTool == null) {
-			    UIOutput.make(tofill, "manageblti");
-			    if (mainLink != null) {
-				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
-					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
-			    }
-			}
-
+			// If this is an autosubmit situation, we do not need to list the links
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 			if ( ltiItemId != null ) {
 				UIForm fb = UIForm.make(tofill, "blti-autosubmit");
@@ -235,6 +180,64 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
+			} else {
+
+			    UIBranchContainer toolListContainer = null;
+			    if(appStoresOnly) {
+				    // If we have one store, we get two links, the last one is the "Cancel/panel=Main" link
+				    if ( createLinks.size() <= 2 ) {
+					    toolListContainer = UIBranchContainer.make(tofill, "app-store-shortcut:");
+				    } else {
+					    toolListContainer = UIBranchContainer.make(tofill, "app-store-container:");
+				    }
+			    } else {
+				    toolListContainer = UIBranchContainer.make(tofill, "external-tool-container:");
+				    UIOutput.make(toolListContainer, "blti-name-header", messageLocator.getMessage("simplepage.blti.tool.name"));
+				    UIOutput.make(toolListContainer, "blti-description-header", messageLocator.getMessage("simplepage.blti.tool.description"));
+			    }
+
+				for (UrlItem createLink: createLinks) {
+					if (createLink.Url.indexOf("panel=Main") >= 0) {
+						mainLink = createLink;
+						continue;
+					}
+					toolcount = 1;
+					UIBranchContainer linkContainer = UIBranchContainer.make(toolListContainer, "blti-create:");
+
+					UILink link = UILink.make(linkContainer, "blti-create-link", createLink.Url);
+					link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
+					UIOutput.make(linkContainer, "blti-create-text", (bltiTool == null ? createLink.label : bltiTool.addText));
+					UIOutput.make(linkContainer, "blti-create-description", (bltiTool == null ? createLink.description : bltiTool.description));
+
+					if ( createLink.fa_icon != null && !createLink.search ) {
+						UIOutput.make(linkContainer, "blti-create-icon", "")
+						.decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
+					}
+
+					if ( createLink.search ) {
+						UIOutput.make(linkContainer, "blti-search-icon");
+					}
+				}
+
+				if ( toolcount > 0 ) {
+					UIOutput.make(tofill, "blti-tools-text", appStoresOnly ? messageLocator.getMessage("simplepage.blti.app.store.text") : messageLocator.getMessage("simplepage.blti.tools.text"));
+				} else {
+					UIOutput.make(tofill, "no-blti-tools");
+					UIOutput.make(tofill, "no-blti-tools-text", messageLocator.getMessage("simplepage.no_blti_tools"));
+				}
+
+			} // Not autosubmit
+			
+
+			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+
+			// only show manage link if we aren't simulating a native tool
+			if (bltiTool == null) {
+			    UIOutput.make(tofill, "manageblti");
+			    if (mainLink != null) {
+				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
+					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
+			    }
 			}
 
 			UIForm cancelform = UIForm.make(tofill, "blti-cancel");
