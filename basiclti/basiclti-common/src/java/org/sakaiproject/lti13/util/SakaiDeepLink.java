@@ -47,6 +47,7 @@ public class SakaiDeepLink extends DeepLink {
 	@JsonProperty("https://www.sakailms.org/spec/lti-dl/placement")
 	public String sakai_placement;
 
+	// This is moving toward being an official accept_lineitem claim
 	@JsonProperty("https://www.sakailms.org/spec/lti-dl/accept_lineitem")
 	public Boolean sakai_accept_lineitem;
 

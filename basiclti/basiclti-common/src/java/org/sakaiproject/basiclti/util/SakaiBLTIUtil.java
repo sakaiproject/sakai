@@ -1984,6 +1984,7 @@ public class SakaiBLTIUtil {
 						ci.sakai_accept_available = Boolean.FALSE;
 						ci.sakai_accept_submission = Boolean.FALSE;
 					}
+					ci.accept_lineitem = ci.sakai_accept_lineitem;
 				}
 
 				// Accept_unsigned is not in DeepLinking - they are signed JWTs
