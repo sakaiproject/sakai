@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 	"accept_media_types": "image/*,text/html",
 	"accept_presentation_document_targets": ["iframe", "window", "embed"],
 	"accept_multiple": true,
+	"accept_lineitem": false,
 	"auto_create": true,
 	"title": "This is the default title",
 	"text": "This is the default text",
@@ -62,4 +63,12 @@ public class DeepLink {
 	public String text;
 	@JsonProperty("data")
 	public String data;
+
+	// Boolean - whether the platform in the context of that deep linking request supports or
+	// ignores line items included in LTI Resource Link items. False indicates line items
+	// will be ignored. True indicates the platform will create a line item when creating
+	// the resource link. If the field is not present, no assumption that can be made
+	// about the support of line items.
+	@JsonProperty("accept_lineitem")
+	public Boolean accept_lineitem;
 }
