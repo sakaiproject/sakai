@@ -343,7 +343,7 @@
 	#if ($!groups)
 		## added group awareness
 		<p class="checkbox">
-			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'table';"  />
 			<label for="groups">$tlang.getString("displayfrom.selected")</label>
 		</p>	
 		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
