@@ -49,6 +49,9 @@ public class SimpleEncryption {
 			return null;
 		}
 
+		// Do not double encrypt
+		if ( source.endsWith(":"+CIPHER) ) return source;
+
 		byte[] salt = new byte[8];
 		new Random().nextBytes(salt);
 		char[] password = key.toCharArray();
