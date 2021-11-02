@@ -280,7 +280,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		if (attachments == null)
 		{
-			attachments = Collections.EMPTY_LIST;
+			attachments = Collections.emptyList();
 		}
 
 		boolean retval = true;
@@ -300,8 +300,8 @@ public class ExternalLogicImpl implements ExternalLogic
 
 			return false;
 		}
-		List<String> mailHeaders = new ArrayList<String>();
-		if (useRTE())
+		List<String> mailHeaders = new ArrayList<>();
+		if (useRTE() && !config.isOnlyPlainText())
 		{
 			mailHeaders.add(MailArchiveService.HEADER_OUTER_CONTENT_TYPE
 					+ ": text/html; charset=ISO-8859-1");
@@ -332,7 +332,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			header.setInstantSent(Instant.now());
 			header.setMailHeaders(mailHeaders);
 			// List of references needed.
-			List<Reference> refs = new ArrayList<Reference>();
+			List<Reference> refs = new ArrayList<>();
 			for(Attachment attachment : attachments) {
 				ContentResource resource = createAttachment(channel.getContext(), attachment.getContentTypeHeader(),
 						attachment.getFilename(), attachment.getDataSource().getInputStream(), edit.getId());
@@ -429,7 +429,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		msg.setSubject(subject);
 		// set content type based on editor used
-		if (useRTE())
+		if (useRTE() && !config.isOnlyPlainText())
 		{
 			msg.setContentType(ContentType.TEXT_HTML);
 		}

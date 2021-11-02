@@ -296,6 +296,7 @@ public class MainController {
         String reqSubject = request.getParameter("subject");
         String rcptsall = request.getParameter("rcptsall");
         //Get checkboxes values
+        String onlyPlainText = request.getParameter("onlyPlainText");
         String reqSendMeACopy = request.getParameter("smac");
         String reqAddToArchive = request.getParameter("addToArchive");
         String reqAppendRecipientList = request.getParameter("appendRecipientList");
@@ -311,9 +312,10 @@ public class MainController {
         if (StringUtils.isNotBlank(rcptsall)) {
             newEmailEntry.setAllIds(Boolean.parseBoolean(rcptsall));
         }
-        config.setSendMeACopy((reqSendMeACopy != null) ? Boolean.parseBoolean(reqSendMeACopy) : false);
-        config.setAddToArchive((reqAddToArchive != null) ? Boolean.parseBoolean(reqAddToArchive) : false);
-        config.setAppendRecipientList((reqAppendRecipientList != null) ? Boolean.parseBoolean(reqAppendRecipientList) : false);
+        config.setOnlyPlainText(Boolean.parseBoolean(onlyPlainText));
+        config.setSendMeACopy(Boolean.parseBoolean(reqSendMeACopy));
+        config.setAddToArchive(Boolean.parseBoolean(reqAddToArchive));
+        config.setAppendRecipientList(Boolean.parseBoolean(reqAppendRecipientList));
 
         newEmailEntry.setConfig(config);
         String reqOtherRecipients= request.getParameter("otherRecipients");
