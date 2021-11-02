@@ -704,57 +704,44 @@ body {
 
 				.lessons-top-level-placeholder {
 					@include flex-direction(row);	// always make the flex-direction row, including when "$tool-menu-icon-on-left: false"
-					padding: 0;		// move the padding from the span to the link below
 					
 					.lessons-expand-collapse-icon {
 						padding: $tool-lessons-toplevel-menu-icon-padding;
 						padding-right: 0;	// remove space from icon to text
-						text-decoration: none;	// remove underline from linked icon
-						.Mrphs-toolsNav__menuitem--icon {
-							position: relative;
-							width:20px;
-						}
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						margin-left: -16px;
 					}
 
 					.lessons-goto-top-page {
 						@include flex-grow(1);	// to make sure the text takes up the needed space
-						padding: $tool-lessons-toplevel-menu-text-padding;
 						padding-left: 0; 	// remove space from text to icon
-						width: calc(#{$tool-menu-width} - calc(#{$standard-spacing} * 2));
-						.Mrphs-toolsNav__menuitem--title {
-							color: var(--tool-menu-item-text-color);
-						}
+						z-index: 10;
+						text-decoration: none;	// remove underline from linked icon
+						font-style: normal;
+
 						&:hover {
-							.Mrphs-toolsNav__menuitem--title {
-								color: var(--tool-menu-item-hover-text-color);
+							color: var(--tool-menu-item-hover-text-color);
+						}
+						&:focus {
+							&:after {
+								font-family: 'FontAwesome';
+								content: '\f0a9';
+								padding-left: 5px;
+								padding-right: 5px;
 							}
 						}
 					}
 
 					&:hover {
 						.lessons-goto-top-page {
-							
-							.Mrphs-toolsNav__menuitem--title {
-								text-overflow: clip;
-								width: calc(#{$tool-menu-width} - #{$tool-menu-width-collapsed} - calc(#{$standard-spacing} * 1.5));
-								&:after {
-									font-family: 'FontAwesome';
-									content: '\f0a9';
-									padding-left: 4px;
-									position: absolute;
-									left: calc(#{$tool-menu-width} - (#{$standard-spacing} * 1.5))
-								}
-							}
-						}
-					}
-					.lessons-goto-top-page {
-						&:focus {
-							.Mrphs-toolsNav__menuitem--title {
-								&:after {
-									font-family: 'FontAwesome';
-									content: '\f0a9';
-									padding-left: 4px;
-								}
+							text-overflow: clip;
+							&:after {
+								font-family: 'FontAwesome';
+								content: '\f0a9';
+								padding-left: 5px;
+								padding-right: 5px;
 							}
 						}
 					}
