@@ -150,13 +150,7 @@
               val: '<h:outputText value="#{assessmentSettings.extendedTimeRetract}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
-          
-var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-if (releaseToVal === 'Anonymous Users') {
-  handleAnonymousUsers(releaseToVal, "");
-}
           showHideReleaseGroups();
-          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
