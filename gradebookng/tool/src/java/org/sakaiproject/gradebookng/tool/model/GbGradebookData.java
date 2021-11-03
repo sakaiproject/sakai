@@ -562,7 +562,7 @@ public class GbGradebookData {
 
 			// If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
-			if (userSettings.isGroupedByCategory() &&
+			if (userSettings.isGroupedByCategory() && (GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY) &&
 					a1.getCategoryId() != null &&
 					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
