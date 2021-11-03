@@ -112,7 +112,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     }
 
     if (e) {
-      this.dispatchEvent(new CustomEvent('update-comment', { detail: { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments }, bubbles: true, composed: true }));
+      this.dispatchEvent(this._getUpdateCommentEvent());
     }
     this.requestUpdate();
   }
@@ -129,10 +129,29 @@ export class SakaiRubricGradingComment extends RubricsElement {
       });
 
       commentEditor.on('change', () => this.criterion.comments = commentEditor.getData());
+      commentEditor.on('blur', () => {
+
+        // When we click away from the comment editor we need to save the comment
+        this.criterion.comments = commentEditor.getData();
+        this.dispatchEvent(this._getUpdateCommentEvent());
+        this.hideTooltip();
+      });
     } catch (error) {
       console.log(error);
     }
   }
+
+  _getUpdateCommentEvent() {
+
+        return new CustomEvent('update-comment', {
+          detail: {
+            evaluatedItemId: this.evaluatedItemId,
+            entityId: this.entityId,
+            criterionId: this.criterion.id,
+            value: this.criterion.comments
+          }, bubbles: true, composed: true });
+  }
 }
 
-customElements.define("sakai-rubric-grading-comment", SakaiRubricGradingComment);
+const tagName = "sakai-rubric-grading-comment";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricGradingComment);
