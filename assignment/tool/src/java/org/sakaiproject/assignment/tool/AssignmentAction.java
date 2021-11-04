@@ -2589,6 +2589,11 @@ public class AssignmentAction extends PagedResourceActionII {
            		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             }
 
+            Map<String, String> submissionProperties = submission.getProperties();
+            if (submissionProperties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
+                context.put("prevFeedbackComment", submissionProperties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
+            }
+
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
