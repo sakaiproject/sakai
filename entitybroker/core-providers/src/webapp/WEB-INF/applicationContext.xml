@@ -136,4 +136,12 @@
           parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
           class="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"/>
 
+    <bean id="org.sakaiproject.entitybroker.providers.IgniteEntityProvider"
+          parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.IgniteEntityProvider">
+
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+    </bean>
+
 </beans>
