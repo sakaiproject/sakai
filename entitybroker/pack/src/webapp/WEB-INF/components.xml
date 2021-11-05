@@ -177,15 +177,4 @@
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
     </bean>
 
-    <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
-        class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
-        init-method="init">
-        <property name="entityBrokerManager"
-            ref="org.sakaiproject.entitybroker.EntityBrokerManager" />
-        <property name="entityManager" 
-            ref="org.sakaiproject.entity.api.EntityManager" />
-        <property name="entityProviderManager"
-            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-    </bean>
-
 </beans>
