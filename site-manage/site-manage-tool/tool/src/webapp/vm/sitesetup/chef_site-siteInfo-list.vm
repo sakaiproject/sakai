@@ -381,7 +381,7 @@
 				<table class="table table-striped table-bordered table-hover">
 					<thead>
 						<tr>
-							<th>GROUP</th>
+							<th>$tlang.getString("group.title")</th>
 							#if ($!viewRoster)
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							#end
