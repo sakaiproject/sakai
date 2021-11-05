@@ -45,6 +45,7 @@ public class TopicTransferBean implements Entity {
     public String aboutReference;
     public String message;
     public long numberOfPosts;
+    public long numberOfThreads;
     public long numberOfUnreadPosts;
     public String creator;
     public Instant created;
@@ -60,9 +61,8 @@ public class TopicTransferBean implements Entity {
     public Map<Reaction, Boolean> myReactions = new HashMap<>();
     public Map<Reaction, Integer> reactionTotals = new HashMap<>();
     public Set<String> groups = new HashSet<>();
-    public String type;
-    public String visibility;
-    public int unread;
+    public String type = TopicType.QUESTION.name();
+    public String visibility = TopicVisibility.SITE.name();
     public boolean bookmarked;
     public boolean draft;
     public boolean anonymous;
@@ -80,6 +80,7 @@ public class TopicTransferBean implements Entity {
     public boolean isMine;
 
     public String url;
+    public String portalUrl;
     public String reference;
 
     public static TopicTransferBean of(Topic topic) {
@@ -118,6 +119,7 @@ public class TopicTransferBean implements Entity {
         topic.setTitle(this.title);
         topic.setAboutReference(this.aboutReference);
         topic.setMessage(this.message);
+        topic.setResolved(this.resolved);
 
         Metadata metadata = new Metadata();
         metadata.setCreator(this.creator);

@@ -28,14 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatus, Long>  implements PostStatusRepository {
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostStatus> findByUserId(String userId) {
 
         return (List<PostStatus>) sessionFactory.getCurrentSession().createCriteria(PostStatus.class)
             .add(Restrictions.eq("userId", userId)).list();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<PostStatus> findByPostIdAndUserId(String postId, String userId) {
 
         return Optional.ofNullable((PostStatus) sessionFactory.getCurrentSession().createCriteria(PostStatus.class)
@@ -44,7 +44,16 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
             .uniqueResult());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public List<PostStatus> findByPostIdAndUserIdNot(String postId, String userId) {
+
+        return (List<PostStatus>) sessionFactory.getCurrentSession().createCriteria(PostStatus.class)
+            .add(Restrictions.eq("postId", postId))
+            .add(Restrictions.ne("userId", userId))
+            .list();
+    }
+
+    @Transactional(readOnly = true)
     public List<PostStatus> findByTopicIdAndUserId(String topicId, String userId) {
 
         return (List<PostStatus>) sessionFactory.getCurrentSession().createCriteria(PostStatus.class)
@@ -53,7 +62,7 @@ public class PostStatusRepositoryImpl extends SpringCrudRepositoryImpl<PostStatu
             .list();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostStatus> findByTopicIdAndUserIdAndViewed(String topicId, String userId, Boolean viewed) {
 
         return (List<PostStatus>) sessionFactory.getCurrentSession().createCriteria(PostStatus.class)

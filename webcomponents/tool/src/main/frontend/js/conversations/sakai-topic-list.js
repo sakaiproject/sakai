@@ -156,11 +156,11 @@ export class SakaiTopicList extends SakaiElement {
           <div id="topic-list-filter-dunno">
             <select @change=${this.filterSelected} aria-label="Filter by various">
               <option value="none">${this.i18n.filter_none}</option>
-              <!--option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option-->
+              <option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option>
               <option value="${this.BY_RESOLVED_QUESTION}">${this.i18n.filter_answered}</option>
-              <!--option value="${this.BY_DISCUSSION}">${this.i18n.filter_discussions}</option-->
-              <!--option value="${this.BY_DISCUSSION_WITH_POSTS}">${this.i18n.filter_discussions_with_posts}</option-->
-              <option value="${this.BY_BOOKMARKED}"}>${this.i18n.filter_bookmarked}</option>
+              <option value="${this.BY_DISCUSSION}">${this.i18n.filter_discussions}</option>
+              <option value="${this.BY_DISCUSSION_WITH_POSTS}">${this.i18n.filter_discussions_with_posts}</option>
+              <option value="${this.BY_BOOKMARKED}">${this.i18n.filter_bookmarked}</option>
               <option value="${this.BY_MODERATED}">${this.i18n.filter_moderated}</option>
               <option value="${this.BY_UNVIEWED}">${this.i18n.filter_unviewed}</option>
             </select>

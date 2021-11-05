@@ -23,6 +23,7 @@ public enum Events {
     TOPIC_UPDATED("conversations.topic.deleted"),
     POST_CREATED("conversations.post.created"),
     POST_DELETED("conversations.post.updated"),
+    POST_RESTORED("conversations.post.restored"),
     POST_UPDATED("conversations.post.deleted"),
     REACTED_TO_TOPIC("conversations.topic.reacted"),
     UNREACTED_TO_TOPIC("conversations.topic.unreacted");

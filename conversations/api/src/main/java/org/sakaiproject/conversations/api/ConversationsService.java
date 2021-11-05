@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.conversations.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,21 +30,33 @@ import org.sakaiproject.conversations.api.beans.TopicTransferBean;
 import org.sakaiproject.conversations.api.model.ConvStatus;
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
+import org.sakaiproject.entity.api.Entity;
 
 public interface ConversationsService {
 
-    public static String SORT_NAME_ASCENDING = "nameAscending";
-    public static String SORT_NAME_DESCENDING = "nameDescending";
-    public static String SORT_TOPICS_CREATED_ASCENDING = "topicsCreatedAscending";
-    public static String SORT_TOPICS_CREATED_DESCENDING = "topicsCreatedDescending";
-    public static String SORT_TOPICS_VIEWED_ASCENDING = "topicsViewedAscending";
-    public static String SORT_TOPICS_VIEWED_DESCENDING = "topicsViewedDescending";
-    public static String SORT_POSTS_CREATED_ASCENDING = "postsCreatedAscending";
-    public static String SORT_POSTS_CREATED_DESCENDING = "postsCreatedDescending";
-    public static String SORT_REACTIONS_MADE_ASCENDING = "reactionsMadeAscending";
-    public static String SORT_REACTIONS_MADE_DESCENDING = "reactionsMadeDescending";
+    public static final String TOOL_ID = "sakai.conversations";
+    public static final String REFERENCE_ROOT = Entity.SEPARATOR + "conversations";
+
+    public static final String SORT_NAME_ASCENDING = "nameAscending";
+    public static final String SORT_NAME_DESCENDING = "nameDescending";
+    public static final String SORT_TOPICS_CREATED_ASCENDING = "topicsCreatedAscending";
+    public static final String SORT_TOPICS_CREATED_DESCENDING = "topicsCreatedDescending";
+    public static final String SORT_TOPICS_VIEWED_ASCENDING = "topicsViewedAscending";
+    public static final String SORT_TOPICS_VIEWED_DESCENDING = "topicsViewedDescending";
+    public static final String SORT_POSTS_CREATED_ASCENDING = "postsCreatedAscending";
+    public static final String SORT_POSTS_CREATED_DESCENDING = "postsCreatedDescending";
+    public static final String SORT_REACTIONS_MADE_ASCENDING = "reactionsMadeAscending";
+    public static final String SORT_REACTIONS_MADE_DESCENDING = "reactionsMadeDescending";
+
+    public static final String PROP_THREADS_PAGE_SIZE = "conversations.threads.page.size";
+    public static final String PROP_MAX_THREAD_DEPTH = "conversations.max.thread.depth";
+    public static final String PROP_DISABLE_DISCUSSIONS = "conversations.disable.discussions";
+
+    public static final String STATS_CACHE_NAME = "conversationsSortedStatsCache";
+    public static final String POSTS_CACHE_NAME = "conversationsPostsCache";
 
     List<TopicTransferBean> getTopicsForSite(String siteId) throws ConversationsPermissionsException;
+    Optional<String> getTopicPortalUrl(String topicId);
     TopicTransferBean saveTopic(TopicTransferBean topicBean) throws ConversationsPermissionsException;
     boolean deleteTopic(String topicId) throws ConversationsPermissionsException;
     void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException;
@@ -53,13 +66,14 @@ public interface ConversationsService {
     Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
 
     PostTransferBean savePost(PostTransferBean postBean) throws ConversationsPermissionsException;
-    List<PostTransferBean> getPostsByTopicId(String siteId, String topicId) throws ConversationsPermissionsException;
-    boolean deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException;
+    int getNumberOfThreadPages(String siteId, String topicId) throws ConversationsPermissionsException;
+    Collection<PostTransferBean> getPostsByTopicId(String siteId, String topicId, Integer page, PostSort sort, String requestedPostId) throws ConversationsPermissionsException;
+    void deletePost(String siteId, String topicId, String postId, boolean setTopicResolved) throws ConversationsPermissionsException;
     PostTransferBean upvotePost(String siteId, String topicId, String postId) throws ConversationsPermissionsException;
     PostTransferBean unUpvotePost(String siteId, String postId) throws ConversationsPermissionsException;
     PostTransferBean lockPost(String siteId, String topicId, String postId, boolean locked) throws ConversationsPermissionsException;
-    void hidePost(String postId, boolean hidden, String siteId) throws ConversationsPermissionsException;
-    Map<Reaction, Integer> savePostReactions(String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
+    PostTransferBean hidePost(String siteId, String topicId, String postId, boolean hiddn) throws ConversationsPermissionsException;
+    Map<Reaction, Integer> savePostReactions(String topicId, String postId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
     void markPostsViewed(Set<String> postIds, String topicId) throws ConversationsPermissionsException;
 
     CommentTransferBean saveComment(CommentTransferBean commentBean) throws ConversationsPermissionsException;

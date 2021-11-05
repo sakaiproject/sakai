@@ -35,6 +35,7 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.repository.CommentRepository;
 import org.sakaiproject.conversations.impl.repository.CommentRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.PostRepository;
@@ -49,12 +50,16 @@ import org.sakaiproject.conversations.api.repository.TopicRepository;
 import org.sakaiproject.conversations.impl.repository.TopicRepositoryImpl;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.conversations.impl.repository.TopicStatusRepositoryImpl;
+import org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -218,6 +223,11 @@ public class ConversationsTestConfiguration {
         return mock(MemoryService.class);
     }
 
+    @Bean(name = "org.sakaiproject.site.api.SiteService")
+    public SiteService siteService() {
+        return mock(SiteService.class);
+    }
+
     @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
     public UserDirectoryService userDirectoryService() {
         return mock(UserDirectoryService.class);
@@ -226,5 +236,20 @@ public class ConversationsTestConfiguration {
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return mock(UserTimeService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
+    public UserMessagingService userMessagingService() {
+        return mock(UserMessagingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    public ServerConfigurationService serverConfigurationService() {
+        return mock(ServerConfigurationService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")
+    public UserNotificationPreferencesRegistration userNotificationPreferencesRegistration() {
+        return mock(ConversationsNotificationPreferencesRegistrationImpl.class);
     }
 }

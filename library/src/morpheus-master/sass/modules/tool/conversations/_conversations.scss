@@ -69,14 +69,17 @@
     height: 60px;
   }
 
-  #conv-back-button-block > div {
+  #conv-back-button-block > a {
     display: flex;
     align-items: center;
-    margin-left: 20px;
-  }
 
-  #conv-back-button-block > div > div:nth-child(2) {
-    margin-left: 8px;
+    &.left-aligned {
+      margin-left: 0;
+    }
+
+    div:nth-child(2) {
+      margin-left: 10px;
+    }
   }
 
   #conv-back-button-block a {

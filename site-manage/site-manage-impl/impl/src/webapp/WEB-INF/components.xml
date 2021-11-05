@@ -143,6 +143,7 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+        <property name="conversationsService" ref="org.sakaiproject.conversations.api.ConversationsService" />
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"

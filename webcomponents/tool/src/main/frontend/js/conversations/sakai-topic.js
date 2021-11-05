@@ -2,11 +2,11 @@ import { html } from "../assets/lit-element/lit-element.js";
 import { unsafeHTML } from "../assets/lit-html/directives/unsafe-html.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-user-photo.js";
-import { findPost, getPostsForTopic } from "./utils.js";
+import { findPost, markThreadViewed } from "./utils.js";
 import { reactionsMixin } from "./reactions-mixin.js";
 import "../sakai-editor.js";
 import "./sakai-post.js";
-import { GROUP, INSTRUCTORS, QUESTION } from "./sakai-conversations-constants.js";
+import { GROUP, INSTRUCTORS, DISCUSSION, QUESTION, SORT_OLDEST, SORT_NEWEST, SORT_ASC_CREATOR, SORT_DESC_CREATOR, SORT_MOST_ACTIVE, SORT_LEAST_ACTIVE } from "./sakai-conversations-constants.js";
 import "../sakai-icon.js";
 import "./options-menu.js";
 
@@ -16,11 +16,14 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
     return {
       topic: { type: Object },
+      postId: { attribute: "post-id", type: String },
       creatingPost: Boolean,
       isInstructor: { attribute: "is-instructor", type: Boolean },
       canViewAnonymous: { attribute: "can-view-anonymous", type: Boolean },
+      canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
       replyEditorDisplayed: { type: Array },
       postEditorDisplayed: { type: Boolean },
+      replying: { type: Boolean },
     };
   }
 
@@ -29,6 +32,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     super();
 
     this.replyEditorDisplayed = [];
+
+    this.sort = SORT_OLDEST;
 
     const options = {
       root: null,
@@ -53,7 +58,6 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           if (r.ok) {
             // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
             postIds.forEach(postId => observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target));
-            this.requestUpdate();
           } else {
             throw new Error("Network error while marking posts as viewed");
           }
@@ -70,32 +74,56 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
   set topic(value) {
 
     this._topic = value;
+
     this.postEditorDisplayed = false;
+
     this.myReactions = value.myReactions || {};
-    if (value.posts) {
-      value.posts.sort((p1, p2) => {
-        if (p1.isInstructor && p2.isInstructor) return 0;
-        if (p1.isInstructor && !p2.isInstructor) return -1;
-        return 1;
-      });
-    }
 
-    this.requestUpdate();
+    const sortAndUpdate = () => {
 
-    if (value.posts) {
+      if (this.topic.type === QUESTION) {
+        this.topic.posts.sort((p1, p2) => {
+
+          if (p1.isInstructor && p2.isInstructor) return 0;
+          if (p1.isInstructor && !p2.isInstructor) return -1;
+          return 1;
+        });
+      }
+
+      this.page = 0;
+
+      if (this.postId) {
+        const post = findPost(this.topic, { postId: this.postId });
+        if (post.parentThread) {
+          const thread = findPost(this.topic, { postId: post.parentThread });
+          thread.keepExpanded = true;
+        }
+      }
+
+      this.requestUpdate();
 
       this.updateComplete.then(() => {
 
+        if (this.postId) {
+          const el = this.querySelector(`#post-${this.postId}`);
+          el && (el.scrollIntoView());
+        }
+
         // We have to use a timeout for this to satisfy Safari. updateComplete does not fulfil after
         // the full render has happened on Safari, so the elements may well not be there.
-        setTimeout(() => {
-
-          value.posts.filter(p => !p.viewed).forEach(p => {
-            this.observer.observe(document.getElementById(`post-${p.id}`));
-          });
-        }, 100);
-
+        setTimeout(() => { this.registerPosts(this.topic.posts); }, 100);
       });
+    };
+
+    if (!this.topic.posts) {
+      this.getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
+
+        this.topic.posts = posts;
+        sortAndUpdate();
+        this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic, dontUpdateCurrent: true }, bubbles: true }));
+      });
+    } else {
+      sortAndUpdate();
     }
   }
 
@@ -140,7 +168,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       replyable: true,
     };
 
-    const url = this.topic.links.find(l => l.rel === "post").href;
+    const url = this.topic.links.find(l => l.rel === "posts").href;
     fetch(url, {
       method: "POST",
       credentials: "include",
@@ -163,10 +191,15 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       this.topic.numberOfPosts +=1;
       this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
       this.postEditorDisplayed = false;
+      this.replying = false;
+
+      this.updateComplete.then(() => {
+
+        const el = this.querySelector(`#post-${post.id}`);
+        el && (el.scrollIntoView());
+      });
     })
-    .catch (error => {
-      console.error(error);
-    });
+    .catch (error => console.error(error));
   }
 
   editTopic(e) {
@@ -246,7 +279,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     .then(topic => {
 
       topic.selected = true;
-      getPostsForTopic(topic).then(posts => {
+      this.getPosts(topic).then(posts => {
 
         topic.posts = posts;
         this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic }, bubbles: true }));
@@ -329,8 +362,24 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
     const post = findPost(this.topic, { postId: e.detail.post.id });
     post && (Object.assign(post, e.detail.post));
-    const verifiedCount = findPost(this.topic, { isInstructor: true });
-    this.topic.resolved = verifiedCount > 0;
+    console.log(post);
+
+    if (post.isThread) {
+      post.keepExpanded = true;
+    }
+
+    if (post.parentThread) {
+      const thread = findPost(this.topic, { postId: post.parentThread });
+      thread.keepExpanded = true;
+      if (e.detail.created) {
+        thread.numberOfThreadReplies += 1;
+      }
+    }
+
+    if (this.topic.type === QUESTION) {
+      const numberOfInstructorPosts = findPost(this.topic, { isInstructor: true });
+      this.topic.resolved = numberOfInstructorPosts  > 0;
+    }
 
     this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
   }
@@ -339,12 +388,109 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
     e.stopPropagation();
 
-    const index = this.topic.posts.findIndex(p => p.id === e.detail.post.id);
-    this.topic.posts.splice(index, 1);
+    let index = this.topic.posts.findIndex(p => p.id === e.detail.post.id);
+    if (index !== -1) {
+      // This is a thread post, a direct reply to the topic.
+      this.topic.posts.splice(index, 1);
+    } else {
+      // This is a reply to a post, so it has a parent
+      const parentPost = findPost(this.topic, { postId: e.detail.post.parentPost });
+      index = parentPost.posts.findIndex(p => p.id === e.detail.post.id);
+      parentPost.posts.splice(index, 1);
+
+      // Update the read status of the top level thread
+      const thread = findPost(this.topic, { postId: e.detail.post.parentThread });
+      thread && (markThreadViewed(thread));
+      thread && (thread.numberOfThreadReplies -= 1);
+    }
+
     this.topic.numberOfPosts = this.topic.numberOfPosts <= 0 ? 0 : this.topic.numberOfPosts - 1;
-    const verifiedCount = findPost(this.topic, { verified: true });
-    this.topic.resolved = verifiedCount > 0;
+
     this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
+  }
+
+  continueThread(e) {
+
+    e.detail.post.continued = true;
+    const thread = findPost(this.topic, { postId: e.detail.post.parentThread });
+    thread.keepExpanded = true;
+    if (!this.topic.allPosts) {
+      this.topic.allPosts = [...this.topic.posts];
+    }
+    this.topic.posts = [e.detail.post];
+    this.topic.continued = true;
+    this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
+    this.updateComplete.then(() => {
+
+      const el = this.querySelector(`#post-${e.detail.post.id}`);
+      el && (el.scrollIntoView());
+    });
+  }
+
+  viewAllPosts() {
+
+    this.topic.posts = [...this.topic.allPosts];
+    this.topic.allPosts = undefined;
+    this.topic.continued = false;
+    this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
+  }
+
+  registerPosts(posts) {
+
+    posts.forEach(p => {
+
+      if (!p.viewed) {
+        this.observer.observe(this.querySelector(`#post-${p.id}`));
+      }
+
+      if (p.posts) {
+        this.registerPosts(p.posts);
+      }
+    });
+  }
+
+  getMoreReplies() {
+
+    this.page += 1;
+
+    this.getPosts(this.topic, this.page, this.sort).then(posts => {
+
+      this.topic.posts = this.topic.posts.concat(posts);
+      this.requestUpdate();
+      this.updateComplete.then(() => {
+        setTimeout(() => { this.registerPosts(posts); }, 100);
+      });
+
+    });
+  }
+
+  postSortSelected(e) {
+
+    this.sort = e.target.value;
+    this.page = 0;
+
+    this.getPosts(this.topic, this.page, this.sort).then(posts => {
+
+      this.topic.posts = posts;
+      this.requestUpdate();
+    });
+  }
+
+  getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
+
+    const url = `${topic.links.find(l => l.rel === "posts").href}?page=${page}&sort=${sort}${
+       postId ? `&postId=${postId}` : ""}`;
+
+    return fetch(url, { credentials: "include" })
+    .then(r => {
+
+      if (!r.ok) {
+        throw new Error(`Network error while retrieving  posts for topic ${topic.id}`);
+      } else {
+        return r.json();
+      }
+    })
+    .catch(error => console.error(error));
   }
 
   updated() {
@@ -358,11 +504,14 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
     return html`
       <div class="conv-post-editor-wrapper">
-        <div class="topic-add-post-prompt">${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.post_to_this_topic}</div>
-        <sakai-editor id="topic-${this.topic.id}-post-editor"></sakai-editor>
+        <div class="conv-post-editor-header">
+          <span>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</span>
+          <span>${this.topic.title}</span>
+        </div>
+        <sakai-editor id="topic-${this.topic.id}-post-editor" set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
-            <input type="checkbox" @click=${e => this.privatePost = e.target.checked}>${this.i18n.private_reply}
+            <input type="checkbox" @click=${e => this.privatePost = e.target.checked}>${this.i18n.private_topic_reply}
           </label>
         </div>
         ${this.topic.allowAnonymousPosts ? html`
@@ -375,7 +524,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         <div class="act">
           <input type="button" class="active" @click=${this.publishPost} value="${this.i18n.publish}">
           <input type="button" @click=${this.savePostAsDraft} value="${this.i18n.save_as_draft}">
-          <input type="button" @click=${() => this.postEditorDisplayed = false} value="${this.i18n.cancel}">
+          <input type="button" @click=${() => this.replying = false} value="${this.i18n.cancel}">
         </div>
       </div>
     `;
@@ -386,13 +535,13 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     return html`
       <div class="topic">
         ${this.topic.draft ? html`
-        <div class="sak-banner-warn">This topic is a draft.</div>
+        <div class="sak-banner-warn">${this.i18n.draft_warning}</div>
         ` : ""}
         ${this.topic.hidden ? html`
         <div class="sak-banner-warn">${this.i18n.topic_hidden}</div>
         ` : ""}
         ${this.topic.locked ? html`
-        <div class="sak-banner-warn">${this.i18n.topic_locked}</div>
+        <div class="sak-banner-warn">${this.topic.canModerate ? this.i18n.moderator_topic_locked : this.i18n.topic_locked}</div>
         ` : ""}
         ${this.topic.visibility === INSTRUCTORS ? html`
         <div class="sak-banner-warn">${this.i18n.topic_instructors_only_tooltip}</div>
@@ -544,8 +693,8 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
           ${this.topic.type === QUESTION ? html`
           <div>
             <div class="topic-option
-                  ${this.topic.myReactions.GOOD_QUESTION ? "good-question-on" : ""}
-                  ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? "reaction-on" : ""}"
+                ${this.topic.myReactions.GOOD_QUESTION ? "good-question-on" : ""}
+                ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? "reaction-on" : ""}"
             >
               ${this.topic.isMine && this.topic.reactionTotals.GOOD_QUESTION > 0 ? html`
                 <div><sakai-icon type="thumbs-up" size="small"></sakai-icon></div>
@@ -566,84 +715,111 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
               </div>
               ` : ""}
             </div>
-          <div>
+          </div>
           ` : ""}
           ${this.topic.canReact ? html`
           <div>
-          <div class="topic-option">
-            <options-menu placement="bottom">
-              <div class="topic-option" slot="trigger">
-                <div><sakai-icon type="smile" size="small"></sakai-icon></div>
-                <div id="my-reactions-link-${this.topic.id}">
-                  <a href="javascript:;"
-                      @click=${() => this.showingMyReactions = !this.showingMyReactions}
-                      aria-label="${this.i18n.reactions_tooltip}"
-                      aria-haspopup="true"
-                      title="${this.i18n.reactions_tooltip}">
-                    ${this.i18n.add_a_reaction}
-                  </a>
+            <div class="topic-option">
+              <options-menu placement="bottom">
+                <div class="topic-option" slot="trigger">
+                  <div><sakai-icon type="smile" size="small"></sakai-icon></div>
+                  <div id="my-reactions-link-${this.topic.id}">
+                    <a href="javascript:;"
+                        @click=${() => this.showingMyReactions = !this.showingMyReactions}
+                        aria-label="${this.i18n.reactions_tooltip}"
+                        aria-haspopup="true"
+                        title="${this.i18n.reactions_tooltip}">
+                      ${this.i18n.add_a_reaction}
+                    </a>
+                  </div>
                 </div>
-              </div>
-              <div slot="content">
-                <div class="topic-reactions-popup" role="dialog">
-                  ${this.renderMyReactions(this.topic.myReactions)}
+                <div slot="content">
+                  <div class="topic-reactions-popup" role="dialog">
+                    ${this.renderMyReactions(this.topic.myReactions)}
+                  </div>
                 </div>
-              </div>
-            </options-menu>
-          </div>
-          </div>
+              </options-menu>
+            </div>
+          <div>
           ` : ""}
-          <div class="topic-option">
+          <div>
+            <div class="topic-option">
+            </div>
           </div>
         </div>
         ${this.renderReactionsBar(this.topic.reactionTotals)}
+        <hr>
+        ${!this.topic.continued ? html`
+        <div class="topic-reply-block ${!this.replying ? "padded" : ""}">
+            ${this.replying ? html`
+              ${this.renderPostEditor()}
+            ` : html`
+            <a href="javascript:;" @click=${() => this.replying = true}>
+              <div class="placeholder">
+                <div><sakai-user-photo user-id="${window.top.portal.user.id}"></sakai-user-photo></div>
+                <div>${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.reply_to}</div>
+                <div>${this.topic.title}</div>
+              </div>
+            </a>
+            `}
+          </div>
+        </div>
+        ` : ""}
         ${this.topic.posts && this.topic.posts.length > 0 ? html `
           <div class="topic-posts-block">
-            ${this.topic.type === QUESTION ? html`
-            <div class="topic-posts-header">ANSWERS</div>
+            ${!this.topic.continued ? html`
+            <div class="topic-posts-header">
+              <div>${this.topic.type === QUESTION ? this.i18n.answers : this.i18n.responses}</div>
+              ${this.topic.type === DISCUSSION ? html`
+              <div>
+                <select @change=${this.postSortSelected}>
+                  <option value="${SORT_OLDEST}">oldest</option>
+                  <option value="${SORT_NEWEST}">most recent</option>
+                  <option value="${SORT_ASC_CREATOR}">ascending author</option>
+                  <option value="${SORT_DESC_CREATOR}">descending author</option>
+                  <option value="${SORT_MOST_ACTIVE}">most active</option>
+                  <option value="${SORT_LEAST_ACTIVE}">least active</option>
+                </select>
+              </div>
+              ` : ""}
+            </div>
             ` : ""}
-            ${this.topic.posts.map(r => html`
-              ${r.canView ? html`
+
+            ${this.topic.continued ? html`
+            <div id="conv-back-button-block">
+              <a href="javascript:;" @click=${this.viewAllPosts}>
+                <div><sakai-icon type="left-arrow"></sakai-icon></div>
+                <div>${this.i18n.back_to_all}</div>
+              </a>
+            </div>
+            ` : ""}
+            ${this.topic.posts.map(p => html`
+              ${p.canView ? html`
               <sakai-post
-                  post="${JSON.stringify(r)}"
+                  post="${JSON.stringify(p)}"
+                  postType="${this.topic.type}"
                   ?is-instructor="${this.isInstructor}"
                   ?can-view-anonymous="${this.canViewAnonymous}"
+                  ?can-view-deleted="${this.canViewDeleted}"
                   site-id="${this.topic.siteId}"
                   @post-updated=${this.postUpdated}
                   @post-deleted=${this.postDeleted}
+                  @continue-thread=${this.continueThread}
                   @comment-deleted=${this.commentDeleted}></sakai-post>
               ` : ""}
             `)}
+          ${this.topic.numberOfThreads > this.topic.posts.length && !this.topic.continued ? html`
+          <div class="topic-more-replies-block">
+            <a href="javascript:;" @click=${this.getMoreReplies}>${this.topic.type === QUESTION ? this.i18n.more_answers : this.i18n.more_replies}</a>
           </div>
-          ${this.postEditorDisplayed ? this.renderPostEditor() : html`
-            ${this.topic.canPost ? html`
-            <div class="act">
-              <input
-                type="button"
-                class="active"
-                @click=${() => this.postEditorDisplayed = true}
-                value="${this.topic.type === QUESTION ? this.i18n.add_an_answer : this.i18n.add_a_post}">
-            </div>
-            ` : ""}
-          `}
+          ` : ""}
+          </div>
         ` : html`
           ${this.postEditorDisplayed ? html`
           <div>
             ${this.renderPostEditor()}
           </div>
           ` : html`
-          <div class="topic-no-replies-block">
-            <div class="topic-no-replies-message">
-              ${this.topic.type === QUESTION ? this.i18n.no_answers_yet : this.i18n.no_posts_yet}
-            </div>
-            ${this.topic.canPost ? html`
-            <a href="javascript:;" @click=${() => this.postEditorDisplayed = true}>
-              <div class="topic-reply-button-block">
-                ${this.topic.type === QUESTION ? this.i18n.answer_this_question : this.i18n.post_to_this_topic}
-              </div>
-            </a>
-            ` : ""}
-          </div>
           `}
         `}
       `}
@@ -652,6 +828,5 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
   }
 }
 
-if (!customElements.get("sakai-topic")) {
-  customElements.define("sakai-topic", SakaiTopic);
-}
+const tagName = "sakai-topic";
+!customElements.get(tagName) && customElements.define(tagName, SakaiTopic);

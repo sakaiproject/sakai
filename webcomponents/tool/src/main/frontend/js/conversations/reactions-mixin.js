@@ -41,7 +41,7 @@ export const reactionsMixin = Base => class extends Base {
     };
 
     return html`
-      <div class="topic-message-reactions-bar">
+      <div class="topic-message-reactions-bar" tabindex="0">
       ${Object.entries(reactionTotals).map(pair => html`
         ${pair[0] !== "GOOD_QUESTION" && pair[0] !== "GOOD_ANSWER"  && pair[0] !== "GOOD_COMMENT" && pair[1] > 0 ? html`
         <div class="topic-reaction">

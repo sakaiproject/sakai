@@ -90,6 +90,10 @@
     <bean id="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository"
         class="org.sakaiproject.conversations.impl.repository.PostReactionTotalRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+      </bean>
+
+    <bean id="org.sakaiproject.conversations.impl.ConversationsEntityProducer"
+        class="org.sakaiproject.conversations.impl.ConversationsEntityProducer">
     </bean>
 
     <bean id="org.sakaiproject.conversations.api.ConversationsService"
@@ -107,8 +111,10 @@
         <property name="postReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.PostReactionTotalRepository"/>
         <property name="postStatusRepository" ref="org.sakaiproject.conversations.api.repository.PostStatusRepository"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="settingsRepository" ref="org.sakaiproject.conversations.api.repository.SettingsRepository"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager"/>
         <property name="tagRepository" ref="org.sakaiproject.conversations.api.repository.TagRepository"/>
         <property name="topicRepository" ref="org.sakaiproject.conversations.api.repository.TopicRepository"/>
@@ -116,7 +122,30 @@
         <property name="topicReactionTotalRepository" ref="org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository"/>
         <property name="topicStatusRepository" ref="org.sakaiproject.conversations.api.repository.TopicStatusRepository"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userMessagingService" ref="org.sakaiproject.messaging.api.UserMessagingService"/>
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.conversations"
+          parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
+          class="org.sakaiproject.conversations.impl.notificationprefs.ConversationsNotificationPreferencesRegistrationImpl"
+          init-method="init">
+        <property name="bundleLocation"><value>conversations_noti_prefs</value></property>
+        <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
+        <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>
+        <property name="overrideSectionTitleBundleKey"><value>prefs_title_override</value></property>
+        <property name="defaultValue"><value>3</value></property>
+        <property name="type"><value>sakai:conversations</value></property>
+        <property name="prefix"><value>conversations</value></property>
+        <property name="toolId"><value>sakai.conversations</value></property>
+        <property name="rawOptions">
+            <map>
+                <entry key="1"><value>prefs_opt1</value></entry>
+                <entry key="3"><value>prefs_opt2</value></entry>
+            </map>
+        </property>
+        <property name="overrideBySite"><value>true</value></property>
+        <property name="expandByDefault"><value>true</value></property>
     </bean>
 
 </beans>

@@ -15,6 +15,7 @@ export class SakaiAddTopic extends SakaiElement {
       tags: { attribute: "tags", type: Array },
       canPin: { attribute: "can-pin", type: Boolean },
       canAnonPost: { attribute: "can-anon", type: Boolean },
+      disableDiscussions: { attribute: "disable-discussions", type: Boolean },
       canEditTags: { attribute: "can-edit-tags", type: Boolean },
       topic: { type: Object },
       titleError: { attribute: false, type: Boolean },
@@ -99,9 +100,7 @@ export class SakaiAddTopic extends SakaiElement {
       Object.assign(this.topic, topic);
       this.dispatchEvent(new CustomEvent("topic-saved", { detail: { topic: this.topic }, bubbles: true }));
     })
-    .catch (error => {
-      console.error(error);
-    });
+    .catch (error => console.error(error));
   }
 
   updateMessage(e) {
@@ -208,7 +207,8 @@ export class SakaiAddTopic extends SakaiElement {
       <div class="add-topic-wrapper">
         <h1>${this.new ? this.i18n.add_a_new_topic : this.i18n.edit_topic}</h1>
 
-        <!--div class="add-topic-block">
+        ${this.disableDiscussions ? "" : html`
+        <div class="add-topic-block">
           <div id="post-type-label" class="add-topic-label">${this.i18n.topic_type}</div>
           <div id="topic-type-toggle-block">
             <div @click=${this.setType}
@@ -224,7 +224,8 @@ export class SakaiAddTopic extends SakaiElement {
               <div>${this.i18n.type_discussion}</div>
             </div>
           </div>
-        </div-->
+        </div>
+        `}
 
         <div class="add-topic-block">
           <div id="summary-label" class="add-topic-label">${this.i18n.summary} *</div>
