@@ -17,7 +17,10 @@ package org.sakaiproject.conversations.impl.repository;
 
 import java.util.Optional;
 
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.Session;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.repository.SettingsRepository;
@@ -30,8 +33,12 @@ public class SettingsRepositoryImpl extends SpringCrudRepositoryImpl<Settings, L
     @Transactional
     public Optional<Settings> findBySiteId(String siteId) {
 
-        return Optional.ofNullable((Settings) sessionFactory.getCurrentSession().createCriteria(Settings.class)
-            .add(Restrictions.eq("siteId", siteId))
-            .uniqueResult());
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Settings> query = cb.createQuery(Settings.class);
+        query.where(cb.equal(query.from(Settings.class).get("siteId"), siteId));
+
+        return session.createQuery(query).uniqueResultOptional();
     }
 }

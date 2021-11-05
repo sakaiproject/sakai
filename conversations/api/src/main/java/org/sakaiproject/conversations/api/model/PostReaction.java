@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -45,9 +43,8 @@ public class PostReaction implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "POST_ID", nullable = false)
-    private Post post;
+    @Column(name = "POST_ID", nullable = false)
+    private String postId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;

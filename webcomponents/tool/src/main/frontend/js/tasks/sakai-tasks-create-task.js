@@ -317,13 +317,13 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         <div id="create-task-block">
           <div>
             <input type="radio"
-                 id="task-current-user"
-                 name="deliver-task"
-                 title="${this.i18n.deliver_my_dashboard}"
-                 value="user"
-                 @click=${() => this.assignationType = 'user'}
-                 ?checked=${this.assignationType === 'user'} >
-             <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
+                id="task-current-user"
+                name="deliver-task"
+                title="${this.i18n.deliver_my_dashboard}"
+                value="user"
+                @click=${() => this.assignationType = 'user'}
+                ?checked=${this.assignationType === 'user'} >
+            <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
           </div>
           <div>
             <input type="radio"
@@ -337,12 +337,12 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           </div>
           <div style="display:${this.existGroups() ? 'inline' : 'none'}">
             <input type="radio"
-                id="task-groups"
-                name="deliver-task"
-                title="${this.i18n.deliver_group}"
-                value="group"
-                @click=${() => this.assignationType = 'group'}
-                ?checked=${this.assignationType === 'group'}>
+               id="task-groups"
+               name="deliver-task"
+               title="${this.i18n.deliver_group}"
+               value="group"
+               @click=${() => this.assignationType = 'group'}
+               ?checked=${this.assignationType === 'group'}>
             <label for="task-groups">${this.i18n.deliver_group}</label>
           </div>
           <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">

@@ -24,8 +24,9 @@
     <alias name="org.sakaiproject.search.elasticsearch.ElasticSearchService" alias="org.sakaiproject.search.api.SearchService" />
     
     <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
-          class="org.sakaiproject.search.elasticsearch.SiteElasticSearchIndexBuilder"
-          destroy-method="destroy">
+            class="org.sakaiproject.search.elasticsearch.SiteElasticSearchIndexBuilder"
+            init-method="init"
+            destroy-method="destroy">
         <!-- No internal defaulting on indexName nor name b/c we really cannot have multiple index builders falling
         back to the same values in either of those fields. But there is such a thing as a historical default at least
         for indexName, and some functionality is potentially keyed off the default builder name, so we keep those two

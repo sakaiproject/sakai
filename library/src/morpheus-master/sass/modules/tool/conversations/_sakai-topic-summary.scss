@@ -1,20 +1,33 @@
 .#{$namespace}sakai-conversations {
 
   .topic-summary-link {
-    text-decoration: none;
+    display: block;
     color: inherit;
+    /*&:focus {
+        outline: solid;
+    }*/
   }
 
   .topic-summary {
     display: grid;
     width: 100%;
-    grid-template-columns: 25px 1fr 50px;
+    grid-template-columns: 25px 1fr 70px;
     grid-gap: 6px;
     padding: 8px;
     justify-content: space-around;
     align-items: center;
     border: 1px solid #E0E0E0;
     border-radius: 4px;
+
+    .topic-summary-duedate {
+      font-style: italic;
+      font-weight: 400;
+      font-size: 12px;
+      color: #666666;
+      > span:first-child {
+        margin-right: 5px;
+      }
+    }
   }
 
   .topic-summary .topic-status {
@@ -87,7 +100,8 @@
 
   .topic-summary > div:nth-child(3n) {
     display: flex;
-    justify-content: center;
+    //justify-content: center;
+    justify-content: end;
   }
 
   .type-and-read-icons > div {
@@ -113,8 +127,8 @@
     }
   }
 
-  .post-numbers {
-      white-space: nowrap;
+  .post-numbers span:nth-child(2) {
+    white-space: nowrap;
   }
 
   .post-number {
@@ -134,6 +148,16 @@
   }
   .selected * {
     color: #666666;
+  }
+
+  .selected {
+    .discussion-icon {
+      color: #FFFFFF;
+    }
+
+    .question-icon {
+      color: #D97008;
+    }
   }
 
   @media (max-width: 1200px) {

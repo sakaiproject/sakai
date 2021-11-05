@@ -42,6 +42,10 @@
       <artifactId>search-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.sitestats</groupId>
       <artifactId>sitestats-api</artifactId>
     </dependency>
@@ -70,6 +74,10 @@
       <artifactId>spring-tx</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
     </dependency>
@@ -92,6 +100,12 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>${sakai.elasticsearch.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

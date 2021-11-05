@@ -37,7 +37,7 @@ import lombok.Setter;
 @Configuration
 @EnableWebMvc
 @ComponentScan("org.sakaiproject.conversations")
-public class WebMvcConfiguration implements ApplicationContextAware, WebMvcConfigurer {
+public class ConversationsWebMvcConfiguration implements ApplicationContextAware, WebMvcConfigurer {
 
     private static final String UTF8 = "UTF-8";
 

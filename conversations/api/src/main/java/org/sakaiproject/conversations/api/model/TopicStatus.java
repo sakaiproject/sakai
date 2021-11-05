@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -57,6 +55,9 @@ public class TopicStatus implements PersistableEntity<Long> {
 
     @Column(name = "UNREAD")
     private Integer unread = 0;
+
+    @Column(name = "POSTED")
+    private Boolean posted = Boolean.FALSE;
 
     @Column(name = "VIEWED")
     private Boolean viewed = Boolean.FALSE;

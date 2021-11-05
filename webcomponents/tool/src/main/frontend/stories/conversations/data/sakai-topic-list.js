@@ -24,8 +24,9 @@ export const topicListData = `
       { "href": "/api/sites/playpen/topics/topic2/pinned", "rel": "pin" },
       { "href": "/api/sites/playpen/topics/topic2/bookmarked", "rel": "bookmark" },
       { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "react" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "hide" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "lock" }
+      { "href": "/api/sites/playpen/topics/topic2/hide", "rel": "hide" },
+      { "href": "/api/sites/playpen/topics/topic2/posts", "rel": "posts" },
+      { "href": "/api/sites/playpen/topics/topic2/lock", "rel": "lock" }
     ],
     "myReactions": {
       "LOVE_IT": true,
@@ -80,11 +81,12 @@ export const topicListData = `
     "canModerate": true,
     "canReact": true,
     "links": [
-      { "href": "/api/sites/playpen/topics/topic2/pinned", "rel": "pin" },
-      { "href": "/api/sites/playpen/topics/topic2/bookmarked", "rel": "bookmark" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "react" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "hide" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "lock" }
+      { "href": "/api/sites/playpen/topics/topic3/pinned", "rel": "pin" },
+      { "href": "/api/sites/playpen/topics/topic3/bookmarked", "rel": "bookmark" },
+      { "href": "/api/sites/playpen/topics/topic3/reactions", "rel": "react" },
+      { "href": "/api/sites/playpen/topics/topic3/hide", "rel": "hide" },
+      { "href": "/api/sites/playpen/topics/topic3/lock", "rel": "lock" },
+      { "href": "/api/sites/playpen/topics/topic3/posts", "rel": "posts" }
     ],
     "myReactions": {
       "LOVE_IT": true,
@@ -135,8 +137,9 @@ export const topicListData = `
       { "href": "/api/sites/playpen/topics/topic2/pinned", "rel": "pin" },
       { "href": "/api/sites/playpen/topics/topic2/bookmarked", "rel": "bookmark" },
       { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "react" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "hide" },
-      { "href": "/api/sites/playpen/topics/topic2/reactions", "rel": "lock" }
+      { "href": "/api/sites/playpen/topics/topic2/hide", "rel": "hide" },
+      { "href": "/api/sites/playpen/topics/topic2/lock", "rel": "lock" },
+      { "href": "/api/sites/playpen/topics/topic2/posts", "rel": "posts" }
     ],
     "myReactions": {
       "LOVE_IT": true,

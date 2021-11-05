@@ -1,12 +1,15 @@
-export const findPost = (topic, options) => {
+const flattenPosts = startPosts => {
 
-  const transformAll = (postable) => {
-
-    if (!postable.posts) postable.posts = [];
-    return postable.posts.flatMap(r => [ r, ...transformAll(r) ]);
+  const flattenAll = (posts = []) => {
+    return posts.flatMap(p => [ p, ...flattenPosts(p.posts) ]);
   };
 
-  const flattened = transformAll(topic);
+  return flattenAll(startPosts);
+};
+
+export const findPost = (topic, options = {}) => {
+
+  const flattened = flattenPosts(topic.continued && !options.postsInView ? topic.allPosts : topic.posts);
 
   if (options.postId) {
     return flattened.find(p => p.id === options.postId);
@@ -15,27 +18,21 @@ export const findPost = (topic, options) => {
   }
 };
 
-export const getPostsForTopic = (topic) => {
+export const markThreadViewed = thread => {
 
-  const url = `/api/sites/${topic.siteId}/topics/${topic.id}/posts`;
-  return fetch(url, { credentials: "include" })
-  .then(r => {
-
-    if (!r.ok) {
-      throw new Error(`Network error while retrieving  posts for topic ${topic.id}`);
-    } else {
-      return r.json();
-    }
-  })
-  .catch(error => console.error(error));
+  if (!thread.posts) {
+    thread.viewed = true;
+  } else {
+    const flattened = flattenPosts(thread);
+    thread.viewed = !flattened.filter(p => !p.viewed).length === 0;
+  }
+  thread.expanded = !thread.viewed;
 };
 
 export const debounce = (func, timeout = 300) => {
 
   let timer;
   return (...args) => {
-
-    console.log("aadsas asdfasdf");
 
     clearTimeout(timer);
     timer = setTimeout(() => { func.apply(this, args); }, timeout);
