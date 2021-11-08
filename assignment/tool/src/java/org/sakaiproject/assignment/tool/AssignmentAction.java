@@ -1706,8 +1706,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                context.put("externalTool", Boolean.TRUE);
                 putExternalToolIntoContext(context, assignment, state);
+                context.put("externalTool", Boolean.TRUE);
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -4918,12 +4918,22 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+        context.put("value_ContentId", null);
+        context.put("value_ContentTitle", null);
+        context.put("value_ContentLaunchURL", null);
         try {
             if ( assignment == null || assignment.getContentId() == null) return;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
-            if ( contentKey < 1 ) return;
+            if ( contentKey < 1 ) {
+				log.warn("putExternalToolIntoContext contentId not set {} ", assignment);
+				return;
+			}
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+			if ( content == null ) {
+				log.warn("putExternalToolIntoContext contentId not loaded {} ", contentKey);
+				return;
+			}
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
@@ -4933,10 +4943,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                 context.put("value_ContentTitle", toolTitle);
             }
-
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            context.put("value_ContentTitle", null);
-            context.put("value_ContentLaunchURL", null);
+            log.warn("putExternalToolIntoContext could not find site {} ", e);
         }
     }
 

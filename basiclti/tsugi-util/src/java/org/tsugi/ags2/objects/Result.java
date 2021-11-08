@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 	  }
  */
 
-public class Result { // This is all output-only
+public class Result extends org.tsugi.jackson.objects.JacksonBase { // This is all output-only
 
 	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.result+json";
 	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.resultcontainer+json";
