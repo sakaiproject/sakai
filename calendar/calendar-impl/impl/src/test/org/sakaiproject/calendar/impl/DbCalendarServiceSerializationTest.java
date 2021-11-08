@@ -455,6 +455,11 @@ public class DbCalendarServiceSerializationTest extends TestCase
 			}
 
 			@Override
+			public String dateFormat(Instant date, FormatStyle dateStyle) {
+				return null;
+			}
+
+			@Override
 			public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
 				return null;
 			}
