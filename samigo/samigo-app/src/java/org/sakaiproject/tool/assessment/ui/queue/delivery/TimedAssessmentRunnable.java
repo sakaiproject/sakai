@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -93,12 +94,27 @@ public class TimedAssessmentRunnable implements Runnable {
   
       if (!submitted){
         if (currentTime > bufferedExpirationTime){ // time's up, i.e. timeLeft + latency buffer reached
-          timedAG.setSubmittedForGrade(true);
+
           // set all the properties right and persist status to DB
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(String.valueOf(this.timedAGId), false);
+          PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+          String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
+          PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
+          ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(publishedAssessment, ag.getAgentId());
+          Integer extendedTime = assessmentExtended != null ? assessmentExtended.getTimeLimit() : null;
+
+          // Did the instructor add more time after student started assessment?
+          if (extendedTime != null && extendedTime > timedAG.getTimeLimit()) {
+            timedAG.setTimeLimit(extendedTime);
+            timedAG.setTimeLeft(extendedTime - timedAG.getTimeLimit());
+            log.info("SAMIGO_TIMED_ASSESSMENT:EXTENDED ID:{} time_left:{}, extended_time:{}", this.timedAGId, timedAG.getTimeLimit(), extendedTime);
+            return;
+          }
 
           log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT ID:{} userId:{}", this.timedAGId, ag.getAgentId());
+
+          timedAG.setSubmittedForGrade(true);
 
           if (!ag.getForGrade()) {
             Date submitDate = new Date();
@@ -131,10 +147,6 @@ public class TimedAssessmentRunnable implements Runnable {
 
             service.completeItemGradingData(ag);
             service.saveOrUpdateAssessmentGrading(ag);
-
-            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
-            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
 
             EventLogService eventService = new EventLogService();
             EventLogFacade eventLogFacade = new EventLogFacade();
