@@ -15,17 +15,16 @@
  */
 
 
-package org.sakaiproject.assesment.service;
+package org.sakaiproject.tool.assessment.services;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.sakaiproject.tool.assessment.services.GradingService;
-
-public class GradingServiceTest {
+public class FibGradingTest {
 	
 	@Test
 	public void testValidate() {
@@ -101,7 +100,27 @@ public class GradingServiceTest {
 		Assert.assertTrue(gradingService.fibmatch("A > ~T", "A > ~T", false, false));
 		Assert.assertTrue(gradingService.fibmatch("A &gt; ~T", "A &gt; ~T", false, false));
 	}
-	
+
+	@Test
+	public void fibTestUnicodeApostrophes() {
+		GradingService gradingService = new GradingService();
+
+		// Italian course FIB with smart quotes or special keyboard
+		Assert.assertTrue(gradingService.fibmatch("un'", "un'", false, true));
+		Assert.assertTrue(gradingService.fibmatch("un’", "un'", false, true));
+		Assert.assertTrue(gradingService.fibmatch("un’", "un'", true, false));
+		Assert.assertTrue(gradingService.fibmatch("un'", "un’", false, true));
+		Assert.assertTrue(gradingService.fibmatch("un’", "un‘", false, true));
+		Assert.assertFalse(gradingService.fibmatch("un`", "un'", false, true));
+
+		// Mac user with default smart quotes on !!
+		Assert.assertTrue(gradingService.fibmatch("Sylvester \"Sly Stone\" Stewart", "Sylvester \"Sly Stone\" Stewart", true, true));
+		Assert.assertTrue(gradingService.fibmatch("Sylvester “Sly Stone” Stewart", "Sylvester \"Sly Stone\" Stewart", true, true));
+		Assert.assertTrue(gradingService.fibmatch("Sylvester “Sly Stone“ Stewart", "Sylvester \"Sly Stone\" Stewart", true, false));
+		Assert.assertFalse(gradingService.fibmatch("Sylvester 'Sly Stone' Stewart", "Sylvester \"Sly Stone\" Stewart", true, true));
+		Assert.assertFalse(gradingService.fibmatch("Sylvester ’Sly Stone’ Stewart", "Sylvester \"Sly Stone\" Stewart", true, true));
+	}
+
 	@Test
 	public void fibContainsIllegalsTest() {
 		GradingService gradingService = new GradingService();

@@ -2528,6 +2528,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
 		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
 
+		 // User on Mac will use "smart" curly apostrophes by default!!
+		 answer = answer.replaceAll("[\u2018\u2019]", "'");
+		 input = input.replaceAll("[\u2018\u2019]", "'");
+
+		 // User on Mac will use “smart” quotes by default!
+		 answer = answer.replaceAll("[\u201C\u201D]", "\"");
+		 input = input.replaceAll("[\u201C\u201D]", "\"");
+
 		 // Always trim trailing spaces
 		 answer = answer.trim();
 		 input = input.trim();
@@ -2538,9 +2546,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			 input = input.replaceAll("\\p{javaSpaceChar}", "");
 		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
-		 
-		 String REGEX = answer.replaceAll("\\*", "|*|");
-		 String[] oneblank = REGEX.split("\\|");
+
+		 String[] oneblank = answer.replaceAll("\\*", "|*|").split("\\|");
 		 for (String str : oneblank) {
 			 if ("*".equals(str)) {
 				 regex_quotebuf.append(".+");
