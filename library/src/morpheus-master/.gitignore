@@ -4,4 +4,9 @@
 *.css.map
 
 # Maven Stuff
-sass/_customization.scss
+**/sass/_customization.scss
+**/sass/_customization.scss
+**/sass/_customization-lib.scss
+**/sass/_customization-main.scss
+**/js/_custom.lib.js
+**/js/_custom.main.js
