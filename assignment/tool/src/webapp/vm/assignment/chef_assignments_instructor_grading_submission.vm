@@ -380,11 +380,11 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             <select name="$name_grade" id="grade">
-                                <option value="" #if($!value_grade.equals(""))selected="selected"#end>
+                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>
                                     $tlang.getString("non.submission.grade.select")
                                 </option>
                                 #foreach ($i in $letterGradeOptions)
-                                    <option value="$i" #if ($!value_grade.equals($i))selected="selected"#end>$i</option>
+                                    <option value="$i" #if ($!grade_submission_grade.equals($i))selected="selected"#end>$i</option>
                                 #end
                             </select>
                         </p>
@@ -423,7 +423,7 @@
                         <p class="form-group">
                             <label for="gradeChecked">
                                 <input name="$name_grade" type="checkbox" value="Checked"
-                                    #if ($!value_grade.equals($tlang.getString("gen.checked")))
+                                    #if ($!grade_submission_grade.equals($tlang.getString("gen.checked")))
                                        checked="checked"
                                     #end
                                     id="gradeChecked"/>
