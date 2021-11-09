@@ -1,0 +1,162 @@
+// Override Bootstrap's Sass default variables
+//
+// Nearly all variables in Bootstrap are written with the `!default` flag.
+// This allows you to override the default values of those variables before
+// you import Bootstrap's source Sass files.
+//
+// Overriding the default variable values is the best way to customize your
+// CSS without writing _new_ styles. For example, change you can either change
+// `$body-color` or write more CSS that override's Bootstrap's CSS like so:
+// `body { color: red; }`.
+
+
+//
+// Bring in Bootstrap
+//
+
+// Option 1
+//
+// Import all of Bootstrap's CSS
+
+// @import "bootstrap/scss/bootstrap";
+
+// Option 2
+//
+// Place variable overrides first, then import just the styles you need. Note that some stylesheets are required no matter what.
+
+// Toggle global options
+$enable-gradients: false;
+//$enable-shadows: true;
+$enable-cssgrid: true;
+
+$offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
+
+// Customize some defaults
+$primary: #003a6b;
+$body-color: #333;
+$body-bg: #fff;
+$border-radius: .4rem;
+$success: #7952b3;
+
+@import "defaults";
+@import "themes/base";
+
+@import "themes/light";
+@import "themes/dark";
+
+// Configuration
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
+
+// Layout & components
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/tables";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/dropdown";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/nav";
+@import "bootstrap/scss/navbar";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/accordion";
+@import "bootstrap/scss/breadcrumb";
+@import "bootstrap/scss/pagination";
+@import "bootstrap/scss/badge";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/progress";
+@import "bootstrap/scss/list-group";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/toasts";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/tooltip";
+@import "bootstrap/scss/popover";
+@import "bootstrap/scss/carousel";
+@import "bootstrap/scss/spinners";
+@import "bootstrap/scss/offcanvas";
+@import "bootstrap/scss/placeholders";
+
+// Helpers
+@import "bootstrap/scss/helpers";
+
+// Utilities
+@import "bootstrap/scss/utilities/api";
+
+@import "base/jquery-ui-defaults";
+@import "base/extendables";
+@import "base/defaults";
+@import "base/responsive";
+@import "base/icons";
+
+//Todo assing new values, where those are used
+$page-header-border-color: lighten(#000, 46.7%) !default; // #eee
+$jumbotron-heading-font-size: $h4-font-size;
+
+//Tools
+@import "modules/tool/portal/portal";
+@import "modules/tool/base";
+@import "modules/tool/elements";
+@import "modules/tool/menu";
+@import "modules/tool/table";
+
+@import "modules/tool/calendar/calendar";
+@import "modules/tool/calendar/calendarSynoptic";
+@import "modules/tool/chat/chat";
+@import "modules/tool/commons/commons";
+@import "modules/tool/conversations/conversations";
+@import "modules/tool/lessons/lessons";
+@import "modules/tool/sitemanage/sitemanage";
+@import "modules/tool/announcements/announcements";
+@import "modules/tool/assignments/assignments";
+@import "modules/tool/messages/messages";
+@import "modules/tool/mycalendar/mycalendar";
+@import "modules/tool/polls/polls";
+@import "modules/tool/lessonbuilder/lessonbuilder";
+@import "modules/tool/myconnections/myconnections";
+@import "modules/tool/samigo/samigo";
+@import "modules/tool/resources/resources";
+@import "modules/tool/synoptic/synoptic";
+@import "modules/tool/forums/forums";
+@import "modules/tool/mbm/mbm";
+@import "modules/tool/profile2/profile2";
+@import "modules/tool/iframe/iframe";
+@import "modules/tool/siteinfo/siteinfo";
+@import "modules/tool/jobscheduler/jobscheduler";
+@import "modules/tool/pasystem/pasystem";
+@import "modules/tool/signup/signup";
+@import "modules/tool/sitesetup/sitesetup";
+@import "modules/tool/sitemembers/sitemembers";
+@import "modules/tool/dropbox/dropbox";
+@import "modules/tool/sitestats/sitestats";
+@import "modules/tool/syllabus/syllabus";
+@import "modules/tool/roster/roster";
+@import "modules/tool/tagservice/tagservice";
+@import "modules/tool/rubrics/rubrics";
+@import "modules/tool/oauthadmin/oauthadmin";
+@import "modules/tool/authz/authz";
+@import "modules/tool/delegatedaccess/delegatedaccess";
+@import "modules/tool/simplerss/simplerss";
+@import "modules/tool/emailtemplates/emailtemplates";
+
+//
+// Temporary Styles for Morpheus to Trinity conversion
+//
+
+.navIntraTool {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    margin-right: 1em;
+  }
+}

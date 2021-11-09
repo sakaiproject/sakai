@@ -1,0 +1,9 @@
+<script src="/library/js/portal/portal.sidebar.sites.js$!{portalCDNQuery}"></script>
+<script src="/library/js/portal/portal.sidebar.collapse.js$!{portalCDNQuery}"></script>
+<script src="/library/js/portal/portal.serverinfo.js$!{portalCDNQuery}"></script>
+#if ($loggedIn)
+    <script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+#else
+    <script src="/library/js/portal/portal.login.password.js$!{portalCDNQuery}"></script>
+    <script src="/library/js/portal/portal.login.mobile.js$!{portalCDNQuery}"></script>
+#end

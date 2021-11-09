@@ -1,6 +1,5 @@
 ## Standard Header used by all portal views
-## Don't put anything before the <!DOCTYPE or it breaks IE9
-## DOCTYPE detection and puts it in quirks mode.
+## Don't put anything before the <!DOCTYPE>
 <!DOCTYPE html>
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html $!{userTheme}">
     <head>
@@ -65,27 +64,28 @@
         </script>
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        ## TRINITY-43 Review before merging to master
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
         
-        <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
-        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}qtip2/3.0.3-1/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}fontawesome/4.7.0/css/font-awesome.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
+        <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}bootstrap/5.2.0/js/bootstrap.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-profile.js$!{portalCDNQuery}"></script>
         <script type="module" src="/webcomponents/sakai-pronunciation-player.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);
         </script>
+        #parse("/vm/morpheus/snippets/portalScripts-snippet.vm")
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
     #end
-        
+
         <!-- inlined tool header contribution -->
         ## if any of the tools requested an inline render, their header content gets aggregated here
         #foreach ( $tool in $pageColumn0Tools )

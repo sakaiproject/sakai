@@ -1,0 +1,110 @@
+#if (${useBullhornAlerts} && ${userIsLoggedIn})
+<aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-notificationsPanel" aria-labelledby="sakai-notificationsPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-notificationsPanelLabel">Notifications</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this notifications panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="sak-banner-info">
+      Notifications still need to be implemented
+    </div>
+    <div class="accordion" id="sakai-notificationsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsAssignments">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Assignments<span class="badge bg-secondary ms-1">2</span>
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled d-flex flex-column align-items-center">
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>11 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Assignment 2 is now available
+                </div>
+              </li>
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>14 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Assignment 1 has been graded and returned
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsDiscussions">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Discussions<span class="badge bg-secondary ms-1">4</span>
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled d-flex flex-column align-items-center">
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>11 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Someone commented on your post "Lesson 2..."
+                </div>
+              </li>
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>11 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Someone replied to your comment on "Lesson 5..."
+                </div>
+              </li>
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>11 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Someone replied to your post "Introductions"
+                </div>
+              </li>
+              <li class="toast fade show mt-2 shadow-sm">
+                <div class="toast-header">
+                  <img src="/direct/profile/admin/image/thumb" class="rounded me-2" width="20" height="20" alt="Profile picture of someone">
+                  <strong class="me-auto">Sakai Administrator</strong>
+                  <small>11 mins ago</small>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                  Someone replied to your post "Lesson 6..."
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-end my-2">
+      <a href="#" class="text-end">Clear all</a>
+    </div>
+  </div>
+</aside>
+#end
