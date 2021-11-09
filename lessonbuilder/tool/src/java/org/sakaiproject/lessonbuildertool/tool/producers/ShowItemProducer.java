@@ -190,14 +190,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    }
 
-	    boolean inline = false;
-	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
-	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		inline = true;
-	    }
-
 	    UIComponent portletBody = UIOutput.make(tofill, "portletBody");
-	    portletBody.decorate(new UIFreeAttributeDecorator("class", "showItem" + (inline?" showItemMorpheus":" showItemNoMorpheus")));
+	    portletBody.decorate(new UIFreeAttributeDecorator("class", "showItem showItemMorpheus"));
 
 	    // this is a "next" page where we couldn't tell if the item is
 	    // available. Need to check here in order to set ACLs. If not available,
@@ -228,75 +222,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 	    }
 
-	    // currently only support 11
-	    String helpurl = null; /* (String)toolSession.getAttribute("sakai-portal:help-action"); */
-	    String reseturl = null; /* (String)toolSession.getAttribute("sakai-portal:reset-action"); */
-	    String skinName = null;
-	    String skinRepo = null;
-	    String iconBase = null;
-
 	    Placement placement = ToolManager.getCurrentPlacement();
 	    String toolId = placement.getToolId();
-
-	    if (helpurl != null || reseturl != null) {
-
-		skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
-		iconBase = skinRepo + "/" + CSSUtils.adjustCssSkinFolder(null) + "/images";
-		UIVerbatim.make(tofill, "iconstyle", ICONSTYLE.replace("{}", iconBase));
-
-	    }
-
-	    if (helpurl != null) {
-		UILink.make(tofill, "helpbutton2", helpurl).
-		    decorate(new UIFreeAttributeDecorator("onclick",
-					  "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
-		    decorate(new UIFreeAttributeDecorator("title",
-				 messageLocator.getMessage("simplepage.help-button")));
-		if (!inline)
-		UIOutput.make(tofill, "helpimage2").
-		    decorate(new UIFreeAttributeDecorator("alt",
-				 messageLocator.getMessage("simplepage.help-button")));
-		UIOutput.make(tofill, "helpnewwindow2",
-		    messageLocator.getMessage("simplepage.opens-in-new"));
-
-		UILink.make(tofill, "directurl").
-		    decorate(new UIFreeAttributeDecorator("rel", "#Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_directurl")).
-		    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.direct-link")));
-		//		if (inline) {
-		    UIOutput.make(tofill, "directurl-div").
-			decorate(new UIFreeAttributeDecorator("id", "Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_directurl"));
-		    if (ShowPageProducer.getMajorVersion() >= 10) {
-			UIOutput.make(tofill, "directurl-input").
-			    decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_urlholder');"));
-			UIOutput.make(tofill, "directurl-shorten", messageLocator.getMessage("simplepage.short-url"));
-		    }
-		    UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
-			decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + StringEscapeUtils.escapeEcmaScript(placement.getId()) + "_urlholder"));
-		    //		} else
-		    UIOutput.make(tofill, "directimage").decorate(new UIFreeAttributeDecorator("alt",
-			messageLocator.getMessage("simplepage.direct-link")));
-
-	    }
-	    
-	    if (reseturl != null) {
-		UIComponent link = UILink.make(tofill, "resetbutton2", reseturl).
-		    decorate(new UIFreeAttributeDecorator("title",
-			        messageLocator.getMessage("simplepage.reset-button")));
-		if (!inline)
-		    link.decorate(new UIFreeAttributeDecorator("onclick",
-							       "location.href='" + reseturl + "'; return false"));
-
-		if (!inline)
-		UIOutput.make(tofill, "resetimage2").
-		    decorate(new UIFreeAttributeDecorator("alt",
-			        messageLocator.getMessage("simplepage.reset-button")));
-	    }
 
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
 	    UIComponent nav = UIOutput.make(tofill, "nav");
-	    if (inline)
+
 		nav.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 
 	    String returnView = params.getReturnView();

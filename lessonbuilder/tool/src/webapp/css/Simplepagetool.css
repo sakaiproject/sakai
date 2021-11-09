@@ -825,12 +825,6 @@ h3.section-label {
 	background-color: var(--errorBanner-bgcolor) !important;
 	color:var(--errorBanner-color) !important;
 }
-.showItemNoMorpheus .returnheader {
-    display:block;
-    margin-top: 10px;
-    margin-bottom: 10px;
-
-}
 .showItemMorpheus .returnheader a:link, .showItemMorpheus .returnheader a:visited,
 .showItemMorpheus .returnheader a:hover,.showItemMorpheus .returnheader a:active {
 	background-color: inherit !important;

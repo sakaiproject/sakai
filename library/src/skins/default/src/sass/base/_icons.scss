@@ -1,0 +1,147 @@
+//Bootstrap icons
+@use "bootstrap-icons/font/bootstrap-icons";
+
+//Fontawsome icons
+//fa-font-path needs to be set to the font folder relative to the library dir
+$fa-font-path: "./fonts";
+@import "font-awesome/scss/font-awesome";
+
+/*
+ * Mixin sakai-icons
+ * This mixin should never be called directly as its only use is to output css for icons.
+ * In $defaultIcons icon classnames are mapped to existing classnames:
+ * For example sakai-acadtermmanage : bi-calendar-plus, will assign the bi-calendar-plus icon
+ * to the si-sakai-acadtermmanage class
+ * The resulting icon classes should be used together with the si base class, like:
+ * si si-sakai-acadtermmanage
+ * For skin customization, this icon map can be extended by assigning a similar icon map to
+ * the $customIcons varuable
+ */
+
+@mixin sakai-icons($customIcons) {
+
+  $iconBaseClass: si;
+
+  $defaultIcons: (
+    // sakai native tools
+    sakai-acadtermmanage : bi-calendar-plus,
+    sakai-adminsiteperms : bi-sliders,
+    sakai-aliases : bi-tags,
+    sakai-announcements : bi-megaphone,
+    sakai-archive : bi-archive,
+    sakai-assignment-grades : bi-file-text,
+    sakai-basiclti : bi-globe,
+    sakai-basiclti-admin : bi-globe,
+    sakai-certification : bi-trophy,
+    sakai-chat : bi-chat-left-dots,
+    sakai-commons : bi-bank,
+    sakai-conversations : bi-chat-left-dots,
+    sakai-createuser : bi-person-plus,
+    sakai-dashboard : bi-speedometer,
+    sakai-delegatedaccess : bi-hand-index,
+    sakai-dropbox : bi-arrow-repeat,
+    sakai-emailtemplateservice : bi-envelope,
+    sakai-feedback : bi-chat-left-heart,
+    sakai-forums : bi-chat-left-text,
+    sakai-gradebook-tool : bi-book,
+    sakai-gradebookng : bi-book,
+    sakai-help : bi-question-circle,
+    sakai-home : bi-list-ul,
+    sakai-iframe : bi-globe,
+    sakai-iframe-site : bi-list-ul,
+    sakai-lessonbuildertool : bi-file-text,
+    sakai-mailbox : bi-envelope,
+    sakai-mailtool : bi-envelope,
+    sakai-meetings : bi-camera-video,
+    sakai-membership : bi-people,
+    sakai-memory : bi-hdd-stack,
+    sakai-message-bundle-manager : bi-gear,
+    sakai-messages : bi-inbox,
+    sakai-motd : bi-list-ul,
+    sakai-news : bi-rss,
+    sakai-oauth : bi-key,
+    sakai-oauth-admin : bi-key,
+    sakai-online : bi-server,
+    sakai-pasystem : bi-bell,
+    sakai-podcasts : bi-mic,
+    sakai-poll : bi-bar-chart,
+    sakai-postem : bi-sticky,
+    sakai-preferences : bi-gear,
+    sakai-profile2 : bi-person,
+    sakai-realms : bi-diagram-3,
+    sakai-resetpass : bi-person,
+    sakai-resources : bi-folder,
+    sakai-rubrics : bi-table,
+    sakai-rwiki : bi-pencil-square,
+    sakai-samigo : bi-check2-square,
+    sakai-schedule : bi-calendar,
+    sakai-scheduler : bi-clock,
+    sakai-search : bi-search,
+    sakai-sections : bi-person,
+    sakai-signup : bi-calendar-check,
+    sakai-simple-rss : bi-newspaper,
+    sakai-singleuser : bi-person,
+    sakai-site-roster2 : bi-people,
+    sakai-sitebrowser : bi-globe,
+    sakai-siteinfo : bi-gear,
+    sakai-sites : bi-list,
+    sakai-sitesetup : bi-gear,
+    sakai-sitestats : bi-pie-chart,
+    sakai-sitestats-admin : bi-pie-chart,
+    sakai-su : bi-incognito,
+    sakai-summary-calendar: bi-list-ul,
+    sakai-syllabus : bi-map,
+    sakai-synoptic-announcement: bi-list-ul,
+    sakai-synoptic-chat: bi-list-ul,
+    sakai-synoptic-messagecenter: bi-list-ul,
+    sakai-tagservice : bi-tag,
+    sakai-usermembership : bi-person,
+    sakai-users : bi-people,
+    sakai-web-168 : bi-globe,
+    // other tools
+    alerts : bi-bell, 
+    kaltura-admin : bi-gear,
+    kaltura-media : bi-collection-play,
+    kaltura-my-media : bi-collection-play,
+    sakai-attendance : bi-hand-index-thumb,
+    sakai-bbb : bi-camera-video,
+    sakai-blogwow : bi-pencil-square,
+    sakai-clog : bi-pencil-square,
+    sakai-irubric : bi-table,
+    sakai-rsf-evaluation : bi-chat-left-dots,
+    sakai-scorm-singlepackage-tool : bi-file-zip,
+    sakai-scorm-tool : bi-file-zip,
+    // other icons
+    //add-tool : bi-plus,
+    //check : bi-check,
+    //clip : bi-paperclip,
+    //delete : bi-x,
+    //help : bi-question-circle,
+    //home : bi-bank,
+    //pdf : bi-filetype-pdf,
+    //subsite : bi-level-up,
+    //subsites-list : bi-level-down,
+    subsite: bi-arrow-return-right,
+    default-tool : bi-puzzle,
+  );
+
+
+  $allIcons: map-merge($defaultIcons, $customIcons);
+
+  @each $sakaiIcon, $assignedIcon in $allIcons {
+    //@debug "#{$sakaiIcon}: #{$assignedIcon}"; //Logs icons for debugging
+    .#{$iconBaseClass}-#{$sakaiIcon} {
+      @extend .#{$assignedIcon};
+    }
+  }
+
+  //Assing icon base class
+  .#{$iconBaseClass} {
+    @extend .bi;
+  }
+}
+
+$customIcons: () !default;
+
+// call the mixin to actually create css for icons
+@include sakai-icons($customIcons);

@@ -1,0 +1,275 @@
+/* Global namespace */
+
+$namespace : "Mrphs-" !default;
+
+$break-tiny-end:	400px !default;
+$break-small-end: 	800px !default;
+$break-medium-end: 	1030px !default;
+
+$smallPhone:    "only screen and (max-width : #{$break-tiny-end})" !default;
+$phone  :       "only screen and (max-width : #{$break-small-end})" !default;
+$tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
+$desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
+$nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default;
+
+/* The standard spacing for items in Sakai */
+$standard-spacing: 16px !default;
+$standard-space: 4px !default; // the width of a keyboard space
+$standard-space-2x: 8px !default;
+$standard-space-3x: 12px !default;
+$standard-space-4x: 16px !default;
+// For the "More Sites" drawer, just use one column if there's not
+// enough room to show two side-by-side.
+$break-more-sites-single-column: 1200px !default;
+$more-sites-single-column: "only screen and (max-width : #{$break-more-sites-single-column})" !default;
+
+/* Typography*/
+
+//Google family Fonts URL
+$font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" !default;
+@import url(#{$font-family-url});
+
+//Typography variables
+$default-font-size: 14px !default;
+$default-font-size-small: 12px !default;
+$default-font-weight: 400 !default;										// 400 or 700 as you wish
+$default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
+
+////////////////////////////////////////////////////////////////////////////////////////
+// SAK-43981 ALL THEME RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes
+// This includes variables related to the following:
+// 1. background color
+// 2. border color
+// 3. box-shadow
+// 4. color
+// 5. logo
+////////////////////////////////////////////////////////////////////////////////////////
+
+//Built to be used for padding
+//https://material-components.github.io/material-components-web-catalog/#/component/menu
+$material-menu-padding: calc( #{$standard-spacing} / 2) 0 !default;
+$material-menu-item-padding: calc(#{$standard-spacing} / 2) $standard-spacing !default;
+
+
+
+/* Tool tabs */
+$tool-tab-height:                                         32px !default;
+$tool-tab-text-size:                                      12px !default;
+$tool-tab-text-weight:                                    normal !default;
+$tool-tab-text-transform:                                 none !default;
+$tool-tab-text-letter-spacing:                            normal !default;
+$tool-tab-active-text-size:                               12px !default;
+
+$top-header-separators-thickness: 0px !default;
+$top-header-item-spacing: calc(#{$standard-spacing} / 2) !default;
+$top-header-text-display: none !default;
+$top-header-icon-size: calc(#{$standard-spacing} * 2) !default;
+$top-header-sites-padding-top: 6px !default;
+$top-header-profile-border-thickness: 2px !default;
+
+/* General button design */
+$button-radius: 4px !default;
+$button-text-transform: none !default;
+$button-radius-pill:            16px !default;
+
+// Default (non-primary) button design:
+$button-font-weight: 400 !default;
+$button-disabled-font-weight:   300 !default;
+
+// Primary action button design:
+$button-primary-text-transform: none !default;
+$button-primary-font-weight: 600 !default;
+
+/* end of General button design */
+
+$instruction-size:          $default-font-size-small !default;
+
+/* Sakai Banners */
+$infoBanner-icon: ".fa-info-circle";
+$successBanner-icon: ".fa-check-circle";
+$warnBanner-icon: ".fa-exclamation-circle";
+$errorBanner-icon: ".fa-ban";
+/* end of Sakai Banners */
+
+/* Swapped 'View As' view */
+$swapped-view-enabled: false !default;
+
+/* Favorites */
+$sites-nav-menu-item-border-thickness: 1px !default;
+$sites-nav-menu-item-border-radius: $button-radius-pill !default;
+
+/* Favorites - item */
+$sites-nav-menu-item-border-top:            $sites-nav-menu-item-border-thickness solid !default;
+$sites-nav-menu-item-border-right:          $sites-nav-menu-item-border-top !default;
+$sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default;
+$sites-nav-menu-item-border-left:           $sites-nav-menu-item-border-top !default;
+
+/* Favorites - item hovered */
+$sites-nav-menu-item-hover-border-top:      $sites-nav-menu-item-border-thickness solid !default;
+$sites-nav-menu-item-hover-border-right:    $sites-nav-menu-item-hover-border-top !default;
+$sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top !default;
+$sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top !default;
+
+/* Favorites - item selected */
+$sites-nav-menu-item-selected-font-weight:  600 !default;
+$sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-thickness solid !default;
+$sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
+$sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default;
+$sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top !default;
+
+/* Favorites - item selected and hovered */
+$sites-nav-menu-item-selected-hover-border-top:   $sites-nav-menu-item-border-thickness solid !default;
+$sites-nav-menu-item-selected-hover-border-right: $sites-nav-menu-item-selected-hover-border-top !default;
+$sites-nav-menu-item-selected-hover-border-bottom:$sites-nav-menu-item-selected-hover-border-top !default;
+$sites-nav-menu-item-selected-hover-border-left:  $sites-nav-menu-item-selected-hover-border-top !default;
+
+/* Favorites - tool submenu */
+$sites-nav-submenu-border: 1px solid !default;
+$sites-nav-submenu-top: $standard-spacing !default;
+$sites-nav-submenu-padding: $material-menu-padding !default;
+
+/* Favorites - tool submenu items */
+$sites-nav-submenu-item-text-size:          13px !default;
+$sites-nav-submenu-item-left-border: none !default;
+$sites-nav-submenu-item-padding: $material-menu-item-padding !default;
+
+/* All Sites menu */
+$all-sites-title-text-size:                               18px !default;
+$all-sites-title-text-weight:                             normal !default;
+$all-sites-button-height:                                 30px !default;
+$all-sites-button-text-size:                              13px !default;
+$all-sites-button-text-weight:                            normal !default;
+$all-sites-button-border-radius:                          3px !default;
+$all-sites-button-selected-text-size:                     13px !default;
+$all-sites-button-selected-text-weight:                   medium !default;
+$all-sites-button-selected-border-radius:                 3px !default;
+$all-sites-button-hover-text-size:                        13px !default;
+$all-sites-button-hover-text-weight:                      normal !default;
+$all-sites-tool-menu-text-size:                           12px !default;
+$all-sites-tool-menu-text-weight:                         normal !default;
+$all-sites-tool-menu-left-border:                         4px solid !default;
+$all-sites-tool-menu-hover-left-border:                   4px solid !default;
+
+/* Tool Menu */
+
+/* Wide tool menu, icons on left */
+$tool-menu-icon-on-left: true !default;
+$tool-menu-width: 200px + $standard-spacing !default;
+$tool-menu-padding: calc(#{$standard-spacing} / 2) 0 0 0 !default;
+$tool-menu-width-collapsed: 52px !default;
+$tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
+
+/* Narrow tool menu, icons centered */
+@if not($tool-menu-icon-on-left) {
+    $tool-menu-width: 8em;
+    $tool-menu-width-collapsed: 42px;
+    $tool-menu-collapseButton-height: $tool-menu-width-collapsed;
+}
+
+/* Tool Menu */
+$tool-menu-item-text-weight:                               normal !default;
+$tool-menu-item-border-left: none !default;
+$tool-menu-item-border-radius: 0 calc(#{$button-radius-pill} * 1.5) calc(#{$button-radius-pill} * 1.5) 0 !default;
+$tool-menu-item-padding: calc( #{$standard-spacing} / 2) 0 calc( #{$standard-spacing} / 2) $standard-spacing !default;
+$tool-menu-item-margin-right: calc( #{$standard-spacing} / 2) !default;
+$tool-menu-item-hover-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-collapsed-border-radius:                   0 !default;
+$tool-menu-item-collapsed-margin:                          0 !default;
+$tool-menu-item-collapsed-padding: $tool-menu-item-padding !default;
+$tool-menu-item-hidden-border-left:                        $tool-menu-item-border-left !default;
+$tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
+$tool-menu-item-hidden-active-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-selected-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-selected-hover-border-left: $tool-menu-item-border-left !default;
+$tool-menu-item-selected-active-border-left: $tool-menu-item-border-left !default;
+$tool-menu-collapse-border-top:                            1px solid var(--sakai-border-color) !default;
+$tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-border-top !default;
+$tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
+$tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-border-top !default;
+
+
+/* Tool menu - lessons subpage menu enabled - top level pages */
+$tool-lessons-toplevel-menu-icon-padding: $material-menu-item-padding !default;
+$tool-lessons-toplevel-menu-text-padding: $material-menu-item-padding !default;
+$tool-lessons-subpage-menu-text-padding: calc(#{$standard-spacing} / 2) $standard-spacing calc(#{$standard-spacing} / 2) calc(#{$standard-spacing} * 2) !default;
+
+/* Tool menu - lessons subpage menu enabled - sub pages */
+$tool-lessons-subpage-menu-fontsize: .9em !default;
+$tool-lessons-subpage-menu-border-radius: 0 $button-radius-pill $button-radius-pill 0 !default;
+
+/* Lessons tool */
+$lessons-column-border:1px solid !default;
+$lessons-item-border-top: 1px solid !default;
+$lessons-item-border-right: none !default;
+$lessons-item-border-bottom: none !default;
+$lessons-item-border-left: none !default;
+$lessons-item-edit-display: none !default;
+$lessons-item-edit-hover-display: inline-block !default;
+/* Navigation Hierarchy */
+$hierarchy-size: 3.5em !default;
+
+/* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
+$measure: 960px !default;
+
+$banner-height: 52px !default;
+
+
+/* Tool icons */
+$skin-with-icons: true !default;
+$icon-size: 20px !default;
+
+/* Unpublished Banner */
+$siteUnpublish-border: 1px solid !default;
+
+/* Site Deletion Banner */
+$siteDelete-border: 1px solid!default;
+
+/* Icon Overrides */
+//$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
+
+/* Footer */
+$footer-font-size: 12px;
+
+// Overview page column widths. Total to add up to 96% as the columns have a margin.
+$col1of2-width: 48% !default;
+
+$overview-portlet-border: none !default;
+$overview-portlet-border-radius: $button-radius !default;
+
+
+/* focus styles for all control elements (e.g. buttons, form controls, links, etc) */
+$focus-outline-width: 3px !default;
+$focus-outline-style: solid !default;
+$sakai-focus-outline: $focus-outline-width $focus-outline-style !default;
+$focus-outline-offset: 2px !default;
+
+//Used to give round elements an round focus and not square
+$sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
+
+$font-family: "Open Sans",sans-serif !default;
+$header-font-family: $font-family !default;
+$header-font-weight: 700 !default;										// 400 or 700 as you wish
+
+$skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
+$skin-path: if($skin-name, "/library/skin/" + $skin-name + "/", "");
+
+$sites-nav-submenu-top: -#{$standard-spacing} !default; //fallback to calc( #{$default-font-size} + #{$sites-nav-menu-item-border-thickness})
+
+// Used in toolmenu and favorites to add microtransitions on hover/active
+// Accompanyied with an elevation change
+$active-transition-hover: box-shadow 100ms ease-out !default;
+$active-transition-active: box-shadow 100ms ease-in !default;
+
+$scroll-behavior: smooth;
+
+:root {
+    font-size: 14px;
+    --portal-nav-sidebar-width: 16rem;
+    --portal-header-height: 4.5rem;
+
+    //Dashboard
+    --sakai-course-card-border-radius: #{$button-radius};
+    --sakai-title-bar-font-weight: #{$button-font-weight};
+
+    --sakai-font-family: #{$font-family};
+}
