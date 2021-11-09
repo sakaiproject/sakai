@@ -314,7 +314,7 @@ export class SakaiRubric extends RubricsElement {
       this.shareIcon = "fa-globe text-primary";
     } else {
       this.shareTitleKey = "share";
-      this.shareIcon = "fa-globe text-muted";
+      this.shareIcon = "fa-eye-slash text-muted";
     }
     this.shareValues = this.rubric.title;
   }
