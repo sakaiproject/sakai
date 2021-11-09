@@ -1,0 +1,288 @@
+@import "compass";
+
+body{
+	color: var(--sakai-text-color-1);
+	font-family: $font-family;
+	font-size: $default-font-size !important; // Bootstrap Tool error
+	font-weight: $default-font-weight;
+	line-height: $default-line-height;
+	scroll-behavior: $scroll-behavior;
+	&.#{$namespace}portalBody{
+		@media #{$phone}{
+			padding: $banner-height 0 0 0;
+		}
+	}
+	#maximised-indicator {
+		position: fixed;
+		overflow: hidden;
+		display: none;
+		left: 50%;
+		top: 0;
+		transform: translateX(-50%);
+		z-index: 100000;
+		div {
+			background-color: var(--sakai-background-color-2);
+			padding: 7px;
+			border: 1px solid var(--button-border-color);
+			border-width: 0 2px 2px 2px;
+			border-radius: 0 0 6px 6px;
+
+			a {
+				font-weight: bold;
+				margin-right: 5px;
+                text-decoration: none;
+			}
+		}
+	}
+	&.tool-maximised {
+		#maximised-indicator {
+			display: block;
+		}
+	}
+}
+
+sakai-maximise-button {
+	@media #{$phone} {
+		display: none;
+	}
+
+	body.tool-maximised & {
+		.#{$namespace}toolTitleNav__link {
+			@extend .btn;
+			@extend .btn-primary;
+		}
+	}
+}
+
+a{
+	color: var(--sakai-text-color-1);
+	&:hover{  // This means a:hover
+		color: var(--sakai-text-color-1);
+		text-decoration: none;
+	}
+	&[href]:not(.btn) {  // This means a[href]
+		color: var(--link-color);
+		&:focus{
+			outline: $sakai-focus-outline;
+			outline-color: var(--focus-outline-color);
+			outline-offset: $focus-outline-offset;
+		}
+		&:hover{
+			color: var(--link-hover-color);
+			background-color: var(--link-hover-background-color);
+			text-decoration:underline;
+		}
+		&:active{
+			color: var(--link-active-color);
+			background-color: var(--link-active-background-color);
+			outline: 0;		// no focus outline on click
+		}
+		&.btn{
+			text-decoration: none;
+		}
+		&.btn-primary{
+			@include sakai_primary_button();
+		}
+		text-decoration:underline;
+	}
+	&.url{
+		@media #{$phone}{
+		    display: block;
+			max-width: 100%;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;
+		}
+	}
+}
+
+input, textarea{
+	color: var(--sakai-text-color-1);
+	background: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-border-color);
+	@include border-radius($button-radius);
+	font-family: $font-family;
+	font-size: 	 $default-font-size;
+	max-width: 100%;
+}
+
+form, table{
+	textarea{
+		@media #{$phone}{
+			width: 100%;
+			max-width: 100%;
+		}
+	}
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family: $header-font-family;
+	font-weight: 700;
+	line-height: 1.05;
+	margin: 0.75em 0 0.5em 0;
+}
+
+h1{
+	font-size: #{$default-font-size + 8};
+}
+
+h2{
+	font-size: #{$default-font-size + 6};
+}
+
+h3{
+	font-size: #{$default-font-size + 4};
+}
+
+h4{
+	font-size: #{$default-font-size + 2};
+}
+
+.skip{
+	position: absolute !important;
+	height: 0px; width: 0px;
+	overflow: hidden;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
+	margin: 0;
+	padding: 0;
+}
+
+input[type="submit"],input[type="button"],input[type="reset"] {
+	@extend .button_color;
+}
+
+input[type="checkbox"], input[type="radio"]{
+	background-color: var(--sakai-background-color-1);
+	border: 1px solid var(--sakai-text-color-1);
+	color: var(--sakai-text-color-1);
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	vertical-align: sub;
+	@include appearance(none);
+	&:focus
+	{
+		box-shadow: 0px 0px $focus-outline-width $focus-outline-width var(--focus-outline-color);
+		outline: 0 none; // to override Bootstrap
+		outline-offset: 0; // to override Bootstrap
+	}
+
+	//SAK-30977
+	&[disabled],&[disabled="disabled"],&[disabled="true"]{
+		opacity: 0.5;
+		& + label{
+			cursor: not-allowed;
+			color: var(--sakai-text-color-disabled);
+		}
+	}
+}
+
+label.disabled{
+	cursor: not-allowed;
+	color: var(--sakai-text-color-disabled);
+}
+
+input[type="checkbox"]{
+	@include border-radius(3px);
+	&:checked{
+		background-image: url(#{$skin-path}images/check.svg);
+		background-size: 12px;
+		background-color: var(--button-primary-background);
+		background-repeat: no-repeat;
+		background-position: 1px 1px;
+	}
+}
+input[type="radio"]{
+	@include border-radius(24px);
+	&:checked{
+		background: var(--button-primary-background); // fallback support
+		background: radial-gradient(circle at center, var(--button-primary-background) 0%, var(--button-primary-background) 48%, var(--sakai-background-color-1) 58%);
+	}
+}
+
+select{
+	@extend .select;
+}
+
+select.form-control {
+	background-image: url(#{$skin-path}images/icon-arrow-down.png);
+}
+
+.is-hidden{
+	display: none;
+}
+
+strong, b{
+	font-weight: 700;
+}
+
+i, em{
+	font-style: italic;
+}
+
+u, ins {
+	text-decoration: underline;
+}
+
+s, strike, del {
+	text-decoration: line-through;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+video, embed, object, iframe {
+	max-width: 100%;
+}
+
+legend {
+	// override the Bootstrap defaults
+	display: inline-block;
+	width: auto;
+	margin-bottom: 0;
+	padding: 0.5em;
+	border: 0 none;
+}
+
+.formButtonDisabled, .formButtonDisabled:hover, .formButtonDisabled:active {
+	color: var(--button-disabled-text-color);
+	text-decoration: none;
+	background: var(--button-disabled-background);
+	border: 1px solid var(--button-disabled-border-color);
+	box-shadow: var(--button-disabled-shadow);
+	cursor: not-allowed;
+	white-space: nowrap;
+}
+
+ul, ol {
+    padding: 0 0 0 1.5em;
+}
+
+span.marker {
+    background-color: var(--sakai-color-gold--lighter-3);
+}
+
+.hide-input-arrows {
+  -moz-appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+}
+
+.sakai-user-photo {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    float: left;
+    background-position: 50%;
+    background-size: auto 100%;
+    border-radius: 50%;
+}

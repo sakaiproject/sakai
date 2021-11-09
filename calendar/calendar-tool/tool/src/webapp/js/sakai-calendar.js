@@ -25,10 +25,16 @@ const sakaiCalendar = {
       timeZone: sakaiCalendar.userTimeZone,
       displayEventTime: false,
       allDaySlot: false,
+      themeSystem: 'bootstrap5',
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      },
+      buttonIcons: {
+        /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
+        prev: ' fa fa-chevron-left',
+        next: ' fa fa-chevron-right',
       },
       eventSources: [{
         events: function(event, successCallback, failureCallback) {

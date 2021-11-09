@@ -1,0 +1,199 @@
+#if (${userIsLoggedIn})
+<aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-accountPanel" aria-labelledby="sakai-accountPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title visually-hidden" id="sakai-accountPanelLabel">Account Menu</h2>
+    <span>&nbsp;</span>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column">
+    <div class="text-center border-bottom mb-3 pb-2">
+      <img class="sakai-accountProfileImage rounded-circle" width="100" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
+      <h3 class="m-0">${loginUserDispName}</h3>
+      <h4 class="fw-normal text-muted">${loginUserDispId}</h4>
+      <ul class="nav flex-column">
+        #foreach ( $site in $tabsSites.tabsSites )
+          #if (${site.isMyWorkspace})
+        <li class="nav-item"><a href="${tabsSites.prefsToolUrl}" class="nav-link">Manage Preferences</a></li>
+        <li class="nav-item"><a href="${tabsSites.mrphs_profileToolUrl}" class="nav-link">View Profile</a></li>
+          #end
+        #end
+        <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">Log Out</button></li>
+        <li class="nav-item py-2"><a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-primary" data-warning="${logoutWarningMessage}"><span class="Mrphs-login-Message">${loginMessage}</span></a></li>
+      </ul>
+    </div>
+
+    <div class="accordion" id="sakai-accountPanelWidgets">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
+            My Tasks
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
+          <div class="accordion-body p-2">
+            <ul class="list-group">
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Assignment 5 due</h3>
+                  <h4 class="fs-6 fw-normal text-muted">CALCULUS 101 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Midterm exam open</h3>
+                  <h4 class="fs-6 fw-normal text-muted">ENGR 2001 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Discussion post due</h3>
+                  <h4 class="fs-6 fw-normal text-muted">NURSING 380 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
+            My Calendar
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
+          <div class="accordion-body p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h3 class="m-0">March 2022</h3>
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-square me-2" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                </svg>
+              </div>
+            </div>
+            <table class="w-100 text-center">
+              <thead>
+                <tr>
+                  <th>S</th>
+                  <th>M</th>
+                  <th>T</th>
+                  <th>W</th>
+                  <th>T</th>
+                  <th>F</th>
+                  <th>S</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>7</td>
+                  <td>8</td>
+                  <td>9</td>
+                  <td>10</td>
+                  <td>11</td>
+                  <td>12</td>
+                </tr>
+                <tr>
+                  <td>13</td>
+                  <td>14</td>
+                  <td>15</td>
+                  <td>16</td>
+                  <td>17</td>
+                  <td>18</td>
+                  <td>19</td>
+                </tr>
+                <tr>
+                  <td>20</td>
+                  <td>21</td>
+                  <td>22</td>
+                  <td>23</td>
+                  <td>24</td>
+                  <td>25</td>
+                  <td>26</td>
+                </tr>
+                <tr>
+                  <td>27</td>
+                  <td>28</td>
+                  <td>29</td>
+                  <td>30</td>
+                  <td>31</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseThree" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseThree">
+            My Grades
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
+          <div class="accordion-body p-2">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">CALCULUS 101 001 SP22</h3>
+                <span>96 / 100</span>
+              <span
+             >-- / 100</span>
+               
+               
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">GREEK 103 002 SP22</h3>
+                <span>73 / 100</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">NURSING 380 001 SP22</h3>
+                <span>81 / 100</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center border-top pt-3 mt-auto">
+      <fieldset class="btn-group" role="radiogroup" aria-label="Switch between light and dark themes">
+        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked="">
+        <label class="btn btn-outline-primary" for="btnradio1"><i class="bi bi-brightness-high me-2"></i>Light theme</label>
+
+        <input type="radio" class="btn-check " name="btnradio" id="btnradio2" autocomplete="off">
+        <label class="btn btn-outline-dark" for="btnradio2"><i class="bi bi-moon-fill me-2"></i>Dark theme</label>
+      </fieldset>
+    </div>
+  </div>
+</aside>
+#end

@@ -1,0 +1,145 @@
+#macro( siteListItem $index $site $isExpanded $isCurrentSite)
+
+    #if ($site.isPinned)
+        #set ($pinTitle = $rloader.sitenav_btn_unpin)
+        #set ($pinIconClass = "bi-pin-fill")
+    #else
+        #set ($pinTitle = $rloader.sitenav_btn_pin)
+        #set ($pinIconClass = "bi-pin")
+    #end
+
+    #if ($isExpanded)
+        #set ($isExpandedClass = "show")
+    #else
+        #set ($isCollapsedClass = "collapsed")
+    #end
+
+    #if ($isCurrentSite)
+        #set ($currentSiteClass = "is-current-site")
+    #else
+        #set ($currentSiteClass = "")
+    #end
+
+    <li class="site-list-item py-1 $!{currentSiteClass}">
+        <div class="site-list-item-head d-flex align-items-stretch pe-2">
+            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="${isExpanded}" aria-controls="site-${index}-pages">
+                <i class="btn-site-carret" aria-hidden="true"></i><span>${site.title}</span>
+            </button>
+            #if ($loggedIn)
+                <button data-pin-site="${site.id}" data-pinned="$!{site.isPinned}" title="${pinTitle}" class="site-opt-pin btn btn-site-opt bi $!{pinIconClass}"></button>
+            #end
+        </div>
+        <div id="site-${index}-pages" class="site-list-item-collapse collapse $!{isExpandedClass}">
+            #if ($site.shortDescription)
+                <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">${site.shortDescription}</p>
+            #end
+            <ul class="site-page-list nav flex-column py-1">
+            #foreach ( $page in $site.pages )
+                #if ($isCurrentSite)
+                    #set ($pageUrl = $page.resetUrl)
+                #else
+                    #set ($pageUrl = $page.url)
+                #end
+                #pageListItem ($page.title, $pageUrl, "si ${page.icon}", 4)
+                #*
+                <li class="nav-item">
+                    <a class="btn btn-nav rounded-end ps-4" href="${pageUrl}">
+                        <i class="me-1 si $!{page.icon}" aria-hidden="true"></i>
+                        <span>${page.title}</span>
+                    </a>
+                </li>
+                *#
+            #end
+            #if ($site.subSites)
+                <li class="nav-item">
+                    <div class="d-inline-flex align-items-stretch">
+                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${index}-subpages" aria-expanded="false" aria-controls="site-${index}-subpages">
+                            <i class="btn-site-carret" aria-hidden="true"></i>
+                            <span>${rloader.sitenav_sub_sites}</span>
+                        </button>
+                    </div>
+                    <div id="site-${index}-subpages" class="collapse">
+                        <ul class="nav flex-column">
+                            #foreach ( $subSite in $site.subSites )
+                                #pageListItem ($subSite.title, $subSite.url, "si si-subsite", 5)
+                            #end
+                        </ul>
+                    </div>
+                </li>
+            #end
+            </ul>
+        </div>
+    </li>
+#end
+
+#macro( pageListItem $title $url $icon $indentation)
+    <li class="nav-item">
+        <a class="btn btn-nav rounded-end ps-${indentation}" href="$!{url}">
+            <i class="me-1 $!{icon}" aria-hidden="true"></i>
+            <span>${title}</span>
+        </a>
+    </li>
+#end
+
+<!-- START VM includeSiteNav.vm -->
+<aside id="portal-nav-sidebar" class="d-none portal-nav-sidebar overflow-auto" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
+    <div class="offcanvas-header d-md-none">
+        <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
+        <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close the sites sidebar"></button>
+    </div>
+    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
+        <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
+        #if (${userIsLoggedIn})
+            #if ($sidebarSites.currentSite)
+                <div class="sites-section">
+                    <h3 class="sites-section-heading sites-section-heading-current">${rloader.sitenav_title_current}</h3>
+                    <ul class="mb-0 list-unstyled">
+                        #siteListItem("current", $sidebarSites.currentSite, false, true)
+                    </ul>
+                </div>
+            #end
+            #if ($sidebarSites.pinnedSites)
+                <div class="sites-section">
+                    <h3 class="sites-section-heading">${rloader.sitenav_title_pinned}</h3>
+                    <ul class="mb-0 list-unstyled">
+                        #foreach ( $site in $sidebarSites.pinnedSites)
+                            #if ($site.id != $currentSiteId)
+                                #siteListItem("pin-${velocityCount}", $site, false, false)
+                            #end
+                        #end
+                    </ul>
+                </div>
+            #end
+            #if ($sidebarSites.recentSites)
+                <div class="sites-section">
+                    <h3 class="sites-section-heading">${rloader.sitenav_title_recent}</h3>
+                    <ul class="mb-0 list-unstyled">
+                        #foreach ( $site in $sidebarSites.recentSites)
+                            #if ($site.id != $currentSiteId)
+                                #siteListItem("rec-${velocityCount}", $site, false, false)
+                            #end
+                        #end
+                    </ul>
+                </div>
+            #end
+            <div class="sites-section p-1 mt-auto">
+                <a class="sakia-viewAllSites btn btn-nav py-3 w-100 btn-site" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x3-gap-fill" viewBox="0 0 16 16">
+                        <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
+                    </svg>
+                    <span class="ps-1">${rloader.sitenav_link_allsites}</span>
+                </a>
+            </div>
+        #else
+            #if ($sidebarSites.gatewaySite)
+                <div class="sites-section">
+                    <h3 class="visually-hidden sites-section-heading">${rloader.sitenav_title_current}</h3>
+                    <ul class="pt-2 mb-0 list-unstyled">
+                        #siteListItem("gateway", $sidebarSites.gatewaySite, true, true)
+                    </ul>
+                </div>
+            #end
+        #end
+    </nav>
+</aside>
+<!-- END VM includeSiteNav.vm -->
