@@ -102,11 +102,20 @@ public class TimedAssessmentRunnable implements Runnable {
           String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
           PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
           ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(publishedAssessment, ag.getAgentId());
-          Integer extendedTime = assessmentExtended != null ? assessmentExtended.getTimeLimit() : null;
+          Integer extendedTime = null;
+
+          // The specific student has more time than the thread knows about
+          if (assessmentExtended != null && assessmentExtended.hasExtendedTime()) {
+            extendedTime = assessmentExtended.getTimeLimit();
+          }
+          // Maybe the instructor extended the time allowed after the student began?
+          else if (publishedAssessment != null && publishedAssessment.getTimeLimit() != null) {
+            extendedTime = publishedAssessment.getTimeLimit();
+          }
 
           // Did the instructor add more time after student started assessment?
           if (extendedTime != null && extendedTime > timedAG.getTimeLimit()) {
-            log.info("SAMIGO_TIMED_ASSESSMENT:EXTENDED ID:{} time_left:{}, extended_time:{}", this.timedAGId, timedAG.getTimeLimit(), extendedTime);
+            log.info("SAMIGO_TIMED_ASSESSMENT:EXTENDED ID:{} old_limit:{}, extended_time:{}", this.timedAGId, timedAG.getTimeLimit(), extendedTime);
             timedAG.setNewTimeLimit(extendedTime);
             return;
           }
