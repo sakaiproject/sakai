@@ -1,0 +1,13 @@
+#if (${usePortalSearch} && ${userIsLoggedIn})
+<aside class="offcanvas offcanvas-end" id="sakai-searchPanel" aria-labelledby="sakai-searchPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-searchPanelLabel">Search Sakai</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this search panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <label class="visually-hidden" for="sakai-searchField">Enter search term to search Sakai</label>
+    ## sakai search webcomponent
+    <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
+  </div>
+</aside>
+#end

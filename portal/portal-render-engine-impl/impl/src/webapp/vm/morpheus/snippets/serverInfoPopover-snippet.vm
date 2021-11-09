@@ -1,0 +1,30 @@
+## Default popover template with some additonal classes
+#set ($popoverTemplate = '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body p-2"></div></div>')
+
+## Popover content
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">
+        <span class="fw-bold">${rloader.getFormattedMessage("footer_serverinfo_version", $bottomNavService)}</span>
+        <span>${bottomNavSakaiVersion}</span>
+    </li>
+    #if ($showServerTime)
+        <li class="list-group-item">
+            <span class="fw-bold">${rloader.site_servertime_label}</span>
+            <span id="serverTime" class="Mrphs-footer--server-time"></span>
+        </li>
+    #end
+    #if ($showServerTime && $showPreferredTzTime)
+        <li class="list-group-item">
+            <span class="fw-bold">${rloader.site_preferredtime_label}</span>
+            <span id="preferredTime" class="Mrphs-footer--server-time__preferred"></span>
+        </li>
+    #end
+    <li class="list-group-item">
+        <span class="fw-bold">${rloader.site_server_label}</span>
+        <span>${bottomNavServer}</span>
+    </li>
+    <li class="list-group-item">
+        <span class="fw-bold">${rloader.site_buildinfo_label}</span>
+        <span>${bottomNavServiceVersion}</span>
+    </li>
+</ul>
