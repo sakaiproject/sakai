@@ -17,7 +17,7 @@
             <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
             <%@ include file="chatMenu.jsp" %>
             <div class="panel panel-chat panel-default">
-                <div class="panel-heading">
+                <div class="card text-center bg-light">
                     <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />
                     <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
                     <h:panelGroup styleClass="chat-block">
@@ -46,10 +46,10 @@
 
                 <ul class="nav nav-tabs" role="tabpanel">
                     <li class="active">
-                        <a href="#chatListWrapperCont" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
+                        <a href="#chatListWrapperCont" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.messages}" /></span></a>
                     </li>
                     <li>
-                        <a href="#chatPresenceWrapper" role="tab" data-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
+                        <a href="#chatPresenceWrapper" role="tab" data-bs-toggle="tab"><span><h:outputText value="#{msgs.lay_user}" /></span></a>
                     </li>
                 </ul>
                 <div class="panel-body panel-body-chat tab-content" id="chatLeft">

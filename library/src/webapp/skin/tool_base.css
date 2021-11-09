@@ -906,3 +906,19 @@ blockquote p {
 	opacity: 1;
 	border-color: var(--sakai-background-color-1);
 }
+.ui-datepicker-trigger {
+	margin-left: -2px;
+    border-top-left-radius: 0!important;
+    border: none;
+    border-bottom-left-radius: 0!important;
+    font-size: 1rem;
+    font-weight: 400;
+    /* line-height: 1.5; */
+    color: #212529;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    border-left: none;
+}

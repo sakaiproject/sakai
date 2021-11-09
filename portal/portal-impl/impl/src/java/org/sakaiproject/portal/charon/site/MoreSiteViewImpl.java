@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -123,10 +124,8 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
  		String profileToolUrl = null;
 		String calendarToolUrl = null;
  		String worksiteToolUrl = null;
- 		String prefsToolUrl = null;
  		String mrphs_profileToolUrl = null;
  		String mrphs_worksiteToolUrl = null;
- 		String mrphs_prefsToolUrl = null;
  		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
             for (Iterator iSi = mySites.iterator(); iSi.hasNext();) {
@@ -145,9 +144,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                                 mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             } else if ( calendarToolId.equals(placement.getToolId()) ) {
                                 calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-                            } else if ( preferencesToolId.equals(placement.getToolId()) ) {
-                                prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-                                mrphs_prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
                                 worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
@@ -167,10 +163,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		}
 		if ( calendarToolUrl != null ) {
 			renderContextMap.put("calendarToolUrl", calendarToolUrl);
-		}
-		if ( prefsToolUrl != null ) {
-			renderContextMap.put("prefsToolUrl", prefsToolUrl);
-			renderContextMap.put("mrphs_prefsToolUrl", mrphs_prefsToolUrl);
 		}
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
@@ -194,6 +186,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
 
 		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
+
+		List<Map> pinned
+			= l.stream().filter(map -> map.containsKey("favorite") && (Boolean) map.get("favorite"))
+				.collect(Collectors.toList());
+
+		renderContextMap.put("pinned", pinned);
 
 		// Bump it up by one to make room for the user's workspace
 		tabsToDisplay++;
@@ -232,7 +230,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		boolean displayActive = serverConfigurationService.getBoolean("portal.always.display.active_sites",false);
 		//If we don't always want to display it anyway, check to see if we need to display it
 		if (!displayActive) {
-				displayActive=Boolean.valueOf(moreSites.size() > 0);
+			displayActive=Boolean.valueOf(moreSites.size() > 0);
 		}
 
 		renderContextMap.put("tabsMoreSitesShow", displayActive);

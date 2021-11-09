@@ -394,13 +394,16 @@ export class SakaiTasks extends SakaiPageableElement {
     return [
       ...super.styles,
       css`
+      .global-overlays {
+        z-index: 1200;
+      }
         #add-block {
           text-align: right;
           margin-top: 8px;
           margin-bottom: 10px;
         }
           sakai-icon[type="add"] {
-            color: green;
+            color: #003a6b;
           }
 
         #controls {

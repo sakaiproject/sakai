@@ -234,7 +234,7 @@
 
             <h:panelGroup rendered="#{author.allAssessments.size() > 0}">
                 <div>
-                    <f:verbatim><label></f:verbatim>
+                    <f:verbatim><label class="form-control-label"></f:verbatim>
                         <h:outputText value="#{authorFrontDoorMessages.assessment_view} "/>
                         <h:selectOneMenu value="select" id="filter-type">
                             <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
@@ -295,7 +295,7 @@
                     </f:facet>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" styleClass="btn-group pull-right">
-                        <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                        <f:verbatim><button class="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
                             <h:outputText value="#{authorMessages.actions_for} " />
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                             <h:outputText value="#{assessment.title}" />
@@ -309,7 +309,7 @@
                         <f:verbatim></button></f:verbatim>
 
                         <t:dataList layout="unorderedList" value="#{author.pendingSelectActionList1}" var="pendingSelectActionList" rendered="#{assessment.questionSize > 0 }" styleClass="dropdown-menu row">
-                            <h:commandLink id="publishedHiddenlink" styleClass="hiddenBtn_#{pendingSelectActionList.value}" action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" >
+                            <h:commandLink id="publishedHiddenlink" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item" action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" >
                                 <f:param name="action" value="#{pendingSelectActionList.value}" />
                                 <f:param name="assessmentId" value="#{assessment.assessmentBaseId}"/>
                                 <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
@@ -317,7 +317,7 @@
                         </t:dataList>
 
                         <t:dataList layout="unorderedList" value="#{author.pendingSelectActionList2}" var="pendingSelectActionList" rendered="#{assessment.questionSize == 0 }" styleClass="dropdown-menu row">
-                            <h:commandLink id="publishedHiddenlink" styleClass="hiddenBtn_#{pendingSelectActionList.value}" action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" >
+                            <h:commandLink id="publishedHiddenlink" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item" action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" >
                                 <f:param name="action" value="#{pendingSelectActionList.value}" />
                                 <f:param name="assessmentId" value="#{assessment.assessmentBaseId}"/>
                                 <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
@@ -327,7 +327,7 @@
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}" styleClass="btn-group pull-right">
                         <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-primary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -354,7 +354,7 @@
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
                                 </h:commandLink>
 
-                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value}">
+                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
                                     <f:param name="action" value="#{pendingSelectActionList.value}" />
                                     <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
@@ -364,7 +364,7 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-pirmary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -384,7 +384,7 @@
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
                                 </h:commandLink>
 
-                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value}">
+                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
                                     <f:param name="action" value="#{pendingSelectActionList.value}" />
                                     <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
@@ -394,7 +394,7 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{!(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
+                            <f:verbatim><button class="btn btn-primary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
@@ -414,7 +414,7 @@
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
                                 </h:commandLink>
 
-                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value}">
+                                <h:commandLink action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item">
                                     <f:param name="action" value="#{pendingSelectActionList.value}" />
                                     <f:param name="assessmentId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>

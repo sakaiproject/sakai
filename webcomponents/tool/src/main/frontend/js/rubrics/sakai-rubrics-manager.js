@@ -39,7 +39,7 @@ class SakaiRubricsManager extends RubricsElement {
 
       <div class="row">
         <div class="col-md-4 form-group">
-          <label for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
+          <label class="label-rubrics" for="rubrics-search-bar"><sr-lang key="search_rubrics">Search Rubrics by title or author</sr-lang></label>
           <input type="text" id="rubrics-search-bar" name="rubrics-search-bar" class="form-control" @keyup="${this.filterRubrics}">
         </div>
       </div>

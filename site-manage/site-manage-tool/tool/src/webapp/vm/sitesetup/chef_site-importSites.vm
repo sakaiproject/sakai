@@ -45,7 +45,7 @@
 	
 	
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
-		<div class="table-responsive">
+		<div class="table">
 			<table class ="table table-bordered table-hover table-striped"  summary="$tlang.getString("import.choose.list.summary")" >
 				<tr>
 					<th>
@@ -137,7 +137,7 @@
                                                             <input type="checkbox" class="siteimport-option" name="import-option-${option}-tool-${toolId}" value="true"/>
                                                             $tlang.getString(${optionPropKey})
                                                         </label>
-                                                        <span class="import-option-help fa fa-question-circle" data-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
+                                                        <span class="import-option-help fa fa-question-circle" data-bs-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
                                                     </div>
 													#end
                                                 </div>

@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -221,15 +220,6 @@ public class BasePage extends WebPage {
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
 								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js%s", version))));
-		// And pair this instance of jQuery with a Bootstrap version we've tested with
-		response.render(
-				new PriorityHeaderItem(
-						JavaScriptHeaderItem
-								.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js%s", version))));
-		// Some global gradebookng styles
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css%s", version)));
-
 	}
 
 	/**
@@ -254,7 +244,7 @@ public class BasePage extends WebPage {
 
 		flagWithPopover.add(new AttributeModifier("title", message));
 		flagWithPopover.add(new AttributeModifier("aria-label", message));
-		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
+		flagWithPopover.add(new AttributeModifier("data-bs-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", trigger));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));

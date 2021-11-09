@@ -233,7 +233,7 @@
 			Use cahcedTopicStatistics - value is cached from #{!empty mfStatisticsBean.groupForStatisticsByTopic} above.
 			Retrieve the topic statistics, then clear the cache since dfStatisticsBean is scoped to the session, and we don't want this data to persist for future requests
 		--%>
-		<div class="table-responsive">
+		<div class="table">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.gradeStatisticsForStatsListByTopic}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>

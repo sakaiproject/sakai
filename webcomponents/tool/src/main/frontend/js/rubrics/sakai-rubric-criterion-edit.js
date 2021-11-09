@@ -42,8 +42,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     return html`
       <a tabindex="0" role="button" class="linkStyle edit fa fa-edit" @focus="${this.onFocus}" @keyup="${this.openEditWithKeyboard}" @click="${this.editCriterion}" title="${tr("edit_criterion")} ${this.criterion.title}" aria-label="${tr("edit_criterion")} ${this.criterion.title}" href="#"></a>
 
-      <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
-        <div class="arrow"></div>
+      <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom rubrics-popover">
+        <div class="arrow-1"></div>
         <div class="popover-title">
           <div class="buttons act">
             <button class="active save" @click="${this.saveEdit}">
@@ -56,7 +56,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
         </div>
         <div class="popover-content form">
           <div class="form-group">
-            <label for="criterion-title-field-${this.criterion.id}">
+            <label class="label-rubrics" for="criterion-title-field-${this.criterion.id}">
               ${this.isCriterionGroup ? html`
                 <sr-lang key="criterion_group_title">Criterion Group Title</sr-lang>
               ` : html`
@@ -66,7 +66,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
             <input id="criterion-title-field-${this.criterion.id}" type="text" class="form-control" value="${this.criterionClone.title}" maxlength="255">
           </div>
           <div class="form-group">
-            <label for="criterion-description-field-${this.criterion.id}">
+            <label class="label-rubrics" for="criterion-description-field-${this.criterion.id}">
               ${this.isCriterionGroup ? html`
                 <sr-lang key="criterion_group_description">Criterion Group Description</sr-lang>
               ` : html`

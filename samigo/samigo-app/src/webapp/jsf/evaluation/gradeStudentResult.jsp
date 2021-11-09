@@ -220,12 +220,12 @@ function toPoint(id)
       <h:panelGroup rendered="#{question.hasAssociatedRubric}">
         <ul class="nav nav-tabs">
           <li class="active">
-            <a data-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+            <a data-bs-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
               <h:outputText value="#{commonMessages.student_response}" />
             </a>
           </li>
           <li>
-            <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+            <a data-bs-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
               <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
             </a>
           </li>
