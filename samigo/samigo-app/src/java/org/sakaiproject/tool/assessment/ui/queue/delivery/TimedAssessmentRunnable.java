@@ -86,7 +86,7 @@ public class TimedAssessmentRunnable implements Runnable {
       TimedAssessmentGradingModel timedAG = this.queue.get(this.timedAGId);
       String serverName = serverConfigurationService.getServerName();
 
-      boolean submitted = timedAG.getSubmittedForGrade();
+      boolean submitted = timedAG.isSubmittedForGrade();
       long bufferedExpirationTime = timedAG.getBufferedExpirationDate().getTime(); // in millesec
       long currentTime = (new Date()).getTime(); // in millisec
   
@@ -106,9 +106,8 @@ public class TimedAssessmentRunnable implements Runnable {
 
           // Did the instructor add more time after student started assessment?
           if (extendedTime != null && extendedTime > timedAG.getTimeLimit()) {
-            timedAG.setTimeLimit(extendedTime);
-            timedAG.setTimeLeft(extendedTime - timedAG.getTimeLimit());
             log.info("SAMIGO_TIMED_ASSESSMENT:EXTENDED ID:{} time_left:{}, extended_time:{}", this.timedAGId, timedAG.getTimeLimit(), extendedTime);
+            timedAG.setNewTimeLimit(extendedTime);
             return;
           }
 
