@@ -208,7 +208,7 @@
 
         <h:form id="syllabusMainEdit">
           <%@ include file="mainMenu.jsp" %>
-   	      <h:messages globalOnly="true" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
+   	      <h:messages globalOnly="true" layout="table" styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
 		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"

@@ -116,6 +116,7 @@ public class SyllabusTool
     protected ArrayList attachmentList = null;
     private String startDateString;
     private String endDateString;
+    private Integer relativePosition = 0;
     
     public DecoratedSyllabusEntry(SyllabusData en)
     {
@@ -150,7 +151,15 @@ public class SyllabusTool
     {
       selected = b;
     }
-    
+ 
+    public void setRelativePosition(Integer pos) {
+      relativePosition = pos;
+    }
+	
+    public Integer getRelativePosition() {
+      return relativePosition;
+    }
+
     public boolean isPosted()
     {
       return SyllabusData.ITEM_POSTED.equals(getEntry().getStatus());
@@ -316,7 +325,7 @@ public class SyllabusTool
 
 	public void setStartDateString(String startDateString) {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		String startISODate = params.get((getEntry().getPosition() - 1) + HIDDEN_START_ISO_DATE);
+		String startISODate = params.get(this.getRelativePosition() + HIDDEN_START_ISO_DATE);
 		if(DateFormatterUtil.isValidISODate(startISODate)){
 			getEntry().setStartDate(DateFormatterUtil.parseISODate(startISODate));
 		} else {
@@ -331,7 +340,7 @@ public class SyllabusTool
 
 	public void setEndDateString(String endDateString) {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		String endISODate = params.get((getEntry().getPosition() - 1) + HIDDEN_END_ISO_DATE);
+		String endISODate = params.get(this.getRelativePosition() + HIDDEN_END_ISO_DATE);
 		if(DateFormatterUtil.isValidISODate(endISODate)){
 			getEntry().setEndDate(DateFormatterUtil.parseISODate(endISODate));
 		} else {
@@ -468,12 +477,14 @@ public class SyllabusTool
             if (tempEntries != null)
             {
                 Iterator iter = tempEntries.iterator();
+                int i = 0;
                 while (iter.hasNext())
                 {
                     SyllabusData en = (SyllabusData) iter.next();
                     if (isAddOrEdit())
                     {
                         DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                        den.setRelativePosition(i++);
                         entries.add(den);
                     }
                     else
@@ -481,6 +492,7 @@ public class SyllabusTool
                         if (en.getStatus().equalsIgnoreCase(SyllabusData.ITEM_POSTED))
                         {
                             DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                            den.setRelativePosition(i++);
                             entries.add(den);
                         }
                     }
@@ -533,12 +545,14 @@ public class SyllabusTool
           if (tempEntries != null)
           {
             Iterator iter = tempEntries.iterator();
+            int i = 0;
             while (iter.hasNext())
             {
               SyllabusData en = (SyllabusData) iter.next();
               if (isAddOrEdit())
               {
                 DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                den.setRelativePosition(i++);
                 entries.add(den);
               }
               else
@@ -546,6 +560,7 @@ public class SyllabusTool
                 if (en.getStatus().equalsIgnoreCase(SyllabusData.ITEM_POSTED))
                 {
                   DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                  den.setRelativePosition(i++);
                   entries.add(den);
                 }
               }
