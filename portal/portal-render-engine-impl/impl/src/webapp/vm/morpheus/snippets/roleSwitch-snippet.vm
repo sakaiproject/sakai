@@ -2,7 +2,7 @@
 
 <div id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
     #if ($roleSwitchState)
-    	<span style="padding-right: 10px">$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
+    	<span>$rloader.getFormattedMessage("rs_roleSwapAdvice", $roleUrlValue)</span>
     	<a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
             <input type="submit" value="$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)"/>
         </a>

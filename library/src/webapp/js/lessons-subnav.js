@@ -17,11 +17,11 @@
         this.siteId = data.siteId;
         this.isInstructor = data.isInstructor;
 
-        this.has_current = false;
+        //this.has_current = false;
         this.setup();
-        this.setupPrerequisiteCallback();
+        //this.setupPrerequisiteCallback();
     };
-
+    
     LessonsSubPageNavigation.prototype.setup = function() {
         var self = this;
 
@@ -35,12 +35,43 @@
 
     LessonsSubPageNavigation.prototype.render_subnav_for_page = function(page_id, sub_pages) {
         var self = this;
-
         var submenu_id = "lessonsSubMenu_" + page_id;
 
-        var $menu = document.querySelector('#toolMenu a[href$="/tool/'+page_id+'"], #toolMenu [href$="/tool-reset/'+page_id+'"]');
-        var $li = $menu.parentElement;
+        const lessonsElement = document.querySelector('#toolMenu a[href$="/tool/'+page_id+'"], #toolMenu [href$="/tool-reset/'+page_id+'"]');
 
+        const siteListItem = lessonsElement.parentElement;
+        const mainLink = lessonsElement.href?.replace(/\/tool\//, "/tool-reset/");
+
+        const collapseId = `page-${page_id}-lessons-subpages`;
+        const template = `
+            <div class="d-inline-flex align-items-stretch">
+                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                    <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
+                </button>
+            </div>
+            <div id="${collapseId}" class="collapse">
+                <ul class="nav flex-column pe-2">
+                    <li class="nav-item">
+                        <a class="btn btn-nav rounded-end ps-4" href="${mainLink}">
+                            <i class="me-2 si si-sakai-lessonbuildertool" aria-hidden="true"></i>
+                            <span>${self.i18n.main_link_name}</span>
+                        </a>
+                    </li>
+                    ${sub_pages.map(sub_page => `
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="${self.build_sub_page_url_for(sub_page)}">
+                                <i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>
+                                <span>${sub_page.name}</span>
+                            </a>
+                        </li>
+                    `).join("")}
+                </ul>
+            </div>
+        `;
+        lessonsElement.remove()
+        siteListItem.insertAdjacentHTML("afterbegin", template);
+        
+        /*
         var $submenu = document.createElement('ul');
         $submenu.classList.add('lessons-sub-page-menu');
         $submenu.setAttribute('aria-hidden', true);
@@ -94,6 +125,7 @@
 
         $li.appendChild($submenu);
         self.setup_parent_menu($li, $menu, submenu_id);
+        */
     };
 
 

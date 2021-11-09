@@ -1,0 +1,307 @@
+//Portal grid
+/*
+  In Mobile view (xxs + xs + sm breakpoints) all grid areas are stacked on top of each other and
+  "mobilebar" is included additionally. For wider devices paBanner, jumpLinks and header areas
+  occupy the whole width, while sidebar shares space with mainContainer. The mainContainer area
+  is jsut a small grid itself including the rendered tool and the footer. 
+*/
+.portal-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto var(--portal-header-height) 1fr var(--portal-header-height);
+  grid-template-areas:
+      "paBanner"
+      "jumpLinks"
+      "header"
+      "mainContainer"
+      "mobilebar";
+}
+
+@include media-breakpoint-up(md) {
+  .portal-container {
+    grid-template-columns: var(--portal-nav-sidebar-width) 1fr;
+    grid-template-rows: auto auto var(--portal-header-height) 1fr;
+    grid-template-areas:
+        "paBanner paBanner"
+        "jumpLinks jumpLinks"
+        "header header"
+        "sidebar mainContainer";
+    &.sidebar-collapsed {
+      grid-template-areas:
+          "paBanner paBanner"
+          "jumpLinks jumpLinks"
+          "header header"
+          "mainContainer mainContainer";
+    }
+  }
+  .portal-nav-sidebar {
+    visibility: visible;
+    box-shadow: none;
+    transform: none;
+    .sidebar-collapsed & {
+      display: none;
+    }
+  }
+  .portal-jump-links {
+    padding-left: var(--portal-nav-sidebar-width);
+  }
+}
+.portal-pasystem {
+  grid-area: paBanner;
+}
+.portal-header {
+  grid-area: header;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+.portal-nav-sidebar {
+  grid-area: sidebar;
+}
+
+.portal-main-content {
+  grid-area: main;
+}
+
+.portal-main-container {
+  grid-area: mainContainer;
+  display: grid;
+  grid-template-areas: 
+      "main"
+      "footer";
+  grid-template-rows: 1fr auto;
+  align-content: space-between;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.portal-footer {
+  grid-area: footer;
+}
+.portal-mobilebar {
+  grid-area: mobilebar;
+  position: sticky;
+  bottom: 0;
+  z-index: 1050;
+}
+.portal-jump-links {
+  grid-area: jumpLinks;
+}
+.portal-jump-links a {
+  color: #fff;
+}
+.portal-header-logo {
+  height: var(--portal-header-height);
+}
+@include media-breakpoint-up(md) {
+  .portal-header-logo {
+    width: var(--portal-nav-sidebar-width);
+  }
+}
+.portal-header-logo img {
+  max-height: 3rem;
+}
+.portal-notifications-indicator {
+  position: absolute;
+  top: 0;
+  right: 20%;
+}
+// make offcanvas header match Sakai's header:
+.offcanvas-header {
+  flex-shrink: 0;
+  height: var(--portal-header-height);
+  color: #fff;
+  background-color: var(--bs-primary);
+}
+// change offcanvas close button's colour to white:
+.offcanvas-header .btn-close {
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+// for narrow views, take up the full width of the screen:
+@media (max-width: $offcanvas-horizontal-width) {
+  .offcanvas-start,
+  .offcanvas-end {
+    max-width: 100vw;
+  }
+}
+@include media-breakpoint-down(md) {
+  .offcanvas-start,
+  .offcanvas-end {
+    bottom: var(--portal-header-height);
+  }
+}
+
+.sakai-sitesAndToolsNav .active .list-group-item-action {
+  font-weight: 700;
+  color: #fff;
+}
+
+.portal-footer .nav-link {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+@mixin focus-outline($color) {
+  &:focus {
+    box-shadow: 0 0 0 $input-focus-width rgba($color, .5);
+    //box-shadow: 0 0 0 $input-focus-width rgba(mix($input-bg, $input-border-color, 15%), .5);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .focus-#{$color} {
+    @include focus-outline($value);
+  }
+}
+
+.btn-input-group {
+  @include button-variant(
+    $input-bg,
+    $input-border-color,
+    $active-background: $input-group-addon-bg,
+  );
+  display: flex;
+  align-items: center;
+}
+
+.btn-sidebar-collapse {
+  border: none;
+  @include button-variant($primary, $light);
+}
+
+@mixin btn-base() {
+  @include button-variant($white, $black);
+    --bs-btn-color: var(--button-color);
+    --bs-btn-bg: var(--button-bg);
+    --bs-btn-border-color: var(--button-border-color);
+    --bs-btn-hover-color: var(--button-hover-color);
+    --bs-btn-hover-bg: var(--button-hover-bg);
+    --bs-btn-hover-border-color: var(--button-hover-border-color);
+    --bs-btn-focus-shadow-rgb: 249, 250, 251;
+    --bs-btn-active-color: var(--button-active-color);
+    --bs-btn-active-bg: var(--button-active-bg);
+    --bs-btn-active-border-color: var(--button-active-border-color);
+    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--button-disabled-color);
+    --bs-btn-disabled-bg: var(--button-disabled-bg);
+    --bs-btn-disabled-border-color: var(--button-disabled-border-color);
+}
+
+.portal-nav-sidebar{
+
+  .btn-nav,
+  .btn-site-opt {
+    @include btn-base();
+    --button-color: (--site-nav-btn-color);
+    --button-bg: var(--site-nav-btn-bg);
+    --button-border-color: var(--site-nav-btn-border-color);
+    --button-hover-color: var(--site-nav-btn-hover-color);
+    --button-hover-bg: var(--site-nav-btn-hover-bg);
+    --button-hover-border-color: var(--site-nav-btn-hover-border-color);
+    --bs-btn-focus-shadow-rgb: 38, 88, 129;
+    --button-active-color: var(--site-nav-btn-active-color);
+    --button-active-bg: var(--site-nav-btn-active-bg);
+    --button-active-border-color: var(--site-nav-btn-active-border-color);
+    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --button-disabled-color: var(--site-nav-btn-disabled-color);
+    --button-disabled-bg: var(--site-nav-btn-disabled-bg);
+    --button-disabled-border-color: var(--site-nav-btn-disabled-border-color);
+    .is-current-site .site-list-item-head > & {
+      --button-color: (--site-nav-btn-current-color);
+      --button-bg: var(--site-nav-btn-current-bg);
+      --button-border-color: var(--site-nav-btn-current-border-color);
+      --button-hover-color: var(--site-nav-btn-current-hover-color);
+      --button-hover-bg: var(--site-nav-btn-current-hover-bg);
+      --button-hover-border-color: var(--site-nav-btn-current-hover-border-color);
+      --bs-btn-focus-shadow-rgb: 38, 88, 129;
+      --button-active-color: var(--site-nav-btn-current-active-color);
+      --button-active-bg: var(--site-nav-btn-current-active-bg);
+      --button-active-border-color: var(--site-nav-btn-current-active-border-color);
+      //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+      --button-disabled-color: var(--site-nav-btn-current-disabled-color);
+      --button-disabled-bg: var(--site-nav-btn-current-disabled-bg);
+      --button-disabled-border-color: var(--site-nav-btn-current-disabled-border-color);
+    }
+  }
+
+  .sakai-sitesAndToolsNav {
+    background-color: var(--site-nav-bg);
+  }
+
+  .sites-section-heading {
+    @extend .mb-0, .pb-2, .pt-3, .ps-3, .fs-5;
+    background-color: var(--site-nav-list-item-bg);
+  }
+
+  .sakai-sitesAndToolsNav {
+    overflow-y: scroll;
+  }
+
+  a.btn-nav{
+    color: var(--button-color);
+    &:hover,
+    &:focus {
+      outline: none;
+    }
+  }
+
+
+  .btn-site-opt {
+    &:hover,
+    &:focus {
+      background-color: #c7d5dd;
+    }
+    &:active {
+      background-color: #a6bcca;
+    }
+    border: none;
+  }
+
+  .btn-nav {
+    border-radius: 0;
+  }
+
+  .btn-site {
+    font-weight: 550;
+  }
+
+  .btn-site-carret {
+    &::before {
+      display: inline-flex;
+      width: 1.25em;
+      margin-inline-end: 0.25rem;
+      line-height: 0;
+      content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+      transition: transform 0.35s ease;
+      transform-origin: 0.5em 50%;
+      @extend .bi;
+    }
+  }
+
+  .btn-site,
+  .btn-subsite {
+    &[aria-expanded="true"] .btn-site-carret::before {
+      transform: rotate(90deg);
+    }
+  }
+
+  .site-desc {
+    font-style: italic;
+  }
+
+  &.portal-nav-sidebar-mobile {
+    .btn-site-opt {
+      color: var(--sakai-text-color-dimmed);
+    }
+    .site-list-item-collapse {
+      background-color: var(--sakai-background-color-3);
+    }
+  }
+
+  &.portal-nav-sidebar-desktop {
+    background-color: var(--sakai-background-color-3);
+    .site-list-item:not(:hover):not(:focus-within) .btn-site-opt {
+      color: transparent;
+    }
+    .site-list-item-collapse {
+      background-color: var(--sakai-background-color-2);
+    }
+  }
+}

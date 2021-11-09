@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -685,6 +686,13 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
+			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
+				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			
+
+			rcontext.put("currentSiteId", siteId);
+			rcontext.put("sidebarSites", portal.getSiteHelper().getContextSitesWithPages(req, siteId, null, null, loggedIn));
+
 			try
 			{
 				if (loggedIn)
@@ -739,10 +747,6 @@ public class SiteHandler extends WorksiteHandler
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
-			String siteType = portal.calcSiteType(siteId);
-			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
-			rcontext.put("logoSiteType", siteType);
-			rcontext.put("logoSiteClass", cssClass);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -924,7 +928,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
