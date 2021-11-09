@@ -1,0 +1,12 @@
+{
+  "name": "library",
+  "version": "1.0.0",
+  "description": "Sakai Library",
+  "main": "",
+  "scripts": {
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
