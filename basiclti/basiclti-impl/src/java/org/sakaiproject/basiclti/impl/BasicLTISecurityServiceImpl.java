@@ -311,12 +311,17 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			if ( content_launch_url != null ) launch_url = content_launch_url;
 		}
 
+		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		String deployment_id = ServerConfigurationService.getString(SakaiBLTIUtil.LTI13_DEPLOYMENT_ID, SakaiBLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
+
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
 		try {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
 			redirect.addParameter("login_hint", encoded_login_hint);
+			if ( client_id != null ) redirect.addParameter("client_id", client_id);
+			if ( deployment_id != null ) redirect.addParameter("lti_deployment_id", deployment_id);
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);
 			}
