@@ -204,7 +204,7 @@ export class SakaiCourseDashboard extends LitElement {
               </div>
             ` : html`
               <div id="course-dashboard-edit">
-                <sakai-button slot="invoker" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
+                <sakai-button slot="invoker" sakClass="btn-primary" @click=${this.edit} title="${this.i18n.edit_tooltip}" arial-label="${this.i18n.edit_tooltip}">${this.i18n.edit}</sakai-button>
               </div>
             `}
           ` : ""}
