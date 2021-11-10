@@ -10,14 +10,14 @@
 
         <div class="hidden" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
 
-        <ul id="otherSitesMenu" role="menu">
+        <ul id="otherSitesMenu" role="menubar">
             #if (${tabsSites.worksiteToolUrl})
 
-                <li><a role="menuitem" id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+                <li role="menuitem"><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
 
                 #if ($allowAddSite)
 
-                    <li><a role="menuitem" id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
+                    <li role="menuitem"><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
 
                 #end ## END of IF ($allowAddSite)
 
@@ -25,12 +25,12 @@
 
             #if (${tabsSites.prefsToolUrl})
 
-                <li><a role="menuitem" href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
+                <li role="menuitem"><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
 
             #end ## END of IF (${tabsSites.prefsToolUrl})
 
-            <li class="otherSitesMenuClose">
-                <a role="menuitem" href="javascript:void(0);">
+            <li class="otherSitesMenuClose" role="menuitem">
+                <a href="javascript:void(0);">
                     <span class="sr-only">${rloader.sit_othersitesclose}</span>
                     <span class="fa fa-times" aria-hidden="true"></span>
                 </a>

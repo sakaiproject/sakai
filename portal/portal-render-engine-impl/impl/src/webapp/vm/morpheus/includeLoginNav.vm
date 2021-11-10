@@ -41,7 +41,7 @@
                             <div class="tab-box">
                                 #foreach($quickLink in $quickLinks)
                                     <li class="Mrphs-quickLinksNav__submenuitem">
-                                        <a role="menuitem" href="${quickLink.url}" title="$quickLink.title" target="_blank">
+                                        <a href="${quickLink.url}" title="$quickLink.title" target="_blank">
                                             #if(${quickLink.iconType} == "image")
                                                 <span id="quicklink-icon" style="background-image:url(${quickLink.imageURI})"></span>
                                             #elseif (${quickLink.iconType} == "icon")
@@ -104,19 +104,19 @@
 
                                 #end ## END of IF (${displayUserloginInfo})
 
-                            <ul class="Mrphs-userNav__subnav is-hidden" role="menu">
+                            <ul class="Mrphs-userNav__subnav is-hidden">
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userData">
                                     <div class="Mrphs-userNav__submenuitem--profile-and-image">
                                         #if (${tabsSites.mrphs_profileToolUrl})
                                             <div class="has-avatar">
-                                                <a role="menuitem" class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-haspopup="dialog">
+                                                <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-haspopup="dialog">
                                                     <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
                                                     <span class="sr-only">${rloader.pic_changer_title}</span>
                                                 </a>
                                             </div>
                                             <div class="Mrphs-userNav__submenuitem--profile">
-                                                <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}">
+                                                <a href="${tabsSites.mrphs_profileToolUrl}">
                                                     <span>${rloader.sit_profile}</span>
                                                 </a>
                                             </div>
@@ -133,7 +133,7 @@
                                 </li>
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    <a role="menuitem" href="javascript:;" id="Mrphs-userNav__submenuitem--connections" aria-haspopup="dialog">
+                                    <a href="javascript:;" id="Mrphs-userNav__submenuitem--connections" aria-haspopup="dialog">
                                         <span>${rloader.sit_connections}</span>
                                     </a>
                                 </li>
@@ -141,7 +141,7 @@
                                     #if (${tabsSites.calendarToolUrl})
             
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                            <a role="menuitem" href="${tabsSites.calendarToolUrl}" class="Mrphs-userNav__submenuitem--calendar">
+                                            <a href="${tabsSites.calendarToolUrl}" class="Mrphs-userNav__submenuitem--calendar">
                                                 <span>${rloader.sit_calendar}</span>
                                             </a>
                                         </li>
@@ -151,7 +151,7 @@
                                     #if (${tabsSites.prefsToolUrl})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                            <a role="menuitem" href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
+                                            <a href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
                                                 <span>${rloader.sit_preferences}</span>
                                             </a>
                                         </li>
@@ -161,7 +161,7 @@
                                     #if (${tabsSites.tutorial})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial" aria-haspopup="dialog">
+                                            <a id="tutorialLink" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial" aria-haspopup="dialog">
                                                 <span>${rloader.sit_tutorial}</span>
                                             </a>
                                         </li>
