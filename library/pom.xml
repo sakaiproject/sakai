@@ -394,6 +394,25 @@
 								</configuration>
 							</execution>
 							<execution>
+								<id>copy-morpheus-js</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/morpheus-master/js/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/morpheus-master/js/</directory>
+											<includes>
+												<include>lib/**/*.js</include>
+												<include>ie/**/*.js</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
 								<id>copy-js</id>
 								<phase>generate-resources</phase>
 								<goals>
@@ -501,24 +520,33 @@
                         <version>1.7.6</version>
                         <executions>
                             <execution>
-                                <id>default-minify</id>
+                                <id>morpheus-minify</id>
                                 <configuration>
                                     <charset>UTF-8</charset>
-                                    <webappSourceDir>${basedir}/src/${sakai.skin.source}/src</webappSourceDir>
-                                    <jsSourceDir>js/</jsSourceDir>
+                                    <webappSourceDir>${basedir}/src/morpheus-master</webappSourceDir>
+                                    <jsSourceDir>js/src/</jsSourceDir>
                                     <jsSourceIncludes>
-                                        <jsSourceInclude>src/*.js</jsSourceInclude>
+                                        <jsSourceInclude>*.js</jsSourceInclude>
                                     </jsSourceIncludes>
-                                    <jsSourceFiles>
-                                        <jsSourceFile>_custom.lib.js</jsSourceFile>
-                                        <jsSourceFile>_custom.main.js</jsSourceFile>
-                                    </jsSourceFiles>
-                                    <jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
+                                    <jsTargetDir>skin/morpheus-default/js</jsTargetDir>
                                     <jsFinalFile>morpheus.scripts.js</jsFinalFile>
                                     <jsEngine>CLOSURE</jsEngine>
                                 </configuration>
                                 <goals><goal>minify</goal></goals>
                             </execution>
+							<execution>
+								<id>default-minify</id>
+								<configuration>
+									<charset>UTF-8</charset>
+									<webappSourceDir>${basedir}/src/morpheus-master</webappSourceDir>
+									<jsSourceDir>js/src/</jsSourceDir>
+									<jsIncludes>*.js</jsIncludes>
+									<jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
+									<jsFinalFile>morpheus.scripts.js</jsFinalFile>
+									<jsEngine>CLOSURE</jsEngine>
+								</configuration>
+								<goals><goal>minify</goal></goals>
+							</execution>
                             <execution>
                                 <id>elfinder-minify</id>
                                 <configuration>
