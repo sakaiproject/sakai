@@ -301,6 +301,8 @@ public class DeliveryActionListener
             	  }                 	  
               }
 
+              generateSecureTokenForAssessment(delivery);
+
               // post event
               eventRef = new StringBuffer("publishedAssessmentId=");
               eventRef.append(delivery.getAssessmentId());
@@ -517,25 +519,7 @@ public class DeliveryActionListener
               log.debug("****Set begin time " + delivery.getBeginTime());
               log.debug("****Set elapsed time " + delivery.getTimeElapse());
 
-              // SAK-45537 - Generate a secure token valid only for this exam, site and session.
-              try {
-                  if (StringUtils.isBlank(delivery.getSecureToken())) {
-                      // Set token validity for the time limit of the exam, if there's no limit make it available for 2 hours.
-                      int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
-                      int tokenValiditySeconds = timeRemaining > 0 ? timeRemaining : 7200;
-                      log.debug("Generating secured token for attachments valid for {} seconds.....", tokenValiditySeconds);
-                      String localDateTime = LocalDateTime.now().plusSeconds(tokenValiditySeconds).toString();
-                      String sessionId = sessionManager.getCurrentSession().getId();
-                      String secureTokenString = sessionId+"|"+localDateTime;
-                      log.debug("Encrypting secured token {}", secureTokenString);
-                      String secureToken = URLEncoder.encode(encryptionUtilityService.encrypt(secureTokenString), StandardCharsets.UTF_8.name());
-                      log.debug("Encrypted token with value {}", secureToken);
-                      delivery.setSecureToken(secureToken);
-                  }
-
-              } catch (Exception ex) {
-                  log.warn("Cannot generate secured token for assessment {}: {}", delivery.getAssessmentId(), ex.getMessage());
-              }
+              generateSecureTokenForAssessment(delivery);
 
               break;
 
@@ -610,6 +594,27 @@ public class DeliveryActionListener
     	throw e;
     }
 
+  }
+  
+  private void generateSecureTokenForAssessment(DeliveryBean delivery) {
+    // SAK-45537 - Generate a secure token valid only for this exam, site and session.
+    try {
+      if (StringUtils.isBlank(delivery.getSecureToken())) {
+        // Set token validity for the time limit of the exam, if there's no limit make it available for 2 hours.
+        int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
+        int tokenValiditySeconds = timeRemaining > 0 ? timeRemaining : 7200;
+        log.debug("Generating secured token for attachments valid for {} seconds.....", tokenValiditySeconds);
+        String localDateTime = LocalDateTime.now().plusSeconds(tokenValiditySeconds).toString();
+        String sessionId = sessionManager.getCurrentSession().getId();
+        String secureTokenString = sessionId+"|"+localDateTime;
+        log.debug("Encrypting secured token {}", secureTokenString);
+        String secureToken = URLEncoder.encode(encryptionUtilityService.encrypt(secureTokenString), StandardCharsets.UTF_8.name());
+        log.debug("Encrypted token with value {}", secureToken);
+        delivery.setSecureToken(secureToken);
+      }
+    } catch (Exception ex) {
+      log.warn("Cannot generate secured token for assessment {}: {}", delivery.getAssessmentId(), ex.getMessage());
+    }
   }
   
   /**
