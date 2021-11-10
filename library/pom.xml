@@ -17,10 +17,20 @@
 		<ckeditor.version>4.16.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
+		<node-version>v16.8.0</node-version>
+		<npm-version>6.14.15</npm-version>
 		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,sakaidropdowntoolbar,sakaiopenlink,</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
+		<sakai.skin.source>trinity</sakai.skin.source>
+		<sakai.skin.target>trinity</sakai.skin.target>
+		<sakai.skin.customization.file>src/trinity/sass/examples/_empty.scss</sakai.skin.customization.file>
+		<sakai.skin.customization.scss.lib>src/trinity/sass/examples/_empty.scss</sakai.skin.customization.scss.lib>
+		<!-- Backwards compatability with -Dsakai.skin.customization.file -->
+		<sakai.skin.customization.scss.main>${sakai.skin.customization.file}</sakai.skin.customization.scss.main>
+		<sakai.skin.customization.js.lib>src/trinity/js/examples/_empty.js</sakai.skin.customization.js.lib>
+		<sakai.skin.customization.js.main>src/trinity/js/examples/_empty.js</sakai.skin.customization.js.main>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -291,7 +301,6 @@
 			<artifactId>multifile</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-		<!-- Used in Webcomponents and the Lessons PDF Widget -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pdf-js</artifactId>
@@ -346,20 +355,31 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
-			<properties>
-				<sakai.skin.source>morpheus-master</sakai.skin.source>
-				<sakai.skin.target>morpheus-default</sakai.skin.target>
-				<sakai.skin.customization.file>src/${sakai.skin.source}/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
-				<sakai.skin.outputStyle>compressed</sakai.skin.outputStyle>
-			</properties>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<shortRevisionLength>8</shortRevisionLength>
+							<revisionOnScmFailure>Sakai</revisionOnScmFailure>
+						</configuration>
+					</plugin>
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<executions>
 							<execution>
 								<id>copy-images</id>
-								<phase>compile</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -373,20 +393,35 @@
 								</configuration>
 							</execution>
 							<execution>
+								<id>copy-morpheus-js</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/morpheus-master/js/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/morpheus-master/js/</directory>
+											<includes>
+												<include>lib/**/*.js</include>
+												<include>ie/**/*.js</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
 								<id>copy-js</id>
 								<phase>generate-resources</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
-									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/js/</outputDirectory>
+									<outputDirectory>src/${sakai.skin.source}/target/js/</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/${sakai.skin.source}/js/</directory>
-											<includes>
-												<include>lib/**/*.js</include>
-												<include>ie/**/*.js</include>
-											</includes>
+											<directory>src/${sakai.skin.source}/src/js/</directory>
 										</resource>
 									</resources>
 								</configuration>
@@ -427,27 +462,90 @@
 									</resources>
 								</configuration>
 							</execution>
+							<execution>
+								<id>copy-skin</id>
+								<phase>process-classes</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/${sakai.skin.source}/target</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
 						</executions>
                     </plugin>
-
+					<plugin>
+						<groupId>com.coderplus.maven.plugins</groupId>
+						<artifactId>copy-rename-maven-plugin</artifactId>
+						<version>1.0</version>
+						<executions>
+							<execution>
+								<id>copy-customizations</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<fileSets>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.lib.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.js.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.main.js</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-lib.scss</destinationFile>
+										</fileSet>
+										<fileSet>
+											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
+										</fileSet>
+										</fileSets>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
                     <plugin>
                         <groupId>com.samaxes.maven</groupId>
                         <artifactId>minify-maven-plugin</artifactId>
                         <version>1.7.6</version>
                         <executions>
                             <execution>
-                                <id>default-minify</id>
+                                <id>morpheus-minify</id>
                                 <configuration>
                                     <charset>UTF-8</charset>
-                                    <webappSourceDir>${basedir}/src/${sakai.skin.source}</webappSourceDir>
+                                    <webappSourceDir>${basedir}/src/morpheus-master</webappSourceDir>
                                     <jsSourceDir>js/src/</jsSourceDir>
-                                    <jsIncludes>*.js</jsIncludes>
-                                    <jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
+                                    <jsSourceIncludes>
+                                        <jsSourceInclude>*.js</jsSourceInclude>
+                                    </jsSourceIncludes>
+                                    <jsTargetDir>skin/morpheus-default/js</jsTargetDir>
                                     <jsFinalFile>morpheus.scripts.js</jsFinalFile>
                                     <jsEngine>CLOSURE</jsEngine>
                                 </configuration>
                                 <goals><goal>minify</goal></goals>
                             </execution>
+							<execution>
+								<id>default-minify</id>
+								<configuration>
+									<charset>UTF-8</charset>
+									<webappSourceDir>${basedir}/src/morpheus-master</webappSourceDir>
+									<jsSourceDir>js/src/</jsSourceDir>
+									<jsIncludes>*.js</jsIncludes>
+									<jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
+									<jsFinalFile>morpheus.scripts.js</jsFinalFile>
+									<jsEngine>CLOSURE</jsEngine>
+								</configuration>
+								<goals><goal>minify</goal></goals>
+							</execution>
                             <execution>
                                 <id>elfinder-minify</id>
                                 <configuration>
@@ -474,67 +572,52 @@
                             </execution>
                         </executions>
                     </plugin>
+					
 					<plugin>
-						<groupId>com.google.code.maven-replacer-plugin</groupId>
-						<artifactId>replacer</artifactId>
-						<version>1.5.3</version>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.12.0</version>
+						<configuration>
+							<installDirectory>target</installDirectory>
+							<workingDirectory>src/${sakai.skin.source}</workingDirectory>
+						</configuration>
 						<executions>
 							<execution>
-								<id>replace-for-custom-skin</id>
-								<phase>process-sources</phase>
+								<id>install node and npm</id>
+								<phase>generate-resources</phase>
 								<goals>
-									<goal>replace</goal>
+									<goal>install-node-and-npm</goal>
 								</goals>
 								<configuration>
-									<ignoreMissingFile>false</ignoreMissingFile>
-                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
-									<replacements>
-										<replacement>
-											<token>morpheus-default</token>
-											<value>${sakai.skin.target}</value>
-										</replacement>
-									</replacements>
+									<nodeVersion>${node-version}</nodeVersion>
+									<npmVersion>${npm-version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
-								<id>revert-previous-replace</id>
-								<phase>package</phase>
+								<id>npm install dependencies</id>
+								<phase>generate-resources</phase>
 								<goals>
-									<goal>replace</goal>
+									<goal>npm</goal>
 								</goals>
 								<configuration>
-									<ignoreMissingFile>false</ignoreMissingFile>
-                                    <file>${project.basedir}/src/morpheus-master/sass/_defaults.scss</file>
-									<replacements>
-										<replacement>
-											<token>${sakai.skin.target}</token>
-											<value>morpheus-default</value>
-										</replacement>
-									</replacements>
+									<arguments>
+										ci --unsafe-perms --save-dev
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm build</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run -dd build
+									</arguments>
 								</configuration>
 							</execution>
 						</executions>
-					</plugin>
-					<plugin>
-					   <groupId>com.gitlab.haynes</groupId>
-					   <artifactId>libsass-maven-plugin</artifactId>
-					   <version>0.2.26</version>
-					   <executions>
-					       <execution>
-					           <phase>process-resources</phase>
-					           <goals>
-					               <goal>compile</goal>
-					           </goals>
-					       </execution>
-					   </executions>
-					   <configuration>
-					       <outputStyle>${sakai.skin.outputStyle}</outputStyle>
-					       <imgPath>${basedir}/src/${sakai.skin.source}/images/</imgPath>
-					       <inputPath>${basedir}/src/${sakai.skin.source}/sass/</inputPath>
-					       <outputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</outputPath>
-					       <includePath>${basedir}/src/${sakai.skin.source}/bootstrap-sass-${bootstrap-version}/assets/stylesheets/${path.separator}${basedir}/src/${sakai.skin.source}/font-awesome-sass-${font-awesome-version}/assets/stylesheets/</includePath>
-					       <sourceMapOutputPath>${basedir}/src/webapp/skin/${sakai.skin.target}</sourceMapOutputPath>
-					   </configuration>
 					</plugin>
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
@@ -553,27 +636,13 @@
 								<fileset>
 									<directory>${basedir}/src/webapp/skin/${sakai.skin.target}</directory>
 								</fileset>
+								<fileset>
+									<directory>src/webapp/assets</directory>
+								</fileset>
 							</filesets>
 						</configuration>
 					</plugin>
-					<plugin>
-						<groupId>com.coderplus.maven.plugins</groupId>
-						<artifactId>copy-rename-maven-plugin</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>copy-customizations</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<sourceFile>${sakai.skin.customization.file}</sourceFile>
-									<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization.scss</destinationFile>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+					
 					<plugin>
 						<groupId>com.github.jknack</groupId>
 						<artifactId>handlebars-maven-plugin</artifactId>
@@ -591,6 +660,81 @@
 									<amd>false</amd>
 								</configuration>
 							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>watch-sass</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>watch-sass</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<shortRevisionLength>8</shortRevisionLength>
+							<revisionOnScmFailure>Sakai</revisionOnScmFailure>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.12.0</version>
+						<configuration>
+							<installDirectory>target</installDirectory>
+							<workingDirectory>src/${sakai.skin.source}</workingDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install node and npm</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<configuration>
+									<nodeVersion>${node-version}</nodeVersion>
+									<npmVersion>${npm-version}</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm install dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										ci --unsafe-perm --save-dev
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm watch-sass</id>
+								<phase>package</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run css-watch --target=${maven.tomcat.home}/webapps/library/skin/${sakai.skin.source}
+									</arguments>
+								</configuration>
+							</execution>
+
 						</executions>
 					</plugin>
 				</plugins>
