@@ -1894,6 +1894,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getStartDate());
     }
 
+    public Date getExtendedTimeStart() {
+        return this.extendedTime.getStartDate();
+    }
+
     public void setExtendedTimeStartString(String exTimeStartString) {
         Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-start_date-iso8601"));
         if(tempDate != null) {
@@ -1905,6 +1909,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
         return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getDueDate());
     }
 
+    public Date getExtendedTimeDue() {
+        return this.extendedTime.getDueDate();
+    }
+
     public void setExtendedTimeDueString(String exTimeDueString) {
         Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-due_date-iso8601"));
         if(tempDate != null) {
@@ -1914,6 +1922,10 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
     public String getExtendedTimeRetractString() {
         return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getRetractDate());
+    }
+
+    public Date getExtendedTimeRetract() {
+        return this.extendedTime.getRetractDate();
     }
 
     public void setExtendedTimeRetractString(String exTimeRetractString) {

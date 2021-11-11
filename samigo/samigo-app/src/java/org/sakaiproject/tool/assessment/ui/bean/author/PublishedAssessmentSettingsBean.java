@@ -1771,11 +1771,19 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getStartDate());
   }
 
+  public Date getExtendedTimeStart() {
+    return this.extendedTime.getStartDate();
+  }
+
   public void setExtendedTimeStartString(String exTimeStartString) {
     Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-start_date-iso8601"));
     if(tempDate != null) {
       this.extendedTime.setStartDate(tempDate);
     }
+  }
+
+  public Date getExtendedTimeDue() {
+    return this.extendedTime.getDueDate();
   }
 
   public String getExtendedTimeDueString() {
@@ -1787,6 +1795,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     if(tempDate != null) {
       this.extendedTime.setDueDate(tempDate);
     }
+  }
+
+  public Date getExtendedTimeRetract() {
+    return this.extendedTime.getRetractDate();
   }
 
   public String getExtendedTimeRetractString() {
