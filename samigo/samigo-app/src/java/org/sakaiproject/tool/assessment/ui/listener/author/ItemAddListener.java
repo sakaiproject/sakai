@@ -2727,7 +2727,7 @@ public class ItemAddListener
 		  if (afteropen.length>1) {
 			  //	 must have text in between {}
 			  String[] lastpart = afteropen[1].split(Pattern.quote("" + markers_pair.charAt(1)));
-			  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+			  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0]);
 			  list.add(answer);
 		  }
 	  }
@@ -2736,17 +2736,17 @@ public class ItemAddListener
 			  if (i == 0) {
 				  String[] firstpart = tokens[i].split(Pattern.quote("" + markers_pair.charAt(0)));
 				  if (firstpart.length>1) {
-					  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", ""));
+					  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(firstpart[1]);
 					  list.add(answer);
 				  }
 			  }
 			  else if (i == (tokens.length - 1)) {
 				  String[] lastpart = tokens[i].split(Pattern.quote("" + markers_pair.charAt(1)));
-				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
+				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(lastpart[0]);
 				  list.add(answer);
 			  }
 			  else {
-				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", ""));
+				  String answer = ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(tokens[i]);
 				  list.add(answer);
 			  }
 		  }
