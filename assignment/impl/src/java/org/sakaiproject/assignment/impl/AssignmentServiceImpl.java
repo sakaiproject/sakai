@@ -2631,6 +2631,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             } else {
                                 submitter = user.getId();
                             }
+                        } else if (groupIdsMatchingAssignmentForUser.size() > 1 && !assignment.getIsGroup()) {
+                            submitter = user.getId();
                         } else {
                             log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group", user.getId(), assignment.getId());
                         }
