@@ -58,7 +58,7 @@ public class ResolverServlet extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String pathInfo = request.getPathInfo();
-		String[] parts = pathInfo.split("/");
+		String[] parts = pathInfo != null ? pathInfo.split("/") : new String[0];
 		
 		/**
 		 * If insufficient data or too many params
