@@ -79,6 +79,7 @@ jobs:
         env:
           CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       - name: Check number of MySQL statements
         if: ${{ always() }}
         run: |
