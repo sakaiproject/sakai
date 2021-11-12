@@ -107,10 +107,10 @@ public class ResourceCopyController {
         Criterion clonedCriterion = null;
         if ("default".equalsIgnoreCase(sourceId)) {
             sourceCriterion = rubricsConfiguration.getDefaultLayoutConfiguration(lang).getDefaultCriterion();
-            clonedCriterion = sourceCriterion.clone();
+            clonedCriterion = sourceCriterion.clone(false);
         } else {
             sourceCriterion = criterionRepository.findById(Long.parseLong(sourceId)).get();
-            clonedCriterion = sourceCriterion.clone();
+            clonedCriterion = sourceCriterion.clone(false);
             clonedCriterion.setTitle(sourceCriterion.getTitle() + " Copy");
         }
         clonedCriterion = criterionRepository.save(clonedCriterion);

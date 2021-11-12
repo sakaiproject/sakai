@@ -126,7 +126,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         clonedRubric.setCriterions(this.getCriterions().stream().map(criterion -> {
             Criterion clonedCriterion = null;
             try {
-                clonedCriterion = criterion.clone();
+                clonedCriterion = criterion.clone(true);
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
@@ -149,7 +149,7 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         clonedRubric.setCriterions(this.getCriterions().stream().map(criterion -> {
             Criterion clonedCriterion = null;
             try {
-				clonedCriterion = criterion.clone();
+				clonedCriterion = criterion.clone(true);
 				Metadata cmetadata = new Metadata();
 				cmetadata.setLocked(false);
 				cmetadata.setShared(false);
