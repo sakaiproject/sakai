@@ -1639,7 +1639,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (GroupNotDefinedException gnde)
 		{
-			log.warn(gnde.getMessage());
+			log.debug("removeUser: GroupNotDefinedException: {}", gnde.getMessage());
 		}
 		catch (AuthzRealmLockException arle)
 		{
