@@ -39,6 +39,8 @@
             class="org.sakaiproject.entitybroker.providers.ServerConfigEntityProvider">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="clusterService" ref="org.sakaiproject.cluster.api.ClusterService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
