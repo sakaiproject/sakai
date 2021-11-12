@@ -99,52 +99,6 @@ public class MyInfoEdit extends Panel {
 		}
 		form.add(editWarning);
 		
-		//We don't need to get the info from userProfile, we load it into the form with a property model
-	    //just make sure that the form element id's match those in the model
-	   		
-		//firstName
-		/*
-		WebMarkupContainer firstNameContainer = new WebMarkupContainer("firstNameContainer");
-		firstNameContainer.add(new Label("firstNameLabel", new ResourceModel("profile.name.first")));
-		TextField firstName = new TextField("firstName", new PropertyModel(userProfile, "firstName"));
-		//readonly view
-		Label firstNameReadOnly = new Label("firstNameReadOnly", new PropertyModel(userProfile, "firstName"));
-		if(updateAllowed) {
-			firstNameReadOnly.setVisible(false);
-		} else {
-			firstName.setVisible(false);
-		}
-		firstNameContainer.add(firstName);
-		firstNameContainer.add(firstNameReadOnly);
-		form.add(firstNameContainer);
-		*/
-		
-		//middleName
-		/*
-		WebMarkupContainer middleNameContainer = new WebMarkupContainer("middleNameContainer");
-		middleNameContainer.add(new Label("middleNameLabel", new ResourceModel("profile.name.middle")));
-		TextField middleName = new TextField("middleName", new PropertyModel(userProfile, "middleName"));
-		middleNameContainer.add(middleName);
-		form.add(middleNameContainer);
-		*/
-		
-		//lastName
-		/*
-		WebMarkupContainer lastNameContainer = new WebMarkupContainer("lastNameContainer");
-		lastNameContainer.add(new Label("lastNameLabel", new ResourceModel("profile.name.last")));
-		TextField lastName = new TextField("lastName", new PropertyModel(userProfile, "lastName"));
-		//readonly view
-		Label lastNameReadOnly = new Label("lastNameReadOnly", new PropertyModel(userProfile, "lastName"));
-		if(updateAllowed) {
-			lastNameReadOnly.setVisible(false);
-		} else {
-			lastName.setVisible(false);
-		}
-		lastNameContainer.add(lastName);
-		lastNameContainer.add(lastNameReadOnly);
-		form.add(lastNameContainer);
-		*/
-		
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
@@ -158,6 +112,10 @@ public class MyInfoEdit extends Panel {
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
+		if (userProfile.getDateOfBirth() != null) {
+			String birthdayString = ProfileUtils.convertDateToString(userProfile.getDateOfBirth(), ProfileConstants.DEFAULT_DATE_FORMAT);
+			userProfile.setFormattedBirthday(birthdayString);
+		}
 		HiddenField birthdayAltField = new HiddenField("birthdayAltField", new PropertyModel(userProfile, "formattedBirthday"));
 		birthday.setMarkupId("birthdayinput");
 		birthday.setOutputMarkupId(true);
