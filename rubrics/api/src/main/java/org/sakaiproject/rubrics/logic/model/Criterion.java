@@ -108,12 +108,14 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
         }
     }
 
-    @Override
-    public Criterion clone() throws CloneNotSupportedException {
+    public Criterion clone(boolean fromRubric) throws CloneNotSupportedException {
         Criterion clonedCriterion = new Criterion();
         clonedCriterion.setId(null);
         clonedCriterion.setTitle(this.title);
         clonedCriterion.setDescription(this.description);
+        if (fromRubric) {
+            clonedCriterion.setWeight(this.weight);
+        }
         clonedCriterion.setRatings(this.getRatings().stream().map(rating -> {
             Rating clonedRating = null;
             try {
