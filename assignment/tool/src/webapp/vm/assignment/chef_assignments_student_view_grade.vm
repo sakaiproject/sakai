@@ -136,7 +136,7 @@
                     <td class="highlight text-default">
                         <strong>
                             #if ($!assignment.TypeOfGrade.ordinal() != 1)
-                                #if ($!grade == $tlang.getString("pass"))
+                                #if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
                                     <span class="text-success">$!grade</span>
                                 #elseif ($!grade == $tlang.getString("fail"))
                                     <span class="text-danger">$!grade</span>
