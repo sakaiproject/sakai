@@ -5781,9 +5781,9 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
 
-        // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
         state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+        // get attachment input and generate alert message according to assignment submission type
+        checkSubmissionTextAttachmentInput(data, state, a, text, false);
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
@@ -5822,7 +5822,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
 
         // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
+        checkSubmissionTextAttachmentInput(data, state, a, text, false);
         state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
 
         String timeSpent = params.getCleanString(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
@@ -6514,17 +6514,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     text = null;
                 }
 
-                if (typeOfSubmission == Assignment.SubmissionType.VIDEO_SUBMISSION) {
-                     // Get the video from the current attachments or get the video from the form post.
-                     List<Reference> v = post ? (List<Reference>) state.getAttribute(ATTACHMENTS) : this.getVideoAttachments(data, state, a);
-                     if ((v == null) || (v.size() != 1)) {
-                         addAlert(state, rb.getString("youmust9"));
-                     } 
-                    state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, v);
-                } else {
-                    // get attachment input and generate alert message according to assignment submission type
-                    checkSubmissionTextAttachmentInput(data, state, a, text);
-                }
+                // get attachment input and generate alert message according to assignment submission type
+                checkSubmissionTextAttachmentInput(data, state, a, text, post);
             }
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
                 AssignmentSubmission submission;
@@ -6927,7 +6918,7 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private void checkSubmissionTextAttachmentInput(RunData data,
-                                                    SessionState state, Assignment assignment, String text) {
+                                                    SessionState state, Assignment assignment, String text, boolean post) {
         // SAK-26329 - determine if the submission has text
         boolean textIsEmpty = isHtmlEmpty(text);
         if (assignment != null) {
@@ -6950,6 +6941,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (v.size() != 1) {
                     addAlert(state, rb.getString("youmust8"));
                 }
+            } else if (submissionType == Assignment.SubmissionType.VIDEO_SUBMISSION) {
+                // get the video from the form post
+                List<Reference> v = post ? (List<Reference>) state.getAttribute(ATTACHMENTS) : this.getVideoAttachments(data, state, assignment);
+                if ((v == null) || (v.size() != 1)) {
+                    addAlert(state, rb.getString("youmust9"));
+                }
+                state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, v);
             } else {
                 // for the inline and attachment submission / other submission types
                 // There must be at least one thing submitted: inline text or at least one attachment
