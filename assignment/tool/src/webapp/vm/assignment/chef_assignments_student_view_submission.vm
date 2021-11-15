@@ -238,7 +238,13 @@ $(document).ready(function(){
 							<div class="itemSummaryValue highlight">
 								<strong>
 									#if ($gradeScale != 1)
-										$!grade
+										#if ($!grade == $tlang.getString("pass") || $!grade == $tlang.getString("gen.checked"))
+											<span class="text-success">$!grade</span>
+										#elseif ($!grade == $tlang.getString("fail"))
+											<span class="text-danger">$!grade</span>
+										#else
+											$!grade
+										#end
 									#else
 										$tlang.getString("gen.nograd")
 									#end
