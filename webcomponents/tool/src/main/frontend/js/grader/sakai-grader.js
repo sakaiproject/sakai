@@ -189,7 +189,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     return html`
       <div class="gradable">
         ${this.submission.ltiSubmissionLaunch ? html`
-          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)} ${unsafeHTML(this.i18n.lti_grade_not_automatic)}</div>
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
             new-window-text="${this.i18n.lti_grade_launch_button}"
@@ -197,7 +197,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
          />
         ` : "" }
         ${(this.ltiGradableLaunch && ! this.submission.ltiSubmissionLaunch )  ? html`
-          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)} ${unsafeHTML(this.i18n.lti_grade_not_automatic)}</div>
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
           <sakai-lti-iframe
             allow-resize="yes"
             new-window-text="${this.i18n.lti_grade_launch_button}"
@@ -236,6 +236,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGrader() {
+
+    // Hide the right UI until we have push notifications for grade changes
+    if ( this.submission.ltiSubmissionLaunch ) return "";
 
     return html`
       ${this.submission.id !== "dummy" ? html`
@@ -831,7 +834,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   canNavigate() {
-    const nFiles = this.querySelector("sakai-grader-file-picker").files.length;
+    // Deal with the right pane not present
+    const nFiles = this.querySelector("sakai-grader-file-picker") ? this.querySelector("sakai-grader-file-picker").files.length : 0;
     return this.modified || nFiles > 0 ?
               confirm(this.i18n["confirm_discard_changes"]) ?
                 this.clearSubmission() : false
