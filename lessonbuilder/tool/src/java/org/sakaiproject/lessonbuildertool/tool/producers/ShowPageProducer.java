@@ -4457,7 +4457,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
 		UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
 
-		UISelect buttonColors = UISelect.make(form, "subpage-btncolor", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
+		UISelect buttonColors = UISelect.make(form, "subpage-btncolor", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
 		UIInput.make(form, "subpage-add-before", "#{simplePageBean.addBefore}");
 		UICommand.make(form, "create-subpage", messageLocator.getMessage("simplepage.create"), "#{simplePageBean.createSubpage}");
@@ -4575,7 +4575,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
 		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
-		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
+		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
 		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
@@ -5300,7 +5300,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
 
-		UISelect colorSchemes = UISelect.make(form, "layout-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.layoutColorScheme}", SimplePageBean.NewColors[0]);
+		UISelect colorSchemes = UISelect.make(form, "layout-color-scheme", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.layoutColorScheme}", SimplePageBean.NewColors[0]);
 
 		UIBoundBoolean.make(form, "layout-section-collapsible", "#{simplePageBean.layoutSectionCollapsible}", false);
 		UIBoundBoolean.make(form, "layout-section-start-collapsed", "#{simplePageBean.layoutSectionStartCollapsed}", false);
@@ -5336,8 +5336,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form2,"page-preview-task-image").decorate(new UIFreeAttributeDecorator("src",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png"));
 		UIOutput.make(form2,"page-preview-task").decorate(new UIFreeAttributeDecorator("href",ServerConfigurationService.getServerUrl() + "/library/image/lessons/preview-task-layout.png")).decorate(new UIFreeAttributeDecorator("target","_blank"));
 		UISelect.make(form2, "page-dropdown", SimplePageBean.pageLayoutValues, pageLayoutLabels, "#{simplePageBean.pageLayoutSelect}", SimplePageBean.pageLayoutValues[0]);
-		UISelect.make(form2, "page-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.pageButtonColorScheme}", SimplePageBean.NewColors[0]);
-		UISelect.make(form2, "page-color-scheme-3", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.pageColorScheme}", SimplePageBean.NewColors[0]);
+		UISelect.make(form2, "page-color-scheme", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.pageButtonColorScheme}", SimplePageBean.NewColors[0]);
+		UISelect.make(form2, "page-color-scheme-3", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.pageColorScheme}", SimplePageBean.NewColors[0]);
 		UIBoundBoolean.make(form2,"page-subpage-button","#{simplePageBean.pageSubpageButton}",true);
 		UIInput.make(form2, "page-option-subpage-title", "#{simplePageBean.pageSubpageTitle}");
 		UISelect.make(form2, "page-option-subpage-count", subpageCountValues,subpageCountValues, "#{simplePageBean.pageSubpageCount}", subpageCountValues[1]);

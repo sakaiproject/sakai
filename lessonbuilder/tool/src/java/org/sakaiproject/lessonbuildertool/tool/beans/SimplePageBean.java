@@ -403,6 +403,13 @@ public class SimplePageBean {
 			"Teal",
 			"Purple"
 	};
+	private String[] newColorLabelsI18n = null;
+	public String[] getNewColorLabelsI18n() {
+		if (newColorLabelsI18n == null) {
+			newColorLabelsI18n = new String[]{messageLocator.getMessage("simplepage.columnnone"), messageLocator.getMessage("simplepage.col.newgray"), messageLocator.getMessage("simplepage.col.newblack"), messageLocator.getMessage("simplepage.col.newblue"), messageLocator.getMessage("simplepage.col.newblue2"), messageLocator.getMessage("simplepage.col.newred"), messageLocator.getMessage("simplepage.col.newnavy"), messageLocator.getMessage("simplepage.col.newnavy2"), messageLocator.getMessage("simplepage.col.newgreen"), messageLocator.getMessage("simplepage.col.neworange"), messageLocator.getMessage("simplepage.col.newgold"), messageLocator.getMessage("simplepage.col.newteal"), messageLocator.getMessage("simplepage.col.newpurple")};
+		}
+		return newColorLabelsI18n;
+	}
 	public static final String pageLayoutValues[] = {"none", "addSubpageList", "interiorResources", "interiorTask"};
 	public static final String FAILURE = "failure";
 	public static final String FORCE_BTN = "forceBtn";
