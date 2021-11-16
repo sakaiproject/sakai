@@ -27,6 +27,8 @@
 %>
 <f:view>
   <sakai:view >
+    <script>includeWebjarLibrary('awesomplete')</script>
+    <script src="/library/js/sakai-reminder.js"></script>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
 	<script>
@@ -127,11 +129,11 @@
 		<script>		
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
-					$('.comments').fadeIn();
+					$('.awesomplete').fadeIn();
 					$('.commentsHidden').fadeOut();
 					link.innerHTML = '<h:outputText value="#{msgs.stat_forum_comments_hide}"/>';
 				}else{
-					$('.comments').fadeOut();
+					$('.awesomplete').fadeOut();
 					$('.commentsHidden').fadeIn();
 					link.innerHTML = '<h:outputText value="#{msgs.stat_forum_comments_show}"/>';
 				}
@@ -151,10 +153,21 @@
 
 			$(document).ready(function() {
 				$('.selAssignVal').val('<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>');
-				var menuLink = $('#forumsStatisticsMenuLink');
-				var menuLinkSpan = menuLink.closest('span');
+				let menuLink = $('#forumsStatisticsMenuLink');
+				let menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');
 				menuLinkSpan.html(menuLink.text());
+				const sakaiReminder = new SakaiReminder();
+                                $('textarea.awesomplete').each(function () {
+                                    new Awesomplete(this, {
+                                         list: sakaiReminder.getAll()
+                                    });
+                                });
+                                $('#dfStatisticsForm').submit(function (e) {
+                                  $('textarea.awesomplete').each(function () {
+                                    sakaiReminder.new($(this).val());
+                                  });
+                                });
 			});
 		</script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
@@ -345,7 +358,7 @@
 			  			
 			  				  		  				
   				</f:facet>
-  				<h:inputTextarea rows="4" cols="35" value="#{stat.gradebookAssignment.comment}" style="display:none" styleClass="comments" rendered="#{stat.gradebookAssignment.allowedToGrade}" onkeyup="warn = true"/>
+  				<h:inputTextarea rows="4" cols="35" value="#{stat.gradebookAssignment.comment}" style="display:none" styleClass="comments awesomplete" rendered="#{stat.gradebookAssignment.allowedToGrade}" onkeyup="warn = true"/>
   				<h:outputText value="#{msgs.stat_forum_comments_hidden}" styleClass="commentsHidden" rendered="#{stat.gradebookAssignment.allowedToGrade}"/>
   				<h:outputText value="#{msgs.stat_forum_na}" rendered="#{!stat.gradebookAssignment.allowedToGrade}"/>
   			</h:column>
