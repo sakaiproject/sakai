@@ -39,7 +39,9 @@
           	<h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byUser}" title="#{msgs.cdfm_statistics} #{msgs.stat_byUser}"/>
 			<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
 			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>
-		  </h:panelGroup>
+            <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+            <h:commandLink action="#{mfStatisticsBean.processExportDataTableByTopic}" value="#{msgs.stat_explort_table}" title="#{msgs.stat_explort_table}" />
+            </h:panelGroup>
         </h:panelGrid>
   	
   	

@@ -374,7 +374,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return getHibernateTemplate().execute(hcb).intValue();
     }
-    
+
+    public List<Object[]> findAuthoredNewMessageCountForAllStudents() {
+        if (log.isDebugEnabled()) log.debug("findAuthoredNewMessageCountForAllStudents executing");
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredNewMessageCountForAllStudents");
+                    q.setString("contextId", getContextId());
+                    return q.list();
+                };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    public List<Object[]> findAuthoredRepliesMessageCountForAllStudents() {
+        if (log.isDebugEnabled()) log.debug("findAuthoredRepliesMessageCountForAllStudents executing");
+
+        HibernateCallback<List<Object[]>> hcb =
+                session -> {
+                    Query q = session.getNamedQuery("findAuthoredRepliesMessageCountForAllStudents");
+                    q.setString("contextId", getContextId());
+                    return q.list();
+                };
+
+        return getHibernateTemplate().execute(hcb);
+    }
+
     /*
      * (non-Javadoc)
      * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findAuthoredMessagesForStudent(java.lang.String)
