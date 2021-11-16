@@ -462,7 +462,7 @@ public class BeginDeliveryActionListener implements ActionListener
     			TimedAssessmentGradingModel timedAG = queue.
     					get(unSubmittedAssessmentGrading.getAssessmentGradingId());
     			// if it was submitted (race condition) while checking, unblock it - sam will synch soon
-    			if(timedAG != null && !timedAG.getSubmittedForGrade()) {
+    			if(timedAG != null && !timedAG.isSubmittedForGrade()) {
     				delivery.setTimeExpired(true);
     			}
     		}
