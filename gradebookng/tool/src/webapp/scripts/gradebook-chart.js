@@ -59,6 +59,15 @@ function renderChart(gbChartData) {
 						autoSkip: true,
 						maxRotation: 0,
 						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
+						callback: function(value, index, values) {
+						    if (isNaN(value)) {
+							return value;
+						    }
+						    // Display student values only as integers
+						    else if (Math.floor(value) === value) {
+							return value;
+						    }
+						}
 					},
 					scaleLabel: {
 						display: true,
@@ -77,9 +86,15 @@ function renderChart(gbChartData) {
 						fontColor: getComputedStyle(document.documentElement).getPropertyValue('--sakai-text-color-1'),
 						autoskip: true,
 						maxRotation: 0,
-						// Include a space to even out the plusses and minuses
 						callback: function(value, index, values) {
+						    if (isNaN(value)) {
+							// Include a space to even out the plusses and minuses
 							return value + (value.length < 2 ? ' ' : '');
+						    }
+						    // Display student values only as integers
+						    else if (Math.floor(value) === value) {
+							return value;
+						    }
 						}
 					},
 					scaleLabel: {
