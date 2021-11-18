@@ -2938,6 +2938,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
 							UIOutput.make(tableRow, "studentGrade", String.valueOf(i.getGradebookId() != null));
 							UIOutput.make(tableRow, "studentMaxPoints", String.valueOf(i.getGradebookPoints()));
+							UIOutput.make(tableRow, "studentGradebookTitle", String.valueOf(i.getGradebookTitle()));
 							UIOutput.make(tableRow, "studentGrade2", String.valueOf(i.getAltGradebook() != null));
 							UIOutput.make(tableRow, "studentMaxPoints2", String.valueOf(i.getAltPoints()));
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
@@ -5225,6 +5226,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "due_date_dummy");
         
 		UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
+
+		UIInput.make(form, "gradebook-title", "#{simplePageBean.gradebookTitle}");
 
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");

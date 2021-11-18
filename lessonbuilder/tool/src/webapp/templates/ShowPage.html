@@ -886,6 +886,7 @@
                         <div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
                         <span style="display:none" rsf:id="studentGrade" class="studentGrade"></span>
                         <span style="display:none" rsf:id="studentMaxPoints" class="studentMaxPoints"></span>
+                        <span style="display:none" rsf:id="studentGradebookTitle" class="studentGradebookTitle"></span>
                         <span style="display:none" rsf:id="studentGrade2" class="studentGrade2"></span>
                         <span style="display:none" rsf:id="studentMaxPoints2" class="studentMaxPoints2"></span>
                         <span style="display:none" rsf:id="student-groups" class="item-groups"></span>
@@ -2085,8 +2086,12 @@
                             <label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
                         </p>
                         <p class="shorttext">
+                            <label for="gradebook-title" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.gradebook-title"></span></label>
+                            <input type="text" name="gradebook-title" id="gradebook-title" rsf:id="gradebook-title" maxlength="255"/>
+                        </p>
+                        <p class="shorttext">
                             <label for="student-max" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
-                            <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlenght="5"/>
+                            <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlength="5"/>
                         </p>
                         <br /><br />
                     </div>

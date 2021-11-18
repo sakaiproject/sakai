@@ -1176,6 +1176,11 @@ $(document).ready(function() {
 				$("#student-max").val("");
 			}
 			
+			$("#gradebook-title").val(row.find(".studentGradebookTitle").text());
+			if($("#gradebook-title").val() === "null") {
+				$("#gradebook-title").val("");
+			}
+
 			grade = row.find(".studentGrade2").text();
 			if(grade === "true") {
 				$("#student-comments-graded").prop("checked", true);
