@@ -23,8 +23,6 @@
 #end
 <!-- START VM includePageBody.vm -->
 
-<h2 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
-
     #if ( $pageColumn1Tools ) 
         #set( $numberTools = $pageColumn0Tools.size() + $pageColumn1Tools.size() )
     #else
@@ -32,6 +30,7 @@
     #end
 
     <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
+        <h2 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
 
         <div id="$pageColumnLayout" class="${columnClasses}">
 
@@ -56,7 +55,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
 
                                 #if (${tool.toolShowResetButton})
 
