@@ -1,6 +1,6 @@
 ## login component
 
-<nav id="mastLogin" class="Mrphs-loginNav">
+<nav id="mastLogin" class="Mrphs-loginNav" aria-label="${rloader.sit_subnavigation}">
 
     #if (!${loginTopLogin})
 

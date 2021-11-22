@@ -372,8 +372,8 @@
 						#set ($rowCount =$rowCount + 1)
 							#if ($ann_item.Header.draft)
 							#else
-							<h3 class="textPanelHeader">
-								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))">
+							<div class="textPanelHeader">
+								<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$formattedText.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $formattedText.escapeHtml($ann_item.Header.subject))" class="font-weight-bold">
 								$formattedText.escapeHtml($ann_item.Header.subject)</a>
 								#set ($size = 0)
 								#if (!$ann_item.Header.Attachments.isEmpty())
@@ -390,7 +390,7 @@
 								#else
 									<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString('gen.attach')" />
 								#end
-							</h3>	
+							</div>	
 							
 							#set($ann_item_props=$ann_item.getProperties())
 							<p class="textPanelFooter">
