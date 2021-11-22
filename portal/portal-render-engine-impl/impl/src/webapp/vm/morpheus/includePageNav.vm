@@ -31,13 +31,13 @@
 			<div class="Mrphs-toolsNav__menuitem--status-block">
 				#if (${page.hidden} && !${page.locked})
 				<div class="fa fa-eye-slash tool-status-icon"
-                    tabindex="0"
+                    role="note"
                     title="${rloader.site_tool_hidden_tooltip}"
                     aria-label="${rloader.site_tool_hidden_tooltip}"></div>
 				#{end}
 				#if (${page.locked})
 				<div class="fa fa-lock tool-status-icon"
-                    tabindex="0"
+                    role="note"
                     title="${rloader.site_tool_locked_tooltip}"
                     aria-label="${rloader.site_tool_locked_tooltip}"></div>
 				#{end}
