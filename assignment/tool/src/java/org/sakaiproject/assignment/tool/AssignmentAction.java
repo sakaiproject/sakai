@@ -15058,6 +15058,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private class AssignmentComparator implements Comparator {
         Collator collator = null;
+        Map<String, Integer> crSubmissionScoreMap = new HashMap<>();
 
         /**
          * the SessionState object
@@ -15369,42 +15370,26 @@ public class AssignmentAction extends PagedResourceActionII {
                     } else if (s2 == null) {
                         result = 1;
                     } else {
-                        List<ContentReviewResult> r1 = assignmentService.getContentReviewResults(s1);
-                        List<ContentReviewResult> r2 = assignmentService.getContentReviewResults(s2);
+                        // Avoid expensive calls below if possible
+                        Integer score1 = crSubmissionScoreMap.get(s1.getId());
+                        Integer score2 = crSubmissionScoreMap.get(s2.getId());
 
-                        if (CollectionUtils.isEmpty(r1) && CollectionUtils.isEmpty(r2)) {
+                        if (score1 == null) {
+                          score1 = getContentReviewResultScore(assignmentService.getContentReviewResults(s1));
+                          crSubmissionScoreMap.put(s1.getId(), score1);
+                        }
+                        if (score2 == null) {
+                          score2 = getContentReviewResultScore(assignmentService.getContentReviewResults(s2));
+                          crSubmissionScoreMap.put(s2.getId(), score2);
+                        }
+
+                        if (score1 == null && score2 == null) {
                             result = 0;
-                        } else if (CollectionUtils.isEmpty(r1)) {
+                        } else if (score1 == null) {
                             result = -1;
-                        } else if (CollectionUtils.isEmpty(r2)) {
+                        } else if (score2 == null) {
                             result = 1;
                         } else {
-                            int score1 = -99;
-                            int score2 = -99;
-
-                            // Find the highest score in all of the possible submissions
-                            for (ContentReviewResult crr1 : r1) {
-                                if (score1 <= -2 && crr1.isPending()) {
-                                    score1 = -2;
-                                } else if (score1 <= -1 && StringUtils.equals(crr1.getReviewReport(), "Error")) {
-                                    // Yes, "Error" appears to be magic throughout the review code
-                                    // Error should appear before pending
-                                    score1 = -1;
-                                } else if (crr1.getReviewScore() > score1) {
-                                    score1 = crr1.getReviewScore();
-                                }
-                            }
-
-                            for (ContentReviewResult crr2 : r2) {
-                                if (score2 <= -2 && crr2.isPending()) {
-                                    score2 = -2;
-                                } else if (score2 <= -1 && StringUtils.equals(crr2.getReviewReport(), "Error")) {
-                                    score2 = -1;
-                                } else if (crr2.getReviewScore() > score2) {
-                                    score2 = crr2.getReviewScore();
-                                }
-                            }
-
                             result = score1 == score2 ? 0 : (score1 > score2 ? 1 : -1);
                         }
                     }
@@ -15758,6 +15743,29 @@ public class AssignmentAction extends PagedResourceActionII {
                 totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
             }
             return intToTime(totalTime);
+        }
+
+        private int getContentReviewResultScore(List<ContentReviewResult> resultList) {
+            if (CollectionUtils.isEmpty(resultList)) {
+                return -1;
+            }
+
+            // Find the highest score in all of the possible submissions
+            int score = -99;
+
+            for (ContentReviewResult crr : resultList) {
+                if (score <= -2 && crr.isPending()) {
+                    score = -2;
+                } else if (score <= -1 && StringUtils.equals(crr.getReviewReport(), "Error")) {
+                    // Yes, "Error" appears to be magic throughout the review code
+                    // Error should appear before pending
+                    score = -1;
+                } else if (crr.getReviewScore() > score) {
+                    score = crr.getReviewScore();
+                }
+            }
+
+            return score;
         }
 
         /**
