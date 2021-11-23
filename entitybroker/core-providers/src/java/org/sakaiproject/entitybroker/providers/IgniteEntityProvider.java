@@ -64,7 +64,16 @@ public class IgniteEntityProvider extends AbstractEntityProvider implements Acti
         List<String> nodeIds = cluster.nodes().stream()
                 .map(n -> "id=" + n.id().toString() + ", consistentId=" + n.consistentId() + ", version=" + n.version())
                 .collect(Collectors.toList());
-        data.put("IgniteClusterNodeIds", nodeIds);
+
+        Integer configuredNodeSize = (Integer) ignite.getConfiguration().getUserAttributes().get("DiscoveryAddressesSize");
+        data.put("IgniteCurrentNodeSize", String.valueOf(nodeIds.size()));
+        data.put("IgniteConfiguredNodeSize", String.valueOf(configuredNodeSize));
+        if (nodeIds.size() == configuredNodeSize) {
+            data.put("IgniteNodeStatus", "CONNECTED");
+        } else {
+            data.put("IgniteNodeStatus", "SEGMENTED");
+        }
+        data.put("IgniteClusterNodeList", nodeIds);
 
         return new ActionReturn(data);
     }
