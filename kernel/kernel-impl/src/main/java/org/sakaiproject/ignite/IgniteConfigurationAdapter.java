@@ -18,8 +18,10 @@ package org.sakaiproject.ignite;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -95,6 +97,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
             boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
+            Map<String, Object> attributes = new HashMap<>();
             // disable banner
             System.setProperty("IGNITE_NO_ASCII", "true");
             System.setProperty("IGNITE_QUIET", "true");
@@ -176,11 +179,15 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                 discoveryAddresses.addAll(Arrays.asList(remoteAddresses));
             }
 
+            attributes.put("DiscoveryAddressesSize", discoveryAddresses.size());
+
             finder.setAddresses(discoveryAddresses);
             tcpDiscovery.setIpFinder(finder);
 
             igniteConfiguration.setDiscoverySpi(tcpDiscovery);
             igniteConfiguration.setCommunicationSpi(tcpCommunication);
+
+            igniteConfiguration.setUserAttributes(attributes);
 
             log.info("Ignite configured with home=[{}], node=[{}], name=[{}], client mode=[{}], tcp ports=[{}..{}], discovery ports=[{}..{}]",
                     igniteConfiguration.getIgniteHome(),
