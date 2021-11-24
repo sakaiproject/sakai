@@ -146,7 +146,7 @@ export class SakaiTopicList extends SakaiElement {
 
         <div id="topic-list-filters">
           <div id="topic-list-filter-tags">
-            <select @change=${this.tagSelected}>
+            <select @change=${this.tagSelected} aria-label="Filter by tag">
               <option value="none">${this.i18n.tag_any}</option>
             ${this.tagsInUse.map(tag => html`
               <option value="${tag.id}">${this.i18n.tag} ${tag.label}</option>
@@ -154,7 +154,7 @@ export class SakaiTopicList extends SakaiElement {
             </select>
           </div>
           <div id="topic-list-filter-dunno">
-            <select @change=${this.filterSelected}>
+            <select @change=${this.filterSelected} aria-label="Filter by various">
               <option value="none">${this.i18n.filter_none}</option>
               <!--option value="${this.BY_QUESTION}">${this.i18n.filter_questions}</option-->
               <option value="${this.BY_RESOLVED_QUESTION}">${this.i18n.filter_answered}</option>
