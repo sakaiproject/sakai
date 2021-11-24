@@ -59,7 +59,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     // TODO: pull titles from bundle
     private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
     private static final String MESSAGES_TITLE = "cdfm_message_pvtarea";
-    private static final String FORUMS_TITLE = "cdfm_discussion_forums";
+    private static final String FORUMS_TITLE = "cdfm_discussions";
 
     private ResourceLoader rb;
 
