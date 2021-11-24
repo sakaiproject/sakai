@@ -143,13 +143,13 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
   _getUpdateCommentEvent() {
 
-        return new CustomEvent('update-comment', {
-          detail: {
-            evaluatedItemId: this.evaluatedItemId,
-            entityId: this.entityId,
-            criterionId: this.criterion.id,
-            value: this.criterion.comments
-          }, bubbles: true, composed: true });
+    return new CustomEvent('update-comment', {
+      detail: {
+        evaluatedItemId: this.evaluatedItemId,
+        entityId: this.entityId,
+        criterionId: this.criterion.id,
+        value: this.criterion.comments
+      }, bubbles: true, composed: true });
   }
 }
 
