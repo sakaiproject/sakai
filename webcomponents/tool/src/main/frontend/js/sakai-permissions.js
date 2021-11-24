@@ -61,13 +61,14 @@ class SakaiPermissions extends SakaiElement {
   static get properties() {
 
     return {
-      tool: String,
+      tool: { type: String },
       groupReference: { attribute: 'group-reference', type: String },
       disableGroups: { attribute: 'disabled-groups', type: Boolean },
       bundleKey: { attribute: 'bundle-key', type: String },
       onRefresh: { attribute: 'on-refresh', type: String },
-      roles: {type: Array},
-      groups: Array,
+      roles: { attribute: false, type: Array },
+      groups: { attribute: false, type: Array },
+      error: { attribute: false, type: String },
     };
   }
 
@@ -134,15 +135,25 @@ class SakaiPermissions extends SakaiElement {
           <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["per.error.save"]}</span>
         </div>
       `;
-    } else {
-      return html`Waiting for permissions`;
+    } else if (this.error) {
+      return html`<div class="sak-banner-error">${this.i18n.alert_permission}</div>`;
     }
+
+    return html`Waiting for permissions`;
   }
 
   loadPermissions() {
 
     fetch(`/direct/permissions/${portal.siteId}/getPerms/${this.tool}.json?ref=${this.groupReference}`, {cache: "no-cache", credentials: "same-origin"})
-      .then(res => res.json() )
+      .then(res => {
+
+        if (res.status === 403) {
+          this.error = true;
+        } else {
+          this.error = false;
+          return res.json();
+        }
+      })
       .then(data => {
 
         this.on = data.on;
@@ -278,4 +289,5 @@ class SakaiPermissions extends SakaiElement {
   }
 }
 
-customElements.define("sakai-permissions", SakaiPermissions);
+const tagName = "sakai-permissions";
+!customElements.get(tagName) && customElements.define(tagName, SakaiPermissions);
