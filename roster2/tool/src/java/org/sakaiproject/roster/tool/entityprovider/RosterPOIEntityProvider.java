@@ -314,7 +314,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		createSpreadsheetTitle(rosterRows, site, groupId, viewType);
 
 		final String siteID = site.getId();
-		List<String> header = createColumnHeader(viewType, siteID, false);
+		List<String> header = createColumnHeader(viewType, siteID, true);
 		List<RosterMember> rosterMembers = Collections.EMPTY_LIST;
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
@@ -322,7 +322,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			rosterMembers = getMembership(currentUserId, siteID, groupId, roleId);
 
 			if (CollectionUtils.isNotEmpty(rosterMembers)) {
-				addOverviewRows(rosterRows, rosterMembers, header, siteID);
+				addOverviewRows(rosterRows, rosterMembers, header, siteID, true);
 			}
 		} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
 
@@ -453,7 +453,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	}
 
 	private void addOverviewRows(final List<List<String>> dataInRows,
-			final List<RosterMember> rosterMembers, final List<String> header, final String siteId) {
+			final List<RosterMember> rosterMembers, final List<String> header, final String siteId, final boolean isGroupsSheetHeader) {
 
 		final String userId = this.developerHelperService.getCurrentUserId();
 
@@ -485,6 +485,14 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			}
 
 			row.add(member.getRole());
+
+			if (isGroupsSheetHeader && this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
+				List<String> groups = member.getGroups().entrySet().stream()
+					.sorted(Map.Entry.comparingByValue())
+					.map(e -> e.getValue())
+					.collect(Collectors.toList());
+				row.add(String.join(",", groups));
+			}
 
 			dataInRows.add(row);
 		}
