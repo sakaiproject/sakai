@@ -7,6 +7,7 @@ export class SakaiToggle extends LitElement {
     return {
       onText: { attribute: "on-text", type: String },
       offText: { attribute: "off-text", type: String },
+      labelledBy: { attribute: "labelled-by", type: String },
       on: { type: Boolean },
     };
   }
@@ -21,7 +22,7 @@ export class SakaiToggle extends LitElement {
   }
 
   keyup(e) {
-    e.keyCode === 13 && this.toggle(e);
+    (e.keyCode === 13 || e.keyCode === 32) && this.toggle(e);
   }
 
   get checked() {
@@ -31,9 +32,14 @@ export class SakaiToggle extends LitElement {
   render() {
 
     return html`
-      <div aria-checked="${this.on ? "true" : "false"}" id="toggle" @click=${this.toggle} @keyup=${this.keyup} tabindex="0">
-          <div>${this.offText}</div>
-          <div>${this.onText}</div>
+      <div id="toggle"
+          role="checkbox"
+          aria-checked="${this.on ? "true" : "false"}"
+          aria-labelledby="${this.labelledBy}"
+          @click=${this.toggle}
+          @keyup=${this.keyup} tabindex="0">
+        <div>${this.offText}</div>
+        <div>${this.onText}</div>
       </div>
     `;
   }
