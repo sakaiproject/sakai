@@ -111,9 +111,6 @@ export class SakaiRubricGradingComment extends RubricsElement {
       this.criterion.comments = "";
     }
 
-    if (e) {
-      this.dispatchEvent(this._getUpdateCommentEvent());
-    }
     this.requestUpdate();
   }
 
@@ -133,23 +130,22 @@ export class SakaiRubricGradingComment extends RubricsElement {
 
         // When we click away from the comment editor we need to save the comment
         this.criterion.comments = commentEditor.getData();
-        this.dispatchEvent(this._getUpdateCommentEvent());
-        this.hideTooltip();
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
-  _getUpdateCommentEvent() {
-
-        return new CustomEvent('update-comment', {
+        const updateEvent = new CustomEvent('update-comment', {
           detail: {
             evaluatedItemId: this.evaluatedItemId,
             entityId: this.entityId,
             criterionId: this.criterion.id,
             value: this.criterion.comments
-          }, bubbles: true, composed: true });
+          },
+          bubbles: true, composed: true });
+
+        this.dispatchEvent(updateEvent)
+        this.hideTooltip();
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
