@@ -8068,23 +8068,28 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
-				 	boolean add;
-					if (page.getGradebookId() != null && !page.getGradebookPoints().equals(points)) {
-					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null);
+				if (StringUtils.isBlank(gradebookTitle)) {
+					gradebookTitle = getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")";
+				}
+				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points) ||
+					!page.getGradebookTitle().equals(gradebookTitle)) {
+					boolean add;
+					if (page.getGradebookId() != null &&
+						(!page.getGradebookPoints().equals(points) || !page.getGradebookTitle().equals(gradebookTitle))) {
+						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
-					    try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
-					    } catch(ConflictingAssignmentNameException cane) {
+						try {
+							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, "Lesson Builder");
+						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
-					    }
+						}
 					}
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 					}else {
 						page.setGradebookId("lesson-builder:page:" + page.getId());
-						page.setGradebookTitle(getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")");
+						page.setGradebookTitle(gradebookTitle);
 						page.setGradebookPoints(points);
 						regradeStudentPages(page);
 					}
@@ -8093,6 +8098,7 @@ public class SimplePageBean {
 				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
 				page.setGradebookId(null);
 				page.setGradebookPoints(null);
+				page.setGradebookTitle(null);
 			}
 			
 			// Handling the grading of comments on pages
