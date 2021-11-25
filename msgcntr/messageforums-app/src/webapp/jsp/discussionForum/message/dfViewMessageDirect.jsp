@@ -43,7 +43,7 @@
 
 	}else if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
 		String placementId = null;
-		String siteId = null
+		String siteId = null;
 		try {
 			siteId = ToolManager.getCurrentPlacement().getContext();
 			if (SiteService.getSite(siteId).getToolForCommonId("sakai.forums") != null) {
