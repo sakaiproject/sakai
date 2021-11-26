@@ -549,7 +549,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (!assignmentService.isValidTimesheetTime(duration)) {
 
-            log.warn("Wrong time format. Must match XXHXXM");
+            log.warn("Wrong time format. Must match XXh YYm");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
 
