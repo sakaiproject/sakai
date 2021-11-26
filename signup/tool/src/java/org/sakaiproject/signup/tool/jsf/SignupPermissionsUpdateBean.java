@@ -20,10 +20,15 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import java.text.MessageFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.component.UIData;
 import javax.faces.context.ExternalContext;
@@ -107,19 +112,25 @@ public class SignupPermissionsUpdateBean {
 			params = new Object[] { realmItem.getSiteTitle(), realmItem.getGroupTitle(), realmItem.getRefId() };
 			desc = MessageFormat.format(Utilities.rb.getString("permission.info.for.group.scope"), params);
 		}
+		HashMap<String, String> permissionDescriptions = new HashMap<>();
+		Utilities.rbPerm.entrySet().stream().forEach(obj -> {
+			Entry entry = (Entry) obj;
+			permissionDescriptions.put(entry.getKey().toString(), entry.getValue().toString());
+		});
 
-		return doPermissions(realmItem.getRefId(), desc);
+		return doPermissions(realmItem.getRefId(), desc, permissionDescriptions);
 	}
 
 	/**
 	 * Delegate the permission update job to sakai-permissions-helper tool
 	 */
-	private String doPermissions(String siteRef, String description) {
+	private String doPermissions(String siteRef, String description, HashMap<String, String> permissionDescriptions) {
 		try {
 			ToolSession currentToolSession = SessionManager.getCurrentToolSession();
 			currentToolSession.setAttribute(PermissionsHelper.PREFIX, "signup.");
 			currentToolSession.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
 			currentToolSession.setAttribute(PermissionsHelper.DESCRIPTION, description);
+			currentToolSession.setAttribute(PermissionsHelper.PERMISSION_DESCRIPTION, permissionDescriptions);
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.redirect("sakai.permissions.helper.helper/tool");
 		} catch (Exception e) {

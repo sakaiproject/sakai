@@ -77,6 +77,11 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	 * Get the resource bundle for messages.properties file
 	 */
 	public static ResourceLoader rb = new ResourceLoader("messages");
+
+	/**
+	 * Get the resource bundle for messages.properties file
+	 */
+	public static ResourceLoader rbPerm = new ResourceLoader("permissions");
 	
 	/**
 	 * Get the resource bundle for signupConfig.properties file
