@@ -127,7 +127,7 @@
                                     <label for="timesheet_record_comment" class="col-form-label">$!tlang.getString("ts.modal.field.comment")</label>
                                 </div>
                                 <div class="col-8">
-                                    <textarea class="form-control" id="comment" name="comment" maxlength="4096"></textarea>
+                                    <textarea class="form-control" id="comment" name="comment" maxlength="4000"></textarea>
                                 </div>
                             </div>
                             <div class="form-group form-required">
