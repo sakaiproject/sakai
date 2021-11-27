@@ -2729,7 +2729,6 @@ public class SakaiBLTIUtil {
 			List gradeboolColumns = g.getAssignments(siteId);
 			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
 				org.sakaiproject.service.gradebook.shared.Assignment aColumn = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if ( ! LineItemUtil.isGradebookColumnLTI(aColumn) ) continue;
 
 				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
 					returnColumn = aColumn;
