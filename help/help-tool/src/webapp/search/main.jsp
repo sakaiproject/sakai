@@ -49,15 +49,15 @@
     <h:outputText value="#{SearchTool.numberOfResult}" />
     <h:dataTable border="0" styleClass="listHier" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
 	    <h:column>
-	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" style="font:8pt" rendered="#{SearchTool.isRestEnabled}">
+	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" rendered="#{SearchTool.isRestEnabled}">
   	      <h:outputText value="#{result.name}"/>
 	    	</h:outputLink>
-	  		<h:outputLink value="../TOCDisplay/main?help=#{result.docId}" target="toc" style="font:8pt"  rendered="#{not SearchTool.isRestEnabled}">
+	  		<h:outputLink value="../TOCDisplay/main?help=#{result.docId}" target="toc" rendered="#{not SearchTool.isRestEnabled}">
 			    <h:outputText value="#{result.name}"/>
 			  </h:outputLink>
 		</h:column>
 		<h:column>
-			<h:outputText value="#{result.formattedScore}" style="font:8pt"/>
+			<h:outputText value="#{result.formattedScore}"/>
 		</h:column>
     </h:dataTable>
 </sakai:group_box>

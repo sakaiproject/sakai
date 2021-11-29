@@ -256,7 +256,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			for (ScoreDoc scoreDoc : hits) {
 				Document doc = searcher.doc(scoreDoc.doc);
 				ResourceBean resource = getResourceFromDocument(doc);
-				resource.setScore(scoreDoc.score * 100);
+				resource.setScore(scoreDoc.score);
 				results.add(resource);
 			}
 
