@@ -56,7 +56,7 @@ public class PassNotPassMapping extends GradeMapping {
 	 */
 	@Override
 	public String getName() {
-		return "pass_not_pass";
+        return "Pass / Not Pass";
 	}
 
 }
