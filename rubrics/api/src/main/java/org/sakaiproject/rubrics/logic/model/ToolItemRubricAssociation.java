@@ -91,7 +91,7 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
     private Metadata metadata;
 
     @Column(name = "active", nullable = false)
-    private boolean active;
+    private Boolean active = Boolean.TRUE;
 
     @ElementCollection
     @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"))
