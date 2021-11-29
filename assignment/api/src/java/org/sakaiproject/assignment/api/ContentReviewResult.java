@@ -80,22 +80,22 @@ public class ContentReviewResult {
 	public int getReviewScore() {
 
 		if (contentResource == null){
-			log.debug(this + " getReviewScore() called with contentResource == null");
+			log.debug("getReviewScore() called with contentResource == null");
 			return -2;
 		}
 		try {
 			//get the status from the ContentReviewItem, if it's in a valid status, get the score
 			Long status = getStatus();
 			if (status != null && (status.equals(ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE) || status.equals(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE)))	{
-				log.debug(this + " getReviewStatus returned a state of: " + status);
+				log.debug("getReviewStatus returned a state of: {}", status);
 				return -2;
 			}
 
 			int score = contentReviewItem.getReviewScore();
-			log.debug(this + " getReviewScore(ContentResource) CR returned a score of: " + score);
+			log.debug("getReviewScore(ContentResource) CR returned a score of: {}", score);
 			return score;
 		} catch (Exception cie) {
-			log.error("No tiene scoreeee {} ", contentResource.getId());
+			log.error("getReviewScore no score for id={} ", contentResource.getId());
 			return -2;
 		}
 	}
