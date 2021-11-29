@@ -602,8 +602,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		boolean isStudent = isUserStudent(data.get("siteId").toString(), sess.getUserId());
 		String siteId = data.get("siteId").toString();
 
-		if (turnitinConn.getUseGradeMark() && gradebookService.isGradebookDefined(siteId)
-				&& !runOnce && !isStudent) {
+		if (!runOnce && !isStudent && turnitinConn.getUseGradeMark() && gradebookService.isGradebookDefined(siteId)) {
 			log.info("Syncing Grades with Turnitin");
 
 			String taskId = data.get("taskId").toString();
