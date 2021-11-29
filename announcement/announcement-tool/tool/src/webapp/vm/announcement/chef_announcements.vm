@@ -208,7 +208,7 @@
 								</th>
 							#end
 							#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
-								<th id="Site" scope="col" class="hidden-xs">
+								<th id="anncSite" scope="col" class="hidden-xs">
 									#if (!$currentSortedBy.equals("channel"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
 									#else
@@ -290,7 +290,7 @@
 									</td>
 								#end
 								#if ($SiteColumnFlag > 0)
-									<td headers="channel" class="hidden-xs">
+									<td headers="anncSite" class="hidden-xs">
 										$formattedText.escapeHtml($ann_item.channelDisplayName)
 									</td>
 								#end
@@ -494,7 +494,7 @@
 											</th>
 										#end
 									#end
-									<th id="channel" scope="col" class="hidden-xs">
+									<th id="anncSite" scope="col" class="hidden-xs">
 										#if (!$currentSortedBy.equals("for"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 										#else
