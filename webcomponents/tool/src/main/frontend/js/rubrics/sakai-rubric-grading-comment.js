@@ -125,22 +125,24 @@ export class SakaiRubricGradingComment extends RubricsElement {
         height: 40
       });
 
-      commentEditor.on('change', () => this.criterion.comments = commentEditor.getData());
       commentEditor.on('blur', () => {
 
-        // When we click away from the comment editor we need to save the comment
-        this.criterion.comments = commentEditor.getData();
+        // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
+        const updatedComments = commentEditor.getData();
 
-        const updateEvent = new CustomEvent('update-comment', {
-          detail: {
-            evaluatedItemId: this.evaluatedItemId,
-            entityId: this.entityId,
-            criterionId: this.criterion.id,
-            value: this.criterion.comments
-          },
-          bubbles: true, composed: true });
+        if (this.criterion.comments !== updatedComments) {
+          this.criterion.comments = updatedComments;
+          const updateEvent = new CustomEvent('update-comment', {
+            detail: {
+              evaluatedItemId: this.evaluatedItemId,
+              entityId: this.entityId,
+              criterionId: this.criterion.id,
+              value: this.criterion.comments
+            },
+            bubbles: true, composed: true });
+          this.dispatchEvent(updateEvent);
+        }
 
-        this.dispatchEvent(updateEvent)
         this.hideTooltip();
       });
     } catch (error) {
