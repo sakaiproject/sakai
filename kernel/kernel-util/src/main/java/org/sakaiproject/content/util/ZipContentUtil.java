@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -136,6 +137,8 @@ public class ZipContentUtil {
 			response.setContentType("application/zip");
 
 			for (ContentResource contentResource : resourcesToZip.values()) {
+				// User sites does not contain "~" prefix before user id when retrieving files from resources, so we remove it
+				siteId = StringUtils.replace(siteId, "~", "");
 				// Find the file path.
 				int siteIdPosition = contentResource.getId().indexOf(siteId);
 				String rootId = contentResource.getId().substring(0, siteIdPosition) + siteId + "/";
