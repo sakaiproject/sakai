@@ -69,7 +69,7 @@
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.27</sakai.tika.version>
     <sakai.tomcat.version>9.0.55</sakai.tomcat.version>
-    <sakai.thymeleaf.version>3.0.12.RELEASE</sakai.thymeleaf.version>
+    <sakai.thymeleaf.version>3.0.13.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
