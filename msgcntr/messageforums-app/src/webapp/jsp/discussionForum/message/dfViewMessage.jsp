@@ -35,7 +35,7 @@
 							});
 							$('#permalinkHolder').fadeIn('fast');
 							$('#permalinkHolder textarea').focus().select();
-              navigator.clipboard.writeText(url);
+							navigator.clipboard.writeText(url);
 						});
 					$('#permalinkHolder .closeMe').click(function(event){
 						event.preventDefault();
