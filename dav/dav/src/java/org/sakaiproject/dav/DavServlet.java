@@ -116,10 +116,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.catalina.util.DOMWriter;
 import org.apache.catalina.util.XMLWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.buf.UDecoder;
 
 import org.w3c.dom.Document;
@@ -169,9 +171,9 @@ import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.AuthenticationManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
@@ -348,34 +350,32 @@ public class DavServlet extends HttpServlet
 		{
 			if (parts[1].equals("user"))
 			{
+				User user = null;
+
 				try
 				{
 					// if successful, the context is already a valid user id
-					UserDirectoryService.getUser(parts[2]);
+					user = userDirectoryService.getUser(parts[2]);
 				}
 				catch (UserNotDefinedException tryEid)
 				{
 					try
 					{
 						// try using it as an EID
-						String userId = UserDirectoryService.getUserId(parts[2]);
-						
-						// switch to the ID
-						parts[2] = userId;
-						String newId = StringUtil.unsplit(parts, Entity.SEPARATOR);
-
-						// add the trailing separator if needed
-						if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
-
-						id = newId;
+						user = userDirectoryService.getUserByEid(parts[2]);
 					}
 					catch (UserNotDefinedException notEid)
 					{
 						// if context was not a valid EID, leave it alone
 					}
 				}
-				
-			} 
+
+				if (user != null) {
+					// Switch introduced value to internal user ID to ensure it is the correct ID
+					parts[2] = user.getId();
+					id = mountNewId(id, parts);
+				}
+			}
 			else if (parts[1].equals("group"))
 			{
 				String context = parts[2];
@@ -431,36 +431,44 @@ public class DavServlet extends HttpServlet
 		{
 			if (parts[1].equals("group-user"))
 			{
+				User user = null;
+
 				try
 				{
 					// if successful, the context is already a valid user id
-					UserDirectoryService.getUser(parts[3]);
+					user = userDirectoryService.getUser(parts[3]);
 				}
 				catch (UserNotDefinedException tryEid)
 				{
 					try
 					{
 						// try using it as an EID
-						String userId = UserDirectoryService.getUserId(parts[3]);
-
-						// switch to the ID
-						parts[3] = userId;
-						String newId = StringUtil.unsplit(parts, Entity.SEPARATOR);
-
-						// add the trailing separator if needed
-						if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
-
-						id = newId;
+						user = userDirectoryService.getUserByEid(parts[3]);
 					}
 					catch (UserNotDefinedException notEid)
 					{
 						// if context was not a valid EID, leave it alone
 					}
 				}
+
+				if (user != null) {
+					// Switch introduced value to internal user ID to ensure it is the correct ID
+					parts[3] = user.getId();
+					id = mountNewId(id, parts);
+				}
 			}
 		}
 
 		return id;
+	}
+        
+	private String mountNewId(String id, String[] parts) {
+		String newId = StringUtils.join(parts, Entity.SEPARATOR);
+
+		// Add the trailing separator if needed
+		if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
+
+		return newId;
 	}
 
 	/**
@@ -554,13 +562,15 @@ public class DavServlet extends HttpServlet
 	 */
 	private String[] nonDavUserAgent = null;
 
-	private ContentHostingService contentHostingService;
+	@Setter private ContentHostingService contentHostingService;
 
 	private CitationService citationService;
 
 	private org.sakaiproject.entity.api.EntityManager entityManager;
 
 	private AliasService aliasService;
+
+	@Setter private UserDirectoryService userDirectoryService;
 
 	// --------------------------------------------------------- Public Methods
 
@@ -573,6 +583,7 @@ public class DavServlet extends HttpServlet
 		citationService = ComponentManager.get(CitationService.class);
 		entityManager = ComponentManager.get(org.sakaiproject.entity.api.EntityManager.class);
 		aliasService = ComponentManager.get(AliasService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -716,7 +727,7 @@ public class DavServlet extends HttpServlet
 		{
 			try
 			{
-				User u = UserDirectoryService.getUser(id);
+				User u = userDirectoryService.getUser(id);
 				return u.getDisplayName();
 			}
 			catch (UserNotDefinedException e)
@@ -1972,14 +1983,14 @@ public class DavServlet extends HttpServlet
 			try
 			{
 				// try using it as an ID
-				resourceName = UserDirectoryService.getUserEid(parts[3]);
+				resourceName = userDirectoryService.getUserEid(parts[3]);
 			}
 			catch (UserNotDefinedException tryId)
 			{
 				try
 				{
 					// if successful, the context is already a valid user EID
-					UserDirectoryService.getUserByEid(parts[3]);
+					userDirectoryService.getUserByEid(parts[3]);
 				}
 				catch (UserNotDefinedException notId)
 				{
@@ -2741,7 +2752,7 @@ public class DavServlet extends HttpServlet
 				final ResourcePropertiesEdit p = edit.getPropertiesEdit();
 				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
-				User user = UserDirectoryService.getCurrentUser();
+				User user = userDirectoryService.getCurrentUser();
 				final TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
 				p.addProperty(ResourceProperties.PROP_COPYRIGHT, "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName() + ". All Rights Reserved. ");
 			}
