@@ -624,11 +624,20 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void save(AuthzGroup azGroup) throws GroupNotDefinedException, AuthzPermissionException
 	{
+		log.debug("AuthzGroup: {}", azGroup);
 		if (azGroup.getId() == null) throw new GroupNotDefinedException("<null>");
 
        	Reference ref = entityManager().newReference(azGroup.getId());
-		if (!siteService.allowUpdateSiteMembership(ref.getId()))
-		{
+
+		boolean allowed = false;
+		if ("sakai:site".equals(ref.getType())) {
+			if ("group".equals(ref.getSubType())) {
+				allowed = siteService.allowUpdateGroupMembership(ref.getContainer());
+			} else {
+				allowed = siteService.allowUpdateSiteMembership(ref.getId());
+			}
+		}
+		if (!allowed) {
 			// check security (throws if not permitted)
 			unlock(SECURE_UPDATE_AUTHZ_GROUP, authzGroupReference(azGroup.getId()));
 		}
