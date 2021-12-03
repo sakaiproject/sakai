@@ -26,16 +26,16 @@
 					}
 						$('.permaLink').click(function(event){
 							event.preventDefault();
-                            var url = $(this).attr('href');
-                            if (!url)
-							    url = this.href;
+							var url = $(this).attr('href');
+							if (!url) url = this.href;
 							$('#permalinkHolder textarea').val(url);
 							$('#permalinkHolder').css({
 								'top': $(this).position().top,
 								'left': $(this).position().left
 							});
 							$('#permalinkHolder').fadeIn('fast');
-							$('#permalinkHolder input').focus().select();
+							$('#permalinkHolder textarea').focus().select();
+							navigator.clipboard.writeText(url);
 						});
 					$('#permalinkHolder .closeMe').click(function(event){
 						event.preventDefault();
