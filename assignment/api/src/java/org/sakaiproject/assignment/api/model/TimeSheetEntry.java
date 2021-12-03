@@ -55,7 +55,7 @@ import java.time.Instant;
 @Table(name = "ASN_SUBMITTER_TIMESHEET")
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"submitter"})
+@ToString(exclude = {"assignmentSubmissionSubmitter"})
 @EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TimeSheetEntry {
