@@ -1269,7 +1269,7 @@ public class GradebookNgBusinessService {
 
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), true, false, this.getShowCalculatedGrade());
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), true, false);
 
 		for (final GbUser student : gbStudents) {
 			// Create and add the user info
@@ -3081,6 +3081,7 @@ public class GradebookNgBusinessService {
 	public void removeSecurityAdvisor(final SecurityAdvisor advisor) {
 		this.securityService.popAdvisor(advisor);
 	}
+
 	public boolean getShowCalculatedGrade() {
 		return  this.serverConfigService.getBoolean("gradebook.coursegrade.showCalculatedGrade", true) ;
 	}
