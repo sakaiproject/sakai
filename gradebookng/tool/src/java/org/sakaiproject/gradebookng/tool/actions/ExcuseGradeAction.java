@@ -135,8 +135,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 page.getCurrentRole(),
                 businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
                 uiSettings.getShowPoints(),
-                true,
-                false);
+                true);
         if (studentCourseGrade != null)
             return courseGradeFormatter.format(studentCourseGrade);
         else
