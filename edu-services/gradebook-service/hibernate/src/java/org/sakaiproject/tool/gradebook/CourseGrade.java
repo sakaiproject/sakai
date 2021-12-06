@@ -93,12 +93,6 @@ public class CourseGrade extends GradableObject {
 				total = total.add(new BigDecimal(score.toString()));
 				numScored++;
 			}
-			
-			if (score != null && record.getPointsEarned() == null) {
-				average = average.add(new BigDecimal(record.getCalculatedPointsEarned().toString()));
-				total = total.add(new BigDecimal(score.toString()));
-				numScored++;
-			}
 		}
 		if (numScored == 0) {
 			this.mean = null;
