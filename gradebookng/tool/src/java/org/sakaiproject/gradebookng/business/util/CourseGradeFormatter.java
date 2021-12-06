@@ -38,8 +38,7 @@ public class CourseGradeFormatter {
 	private final boolean isCourseGradeVisible;
 	private final boolean showPoints;
 	private final boolean showOverride;
-	private final boolean isCalculatedLetter;
-	private final boolean showCalculatedGrade;
+	private final boolean isCalculated;
 
 	/**
 	 * Constructor to initialise the data
@@ -57,16 +56,14 @@ public class CourseGradeFormatter {
 			final boolean isCourseGradeVisible,
 			final boolean showPoints,
 			final boolean showOverride,
-			final boolean isCalculatedLetter,
-			final boolean showCalculatedGrade) {
+			final boolean isCalculated) {
 
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
 		this.isCourseGradeVisible = isCourseGradeVisible;
 		this.showPoints = showPoints;
 		this.showOverride = showOverride;
-		this.isCalculatedLetter = isCalculatedLetter;
-		this.showCalculatedGrade = showCalculatedGrade;
+		this.isCalculated = isCalculated;
 	}
 
 	/**
@@ -126,7 +123,7 @@ public class CourseGradeFormatter {
 
 		// letter grade
 		String letterGrade = null;
-		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade()) && !this.isCalculatedLetter) {
+		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade()) && !this.isCalculated) {
 			letterGrade = courseGrade.getEnteredGrade();
 		} else {
 			letterGrade = courseGrade.getMappedGrade();
@@ -139,7 +136,7 @@ public class CourseGradeFormatter {
 
 		// percentage
 		// not shown in final grade mode
-		if(this.isCalculatedLetter || this.showCalculatedGrade) {
+		if(this.isCalculated) {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getAutoCalculatedGrade());
 		} else {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
