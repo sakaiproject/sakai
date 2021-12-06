@@ -851,4 +851,10 @@ public interface AssignmentService extends EntityProducer {
     public String intToTime(int time);
 
     public boolean isTimeSheetEnabled(String siteId);
+
+    /**
+     * The the name of the content review service being used e.g. Turnitin
+     * @return A String containing the name of the content review service
+     */
+    public String getContentReviewServiceName();
 }

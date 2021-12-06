@@ -77,6 +77,36 @@ export class Submission {
         this.extensionDate = moment(parseInt(init.properties.allow_extension_closeTime, 10)).valueOf();
       }
 
+      this.originalityConstants = {
+        "originalityKey": 0,
+        "originalityLink": 1,
+        "originalityIcon": 2,
+        "originalityScore": 3,
+        "originalityName": 4,
+        "originalityInline": 5,
+        "originalityStatus": 6,
+        "originalityError": 7
+      };
+      this.originalityServiceName = init.properties["originalityServiceName"];
+      this.originalitySupplies = [];
+      for (let index = 1; init.properties[`originalityLink${index}`] != null; index++) {
+        this.originalityShowing = true;
+        const originalityDataNow = [];
+        originalityDataNow.push(`originalityKey${index}`); //put in an ID for every set of originality data
+        originalityDataNow.push(init.properties[`originalityLink${index}`]);
+        originalityDataNow.push(init.properties[`originalityIcon${index}`]);
+        originalityDataNow.push(init.properties[`originalityScore${index}`]);
+        if (init.properties[`originalityInline${index}`] === 'true') {
+          originalityDataNow.push(i18n["submission_inline"]);
+        } else {
+          originalityDataNow.push(init.properties[`originalityName${index}`]);
+        }
+        originalityDataNow.push(init.properties[`originalityInline${index}`]);
+        originalityDataNow.push(init.properties[`originalityStatus${index}`]);
+        originalityDataNow.push(init.properties[`originalityError${index}`]);
+        this.originalitySupplies.push(originalityDataNow);
+      }
+
       // We need this for setting the default resubmission date
       this.assignmentCloseTime = init.assignmentCloseTime.epochSecond * 1000;
     } else {

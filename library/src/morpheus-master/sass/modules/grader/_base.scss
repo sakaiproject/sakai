@@ -297,6 +297,19 @@ sakai-grader {
   .submitter-name {
     font-weight: bold;
   }
+  
+  .graderOriginalitySection {
+    padding-left: 1em;
+  }
+  
+  .graderOriginalityLink {
+    text-decoration: none;
+  }
+  
+  .graderOriginalityCaption {
+    background-image: linear-gradient(180deg, var(--sakai-title-bar-bg-color), #ffffff);
+    padding: 5px;
+  }
 
   .submitted-time {
     font-style: italic;
