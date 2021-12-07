@@ -2120,7 +2120,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 *         gradebook's grade entry type
 	 */
 	private Double convertInputGradeToPoints(final int gradeEntryType, final LetterGradePercentMapping mapping,
-			final Double gbItemPointsPossible, final String grade) throws InvalidGradeException {
+			Double gbItemPointsPossible, final String grade) throws InvalidGradeException {
 		Double convertedValue = null;
 
 		if (grade != null && !"".equals(grade)) {
@@ -2137,8 +2137,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				// for letter or %-based grading, we need to calculate the equivalent point value
 				if (gbItemPointsPossible == null) {
-					throw new IllegalArgumentException("Null points possible passed" +
-							" to convertInputGradeToPoints for letter or % based grading");
+					gbItemPointsPossible = 100D;
 				}
 
 				Double percentage = null;
