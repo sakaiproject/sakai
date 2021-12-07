@@ -535,16 +535,6 @@ public class GradingServiceTest {
         Assert.assertEquals("866.2", result);
     }
 
-    @Test(expected = SamigoExpressionError.class)
-    public void testMultiply3phiBadFormatted1() throws SamigoExpressionError {
-        gradingService.replaceCalculationsWithValues("multiply3*phi=[[3 * [phi]] ]", 0);
-    }
-
-    @Test(expected = SamigoExpressionError.class)
-    public void testMultiply3phiBadFormatted2() throws SamigoExpressionError {
-        gradingService.replaceCalculationsWithValues("multiply3*phi=[ [[phi] * 3]]", 0);
-    }
-
     @Test
     public void testFactorial() throws Exception {
         // This is the way a traditional mxParser factorial is written

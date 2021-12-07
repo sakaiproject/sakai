@@ -134,7 +134,6 @@ confirmation dialog
 	  	<p><h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /></p>
 	  	<label><h:outputText value="#{authorMessages.calc_question_instructions_label}"/></label>
 		<ol>
-			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_4}" /></li>
 			<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1}" /></li>
 			<ul>
 				<li><h:outputText value="#{authorMessages.calc_question_simple_instructions_step_1a}" /></li>
