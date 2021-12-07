@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>21-SNAPSHOT</version>
+        <version>21.2</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <groupId>org.sakaiproject.dashboard</groupId>
     <artifactId>sakai-dashboard-base</artifactId>
-    <version>21-SNAPSHOT</version>
+    <version>21.2</version>
     <packaging>pom</packaging>
 
     <modules>

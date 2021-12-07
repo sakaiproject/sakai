@@ -17,10 +17,10 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>21-SNAPSHOT</version>
+  <version>21.2</version>
 
   <properties>
-    <sakai.version>21-SNAPSHOT</sakai.version>
+    <sakai.version>21.2</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.11</sakai.commons.lang3.version>
@@ -1443,7 +1443,7 @@
       <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-util</artifactId>
-        <version>21-SNAPSHOT</version>
+        <version>21.2</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.calendaring</groupId>

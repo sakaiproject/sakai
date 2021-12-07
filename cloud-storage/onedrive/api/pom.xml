@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sakai-onedrive</artifactId>
         <groupId>org.sakaiproject.onedrive</groupId>
-        <version>21-SNAPSHOT</version>
+        <version>21.2</version>
     </parent>
 
     <name>Sakai OneDrive Integration - API</name>

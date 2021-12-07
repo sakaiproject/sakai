@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sakai-roster2-base</artifactId>
         <groupId>org.sakaiproject.roster2</groupId>
-        <version>21-SNAPSHOT</version>
+        <version>21.2</version>
     </parent>
 
     <name>ROSTER2 TOOL</name>

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>21-SNAPSHOT</version>
+        <version>21.2</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-util</artifactId>
-            <version>21-SNAPSHOT</version>
+            <version>21.2</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
