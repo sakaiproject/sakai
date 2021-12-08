@@ -34,6 +34,8 @@ class SakaiDocumentViewer extends SakaiElement {
 
       this.i18n = t;
       this.documentFailureMessage = `<div>${this.i18n.failed_to_load_document}</div>`;
+      this.documentTooBigMessage = `<div>${this.i18n.document_too_big}</div>`;
+      this.documentNotSupportedMessage = `<div>${this.i18n.document_not_supported}</div>`;
     });
   }
 
@@ -115,23 +117,31 @@ class SakaiDocumentViewer extends SakaiElement {
       const contentIndex = ref.indexOf("/content/");
       ref = contentIndex >= 0 ? ref.substring(contentIndex + 8) : ref;
 
-      fetch(`/direct/content/${portal.siteId}/htmlForRef.html?ref=${ref}`,
-        {cache: "no-cache", credentials: "same-origin"})
+      fetch(`/direct/content/${portal.siteId}/htmlForRef.json?ref=${ref}`,
+        {cache: "no-cache", contentcredentials: "same-origin"})
         .then(r => {
 
-          if (!r.ok) {
-            this.documentMarkup = this.documentFailureMessage;
-            throw new Error("Failed to load preview");
-          } else {
-            return r.text();
+          if (r.ok) {
+            return r.json();
           }
-        })
-        .then(html => {
 
-          if (html) {
-            this.documentMarkup = html;
-          } else {
-            this.documentMarkup = this.documentFailureMessage;
+          this.documentMarkup = this.documentFailureMessage;
+          throw new Error("Failed to load preview");
+        })
+        .then(data => {
+
+          switch (data.status) {
+            case "CONVERSION_OK":
+              this.documentMarkup = data.content;
+              break;
+            case "CONVERSION_TOO_BIG":
+              this.documentMarkup = this.documentTooBigMessage;
+              break;
+            case "CONVERSION_NOT_SUPPORTED":
+              this.documentMarkup = this.documentNotSupportedMessage;
+              break;
+            default:
+              this.documentMarkup = this.documentFailureMessage;
           }
         })
         .catch (error => console.error(error));
