@@ -211,7 +211,7 @@ public class PublishAssessmentListener
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
       pub = publishedAssessmentService.publishAssessment(assessment);
 
-      boolean removePublishedDrafts = ServerConfigurationService.getBoolean("samigo.remove.drafts", true);
+      boolean removePublishedDrafts = ServerConfigurationService.getBoolean("samigo.remove.drafts", false);
       if (removePublishedDrafts) {
         AssessmentService assessmentService = new AssessmentService();
         assessmentService.removeAssessment(assessment.getAssessmentBaseId().toString());
