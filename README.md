@@ -125,6 +125,7 @@ From its inception, the Sakai project has been envisioned and designed for globa
 | tr_TR | Turkish |
 | zh_CN | Chinese |
 | ar | Arabic |
+| ro_RO | Romanian |
 
 ### Other languages
 
