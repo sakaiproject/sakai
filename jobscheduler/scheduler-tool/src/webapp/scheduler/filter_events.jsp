@@ -8,10 +8,6 @@
 <f:view>
 	<sakai:view_container title="#{msgs.title_trigger}">
 
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/inputDate.js"/>
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar1.js"/>
-        <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>
-
 	  <h:form id="filterForm">
   	    <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 
@@ -25,13 +21,13 @@
             </h2>
             <h:outputText value="#{msgs.filter_date_instructions}" styleClass="instructions"/><br/>
             <h3>
-                <h:outputText value="#{msgs.filter_before_title}"/>
+                <label for="beforeFilter"><h:outputText value="#{msgs.filter_before_title}"/></label>
             </h3>
-            <sakai:input_date value="#{schedulerTool.eventPager.before}" showDate="true" showTime="false"/><br/>
+            <input type="datetime-local" name="before" id="beforeFilter"/>
             <h3>
-                <h:outputText value="#{msgs.filter_after_title}"/>
+                <label for="afterFilter"><h:outputText value="#{msgs.filter_after_title}"/></label>
             </h3>
-            <sakai:input_date value="#{schedulerTool.eventPager.after}" showDate="true" showTime="false"/>
+            <input type="datetime-local" name="after" id="afterFilter"/>
 
             <h2>
                 <h:outputText value="#{msgs.filter_job_title}"/>
