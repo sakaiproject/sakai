@@ -22,6 +22,9 @@
 package org.sakaiproject.jsf.renderer;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -33,9 +36,16 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -55,6 +65,10 @@ import lombok.extern.slf4j.Slf4j;
 public class RichTextEditArea extends Renderer
 {
   private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+
+  private String SITE_RESOURCE_PATH = "/access/content/group/";
+  private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl() + ContentHostingService.REFERENCE_ROOT;
+  private static final String RELATIVEBASE = ACCESSBASE.replace(ServerConfigurationService.getServerUrl(), "");
 
   String editor = ServerConfigurationService.getString("wysiwyg.editor");
   
@@ -263,6 +277,8 @@ public class RichTextEditArea extends Renderer
     }
 
     String clientId = component.getClientId(context);
+    String identity = (String) component.getAttributes().get("identity");
+    String componentId = StringUtils.isBlank(identity) ? clientId : clientId.contains(":") ? clientId.substring(0, clientId.indexOf(":") + 1) + identity : identity;
 
     Map requestParameterMap = context.getExternalContext().getRequestParameterMap();
 
@@ -288,8 +304,55 @@ public class RichTextEditArea extends Renderer
 			log.info(e.getMessage());
 		}
 	}
+
+	if (StringUtils.startsWithAny(componentId, "assessmentSettingsAction:", "modifyPartForm:", "itemForm:")) {
+		appendSecurePropertyToContent(finalValue);
+	}
+
     org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.jsf.component.RichTextEditArea) component;
     comp.setSubmittedValue(finalValue);
   }
 
+  private void appendSecurePropertyToContent(String msgBody) {
+	if(StringUtils.isNotEmpty(msgBody)){
+		Document doc = Jsoup.parse(msgBody);
+
+		Elements links = doc.select("a[href]");
+		Elements media = doc.select("[src]");
+		List<String> references = new ArrayList<String>();
+		// href ...
+		for (Element link : links) {
+			references.add(link.attr("abs:href"));
+		}
+
+		// img ...
+		for (Element src : media) {
+			references.add(src.attr("abs:src"));
+		}
+
+		for (String reference : references){
+			if (reference.contains(SITE_RESOURCE_PATH)) {
+				String imgId = "";
+				if ((reference.startsWith(ACCESSBASE)) || (reference.startsWith(RELATIVEBASE))) {
+					imgId = reference.replaceFirst(ACCESSBASE, "").replaceFirst(RELATIVEBASE, "");
+
+					try {
+						imgId = URLDecoder.decode(imgId);
+						log.debug("appendSecurePropertyToContent looking for img {} ", imgId);
+						ContentResourceEdit resourceEdit = ContentHostingService.editResource(imgId);
+						if (resourceEdit == null) {
+							log.warn("Resource not found for id {}", imgId);
+							continue;
+						}
+						ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
+						props.addProperty(ResourcePropertiesEdit.PROP_SECURED, Boolean.TRUE.toString());
+						ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);
+					} catch (Exception e) {
+						log.warn("Exception from ContentHostingService for resource {} : {}", imgId, e);
+					}
+				}
+			}
+		}
+	}
+  }
 }
