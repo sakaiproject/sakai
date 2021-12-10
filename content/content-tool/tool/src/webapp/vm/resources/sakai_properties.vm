@@ -6,6 +6,7 @@
 
     <!-- Initialize the plugin: -->
     $(document).ready(function() {
+        $('main a[data-toggle="popover"]').popover();
         $('#access_groups${DOT}$i').multiselect({
             selectAllText: '$tlang.getString("access.edit.selectall")',
             nonSelectedText: '$tlang.getString("access.edit.selectone")',
@@ -548,6 +549,7 @@ button.btn.btn-default.multiselect-clear-filter{
 											/>
 											$tlang.getString("access.secured")
 										</label>
+										<a class="fa fa-info-circle" title="[$tlang.getString('access.secured.tooltip')]" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="$tlang.getString('access.secured.tooltip')"></a>
 									</div>
 								</div>
 							#end
