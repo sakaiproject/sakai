@@ -2382,17 +2382,8 @@ public class SakaiBLTIUtil {
 			return "Gradebook column not set in placement";
 		}
 
-		SakaiLineItem lineItem = new SakaiLineItem();
-		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
-		if (gradebookColumn == null) {
-			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
-			return "Grade failure siteId=" + siteId;
-		}
-
-		org.sakaiproject.assignment.api.model.Assignment assignment;
-
         // Load assignment if it exists
+		org.sakaiproject.assignment.api.model.Assignment assignment;
         String contentKeyStr = normalProps.getProperty("contentKey");
         Long contentKey = getLongKey(contentKeyStr);
         if (contentKey > 0) {
@@ -2408,7 +2399,7 @@ public class SakaiBLTIUtil {
 		if ( assignment != null ) {
 			Score scoreObj = new Score();
 			scoreObj.scoreGiven = scoreGiven;
-			scoreObj.scoreMaximum = lineItem.scoreMaximum;
+			scoreObj.scoreMaximum = 1.0;
 			scoreObj.comment = comment;
 			retval = handleAssignment(assignment, user_id, scoreObj);
 			return retval;
@@ -2416,6 +2407,14 @@ public class SakaiBLTIUtil {
 
 		// Now read, set, or delete the non-assignment grade...
 		Session sess = SessionManager.getCurrentSession();
+
+		SakaiLineItem lineItem = new SakaiLineItem();
+		lineItem.scoreMaximum = 100.0D;
+		org.sakaiproject.service.gradebook.shared.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+		if (gradebookColumn == null) {
+			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
+			return "Grade failure siteId=" + siteId;
+		}
 
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
