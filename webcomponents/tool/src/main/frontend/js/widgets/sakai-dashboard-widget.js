@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
 import '../sakai-icon.js';
-import '../sakai-options-menu.js';
+//import '../sakai-options-menu.js';
 import { loadProperties } from "../sakai-i18n.js";
 import "../sakai-pager.js";
 
@@ -127,15 +127,6 @@ export class SakaiDashboardWidget extends LitElement {
 
       </div>
     `;
-  }
-
-  moved() {
-
-    // This may not have been rendered if we are in the remove state.
-    const optionsMenu = this.shadowRoot.querySelector("sakai-options-menu");
-    if (optionsMenu) {
-      optionsMenu.refresh();
-    }
   }
 
   static get styles() {

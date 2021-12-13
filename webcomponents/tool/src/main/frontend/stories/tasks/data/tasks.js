@@ -1,4 +1,4 @@
-export var tasksData = `
+export const tasksData = `
 [
   {
     "userTaskId":611,

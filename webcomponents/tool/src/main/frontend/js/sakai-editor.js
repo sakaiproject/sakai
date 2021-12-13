@@ -13,6 +13,7 @@ class SakaiEditor extends SakaiElement {
       content: String,
       active: { type: Boolean },
       delay: { type: Boolean },
+      textarea: { type: Boolean },
       toolbar: String,
       setFocus: { attribute: "set-focus", type: Boolean },
     };
@@ -28,24 +29,35 @@ class SakaiEditor extends SakaiElement {
   }
 
   getContent() {
+
+    if (this.textarea) {
+      return this.querySelector(`#${this.elementId}`).value;
+    }
     return this.editor.getData();
   }
 
   clear() {
-    this.editor.setData("");
+
+    if (this.textarea) {
+      this.querySelector(`#${this.elementId}`).value = "";
+    } else {
+      this.editor.setData("");
+    }
   }
 
   shouldUpdate() {
-    return (this.content || this.elementId) && typeof CKEDITOR !== "undefined";
+    return (this.content || this.elementId);
   }
 
   set active(value) {
 
     this._active = value;
-    if (value) {
-      this.attachEditor();
-    } else {
-      this.editor.destroy();
+    if (!this.textarea) {
+      if (value) {
+        this.attachEditor();
+      } else {
+        this.editor.destroy();
+      }
     }
   }
 
@@ -78,12 +90,18 @@ class SakaiEditor extends SakaiElement {
 
     super.firstUpdated(changed);
 
-    if (!this.delay) {
+    if (!this.delay && !this.textarea) {
       this.attachEditor();
     }
   }
 
   render() {
+
+    if (this.textarea) {
+      return html `
+        <textarea style="width: 100%" id="${this.elementId}" aria-label="Sakai editor textarea" tabindex="0">${unsafeHTML(this.content)}</textarea>
+      `;
+    }
 
     return html `
       <div id="${this.elementId}" tabindex="0" contenteditable=${ifDefined(this.type === "inline" && this.active ? "true" : undefined)}>${unsafeHTML(this.content)}</div>
@@ -91,9 +109,8 @@ class SakaiEditor extends SakaiElement {
   }
 }
 
-if (!customElements.get("sakai-editor")) {
-  customElements.define("sakai-editor", SakaiEditor);
-}
+const tagName = "sakai-editor";
+!customElements.get(tagName) && customElements.define(tagName, SakaiEditor);
 
 SakaiEditor.toolbars = new Map();
 SakaiEditor.toolbars.set("basic", [{ name: 'document', items : ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList', 'BulletedList', 'Blockquote']}]);
