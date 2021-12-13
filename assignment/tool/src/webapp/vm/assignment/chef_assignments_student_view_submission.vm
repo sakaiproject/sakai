@@ -1006,8 +1006,27 @@ $(document).ready(function(){
 					#if ($submissionType != 5 && $submissionType != 7)
 							<input class="disableme" type="button" name="preview" accesskey="v" id="preview" value="$tlang.getString("gen.pre")"
 								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'preview', null, null ); return false;" />
-							<input class="disableme" type="button" name="save" accesskey="d" id="save" value="$tlang.getString("gen.savdra")"
-								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;" />
+							<input type="button" data-toggle="modal" data-target="#confirmDraft" value="$tlang.getString("gen.savdra")" />
+
+							<div class="modal fade" id="confirmDraft" tabindex="-1" role="dialog">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal" aria-label="$tlang.getString("save_draft_cancel")"><span aria-hidden="true">&times;</span></button>
+											<h4 class="modal-title">$tlang.getString("save_draft_title")</h4>
+										</div>
+										<div class="modal-body">
+											<p>$tlang.getString("save_draft_warn")</p>
+										</div>
+										<div class="modal-footer">
+											<input class="btn btn-primary" type="button" name="save" accesskey="d" id="save" value="$tlang.getString("gen.savdra")"
+												onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;" data-dismiss="modal" />
+											<button type="button" class="btn btn-default" data-dismiss="modal">$tlang.getString("save_draft_cancel")</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
 							#end
 							#if (!$!linkInvoked)
 								<input class="disableme" type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.can")"
