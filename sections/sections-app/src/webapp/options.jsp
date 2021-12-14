@@ -43,16 +43,16 @@
 
         <t:div>
         	<h:panelGrid columns="2">
-				<t:radio for="externallyManaged" index="0" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex0" />
-				<h:outputLabel for="externallyManagedIndex0" value="#{msgs.options_externally_managed_description}"/>
-			</h:panelGrid>
+			<t:radio for="externallyManaged" index="0" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex0" />
+			<h:outputLabel for="externallyManagedIndex0" value="#{msgs.options_externally_managed_description}"/>
+        	</h:panelGrid>
         </t:div>
 
         <t:div>
         	<h:panelGrid columns="2">
-				<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex1" />
-				<h:outputLabel for="externallyManagedIndex1" value="#{msgs.options_internally_managed_description}"/>
-			</h:panelGrid>
+			<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex1" />
+			<h:outputLabel for="externallyManagedIndex1" value="#{msgs.options_internally_managed_description}"/>
+        	</h:panelGrid>
 	        <t:div styleClass="indent">
 	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
