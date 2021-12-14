@@ -673,6 +673,7 @@ public class SiteParticipantHelper {
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.section = sectionTitle;
 								participant.uniqname = userId;
+								participant.active = member.isActive();
 							}
 
 							conditionallyAddParticipantToMap(participantsMap, filterType, filterID, userId, participant, groupMembership);
