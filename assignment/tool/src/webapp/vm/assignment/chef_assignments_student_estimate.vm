@@ -42,7 +42,7 @@
             </tr>
 
         #foreach ($submitter in $submission.Submitters)
-            #foreach ($timeSheetSubmit in $submitter.TimeSheetEntries)
+            #foreach ($timeSheetSubmit in $timeSheetEntries)
             <tr>
                 <td>
                     $!service.getUsersLocalDateTimeString($timeSheetSubmit.startTime)

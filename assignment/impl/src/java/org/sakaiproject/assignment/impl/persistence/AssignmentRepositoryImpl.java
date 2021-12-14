@@ -42,7 +42,6 @@ import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
@@ -102,34 +101,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) {
-        if (existsSubmissionSubmitter(submissionSubmitter.getId()) && !existsTimeSheetEntry(timeSheetEntry.getId())) {
-            timeSheetEntry.setAssignmentSubmissionSubmitter(submissionSubmitter);
-            submissionSubmitter.getTimeSheetEntries().add(timeSheetEntry);
-            geCurrentSession().merge(submissionSubmitter);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void deleteTimeSheetEntry(Long timeSheetId) {
-        TimeSheetEntry timeSheetEntry = geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
-        if (timeSheetEntry != null) {
-            log.info("Deleting time sheet entry: {}", timeSheetEntry);
-            AssignmentSubmissionSubmitter submissionSubmitter = timeSheetEntry.getAssignmentSubmissionSubmitter();
-            submissionSubmitter.getTimeSheetEntries().remove(timeSheetEntry);
-            geCurrentSession().merge(submissionSubmitter);
-        }
-    }
-
-    @Override
-    @Transactional
-    public boolean existsTimeSheetEntry(Long timeSheetId) {
-        return timeSheetId != null && geCurrentSession().get(TimeSheetEntry.class, timeSheetId) != null;
-    }
-
-    @Override
-    @Transactional
     public boolean existsAssignment(String assignmentId) {
         if (assignmentId != null && exists(assignmentId)) {
             return true;
@@ -171,11 +142,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         return geCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
-    @Override
-    public TimeSheetEntry findTimeSheetEntry(Long timeSheetId) {
-        return geCurrentSession().get(TimeSheetEntry.class, timeSheetId);
-    }
-    
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {

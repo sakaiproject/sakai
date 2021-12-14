@@ -149,7 +149,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
@@ -1765,18 +1764,17 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             Optional<AssignmentSubmissionSubmitter> submitterA = s.getSubmitters().stream().findAny();
+            if(submitterA.isPresent()) {
+                String submissionTimeSpent = StringUtils.isNotBlank(submitterA.get().getTimeSpent()) ?
+                        submitterA.get().getTimeSpent() : "";
+                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
 
-            String submissionTimeSpent = "";
-            if(submitterA.isPresent() && StringUtils.isNotBlank(submitterA.get().getTimeSpent())){
-                submissionTimeSpent = submitterA.get().getTimeSpent();
-            }
-            state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
-
-            if(submitterA.isPresent() && !submitterA.get().getTimeSheetEntries().isEmpty()) {
-                String timeSpent = "";
-               	timeSpent = getTotalTimeSheet(submitterA.get().getTimeSheetEntries());
-                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
-                isAnyRegTimeSheet = true;
+                String timeSpent = assignmentService.getTotalTimeSheet(submitterA.get());
+               	if (StringUtils.isNotBlank(timeSpent)) {
+               	    context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submitterA.get()));
+                    state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
+                    isAnyRegTimeSheet = true;
+               	}
             }
             setScoringAgentProperties(context, assignment, s, false);
 
@@ -2584,7 +2582,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             boolean isAnyRegTimeSheet = false;
-            if (submissionSubmitter.isPresent() && !submissionSubmitter.get().getTimeSheetEntries().isEmpty()) {
+            if (submissionSubmitter.isPresent() && assignmentService.existsTimeSheetEntries(submissionSubmitter.get())) {
             	isAnyRegTimeSheet = true;
            		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             }
@@ -5657,7 +5655,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (StringUtils.isNotBlank(submitter.getTimeSpent())) {
                         submissionTimeSpent = submitter.getTimeSpent();
                     }
-                        timeSpent = getTotalTimeSheet(submitter.getTimeSheetEntries());
+                        timeSpent = assignmentService.getTotalTimeSheet(submitter);
                 }
                 state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
                 state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
@@ -6967,11 +6965,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if (StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getEstimateRequired()) {
                 if (StringUtils.isBlank(timeSpent)) {
     	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.isValidTimesheetTime(timeSpent)) {
+    	        } else if (!assignmentService.isValidTimeSheetTime(timeSpent)) {
     	            addAlert(state, rb.getFormattedMessage("timeformat"));
     	        }
             }
-            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimesheetTime(timeSpent)) {
+            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimeSheetTime(timeSpent)) {
             	addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7161,7 +7159,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String timeSheet = params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
             if (StringUtils.isBlank(timeSheet)) {
                 addAlert(state, rb.getString("timeempty"));
-            } else if (!assignmentService.isValidTimesheetTime(timeSheet)) {
+            } else if (!assignmentService.isValidTimeSheetTime(timeSheet)) {
                 addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -15703,46 +15701,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 result = -1;
             } else {
                 int i1, i2;
-                i1 = timeToInt(t1);
-                i2 = timeToInt(t2);
+                i1 = assignmentService.timeToInt(t1);
+                i2 = assignmentService.timeToInt(t2);
                 result = (i1 < i2) ? -1 : 1;
             }
             return result;
-        }
-
-        private int timeToInt(String time) {
-            String timeSheet[] = time.split("h|H");
-            int timeParseInt=0;
-            if(timeSheet.length > 1) {
-                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
-            }else {
-                if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
-                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
-                }else {
-                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-                }
-            }
-            return timeParseInt;
-        }
-
-        private String intToTime(int time) {
-            String timeReturn = "";
-            if(time >= 60) {
-                timeReturn = timeReturn.concat((time/60)+"h").concat(" ");
-                timeReturn = timeReturn.concat((time%60)+"m");
-            }else if(time>0 && time<60) {
-                timeReturn = time+"m";
-            }
-            return timeReturn;
-        }
-
-        private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
-            int totalTime = 0;
-            for (TimeSheetEntry assignmentTimeSheet : ats) {
-                totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
-            }
-            return intToTime(totalTime);
         }
 
         private int getContentReviewResultScore(List<ContentReviewResult> resultList) {
@@ -16056,43 +16019,6 @@ public class AssignmentAction extends PagedResourceActionII {
         return attachments;
     }
 
-	private int timeToInt(String time) {
-		String timeSheet[] = time.split("h|H");
-		int timeParseInt=0;
-		if(timeSheet.length > 1) {
-			timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-			timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
-		}else {
-			if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
-				timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
-			}else {
-				timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-			}
-		}
-		return timeParseInt;
-	}
-
-    private String intToTime(int time) {
-        String timeReturn = "";
-        if(time > 0) {
-            if(time > 59) {
-                timeReturn = timeReturn.concat((time/60)+"h").concat(" ");
-                timeReturn = timeReturn.concat((time%60)+"m");
-            }else {
-                timeReturn = time+"m";
-            }
-        }
-        return timeReturn;
-    }
-
-    private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
-        int totalTime = 0;
-        for (TimeSheetEntry assignmentTimeSheet : ats) {
-            totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
-        }
-        return intToTime(totalTime);
-    }
-
     private String getRateTimeSpent(Set<AssignmentSubmission> as) {
         int totalTime = 0;
         int nSubmision = 0;
@@ -16101,7 +16027,7 @@ public class AssignmentAction extends PagedResourceActionII {
         for (AssignmentSubmission submission : as) {
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 if(submitter.getTimeSpent()!=null) {
-                    spentSubmision = timeToInt(submitter.getTimeSpent());
+                    spentSubmision = assignmentService.timeToInt(submitter.getTimeSpent());
                     if(spentSubmision > 0) {
                         nSubmision++;
                         assigmentRateSpent = assigmentRateSpent + spentSubmision;
@@ -16111,9 +16037,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         }
         if(assigmentRateSpent > 0) {
-            return intToTime(assigmentRateSpent/nSubmision);	
+            return assignmentService.intToTime(assigmentRateSpent/nSubmision);	
         }
-        return intToTime(assigmentRateSpent);
+        return assignmentService.intToTime(assigmentRateSpent);
     }
     private String getRateSubmissionTimeSpent(AssignmentSubmission submission) {
         int totalTime = 0;
@@ -16123,7 +16049,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if(submission!=null) {
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 if(submitter.getTimeSpent()!=null) {
-                    spentSubmision = timeToInt(submitter.getTimeSpent());
+                    spentSubmision = assignmentService.timeToInt(submitter.getTimeSpent());
                     if(spentSubmision > 0) {
                         assigmentRateSpent = assigmentRateSpent + spentSubmision;
                     }
@@ -16131,8 +16057,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
         if(assigmentRateSpent > 0) {
-            return intToTime(assigmentRateSpent);
+            return assignmentService.intToTime(assigmentRateSpent);
         }
-        return intToTime(assigmentRateSpent);
+        return assignmentService.intToTime(assigmentRateSpent);
     }
 }
