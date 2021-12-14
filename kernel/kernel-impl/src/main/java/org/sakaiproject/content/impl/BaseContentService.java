@@ -14328,10 +14328,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
     	return url;
     }
 
-    public Optional<String> getHtmlForRef(String ref) {
+    public Map<String, String> getHtmlForRef(String ref) {
+
+        Map<String, String> map = new HashMap<>();
 
         try {
             ContentResource cr = getResource(ref);
+
+            long contentLength = cr.getContentLength();
+
+            long limit = m_serverConfigurationService.getLong("ootbconversion.sizelimitmb", 10L) * 1024L * 1024L;
+
+            if (contentLength > limit) {
+                log.warn("{} is larger than {}, returning an empty Optional ...", ref, limit);
+                map.put("status", CONVERSION_TOO_BIG);
+                return map;
+            }
 
             byte[] content = cr.getContent();
             String contentType = cr.getContentType();
@@ -14344,25 +14356,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                         if (log.isDebugEnabled()) {
                             result.getWarnings().forEach(w -> log.debug("Warning while converting {} to html: {}", ref, w));
                         }
-                        return Optional.of(html);
+                        map.put("status", CONVERSION_OK);
+                        map.put("content", html);
+                        return map;
                     }
                 case ODT_MIMETYPE:
                     try (InputStream in = cr.streamContent()) {
                         OdfTextDocument document = OdfTextDocument.loadDocument(in);
                         StringWriter sw = new StringWriter();
                         XHTMLConverter.getInstance().convert( document, sw, null );
-                        return Optional.of(sw.toString());
-                    } catch ( Throwable e ) {
-                        e.printStackTrace();
+                        map.put("status", CONVERSION_OK);
+                        map.put("content", sw.toString());
+                        return map;
+                    } catch (Throwable e) {
+                        log.error("Failed to convert ref {}", ref, e);
                     }
-
-                    return Optional.of("");
+                    break;
                 default:
+                    map.put("status", CONVERSION_NOT_SUPPORTED);
+                    return map;
             }
         } catch (Exception e) {
             log.error("Failed to get html for ref {}", ref, e);
         }
-        return Optional.empty();
+        map.put("status", CONVERSION_FAILED);
+        return map;
     }
 
     /**

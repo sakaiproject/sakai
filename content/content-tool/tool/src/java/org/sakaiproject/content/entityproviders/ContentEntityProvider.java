@@ -52,6 +52,7 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.tool.ListItem;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -267,7 +268,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	}
 
 	@EntityCustomAction(action="htmlForRef", viewKey=EntityView.VIEW_SHOW)
-	public String getHtmlForRef(EntityView view, Map<String, Object> params) throws EntityPermissionException {
+	public ActionReturn getHtmlForRef(EntityView view, Map<String, Object> params) throws EntityPermissionException {
 
 		String ref = (String) params.get("ref");
 
@@ -275,7 +276,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			throw new EntityException("You need to supply the ref parameter.", null, HttpServletResponse.SC_BAD_REQUEST);
 		}
 
-		return contentHostingService.getHtmlForRef(ref).orElse("");
+		return new ActionReturn(contentHostingService.getHtmlForRef(ref));
 	}
 
 	/**
