@@ -79,6 +79,6 @@ public class TimeSheetEntry {
     @Column(name = "DURATION", length = 255)
     private String duration;
 
-    @Column(name = "COMMENT", length = 4000)
+    @Column(name = "TEXT_COMMENT", length = 4000)
     private String comment;
 }
