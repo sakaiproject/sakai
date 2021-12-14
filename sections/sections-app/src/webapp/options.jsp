@@ -37,16 +37,22 @@
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
 			disabled="#{optionsBean.confirmMode}"
 			onclick="updateOptionBoxes(this);">
-			<f:selectItem itemValue="external" itemLabel="#{msgs.options_externally_managed_description}"/>
-			<f:selectItem itemValue="internal" itemLabel="#{msgs.options_internally_managed_description}"/>
+			<f:selectItem itemValue="external" itemLabel=""/>
+			<f:selectItem itemValue="internal" itemLabel=""/>
 		</t:selectOneRadio>
 
         <t:div>
-			<t:radio for="externallyManaged" index="0" rendered="#{optionsBean.managementToggleEnabled}" />
+        	<h:panelGrid columns="2">
+				<t:radio for="externallyManaged" index="0" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex0" />
+				<h:outputLabel for="externallyManagedIndex0" value="#{msgs.options_externally_managed_description}"/>
+			</h:panelGrid>
         </t:div>
 
         <t:div>
-			<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" />
+        	<h:panelGrid columns="2">
+				<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" id="externallyManagedIndex1" />
+				<h:outputLabel for="externallyManagedIndex1" value="#{msgs.options_internally_managed_description}"/>
+			</h:panelGrid>
 	        <t:div styleClass="indent">
 	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
