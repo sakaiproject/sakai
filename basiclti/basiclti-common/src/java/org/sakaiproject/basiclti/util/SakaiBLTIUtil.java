@@ -2661,6 +2661,9 @@ public class SakaiBLTIUtil {
 			submission.setFeedbackComment(scoreObj.comment);
 			submission.setDateModified(now);
 
+			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
+			submission.setGradeReleased(false);
+
 			// If we are in any of these states - set the grade to null
 			if ( gradingProgress.equals(Score.GRADING_PENDING) || gradingProgress.equals(Score.GRADING_PENDINGMANUAL) ||
 					gradingProgress.equals(Score.GRADING_FAILED) ||  gradingProgress.equals(Score.GRADING_NOTREADY) ) {
