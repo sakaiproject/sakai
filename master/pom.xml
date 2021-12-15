@@ -73,7 +73,7 @@
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
-    <sakai.log4j.version>2.15.0</sakai.log4j.version>
+    <sakai.log4j.version>2.16.0</sakai.log4j.version>
     <sakai.slf4j.version>1.7.32</sakai.slf4j.version>
     <sakai.poi.version>5.1.0</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
