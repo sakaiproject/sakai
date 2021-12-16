@@ -1,26 +1,3 @@
-(function($, fluid){
-    //fluid.setLogging(true);
-    initlayoutReorderer = function(){
-        fluid.reorderLayout("#layoutReorderer", {
-            listeners: {
-                afterMove: function(args){
-                    recalculate();
-                }
-            },
-            styles: {
-                defaultStyle: "layoutReorderer-movable-default",
-                selected: "layoutReorderer-movable-selected",
-                dragging: "layoutReorderer-movable-dragging",
-                mouseDrag: "layoutReorderer-movable-mousedrag",
-                dropMarker: "layoutReorderer-dropMarker",
-                avatar: "layoutReorderer-avatar"
-            },
-            disableWrap: true,
-            containerRole: fluid.reorderer.roles.LIST
-        });
-    };
-})(jQuery, fluid);
-
 var recalculate = function(){
     var keepList = '';
     var removeList = '';
@@ -47,6 +24,18 @@ var recalculate = function(){
 
 $(document).ready(function(){
     $('.layoutReorderer-module').find('.marker').closest('.layoutReorderer-module').remove();
+    $(".reorderItemsContainer").sortable({
+        start: function(event, ui) {
+            recalculate();
+        },
+        stop: function(event, ui) {
+            recalculate();
+        },
+        connectWith: ".reorderItemsContainer",
+        placeholder: "ui-state-highlight",
+        forcePlaceholderSize: true
+    }).disableSelection(); 
+
     recalculate();
 
     $('#save').click(function(e){
@@ -56,7 +45,7 @@ $(document).ready(function(){
 
     $('.deleteAnswerTrashLink').click(function(e){
         e.preventDefault();
-        $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#reorderCol2').fadeIn(200, function(){
+        $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#deleteListHead').fadeIn(200, function(){
             $(this).removeClass('highlightEl');
         });
 
@@ -65,7 +54,7 @@ $(document).ready(function(){
 
     $('.deleteAnswerLink').click(function(e){
         e.preventDefault();
-        $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#reorderCol2').fadeIn(200, function(){
+        $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#deleteListHead').fadeIn(200, function(){
             $(this).removeClass('highlightEl');
         });
 

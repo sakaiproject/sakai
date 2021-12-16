@@ -9,7 +9,6 @@
         <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
         <script>includeLatestJQuery('Reorder.html');</script>
-        <script src="/library/js/fluid/1.5/MyInfusion.js"></script>
         <script type="text/javascript" src="$context/js/reorder.js"></script>
         <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
         <title rsf:id="msg=simplepage.reorder_header"></title>
@@ -28,8 +27,8 @@
                 <div class="columnSetup2 fluid-vertical-order row" style="margin-left:0;margin-right:0;">
                     <!-- invalid drag n drop message template --><!-- Column #1 -->
                     <div class="flc-reorderer-column col1 col-md-7 list-group" id="reorderCol1">
-                        <div rsf:id="sectionContainer:" class="section-container">
-                            <div rsf:id="columnContainer:">
+                        <div rsf:id="sectionContainer:" class="section-container reorderItemsContainer">
+                            <div rsf:id="columnContainer:" class="reorderItemsContainer">
                                 <div rsf:id="item:" class="flc-reorderer-module layoutReorderer-module list-group-item">
                                     <h3 rsf:id="section-label" class="section-label"></h3>
                                     <div class="reordSeqContainer" style="display:none;">
@@ -97,8 +96,5 @@
                 </div>
             </div>
         </div>
-        <script>
-            initlayoutReorderer();
-        </script>
     </body>
 </html>
