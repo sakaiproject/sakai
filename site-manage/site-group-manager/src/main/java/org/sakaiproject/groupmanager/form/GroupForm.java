@@ -30,5 +30,6 @@ public class GroupForm {
     private String joinableSetNumOfMembers;
     private boolean groupAllowPreviewMembership;
     private boolean groupUnjoinable;
+    private boolean groupJoinableShowAllUsers;
     private String filterByGroupId;
 }

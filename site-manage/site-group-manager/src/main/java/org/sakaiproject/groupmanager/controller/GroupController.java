@@ -17,9 +17,11 @@ package org.sakaiproject.groupmanager.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -63,12 +65,15 @@ public class GroupController {
     @Autowired
     private SakaiService sakaiService;
 
+    private static List<User> selectableMemberList;
+
     @RequestMapping(value = "/group")
     public String showGroup(Model model, 
     		@RequestParam(required=false) String groupId,
     		@RequestParam(required=false) String filterByGroupId,
     		@RequestParam(required=false) String currentTitle,
-    		@RequestParam(required=false) String currentDescription ) {
+    		@RequestParam(required=false) String currentDescription,
+    		@RequestParam(required=false) Boolean currentShowAllUsers) {
         log.debug("showGroup called with groupId {}.", groupId);
 
         Optional<Site> siteOptional = sakaiService.getCurrentSite();
@@ -86,6 +91,7 @@ public class GroupController {
         groupForm.setJoinableSetNumOfMembers(String.valueOf(1));
         groupForm.setGroupAllowPreviewMembership(false);
         groupForm.setGroupUnjoinable(false);
+        groupForm.setGroupJoinableShowAllUsers(false);
 
         // The list of sections assigned to the group, only for existing groups.
         List<Member> sectionProvidedUsers = new ArrayList<>();
@@ -94,9 +100,11 @@ public class GroupController {
         // The list of members assigned to the group, only for existing groups.
         List<String> currentGroupMembers = new ArrayList<String>();
         // List of joinable sets that can be assigned to the group
-        List<String> joinableSetList = new ArrayList<String>();
+        Set<String> groupJoinableSet = new HashSet<>();
+        // List of user ids that will be able to join this group of a joinable set
+        Set<String> joinableMemberSet = new HashSet<>();
         // Full list of the site members.
-        List<User> siteMemberList = new ArrayList<User>();
+        Set<User> siteMemberSet = new HashSet<>();
         // Group and Section lists for the group filter.
         List<Group> groupList = new ArrayList<Group>();
         List<Group> sectionList = new ArrayList<Group>();
@@ -170,35 +178,53 @@ public class GroupController {
                     groupForm.setJoinableSetNumOfMembers(StringUtils.isNotBlank(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX)) ? group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) : String.valueOf(0));
                     groupForm.setGroupAllowPreviewMembership(Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW)));
                     groupForm.setGroupUnjoinable(Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE)));
+                    // If there is no property saved, true by default to respect the original behaviour
+                    Boolean propertyShowAllUsers = (StringUtils.isNotEmpty(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SHOW_ALL)) ? Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SHOW_ALL)) : true);
+                    groupForm.setGroupJoinableShowAllUsers(currentShowAllUsers == null ? propertyShowAllUsers : currentShowAllUsers);
                 }
             }
         }
-
-        // Get all the joinable sets from all the site groups.
-        site.getGroups().forEach(group -> {
-            String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
-            if (StringUtils.isNotBlank(joinableSet) && !joinableSetList.contains(joinableSet)) {
-                joinableSetList.add(joinableSet);
-            }
-        });
-        Collections.sort(joinableSetList, new AlphaNumericComparator());
 
         // For every member of the site or the filtered group, add it to the selector except if they were provided by a role.
         for (Member member : filterGroup == null ? site.getMembers() : filterGroup.getMembers()) {
             if (!roleProviderList.contains(member.getRole().getId()) && sectionProvidedUsers.stream().noneMatch(m -> m.getUserId().equals(member.getUserId()))) {
                 Optional<User> memberUserOptional = sakaiService.getUser(member.getUserId());
                 if (memberUserOptional.isPresent()) {
-                    siteMemberList.add(memberUserOptional.get());
+                    siteMemberSet.add(memberUserOptional.get());
                 }
             }
         }
         //Sort the members of the site by sort name.
+        List<User> siteMemberList = new ArrayList<>(siteMemberSet);
         Collections.sort(siteMemberList, new UserSortNameComparator());
+        selectableMemberList = new ArrayList<>(siteMemberList);
+
+        // Get all the joinable sets from all the site groups.
+        site.getGroups().forEach(group -> {
+            String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+            if (StringUtils.isNotBlank(joinableSet)) {
+                groupJoinableSet.add(joinableSet);
+                // Remove from selectable users the ones that are currently in any group from the joinable set
+                if (!groupForm.isGroupJoinableShowAllUsers()) {
+                    joinableMemberSet.addAll(group.getUsers());
+                    if (!groupForm.getGroupId().equals(group.getId())) {
+                        selectableMemberList = selectableMemberList.stream().filter(user -> {
+                            // If the user is not in any group from the joinable set, or the user joined the current group, then the participant is a selectable member
+                            return !joinableMemberSet.contains(user.getId()) || groupForm.getGroupMembers().contains(user.getId());
+                        }).collect(Collectors.toList());
+                    }
+                }
+            }
+        });
+        List<String> joinableSetList = new ArrayList<>(groupJoinableSet);
+        Collections.sort(joinableSetList, new AlphaNumericComparator());
 
         // Add the attributes to the model
         model.addAttribute("groupForm", groupForm);
         model.addAttribute("siteRoleList", site.getRoles().stream().filter(role -> !role.getId().startsWith(".")).collect(Collectors.toList()));
         model.addAttribute("joinableSetList", joinableSetList);
+        model.addAttribute("joinableMemberSet", joinableMemberSet);
+        model.addAttribute("selectableMemberList", selectableMemberList);
         model.addAttribute("siteMemberList", siteMemberList);
         model.addAttribute("groupList", groupList);
         model.addAttribute("sectionList", sectionList);
@@ -225,6 +251,7 @@ public class GroupController {
         String groupDescription = groupForm.getGroupDescription();
         String filterByGroupId = groupForm.getFilterByGroupId();
         String joinableSetName = groupForm.getJoinableSetName();
+        boolean joinableShowAllUsers = groupForm.isGroupJoinableShowAllUsers();
         // The group can be new or existing.
         Group group = null;
         List<Member> currentGroupMembers = null;
@@ -240,13 +267,13 @@ public class GroupController {
         //Ensure the group title is provided
         if (StringUtils.isBlank(groupTitle)) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.providetitle", null, userLocale));
-            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
 
         //Ensure the group title is shorter than the maximum allowed
         if (groupTitle.length() > 99) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.titlelength", null, userLocale));
-            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
 
         // If a joinable set is selected, validate the maximum number of members.
@@ -258,14 +285,14 @@ public class GroupController {
                 }
             } catch (NumberFormatException  e) {
                 model.addAttribute("errorMessage", messageSource.getMessage("groups.error.maxmembers", null, userLocale));
-                return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);                
+                return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);                
             }
         }
 
         //Ensure the group title is not in use by other groups.
         if (site.getGroups().stream().anyMatch(g -> !g.getId().equals(groupId) && groupTitle.equalsIgnoreCase(g.getTitle()))) {
             model.addAttribute("errorMessage", messageSource.getMessage("groups.error.sametitle", null, userLocale));
-            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription);
+            return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
 
         // If the group already exists, get it from the site and delete all the members.
@@ -303,11 +330,13 @@ public class GroupController {
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_MAX, groupForm.getJoinableSetNumOfMembers());
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW, String.valueOf(groupForm.isGroupAllowPreviewMembership()));
             group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, String.valueOf(groupForm.isGroupUnjoinable()));
+            group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SHOW_ALL, String.valueOf(groupForm.isGroupJoinableShowAllUsers()));
         } else {
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET);
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_MAX);
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW);
             group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
+            group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SHOW_ALL);
         }
 
         // Assign roles or members to the groups.
