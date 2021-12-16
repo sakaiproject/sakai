@@ -49,6 +49,16 @@ public final class AssignmentConstants {
      * EVENT STRINGS
      *********************************************************************************************************************************************************************************************************************************************************/
     /**
+     * Event for allow resubmitting an assignment.
+     */
+    public static final String EVENT_RESUBMIT_ASSIGNMENT = "asn.resubmit.assignment";
+
+    /**
+     * Event for allow resubmitting an assignment submission.
+     */
+    public static final String EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION = "asn.resubmit.submission";
+
+    /**
      * Event for adding an assignment.
      */
     public static final String EVENT_ADD_ASSIGNMENT_CONTENT = "asn.new.assignmentcontent";
