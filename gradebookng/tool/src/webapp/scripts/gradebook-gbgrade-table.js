@@ -1747,10 +1747,10 @@ GbGradeTable.applyStudentFilter = function(data) {
       if (GbGradeTable.settings.isStudentNumberVisible) {
           searchableFields.push(student.studentNumber);
       }
-      var studentSearchString = searchableFields.join(";")
+      const studentSearchString = searchableFields.join(";").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
       for (var i=0; i<queryStrings.length; i++) {
-        var queryString = queryStrings[i];
+        const queryString = queryStrings[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         if (studentSearchString.match(new RegExp(queryString, "i")) == null) {
           return false;
