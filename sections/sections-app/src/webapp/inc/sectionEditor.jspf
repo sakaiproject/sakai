@@ -93,7 +93,7 @@
 									</t:div>
 		
 									<t:div styleClass="indent">
-										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_start_time_default}')" />
+										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, `#{msgs.section_start_time_default}`)" />
 										<t:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
 											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
@@ -104,7 +104,7 @@
 									</t:div>
 										
 									<t:div styleClass="indent meetingSecondCol" >
-										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_end_time_default}')" />
+										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, `#{msgs.section_end_time_default}`)" />
 										<t:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
 											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
