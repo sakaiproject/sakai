@@ -53,6 +53,7 @@ import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.tool.section.decorator.EnrollmentDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -66,6 +67,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final String CAT_COLUMN_PREFIX = "cat";
+	private static final String NO_SECTIONS_FILTER_KEY = "NoSections";
 
 	private String searchText;
 	private int firstRow;
@@ -76,6 +78,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private List<String> categories;
 	private List<EnrollmentRecord> siteStudents;
 	private List<EnrollmentDecorator> unpagedEnrollments;
+	@Getter private List<SelectItem> sectionFilterSelectItems;
 
     public void init() {
 		// Determine whether this course is externally managed
@@ -121,50 +124,70 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 			assignedSections = findAssignedSections();
 		}
 
+		//Adding Section filtering selections for instructors
+		sectionFilterSelectItems = new ArrayList<>();
+
+		// The first choice is always "All available sections"
+		sectionFilterSelectItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("filter_all_sections")));
+
+		// Add the available sections
+		getSectionManager().getSections(getSiteContext()).forEach(section -> {
+			if (isExternallyManaged() && StringUtils.isNotBlank(section.getEid())) {
+				sectionFilterSelectItems.add(new SelectItem(section.getEid(), section.getTitle()));
+			} else {
+				sectionFilterSelectItems.add(new SelectItem(section.getTitle(), section.getTitle()));
+			}
+		});
+		sectionFilterSelectItems.add(new SelectItem(NO_SECTIONS_FILTER_KEY, JsfUtil.getLocalizedMessage("filter_no_sections")));
+
 		// Construct the decorated enrollments for the UI
 		decorateEnrollments(siteStudents, sectionEnrollments, assignedSections);
 	}
 
 	private void decorateEnrollments(List<EnrollmentRecord> siteStudents, SectionEnrollments sectionEnrollments, List<CourseSection> assignedSections) {
-		unpagedEnrollments = new ArrayList<EnrollmentDecorator>();
-		for(Iterator<EnrollmentRecord> studentIter = siteStudents.iterator(); studentIter.hasNext();) {
-			EnrollmentRecord enrollment = studentIter.next();
-
+		unpagedEnrollments = new ArrayList<>();
+		siteStudents.forEach(enrollment -> {
 			// Build a map of categories to sections in which the student is enrolled
-			Map<String, CourseSection> map = new HashMap<String, CourseSection>();
-			for(Iterator catIter = categories.iterator(); catIter.hasNext();) {
-				String cat = (String)catIter.next();
-				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), cat);
-                map.put(cat, section);
+			Map<String, CourseSection> studentSectionsMap = new HashMap<>();
+
+			// Iterate site sections to see if the student is a member of and the filter matches the selected section
+			boolean includeStudent = categories.stream().filter(category -> {
+				CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
+				boolean isValidSection = false;
+
+				if (section != null) {
+					if(("MY".equals(getFilter()) || section.getCategory().equals(getFilter()))
+							&& assignedSections.contains(section)) {
+						isValidSection = true;
+
+					} else if (StringUtils.isNotBlank(section.getEid()) && section.getEid().equals(getFilter())) {
+						isValidSection = true;
+
+					} else if (StringUtils.isNotBlank(section.getTitle()) && section.getTitle().equals(getFilter())) {
+						isValidSection = true;
+					}
+
+					studentSectionsMap.put(category, section);
+				}
+
+				return isValidSection;
+			}).count() > 0; // If there are valid sections for the current filter, include the student in the view
+
+			// If there is no filter, the section is valid and the student shouldn't be excluded
+			if (StringUtils.isBlank(getFilter())) {
+				includeStudent = true;
 			}
 
-			// Check to see whether this enrollment should be filtered out
-			boolean includeStudent = false;
-			if(StringUtils.trimToNull(getFilter()) == null) {
+			// If the filter is set to "no sections" filter and the student sections map is empty, student should be included
+			if (NO_SECTIONS_FILTER_KEY.equals(getFilter()) && studentSectionsMap.isEmpty()) {
 				includeStudent = true;
-			} else {
-				for(Iterator<Entry<String, CourseSection>> entryIter = map.entrySet().iterator(); entryIter.hasNext();) {
-					Entry<String, CourseSection> entry = entryIter.next();
-					CourseSection section = entry.getValue();
-					// Some map entries won't have a section at all, since the student isn't in any section of that category
-					if(section == null) {
-						continue;
-					}
-					if("MY".equals(getFilter()) && assignedSections.contains(section)) {
-						includeStudent = true;
-						break;
-					} else if(section.getCategory().equals(getFilter()) && assignedSections.contains(section)) {
-						includeStudent = true;
-						break;
-					}
-				}
 			}
 
 			if(includeStudent) {
-				EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, map);
+				EnrollmentDecorator decorator = new EnrollmentDecorator(enrollment, studentSectionsMap);
 				unpagedEnrollments.add(decorator);
 			}
-		}
+		});
 
 		// Sort the list
 		Collections.sort(unpagedEnrollments, getComparator());
@@ -343,8 +366,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
             row.add(enrollment.getUser().getSortName());
             row.add(enrollment.getUser().getDisplayId());
 
-            for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
-                String category = (String)iter.next();
+            Set<String> usedCategories = getUsedCategories();
+            for (String category : usedCategories) {
                 CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
 
                 if(section!=null){
