@@ -33,6 +33,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	private static final long serialVersionUID = 1L;
 
 	private String enteredGrade;
+	private Double enteredPoints;
 	private Double autoCalculatedGrade; // Not persisted
 	private Double calculatedPointsEarned; // Not persisted
 	private Double totalPointsPossible; // Not persisted
@@ -152,6 +153,20 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	 */
 	public void setEnteredGrade(final String enteredGrade) {
 		this.enteredGrade = enteredGrade;
+	}
+
+	/**
+	 * @return Returns the enteredPoints.
+	 */
+	public Double getEnteredPoints() {
+		return this.enteredPoints;
+	}
+
+	/**
+	 * @param enteredPoints The enteredPoints to set.
+	 */
+	public void setEnteredPoints(final Double enteredPoints) {
+		this.enteredPoints = enteredPoints;
 	}
 
 	/**
