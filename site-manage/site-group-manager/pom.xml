@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.sitemanage</groupId>
         <artifactId>sitemanage</artifactId>
-        <version>20-SNAPSHOT</version>
+        <version>20.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>sakai-site-group-manager</name>

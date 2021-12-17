@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review</artifactId>
-		<version>20-SNAPSHOT</version>
+		<version>20.5</version>
 	</parent>
 
 	<modules>
