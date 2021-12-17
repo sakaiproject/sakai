@@ -211,12 +211,6 @@ public class PublishAssessmentListener
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
       pub = publishedAssessmentService.publishAssessment(assessment);
 
-      boolean removePublishedDrafts = ServerConfigurationService.getBoolean("samigo.remove.drafts", true);
-      if (removePublishedDrafts) {
-        AssessmentService assessmentService = new AssessmentService();
-        assessmentService.removeAssessment(assessment.getAssessmentBaseId().toString());
-      }
-
       //Lock the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
       boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(assessmentSettings.getReleaseTo());
 
