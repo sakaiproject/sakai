@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.signup</groupId>
         <artifactId>signup</artifactId>
-        <version>20.5</version>
+        <version>20-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Signup Implementation</name>

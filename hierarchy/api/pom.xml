@@ -4,7 +4,7 @@
     <parent>
         <artifactId>hierarchy</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>20.5</version>
+        <version>20-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Hierarchy API</name>
