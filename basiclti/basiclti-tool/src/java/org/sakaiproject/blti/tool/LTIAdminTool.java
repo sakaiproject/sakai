@@ -229,6 +229,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return "lti_error";
 	}
 
+	/**
+	 * Setup the velocity context and choose the template for the response.
+	 */
+	public String buildFinishedPanelContext(VelocityPortlet portlet, Context context,
+			RunData rundata, SessionState state) {
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		state.removeAttribute(STATE_ID);
+		state.removeAttribute(STATE_TOOL_ID);
+		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
+		state.removeAttribute(STATE_REDIRECT_URL);
+		return "lti_finished";
+	}
+
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state) {
 		// default to site view
@@ -1595,8 +1610,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// to make sure it is properly re-established
 		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
 		String errorPanel = "Error";
+		String finishedPanel = "Finished";
 		if ( sakaiSession != null ) {
 			errorPanel = errorPanel + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+			finishedPanel = finishedPanel + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
 		}
 
 		// Check for a returned error message from LTI
@@ -1677,7 +1694,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_FILEITEM);
 				if (item == null) {
 					addAlert(state, rb.getString("error.deeplink.no.fileitem"));
-					switchPanel(state, errorPanel);
+					switchPanel(state, finishedPanel);
 					return;
 				}
 				handleImportCartridge(data, context, state, errorPanel, returnUrl, item, sakaiSession);
@@ -1687,7 +1704,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				JSONObject item = dlr.getItemOfType(DeepLinkResponse.TYPE_LTILINKITEM);
 				if (item == null) {
 					addAlert(state, rb.getString("error.deeplink.no.ltilink"));
-					switchPanel(state, errorPanel);
+					switchPanel(state, finishedPanel);
 					return;
 				}
 
@@ -1845,11 +1862,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
+		// If we find our way to an error panel, we need to pass along the session
+		// to make sure it is properly re-established
+		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
+		String errorPanel = "Error";
+		String finishedPanel = "Finished";
+		if ( sakaiSession != null ) {
+			errorPanel = errorPanel + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+			finishedPanel = finishedPanel + "&" + RequestFilter.ATTR_SESSION + "=" + sakaiSession;
+		}
+
 		// Check for a returned error message from LTI
 		String lti_errormsg = data.getParameters().getString("lti_errormsg");
 		if (lti_errormsg != null && lti_errormsg.trim().length() > 0) {
 			addAlert(state, lti_errormsg);
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1862,7 +1889,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String flow = data.getParameters().getString(FLOW_PARAMETER);
 		if (flow == null) {
 			addAlert(state, rb.getString("error.missing.flow"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1870,13 +1897,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if (toolKey == 0 || toolKey < 0) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
 		if (tool == null) {
 			addAlert(state, rb.getString("error.contentitem.missing"));
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1893,7 +1920,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			isDeepLink = DeepLinkResponse.isRequest(id_token);
 		} catch (Exception e) {
 			addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
-			switchPanel(state, "Error");
+			switchPanel(state, errorPanel);
 			return;
 		}
 
@@ -1903,7 +1930,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			String keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
 			if (keyset == null) {
 				addAlert(state, rb.getString("error.tool.missing.keyset"));
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -1912,14 +1939,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				dlr = SakaiBLTIUtil.getDeepLinkFromToken(tool, id_token);  // Also checks security
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.deeplink.bad") + " (" + e.getMessage() + ")");
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
 			JSONArray links = dlr.getDeepLinks();
 			if (links == null) {
-				addAlert(state, rb.getString("error.deeplink.no.ltilinks"));
-				switchPanel(state, "Error");
+				addAlert(state, rb.getString("error.deeplink.no.ltilink"));
+				switchPanel(state, finishedPanel);
 				return;
 			}
 
@@ -2011,7 +2038,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
 			} catch (Exception e) {
 				addAlert(state, rb.getString("error.contentitem.bad") + " (" + e.getMessage() + ")");
-				switchPanel(state, "Error");
+				switchPanel(state, errorPanel);
 				return;
 			}
 
@@ -2113,7 +2140,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		state.setAttribute(STATE_CONTENT_ITEM_FAILURES, failures);
 		state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES, new Integer(goodcount));
 
-		String sakaiSession = data.getParameters().getString(RequestFilter.ATTR_SESSION);
 		if (sakaiSession == null) {
 			switchPanel(state, forward);
 		} else {
