@@ -31,116 +31,163 @@ import static org.junit.Assert.assertNotNull;
 import org.springframework.cache.Cache;
 
 import java.security.KeyPair;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+
+import org.tsugi.basiclti.BasicLTIUtil;
+
 import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
 import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13KeySetUtil;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 @Slf4j
 public class SakaiKeySetUtilTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void testKeyPair() {
-		KeyPair kp = LTI13Util.generateKeyPair();
-		assertNotNull(kp);
+    @Test
+    public void testKeyPair() {
+        KeyPair kp = LTI13Util.generateKeyPair();
+        assertNotNull(kp);
         String pub = LTI13Util.getPublicEncoded(kp);
-		assertNotNull(pub);
-		assertTrue(pub.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub.contains("::"));
+        assertNotNull(pub);
+        assertTrue(pub.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub.contains("::"));
         String priv = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(priv);
-		assertTrue(priv.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv.contains("::"));
-	}
+        assertNotNull(priv);
+        assertTrue(priv.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv.contains("::"));
+    }
 
-	@Test
-	public void testMockCache() {
-		Map fakeCache = new TreeMap<String, String> ();
-		SakaiKeySetUtil.mockIgnite();
-		SakaiKeySetUtil.putCacheKey("hello", "world");
-		String world = SakaiKeySetUtil.getCacheKey("hello");
-		assertEquals("world", world);
+    @Test
+    public void testExpire()
+    {
+        // Special unit test version
+        SakaiKeySetUtil.expireDays = 12;
+        long days = SakaiKeySetUtil.getExpireDays();
+        assertTrue(days == 12);
+    }
+
+    @Test
+    public void testRotationAndKeySet()
+       throws NoSuchAlgorithmException
+    {
+        Map fakeCache = new TreeMap<String, String> ();
+        SakaiKeySetUtil.mockIgnite();
+        SakaiKeySetUtil.expireDays = 12;
+        SakaiKeySetUtil.putCacheKey("hello", "world");
+        String world = SakaiKeySetUtil.getCacheKey("hello");
+        assertEquals("world", world);
 
         // String kid = LTI13KeySetUtil.getPublicKID(publicKey);
-		SakaiKeySetUtil.rotateKeys();
-		KeyPair kp = SakaiKeySetUtil.getCurrent();
-		String pub = LTI13Util.getPublicEncoded(kp);
-		assertTrue(pub.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub.contains("::"));
+        KeyPair kp = SakaiKeySetUtil.getCurrent();
+        Key pubKey = kp.getPublic();
+        assertNotNull(pubKey);
+        String pub = LTI13Util.getPublicEncoded(kp);
+
+        assertTrue(pub.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub.contains("::"));
         String priv = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(kp);
-		assertTrue(priv.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv.contains("::"));
+        assertNotNull(kp);
+        assertTrue(priv.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv.contains("::"));
 
-		SakaiKeySetUtil.rotateKeys();
-		kp = SakaiKeySetUtil.getCurrent();
-		assertNotNull(kp);
-		String pub2 = LTI13Util.getPublicEncoded(kp);
-		assertTrue(pub2.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub2.contains("::"));
+        kp = SakaiKeySetUtil.getCurrent();
+        assertNotNull(kp);
+        String pub2 = LTI13Util.getPublicEncoded(kp);
+        assertTrue(pub2.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub2.contains("::"));
         String priv2 = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(kp);
-		assertTrue(priv2.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv2.contains("::"));
+        assertNotNull(kp);
+        assertTrue(priv2.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv2.contains("::"));
 
-		assertEquals(pub, pub2);
-		assertEquals(priv, priv2);
+        assertEquals(pub, pub2);
+        assertEquals(priv, priv2);
 
-		// Go back in time
-		Instant now = Instant.now();
+        // Go back in time
+        Instant now = Instant.now();
         long nowSeconds = now.getEpochSecond();
-System.out.println("nowSeconds = "+nowSeconds);
-        SakaiKeySetUtil.putCacheKey("current_time", (nowSeconds-1000000)+"");
+        SakaiKeySetUtil.putCacheKey("current_time", (nowSeconds-10000000)+"");
 
-		// First rotation copies current to previous
-		SakaiKeySetUtil.rotateKeys();
-		kp = SakaiKeySetUtil.getCurrent();
-		assertNotNull(kp);
-		String pub3 = LTI13Util.getPublicEncoded(kp);
-		assertTrue(pub3.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub3.contains("::"));
+        // First rotation copies current to previous
+        kp = SakaiKeySetUtil.getCurrent();
+        assertNotNull(kp);
+        String pub3 = LTI13Util.getPublicEncoded(kp);
+        assertTrue(pub3.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub3.contains("::"));
         String priv3 = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(kp);
-		assertTrue(priv3.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv3.contains("::"));
+        assertNotNull(kp);
+        assertTrue(priv3.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv3.contains("::"));
 
-		assertEquals(pub2, pub3);
-		assertEquals(priv2, priv3);
-		
-		// Second rotation moves next to current
-		SakaiKeySetUtil.rotateKeys();
-		kp = SakaiKeySetUtil.getCurrent();
-		assertNotNull(kp);
-		String pub4 = LTI13Util.getPublicEncoded(kp);
-		assertTrue(pub4.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub4.contains("::"));
+        assertEquals(pub2, pub3);
+        assertEquals(priv2, priv3);
+
+        // Second rotation moves next to current
+        kp = SakaiKeySetUtil.getCurrent();
+        assertNotNull(kp);
+        String pub4 = LTI13Util.getPublicEncoded(kp);
+        assertTrue(pub4.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub4.contains("::"));
         String priv4 = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(kp);
-		assertTrue(priv4.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv4.contains("::"));
+        assertNotNull(kp);
+        assertTrue(priv4.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv4.contains("::"));
 
-		assertFalse(pub3.equals(pub4));
-		assertFalse(priv3.equals(priv4));
+        assertFalse(pub3.equals(pub4));
+        assertFalse(priv3.equals(priv4));
 
-		// Third rotation does nothing
-		SakaiKeySetUtil.rotateKeys();
-		kp = SakaiKeySetUtil.getCurrent();
-		assertNotNull(kp);
-		String pub5 = LTI13Util.getPublicEncoded(kp);
-		assertTrue(pub5.contains("-----END PUBLIC KEY-----"));
-		assertFalse(pub5.contains("::"));
+        // Third rotation does nothing
+        kp = SakaiKeySetUtil.getCurrent();
+        assertNotNull(kp);
+        String pub5 = LTI13Util.getPublicEncoded(kp);
+        assertTrue(pub5.contains("-----END PUBLIC KEY-----"));
+        assertFalse(pub5.contains("::"));
         String priv5 = LTI13Util.getPrivateEncoded(kp);
-		assertNotNull(kp);
-		assertTrue(priv5.contains("-----END PRIVATE KEY-----"));
-		assertFalse(priv5.contains("::"));
+        assertNotNull(kp);
+        assertTrue(priv5.contains("-----END PRIVATE KEY-----"));
+        assertFalse(priv5.contains("::"));
 
-		assertEquals(pub4, pub5);
-		assertEquals(priv4, priv5);
-		
-	}
+        assertEquals(pub4, pub5);
+        assertEquals(priv4, priv5);
+
+        String keySetJSON = SakaiKeySetUtil.getKeySet();
+        assertNotNull(keySetJSON);
+        assertTrue(keySetJSON.contains("{\"keys\":[{\"kty\":"));
+        assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
+        JSONObject ks_json = BasicLTIUtil.parseJSONObject(keySetJSON);
+        JSONArray keys = (JSONArray) ks_json.get("keys");
+        assertEquals(keys.size(), 3);
+        for(int i=0; i< keys.size(); i++) {
+            JSONObject key = (JSONObject) keys.get(i);
+            assertNotNull(key);
+            String kid = (String) key.get("kid");
+            assertNotNull(kid);
+            String n = (String) key.get("n");
+            assertNotNull(n);
+        }
+
+        // Test the expiration of the previous key
+        KeyPair [] pairs = SakaiKeySetUtil.getValidSigningKeys();
+        assertEquals(pairs.length, 3);
+        SakaiKeySetUtil.putCacheKey("prev_time", (nowSeconds-10000000)+"");
+        pairs = SakaiKeySetUtil.getValidSigningKeys();
+        assertEquals(pairs.length, 2);
+
+        keySetJSON = SakaiKeySetUtil.getKeySet();
+        assertNotNull(keySetJSON);
+        assertTrue(keySetJSON.contains("{\"keys\":[{\"kty\":"));
+        assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
+        ks_json = BasicLTIUtil.parseJSONObject(keySetJSON);
+        keys = (JSONArray) ks_json.get("keys");
+        assertEquals(keys.size(), 2);
+    }
 
 }
 
