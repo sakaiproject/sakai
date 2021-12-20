@@ -1014,7 +1014,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     var $header = $link.closest("th.gb-item");
     if ($header.length) {
-	  var menuOption;
+      var menuOption;
       // Retrieve JQuery <a> element
       if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
         menuOption = $dropdownMenu.find(".gb-move-left");
