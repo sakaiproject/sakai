@@ -17,7 +17,7 @@
         <script src="/messageforums-tool/js/sak-10625.js"></script>
         <script src="/messageforums-tool/js/messages.js"></script>
         <script src="/messageforums-tool/js/forum.js"></script>
-        <script>includeWebjarLibrary('ckeditor')</script>
+        <script>includeWebjarLibrary('ckeditor4')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
