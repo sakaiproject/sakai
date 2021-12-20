@@ -73,7 +73,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 Sakai 21.2 ([release](http://source.sakaiproject.org/release/21.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 Is the community supported release of Sakai 21.
 
-Sakai 20.4 ([release](http://source.sakaiproject.org/release/20.4/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.4+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
+Sakai 20.5 ([release](http://source.sakaiproject.org/release/20.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
 Is the community supported release of Sakai 20.
 
 Sakai 19.6 ([release](http://source.sakaiproject.org/release/19.6/) | [fixes](https://confluence.sakaiproject.org/display/DOC/19.6+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
@@ -91,7 +91,7 @@ For full history of supported releases please see our [release information on co
 
 [Sakai 21.3](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 21. It is expected to release Q1 2022.
 
-[Sakai 20.5](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 20. It is expected to release Q4 2021.
+[Sakai 20.6](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 20. <strike>It is expected to release Q1 2022.</strike>
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
