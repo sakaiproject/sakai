@@ -254,17 +254,6 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
-    <pluginRepository>
-        <id>opencast</id>
-        <name>Opencast Repo</name>
-        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-    </pluginRepository>
   </pluginRepositories>
   <repositories>
    <repository>
@@ -311,17 +300,6 @@
         <enabled>true</enabled>
         <checksumPolicy>ignore</checksumPolicy>
       </snapshots>
-    </repository>
-    <repository>
-        <id>opencast</id>
-        <name>Opencast Repo</name>
-        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
     </repository>
   </repositories>
 
