@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -4666,17 +4667,30 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getUsersLocalDateTimeString(Instant date) {
+    public String getUsersLocalDateTimeString(String context, Instant date) {
+        try {
+            Site site = siteService.getSite(context);
+            if (site.getProperties() != null) {
+                String langProp = ((String) site.getProperties().get("locale_string"));
+                if (StringUtils.isNotBlank(langProp)) {
+                    String[] langAndCountry = langProp.split("_");
+                    Locale locale = new Locale(langAndCountry[0], langAndCountry[1]);
+                    return userTimeService.dateTimeFormat(Date.from(date), locale, DateFormat.MEDIUM);
+                }
+            }
+        } catch (IdUnusedException e) {
+            log.warn("No site found with id {} formating date", context, e);
+        }
         return userTimeService.dateTimeFormat(date, null, null);
     }
 
     @Override
-    public String getUsersLocalDateTimeStringFromProperties(String date){
+    public String getUsersLocalDateTimeStringFromProperties(String context, String date){
         if (date == null){
             return null;
         }
         Long dateLong = Long.parseLong(date);
-        return getUsersLocalDateTimeString(Instant.ofEpochMilli(dateLong));
+        return getUsersLocalDateTimeString(context, Instant.ofEpochMilli(dateLong));
     }
 
     @Override

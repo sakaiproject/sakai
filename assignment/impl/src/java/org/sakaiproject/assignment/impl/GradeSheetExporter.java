@@ -178,7 +178,7 @@ public class GradeSheetExporter {
             sheet.createRow(exportRowcount++).createCell(0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
 
             // cell 3,0 - download date
-            sheet.createRow(exportRowcount++).createCell(0).setCellValue(rb.getString("download.spreadsheet.date") + assignmentService.getUsersLocalDateTimeString(Instant.now()));
+            sheet.createRow(exportRowcount++).createCell(0).setCellValue(rb.getString("download.spreadsheet.date") + assignmentService.getUsersLocalDateTimeString(context, Instant.now()));
 
             // cell 4,0 - empty
             sheet.createRow(exportRowcount++).createCell(0).setCellValue("");

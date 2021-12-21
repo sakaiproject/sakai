@@ -96,7 +96,7 @@ public class EmailUtil {
         replacements.put("assignmentUrl", getAssignmentUrl(assignment));
         replacements.put("hideDueDate", assignment.getHideDueDate());
         if(!assignment.getHideDueDate()) {
-            replacements.put("dueDate", assignmentService.getUsersLocalDateTimeString(assignment.getDueDate()));
+            replacements.put("dueDate", assignmentService.getUsersLocalDateTimeString(assignment.getContext(), assignment.getDueDate()));
         }
         // submitter name and id
         String submitterNames = "";
@@ -123,7 +123,7 @@ public class EmailUtil {
         replacements.put("submissionId", submission.getId());
 
         // submit time
-	    replacements.put("submittedDate", assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()));
+	    replacements.put("submittedDate", assignmentService.getUsersLocalDateTimeString(assignment.getContext(), submission.getDateSubmitted()));
 
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());

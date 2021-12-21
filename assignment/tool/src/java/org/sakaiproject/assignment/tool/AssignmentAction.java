@@ -8833,7 +8833,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (!message.getAnnouncementHeader().getSubject().contains(title))/*whether title has been changed*/ {
                             updatedTitle = true;
                         }
-                        if (!message.getBody().contains(assignmentService.getUsersLocalDateTimeString(openTime))) /*whether open date has been changed*/ {
+                        if (!message.getBody().contains(assignmentService.getUsersLocalDateTimeString(assignment.getContext(), openTime))) /*whether open date has been changed*/ {
                             updatedOpenDate = true;
                         }
                         if ((message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !assignment.getTypeOfAccess().equals(Assignment.Access.SITE))
@@ -9095,7 +9095,7 @@ public class AssignmentAction extends PagedResourceActionII {
             CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 
             edit.setField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
-            edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getOpenDate()));
+            edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, assignmentService.getUsersLocalDateTimeString(assignment.getContext(), assignment.getOpenDate()));
 
             c.commitEvent(edit);
         }
@@ -14208,7 +14208,7 @@ public class AssignmentAction extends PagedResourceActionII {
             allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
             Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
             isDateExtended = extensionCloseTime.isAfter(Instant.now());
-            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
+            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(context.toString(), extensionCloseTime));
         }
         putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
 
@@ -14232,7 +14232,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // put into context
             if (resubmitCloseTime != null) {
                 isDateExtended = isDateExtended || resubmitCloseTime.isAfter(Instant.now());
-                context.put("resubmitCloseTime", assignmentService.getUsersLocalDateTimeString(resubmitCloseTime));
+                context.put("resubmitCloseTime", assignmentService.getUsersLocalDateTimeString(context.toString(), resubmitCloseTime));
             }
         }
 

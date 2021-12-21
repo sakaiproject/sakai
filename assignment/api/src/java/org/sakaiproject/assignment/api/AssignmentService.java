@@ -773,9 +773,9 @@ public interface AssignmentService extends EntityProducer {
      */
     public String removeReferencePrefix(String referenceId);
 
-    String getUsersLocalDateTimeString(Instant date);
+    String getUsersLocalDateTimeString(String context, Instant date);
 
-    String getUsersLocalDateTimeStringFromProperties(String date);
+    String getUsersLocalDateTimeStringFromProperties(String context, String date);
 
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
 

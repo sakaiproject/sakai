@@ -993,7 +993,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submission.setSubmittedText("submittedText");
             assignmentService.updateSubmission(submission);
             status = assignmentService.getSubmissionStatus(submission.getId());
-            Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()), status);
+            when(siteService.getSite(context).getProperties()).thenReturn(null);
+            Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(context, submission.getDateSubmitted()), status);
             subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 

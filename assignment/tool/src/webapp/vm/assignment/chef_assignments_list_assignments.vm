@@ -498,12 +498,12 @@
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">
-								$!service.getUsersLocalDateTimeString($!assignment.OpenDate)
+								$!service.getUsersLocalDateTimeString($!assignment.Context, $!assignment.OpenDate)
 							</td>
 							<td headers="dueDate">
 							#if (!$assignment.HideDueDate || ($!allowUpdateAssignment && !$!view.equals('stuvie')))
 								##Instructors can still see the due date
-								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
+								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.Context, $!assignment.DueDate)</span>
 							#end
 
 							</td>
@@ -652,11 +652,11 @@
 								</td>
 								<!-- open col -->
 								<td>
-									$!service.getUsersLocalDateTimeString($!assignment.CloseDate)
+									$!service.getUsersLocalDateTimeString($!assignment.Context, $!assignment.CloseDate)
 								</td>
 								<!-- due col -->
 								<td>
-									<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)</span>
+									<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.Context, $!assignment.PeerAssessmentPeriodDate)</span>
 								</td>
 								<!-- the following are empty columns as place holders -->
 								#if ($!allowGradeSubmission)
