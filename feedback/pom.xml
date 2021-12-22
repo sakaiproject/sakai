@@ -132,7 +132,7 @@
                                     <goal>precompile</goal>
                                 </goals>
                                 <configuration>
-                                    <output>${basedir}/src/webapp/templates/all.handlebars</output>
+                                    <output>${basedir}/src/webapp/templates/all.handlebars.js</output>
                                     <prefix>${basedir}/src/webapp/WEB-INF/templates/</prefix>
                                     <suffix>.handlebars</suffix>
                                     <minimize>false</minimize>
@@ -168,7 +168,7 @@
                             <goal>precompile</goal>
                         </goals>
                         <configuration>
-                            <output>${project.build.directory}/${project.build.finalName}/templates/all.handlebars</output>
+                            <output>${project.build.directory}/${project.build.finalName}/templates/all.handlebars.js</output>
                             <prefix>${basedir}/src/webapp/WEB-INF/templates/</prefix>
                             <suffix>.handlebars</suffix>
                             <minimize>false</minimize>
