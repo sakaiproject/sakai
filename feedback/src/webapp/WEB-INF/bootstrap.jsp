@@ -11,7 +11,7 @@
         <script src="/feedback-tool/lib/jquery.form.min.js"></script>
         <script src="/library/webjars/multifile/2.2.2/jquery.MultiFile.min.js"></script>
         <script src="/feedback-tool/lib/handlebars.runtime-v1.3.0.js"></script>
-        <script src="/feedback-tool/templates/all.handlebars"></script>
+        <script src="/feedback-tool/templates/all.handlebars.js"></script>
 
         <c:if test="${recaptchaEnabled}">
             <script src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
