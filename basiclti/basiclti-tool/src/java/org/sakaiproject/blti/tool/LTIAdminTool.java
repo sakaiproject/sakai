@@ -198,10 +198,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String siteId = toolManager.getCurrentPlacement().getContext();
 		// get site tool mode from tool registry
 		if (portlet.getPortletConfig().getInitParameter("helper") != null) {
+			// If we are coming from elsewhere in SiteAction under the SiteAction url space, it communicates the
+			// site we are to use in this value
+
+			// If we are coming from a directly constructed URL (i.e. like from Lessons in an iframe),  the URL includes a tool placement
+			// and the request filter sets up site in state from the URL.
+
 			String helperSiteId = (String) state.getAttribute(HELPER_ID + ".siteId");
-			if (helperSiteId == null) {
-				log.warn("No site ID set when in helper mode.");
-			} else {
+			if (helperSiteId != null) {
 				siteId = helperSiteId;
 			}
 		}
