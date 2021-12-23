@@ -43,6 +43,8 @@ import org.tsugi.lti13.LTI13KeySetUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
+// TODO: Use a ignite mock once we have one
+
 @Slf4j
 public class SakaiKeySetUtilTest {
 
@@ -68,7 +70,7 @@ public class SakaiKeySetUtilTest {
     public void testExpire()
     {
         // Special unit test version
-        SakaiKeySetUtil.expireDays = 12;
+        SakaiKeySetUtil.testExpireDays = 12;
         long days = SakaiKeySetUtil.getExpireDays();
         assertTrue(days == 12);
     }
@@ -79,7 +81,7 @@ public class SakaiKeySetUtilTest {
     {
         Map fakeCache = new TreeMap<String, String> ();
         SakaiKeySetUtil.mockIgnite();
-        SakaiKeySetUtil.expireDays = 12;
+        SakaiKeySetUtil.testExpireDays = 12;
         SakaiKeySetUtil.putCacheKey("hello", "world");
         String world = SakaiKeySetUtil.getCacheKey("hello");
         assertEquals("world", world);

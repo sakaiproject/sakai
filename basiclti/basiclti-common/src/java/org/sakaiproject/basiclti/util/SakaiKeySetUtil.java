@@ -64,10 +64,11 @@ public class SakaiKeySetUtil {
 
     private static final String CACHE_NAME = SakaiKeySetUtil.class.getName() + "_cache";
 
-    private static Map<String, String> mockIgnite = null;
-
-    public static long expireDays = 0;
     public static long expirePrevSeconds = LTI_ADVANTAGE_PREVIOUS_RETENTION_SECONDS;
+
+    // These are used during unit testing
+    private static Map<String, String> mockIgnite = null;
+    public static long testExpireDays = 0;
 
     public static void mockIgnite()
     {
@@ -109,7 +110,7 @@ public class SakaiKeySetUtil {
 
     public static long getExpireDays()
     {
-        if ( expireDays != 0 ) return expireDays; // Unit test
+        if ( testExpireDays != 0 ) return testExpireDays; // Unit test
 
         org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
             (org.sakaiproject.component.api.ServerConfigurationService)
