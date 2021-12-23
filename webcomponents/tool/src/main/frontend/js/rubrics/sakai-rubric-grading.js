@@ -2,14 +2,13 @@ import { RubricsElement } from "./rubrics-element.js";
 import { html } from "../assets/lit-element/lit-element.js";
 import "./sakai-rubric-grading-comment.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
+import { getUserId } from "../sakai-portal-utils.js";
 
 export class SakaiRubricGrading extends RubricsElement {
 
   constructor() {
 
     super();
-
-    this.existingEvaluation = false;
 
     this.rubric = { title: "" };
     this.criteria = [];
@@ -68,6 +67,18 @@ export class SakaiRubricGrading extends RubricsElement {
 
   get evaluatedItemId() { return this._evaluatedItemId; }
 
+  set evaluation(value) {
+
+    this._evaluation = value;
+    if (value.id && value.status !== "DRAFT") {
+      // Store the evaluation in case the grading gets cancelled.
+      sessionStorage.setItem(this.getStorageKey(), JSON.stringify(value));
+    }
+    this.requestUpdate();
+  }
+
+  get evaluation() { return this._evaluation; }
+
   set toolId(value) {
 
     this._toolId = value;
@@ -78,6 +89,10 @@ export class SakaiRubricGrading extends RubricsElement {
 
   shouldUpdate() {
     return this.i18nLoaded;
+  }
+
+  getStorageKey() {
+    return `rubric-evaluation-${this.evaluation.id}-${getUserId()}`;
   }
 
   render() {
@@ -285,7 +300,7 @@ export class SakaiRubricGrading extends RubricsElement {
     });
 
     const evaluation = {
-      evaluatorId: window.top.portal.user.id,
+      evaluatorId: getUserId(),
       evaluatedItemId: this.evaluatedItemId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       evaluatedItemOwnerType: this.group ? "GROUP" : "USER",
@@ -299,9 +314,14 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluation.metadata = this.evaluation.metadata;
     }
 
+    this.saveEvaluation(evaluation, status);
+  }
+
+  saveEvaluation(evaluation) {
+
     let url = "/rubrics-service/rest/evaluations";
     if (this.evaluation && this.evaluation.id) url += `/${this.evaluation.id}`;
-    fetch(url, {
+    return fetch(url, {
       body: JSON.stringify(evaluation),
       credentials: "same-origin",
       headers: {
@@ -310,7 +330,39 @@ export class SakaiRubricGrading extends RubricsElement {
         "Content-Type": "application/json"
       },
       method: this.evaluation && this.evaluation.id ? "PATCH" : "POST"
-    }).then(r => r.json()).then(r => this.evaluation = r);
+    })
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Server error while saving rubric evaluation");
+    })
+    .then(data => this.evaluation = data)
+    .catch(error => console.error(error));
+  }
+
+  deleteEvaluation() {
+
+    if (!this?.evaluation?.id) return;
+
+    const url = `/rubrics-service/rest/evaluations/${this.evaluation.id}`;
+    fetch(url, {
+      credentials: "same-origin",
+      headers: { "Authorization": this.token, },
+      method: "DELETE"
+    })
+    .then(r => {
+
+      if (r.ok) {
+        this.criteria.forEach(c => c.ratings.forEach(rat => rat.selected = false));
+        this.evaluation = { criterionOutcomes: [] };
+        this.requestUpdate();
+      } else {
+        throw new Error("Server error while deleting evaluation");
+      }
+    })
+    .catch(error => console.error(error));
   }
 
   getOverriddenClass(ovrdvl, selected) {
@@ -385,6 +437,30 @@ export class SakaiRubricGrading extends RubricsElement {
     }
   }
 
+  cancel() {
+
+    if (this.evaluation.status !== "DRAFT") return;
+
+    // Get the evaluation from session storage. This should be the last non draft evaluation that
+    // the server originally sent before the user started setting ratings. Save it baack to the
+    // server.
+    const evaluation = JSON.parse(sessionStorage.getItem(this.getStorageKey()));
+    if (evaluation) {
+      sessionStorage.removeItem(this.getStorageKey());
+
+      // Save cached evaluation and reset the criteria ready for rendering
+      this.saveEvaluation(evaluation).then(() => {
+
+        // Unset any ratings
+        this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
+        // And set the original ones
+        this.decorateCriteria();
+      });
+    } else {
+      this.deleteEvaluation();
+    }
+  }
+
   getAssociation() {
 
     if (!this.toolId || !this.entityId || !this.token || !this.evaluatedItemId) {
@@ -419,7 +495,6 @@ export class SakaiRubricGrading extends RubricsElement {
       }).done(data => {
 
         this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
-        this.existingEvaluation = true;
 
         this.rubric = rubric;
 
@@ -452,6 +527,5 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 }
 
-if (!customElements.get("sakai-rubric-grading")) {
-  customElements.define("sakai-rubric-grading", SakaiRubricGrading);
-}
+const tagName = "sakai-rubric-grading";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricGrading);
