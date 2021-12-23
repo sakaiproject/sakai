@@ -1,0 +1,4 @@
+<div class="portletBody">
+#if ($alertMessage)<div class="sak-banner-success">$tlang.getString("gen.note") $formattedText.escapeHtml($alertMessage)</div>#end
+<p>$tlang.getString("operation.complete")</p>
+</div>
