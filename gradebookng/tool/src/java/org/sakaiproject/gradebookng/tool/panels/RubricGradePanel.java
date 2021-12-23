@@ -94,6 +94,7 @@ public class RubricGradePanel extends BasePanel {
                 RubricGradePanel.this.window.close(target);
             }
         };
+        cancel.setOutputMarkupId(true).setMarkupId("cancelrubric");
         cancel.setDefaultFormProcessing(false);
         form.add(cancel);
 
