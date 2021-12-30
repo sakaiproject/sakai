@@ -66,6 +66,7 @@ import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.util.SakaiKeySetUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.LTI13_PATH;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getOurServerUrl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -199,10 +200,10 @@ public class LTI13Servlet extends HttpServlet {
 		SakaiLineItem filter = getLineItemFilter(request);
 
 		// Get a keys for a client_id
-		// /imsblis/lti13/keyset/{tool-id}
-		if (parts.length == 5 && "keyset".equals(parts[3])) {
-			String client_id = parts[4];
-			handleKeySet(client_id, request, response);
+		// Pre SAK-46144 - /imsblis/lti13/keyset/{tool-id}
+		// /imsblis/lti13/keyset
+		if (parts.length >= 4 && "keyset".equals(parts[3])) {
+			handleKeySet(request, response);
 			return;
 		}
 
@@ -493,11 +494,9 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
-		String platform_private = SakaiBLTIUtil.decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
-
-		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
-		Key publicKey = LTI13Util.string2PublicKey(platform_public);
+		KeyPair kp = SakaiKeySetUtil.getCurrent();
+		Key privateKey = kp.getPrivate();
+		Key publicKey = kp.getPublic();
 
 		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
 
@@ -623,7 +622,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset/" + key;
+		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset";
 		String tokenUrl = getOurServerUrl() + "/imsblis/lti13/token/" + key;
 		String authOIDC = getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
 
@@ -706,7 +705,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset/" + key;
+		String keySetUrl = getOurServerUrl() + "/imsblis/lti13/keyset";
 		String tokenUrl = getOurServerUrl() + "/imsblis/lti13/token/" + key;
 		String authOIDC = getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
 
@@ -749,56 +748,19 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 
-	protected void handleKeySet(String tool_id, HttpServletRequest request, HttpServletResponse response) {
+	protected void handleKeySet(HttpServletRequest request, HttpServletResponse response) {
 		PrintWriter out = null;
-		Long toolKey = SakaiBLTIUtil.getLongKey(tool_id);
-		String siteId = null;  // Full bypass mode
-		Map<String, Object> tool = null;
-		if (toolKey >= 0) {
-			tool = ltiService.getToolDao(toolKey, siteId);
-		}
-
-		if (tool == null) {
-			response.setHeader(ERROR_DETAIL, "Could not load keyset for client");
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			log.error("Could not load keyset for client_id={}", tool_id);
-			return;
-		}
-
-		String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-		if (publicSerializedCurrent == null) {
-			response.setHeader(ERROR_DETAIL, "Client has no public key");
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			log.error("Client_id={} has no public key", tool_id);
-			return;
-		}
-
-		Map<String, RSAPublicKey> keys = new TreeMap<>();
-
-		if (LTI13KeySetUtil.addPublicKey(keys, publicSerializedCurrent) != true ) {
-			response.setHeader(ERROR_DETAIL, "Client public key deserialization error");
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			log.error("Client_id={} deserialization error", tool_id);
-			return;
-		}
-
-		// Pull in Next and Old if they exist
-		String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
-		LTI13KeySetUtil.addPublicKey(keys, publicSerializedNext);
-		String publicSerializedOld = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_OLD));
-		LTI13KeySetUtil.addPublicKey(keys, publicSerializedOld);
-
 
 		String keySetJSON = null;
 		try {
-			keySetJSON = LTI13KeySetUtil.getKeySetJSON(keys);
+			keySetJSON = SakaiKeySetUtil.getKeySet();
 		} catch (NoSuchAlgorithmException ex) {
 			response.setHeader(ERROR_DETAIL, "NoSuchAlgorithmException");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			log.error("Client_id={} NoSuchAlgorithmException", tool_id);
+			log.error("NoSuchAlgorithmException");
 			return;
 		}
-		//
+
 		// Send Response
 		response.setContentType(APPLICATION_JSON);
 		try {
@@ -815,14 +777,6 @@ public class LTI13Servlet extends HttpServlet {
 			log.error(e.getMessage(), e);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
-		}
-
-		// See if this key needs to be rotated
-		try {
-			SakaiBLTIUtil.rotateToolKeys(toolKey, tool);
-		} catch (Exception e) {
-			// We still return the JSON - just log and go
-			log.error(e.toString(), e);
 		}
 
 	}

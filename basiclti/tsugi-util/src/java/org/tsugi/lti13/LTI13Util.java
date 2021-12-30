@@ -247,6 +247,22 @@ public class LTI13Util {
 		return retval;
 	}
 
+	public static String serializeKeyPair(KeyPair kp)
+	{
+		String pub = LTI13Util.getPublicEncoded(kp);
+		String priv = LTI13Util.getPrivateEncoded(kp);
+		String concat = pub + "::" + priv;
+		return concat;
+	}
+
+	public static KeyPair deSerializeKeyPair(String ser)
+	{
+		if ( ser == null ) return null;
+		String [] pieces = ser.split("::");
+		if ( pieces.length != 2 ) return null;
+		return strings2KeyPair(pieces[0], pieces[1]);
+	}
+
 	// https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
 	/*
 		sign=base64(hmac_sha256(utf8bytes('179248902&689302&https://lmsvendor.com&PM48OJSfGDTAzAo&1551290856&172we8671fd8z'), utf8bytes('my-lti11-secret')))
