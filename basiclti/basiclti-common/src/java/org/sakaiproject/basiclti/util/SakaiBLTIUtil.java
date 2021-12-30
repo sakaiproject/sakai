@@ -1703,15 +1703,9 @@ public class SakaiBLTIUtil {
 			}
 
 			String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
-			String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
-			String platform_private = decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 			String placement_secret = null;
 			if (content != null) {
 				placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-			}
-
-			if (platform_private == null) {
-				return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.") + "</p>");
 			}
 
 		/*
@@ -2003,8 +1997,9 @@ public class SakaiBLTIUtil {
 			String ljs = JacksonUtil.toString(lj);
 			log.debug("ljs = {}", ljs);
 
-			Key privateKey = LTI13Util.string2PrivateKey(platform_private);
-			Key publicKey = LTI13Util.string2PublicKey(platform_public);
+			KeyPair kp = SakaiKeySetUtil.getCurrent();
+			Key privateKey = kp.getPrivate();
+			Key publicKey = kp.getPublic();
 
 			if ( privateKey == null | publicKey == null ) {
 				return postError("<p>" + getRB(rb, "error.no.pki", "Public and/or Private Key(s) not configured.") + "</p>");
@@ -3303,87 +3298,6 @@ public class SakaiBLTIUtil {
 
 		Object result = ltiService.insertContent(contentProps, siteId);
 		return result;
-	}
-
-	/**
-	 * rotateToolKeys - If necessary - rotate tool keys
-	 *
-	 * This is controlled by a sakai.property
-	 *
-	 * lti.advantage.key.rotation.days=30
-	 *
-	 * For positive numbers this is the number of days before rotation happens
-	 * For negative numbers it is the number of minutes before rotation happens (for testing)
-	 * If it is zero, no rotation happens
-	 *
-	 */
-	// SAK-45491 - Support LTI 1.3 Key Rotation
-	public static void rotateToolKeys(Long toolKey, Map<String, Object> tool)
-	{
-		// Get services
-		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-		org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService =
-			(org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
-
-		String daysStr = serverConfigurationService.getString(LTI_ADVANTAGE_KEY_ROTATION_DAYS, LTI_ADVANTAGE_KEY_ROTATION_DAYS_DEFAULT);
-		int days = LTI13Util.getInt(daysStr);
-		if ( days == 0 ) return;
-
-		Instant now = Instant.now();
-		Instant nextInstant = Foorm.getInstantUTC(tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT));
-
-		Map<String, Object> updates = new TreeMap<String, Object>();
-
-		// Generate next Keypair in case we update
-		KeyPair kp = LTI13Util.generateKeyPair();
-		String pub = LTI13Util.getPublicEncoded(kp);
-		String priv = LTI13Util.getPrivateEncoded(kp);
-		priv = SakaiBLTIUtil.encryptSecret(priv);
-		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT, pub);
-		updates.put(LTIService.LTI13_PLATFORM_PRIVATE_NEXT, priv);
-
-		updates.put(LTIService.LTI13_PLATFORM_PUBLIC_NEXT_AT, Foorm.now());
-		String siteId = null; // bypass
-
-		if ( nextInstant == null ) {
-			Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
-			if ( retval instanceof String) {
-				log.error("Could not update tool={} retval={}", toolKey, retval);
-			} else if ( nextInstant == null ) {
-				log.info("Created future keys for tool={}", toolKey);
-			}
-		} else {
-			long deltaDays = Duration.between(now, nextInstant).abs().toDays();
-			long deltaMinutes = Duration.between(now, nextInstant).abs().toMinutes();
-
-			// Should we rotate?
-			if ( ( days > 0 && deltaDays >= days ) || ( days < -1 && deltaMinutes >= (-1*days) ) ) {
-
-				// Only rotate next->current if next already contains valid values
-				String publicSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC_NEXT));
-				String privateSerializedNext = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE_NEXT));
-				Key publicKeyNext = LTI13Util.string2PublicKey(publicSerializedNext);
-				// Key privateKeyNext = (privateSerializedNext == null) ? null : LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
-				Key privateKeyNext = LTI13Util.string2PrivateKey(SakaiBLTIUtil.decryptSecret(privateSerializedNext));
-
-				if ( publicKeyNext != null && privateKeyNext != null ) {
-					String publicSerializedCurrent = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC, publicSerializedNext);
-					updates.put(LTIService.LTI13_PLATFORM_PRIVATE, privateSerializedNext);
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD, publicSerializedCurrent);
-					updates.put(LTIService.LTI13_PLATFORM_PUBLIC_OLD_AT, Foorm.now());
-				}
-
-				// If the next key is somehow broken, at least we update the next values
-				Object retval = ltiService.updateToolDao(toolKey, updates, siteId);
-				if ( retval instanceof String) {
-					log.error("Could not update tool={} retval={}", toolKey, retval);
-				} else {
-					log.info("Rotated keys for tool={} days={} delta={}", toolKey, days, deltaDays);
-				}
-			}
-		}
 	}
 
 	public static Long getLong(Object key) {

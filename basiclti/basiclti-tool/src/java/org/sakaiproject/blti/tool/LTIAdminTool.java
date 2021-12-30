@@ -630,7 +630,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		context.put("clientId", tool.get(LTIService.LTI13_CLIENT_ID));
 
-		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + tool.get(LTIService.LTI_ID);
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 		context.put("keySetUrl", keySetUrl);
 		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
 		context.put("tokenUrl", tokenUrl);
@@ -683,6 +683,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
 
+		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
 		if ( platform_private != null ) {
 			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
@@ -692,7 +693,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
-		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + tool.get(LTIService.LTI_ID);
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
 		context.put("keySetUrl", keySetUrl);
 		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
 		context.put("tokenUrl", tokenUrl);
@@ -727,6 +728,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		boolean retval = false;
 
 		String clientId = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+
+		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
 		String old_lti13_platform_public = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
 		String old_lti13_platform_private = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 
@@ -916,6 +919,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		}
 
+		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
 		if ( platform_private != null ) {
 			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
@@ -1177,6 +1181,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String form_lti13_client_id = StringUtils.trimToNull(reqProps.getProperty(LTIService.LTI13_CLIENT_ID));
 
 		String old_lti13_client_id = null;
+
+		// SAK-46714 - Remove LTI_PLATFORM data from LTI Tool Model in Sakai 23
 		String old_lti13_platform_public = null;
 		String old_lti13_platform_private = null;
 		if (tool != null) {
