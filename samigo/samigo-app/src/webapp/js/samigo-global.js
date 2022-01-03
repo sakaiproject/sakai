@@ -103,7 +103,7 @@ function returnToHostUrl(url) {
   }
 }
 
-function initRubricDialog(gradingId, doneText, cancelText, titleText) {
+function initRubricDialog(gradingId, saveText, cancelText, titleText) {
 
   var modalId = "modal" + gradingId;
   var previousScore =  $('.adjustedScore' + gradingId).val();
@@ -111,17 +111,12 @@ function initRubricDialog(gradingId, doneText, cancelText, titleText) {
     modal: true,
     buttons: [
       {
-        text: doneText,
-        click: function () { 
-          $(this).dialog("close");
-        }
+        text: saveText,
+        click: function () { $(this).dialog("close"); }
       },
       {
         text: cancelText,
         click: function () {
-
-          const rubric = this.querySelector(`sakai-rubric-grading`);
-          rubric.cancel();
 
           $(this).dialog("close");
           $('.adjustedScore' + gradingId).val(previousScore);
@@ -166,16 +161,6 @@ $(function () {
 
   saveButton = document.getElementById("editTotalResults:save");
   saveButton && saveButton.addEventListener("click", save);
-
-  const cancel = e => {
-    [...document.getElementsByTagName("sakai-rubric-grading")].forEach(srb => srb.cancel());
-  };
-
-  let cancelButton = document.getElementById("editStudentResults:cancel");
-  cancelButton && cancelButton.addEventListener("click", cancel);
-
-  cancelButton = document.getElementById("editTotalResults:cancel");
-  cancelButton && cancelButton.addEventListener("click", cancel);
 
   if ( $("#selectIndexForm\\:selectTable").length ) {
     $("#selectIndexForm\\:selectTable").tablesorter({ 
