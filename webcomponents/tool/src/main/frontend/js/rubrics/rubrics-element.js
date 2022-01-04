@@ -1,4 +1,5 @@
 import {SakaiElement} from "../sakai-element.js";
+import { getUserLocale } from "../sakai-portal-utils.js";
 
 class RubricsElement extends SakaiElement {
 
@@ -6,7 +7,7 @@ class RubricsElement extends SakaiElement {
 
     super();
 
-    this.locale = (window.top?.portal?.locale || window.top?.sakai?.locale?.userLocale || "en-US").replace("_", "-");
+    this.locale = getUserLocale();
   }
 
   isUtilsAvailable() {
