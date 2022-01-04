@@ -5298,7 +5298,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "layout-form");
 		makeCsrf(form, "csrf28");
 
-		UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
+		UIInput input = UIInput.make(form, "layout-section-title", "#{simplePageBean.layoutSectionTitle}");
+		input.decorate(new UIFreeAttributeDecorator("placeholder", messageLocator.getMessage("simplepage.layout.section.title")));
 
 		UISelect colorSchemes = UISelect.make(form, "layout-color-scheme", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.layoutColorScheme}", SimplePageBean.NewColors[0]);
 
