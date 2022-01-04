@@ -1017,6 +1017,15 @@ $(document).ready(() => {
   });
 });
 
+ASN.cancelGradeSubmission = function () {
+
+  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
+
+  SPNR.disableControlsAndSpin( this, null );
+  ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
+  return false;
+};
+
 // SAK-43911 (grab_cursor for reordering items)
 ASN.grabbing = function (selectedItem) {
     li = $(selectedItem);
