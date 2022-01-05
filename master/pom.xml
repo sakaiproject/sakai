@@ -45,9 +45,9 @@
     <sakai.httpcore5.version>5.1.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.10.0</sakai.ignite.version>
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.13.0</sakai.jackson.version>
+    <sakai.jackson.version>2.13.1</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
-    <sakai.woodstox.version>6.2.6</sakai.woodstox.version>
+    <sakai.woodstox.version>6.2.7</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
