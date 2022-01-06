@@ -220,6 +220,9 @@
                     <property name="name" value="org.sakaiproject.rubrics.logic.model.Evaluation"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
+                    <property name="name" value="org.sakaiproject.rubrics.logic.model.ReturnedEvaluation"/>
+                </bean>
+                <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">

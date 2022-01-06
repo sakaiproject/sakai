@@ -64,7 +64,7 @@ $Id$
   function initRubricDialogWrapper(gradingId) {
 
     initRubricDialog(gradingId
-      , <h:outputText value="'#{evaluationMessages.save_cont}'"/>
+      , <h:outputText value="'#{evaluationMessages.done}'"/>
       , <h:outputText value="'#{evaluationMessages.cancel}'"/>
       , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
   }
@@ -1224,7 +1224,7 @@ $Id$
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
+   <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </p>
 </h:form>
 </div>
