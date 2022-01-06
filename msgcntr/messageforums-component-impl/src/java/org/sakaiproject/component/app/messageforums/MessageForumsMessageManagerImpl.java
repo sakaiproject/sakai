@@ -38,6 +38,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -106,6 +108,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     private MessageForumsTypeManager typeManager;
 
+    private PermissionLevelManager permissionLevelManager;
+
     private SessionManager sessionManager;
 
     private EventTrackingService eventTrackingService;
@@ -136,6 +140,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void setTypeManager(MessageForumsTypeManager typeManager) {
         this.typeManager = typeManager;
     }
+
+    public void setPermissionLevelManager(PermissionLevelManager permissionLevelManager) { this.permissionLevelManager = permissionLevelManager; }
     
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
@@ -1850,62 +1856,62 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		}
 		return statusMap;
 	}
-	
-	public List getPendingMsgsInSiteByMembership(final List membershipList)
-	{   	
-		if (membershipList == null) {
-            log.error("getPendingMsgsInSiteByMembership failed with membershipList: null");
-            throw new IllegalArgumentException("Null Argument");
-        }
-		
-		// First, check by permissionLevel (custom permissions)
-		HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
-            q.setParameterList("membershipList", membershipList);
 
+    public List<Message> getPendingMsgsInSiteByMembership(final List<String> membershipList, final List<Topic> moderatedTopics)
+    {
+        if (membershipList == null || membershipList.isEmpty() || moderatedTopics == null || moderatedTopics.isEmpty()) {
+            log.debug("membershipList is null or empty | moderatedTopics is null or empty");
+            return Collections.emptyList();
+        }
+
+        // First, check by permissionLevel (custom permissions)
+        HibernateCallback<List> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
+            q.setParameterList("membershipList", membershipList);
+            q.setParameterList("topicList", moderatedTopics);
             return q.list();
         };
-		
-		Message tempMsg = null;
-        Set resultSet = new HashSet();      
+
+        Message tempMsg = null;
+        Set<Message> resultSet = new HashSet<>();
         List temp = getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
-          if (results != null) {
-            if (results[0] instanceof Message) {
+          if (results != null && results[0] instanceof Message)
+          {
               tempMsg = (Message)results[0];
-              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.setTopic((Topic)results[1]);
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-            }
-            resultSet.add(tempMsg);
+              resultSet.add(tempMsg);
           }
         }
         
         // Second, check by PermissionLevelName (non-custom permissions)
         HibernateCallback<List> hcb2 = session -> {
             Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME);
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             q.setParameterList("membershipList", membershipList);
-            q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
-
+            q.setParameterList("topicList", moderatedTopics);
             return q.list();
         };
-		   
+
         temp = getHibernateTemplate().execute(hcb2);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
-          if (results != null) {
-            if (results[0] instanceof Message) {
+          if (results != null && results[0] instanceof Message)
+          {
               tempMsg = (Message)results[0];
               tempMsg.setTopic((Topic)results[1]); 
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-            }
-            resultSet.add(tempMsg);
+
+              // See if the permission level has ability to moderate
+              PermissionLevel permLevel = permissionLevelManager.getPermissionLevelByName((String)results[3]);
+              if (permLevel.getModeratePostings()) {
+                  resultSet.add(tempMsg);
+              }
           }
         }
         
