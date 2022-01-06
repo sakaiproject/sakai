@@ -369,6 +369,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <fa-icon size="1.5em" i-class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </div>
           <button @click=${this.doneWithFeedbackDialog}>${this.assignmentsI18n["gen.don"]}</button>
+          <button @click=${this.cancelRubric}>${this.assignmentsI18n["gen.cancel"]}</button>
         </div>
         <div class="feedback-attachments-block grader-label">
           ${this.submission.feedbackAttachments ? html`
@@ -503,7 +504,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       });
       this.rubricShowing = true;
     } else {
-      $("#rubric-panel").dialog("destroy");
+      try {
+        $("#rubric-panel").dialog("destroy");
+      } catch (error) {
+        console.error(error);
+      }
       this.rubricShowing = false;
     }
   }
@@ -512,6 +517,15 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.toggleRubric();
     this.querySelector("#grader-rubric-link").focus();
+  }
+
+  cancelRubric() {
+
+    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    rubricGrading && rubricGrading.cancel();
+
+    this.rubricShowing = true;
+    this.doneWithRubricDialog();
   }
 
   replaceWithEditor(id, width = 160, height = 60) {
@@ -807,6 +821,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submission = this.submissions[i];
 
     this.resetEditors(true);
+
+    this.cancelRubric();
 
     this.modified = false;
 
