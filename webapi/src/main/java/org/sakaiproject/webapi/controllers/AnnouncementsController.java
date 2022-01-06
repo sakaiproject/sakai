@@ -72,7 +72,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
     public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
 
 		Session session = checkSakaiSession();
-        return announcementService.getAllAnnouncementsForCurrentUser().entrySet()
+        return announcementService.getAllViewableAnnouncementsForCurrentUser().entrySet()
             .stream()
             .map(e -> {
 
