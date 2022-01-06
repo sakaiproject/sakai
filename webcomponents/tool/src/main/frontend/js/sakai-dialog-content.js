@@ -8,15 +8,14 @@ class SakaiDialogContent extends LitElement {
   static get properties() {
 
     return {
-      title: String,
+      title: { type: String },
+      baseI18n: { attribute: false, type: Object },
     };
   }
 
   constructor() {
 
     super();
-
-    this.baseI18n = {close: "eggs", cancel: "chips"};
 
     lp("dialog-content").then(r => this.baseI18n = r);
   }
@@ -49,7 +48,10 @@ class SakaiDialogContent extends LitElement {
         <div id="titlebar">
           <div id="title">${this.title()}</div>
           <div id="close">
-            <a href="javascript:;" @click=${this.close} title="${this.baseI18n.close} ${this.title()}">
+            <a href="javascript:;"
+                @click=${this.close}
+                aria-label="${this.baseI18n.close}"
+                title="${this.baseI18n.close}">
               <sakai-icon type="close"></sakai-icon>
             </a>
           </div>
