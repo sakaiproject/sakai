@@ -4873,7 +4873,7 @@ public class DiscussionForumTool {
 		  Map<String, List<DiscussionMessageBean>> userIdAnonMessagesMap = new HashMap<>();
 	  
 		  for (Message msg : messages)
-          {
+		  {
 			  // Determine if we should display anonIds in the context of this message's topic, keep track of this in a map to minimize redundant permission checks, etc.
 			  Topic topic = msg.getTopic();
 			  Boolean useAnonId = topicUseAnonIdMap.get(topic);
