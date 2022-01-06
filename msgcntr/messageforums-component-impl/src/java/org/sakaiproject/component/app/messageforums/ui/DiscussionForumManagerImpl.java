@@ -603,9 +603,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTotalNoPendingMessages()
    */
-  public List getPendingMsgsInSiteByMembership(List membershipList)
+  public List<Message> getPendingMsgsInSiteByMembership(List<String> membershipList, List<Topic> moderatedTopics)
   {
-	  return messageManager.getPendingMsgsInSiteByMembership(membershipList);
+	  return messageManager.getPendingMsgsInSiteByMembership(membershipList, moderatedTopics);
   }
 
   /*
