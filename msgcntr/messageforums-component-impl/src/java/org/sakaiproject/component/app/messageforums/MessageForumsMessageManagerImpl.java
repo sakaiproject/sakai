@@ -1859,9 +1859,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     public List<Message> getPendingMsgsInSiteByMembership(final List<String> membershipList, final List<Topic> moderatedTopics)
     {
-        if (membershipList == null || moderatedTopics == null) {
-            log.error("getPendingMsgsInSiteByMembership failed with membershipList: null or moderatedTopics: null");
-            throw new IllegalArgumentException("Null Argument");
+        if (membershipList == null || membershipList.isEmpty() || moderatedTopics == null || moderatedTopics.isEmpty()) {
+            log.debug("membershipList is null or empty | moderatedTopics is null or empty");
+            return Collections.emptyList();
         }
 
         // First, check by permissionLevel (custom permissions)
