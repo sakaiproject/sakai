@@ -175,10 +175,10 @@ public interface DiscussionForumManager
   public void approveAllPendingMessages(Long topicId);
   
   /**
-   * Returns pending msgs in site according to user's memberships
+   * Returns pending msgs of available moderated topics according to user's memberships
    * @return
    */
-  List getPendingMsgsInSiteByMembership(List membershipList);
+  List<Message> getPendingMsgsInSiteByMembership(List<String> membershipList, List<Topic> moderatedTopics);
   
   /**
    * 
