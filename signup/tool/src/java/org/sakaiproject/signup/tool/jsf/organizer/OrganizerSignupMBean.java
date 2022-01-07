@@ -23,6 +23,8 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,7 +58,10 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.ReplaceAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.SwapAttendee;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -443,6 +448,15 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 	}
 
+	private static User getUser(String userId) {
+		try {
+			return UserDirectoryService.getUser(userId);
+		} catch (UserNotDefinedException e) {
+			log.error("User {} does not exist", userId);
+		}
+		return null;
+	}
+
 	/**
 	 * This will load all the potential participants for an event/meeting and
 	 * wrap it for UI purpose. Due to efficiency issue, it will auto rolled back
@@ -487,6 +501,15 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 				&& allSignupUsers.size() > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE) {
 			setEidInputMode(true);
 			return;
+		}
+
+		if (!allSignupUsers.isEmpty()) {
+			Collections.sort(allSignupUsers, new Comparator<SignupUser>() {
+				public int compare(SignupUser a1, SignupUser a2) {
+					UserSortNameComparator userComparator = new UserSortNameComparator();
+					return userComparator.compare(getUser(a1.getInternalUserId()), getUser(a2.getInternalUserId()));
+				}
+			});
 		}
 
 		setEidInputMode(false);
