@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -603,17 +604,19 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		}
 	}
 
-	public Map<String, List<AnnouncementMessage>> getAllAnnouncementsForCurrentUser() {
+	public Map<String, List<AnnouncementMessage>> getAllViewableAnnouncementsForCurrentUser() {
 
 		Map<String, List<AnnouncementMessage>> allAnnouncements = new HashMap<>();
 
 		// First grab all the current user's sites
 		m_siteService.getUserSites().forEach(site -> {
 
-			String channelRef = channelReference(site.getId(), "main");
+			String siteId = site.getId();
+			String channelRef = channelReference(siteId, "main");
 			try {
-				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, null, true, true));
+				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, new ViewableFilter(null, null, Integer.MAX_VALUE, this), true, true));
 			} catch (Exception e) {
+				log.warn("Failed to add announcements from site {}", siteId, e);
 			}
 		});
 
