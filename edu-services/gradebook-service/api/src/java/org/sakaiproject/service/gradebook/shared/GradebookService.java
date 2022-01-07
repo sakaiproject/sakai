@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -43,7 +45,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>
  * WARNING: For documentation of the deprecated methods, please see the service interfaces which own them.
  */
-public interface GradebookService {
+public interface GradebookService extends EntityProducer {
 	// Application service hooks.
 
 	// These have been deprecated in favour of the {@link GradingType} enum
@@ -57,6 +59,8 @@ public interface GradebookService {
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
 	public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
+	public static final String REFERENCE_ROOT = "/gbassignment";
+	public static final String SAKAI_GBASSIGNMENT = "sakai:gbassignment";
 
 	public static final String[] validLetterGrade = { "a+", "a", "a-", "b+", "b", "b-",
 			"c+", "c", "c-", "d+", "d", "d-", "f" };
@@ -73,7 +77,7 @@ public interface GradebookService {
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 
 	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
-
+	
 	/**
 	 * An enum for defining valid/invalid information for a points possible/relative weight value for a gradebook item. See
 	 * {@link GradebookService#isPointsPossibleValid(String, Assignment, Double)} for usage
@@ -205,6 +209,17 @@ public interface GradebookService {
 	 * @throws AssessmentNotFoundException
 	 */
 	public Assignment getAssignment(String gradebookUid, Long assignmentId)
+			throws AssessmentNotFoundException;
+
+	/**
+	 * Get an assignment based on its id
+	 *
+	 * @param gradebookUid
+	 * @param assignmentId
+	 * @return the associated Assignment with the given assignmentId
+	 * @throws AssessmentNotFoundException
+	 */
+	public Assignment getAssignmentByID(final Long gradeableObjectID)
 			throws AssessmentNotFoundException;
 
 	/**
