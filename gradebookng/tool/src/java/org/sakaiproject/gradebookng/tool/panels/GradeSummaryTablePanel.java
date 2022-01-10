@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -36,6 +37,9 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -342,7 +346,31 @@ public class GradeSummaryTablePanel extends BasePanel {
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
-									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+									String ownerId = studentUuid;
+									try {
+										org.sakaiproject.assignment.api.model.Assignment assignmentsAssignment = assignmentService.getAssignment(assignmentId);
+										if (assignmentsAssignment.getIsGroup()) {
+											Optional<String> groupId = assignmentsAssignment.getGroups().stream().filter(g -> {
+
+												try {
+													AuthzGroup group = authzGroupService.getAuthzGroup(g);
+													return group.getMember(studentUuid) != null;
+												} catch (GroupNotDefinedException gnde) {
+													return false;
+												}
+											}).findAny();
+
+											if (groupId.isPresent()) {
+												ownerId = groupId.get();
+											} else {
+												log.error("Assignment {} is a group assignment, but {} was not in any of the groups", assignmentId, studentUuid);
+											}
+										}
+									} catch (Exception e) {
+										log.error("Failed to determine ownerId for submission", e);
+									}
+
+									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
 									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
 									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
 								} else {

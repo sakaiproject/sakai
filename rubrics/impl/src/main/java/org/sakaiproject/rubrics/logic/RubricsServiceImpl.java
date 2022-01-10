@@ -612,8 +612,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return associationResource;
     }
 
-    //TODO generate a public String postRubricAssociation(String tool, String id, HashMap<String,String> params)
-
     public String getRubricEvaluationObjectId(String associationId, String userId, String toolId) {
         try {
             URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
