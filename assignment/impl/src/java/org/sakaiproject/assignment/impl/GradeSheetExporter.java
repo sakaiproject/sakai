@@ -254,7 +254,7 @@ public class GradeSheetExporter {
 
                                             //We get float number no matter the locale it was managed with.
                                             final NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                            float f = nbFormat.parse(getGrade(submissionSubmitter)).floatValue();
+                                            double f = nbFormat.parse(getGrade(submissionSubmitter)).doubleValue();
 
                                             style = wb.createCellStyle();
                                             String format = "#,##0.";
@@ -315,7 +315,7 @@ public class GradeSheetExporter {
 
                                         //We get float number no matter the locale it was managed with.
                                         NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, null);
-                                        float f = nbFormat.parse(grade).floatValue();
+                                        double f = nbFormat.parse(grade).doubleValue();
 
                                         String format = "#,##0.";
                                         for (int j = 0; j < dec; j++) {
@@ -462,13 +462,13 @@ public class GradeSheetExporter {
     // This small holder is so that we can hold details about a floating point number while building up the list.
     // We can't create cells when we don't know where they will go yet.
     private static class FloatCell {
-        FloatCell(String format, float value) {
+        FloatCell(String format, double value) {
             this.format = format;
             this.value = value;
         }
 
         String format;
-        float value;
+        double value;
     }
 
     /**
