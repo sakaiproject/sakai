@@ -197,6 +197,7 @@ public class SimplePageBean {
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 	public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
+	public static final String GRADEBOOK_CLASSIC_TOOL_ID = "sakai.gradebook.tool";
 
 	private static String PAGE = "simplepage.page";
 	private String contents = null;
@@ -9201,5 +9202,10 @@ public class SimplePageBean {
 			status = "cancel";
 		}
 		return status;
+	}
+
+	// Does the site contain GradebookNG or Gradebook Classic
+	public boolean isGradebookExists() {
+		return (this.getCurrentTool(this.GRADEBOOK_TOOL_ID) != null || this.getCurrentTool(this.GRADEBOOK_CLASSIC_TOOL_ID) != null);
 	}
 }
