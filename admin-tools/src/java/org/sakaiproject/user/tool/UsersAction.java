@@ -1449,7 +1449,7 @@ public class UsersAction extends PagedResourceActionII
 			}
 
 			// if we validate through email, passwords will be handled in AccountValidator
-			TempUser tempUser = new TempUser(eid, null, null, null, eid, pw, null);
+			TempUser tempUser = new TempUser(eid, email, null, null, eid, pw, null);
 			if (!validateWithAccountValidator)
 			{
 				// if in create mode, make sure we have a password
