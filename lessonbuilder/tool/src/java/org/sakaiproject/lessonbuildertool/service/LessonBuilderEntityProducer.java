@@ -97,6 +97,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -2283,6 +2284,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                         String newReferenceId = StringUtils.replace(oldReferenceId, oldSiteId, newSiteId);
                         contentHostingService.copy(oldReferenceId, newReferenceId);
                         replacedBody = StringUtils.replace(replacedBody, oldSiteId, newSiteId);
+                        } catch(IdUnusedException ide) {
+                            log.warn("Warn transfering file from site {} to site {}.", oldSiteId, newSiteId, ide);
                         } catch(Exception e) {
                             log.error("Error transfering file from site {} to site {}.", oldSiteId, newSiteId, e);
                         }
