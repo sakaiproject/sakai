@@ -24,6 +24,9 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -48,6 +51,12 @@ public abstract class BasePanel extends Panel {
 
 	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
 	protected RubricsService rubricsService;
+
+	@SpringBean(name = "org.sakaiproject.assignment.api.AssignmentService")
+	protected AssignmentService assignmentService;
+
+	@SpringBean(name = "org.sakaiproject.authz.api.AuthzGroupService")
+	protected AuthzGroupService authzGroupService;
 
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
 	protected ServerConfigurationService serverConfigService;
