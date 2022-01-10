@@ -56,7 +56,7 @@
         binding="#{rosterBean.rosterDataTable}"
         sortColumn="#{preferencesBean.rosterSortColumn}"
         sortAscending="#{preferencesBean.rosterSortAscending}"
-        rendered="#{rosterBean.enrollments.size() > 0}"
+        rendered="#{rosterBean.enrollmentsSize > 0}"
         styleClass="listHier rosterTable">
         <h:column>
             <f:facet name="header">
