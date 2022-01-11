@@ -5,7 +5,7 @@ import {
 } from "../assets/lit-element/lit-element.js?version=__buildNumber__";
 import { Button } from "../assets/bootstrap/dist/js/bootstrap.esm.min.js?version=__buildNumber__";
 import styles from "./sui-button.scss";
-import "../SuiIcon/sui-icon";
+import "../sui-icon/sui-icon";
 export class SakaiUIButton extends LitElement {
   createRenderRoot() {
     // Render to the real dom, not the shadow. We can now pull

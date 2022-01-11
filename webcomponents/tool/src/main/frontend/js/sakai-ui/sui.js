@@ -1,2 +1,2 @@
-import './SuiIcon/sui-icon';
-import './SuiButton/sui-button';
+import './sui-icon/sui-icon';
+import './sui-button/sui-button';
