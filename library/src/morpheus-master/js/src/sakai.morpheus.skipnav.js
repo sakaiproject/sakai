@@ -11,7 +11,16 @@ var setupSkipNav = function(){
 };
 
 $PBJQ( document ).ready(function() {
+        /*global $PBJQ*/
+        /*eslint no-undef: "error"*/
 	
+        // Accessibility fix for accesskey-l to display a visible focus applied to the first tool menu link
+        var firstToolMenuLink = $PBJQ("#toolMenu ul li:first a.Mrphs-toolsNav__menuitem--link");
+        var toToolMenuHeading = $PBJQ("h2#totoolmenu");
+        toToolMenuHeading.focus(function() {
+            firstToolMenuLink.focus();
+        });
+
 	var lastScrollTop = 0;
 
 	$PBJQ(document).scroll(function(event){
