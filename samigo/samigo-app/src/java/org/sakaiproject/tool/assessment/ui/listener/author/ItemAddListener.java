@@ -2018,12 +2018,12 @@ public class ItemAddListener
 			for (ItemTextIfc curItemText : itemTextSet) {
 				Set<AnswerIfc> answerSet = curItemText.getAnswerSet();
 				for (AnswerIfc curAnswer : answerSet) {
-					if (curAnswer.getSequence() > list.size()) {
+					if (curAnswer.getSequence() > list.size() && curAnswer.getSequence() > itemTextSet.size()) {
 						toBeRemovedAnswerSet.add(curAnswer);
 					}
 				}
 				answerSet.removeAll(toBeRemovedAnswerSet);
-				if (curItemText.getSequence() > list.size()) {
+				if (curItemText.getSequence() > list.size() && curItemText.getSequence() > itemTextSet.size()) {
 					toBeRemovedTextSet.add(curItemText);
 				}
 			}
