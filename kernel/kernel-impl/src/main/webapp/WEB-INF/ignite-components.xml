@@ -31,7 +31,7 @@
 
     <!--
     Expiry policy to for when cache objects are considered expired (ttl)
-    Default is 60 minutes from when object is created
+    Default is 120 minutes from when object is created
     -->
     <bean id="org.sakaiproject.ignite.cache.expiryPolicy"
           class="javax.cache.expiry.CreatedExpiryPolicy"
@@ -39,7 +39,7 @@
         <constructor-arg>
             <bean class="javax.cache.expiry.Duration">
                 <constructor-arg value="MINUTES"/>
-                <constructor-arg value="60"/>
+                <constructor-arg value="120"/>
             </bean>
         </constructor-arg>
     </bean>
