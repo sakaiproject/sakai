@@ -24,6 +24,7 @@ package org.sakaiproject.announcement.impl;
 // import
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -604,7 +605,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		}
 	}
 
-	public Map<String, List<AnnouncementMessage>> getAllViewableAnnouncementsForCurrentUser() {
+	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays) {
 
 		Map<String, List<AnnouncementMessage>> allAnnouncements = new HashMap<>();
 
@@ -614,7 +615,13 @@ public class DbAnnouncementService extends BaseAnnouncementService
 			String siteId = site.getId();
 			String channelRef = channelReference(siteId, "main");
 			try {
-				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, new ViewableFilter(null, null, Integer.MAX_VALUE, this), true, true));
+				ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
+				if (maxAgeInDays != null) {
+					long now = Instant.now().toEpochMilli();
+					Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+					viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
+				}
+				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, viewableFilter, true, true));
 			} catch (Exception e) {
 				log.warn("Failed to add announcements from site {}", siteId, e);
 			}

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.announcement.api;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -37,6 +38,7 @@ import org.sakaiproject.time.api.Time;
 @Slf4j
 public class ViewableFilter implements Filter {
 
+    @Setter
     private Filter filter = null;
     private Time t;
     private int numberOfAnnouncements;
