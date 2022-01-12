@@ -70,6 +70,7 @@ import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.api.repository.EmailTemplateRepository;
 import org.sakaiproject.emailtemplateservice.util.TextTemplateLogicUtils;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
@@ -344,10 +345,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
             RenderedTemplate rt = entry.getValue();
             EmailTemplateLocaleUsers etlu = entry.getKey();
-            List<User> toUsers = etlu.getUserIds().stream().map(uid -> {
+            List<User> toUsers = etlu.getUserIds().stream().map(userRef -> {
 
                 try {
-                    return userDirectoryService.getUser(uid);
+                    return userDirectoryService.getUser(userDirectoryService.idFromReference(userRef));
                 } catch (UserNotDefinedException unde) {
                 }
                 return null;
