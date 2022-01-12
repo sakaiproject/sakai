@@ -3045,40 +3045,38 @@ public class MessageForumStatisticsBean {
 	
 	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, Boolean> overridingPermissionMap){
 		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
-		for(Entry<String, Boolean> entry: overridingPermissionMap.entrySet()){
 
-			if ((!forum.getDraft() && currTopic.getDraft().equals(Boolean.FALSE))
-					|| entry.getValue())
-			{ // this is the start of the big topic if
-				// set the message count for moderated topics, otherwise it will be set later
-				if(uiPermissionsManager.isRead(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())){
-					Integer topicCount = topicTotalCount;
-					if(topicCount == null){
-						topicCount = 0;
-					}
-					if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())) {
-						topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), entry.getKey());
-					}
-					Integer totalCount = studentTotalCount.get(entry.getKey());
-					if(totalCount == null){
-						totalCount = 0;
-					}
-					totalCount += topicCount;
-					studentTotalCount.put(entry.getKey(), totalCount);
-				}
+		if (forum.getDraft() || currTopic.getDraft()) {
+			return new HashMap<>();
+		}
+
+		for (Entry<String, Boolean> entry : overridingPermissionMap.entrySet()) {
+			final String userId = entry.getKey();
+
+			// set the message count for moderated topics, otherwise it will be set later
+			Integer topicCount = topicTotalCount == null ? 0 : topicTotalCount;
+
+			if (currTopic.getModerated()) {
+				topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), userId);
 			}
+
+			studentTotalCount.merge(userId, topicCount, Integer::sum);
+
 		}
 		return studentTotalCount;
 	}
-	
+
+	/**
+	 * This method seems to provide a map of internal user ids plus a boolean indicating instructor status
+	 * @return
+	 */
 	public Map<String, Boolean> getOverridingPermissionsMap(){
 		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
 		if(courseMemberMap == null){
 			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		}
-		List members = membershipManager.convertMemberMapToList(courseMemberMap);
-		for (Iterator i = members.iterator(); i.hasNext();) {
-			MembershipItem item = (MembershipItem) i.next();
+		List<MembershipItem> members = membershipManager.convertMemberMapToList(courseMemberMap);
+		for (MembershipItem item : members) {
 			if (null != item.getUser()) {
 				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || securityService.isSuperUser(item.getUser().getId()));
 			}

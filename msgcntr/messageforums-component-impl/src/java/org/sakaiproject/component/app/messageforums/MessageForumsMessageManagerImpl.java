@@ -654,13 +654,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public int findViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
         if (topicId == null || userId == null) {
-            log.error("findViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
-            			" and userId: " + userId);
+            log.error("findViewableMessageCountByTopicIdByUserId failed with topicId: {}, userId: {}", topicId, userId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
-        				" and userId: " + userId);
+        log.debug("findViewableMessageCountByTopicIdByUserId with topicId: {}, userId: {}", topicId, userId);
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
