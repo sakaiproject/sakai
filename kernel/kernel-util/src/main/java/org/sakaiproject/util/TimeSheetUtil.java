@@ -2,6 +2,7 @@ package org.sakaiproject.util;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 
 public class TimeSheetUtil {
@@ -18,16 +19,18 @@ public class TimeSheetUtil {
     }
 
     public int timeToInt(String time) {
-        String timeSheet[] = time.split("h|H");
         int timeParseInt=0;
-        if(timeSheet.length > 1) {
-            timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-            timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
-        }else {
-            if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
-                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
-            }else {
+        if(StringUtils.isNotBlank(time)) {
+            String timeSheet[] = time.split("h|H");
+            if(timeSheet.length > 1) {
                 timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
+                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
+            }else {
+                if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
+                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
+                }else {
+                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
+                }
             }
         }
         return timeParseInt;
@@ -36,7 +39,7 @@ public class TimeSheetUtil {
     public String getTotalTimeSheet(List<TimeSheetEntry> ats) {
         int totalTime = 0;
         for (TimeSheetEntry timeSheet : ats) {
-            totalTime = totalTime + timeToInt(timeSheet.getDuration()); 
+            totalTime = totalTime + timeToInt(timeSheet.getDuration());
         }
 
         return intToTime(totalTime);

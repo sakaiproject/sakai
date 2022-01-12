@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "TIMESHEETENTRY", indexes = {
+@Table(name = "TIMESHEET_ENTRY", indexes = {
         @Index(name = "IDX_TIMESHEETENTRY_REF_TYPE", columnList = "REFERENCE")
 })
 public class TimeSheetEntry implements PersistableEntity<Long>{
@@ -31,10 +31,10 @@ public class TimeSheetEntry implements PersistableEntity<Long>{
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name="REFERENCE", nullable = false)
+    @Column(name="REFERENCE", length = 255, nullable = false)
     private String reference;
 
-    @Column(name = "USERID")
+    @Column(name = "USERID", length = 255)
     private String userId;
 
     @Type(type = "org.hibernate.type.InstantType")
