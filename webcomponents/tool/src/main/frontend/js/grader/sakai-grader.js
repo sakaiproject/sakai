@@ -867,6 +867,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   validateGradeInput(e) {
 
+    if (e.key === "Tab") return;
+
     const decimalSeparator = (1.1).toLocaleString(portal.locale).substring(1, 2);
     const rgxp = new RegExp(`[\\d${decimalSeparator}]`);
 
