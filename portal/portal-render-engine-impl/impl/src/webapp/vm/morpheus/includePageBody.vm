@@ -119,21 +119,14 @@
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                 #if (${tool.toolShowHelpButton})
-
+                                    <script type="module" src="/webcomponents/sui.es.js"></script>
+                                    
                                     #if (${tool.toolJSR168Help})
 
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-
+                                        <sui-button title="${rloader.sit_help}" aria-label="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" accesskey="h" icon="questioncircle" class="btn-primary" href="${tool.toolJSR168Help}"></sui-button>
                                     #else
 
-                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
-                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
-                                            <span class="skip">${rloader.site_newwindow}</span>
-                                        </a>
-
+                                        <sui-button title="${rloader.sit_help}" aria-label="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" accesskey="h" icon="questioncircle" class="btn-primary" href="${tool.toolHelpActionUrl}" target="_blank" ></sui-button>
                                     #end ## END of IF (${tool.toolJSR168Help})
 
                                 #end ## END of IF (${tool.toolShowHelpButton})
