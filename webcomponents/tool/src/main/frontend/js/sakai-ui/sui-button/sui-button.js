@@ -68,7 +68,7 @@ export class SakaiUIButton extends LitElement {
       ${this.icon
         ? html`<sui-icon class="sui-icon" type="${this.icon}"></sui-icon>`
         : ""}${this.title}${this.target === "_blank"
-        ? html`<span class="visually-hidden">Opens in new window</span>`
+        ? html`<span class="visually-hidden sr-only">Opens in new window</span>`
         : ""}
     </button>`;
   }

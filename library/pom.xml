@@ -508,7 +508,7 @@
 											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
 											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
 										</fileSet>
-										</fileSets>
+									</fileSets>
 								</configuration>
 							</execution>
 						</executions>
