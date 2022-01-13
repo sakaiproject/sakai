@@ -64,6 +64,7 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.timesheet.api.TimeSheetService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
@@ -340,5 +341,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.messaging.api.UserMessagingService")
     public UserMessagingService userMessagingService() {
         return mock(UserMessagingService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.timesheet.api.TimeSheetService")
+    public TimeSheetService timeSheetService() {
+        return mock(TimeSheetService.class);
     }
 }
