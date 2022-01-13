@@ -3043,56 +3043,28 @@ public class MessageForumStatisticsBean {
 	}
 	
 	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, MembershipItem> userMap){
-		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
-		//final String siteId = forumManager.getContextForForumById(forum.getId());
+		Map<String, Integer> studentTotalCount = new HashMap<>();
 
 		if (forum.getDraft() || currTopic.getDraft()) {
 			return new HashMap<>();
 		}
 
-		// final Set<DBMembershipItem> membershipItemSet = currTopic.getMembershipItemSet();
 		final Set<String> usersAllowed = forumManager.getUsersAllowedForTopic(currTopic.getId(), true, false);
 
 		for (Entry<String, MembershipItem> entry : userMap.entrySet()) {
-			final String itemId = entry.getKey();
 			final MembershipItem item = entry.getValue();
-			//final Role userRole = item.getRole();
 			final String userId = (item != null && item.getUser() != null) ? item.getUser().getId() : "no-user";
-			//boolean userHasReadPermission = false;
-
 			if (!usersAllowed.contains((userId))) continue;
-
-
-
-			// TODO: need to know what roles and what groups have ability to read this topic
-			// first see if the user's role can view it
-			// if not, get all the groups in the site
-			// what groups can view it
-			// is member in that group?
-			// if (!uiPermissionsManager.isRead(currTopic, (DiscussionForum)currTopic.getOpenForum(), userId, siteId)) continue;
-
-			/*
-			for (DBMembershipItem membershipItem : membershipItemSet) {
-				if (membershipItem.getPermissionLevel().getRead()) {
-					if (membershipItem.getType() == MembershipItem.TYPE_ROLE) {
-						userHasReadPermission = true;
-					} else if (membershipItem.getType() == MembershipItem.TYPE_GROUP) {
-						System.out.println("zz02: " + membershipItem.getName() + ":" + membershipItem.getPermissionLevel().getRead());
-					}
-				}
-			}
-			*/
-
 
 			// set the message count for moderated topics, otherwise it will be set later
 			Integer topicCount = topicTotalCount == null ? 0 : topicTotalCount;
 
 			if (currTopic.getModerated()) {
 				topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), userId);
+				System.out.println("zz03: " + userId + ":" + (topicTotalCount == null ? 0 : topicTotalCount) + ":" + topicCount);
 			}
 
 			studentTotalCount.merge(userId, topicCount, Integer::sum);
-
 		}
 		return studentTotalCount;
 	}

@@ -679,12 +679,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findViewableMessageCountByTopicId executing with topicId: " + topicId);
+        log.debug("findViewableMessageCountByTopicId executing with topicId: {}", topicId);
 
-        if(getCurrentUser()!=null){
-        return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        if (getCurrentUser() != null) {
+            return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
         }
-        else return 0;
+        return 0;
     }
 
    public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
