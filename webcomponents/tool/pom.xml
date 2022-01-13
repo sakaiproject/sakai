@@ -172,6 +172,18 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>vite</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <environmentVariables>
+                                <VITE_BUILD>${buildNumber}</VITE_BUILD>
+                        </environmentVariables>
+                            <arguments>run build-sakai-ui</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm empathise</id>
                         <goals>
                             <goal>npm</goal>
