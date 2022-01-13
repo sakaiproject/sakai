@@ -34,7 +34,8 @@ public class TimeSheetEntry implements PersistableEntity<Long>{
     @Column(name="REFERENCE", length = 255, nullable = false)
     private String reference;
 
-    @Column(name = "USERID", length = 255)
+    @Column(name = "USERID", length = 99)
+
     private String userId;
 
     @Type(type = "org.hibernate.type.InstantType")
