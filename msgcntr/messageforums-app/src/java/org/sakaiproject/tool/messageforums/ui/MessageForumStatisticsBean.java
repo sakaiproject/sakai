@@ -3061,7 +3061,6 @@ public class MessageForumStatisticsBean {
 
 			if (currTopic.getModerated()) {
 				topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), userId);
-				System.out.println("zz03: " + userId + ":" + (topicTotalCount == null ? 0 : topicTotalCount) + ":" + topicCount);
 			}
 
 			studentTotalCount.merge(userId, topicCount, Integer::sum);
