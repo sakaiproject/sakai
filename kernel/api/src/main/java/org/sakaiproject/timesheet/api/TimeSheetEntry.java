@@ -21,9 +21,9 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "TIMESHEET_ENTRY", indexes = {
-        @Index(name = "IDX_TIMESHEETENTRY_REF_TYPE", columnList = "REFERENCE")
+        @Index(name = "IDX_TIMESHEETENTRY_REF_USER_TYPE", columnList = "REFERENCE, USER_ID")
 })
-public class TimeSheetEntry implements PersistableEntity<Long>{
+public class TimeSheetEntry implements PersistableEntity<Long> {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "timesheet_sequence")
@@ -34,8 +34,7 @@ public class TimeSheetEntry implements PersistableEntity<Long>{
     @Column(name="REFERENCE", length = 255, nullable = false)
     private String reference;
 
-    @Column(name = "USERID", length = 99)
-
+    @Column(name = "USER_ID", length = 99)
     private String userId;
 
     @Type(type = "org.hibernate.type.InstantType")
