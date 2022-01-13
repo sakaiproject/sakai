@@ -737,6 +737,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   validateGradeInput(e) {
 
+    if (e.key === "Tab") return;
+
     if (e.key === "Backspace" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
       return true;
     } else if (!e.key.match(/[\d.,]/)) {
