@@ -947,7 +947,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
 
-
+    /**
+     * Returns a topic id and count for a given site
+     * @return
+     */
     public List<Object[]> findMessageCountTotal() {
     	HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findMessageCountTotal");

@@ -1779,10 +1779,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   private boolean getTopicAccess(DiscussionTopic t)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getTopicAccess(DiscussionTopic" + t + ")");
-    }
+    log.debug("getTopicAccess(DiscussionTopic {} )", t.getId());
 
     // SAK-27570: Return early instead of looping through lots of database records
     if (isInstructor() || securityService.isSuperUser() || isTopicOwner(t)) {
