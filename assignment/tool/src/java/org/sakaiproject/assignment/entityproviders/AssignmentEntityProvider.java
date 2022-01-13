@@ -71,6 +71,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -547,7 +548,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String duration = (String) params.get("tsDuration");
 
-        if (!assignmentService.isValidTimesheetTime(duration)) {
+        if (!assignmentService.isValidTimeSheetTime(duration)) {
 
             log.warn("Wrong time format. Must match XXh YYm");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
@@ -585,9 +586,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         timeSheet.setComment(comment);
         timeSheet.setStartTime(startTime);
         timeSheet.setDuration(duration);
+        timeSheet.setUserId(userId);
 
         try {
-            assignmentService.newTimeSheetEntry(submissionSubmitter, timeSheet);
+            assignmentService.saveTimeSheetEntry(submissionSubmitter, timeSheet);
         } catch (PermissionException e) {
             log.warn("You can't modify this sumbitter");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
