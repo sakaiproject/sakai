@@ -939,7 +939,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
 
   public boolean isInstructor(String userId, String siteId) {
-    log.debug("isInstructor(String " + userId + ", " + siteId + ")");
+    log.debug("isInstructor(userId={}, siteId={})", userId, siteId);
     try {
 		return isInstructor(userDirectoryService.getUser(userId), siteId);
 	} catch (UserNotDefinedException e) {
@@ -956,10 +956,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public boolean isInstructor(User user)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isInstructor(User " + user + ")");
-    }
+    log.debug("isInstructor(User eid: {})", user.getEid());
     if (user != null)
       return isInstructor(user, getContextSiteId());
     else
@@ -988,10 +985,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public boolean isInstructor(User user, String siteId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isInstructor(User " + user + ", " + siteId + ")");
-    }
+    log.debug("isInstructor(userId={}, siteId={})", user.getId(), siteId);
     if (user != null)
       return securityService.unlock(user, "site.upd", siteId);
     else
@@ -1785,10 +1779,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   private boolean getTopicAccess(DiscussionTopic t)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("getTopicAccess(DiscussionTopic" + t + ")");
-    }
+    log.debug("getTopicAccess(DiscussionTopic {} )", t.getId());
 
     // SAK-27570: Return early instead of looping through lots of database records
     if (isInstructor() || securityService.isSuperUser() || isTopicOwner(t)) {
