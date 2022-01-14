@@ -158,7 +158,7 @@ public class DashboardController extends AbstractSakaiApiController {
             List<AnnouncementMessage> motdMessages = announcementService.getMessages(
                 announcementService.getSummarizableReference(null, announcementService.MOTD_TOOL_ID),
                 new ViewableFilter(null, null, 1, announcementService),
-                true,
+                false,
                 false);
 
             if (motdMessages.size() > 0) {
