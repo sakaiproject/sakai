@@ -193,11 +193,21 @@
 
   <query name="findViewableMessageCountByTopicIdByUserId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
-    				where message.topic.id = :topicId and 
+    				where message.topic.id = :topicId and
     				message.draft = false and
     				message.deleted = false and
     				(message.approved = true or
-    				message.createdBy = :userId) 
+    				message.createdBy = :userId)
+    ]]>
+  </query>
+
+  <query name="findViewableMessageCountByTopicIdByUserIds">
+    <![CDATA[select message.createdBy, message.approved, count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
+            where message.topic.id = :topicId and 
+            message.draft = false and
+            message.deleted = false 
+            and message.createdBy IN (:userIds)
+            group by message.createdBy, message.approved
     ]]>
   </query>
 
