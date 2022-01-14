@@ -327,11 +327,14 @@
     class="org.sakaiproject.tool.assessment.services.qti.QTIService">
   </bean>
 
-    <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
-              class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
-              init-method="init" destroy-method="destroy">
-	  <property name="qtiService" ref="QTIService"/>
-    </bean>
+  <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
+      class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
+      init-method="init" destroy-method="destroy">
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
+    <property name="qtiService" ref="QTIService"/>
+  </bean>
 
 
   <bean id ="org.sakaiproject.tool.assessment.entity.api.PublishedEntityProvider"

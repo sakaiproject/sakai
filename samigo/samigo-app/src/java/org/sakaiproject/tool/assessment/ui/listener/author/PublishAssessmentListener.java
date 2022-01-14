@@ -25,10 +25,12 @@ import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,6 +41,7 @@ import javax.faces.el.ValueBinding;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -58,6 +61,9 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -70,6 +76,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -77,8 +84,10 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
@@ -111,9 +120,11 @@ public class PublishAssessmentListener
   private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
   private RubricsService rubricsService;
+  private TaskService taskService;
 
   public PublishAssessmentListener() {
     rubricsService = ComponentManager.get(RubricsService.class);
+    taskService = ComponentManager.get(TaskService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -277,6 +288,28 @@ public class PublishAssessmentListener
 		  //update Calendar Events
       boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
       calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
+
+      // Create task
+      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+      if (assessmentBean.isCreateTask()) {
+        String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + pub.getPublishedAssessmentId();
+        Task task = new Task();
+        task.setSiteId(AgentFacade.getCurrentSiteId());
+        task.setReference(reference);
+        task.setSystem(true);
+        task.setDescription(pub.getTitle());
+        task.setDue((pub.getDueDate() == null ? null : pub.getDueDate().toInstant()));
+        SelectItem[] usersMap = assessmentSettings.getUsersInSite();
+        Set<String> users = new HashSet<>();
+        for(SelectItem item : usersMap) {
+          String userId = (String)item.getValue(); 
+          if (StringUtils.isNotBlank(userId)) {
+            users.add(userId);
+          }
+        }
+        taskService.createTask(task, users, Priorities.HIGH);
+      }
+
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later

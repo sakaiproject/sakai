@@ -115,8 +115,8 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
-    private String outcomeSave;
-    private String outcomePublish;
+  private String outcomeSave;
+  private String outcomePublish;
   private AssessmentFacade assessment;
   private Long assessmentId;
   private String title;

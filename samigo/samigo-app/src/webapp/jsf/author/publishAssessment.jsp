@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -47,6 +48,46 @@
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true"  styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  
+  <!-- CREATE TASK -->
+  <h:panelGroup>
+    <div class="row">
+      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.create_task}" for="createTaskAssess"/>
+      <div class="col-md-10">
+        <t:selectOneRadio id="createTaskAssess" value="#{assessmentBean.createTask}" layout="pageDirection">
+          <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.create_task_on_widget}"/>
+          <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.not_create_task_on_widget}"/>
+        </t:selectOneRadio>
+      </div>
+    </div>
+  </h:panelGroup>
+  
+  
+  <!-- NOTIFICATION -->
+  <h:panelGroup>
+    <div class="row" style="margin-top:15px; margin-bottom:15px;">
+      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.notification}" for="number" />
+      <div class="col-md-10">
+        <h:panelGrid>
+          <h:selectOneMenu id="number" value="1" onchange="document.getElementById('publishAssessmentForm').submit();">
+            <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
+          </h:selectOneMenu>
+	      <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+		    <h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
+		    <h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
+	      </h:panelGroup>
+	      <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && not empty publishedSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
+		    <h:selectBooleanCheckbox id="calendarDueDate2" value="true"/>
+		    <h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
+	      </h:panelGroup>
+        </h:panelGrid>
+      </div>
+    </div>
+  </h:panelGroup>
+  
+  
+  
 <h:panelGrid border="0" width="100%">
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
@@ -111,23 +152,7 @@
 
 	<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}" action="publishAssessment">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
-	</h:commandButton>
-
-<h:panelGrid columns="1" border="0">
-	<h:selectOneMenu id="number" value="1" onchange="document.forms[0].submit();">
-          <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
-          <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
-    </h:selectOneMenu>
-	<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
-		<h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
-		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
-	</h:panelGroup>
-	<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && not empty publishedSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
-		<h:selectBooleanCheckbox id="calendarDueDate2" value="true"/>
-		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
-	</h:panelGroup>
-</h:panelGrid>
-	
+	</h:commandButton>	
 
   </h:panelGrid>
 

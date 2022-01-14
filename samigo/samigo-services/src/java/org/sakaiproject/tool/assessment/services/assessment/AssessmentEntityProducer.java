@@ -30,25 +30,33 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -56,13 +64,17 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
+    public static final String REFERENCE_ROOT = Entity.SEPARATOR + "samigo";
     private QTIServiceAPI qtiService;
+    
+    @Getter @Setter protected EntityManager entityManager;
+    @Getter @Setter protected ServerConfigurationService serverConfigService;
+    @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
 
 	public void init() {
 		log.info("init()");
 		try {
-			EntityManager.registerEntityProducer(this, Entity.SEPARATOR
-					+ "samigo");
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 		} catch (Exception e) {
 			log.warn("Error registering Samigo Entity Producer", e);
 		}
@@ -157,6 +169,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	public String getEntityUrl(Reference ref) {
+		if (StringUtils.isNotBlank(ref.getId())) {
+			Long id = Long.parseLong(ref.getId());
+			PublishedAssessmentFacade paf = publishedAssessmentFacadeQueries.getPublishedAssessment(id);
+			if (paf != null) {
+				String alias = paf.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
+				return serverConfigService.getServerUrl() + "/samigo-app/servlet/Login?id=" + alias;
+			}
+		} 
 		return null;
 	}
 
@@ -203,6 +223,13 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	}
 
 	public boolean parseEntityReference(String reference, Reference ref) {
+		if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
+			String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
+			if (parts.length >= 3) {
+				ref.set("sakai:samigo", ARCHIVED_ELEMENT, parts[3], parts[2], parts[2]);	
+			}
+			return true;
+		}
 		return false;
 	}
 
