@@ -49,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -729,15 +730,14 @@ public class MessageForumStatisticsBean {
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 		m_displayAnonIds = false;
 				
-		if((selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) || selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId)){
+		if ( StringUtils.isNotBlank(selectedAllTopicsTopicId) || StringUtils.isNotBlank(selectedAllTopicsForumId) ) {
 			Map<String, Integer> userMessageTotal = new HashMap<String, Integer>();
 			DiscussionForum forum = forumManager.getForumByIdWithTopics(Long.parseLong(selectedAllTopicsForumId));
-			Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
-			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
+			if (StringUtils.isNotBlank(selectedAllTopicsTopicId)) {
 				DiscussionTopic currTopic = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
 				m_displayAnonIds = isUseAnonymousId(currTopic);
 				int topicMessages = messageManager.findMessageCountByTopicId(Long.parseLong(selectedAllTopicsTopicId));
-				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages, overridingPermissionMap);
+				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages);
 			}else{
 				//totalForum = messageManager.findMessageCountByForumId(Long.parseLong(selectedAllTopicsForumId));
 				List<Object[]> totalTopcsCountList = messageManager.findMessageCountByForumId(forum.getId());
@@ -754,12 +754,9 @@ public class MessageForumStatisticsBean {
 						m_displayAnonIds = false;
 					}
 
-					Integer topicCount = totalTopcsCountMap.get(currTopic.getId());
-					if(topicCount == null){
-						topicCount = 0;
-					}
+					Integer topicCount = totalTopcsCountMap.getOrDefault(currTopic.getId(), 0);
 
-					Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, overridingPermissionMap);
+					Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount);
 					for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
 						Integer studentCount = entry.getValue();
 						if(userMessageTotal.containsKey(entry.getKey())){
@@ -769,10 +766,7 @@ public class MessageForumStatisticsBean {
 					}
 				}
 			}
-			
-			
-			
-			
+
 			Map<String, DecoratedCompiledMessageStatistics> tmpStatistics = new TreeMap<String, DecoratedCompiledMessageStatistics>();
 
 			// process the returned read statistics for the students to get them sorted by user id
@@ -3012,24 +3006,21 @@ public class MessageForumStatisticsBean {
 		//Get a map of the user's total messages count. Take into account everything about their access
 		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
 		List<Object[]> totalTopcsCountList = messageManager.findMessageCountTotal();
+
+		// This is topic id and count of active, non-draft, non-deleted messages associated with topic
 		Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
 		for(Object[] objArr : totalTopcsCountList){
 			totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 		}
-		Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
 
-		//loop through the topics and add the counts if user has access:
-		List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
-		for (DiscussionForum forum: tempForums) {
+		//loop through the topics and add the counts if user has access
+		for (DiscussionForum forum : forumManager.getForumsForMainPage()) {
 			for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
 				DiscussionTopic currTopic = (DiscussionTopic)itor.next();
 				
-				Integer topicCount = totalTopcsCountMap.get(currTopic.getId());
-				if(topicCount == null){
-					topicCount = 0;
-				}
+				Integer topicCount = totalTopcsCountMap.getOrDefault(currTopic.getId(), 0);
 				
-				Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, overridingPermissionMap);
+				Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount);
 				for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
 					Integer studentCount = entry.getValue();
 					if(studentTotalCount.containsKey(entry.getKey())){
@@ -3043,47 +3034,24 @@ public class MessageForumStatisticsBean {
 		return studentTotalCount;
 	}
 	
-	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, Boolean> overridingPermissionMap){
-		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
-		for(Entry<String, Boolean> entry: overridingPermissionMap.entrySet()){
+	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount) {
+		if (forum.getDraft() || currTopic.getDraft()) {
+			return new HashMap<>();
+		}
 
-			if ((!forum.getDraft() && currTopic.getDraft().equals(Boolean.FALSE))
-					|| entry.getValue())
-			{ // this is the start of the big topic if
-				// set the message count for moderated topics, otherwise it will be set later
-				if(uiPermissionsManager.isRead(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())){
-					Integer topicCount = topicTotalCount;
-					if(topicCount == null){
-						topicCount = 0;
-					}
-					if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())) {
-						topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), entry.getKey());
-					}
-					Integer totalCount = studentTotalCount.get(entry.getKey());
-					if(totalCount == null){
-						totalCount = 0;
-					}
-					totalCount += topicCount;
-					studentTotalCount.put(entry.getKey(), totalCount);
-				}
+		final Set<String> usersAllowed = forumManager.getUsersAllowedForTopic(currTopic.getId(), true, false);
+
+		// This query will get the counts in one complex db query
+		Map<String, Integer> studentTotalCount = new HashMap<>();
+		if (currTopic.getModerated()) {
+			studentTotalCount = messageManager.findViewableMessageCountByTopicIdByUserIds(currTopic.getId(), usersAllowed);
+		}
+		else {
+			for (String userId : usersAllowed) {
+				studentTotalCount.put(userId, topicTotalCount);
 			}
 		}
 		return studentTotalCount;
-	}
-	
-	public Map<String, Boolean> getOverridingPermissionsMap(){
-		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
-		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
-		}
-		List members = membershipManager.convertMemberMapToList(courseMemberMap);
-		for (Iterator i = members.iterator(); i.hasNext();) {
-			MembershipItem item = (MembershipItem) i.next();
-			if (null != item.getUser()) {
-				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || securityService.isSuperUser(item.getUser().getId()));
-			}
-		}
-		return overridingPermissionMap;
 	}
 
 	private boolean isAnonymousEnabled()

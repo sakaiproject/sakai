@@ -107,9 +107,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public boolean isChangeSettings(DiscussionForum forum) {
         if (isSuperUser()) return true;
         // if restricted or instructor belongs to group or is forum owner
-        if (securityService.unlock(siteService.SECURE_UPDATE_SITE, getContextSiteId())
+        String siteId = getContextSiteId();
+        if (securityService.unlock(siteService.SECURE_UPDATE_SITE, siteId)
                 && (!forum.getRestrictPermissionsForGroups()
-                || isInstructorForAllowedGroup(forum.getId(), true)
+                || isInstructorForAllowedGroup(forum.getId(), true, siteId, getCurrentUserId())
                 || forumManager.isForumOwner(forum))) {
             return true;
         }
@@ -117,7 +118,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return getForumItemsByCurrentUser(forum).stream().anyMatch(ifChangeSettings);
     }
 
-    private boolean isInstructorForAllowedGroup(Long forumId, boolean isForum) {
+    private boolean isInstructorForAllowedGroup(Long forumId, boolean isForum, String siteId, String userId) {
         if (forumId == null || !isInstructor()) return false;
 
         List<String> groupTitle;
@@ -126,10 +127,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         } else {
             groupTitle = forumManager.getAllowedGroupForRestrictedTopic(forumId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
         }
-        String siteId = toolManager.getCurrentPlacement().getContext();
         try {
             Site site = siteService.getSite(siteId);
-            Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
+            Set<String> groups = getGroupsWithMember(site, userId);
             return groups.stream().map(site::getGroup).anyMatch(g -> groupTitle.contains(g.getTitle()));
         } catch (IdUnusedException iue) {
             log.warn("Could not fetch site {}, {}", siteId, iue.toString());
@@ -140,9 +140,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Override
     public boolean isNewTopic(DiscussionForum forum) {
         if (isSuperUser()) return true;
-        if (securityService.unlock(siteService.SECURE_UPDATE_SITE, getContextSiteId())
+        String siteId = getContextSiteId();
+        if (securityService.unlock(siteService.SECURE_UPDATE_SITE, siteId)
                 && forum.getRestrictPermissionsForGroups()
-                && isInstructorForAllowedGroup(forum.getId(), true)) {
+                && isInstructorForAllowedGroup(forum.getId(), true, siteId, getCurrentUserId())) {
             return true;
         }
         Predicate<DBMembershipItem> ifNewTopic = item -> item.getPermissionLevel().getNewTopic();
@@ -210,11 +211,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Override
     public boolean isChangeSettings(DiscussionTopic topic, DiscussionForum forum, String userId) {
         if (isSuperUser(userId)) return true;
+        String siteId = getContextSiteId();
 
-        if (securityService.unlock(userId, siteService.SECURE_UPDATE_SITE, getContextSiteId())
+        if (securityService.unlock(userId, siteService.SECURE_UPDATE_SITE, siteId)
                 && ((!forum.getRestrictPermissionsForGroups() && !topic.getRestrictPermissionsForGroups())
-                || (forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true))
-                || (topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false)))) {
+                || (forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true, siteId, userId))
+                || (topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false, siteId, userId)))) {
             return true;
         }
         // if owner then allow change of settings on the topic or on forum.
@@ -260,16 +262,19 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     @Override
     public boolean isRead(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId) {
         if (checkBaseConditions(topic, forum, userId, "/site/" + siteId)) return true;
-        List<DBMembershipItem> items = getTopicItemsByUser(topic, userId, siteId);
+        if (forum.getDraft() || topic.getDraft()) return false;
 
-        return !forum.getDraft() && !topic.getDraft() && items.stream().anyMatch(ifRead);
+        List<DBMembershipItem> items = getTopicItemsByUser(topic, userId, siteId);
+        return items.stream().anyMatch(ifRead);
     }
 
     @Override
     public boolean isRead(Long topicId, Boolean isTopicDraft, Boolean isForumDraft, String userId, String siteId) {
         if (checkBaseConditions(null, null, userId, "/site/" + siteId)) return true;
+        if (isForumDraft || isTopicDraft) return false;
+
         DiscussionTopic topic = forumManager.getTopicById(topicId);
-        return !isForumDraft && !isTopicDraft && getTopicItemsByUser(topic, userId, siteId).stream().anyMatch(ifRead);
+        return getTopicItemsByUser(topic, userId, siteId).stream().anyMatch(ifRead);
     }
 
     @Override
@@ -678,8 +683,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (isSuperUser(userId)) return true;
 
         // if restricted and belongs to group
-        return (forum != null && forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true))
-                || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false));
+        return (forum != null && forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true, contextSiteId, userId))
+                || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false, contextSiteId, userId));
     }
 
     public void clearMembershipsFromCacheForArea(Area area) {
