@@ -3034,7 +3034,7 @@ public class MessageForumStatisticsBean {
 		return studentTotalCount;
 	}
 	
-	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount){
+	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount) {
 		if (forum.getDraft() || currTopic.getDraft()) {
 			return new HashMap<>();
 		}
