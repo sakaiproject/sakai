@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -33,19 +34,19 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MyStaffDisplay extends Panel {
-	
+
 	private static final long serialVersionUID = 1L;
 	private int visibleFieldCount = 0;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	public MyStaffDisplay(final String id, final UserProfile userProfile) {
 		super(id);
-		
+
 		//this panel stuff
 		final Component thisPanel = this;
-		
+
 		//get info from userProfile
 		String department = userProfile.getDepartment();
 		String position = userProfile.getPosition();
@@ -55,10 +56,10 @@ public class MyStaffDisplay extends Panel {
 		String universityProfileUrl = userProfile.getUniversityProfileUrl();
 		String academicProfileUrl = userProfile.getAcademicProfileUrl();
 		String publications = userProfile.getPublications();
-		
+
 		//heading
 		add(new Label("heading", new ResourceModel("heading.staff")));
-		
+
 		//department
 		WebMarkupContainer departmentContainer = new WebMarkupContainer("departmentContainer");
 		departmentContainer.add(new Label("departmentLabel", new ResourceModel("profile.department")));
@@ -69,7 +70,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//position
 		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
 		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
@@ -80,7 +81,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//school
 		WebMarkupContainer schoolContainer = new WebMarkupContainer("schoolContainer");
 		schoolContainer.add(new Label("schoolLabel", new ResourceModel("profile.school")));
@@ -91,7 +92,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//room
 		WebMarkupContainer roomContainer = new WebMarkupContainer("roomContainer");
 		roomContainer.add(new Label("roomLabel", new ResourceModel("profile.room")));
@@ -101,8 +102,8 @@ public class MyStaffDisplay extends Panel {
 			roomContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
-		}	
-		
+		}
+
 		//staff profile
 		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
 		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
@@ -113,7 +114,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//university profile URL
 		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
 		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
@@ -124,7 +125,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//academic/research profile URL
 		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
 		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
@@ -135,7 +136,7 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
@@ -146,10 +147,10 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -161,26 +162,23 @@ public class MyStaffDisplay extends Panel {
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
-				
 			}
-						
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.staff")));
 		editButton.setOutputMarkupId(true);
-		
+
 		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
-		
+
 		add(editButton);
-		
+
 		//no fields message
 		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);
 		if(visibleFieldCount > 0) {
 			noFieldsMessage.setVisible(false);
 		}
-		
 	}
-	
 }

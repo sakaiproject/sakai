@@ -24,6 +24,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -79,6 +80,7 @@ public class MyNamePronunciationDisplay extends Panel {
             }
         };
         editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+        editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.pronunciation")));
         editButton.setOutputMarkupId(true);
         if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
             editButton.setVisible(false);
@@ -96,7 +98,6 @@ public class MyNamePronunciationDisplay extends Panel {
     private void addPronouns() {
 
         WebMarkupContainer pronounsContainer = new WebMarkupContainer("pronounsContainer");
-
         pronounsContainer.add(new Label("pronounsLabel", new ResourceModel("profile.pronouns")));
         pronounsContainer.add(new Label("pronouns", ProfileUtils.processHtml(userProfile.getPronouns())).setEscapeModelStrings(false));
         pronounsContainer.setVisible(serverConfigurationService.getBoolean("profile2.profile.pronouns.enabled", true));

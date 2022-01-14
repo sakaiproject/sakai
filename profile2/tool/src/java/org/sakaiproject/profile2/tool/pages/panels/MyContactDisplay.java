@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -35,16 +36,16 @@ public class MyContactDisplay extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private int visibleFieldCount = 0;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	public MyContactDisplay(final String id, final UserProfile userProfile) {
 		super(id);
-				
+
 		//this panel stuff
 		final Component thisPanel = this;
-			
+
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		String email = userProfile.getEmail();
 		String homepage = userProfile.getHomepage();
@@ -53,10 +54,9 @@ public class MyContactDisplay extends Panel {
 		String mobilephone = userProfile.getMobilephone();
 		String facsimile = userProfile.getFacsimile();
 
-
 		//heading
 		add(new Label("heading", new ResourceModel("heading.contact")));
-		
+
 		//email
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
@@ -67,7 +67,7 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
@@ -78,7 +78,7 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//work phone
 		WebMarkupContainer workphoneContainer = new WebMarkupContainer("workphoneContainer");
 		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
@@ -89,7 +89,7 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//home phone
 		WebMarkupContainer homephoneContainer = new WebMarkupContainer("homephoneContainer");
 		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
@@ -100,7 +100,7 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//mobile phone
 		WebMarkupContainer mobilephoneContainer = new WebMarkupContainer("mobilephoneContainer");
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
@@ -111,7 +111,7 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//facsimile
 		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
 		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
@@ -122,10 +122,10 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton") {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -138,17 +138,18 @@ public class MyContactDisplay extends Panel {
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
 			}
-						
+
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.contact")));
 		editButton.setOutputMarkupId(true);
-		
+
 		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
-		
+
 		add(editButton);
-		
+
 		//no fields message
 		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);

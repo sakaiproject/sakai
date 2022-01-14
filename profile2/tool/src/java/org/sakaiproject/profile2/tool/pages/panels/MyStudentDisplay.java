@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -30,22 +31,22 @@ import org.sakaiproject.profile2.model.UserProfile;
 public class MyStudentDisplay extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	public MyStudentDisplay(final String id, final UserProfile userProfile) {
-		
+
 		super(id);
-		
+
 		//heading
 		add(new Label("heading", new ResourceModel("heading.student")));
-		
+
 		String course = userProfile.getCourse();
 		String subjects = userProfile.getSubjects();
-		
+
 		int visibleFieldCount = 0;
-		
+
 		//course
 		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
 		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
@@ -56,7 +57,7 @@ public class MyStudentDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//subjects
 		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
 		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
@@ -67,10 +68,10 @@ public class MyStudentDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-	
+
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -82,19 +83,18 @@ public class MyStudentDisplay extends Panel {
 					//resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
-				
 			}
-						
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.student")));
 		editButton.setOutputMarkupId(true);
-		
+
 		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
-		
+
 		add(editButton);
-		
+
 		//no fields message
 		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);
