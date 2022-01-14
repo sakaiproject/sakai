@@ -68,12 +68,13 @@ export class SakaiComment extends SakaiElement {
     return html`
       <options-menu placement="bottom-left">
         <div slot="trigger">
-          <a href="javascript:;"
+          <button
+              class="comment-menu-button"
               title="${this.i18n.comment_options_menu_tooltip}"
               aria-haspopup="true"
               aria-label="${this.i18n.comment_options_menu_tooltip}">
             <sakai-icon type="menu" size="small"></sakai-icon>
-          </a>
+          </button>
         </div>
 
         <div slot="content" class="options-menu" role="dialog">
