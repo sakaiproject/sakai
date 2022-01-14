@@ -733,13 +733,11 @@ public class MessageForumStatisticsBean {
 		if ( StringUtils.isNotBlank(selectedAllTopicsTopicId) || StringUtils.isNotBlank(selectedAllTopicsForumId) ) {
 			Map<String, Integer> userMessageTotal = new HashMap<String, Integer>();
 			DiscussionForum forum = forumManager.getForumByIdWithTopics(Long.parseLong(selectedAllTopicsForumId));
-			//Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
-			Map<String, MembershipItem> userMap = membershipManager.getAllCourseMembers(true, true, true, null);
 			if (StringUtils.isNotBlank(selectedAllTopicsTopicId)) {
 				DiscussionTopic currTopic = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
 				m_displayAnonIds = isUseAnonymousId(currTopic);
 				int topicMessages = messageManager.findMessageCountByTopicId(Long.parseLong(selectedAllTopicsTopicId));
-				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages, userMap);
+				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages);
 			}else{
 				//totalForum = messageManager.findMessageCountByForumId(Long.parseLong(selectedAllTopicsForumId));
 				List<Object[]> totalTopcsCountList = messageManager.findMessageCountByForumId(forum.getId());
@@ -758,7 +756,7 @@ public class MessageForumStatisticsBean {
 
 					Integer topicCount = totalTopcsCountMap.getOrDefault(currTopic.getId(), 0);
 
-					Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, userMap);
+					Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount);
 					for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
 						Integer studentCount = entry.getValue();
 						if(userMessageTotal.containsKey(entry.getKey())){
@@ -768,10 +766,7 @@ public class MessageForumStatisticsBean {
 					}
 				}
 			}
-			
-			
-			
-			
+
 			Map<String, DecoratedCompiledMessageStatistics> tmpStatistics = new TreeMap<String, DecoratedCompiledMessageStatistics>();
 
 			// process the returned read statistics for the students to get them sorted by user id
@@ -3018,9 +3013,6 @@ public class MessageForumStatisticsBean {
 			totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 		}
 
-		//Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
-		Map<String, MembershipItem> userMap = membershipManager.getAllCourseMembers(true, true, true, null);
-
 		//loop through the topics and add the counts if user has access
 		for (DiscussionForum forum : forumManager.getForumsForMainPage()) {
 			for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
@@ -3028,7 +3020,7 @@ public class MessageForumStatisticsBean {
 				
 				Integer topicCount = totalTopcsCountMap.getOrDefault(currTopic.getId(), 0);
 				
-				Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, userMap);
+				Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount);
 				for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
 					Integer studentCount = entry.getValue();
 					if(studentTotalCount.containsKey(entry.getKey())){
@@ -3042,14 +3034,14 @@ public class MessageForumStatisticsBean {
 		return studentTotalCount;
 	}
 	
-	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, MembershipItem> userMap){
+	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount){
 		if (forum.getDraft() || currTopic.getDraft()) {
 			return new HashMap<>();
 		}
 
 		final Set<String> usersAllowed = forumManager.getUsersAllowedForTopic(currTopic.getId(), true, false);
 
-		// This query will get the counts in one swoop
+		// This query will get the counts in one complex db query
 		Map<String, Integer> studentTotalCount = new HashMap<>();
 		if (currTopic.getModerated()) {
 			studentTotalCount = messageManager.findViewableMessageCountByTopicIdByUserIds(currTopic.getId(), usersAllowed);
@@ -3060,24 +3052,6 @@ public class MessageForumStatisticsBean {
 			}
 		}
 		return studentTotalCount;
-	}
-
-	/**
-	 * This method seems to provide a map of internal user ids plus a boolean indicating instructor status
-	 * @return
-	 */
-	public Map<String, Boolean> getOverridingPermissionsMap(){
-		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
-		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
-		}
-		List<MembershipItem> members = membershipManager.convertMemberMapToList(courseMemberMap);
-		for (MembershipItem item : members) {
-			if (null != item.getUser()) {
-				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || securityService.isSuperUser(item.getUser().getId()));
-			}
-		}
-		return overridingPermissionMap;
 	}
 
 	private boolean isAnonymousEnabled()
