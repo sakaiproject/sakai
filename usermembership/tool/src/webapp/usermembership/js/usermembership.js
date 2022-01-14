@@ -48,7 +48,7 @@ const sakaiUserMembership = {
     const searchButton = document.getElementById('userlistForm:searchButton');
     searchButton.disabled = inputSearch.value === '';
     inputSearch.addEventListener('input', (event) => {
-      searchButton.disabled = event.target.value === '';
+      searchButton.disabled = event.target.value.trim() === '';
     });
   }
 };
