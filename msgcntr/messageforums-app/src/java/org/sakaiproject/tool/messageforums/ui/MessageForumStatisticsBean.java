@@ -3043,27 +3043,21 @@ public class MessageForumStatisticsBean {
 	}
 	
 	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, MembershipItem> userMap){
-		Map<String, Integer> studentTotalCount = new HashMap<>();
-
 		if (forum.getDraft() || currTopic.getDraft()) {
 			return new HashMap<>();
 		}
 
 		final Set<String> usersAllowed = forumManager.getUsersAllowedForTopic(currTopic.getId(), true, false);
 
-		for (Entry<String, MembershipItem> entry : userMap.entrySet()) {
-			final MembershipItem item = entry.getValue();
-			final String userId = (item != null && item.getUser() != null) ? item.getUser().getId() : "no-user";
-			if (!usersAllowed.contains((userId))) continue;
-
-			// set the message count for moderated topics, otherwise it will be set later
-			Integer topicCount = topicTotalCount == null ? 0 : topicTotalCount;
-
-			if (currTopic.getModerated()) {
-				topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), userId);
+		// This query will get the counts in one swoop
+		Map<String, Integer> studentTotalCount = new HashMap<>();
+		if (currTopic.getModerated()) {
+			studentTotalCount = messageManager.findViewableMessageCountByTopicIdByUserIds(currTopic.getId(), usersAllowed);
+		}
+		else {
+			for (String userId : usersAllowed) {
+				studentTotalCount.put(userId, topicTotalCount);
 			}
-
-			studentTotalCount.merge(userId, topicCount, Integer::sum);
 		}
 		return studentTotalCount;
 	}

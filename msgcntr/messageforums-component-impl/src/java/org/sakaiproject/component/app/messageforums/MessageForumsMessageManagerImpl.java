@@ -34,6 +34,8 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
@@ -87,6 +89,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findReadMessageCountsForMainPage";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID = "findViewableMessageCountByTopicIdByUserId";
+    private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID_BY_USERS = "findViewableMessageCountByTopicIdByUserIds";
     private static final String QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID = "findReadViewableMessageCountByTopicIdByUserId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
@@ -669,6 +672,49 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return getHibernateTemplate().execute(hcb).intValue();
     }
+
+    /**
+     * Returns count of all messages in a topic that have been approved or were authored by given user
+     * This is meant to be a more efficient version of findViewableMessageCountByTopicIdByUserId
+     * that is capable of fetching all users in a site at once instead of via separate queries
+     */
+    public Map<String, Integer> findViewableMessageCountByTopicIdByUserIds(final Long topicId, final Set<String> userIds) {
+        if (topicId == null || userIds == null) {
+            log.error("findViewableMessageCountByTopicIdByUserIds failed with topicId: {}, userIds: {}", topicId, userIds);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        HibernateCallback<List> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID_BY_USERS);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameterList("userIds", userIds, StringType.INSTANCE);
+            return q.getResultList();
+        };
+
+        List<Object[]> results = getHibernateTemplate().execute(hcb);
+
+        Map<String, Integer> userViewableMap = new HashMap<>();
+        int totalApproved = 0;
+
+        for (Object[] result : results) {
+            final String userId = (String) result[0];
+            final Boolean approved = (Boolean) result[1];
+            final Long authored = (Long) result[2];
+
+            if (approved != null && approved) {
+                totalApproved += authored;
+            } else if (authored != null) {
+                userViewableMap.put(userId, authored.intValue());
+            }
+        }
+
+        if (totalApproved > 0) {
+            final int finalTotalApproved = totalApproved;
+            userViewableMap.forEach((userId, cnt) -> userViewableMap.put(userId, cnt + finalTotalApproved));
+        }
+
+        return userViewableMap;
+    }
     
     /**
      * Returns count of all msgs in a topic that have been approved or were authored by curr user
@@ -689,13 +735,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
    public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
 	   if (topicId == null || userId == null) {
-           log.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
-        		   		" and userId: " + userId);
+           log.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: {}, userId: {}", topicId, userId);
  
            throw new IllegalArgumentException("Null Argument");
        }
 
-       log.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: " + topicId);
+       log.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: {}", topicId);
 
        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicIdByUserId(topicId, userId);
    }
@@ -706,7 +751,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId);
+        log.debug("findUnreadMessageCountByTopicId executing with topicId: {}", topicId);
 
         return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(topicId);
     }
@@ -721,7 +766,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
            throw new IllegalArgumentException("Null Argument");
        }
 
-       log.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + " userId: " + userId);
+       log.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: {}. userId: {}", topicId, userId);
 
        return findViewableMessageCountByTopicIdByUserId(topicId, userId) - findReadViewableMessageCountByTopicIdByUserId(topicId, userId);
    }
