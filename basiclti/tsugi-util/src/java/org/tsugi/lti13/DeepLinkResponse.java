@@ -240,6 +240,10 @@ public class DeepLinkResponse {
 		if ( returnedData == null || returnedData.length() < 1 ) {
 			throw new java.lang.RuntimeException("Missing data element from ContentItem return");
 		}
+
+		// It is OK for this to be null
+		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
+
 	}
 	
 	/**
