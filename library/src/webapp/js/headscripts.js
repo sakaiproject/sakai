@@ -810,7 +810,7 @@ function includeWebjarLibrary(library) {
 			if (window.portal) {
 				let lang = window.portal.locale.split("-")[0];
 				if (lang !== "en") {
-					jsReferences.push(`/dist/l10n/${lang}.js'`);
+					jsReferences.push(`/dist/l10n/${lang}.js`);
 				}
 			}
 			break;
