@@ -1,9 +1,10 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-list.vm,v 1.6 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 
-<script type="text/javascript">
-	$(document).ready(function(){
+<script>
+	$(document).ready(function () {
+
 		sakai.getSiteInfo('getSiteDesc','desc-modal','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
-		sakai.getGroupInfo('moreInfoGroups','group-modal','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','$tlang.getString("sitegen.siteinfolist.email")');
+		sakai.setupGroupModalLinks('group-modal','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','$tlang.getString("sitegen.siteinfolist.email")');
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
 		utils.setupUtils();
 
