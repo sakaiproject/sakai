@@ -67,9 +67,16 @@ export class SakaiComment extends SakaiElement {
 
     return html`
       <options-menu placement="bottom-left">
-        <a slot="trigger" id="options-menu-link-${this.comment.id}" href="javascript:;">
-          <div><sakai-icon type="menu" size="small"></sakai-icon></div>
-        </a>
+        <div slot="trigger">
+          <button
+              class="comment-menu-button"
+              title="${this.i18n.comment_options_menu_tooltip}"
+              aria-haspopup="true"
+              aria-label="${this.i18n.comment_options_menu_tooltip}">
+            <sakai-icon type="menu" size="small"></sakai-icon>
+          </button>
+        </div>
+
         <div slot="content" class="options-menu" role="dialog">
           ${this.comment.canEdit ? html`
           <div>
