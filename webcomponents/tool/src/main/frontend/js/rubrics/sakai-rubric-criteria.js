@@ -46,6 +46,19 @@ export class SakaiRubricCriteria extends RubricsElement {
     }
   }
 
+  renderAddRatingButton(c, pos = 0) {
+
+    return html`
+      <button data-criterion-id="${c.id}"
+          aria-label="${tr("add_rating")} ${c.title}"
+          title="${tr("add_rating")} ${c.title}"
+          @click=${this.addRating}
+          data-rating-pos="${pos}">
+        <span class="fa fa-plus" />
+      </button>
+    `;
+  }
+
   render() {
 
     return html`
@@ -90,7 +103,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 </div>` : ""
               }
             <div class="add-criterion-item">
-              <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("add_rating")} ${c.title}" class="fa fa-plus" @click="${this.addRating}" data-rating-pos="0"></span>
+              ${this.renderAddRatingButton(c)}
             </div>
           </div>
           <div class="criterion-ratings">
@@ -111,7 +124,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                 </span>
 
                 <div class="add-criterion-item">
-                  <span tabindex="0" role="button" title="${tr("add_rating")} ${c.title}" data-criterion-id="${c.id}" class="fa fa-plus" @click="${this.addRating}" data-rating-pos="${i+1}"></span>
+                  ${this.renderAddRatingButton(c, i + 1)}
                 </div>
 
                 <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon sideways fa fa-bars"></span>
