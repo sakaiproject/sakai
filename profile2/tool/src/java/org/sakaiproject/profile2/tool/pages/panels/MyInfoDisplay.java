@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -43,24 +44,21 @@ public class MyInfoDisplay extends Panel {
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
 	private ProfilePrivacyLogic privacyLogic;
-	
-	
+
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
 		super(id);
-		
+
 		log.debug("MyInfoDisplay()");
-		
+
 		//this panel stuff
 		final Component thisPanel = this;
-		
-		
-		
+
 		//get userId of this profile
 		String userId = userProfile.getUserUuid();
 		
@@ -73,14 +71,14 @@ public class MyInfoDisplay extends Panel {
 		*/
 		String nickname = userProfile.getNickname();
 		String personalSummary = userProfile.getPersonalSummary();
-		
+
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {
-			
+
 			//full value contains year regardless of privacy settings
 			// Passing null as the format parameter forces a user locale based format
 			birthday = ProfileUtils.convertDateToString(dateOfBirth, null);
-			
+
 			//get privacy on display of birthday year and format accordingly
 			//note that this particular method doesn't need the second userId param but we send for completeness
 			if(privacyLogic.isBirthYearVisible(userId)) {
@@ -88,16 +86,15 @@ public class MyInfoDisplay extends Panel {
 			} else {
 				birthdayDisplay = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
 			}
-			
+
 			//set both values as they are used differently
 			userProfile.setBirthdayDisplay(birthdayDisplay);
 			userProfile.setBirthday(birthday);
-
 		}
-		
+
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
-		
+
 		//firstName
 		/*
 		WebMarkupContainer firstNameContainer = new WebMarkupContainer("firstNameContainer");
@@ -110,7 +107,7 @@ public class MyInfoDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		*/
-		
+
 		//middleName
 		/*
 		WebMarkupContainer middleNameContainer = new WebMarkupContainer("middleNameContainer");
@@ -123,7 +120,7 @@ public class MyInfoDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		*/
-		
+
 		//lastName
 		/*
 		WebMarkupContainer lastNameContainer = new WebMarkupContainer("lastNameContainer");
@@ -136,8 +133,7 @@ public class MyInfoDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		*/
-		
-		
+
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
@@ -148,7 +144,7 @@ public class MyInfoDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//birthday
 		WebMarkupContainer birthdayContainer = new WebMarkupContainer("birthdayContainer");
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
@@ -170,10 +166,10 @@ public class MyInfoDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -186,17 +182,18 @@ public class MyInfoDisplay extends Panel {
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
 			}
-						
+
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.basic")));
 		editButton.setOutputMarkupId(true);
-		
+
 		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
-		
+
 		add(editButton);
-		
+
 		//no fields message
 		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);
@@ -204,5 +201,4 @@ public class MyInfoDisplay extends Panel {
 			noFieldsMessage.setVisible(false);
 		}
 	}
-	
 }
