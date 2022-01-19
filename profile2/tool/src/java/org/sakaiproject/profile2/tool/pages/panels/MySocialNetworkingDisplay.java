@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -41,14 +42,14 @@ public class MySocialNetworkingDisplay extends Panel {
 
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	public MySocialNetworkingDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 
 		log.debug("MySocialNetworkingDisplay()");
 
 		add(new Label("heading", new ResourceModel("heading.social")));
-			
+
 		// social networking
 		String facebookUrl = userProfile.getSocialInfo().getFacebookUrl();
 		String linkedinUrl = userProfile.getSocialInfo().getLinkedinUrl();
@@ -56,9 +57,9 @@ public class MySocialNetworkingDisplay extends Panel {
 		String instagramUrl = userProfile.getSocialInfo().getInstagramUrl();
 		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
 		String twitterUrl = userProfile.getSocialInfo().getTwitterUrl();
-		
+
 		int visibleFieldCount = 0;
-		
+
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
@@ -69,7 +70,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
@@ -80,7 +81,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
@@ -91,7 +92,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//instagram
 		WebMarkupContainer instagramContainer = new WebMarkupContainer("instagramContainer");
 		instagramContainer.add(new Label("instagramLabel", new ResourceModel("profile.socialnetworking.instagram")));
@@ -102,7 +103,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
@@ -113,7 +114,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//skypeme (no URL, as we don't want user skyping themselves)
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
@@ -124,7 +125,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
+
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton",new ResourceModel("button.edit")) {
 
@@ -139,11 +140,10 @@ public class MySocialNetworkingDisplay extends Panel {
 					// resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
-
 			}
-
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.social")));
 		editButton.setOutputMarkupId(true);
 
 		if (userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
@@ -151,7 +151,7 @@ public class MySocialNetworkingDisplay extends Panel {
 		}
 
 		add(editButton);
-		
+
 		// no fields message
 		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);
@@ -159,6 +159,4 @@ public class MySocialNetworkingDisplay extends Panel {
 			noFieldsMessage.setVisible(false);
 		}
 	}
-	
-	
 }

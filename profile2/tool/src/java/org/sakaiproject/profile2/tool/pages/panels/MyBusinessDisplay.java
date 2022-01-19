@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -48,7 +49,7 @@ public class MyBusinessDisplay extends Panel {
 
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
-	
+
 	public MyBusinessDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 
@@ -67,24 +68,19 @@ public class MyBusinessDisplay extends Panel {
 		addEditButton(id, userProfile);
 
 		// no fields message
-		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel(
-				"text.no.fields"));
+		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
 		add(noFieldsMessage);
 		if (visibleFieldCount > 0) {
 			noFieldsMessage.setVisible(false);
 		}
 	}
 
-	private int addBusinessBiography(final UserProfile userProfile,
-			int visibleFieldCount) {
+	private int addBusinessBiography(final UserProfile userProfile, int visibleFieldCount) {
 
-		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer(
-				"businessBiographyContainer");
-		businessBiographyContainer.add(new Label("businessBiographyLabel",
-				new ResourceModel("profile.business.bio")));
-		businessBiographyContainer.add(new Label("businessBiography",
-				ProfileUtils.processHtml(userProfile.getBusinessBiography()))
-				.setEscapeModelStrings(false));
+		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
+		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
+		businessBiographyContainer.add(new Label("businessBiography", ProfileUtils.processHtml(userProfile.getBusinessBiography()))
+			.setEscapeModelStrings(false));
 		add(businessBiographyContainer);
 
 		if (StringUtils.isBlank(userProfile.getBusinessBiography())) {
@@ -97,19 +93,17 @@ public class MyBusinessDisplay extends Panel {
 
 	private int addCompanyProfiles(final UserProfile userProfile,
 			int visibleFieldCount) {
-		
-		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer(
-				"companyProfilesContainer");
 
-		companyProfilesContainer.add(new Label("companyProfilesLabel",
-				new ResourceModel("profile.business.company.profiles")));
-		
+		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer("companyProfilesContainer");
+
+		companyProfilesContainer.add(new Label("companyProfilesLabel", 
+			new ResourceModel("profile.business.company.profiles")));
+
 		List<ITab> tabs = new ArrayList<ITab>();
 
 		if (null != userProfile.getCompanyProfiles()) {
 
-			for (final CompanyProfile companyProfile : userProfile
-					.getCompanyProfiles()) {
+			for (final CompanyProfile companyProfile : userProfile.getCompanyProfiles()) {
 
 				tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
 
@@ -127,8 +121,8 @@ public class MyBusinessDisplay extends Panel {
 
 		companyProfilesContainer.add(new AjaxTabbedPanel("companyProfiles", tabs));
 		add(companyProfilesContainer);
-		
-		if (0 == tabs.size()) {			
+
+		if (0 == tabs.size()) {
 			companyProfilesContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -138,8 +132,7 @@ public class MyBusinessDisplay extends Panel {
 	}
 
 	private void addEditButton(final String id, final UserProfile userProfile) {
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton",
-				new ResourceModel("button.edit")) {
+		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -152,12 +145,10 @@ public class MyBusinessDisplay extends Panel {
 					// resize iframe
 					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
-
 			}
-
 		};
-		editButton.add(new Label("editButtonLabel", new ResourceModel(
-				"button.edit")));
+		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.add(new AttributeModifier("aria-label", new ResourceModel("accessibility.edit.business")));
 		editButton.setOutputMarkupId(true);
 
 		if (userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
@@ -166,5 +157,4 @@ public class MyBusinessDisplay extends Panel {
 
 		add(editButton);
 	}
-	
 }
