@@ -588,10 +588,12 @@
 
 		.progress-bar-empty {
 			background-color: transparent;
-			color: var(--sakai-text-color-1);
+			font-weight: 600;
 		}
 
-
+		.active {
+			background-color: var(--progress-bar-bg);
+		}
 	}
 
 	.student-picture {
