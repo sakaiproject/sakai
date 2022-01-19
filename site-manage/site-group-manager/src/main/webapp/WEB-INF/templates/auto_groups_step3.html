@@ -29,14 +29,14 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <form id="autogroups-wizard-step3-form" th:action="@{/autogroups/submitStep3}" th:object="${autoGroupsForm}" method="post">
+        <form id="autogroups-wizard-step3-form" class="autogroups-wizard-form" th:action="@{/autogroups/submitStep3}" th:object="${autoGroupsForm}" method="post">
           <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
           <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
           <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">
           <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption">
           <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
           <div class="radio">
-            <label for="pureConfiguration"><input id="pureConfiguration" type="radio" name="structureConfigurationOption" checked value="0" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.mixture}">Create groups containing a random mixture of users with the role XX, YY and ZZ </label>
+            <label for="pureConfiguration"><input id="mixtureConfiguration" type="radio" name="structureConfigurationOption" checked value="0" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.mixture}">Create groups containing a random mixture of users with the role XX, YY and ZZ </label>
           </div>
           <div id="mixtureStructureOptions" class="col-sm-offset-1" th:style="${autoGroupsForm.structureConfigurationOption == 1 ? 'display:none': 'display:block'}">
             <div id="splitByGroups" th:class="${autoGroupsForm.splitOptions == 0 ? 'optGroupSelect optGroupSelectSelected' : 'optGroupSelect'}">
@@ -75,7 +75,7 @@
             </div>
           </div>
           <div class="radio">
-            <label for="mixtureConfiguration"><input id="mixtureConfiguration" type="radio" name="structureConfigurationOption" value="1" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.pure}">Create N groups: X group(s) of users with the role XX and Y group(s) of users with the role YY.</span></label>
+            <label for="mixtureConfiguration"><input id="pureConfiguration" type="radio" name="structureConfigurationOption" value="1" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.pure}">Create N groups: X group(s) of users with the role XX and Y group(s) of users with the role YY.</span></label>
           </div>
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}">

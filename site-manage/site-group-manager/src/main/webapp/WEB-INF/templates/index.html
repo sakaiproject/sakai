@@ -53,7 +53,7 @@
             <td class="hidden-xs"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
             <td class="hidden-xs" th:text="${groupMemberMap.get(group.id)}"></td>
             <td>
-              <input th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="indexFunctions.checkSubmitButton();"/>
+              <input class="group-manager-delete-checkbox" th:if="${!lockedForDeletionGroupList.contains(group.id)}" th:attr="groupInfo=|${group.title} - ${group.getMembers().size()} #{index.table.members}|" type="checkbox" name="deletedGroupList" th:field="*{deletedGroupList}" th:value="${group.id}" onchange="groupManager.checkSubmitButton();"/>
               <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="fa fa-fw fa-lock" aria-hidden="true"></span>
               <span th:if="${lockedForDeletionGroupList.contains(group.id)}" class="sr-only" th:text="#{index.table.group.locked}"></span>
             </td>
