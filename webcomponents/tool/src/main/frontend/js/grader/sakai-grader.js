@@ -528,14 +528,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.doneWithRubricDialog();
   }
 
-  replaceWithEditor(id, width = 160, height = 60) {
+  replaceWithEditor(id) {
 
-    const editor = CKEDITOR.replace(id, {
-      toolbar: [['Bold', 'Italic', 'Underline', 'TextColor'], ['NumberedList', 'BulletedList', 'Blockquote']],
-      width: width,
-      height: height,
-      startupFocus: true
+    const editor = sakai.editor.launch(id, {
+      autosave: { delay: 10000000, messageType: "no" },
+      toolbarSet: "Basic",
+      startupFocus: true,
     });
+
     editor.on("change", () => this.modified = true);
     return editor;
   }
@@ -543,7 +543,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   toggleInlineFeedback(e, cancelling) {
 
     if (!this.feedbackTextEditor) {
-      this.feedbackTextEditor = this.replaceWithEditor("grader-feedback-text-editor", "100%", 600);
+      this.feedbackTextEditor = this.replaceWithEditor("grader-feedback-text-editor");
       this.feedbackTextEditor.setData(this.submission.feedbackText, () => this.modified = false);
       this.querySelector("#grader-feedback-text").style.display = "none";
       this.querySelector("#edit-inline-feedback-button").style.display = "none";
@@ -573,7 +573,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         width: "auto",
         close: () => this.toggleFeedback()
       });
-      this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment", "100%", 120);
+      this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
     } else {
       this.submission.feedbackComment = this.feedbackCommentEditor.getData();
       this.feedbackCommentEditor.destroy();
@@ -597,7 +597,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         width: "auto",
         close: () => this.togglePrivateNotes()
       });
-      this.privateNotesEditor = this.replaceWithEditor("grader-private-notes", "100%", 120);
+      this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
     } else {
       this.submission.privateNotes = this.privateNotesEditor.getData();
       this.privateNotesEditor.destroy();
