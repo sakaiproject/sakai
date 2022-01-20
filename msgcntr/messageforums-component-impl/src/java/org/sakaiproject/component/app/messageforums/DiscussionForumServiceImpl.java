@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -60,7 +61,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -72,8 +73,11 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
@@ -146,6 +150,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private static final String PERMISSION_NAME = "permission_name";
 	private static final String PERMISSION_LEVEL_NAME = "permission_level_name";
 	private static final String CUSTOM_PERMISSIONS = "permission_levels";
+	private static final String DIRECT_TOOL = "/directtool/";
 
 	private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
 	private static final String VERSION_ATTR = "version";
@@ -180,6 +185,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	private SiteService siteService;
 	@Setter
 	private ToolManager toolManager;
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
 
 	private final Base64 base64Encoder = new Base64();
 
@@ -460,9 +467,27 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return null;
 	}
 
-	public String getEntityUrl(Reference ref)
-	{
-		// TODO Auto-generated method stub
+	public String getEntityUrl(Reference ref) {
+		if (StringUtils.isNotBlank(ref.getId())) {
+			String context = ref.getContext();
+			Site site = null;
+			try {
+				site = siteService.getSite( context );
+			} catch (Exception e) {
+				log.error("Unable to get entity url, site {} does not exist.", context);
+				return null;
+			}
+			List<SitePage> pages = site.getOrderedPages();
+			for (SitePage page : pages) {
+				for (ToolConfiguration toolConfiguration : (List<ToolConfiguration>) page.getTools(0)) {
+					Tool tool = toolConfiguration.getTool();
+					if (tool != null && "sakai.forums".equals(tool.getId())) {
+						String placementId = toolConfiguration.getId();
+						return serverConfigurationService.getPortalUrl() + DIRECT_TOOL + placementId;
+					}
+				}
+			}
+		}
 		return null;
 	}
 
@@ -487,7 +512,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	{
 		Map<String, String> transversalMap = new HashMap<>();
 		
-		boolean importOpenCloseDates = ServerConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
+		boolean importOpenCloseDates = serverConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
 		try 
 		{
 			log.debug("transfer copy mc items by transferCopyEntities");
@@ -1444,8 +1469,8 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 	}
 
 	private Boolean getImportAsDraft() {
-		boolean importAsDraft = ServerConfigurationService.getBoolean("import.importAsDraft", true);
-		return ServerConfigurationService.getBoolean("msgcntr.forums.import.importAsDraft", importAsDraft);
+		boolean importAsDraft = serverConfigurationService.getBoolean("import.importAsDraft", true);
+		return serverConfigurationService.getBoolean("msgcntr.forums.import.importAsDraft", importAsDraft);
 	}
 
 }

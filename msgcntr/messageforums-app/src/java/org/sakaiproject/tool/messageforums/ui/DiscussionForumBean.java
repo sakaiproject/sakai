@@ -59,6 +59,7 @@ public class DiscussionForumBean
   private List<String> accessorList = null;
   private String gradeAssign;
   private Boolean nonePermission = null;
+  private boolean createTask = true;
   
   private boolean newTopic = false;
   private boolean changeSettings = false;
