@@ -480,10 +480,11 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   }
   var isExtraCredit = false;
 
+  const numberValue = GbGradeTable.localizedStringToNumber(value);
   if (GbGradeTable.settings.isPointsGradeEntry) {
-    isExtraCredit = parseFloat(value) > parseFloat(column.points);
+    isExtraCredit = numberValue > parseFloat(column.points);
   } else if (GbGradeTable.settings.isPercentageGradeEntry) {
-    isExtraCredit = parseFloat(value) > 100;
+    isExtraCredit = numberValue > 100;
   }
 
   if (isExtraCredit && !hasExcuse) {
@@ -2245,8 +2246,8 @@ GbGradeTable.sort = function(colIndex, direction) {
   }
 
   clone.sort(function(row_a, row_b) {
-    var a = row_a[colIndex];
-    var b = row_b[colIndex];
+    var a = GbGradeTable.localizedStringToNumber(row_a[colIndex]);
+    var b = GbGradeTable.localizedStringToNumber(row_b[colIndex]);
 
     return sortCompareFunction(a, b);
   });
@@ -3132,6 +3133,17 @@ GbGradeTable.localizeNumber = function(number) {
     return '' + number;
 };
 
+GbGradeTable.localizedStringToNumber = function(localizedString) {
+    // Get the thousands and decimals separator for a random localized number and remove duplicated values converting it into a set
+    const parts = [...new Set(GbGradeTable.localizeNumber(11111111.1).replace(/\d+/g,'').split(''))];
+    if (localizedString === null) return null;
+    if (parts.length == 1) parts.unshift('');
+
+    // Remove thousands separator and change decimal separator to "." (to convert the localized String into a Number object)
+    return Number(String(localizedString)
+        .replaceAll(parts[0],'')
+        .replace(parts[1],'.'));
+};
 
 // Commit values to the grade data and the table meta data where applicable
 GbGradeTable.syncScore = function(studentId, assignmentId, value) {
