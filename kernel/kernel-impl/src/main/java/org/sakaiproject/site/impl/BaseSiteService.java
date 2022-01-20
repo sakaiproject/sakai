@@ -1495,11 +1495,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 			//KNL-983 only soft delete if not user site
 			//made it verbose for logging purposes
 			if(isUserSite(site.getId())) {
-				log.debug("Site: " + site.getId() + " is user site and will be hard deleted.");
+				log.debug("Site: {} is user site and will be hard deleted.", site.getId());
 			} else if (isSpecialSite(site.getId())) {
-				log.debug("Site: " + site.getId() + " is special site and will be hard deleted.");
+				log.debug("Site: {} is special site and will be hard deleted.", site.getId());
 			} else {
-				log.debug("Site: " + site.getId() + " is not user or special site and will be soft deleted.");
+				log.debug("Site: {} is not user or special site and will be soft deleted.", site.getId());
 			
 				// if site is not already softly deleted, softly delete it
 				// if already marked for deletion, check permission to hard delete, if ok, let continue.

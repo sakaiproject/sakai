@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14438,43 +14439,54 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		// Get collection for the site and check validity
 		String collectionId = getSiteCollection(siteId);
+
 		if (!isSiteLevelCollection(collectionId)) {
 			log.error("hardDelete rejected on non site collection: {}", collectionId);
 			return;
 		}
 		log.info("hardDelete proceeding on collectionId: {}", collectionId);
 
-		//handle 1
-		try {
-			List<ContentResource> resources = getAllResources(collectionId);
-	    	for(ContentResource resource: resources) {
-				log.debug("Removing resource: " + resource.getId());
-	    		removeResource(resource.getId());
-	    	}
-		} catch (Exception e) {
-			log.warn("Failed to remove content.", e);
+
+		// Get normal resources are purge one-by-one
+		List<ContentResource> resources = getAllResources(collectionId);
+		for (ContentResource resource : resources) {
+			log.debug("Removing resource: {}", resource.getId());
+			try {
+				removeResource(resource.getId());
+			} catch (Exception e) {
+				log.warn("Failed to remove content.", e);
+			}
 		}
 
-    	//handle2
-		//only for 2.10 - comment this out for 2.9 and below
-		try {
-	    	List<ContentResource> deletedResources = getAllDeletedResources(collectionId);
-	    	for(ContentResource deletedResource: deletedResources) {
-				log.debug("Removing deleted resource: " + deletedResource.getId());
-	    		removeDeletedResource(deletedResource.getId());
-	    	}
-		} catch (Exception e) {
-			log.warn("Failed to remove some content.", e);
+		// Deleted resources were put in the trash by the instructor
+		List<ContentResource> deletedResources = getAllDeletedResources(collectionId);
+		for (ContentResource deletedResource : deletedResources) {
+			log.debug("Removing deleted resource: {}", deletedResource.getId());
+			try {
+				removeDeletedResource(deletedResource.getId());
+			} catch (Exception e) {
+				log.warn("Failed to remove some content.", e);
+			}
 		}
-		
-		//cleanup
+
+		// Cleanup the collections
+		String folderId = "";
 		try {
-			log.debug("Removing collection: {}", collectionId);
-			removeCollection(collectionId);
+			ContentCollection siteCollection = getCollection(collectionId);
+			List<ContentCollectionEdit> folders = m_storage.getCollections(siteCollection);
+			for (ContentCollectionEdit folder : folders) {
+				folderId = folder.getId();
+				log.debug("Removing collection: {}", folderId);
+				removeCollection(folder.getId());
+			}
+
+			// Now delete the site-root collection
+			log.debug("Removing collection: {}", siteCollection.getId());
+			removeCollection(siteCollection.getId());
 		} catch (IdUnusedException ide) {
-			log.warn("No resources in collection {}.", collectionId);
+			log.warn("No resources in collection {}.", folderId);
 		} catch (Exception e) {
-			log.warn("Failed to remove collection {}.", collectionId, e);
+			log.warn("Failed to remove collection {}.", folderId, e);
 		}
     }
 
