@@ -4,7 +4,7 @@
     window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
     window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
     window.i18nWlogTab['ts.add.err.startTime']=" $tlang.getString('ts.add.err.startTime')";
-    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.comment')";
+    window.i18nWlogTab['ts.add.err.comment']=" $tlang.getString('ts.add.err.comment')";
     window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
     window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
     window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
@@ -19,7 +19,7 @@
     <hr>
     ##Checks for Timesheet records
     ##BOOTSTRAP (red)
-    <div id="alertTsheetDelRecord" class="sak-banner-error hidden" role="alert"></div>
+    <div id="alertTsheetDelRecord" class="sak-banner-error" role="alert" style="display: none;"></div>
     
     #if ($!isAnyRegTimeSheet)
         <div>
@@ -92,7 +92,7 @@
                     <h5 class="modal-title" id="exampleModalLabel">$!tlang.getString("ts.modal.new")</h5>
                     <div class="modal-body">
                         ##BOOTSTRAP (red)
-                        <div id="alertTsheetAddRecord" class="alert alert-danger hidden" role="alert">
+                        <div id="alertTsheetAddRecord" class="alert alert-danger" role="alert" style="display:none;">
                                 $!tlang.getString("ts.modal.msg.err")
                         </div>
                         <form>
