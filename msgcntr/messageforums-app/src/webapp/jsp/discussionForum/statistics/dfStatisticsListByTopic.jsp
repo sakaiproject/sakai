@@ -263,9 +263,29 @@
 	          	</h:commandLink>
   			</h:column>
   			<h:column>
+                            <f:facet name="header">
+                                <h:commandLink action="#{mfStatisticsBean.toggleTopicAuthoredNewSort}" title="#{msgs.stat_authored_new}">
+                                    <h:outputText value="#{msgs.stat_authored_new}" />
+                                    <h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredNewSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_new}"/>
+                                    <h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredNewSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_new}"/>
+                                </h:commandLink>
+                            </f:facet>
+                            <h:outputText value="#{stat.authoredForumsNewAmt}" />
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:commandLink action="#{mfStatisticsBean.toggleTopicAuthoredRepliesSort}" title="#{msgs.stat_authored_replies}">
+                                    <h:outputText value="#{msgs.stat_authored_replies}" />
+                                    <h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredRepliesSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_replies}"/>
+                                    <h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredRepliesSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_replies}"/>
+                                </h:commandLink>
+                            </f:facet>
+                            <h:outputText value="#{stat.authoredForumsRepliesAmt}" />
+                        </h:column>
+  			<h:column>
   				<f:facet name="header">
-  					<h:commandLink action="#{mfStatisticsBean.toggleTopicAuthoredSort}" title="#{msgs.stat_authored}">
-					   	<h:outputText value="#{msgs.stat_authored}" />
+  					<h:commandLink action="#{mfStatisticsBean.toggleTopicAuthoredSort}" title="#{msgs.stat_authored_total}">
+					   	<h:outputText value="#{msgs.stat_authored_total}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored}"/>
 					</h:commandLink>

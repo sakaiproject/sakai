@@ -98,6 +98,8 @@ public class MessageForumStatisticsBean {
 		private String siteAnonId = null;
 		private boolean useAnonId;
 		private int authoredForumsAmt;
+		private int authoredForumsNewAmt;
+		private int authoredForumsRepliesAmt;
 		private int readForumsAmt;
 		private int unreadForumsAmt;
 		private Double percentReadForumsAmt;
@@ -194,6 +196,21 @@ public class MessageForumStatisticsBean {
 		public void setGradebookAssignment(
 				DecoratedGradebookAssignment gradebookAssignment) {
 			this.gradebookAssignment = gradebookAssignment;
+		}
+		public int getAuthoredForumsNewAmt() {
+			return authoredForumsNewAmt;
+		}
+
+		public void setAuthoredForumsNewAmt(int authoredForumsNewAmt) {
+			this.authoredForumsNewAmt = authoredForumsNewAmt;
+		}
+
+		public int getAuthoredForumsRepliesAmt() {
+			return authoredForumsRepliesAmt;
+		}
+
+		public void setAuthoredForumsRepliesAmt(int authoredForumsRepliesAmt) {
+			this.authoredForumsRepliesAmt = authoredForumsRepliesAmt;
 		}
 	}
 	/* === End DecoratedCompiledMessageStatistics === */
@@ -345,6 +362,8 @@ public class MessageForumStatisticsBean {
 	private static final String LIST_PAGE = "dfStatisticsList";
 	private static final String NAME_SORT = "sort_by_name";
 	private static final String AUTHORED_SORT = "sort_by_num_authored";
+	private static final String AUTHORED_NEW_SORT = "sort_by_num_authored_new";
+	private static final String AUTHORED_REPLIES_SORT = "sort_by_num_authored_replies";
 	private static final String READ_SORT = "sort_by_num_read";
 	private static final String UNREAD_SORT = "sort_by_num_unread";
 	private static final String PERCENT_READ_SORT = "sort_by_percent_read";
@@ -399,12 +418,16 @@ public class MessageForumStatisticsBean {
 	//Comparatibles
 	public static Comparator nameComparatorAsc;
 	public static Comparator authoredComparatorAsc;
+	public static Comparator authoredNewComparatorAsc;
+	public static Comparator authoredRepliesComparatorAsc;
 	public static Comparator readComparatorAsc;
 	public static Comparator unreadComparatorAsc;
 	public static Comparator percentReadComparatorAsc;
 	public static Comparator GradeComparatorAsc;
 	public static Comparator nameComparatorDesc;
 	public static Comparator authoredComparatorDesc;
+	public static Comparator authoredNewComparatorDesc;
+	public static Comparator authoredRepliesComparatorDesc;
 	public static Comparator readComparatorDesc;
 	public static Comparator unreadComparatorDesc;
 	public static Comparator percentReadComparatorDesc;
@@ -822,6 +845,60 @@ public class MessageForumStatisticsBean {
 					userStats.setAuthoredForumsAmt(((Long)authoredStat[1]).intValue());
 				} else {
 					userStats.setAuthoredForumsAmt(0);
+				}
+			}
+
+			List<Object[]> studentAuthoredNewStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredNewStats =
+						messageManager.findAuthoredNewMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredNewStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsNewAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsNewAmt(0);
+				}
+			}
+
+			List<Object[]> studentAuthoredRepliesStats;
+			if (selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByTopicId(
+								Long.parseLong(selectedAllTopicsTopicId));
+			} else {
+				studentAuthoredRepliesStats =
+						messageManager.findAuthoredRepliesMessageCountForAllStudentsByForumId(
+								Long.parseLong(selectedAllTopicsForumId));
+			}
+			for (Object[] authoredStat : studentAuthoredRepliesStats) {
+				DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+				if (userStats == null) {
+					userStats = new DecoratedCompiledMessageStatistics();
+					tmpStatistics.put((String) authoredStat[0], userStats);
+				}
+				Integer totalForum = 0;
+				if (userMessageTotal.containsKey((String) authoredStat[0])) {
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
+				if (totalForum > 0) {
+					userStats.setAuthoredForumsRepliesAmt(((Long) authoredStat[1]).intValue());
+				} else {
+					userStats.setAuthoredForumsRepliesAmt(0);
 				}
 			}
 
@@ -1315,6 +1392,16 @@ public class MessageForumStatisticsBean {
 		toggleSort(AUTHORED_SORT);
 		return LIST_PAGE;
 	}
+
+	public String toggleAuthoredNewSort() {
+		toggleSort(AUTHORED_NEW_SORT);
+		return LIST_PAGE;
+	}
+
+	public String toggleAuthoredRepliesSort() {
+		toggleSort(AUTHORED_REPLIES_SORT);
+		return LIST_PAGE;
+	}
 	
 	public String toggleReadSort()	{    
 		toggleSort(READ_SORT);
@@ -1501,7 +1588,18 @@ public class MessageForumStatisticsBean {
 		toggleSort(AUTHORED_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
 	}
-	
+
+	public String toggleTopicAuthoredNewSort() {
+		toggleSort(AUTHORED_NEW_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+	public String toggleTopicAuthoredRepliesSort() {
+		toggleSort(AUTHORED_REPLIES_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
+
+
 	public String toggleTopicReadSort()	{    
 		toggleSort(READ_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
@@ -1532,6 +1630,16 @@ public class MessageForumStatisticsBean {
 	public boolean isAuthoredSort() {
 		if (sortBy.equals(AUTHORED_SORT))
 			return true;
+		return false;
+	}
+
+	public boolean isAuthoredNewSort() {
+		if (sortBy.equals(AUTHORED_NEW_SORT)) return true;
+		return false;
+	}
+
+	public boolean isAuthoredRepliesSort() {
+		if (sortBy.equals(AUTHORED_REPLIES_SORT)) return true;
 		return false;
 	}
 		
@@ -1585,6 +1693,10 @@ public class MessageForumStatisticsBean {
 				return nameComparatorAsc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorAsc;
+			} else if (sortBy.equals(AUTHORED_NEW_SORT)) {
+				return authoredNewComparatorAsc;
+			} else if (sortBy.equals(AUTHORED_REPLIES_SORT)) {
+				return authoredRepliesComparatorAsc;
 			}else if (sortBy.equals(READ_SORT)){
 				return readComparatorAsc;
 			}else if (sortBy.equals(UNREAD_SORT)){
@@ -1599,6 +1711,10 @@ public class MessageForumStatisticsBean {
 				return nameComparatorDesc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorDesc;
+			} else if (sortBy.equals(AUTHORED_NEW_SORT)) {
+				return authoredNewComparatorDesc;
+			} else if (sortBy.equals(AUTHORED_REPLIES_SORT)) {
+				return authoredRepliesComparatorDesc;
 			}else if (sortBy.equals(READ_SORT)){
 				return readComparatorDesc;
 			}else if (sortBy.equals(UNREAD_SORT)){
@@ -1740,7 +1856,46 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
-		
+
+		authoredNewComparatorAsc =
+				new Comparator() {
+					public int compare(Object item, Object anotherItem) {
+						int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsNewAmt();
+						int authored2 =
+								((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsNewAmt();
+						if (authored1 - authored2 == 0) {
+							// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+							// the scores
+							// with other scores that are equal to this (jsp submits twice, causing "sort" to
+							// happen between when
+							// the user enters the data and when it gets submitted in JSP (behind the scenes)
+							return nameComparatorAsc.compare(item, anotherItem);
+						} else {
+							return authored1 - authored2;
+						}
+					}
+				};
+
+		authoredRepliesComparatorAsc =
+				new Comparator() {
+					public int compare(Object item, Object anotherItem) {
+						int authored1 =
+								((DecoratedCompiledMessageStatistics) item).getAuthoredForumsRepliesAmt();
+						int authored2 =
+								((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsRepliesAmt();
+						if (authored1 - authored2 == 0) {
+							// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+							// the scores
+							// with other scores that are equal to this (jsp submits twice, causing "sort" to
+							// happen between when
+							// the user enters the data and when it gets submitted in JSP (behind the scenes)
+							return nameComparatorAsc.compare(item, anotherItem);
+						} else {
+							return authored1 - authored2;
+						}
+					}
+				};
+
 		readComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
@@ -1843,7 +1998,46 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
-		
+
+		authoredNewComparatorDesc =
+				new Comparator() {
+					public int compare(Object item, Object anotherItem) {
+						int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsNewAmt();
+						int authored2 =
+								((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsNewAmt();
+						if (authored1 - authored2 == 0) {
+							// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+							// the scores
+							// with other scores that are equal to this (jsp submits twice, causing "sort" to
+							// happen between when
+							// the user enters the data and when it gets submitted in JSP (behind the scenes)
+							return nameComparatorAsc.compare(item, anotherItem);
+						} else {
+							return authored2 - authored1;
+						}
+					}
+				};
+
+		authoredRepliesComparatorDesc =
+				new Comparator() {
+					public int compare(Object item, Object anotherItem) {
+						int authored1 =
+								((DecoratedCompiledMessageStatistics) item).getAuthoredForumsRepliesAmt();
+						int authored2 =
+								((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsRepliesAmt();
+						if (authored1 - authored2 == 0) {
+							// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+							// the scores
+							// with other scores that are equal to this (jsp submits twice, causing "sort" to
+							// happen between when
+							// the user enters the data and when it gets submitted in JSP (behind the scenes)
+							return nameComparatorAsc.compare(item, anotherItem);
+						} else {
+							return authored2 - authored1;
+						}
+					}
+				};
+
 		readComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();

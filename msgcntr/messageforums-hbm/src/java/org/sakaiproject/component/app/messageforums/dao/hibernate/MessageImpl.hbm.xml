@@ -456,6 +456,46 @@
     group by message.createdBy
   ]]></query>
 
+   <query name="findAuthoredNewMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and topic.id = :topicId and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findAuthoredNewMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and forum.id = :forumId and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+   <query name="findAuthoredRepliesMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and topic.id = :topicId and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
+   <query name="findAuthoredRepliesMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and forum.id = :forumId and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
   <query name="findMessagesByTopicId">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
   </query>
