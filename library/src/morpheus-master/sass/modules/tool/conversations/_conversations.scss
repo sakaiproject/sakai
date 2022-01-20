@@ -8,6 +8,8 @@
 @import "_statistics.scss";
 //@import "svg-arrow.scss";
 
+.#{$namespace}sakai-conversations {
+
   #conv-no-topics-wrapper {
     display: flex;
     height: 400px;
@@ -282,3 +284,5 @@
       width: 100px;
     }
   }
+
+}
