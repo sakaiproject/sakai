@@ -2,7 +2,7 @@ import {
   html,
   LitElement,
   unsafeCSS,
-} from "../assets/lit-element/lit-element.js?version=__buildNumber__";
+} from '../assets/lit-element/lit-element.js?version=__buildNumber__';
 import {
   icon,
   library,
@@ -55,6 +55,13 @@ import {
   faArrowLeft,
   faArrowRight,
   faArrowUp,
+  faPlusCircle,
+  faSlidersH,
+  faSearch,
+  faPencilAlt,
+  faClone,
+  faFilter,
+  faPlay,
 } from "../assets/@fortawesome/free-solid-svg-icons/index.es.js?version=__buildNumber__";
 
 import styles from "./sui-icon.scss";
@@ -142,6 +149,13 @@ library.add(faUsers);
 library.add(faUserSecret);
 library.add(faQuestion);
 library.add(faQuestionCircle);
+library.add(faPlusCircle);
+library.add(faSlidersH);
+library.add(faSearch);
+library.add(faPencilAlt);
+library.add(faClone);
+library.add(faFilter);
+library.add(faPlay);
 
 SakaiUIIcon.lookups = new Map();
 SakaiUIIcon.lookups.set("favourite", faStar);
@@ -166,10 +180,12 @@ SakaiUIIcon.lookups.set("left", faAngleLeft);
 SakaiUIIcon.lookups.set("deadline", faHourglass);
 SakaiUIIcon.lookups.set("word", faFileWord);
 SakaiUIIcon.lookups.set("delete", faTrash);
+SakaiUIIcon.lookups.set("trash", faTrash);
 SakaiUIIcon.lookups.set("restore", faTrashRestore);
 SakaiUIIcon.lookups.set("edit", faEdit);
 SakaiUIIcon.lookups.set("key", faKey);
 SakaiUIIcon.lookups.set("quizzes", faCheckSquare);
+SakaiUIIcon.lookups.set("check-square", faCheckSquare);
 SakaiUIIcon.lookups.set("up", faArrowUp);
 SakaiUIIcon.lookups.set("down", faArrowDown);
 SakaiUIIcon.lookups.set("left", faArrowLeft);
@@ -191,7 +207,13 @@ SakaiUIIcon.lookups.set("question", faQuestion);
 SakaiUIIcon.lookups.set("questioncircle", faQuestionCircle);
 SakaiUIIcon.lookups.set("circle", faCircle);
 SakaiUIIcon.lookups.set("check_circle", faCheckCircle);
-
+SakaiUIIcon.lookups.set("sliders-h", faSlidersH);
+SakaiUIIcon.lookups.set("plus-circle", faPlusCircle);
+SakaiUIIcon.lookups.set("search", faSearch);
+SakaiUIIcon.lookups.set("pencil", faPencilAlt);
+SakaiUIIcon.lookups.set("clone", faClone);
+SakaiUIIcon.lookups.set("filter", faFilter);
+SakaiUIIcon.lookups.set("play", faPlay);
 if (!customElements.get("sui-icon")) {
   customElements.define("sui-icon", SakaiUIIcon);
 }

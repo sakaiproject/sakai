@@ -424,7 +424,58 @@
 					</div>
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
-
+					<sui-table
+						debug
+						id="announcementsList"
+						show-actions
+						show-filters
+						table-actions='[
+							{
+								"type": "sui-button",
+								"icon": "plus-circle",
+								"class": "nav-link active",
+								"title": "$tlang.getString("gen.new") $tlang.getString("meta.title")",
+								"qonclick": "location=\"#toolLink("$action" "doNewannouncement")\"",
+								"href": "#toolLink("$action" "doNewannouncement")"
+							}
+						]'
+						links='[
+							{
+								"title": "Edit",
+								"icon": "pencil",
+								"class": "nav-link",
+								"rel": "doReviseannouncement"
+							},
+							{
+								"title": "Duplicate",
+								"icon": "clone",
+								"class": "nav-link",
+								"rel": "doDuplicateAnnouncement"
+							},
+							{
+								"title": "View",
+								"icon": "play",
+								"class": "nav-link",
+								"rel": "self"
+							},
+							{
+								"title": "Delete",
+								"icon": "trash",
+								"class": "nav-link link-danger",
+								"rel": "doDelete_announcement_link"
+							}
+						]'
+						columns='[
+							{"field": "subject", "title": "$tlang.getString("gen.subject")"},
+							{"field": "access", "title": "$tlang.getString("gen.visible")"},
+							{"field": "author", "title": "$tlang.getString("gen.from")"},
+							{"field": "date", "title": "$tlang.getString("gen.date")"},
+							{"field": "release", "title": "$tlang.getString("gen.releasedate")"},
+							{"field": "retract", "title": "$tlang.getString("gen.retractdate")"}
+						]'
+						site-id="NBKV_974E_4401"
+						data-url="/api/sites/NBKV_974E_4401/announcements"
+					></sui-table>
 					<div class="sakai-table-toolBar">
 						<div class="sakai-table-filterContainer">
 							#define($viewSelectOptions)

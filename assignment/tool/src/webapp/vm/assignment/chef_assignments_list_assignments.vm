@@ -58,6 +58,32 @@
 		<div>$tlang.getString("stulistassig.selanass")</div>
 	#end
 
+	<sui-table
+		debug
+		table-actions='[
+		{"type": "sui-button", "icon": "plus-circle", "class": "btn-primary", "title": "$tlang.getString("gen.new") $tlang.getString("meta.title")", "onclick": "location=\"#toolLink("$action" "doNewannouncement")\""}
+		]'
+		row-actions='[
+			{"title": "Edit", "icon": "pencil", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doReviseannouncement", "input": "url", "output": "href"}},
+			{"title": "Duplicate", "icon": "clone", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doReviseannouncement", "input": "url", "output": "href"}},
+			{"title": "View", "icon": "play", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doShowmetadata", "input": "url", "output": "href"}},
+			{"title": "Delete", "icon": "trash", "class": "btn-link link-danger", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doDelete_announcement_link", "input": "url", "output": "href"}}
+		]'
+		id="assignmentsList"
+		columns='[
+		{"field": "assignment.title", "title": "$tlang.getString("gen.asstit")"},
+		{"field": "assignment.access", "title": "$tlang.getString("accessSectionHeader")"},
+		{"field": "assignment.status", "title": "$tlang.getString("gen.status")"},
+		{"field": "assignment.openTimeString", "title": "$tlang.getString("newassig.opedat")"},
+		{"field": "assignment.dueTimeString", "title": "$tlang.getString("gen.duedat")"},
+		{"field": ["stats.submissionsTotal", "stats.submissionsUngraded"], "formatter": "addLabel", "formatterParams": {"label":["","$tlang.getString("gen.new")"]}, "title": "$tlang.getString("gen.subm2")"},
+		{"field": "assignment.gradeScale", "title": "$tlang.getString("gen.sca")"}
+		]'
+		site-id="$contextString"
+		data-url="/direct/assignment/siteWithStats/${contextString}.json"
+		data-key="assignment_collection"
+	></sui-table>
+
 	<div class="sakai-table-toolBar">
 		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
 		<div class="sakai-table-filterContainer">

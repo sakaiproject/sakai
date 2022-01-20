@@ -15,6 +15,7 @@ module.exports = {
   "extends": "eslint:recommended",
   "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
   "plugins": ["html"],
+  "ignorePatterns": ["sui.es.js"],
   "rules": {
     "accessor-pairs": "error",
     "array-callback-return": "error",

@@ -1,5 +1,5 @@
 {
-    "extends": ["stylelint-config-standard", "stylelint-config-twbs-bootstrap/scss"],
+    "extends": ["stylelint-config-standard", "stylelint-config-twbs-bootstrap/scss", "stylelint-config-prettier"],
 
     "plugins": [
         "stylelint-scss"

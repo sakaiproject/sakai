@@ -3,7 +3,6 @@ import {
   LitElement,
   unsafeCSS,
 } from "../assets/lit-element/lit-element.js?version=__buildNumber__";
-import { Button } from "../assets/bootstrap/dist/js/bootstrap.esm.min.js?version=__buildNumber__";
 import styles from "./sui-button.scss";
 import "../sui-icon/sui-icon";
 export class SakaiUIButton extends LitElement {
@@ -17,12 +16,14 @@ export class SakaiUIButton extends LitElement {
     return {
       primary: { type: Boolean },
       type: { String },
-      href: String,
-      isToggle: { type: Boolean },
+      href: { String },
+      onclick: { type: String },
       class: { type: String },
       target: { type: String },
       icon: { type: String },
       title: { type: String },
+      ariaLabel: { type: String },
+      debug: { type: Boolean },
     };
   }
 
@@ -30,18 +31,36 @@ export class SakaiUIButton extends LitElement {
     super();
     this.primary = false;
     this.type = "";
-    this.href = "";
-    this.isToggle = false;
+    // this.href = "";
     this.class = this.classList.value;
     this.target = "";
     this.icon = "";
     this.title = "";
-
     // This prevents duplicate styles from being added to the component
     this.classList = "";
+    this.debug = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.debug
+      ? console.log(`sui-button ${this.title} connectedCallback`)
+      : null;
   }
 
-  clicked() {
+  attributeChangedCallback(name, oldVal, newVal) {
+    this.debug
+      ? console.log(
+          `sui-button ${this.title} attribute change: `,
+          name,
+          typeof newVal,
+          newVal
+        )
+      : null;
+    super.attributeChangedCallback(name, oldVal, newVal);
+  }
+
+  clicked(e) {
+    this.debug ? console.log(`sui-button ${this.title} clicked`, e) : null;
     if (this.href) {
       if (this.target === "_blank") {
         window.open(this.href);
@@ -52,17 +71,25 @@ export class SakaiUIButton extends LitElement {
     }
 
     // Non-href buttons
+    if (this.onclick) {
+      this.debug
+        ? console.log(`sui-button ${this.title} onclick`, this.onclick)
+        : null;
+      this.onclick;
+    }
   }
 
-  toggled() {
-    const btsButton = new Button(this);
-    btsButton.toggle();
+  updated(changedProperties) {
+    this.debug
+      ? console.log(`sui-button ${this.title} start updated`, changedProperties)
+      : null;
   }
 
   render() {
     return html`<button
       class="sui-btn btn ${this.class ? this.class : "btn-secondary"}"
       type="${this.type ? this.type : "button"}"
+      aria-label="${this.ariaLabel ? this.ariaLabel : this.title}"
       @click="${this.clicked}"
     >
       ${this.icon
