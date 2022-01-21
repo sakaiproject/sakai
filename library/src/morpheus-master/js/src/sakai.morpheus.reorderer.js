@@ -85,21 +85,23 @@ $PBJQ(document).ready(function(){
         
         //insert the row in new location - if new value is 1, insert before, if it is the last possible
         // insert after, otherwise insert before or after depending on if it is going up or down
+        var thisElement = $PBJQ(this).parents('.reorder-element');
         if (newVal === '1') {
-            $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+            $PBJQ(thisElement).insertBefore(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
         }
-        else 
+        else {
             if (newVal == inputs.length) {
-                $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                $PBJQ(thisElement).insertAfter(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
             }
             else {
                 if (newVal > oldVal) {
-                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                    $PBJQ(thisElement).insertAfter(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
                 else {
-                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                    $PBJQ(thisElement).insertBefore(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
             }
+        }
         registerChange('notfluid', $PBJQ(this).parents('.reorder-element'));
     });
 
