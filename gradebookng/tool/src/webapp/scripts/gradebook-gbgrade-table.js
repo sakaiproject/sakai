@@ -1012,15 +1012,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     $('body').append($dropdownMenu.detach());
 
-    // SAK-40644 Hide move left for the leftmost, move right for the rightmost.
+    // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     var $header = $link.closest("th.gb-item");
     if ($header.length) {
+      var menuOption;
+      // Retrieve JQuery <a> element
       if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
-        $dropdownMenu.find(".gb-move-left").hide();
+        menuOption = $dropdownMenu.find(".gb-move-left");
       }
-
       if (!$header.next("th.gb-item").length || $header.next("th").hasClass("gb-item-category")) {
-        $dropdownMenu.find(".gb-move-right").hide();
+        menuOption = $dropdownMenu.find(".gb-move-right"); 
+      }
+      // Remove DOM <li> element
+      if (menuOption != null && menuOption.length > 0) {
+        menuOption[0].parentElement.remove();
       }
     }
 
