@@ -1119,6 +1119,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             String newRubricId = entry.getValue().substring(RubricsConstants.RBCS_PREFIX.length());
                             String tool = association.getToolId();
                             String itemId = association.getItemId();
+                            Boolean active = association.getActive();
                             String newItemId = null;
                             //3 association type
                             if(RubricsConstants.RBCS_TOOL_ASSIGNMENT.equals(tool)){
@@ -1161,7 +1162,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             //4 save new association
                             if(newItemId != null){
                                 try {
-                                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + newItemId + "\",\"rubricId\" : " + newRubricId + ",\"parameters\" : {" + setConfigurationParametersForDuplication(originalParams) + "}}";
+                                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + newItemId + "\",\"active\" : " + String.valueOf(active) + ",\"rubricId\" : " + newRubricId + ",\"parameters\" : {" + setConfigurationParametersForDuplication(originalParams) + "}}";
                                     log.debug("New association " + input);
                                     String query = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/";
                                     String resultPost = postRubricResource(query, input, tool, toContext);
