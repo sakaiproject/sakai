@@ -2710,35 +2710,51 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // menu focused
       if ($focus.closest(".dropdown-menu ").length > 0) {
-        // up arrow
-        if (event.keyCode == 38) {
-          iGotThis(true);
-          if ($focus.closest("li").index() == 0) {
-            // first item, so close the menu
-            $(".btn-group.open .dropdown-toggle").dropdown("toggle");
-            $current.focus();
-          } else {
-            $focus.closest("li").prev().find("a").focus();
-          }
-        }
-        // down arrow
-        if (event.keyCode == 40) {
-          iGotThis();
-          $focus.closest("li").next().find("a").focus();
-        }
-        // esc
-        if (event.keyCode == 27) {
-          iGotThis(true);
-          $(".btn-group.open .dropdown-toggle").dropdown("toggle");
-          $current.focus();
-        }
-        // enter
-        if (event.keyCode == 13) {
-          iGotThis(true);
-          // deselect cell so keyboard focus is given to the menu's action
-          GbGradeTable.instance.deselectCell();
-        }
-
+		  
+		  
+		switch (event.keyCode) {
+			case 38: //up arrow
+				iGotThis(true);
+				if ($focus.closest("li").index() == 0) {
+					// first item, so close the menu
+					$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+					$current.focus();
+				} else {
+					$focus.closest("li").prev().find("a").focus();
+				}
+				break;
+			case 40: //down arrow
+				iGotThis();
+				$focus.closest("li").next().find("a").focus();
+				break;
+			case 37: //left arrow
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 39: //right arrow
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 27: //esc
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 13: //enter
+				iGotThis(true);
+				// deselect cell so keyboard focus is given to the menu's action
+				GbGradeTable.instance.deselectCell();
+				break;
+			case 9: //tab
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			default:
+				break;
+		}
         if (handled) {
           GbGradeTable.hideMetadata();
           return;
