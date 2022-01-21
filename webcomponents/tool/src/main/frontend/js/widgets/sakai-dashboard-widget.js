@@ -1,6 +1,5 @@
 import { css, html, LitElement } from "../assets/lit-element/lit-element.js";
 import '../sakai-icon.js';
-//import '../sakai-options-menu.js';
 import { loadProperties } from "../sakai-i18n.js";
 import "../sakai-pager.js";
 
