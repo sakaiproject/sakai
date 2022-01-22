@@ -14,6 +14,10 @@
     <artifactId>sakai-portal-util</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
     <dependencies>
          <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
@@ -36,10 +40,8 @@
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
         <dependency>
-            <!--TODO Move to javax.servlet-api version of master-->
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>

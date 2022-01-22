@@ -1129,11 +1129,13 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-storage-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
@@ -1586,6 +1588,7 @@
         <groupId>org.sakaiproject.portal</groupId>
         <artifactId>sakai-portal-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -1688,6 +1691,18 @@
         <artifactId>basiclti-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.basiclti</groupId>
+        <artifactId>basiclti-util</artifactId>
+        <version>${sakai.version}</version>
+        <!-- soon to be provided -->
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.basiclti</groupId>
+        <artifactId>basiclti-common</artifactId>
+        <version>${sakai.version}</version>
+        <!-- soon to be provided -->
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.taggable</groupId>
