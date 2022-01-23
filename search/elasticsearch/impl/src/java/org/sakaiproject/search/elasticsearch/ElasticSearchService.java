@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +42,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpHost;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -51,6 +54,7 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.node.DiscoveryNodeRole;
 import org.elasticsearch.common.network.InetAddresses;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
@@ -144,14 +148,8 @@ import lombok.extern.slf4j.Slf4j;
     private String sharedKey = null;
 
     private static class EmbeddedElasticSearchNode extends Node {
-
-        public EmbeddedElasticSearchNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
-            super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), classpathPlugins, true);
-        }
-
-        @Override
-        protected void registerDerivedNodeNameWithLogger(String nodeName) {
-
+        public EmbeddedElasticSearchNode(Settings preparedSettings, Map<String, String> systemProperties, Supplier<String> nodeName, Collection<Class<? extends Plugin>> classpathPlugins) {
+            super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, systemProperties, null, nodeName), classpathPlugins, true);
         }
     }
 
@@ -234,7 +232,11 @@ import lombok.extern.slf4j.Slf4j;
                 Netty4Plugin.class,
                 CommonAnalysisPlugin.class);
 
-        Node node = new EmbeddedElasticSearchNode(settings, plugins);
+        Map<String, String> systemProperties = System.getProperties().entrySet().stream()
+                .filter(e -> String.valueOf(e.getKey()).startsWith(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX))
+                .collect(Collectors.toMap(e -> String.valueOf(e.getKey()).replace(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX, ""), e -> String.valueOf(e.getValue())));
+        Supplier<String> nodeName = () -> settings.get("node.name");
+        Node node = new EmbeddedElasticSearchNode(settings, systemProperties, nodeName, plugins);
 
         try {
             log.info("elasticsearch starting embedded node, {}", node.settings().toString());
@@ -748,7 +750,7 @@ import lombok.extern.slf4j.Slf4j;
                 List<Object[]> workers = new ArrayList();
 
                 for (NodeStats nodeStat : nodesStatsResponse.getNodes()) {
-                    if (nodeStat.getNode().isDataNode()) {
+                    if (nodeStat.getNode().getRoles().contains(DiscoveryNodeRole.DATA_ROLE)) {
                         workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
                             null, // No way to get a meaningful "start" time per node, so now just set a null Date.
                             // Historically used an index builder starttime, which was always meaningless in this
@@ -977,7 +979,7 @@ import lombok.extern.slf4j.Slf4j;
         @Override
         public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
             return new SearchResponse(
-                    new InternalSearchResponse(new SearchHits(new SearchHit[0], 0, 0.0f), new InternalAggregations(Collections.emptyList()), new Suggest(Collections.emptyList()), null, false, false, 1),
+                    new InternalSearchResponse(new SearchHits(new SearchHit[0], new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0.0f), InternalAggregations.EMPTY, new Suggest(Collections.emptyList()), null, false, false, 1),
                     "no-op",
                     1,
                     1,
