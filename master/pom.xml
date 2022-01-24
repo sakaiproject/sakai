@@ -35,7 +35,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>6.8.18</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>7.16.3</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
@@ -52,7 +52,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.22</sakai.lombok.version>
-    <sakai.lucene.version>7.7.3</sakai.lucene.version>
+    <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.68.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -338,6 +338,14 @@
     <repository>
       <id>shib-release</id>
       <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>codelibs.org</id>
+      <name>CodeLibs Repository</name>
+      <url>https://maven.codelibs.org/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -1297,6 +1305,24 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-geo</artifactId>
+        <version>${sakai.elasticsearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-lz4</artifactId>
+        <version>${sakai.elasticsearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.8.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
         <version>${sakai.elasticsearch.version}</version>
@@ -1317,7 +1343,7 @@
       <dependency>
         <groupId>org.codelibs.elasticsearch.module</groupId>
         <artifactId>analysis-common</artifactId>
-        <version>6.8.12</version>
+        <version>${sakai.elasticsearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1474,26 +1500,14 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-spatial</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-spatial-extras</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-spatial3d</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
+        <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
-        <version>5.5.0</version>
+        <version>5.10.0</version>
         <scope>provided</scope>
       </dependency>
       <!-- elasticsearch 3rd party libs -->
@@ -1518,7 +1532,7 @@
       <dependency>
         <groupId>com.carrotsearch</groupId>
         <artifactId>hppc</artifactId>
-        <version>0.7.2</version>
+        <version>0.8.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

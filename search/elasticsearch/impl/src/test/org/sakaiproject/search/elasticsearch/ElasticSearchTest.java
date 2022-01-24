@@ -284,7 +284,7 @@ public class ElasticSearchTest {
                 "    \"analysis\": {\n" +
                 "        \"filter\": {\n" +
                 "            \"substring\": {\n" +
-                "                \"type\": \"nGram\",\n" +
+                "                \"type\": \"ngram\",\n" +
                 "                \"min_gram\": 1,\n" +
                 "                \"max_gram\": 20\n" +
                 "            }\n" +

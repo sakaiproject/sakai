@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.sakaiproject.search.elasticsearch</groupId>
             <artifactId>elasticsearch-util</artifactId>
-            <version>${project.version}</version>
+            <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.search.elasticsearch</groupId>
@@ -57,7 +57,10 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>${sakai.elasticsearch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-x-content</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
