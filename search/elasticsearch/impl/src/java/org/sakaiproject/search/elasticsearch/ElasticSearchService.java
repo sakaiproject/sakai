@@ -202,6 +202,7 @@ import lombok.extern.slf4j.Slf4j;
 
         String host = settingsBuilder.get("http.host");
         String port = settingsBuilder.get("http.port");
+        String transportPort = settingsBuilder.get("transport.port");
 
         if (StringUtils.isBlank(host)) {
             host = "127.0.0.1";
@@ -214,10 +215,24 @@ import lombok.extern.slf4j.Slf4j;
             settingsBuilder.put("http.port", availablePort);
         }
 
+        if (StringUtils.isBlank(transportPort)) {
+            int availablePort = findAvailableTcpPort(host, 9300);
+            transportPort = Integer.toString(availablePort);
+            settingsBuilder.put("transport.port", transportPort);
+        }
+
         serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("elasticsearch.http.host", host, this.getClass().getName()));
         serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("elasticsearch.http.port", port, this.getClass().getName()));
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeConfigItem("elasticsearch.transport.port", transportPort, this.getClass().getName()));
 
         settingsBuilder.put("transport.type", "netty4");
+
+        log.info("Elasticsearch configured with home=[{}], node=[{}], cluster name=[{}], http port=[{}], discovery port=[{}]",
+                settingsBuilder.get("path.home"),
+                settingsBuilder.get("node.name"),
+                settingsBuilder.get("cluster.name"),
+                settingsBuilder.get("http.port"),
+                settingsBuilder.get("transport.port"));
 
         return settingsBuilder.build();
     }
