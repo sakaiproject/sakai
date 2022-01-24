@@ -1,3 +1,5 @@
+.#{$namespace}sakai-conversations {
+
   .topic-summary-link {
     text-decoration: none;
     color: inherit;
@@ -143,17 +145,4 @@
     }
   }
 
-  /*
-  @media (max-width: 600px) {
-    .topic-summary {
-      width: 282px;
-      grid-template-columns: 40px 200px auto;
-      grid-template-rows: min-content 1fr min-content;
-      grid-gap: 6px;
-      padding: 4px;
-      border-bottom: #E0E0E0 2px solid;
-      justify-content: space-around;
-      align-items: center;
-    }
-  }
-  */
+}

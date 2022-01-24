@@ -229,7 +229,7 @@ export class SakaiAddTopic extends SakaiElement {
         <div class="add-topic-block">
           <div id="summary-label" class="add-topic-label">${this.i18n.summary} *</div>
           <input id="summary"
-            class="summary-input ${this.titleError ? "conv-error" : ""}"
+            class="summary-input ${this.titleError ? "error" : ""}"
             @blur=${this.updateSummary}
             @focus=${() => this.titleError = false}
             .value="${this.topic.title}" />

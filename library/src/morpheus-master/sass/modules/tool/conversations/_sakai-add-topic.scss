@@ -1,3 +1,5 @@
+.#{$namespace}sakai-conversations {
+
   #add-topic-wrapper {
     padding: var(--sakai-topic-wrapper-vertical-padding, 10px) var(--sakai-topic-wrapper-horizontal-padding, 40px);
   }
@@ -17,9 +19,7 @@
   #summary {
     width: 100%;
     height: 40px;
-    background: #F4F4F4;
     font-size: 16px;
-
     border: 1px solid #AFAFAF;
     box-sizing: border-box;
     border-radius: 4px;
@@ -97,10 +97,6 @@
     margin-top: 10px;
   }
 
-  .active {
-    background-color: #A0D3F2;
-  }
-
   #post-to-block input {
   }
 
@@ -132,9 +128,9 @@
     margin-bottom: 10px;
   }
 
-  .conv-error {
-    background: red !important;
-    color: white;
+  .error {
+    background-color: var(--errorBanner-bgcolor);
+    color: var(--errorBanner-color);
   }
 
   #add-topic-groups-block {
@@ -208,18 +204,4 @@
     border-radius: 0px 0px 4px 4px
   }
 
-  /*
-  @media (max-width: 600px) {
-
-    #topic-options-wrapper {
-      display: block;
-      margin-bottom: 10px;
-    }
-    #topic-options-wrapper > div {
-      margin-bottom: 10px;
-    }
-    .topic-options-label-block {
-      display: block;
-    }
-  }
-  */
+}
