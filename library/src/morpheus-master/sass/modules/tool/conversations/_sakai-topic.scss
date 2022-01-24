@@ -1,4 +1,6 @@
-.topic {
+.#{$namespace}sakai-conversations {
+
+  .topic {
     margin: 8px;
   }
 
@@ -310,3 +312,5 @@
     border-radius: 8px;
     margin-top: 10px;
   }
+
+}

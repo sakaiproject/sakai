@@ -1,3 +1,5 @@
+.#{$namespace}sakai-conversations {
+
   #no-topics-yet-message {
     display: flex;
     height: 400px;
@@ -63,31 +65,4 @@
     text-decoration: none;
   }
 
-  /*
-  @media (max-width: 800px) {
-    .topic-list {
-      width: 290px;
-    }
-    #topic-list-filters {
-      display: grid;
-      grid-template-columns: min-content min-content;
-      gap: 10px;
-      justify-content: start;
-      padding: 0;
-      margin-bottom: 5px;
-      border-bottom: 1px solid;
-    }
-
-    #topic-list-filters > div {
-    }
-
-    #topic-list-filters select {
-      width: 140px;
-      height: 35px;
-      border: 1px solid #AFAFAF;
-      box-sizing: border-box;
-      border-radius: 4px;
-      padding-left: 20px;
-    }
-  }
-  */
+}
