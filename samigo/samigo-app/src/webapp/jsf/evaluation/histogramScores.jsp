@@ -104,9 +104,6 @@ $Id$
 
           <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 
-          <h:outputText escape="false" value="<!--[if lt IE 9]>" />
-          <script type="text/javascript" src="/library/webjars/explorercanvas/r3/excanvas.min.js"></script>
-          <h:outputText escape="false" value="<![endif]-->" />
           <script type="text/javascript" src="/library/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.min.js"></script>
           <script type="text/javascript"
             src="/library/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.barRenderer.js"></script>

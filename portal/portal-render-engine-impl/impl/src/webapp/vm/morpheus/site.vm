@@ -209,10 +209,6 @@
     #end
         </script>
 
-        <!--[if lt IE 9]>
-        <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
-<![endif]-->
-
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 
         <script src="$!{portalCDNPath}/portal/scripts/jumptotop.js$!{portalCDNQuery}"></script>
