@@ -579,6 +579,7 @@ export class SakaiRubricGrading extends RubricsElement {
       if (r.ok) {
         return r.json();
       } else if (r.status === 404) {
+        console.info(this.i18nLoaded.grading_404_info);
         return Promise.resolve({ originalEvaluationId });
       }
 
