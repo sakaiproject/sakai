@@ -507,7 +507,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       try {
         $("#rubric-panel").dialog("destroy");
       } catch (error) {
-        console.error(error);
+        console.info(this.i18n.destroy_rubric_panel_log);
       }
       this.rubricShowing = false;
     }

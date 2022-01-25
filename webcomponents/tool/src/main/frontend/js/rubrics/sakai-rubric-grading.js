@@ -369,7 +369,13 @@ export class SakaiRubricGrading extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.criteria.forEach(c => c.ratings.forEach(rat => rat.selected = false));
+        this.criteria.forEach(c => {
+
+          c.selectedvalue = 0.0;
+          c.pointoverride = 0.0;
+          c.ratings.forEach(rat => rat.selected = false);
+        });
+        this.updateTotalPoints();
         this.evaluation = { criterionOutcomes: [] };
         this.requestUpdate();
       } else {
@@ -472,6 +478,7 @@ export class SakaiRubricGrading extends RubricsElement {
           this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
           // And set the original ones
           this.decorateCriteria();
+          this.updateTotalPoints();
         });
       } else {
         this.deleteEvaluation();
@@ -555,6 +562,7 @@ export class SakaiRubricGrading extends RubricsElement {
         });
 
         this.decorateCriteria();
+        this.updateTotalPoints();
       })
       .catch(error => console.error(error));
     })

@@ -14,12 +14,14 @@ export class SakaiRubricStudentComment extends RubricsElement {
     this._criterion.comments = value.comments && value.comments.indexOf("null") === 0 ? "" : value.comments;
     this.triggerId = `criterion-comment-${value.id}-trigger`;
     this.requestUpdate("criterion", oldValue);
-    this.updateComplete.then(() => { $(`#${this.triggerId}`).popover({
+    this.updateComplete.then(() => {
+
+      $(`#${this.triggerId}`).popover({
         content: () => this.criterion.comments,
         html: true,
         title: () =>  this.criterion.title,
         placement: "auto left",
-      })
+      });
     });
   }
 
