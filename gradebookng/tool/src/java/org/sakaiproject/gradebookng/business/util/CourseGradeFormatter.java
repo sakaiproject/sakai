@@ -38,6 +38,7 @@ public class CourseGradeFormatter {
 	private final boolean isCourseGradeVisible;
 	private final boolean showPoints;
 	private final boolean showOverride;
+	private final boolean showCalculatedGrade;
 
 	/**
 	 * Constructor to initialise the data
@@ -54,13 +55,15 @@ public class CourseGradeFormatter {
 	public CourseGradeFormatter(final Gradebook gradebook, final GbRole currentUserRole,
 			final boolean isCourseGradeVisible,
 			final boolean showPoints,
-			final boolean showOverride) {
+			final boolean showOverride,
+			final boolean showCalculatedGrade) {
 
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
 		this.isCourseGradeVisible = isCourseGradeVisible;
 		this.showPoints = showPoints;
 		this.showOverride = showOverride;
+		this.showCalculatedGrade = showCalculatedGrade;
 	}
 
 	/**

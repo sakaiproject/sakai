@@ -31,6 +31,7 @@ public class CourseGrade implements Serializable {
 
 	private Long id;
 	private String enteredGrade;
+	private Double enteredPoints;
 	private String calculatedGrade;
 	private String mappedGrade;
 	private Double pointsEarned;
@@ -59,6 +60,14 @@ public class CourseGrade implements Serializable {
 
 	public void setEnteredGrade(final String enteredGrade) {
 		this.enteredGrade = enteredGrade;
+	}
+
+	public Double getEnteredPoints() {
+		return this.enteredPoints;
+	}
+
+	public void setEnteredPoints(final Double enteredPoints) {
+		this.enteredPoints = enteredPoints;
 	}
 
 	public String getCalculatedGrade() {

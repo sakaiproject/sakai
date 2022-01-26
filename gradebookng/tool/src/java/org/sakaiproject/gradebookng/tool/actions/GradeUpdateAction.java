@@ -181,6 +181,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 				page.getCurrentRole(),
 				businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
 				page.getUiSettings().getShowPoints(),
+				true,
 				true);
 		final GbCourseGrade gbcg = new GbCourseGrade(studentCourseGrade);
 		gbcg.setDisplayString(courseGradeFormatter.format(studentCourseGrade));
