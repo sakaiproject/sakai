@@ -12,7 +12,7 @@
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <wicket.version>9.5.0</wicket.version>
+        <wicket.version>9.7.0</wicket.version>
     </properties>
     <packaging>war</packaging>
     <dependencies>

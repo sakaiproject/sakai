@@ -469,10 +469,12 @@ function disableOtherFeedbackComponentOption (){
 		radio.disabled = feedbackType == noFeedback;
 	});
 
-	if (field.value == "2" && !field.disabled) {
-		respChoice.style.display = "block";
+	if (field !== undefined) {
+		respChoice.style.display = (field.value === "2" && !field.disabled) ? "block" : "none";
 	} else {
-		respChoice.style.display = "none";
+		//Set default value when no radio is selected and call function again
+		fields[0].checked = true;
+		disableOtherFeedbackComponentOption();
 	}
 }
 
@@ -518,16 +520,6 @@ function showHideReleaseGroups(){
   else {
 	document.getElementById("groupDiv").style.display = "none";
   }
-}
-
-function showHideSurveyHelp() {
-	var selectedValue = $('select[id*="releaseTo"]').val();
-	var helpText = $('[id*="releaseToHelp"]');
-	if(selectedValue == "Anonymous Users") {
-		helpText.show();
-	} else {
-		helpText.hide();
-	}
 }
 
 function setBlockDivs()
@@ -610,9 +602,10 @@ function initTimedRadio(){
 }
 
 function initAnononymousUsers(){
-	var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-	if (releaseToVal === 'Anonymous Users') {
-		handleAnonymousUsers(releaseToVal, "");
+	var releaseTo = document.getElementById('assessmentSettingsAction:releaseTo');
+	releaseTo.prevValue = releaseTo.value;
+	if (releaseTo.value === 'Anonymous Users') {
+		handleAnonymousUsers(releaseTo.value, releaseTo.value);
 	}
 }
 

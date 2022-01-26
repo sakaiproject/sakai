@@ -1666,5 +1666,14 @@ public class ItemContentsBean implements Serializable {
 	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
 		this.hasAssociatedRubric = hasAssociatedRubric;
 	}
+	
+	public Long getEffectiveItemId() {
+		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		if (author.getIsEditPendingAssessmentFlow()) {
+			return itemData.getOriginalItemId();
+		} else {
+			return itemData.getItemId();
+		}
+	}
 }
 

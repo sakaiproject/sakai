@@ -135,7 +135,7 @@ ASN.setupAssignNew = function(){
         inputType = this.id.substring((this.id.indexOf('_') + 1));
         Text = $('#' + nodeType + '_text').val();
         Title = $('#' + nodeType + '_title').val();
-        To = $('#' + nodeType + '_to').val();
+        extraNodeTo = $('#' + nodeType + '_to').val();
         defText = $('#' + nodeType + '_text_holder').val();
         defTitle = $('#' + nodeType + '_title_holder').val();
         defTo = $('#' + nodeType + '_to_holder').val();
@@ -212,7 +212,7 @@ ASN.setupAssignNew = function(){
             else {
                 textOK = true;
             }
-            if (To === 0) {
+            if (extraNodeTo === '0') {
                 $('#' + nodeType + '_to_message').show();
                 validation = 'failed';
             }
@@ -228,7 +228,7 @@ ASN.setupAssignNew = function(){
                     $('#' + nodeType + '_text_holder').val(Text);
                 }
                 if (toOK) {
-                    $('#' + nodeType + '_to_holder').val(To);
+                    $('#' + nodeType + '_to_holder').val(extraNodeTo);
                 }
                 $('#' + 'no' + nodeType).hide('');
                 $('#' + 'has' + nodeType).show('');
@@ -1016,6 +1016,15 @@ $(document).ready(() => {
     Promise.all(promises).then(() => ASN.submitForm('viewForm', 'releaseGrades', null, null));
   });
 });
+
+ASN.cancelGradeSubmission = function () {
+
+  [...document.getElementsByTagName("sakai-rubric-grading")].forEach(r => r. cancel());
+
+  SPNR.disableControlsAndSpin( this, null );
+  ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
+  return false;
+};
 
 // SAK-43911 (grab_cursor for reordering items)
 ASN.grabbing = function (selectedItem) {

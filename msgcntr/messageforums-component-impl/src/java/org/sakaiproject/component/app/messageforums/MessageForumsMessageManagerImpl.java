@@ -34,10 +34,14 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -85,6 +89,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findReadMessageCountsForMainPage";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID = "findViewableMessageCountByTopicIdByUserId";
+    private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID_BY_USERS = "findViewableMessageCountByTopicIdByUserIds";
     private static final String QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID = "findReadViewableMessageCountByTopicIdByUserId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
@@ -105,6 +110,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private IdManager idManager;                      
 
     private MessageForumsTypeManager typeManager;
+
+    private PermissionLevelManager permissionLevelManager;
 
     private SessionManager sessionManager;
 
@@ -136,6 +143,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void setTypeManager(MessageForumsTypeManager typeManager) {
         this.typeManager = typeManager;
     }
+
+    public void setPermissionLevelManager(PermissionLevelManager permissionLevelManager) { this.permissionLevelManager = permissionLevelManager; }
     
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
@@ -648,13 +657,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public int findViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
         if (topicId == null || userId == null) {
-            log.error("findViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
-            			" and userId: " + userId);
+            log.error("findViewableMessageCountByTopicIdByUserId failed with topicId: {}, userId: {}", topicId, userId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
-        				" and userId: " + userId);
+        log.debug("findViewableMessageCountByTopicIdByUserId with topicId: {}, userId: {}", topicId, userId);
 
         HibernateCallback<Number> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
@@ -664,6 +671,49 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         };
 
         return getHibernateTemplate().execute(hcb).intValue();
+    }
+
+    /**
+     * Returns count of all messages in a topic that have been approved or were authored by given user
+     * This is meant to be a more efficient version of findViewableMessageCountByTopicIdByUserId
+     * that is capable of fetching all users in a site at once instead of via separate queries
+     */
+    public Map<String, Integer> findViewableMessageCountByTopicIdByUserIds(final Long topicId, final Set<String> userIds) {
+        if (topicId == null || userIds == null) {
+            log.error("findViewableMessageCountByTopicIdByUserIds failed with topicId: {}, userIds: {}", topicId, userIds);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        HibernateCallback<List> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID_BY_USERS);
+            q.setParameter("topicId", topicId, LongType.INSTANCE);
+            q.setParameterList("userIds", userIds, StringType.INSTANCE);
+            return q.getResultList();
+        };
+
+        List<Object[]> results = getHibernateTemplate().execute(hcb);
+
+        Map<String, Integer> userViewableMap = new HashMap<>();
+        int totalApproved = 0;
+
+        for (Object[] result : results) {
+            final String userId = (String) result[0];
+            final Boolean approved = (Boolean) result[1];
+            final Long authored = (Long) result[2];
+
+            if (approved != null && approved) {
+                totalApproved += authored;
+            } else if (authored != null) {
+                userViewableMap.put(userId, authored.intValue());
+            }
+        }
+
+        if (totalApproved > 0) {
+            final int finalTotalApproved = totalApproved;
+            userViewableMap.forEach((userId, cnt) -> userViewableMap.put(userId, cnt + finalTotalApproved));
+        }
+
+        return userViewableMap;
     }
     
     /**
@@ -675,23 +725,22 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findViewableMessageCountByTopicId executing with topicId: " + topicId);
+        log.debug("findViewableMessageCountByTopicId executing with topicId: {}", topicId);
 
-        if(getCurrentUser()!=null){
-        return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        if (getCurrentUser() != null) {
+            return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
         }
-        else return 0;
+        return 0;
     }
 
    public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
 	   if (topicId == null || userId == null) {
-           log.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
-        		   		" and userId: " + userId);
+           log.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: {}, userId: {}", topicId, userId);
  
            throw new IllegalArgumentException("Null Argument");
        }
 
-       log.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: " + topicId);
+       log.debug("findUnreadMessageCountByTopicIdByUserId executing with topicId: {}", topicId);
 
        return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicIdByUserId(topicId, userId);
    }
@@ -702,7 +751,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("findUnreadMessageCountByTopicId executing with topicId: " + topicId);
+        log.debug("findUnreadMessageCountByTopicId executing with topicId: {}", topicId);
 
         return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(topicId);
     }
@@ -717,7 +766,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
            throw new IllegalArgumentException("Null Argument");
        }
 
-       log.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + " userId: " + userId);
+       log.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: {}. userId: {}", topicId, userId);
 
        return findViewableMessageCountByTopicIdByUserId(topicId, userId) - findReadViewableMessageCountByTopicIdByUserId(topicId, userId);
    }
@@ -943,7 +992,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
 
-
+    /**
+     * Returns a topic id and count for a given site
+     * @return
+     */
     public List<Object[]> findMessageCountTotal() {
     	HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.getNamedQuery("findMessageCountTotal");
@@ -1850,62 +1902,62 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		}
 		return statusMap;
 	}
-	
-	public List getPendingMsgsInSiteByMembership(final List membershipList)
-	{   	
-		if (membershipList == null) {
-            log.error("getPendingMsgsInSiteByMembership failed with membershipList: null");
-            throw new IllegalArgumentException("Null Argument");
-        }
-		
-		// First, check by permissionLevel (custom permissions)
-		HibernateCallback<List> hcb = session -> {
-            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
-            q.setParameterList("membershipList", membershipList);
 
+    public List<Message> getPendingMsgsInSiteByMembership(final List<String> membershipList, final List<Topic> moderatedTopics)
+    {
+        if (membershipList == null || membershipList.isEmpty() || moderatedTopics == null || moderatedTopics.isEmpty()) {
+            log.debug("membershipList is null or empty | moderatedTopics is null or empty");
+            return Collections.emptyList();
+        }
+
+        // First, check by permissionLevel (custom permissions)
+        HibernateCallback<List> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
+            q.setParameterList("membershipList", membershipList);
+            q.setParameterList("topicList", moderatedTopics);
             return q.list();
         };
-		
-		Message tempMsg = null;
-        Set resultSet = new HashSet();      
+
+        Message tempMsg = null;
+        Set<Message> resultSet = new HashSet<>();
         List temp = getHibernateTemplate().execute(hcb);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
-          if (results != null) {
-            if (results[0] instanceof Message) {
+          if (results != null && results[0] instanceof Message)
+          {
               tempMsg = (Message)results[0];
-              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.setTopic((Topic)results[1]);
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-            }
-            resultSet.add(tempMsg);
+              resultSet.add(tempMsg);
           }
         }
         
         // Second, check by PermissionLevelName (non-custom permissions)
         HibernateCallback<List> hcb2 = session -> {
             Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME);
-            q.setParameter("contextId", getContextId(), StringType.INSTANCE);
             q.setParameterList("membershipList", membershipList);
-            q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), StringType.INSTANCE);
-
+            q.setParameterList("topicList", moderatedTopics);
             return q.list();
         };
-		   
+
         temp = getHibernateTemplate().execute(hcb2);
         for (Iterator i = temp.iterator(); i.hasNext();)
         {
           Object[] results = (Object[]) i.next();        
               
-          if (results != null) {
-            if (results[0] instanceof Message) {
+          if (results != null && results[0] instanceof Message)
+          {
               tempMsg = (Message)results[0];
               tempMsg.setTopic((Topic)results[1]); 
               tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
-            }
-            resultSet.add(tempMsg);
+
+              // See if the permission level has ability to moderate
+              PermissionLevel permLevel = permissionLevelManager.getPermissionLevelByName((String)results[3]);
+              if (permLevel.getModeratePostings()) {
+                  resultSet.add(tempMsg);
+              }
           }
         }
         

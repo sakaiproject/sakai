@@ -37,19 +37,21 @@ setTimeout(function(){
 </iframe>
 <script>
 window.addEventListener('message', function(e) {
+  var idval = 'id$placement';
+  console.debug("postMessage in assignments_view_launch.vm", idval, e);
   try {
     var message = JSON.parse(e.data);
-    var idval = 'id$placement';
     if ( message.subject == 'lti.frameResize' ) {
       var height = message.height;
-      if ( ! height.endsWith('px') ) height = height + 'px';
+      if ( typeof height != 'string' || ! height.endsWith('px') ) height = height + 'px';
       document.getElementById(idval).style.height = height;
       document.getElementById(idval).style.width = '100%';
       console.debug('Reveived lti.frameResize height='+height);
     }
   } catch (error) {
-   console.debug('lti.frameResize of '+idval+' failed height='+height);
-   console.debug(e.data);
+   console.debug('lti.frameResize of '+idval+' failed');
+   console.debug(error);
+   console.debug(e);
   }
 });
 
@@ -59,7 +61,7 @@ $(document).ready( function() {
 
     if ( content && foot ) {
         var newHeight = ( foot.offsetTop - content.offsetTop ) - 10;
-        console.log('newHeight', newHeight);
+        console.debug('newHeight', newHeight);
         // https://stackoverflow.com/a/55406848/1994792
         if ( newHeight > 400 ) {
             document.getElementById('id$placement').style.height = newHeight+'px';

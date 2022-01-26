@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface MessageForumsMessageManager {
 
@@ -117,6 +118,8 @@ public interface MessageForumsMessageManager {
     public List<Object[]> findMessageCountTotal();
     
     public int findViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
+
+    public Map<String, Integer> findViewableMessageCountByTopicIdByUserIds(Long id, Set<String> usersAllowed);
     
     public int findViewableMessageCountByTopicId(Long topicId);
 
@@ -263,11 +266,11 @@ public interface MessageForumsMessageManager {
 	public Map<Long, Boolean> getReadStatusForMessagesWithId(List<Long> msgIds, String userId);
 	
 	/**
-	 * Returns list of all messages in site with Pending approval for which
+	 * Returns list of all messages from a given set of topics with Pending approval for which
 	 * at least one of the given memberships has moderate perm
 	 * @return
 	 */
-	public List getPendingMsgsInSiteByMembership(final List membershipList);
+	public List getPendingMsgsInSiteByMembership(final List<String> membershipList, final List<Topic> moderatedTopics);
 	
 	/**
 	 * Retrieves all pending messages in a given topic

@@ -359,14 +359,16 @@
 								<div class="form-group row">
 									<h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot" styleClass="col-lg-4" />
 									<h:panelGroup styleClass="col-lg-8" layout="block">
-										<h:inputText id="numberOfSlot" value="#{EditMeetingSignupMBean.numberOfSlots}" size="2" styleClass="editText" onfocus="showRescheduleWarning();" onkeyup="getSignupDuration(); delayedValidMimimunTs('#{EditMeetingSignupMBean.numberOfSlots}','#{msgs.event_warning_no_lower_than_cur_ts_num}'); return false;" />
+									<h:inputText id="numberOfSlot" value="#{EditMeetingSignupMBean.numberOfSlots}" size="2" styleClass="editText" onfocus="showRescheduleWarning();"
+											onkeyup="getSignupDuration(); delayedValidMimimunTs('#{EditMeetingSignupMBean.numberOfSlots}','#{msgs.event_warning_no_lower_than_cur_ts_num}'); return false;"
+											onblur="noEmptyNumberOnBlurSlotsNumber(); return false;"/>
 									</h:panelGroup>
 								</div>
 
 								<div class="form-group row">
 									<h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" for="numberOfAttendees" styleClass="col-lg-4 titleText" escape="false" />
 									<h:panelGroup styleClass="col-lg-8" layout="block">
-										<h:inputText id="numberOfAttendees" value="#{EditMeetingSignupMBean.maxNumOfAttendees}" styleClass="editText" size="2" onkeyup="validateAttendee();return false;" />
+										<h:inputText id="numberOfAttendees" value="#{EditMeetingSignupMBean.maxNumOfAttendees}" styleClass="editText" size="2" onkeyup="validateAttendee();return false;" onblur="noEmptyNumberOnBlurAttendeeNum();return false;"/>
 									</h:panelGroup>
 								</div>
 
@@ -477,9 +479,9 @@
 								
 							<h:panelGroup layout="block" id="emailAttendeeOnly">
 								<h:selectOneRadio  value="#{EditMeetingSignupMBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs" style="margin-left:20px;">
-									<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}" itemDisabled="true"/>
-									<f:selectItem id="only_signedUp_ones" itemValue="signup_only" itemLabel="#{msgs.label_email_signed_up_ones_only}" itemDisabled="true"/>
-									<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}" itemDisabled="true"/>
+									<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>
+									<f:selectItem id="only_signedUp_ones" itemValue="signup_only" itemLabel="#{msgs.label_email_signed_up_ones_only}"/>
+									<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>
 								</h:selectOneRadio>
 							</h:panelGroup>
 						</h:panelGroup>

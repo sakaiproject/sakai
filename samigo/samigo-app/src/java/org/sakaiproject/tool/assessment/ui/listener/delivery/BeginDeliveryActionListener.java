@@ -296,9 +296,17 @@ public class BeginDeliveryActionListener implements ActionListener
    */
   private void populateDelivery(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
 
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     Long publishedAssessmentId = pubAssessment.getPublishedAssessmentId();
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     PublishedAssessmentService service = new PublishedAssessmentService();
+    
+    if (author.getIsEditPendingAssessmentFlow()) {
+    	delivery.setRubricAssociation(pubAssessment.getAssessmentId().toString());
+    }
+    else {
+    	delivery.setRubricAssociation("pub." + publishedAssessmentId.toString());
+    }
 
     // #0 - global information
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
@@ -462,7 +470,7 @@ public class BeginDeliveryActionListener implements ActionListener
     			TimedAssessmentGradingModel timedAG = queue.
     					get(unSubmittedAssessmentGrading.getAssessmentGradingId());
     			// if it was submitted (race condition) while checking, unblock it - sam will synch soon
-    			if(timedAG != null && !timedAG.getSubmittedForGrade()) {
+    			if(timedAG != null && !timedAG.isSubmittedForGrade()) {
     				delivery.setTimeExpired(true);
     			}
     		}

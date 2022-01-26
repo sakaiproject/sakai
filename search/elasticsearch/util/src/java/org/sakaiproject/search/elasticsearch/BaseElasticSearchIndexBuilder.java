@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.search.elasticsearch;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -23,6 +22,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,14 +73,14 @@ import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.set.Sets;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentType;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -778,7 +778,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
     protected abstract IndexRequest completeIndexRequest(IndexRequest indexRequest, String resourceName, EntityContentProducer ecp, boolean includeContent);
 
-    protected  XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp, boolean includeContent)
+    protected XContentBuilder buildIndexRequestContentSource(String resourceName, EntityContentProducer ecp, boolean includeContent)
             throws NoContentException, IOException {
         XContentBuilder requestBuilder = newIndexRequestContentSourceBuilder(resourceName, ecp, includeContent);
         requestBuilder = addFields(requestBuilder, resourceName, ecp, includeContent);

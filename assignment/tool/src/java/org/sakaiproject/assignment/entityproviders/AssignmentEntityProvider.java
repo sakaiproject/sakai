@@ -71,9 +71,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -103,6 +105,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private UserDirectoryService userDirectoryService;
     private UserTimeService userTimeService;
     private FormattedText formattedText;
+    private LTIService ltiService;
 
     @Setter
     @Getter
@@ -545,9 +548,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String duration = (String) params.get("tsDuration");
 
-        if (!assignmentService.isValidTimesheetTime(duration)) {
+        if (!assignmentService.isValidTimeSheetTime(duration)) {
 
-            log.warn("Wrong time format. Must match XXHXXM");
+            log.warn("Wrong time format. Must match XXh YYm");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
 
@@ -583,9 +586,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         timeSheet.setComment(comment);
         timeSheet.setStartTime(startTime);
         timeSheet.setDuration(duration);
+        timeSheet.setUserId(userId);
 
         try {
-            assignmentService.newTimeSheetEntry(submissionSubmitter, timeSheet);
+            assignmentService.saveTimeSheetEntry(submissionSubmitter, timeSheet);
         } catch (PermissionException e) {
             log.warn("You can't modify this sumbitter");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
@@ -698,6 +702,31 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
 
                 }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        Integer contentKey = assignment.getContentId();
+        if ( contentKey != null ) {
+            // Fall back launch for SimpleAssignments without any user-submission
+            simpleAssignment.ltiGradableLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey;
+            Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+
+            for (SimpleSubmission submission : submissions) {
+                if ( ! submission.userSubmission ) continue;
+				String ltiSubmissionLaunch = null;
+                for(SimpleSubmitter submitter: submission.submitters) {
+                    if ( submitter.id != null ) {
+                        ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
+
+                        // Instead of parsing, the JSON we just look for a simple existance of the submission review entry
+                        // Delegate the complex understanding of the launch to SakaiBLTIUtil
+                        if ( contentItem.indexOf("\"submissionReview\"") > 0 ) {
+                            ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                        }
+                    }
+                }
+                submission.ltiSubmissionLaunch = ltiSubmissionLaunch;
+            }
+        }
 
         List<SimpleGroup> groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
 
@@ -867,7 +896,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         options.put("siteId", (String) params.get("siteId"));
 
-        submission = assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
+        assignmentToolUtils.gradeSubmission(submission, gradeOption, options, alerts);
 
         Set<String> activeSubmitters = site.getUsersIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
@@ -1336,6 +1365,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         private String maxGradePoint;
 
+        private String ltiGradableLaunch;
+
         public SimpleAssignment() {
         }
 
@@ -1346,6 +1377,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (a == null) {
                 return;
             }
+
             this.id = a.getId();
             this.openTime = a.getOpenDate();
             this.openTimeString = a.getOpenDate().toString();
@@ -1499,6 +1531,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private Instant assignmentCloseTime;
         private boolean draft;
         private boolean visible;
+        public String ltiSubmissionLaunch = null;
 
         public SimpleSubmission(AssignmentSubmission as, SimpleAssignment sa, Set<String> activeSubmitters) throws Exception {
 
@@ -1600,7 +1633,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
             this.graded = as.getGraded();
-            this.properties = as.getProperties();
+            this.properties.putAll(as.getProperties());
         }
     }
 

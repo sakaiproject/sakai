@@ -21,6 +21,12 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -28,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,17 +44,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Title: Samigo</p>
@@ -58,11 +69,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ShowMediaServlet extends HttpServlet
 {
-  /**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 2203681863823855810L;
     private static final Pattern HTTP_RANGE_PATTERN = Pattern.compile("bytes=(?<start>\\d*)-(?<end>\\d*)");
+    private static final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
   public ShowMediaServlet()
   {
@@ -117,10 +127,8 @@ public class ShowMediaServlet extends HttpServlet
       currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
     }
 
-    
-    boolean hasPrivilege = agentIdString !=null &&
-    	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
-    	 || canGrade(req, res, agentIdString, currentSiteId));
+    boolean hasPrivilege = StringUtils.equals(agentIdString, mediaData.getCreatedBy()) // user is creator
+    	 || canGrade(req, res, agentIdString, currentSiteId);
     if (hasPrivilege) {
       accessDenied = false;
     }
@@ -131,7 +139,7 @@ public class ShowMediaServlet extends HttpServlet
     }
     else {
       String displayType="inline";
-      if (mediaData.getMimeType()!=null && !mediaData.getMimeType().equals("application/octet-stream") && !(setMimeType!=null && ("false").equals(setMimeType))){
+      if (!StringUtils.equals(mediaData.getMimeType(), "application/octet-stream") && !StringUtils.equals(setMimeType, "false")) {
           res.setContentType(mediaData.getMimeType());
       }
       else {
@@ -139,8 +147,34 @@ public class ShowMediaServlet extends HttpServlet
         res.setContentType("application/octet-stream");
       }
       log.debug("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
-
       res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
+
+      // See if we can bypass handling a large byte array
+      ContentResource cr = mediaData.getContentResource();
+        try {
+            URI directLink = AssessmentService.getContentHostingService().getDirectLinkToAsset(cr);
+            if (directLink != null) {
+                res.addHeader("Accept-Ranges", "none");
+                if (serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
+                    int hostLength = new String(directLink.getScheme() + "://" + directLink.getHost()).length();
+                    String linkPath = "/sendfile" + directLink.toString().substring(hostLength);
+                    log.debug("cloud.content.sendfile; path={}", linkPath);
+
+                    // Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
+                    res.addHeader("X-Accel-Redirect", linkPath);
+                    res.addHeader("X-Sendfile", linkPath);
+                    return;
+                }
+                else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+                    log.debug("cloud.content.directurl; path={}", directLink.toString());
+                    res.sendRedirect(directLink.toString());
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not fetch direct link to asset", e);
+        }
+
       
       int start = 0;
       int end = fileSize - 1;

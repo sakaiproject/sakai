@@ -1470,7 +1470,7 @@ public class GradingService
       case 11: // FIN
     	  try {
     	      if (type == 15) {  // CALCULATED_QUESTION
-    	          Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
+	              Map<Integer, String> calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item, calcQuestionAnswerSequence);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (double) numAnswers;
 	          } else {
@@ -2523,10 +2523,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
 	public boolean fibmatch(final String rawAnswer, final String rawInput, final boolean casesensitive, final boolean ignorespaces) {
+		log.debug("Fill in the blank match called with inputs:\nAnswer={}\nInput={}\nCase Sensitive={}\nIgnore Spaces={}", rawAnswer, rawInput, casesensitive, ignorespaces);
+
 		try {
 		 // User on Mac will input &uuml; instead of ü
 		 String answer = StringEscapeUtils.unescapeHtml4(rawAnswer);
 		 String input = StringEscapeUtils.unescapeHtml4(rawInput);
+
+		 // User on Mac will use "smart" curly apostrophes by default!!
+		 answer = answer.replaceAll("[\u2018\u2019]", "'");
+		 input = input.replaceAll("[\u2018\u2019]", "'");
+
+		 // User on Mac will use “smart” quotes by default!
+		 answer = answer.replaceAll("[\u201C\u201D]", "\"");
+		 input = input.replaceAll("[\u201C\u201D]", "\"");
 
 		 // Always trim trailing spaces
 		 answer = answer.trim();
@@ -2538,9 +2548,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			 input = input.replaceAll("\\p{javaSpaceChar}", "");
 		 }
  		 StringBuilder regex_quotebuf = new StringBuilder();
-		 
-		 String REGEX = answer.replaceAll("\\*", "|*|");
-		 String[] oneblank = REGEX.split("\\|");
+
+		 String[] oneblank = answer.replaceAll("\\*", "|*|").split("\\|");
 		 for (String str : oneblank) {
 			 if ("*".equals(str)) {
 				 regex_quotebuf.append(".+");
@@ -2563,6 +2572,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
  		 return result;
 		}
 		catch (Exception e){
+			log.warn("Fill in the blank match failed returning false, {}", e.toString());
 			return false;
 		}
 	}
@@ -2768,9 +2778,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param item
    * @return map of calc answers
    */
-  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
+  private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item, int calcQuestionAnswerSequence ) {
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
-      if (answersMap.isEmpty()) {
+      if (calcQuestionAnswerSequence == 1) {
           extractCalcQAnswersArray(answersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       }
       return answersMap;
@@ -2843,7 +2853,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return a list of matching key values OR empty if none are found
    */
   private List<String> extractCalculatedQuestionKeyFromItemText(String itemText, Pattern identifierPattern) {
-      LinkedHashSet<String> keys = new LinkedHashSet<>();
+      List<String> keys = new ArrayList<>();
       if (itemText != null && itemText.trim().length() > 0) {
           Matcher keyMatcher = identifierPattern.matcher(itemText);
           while (keyMatcher.find()) {
@@ -2860,7 +2870,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               }*/
           }
       }
-      return new ArrayList<>(keys);
+      return keys;
   }
 
   /**

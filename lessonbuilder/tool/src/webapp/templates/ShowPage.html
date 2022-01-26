@@ -886,6 +886,7 @@
                         <div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
                         <span style="display:none" rsf:id="studentGrade" class="studentGrade"></span>
                         <span style="display:none" rsf:id="studentMaxPoints" class="studentMaxPoints"></span>
+                        <span style="display:none" rsf:id="studentGradebookTitle" class="studentGradebookTitle"></span>
                         <span style="display:none" rsf:id="studentGrade2" class="studentGrade2"></span>
                         <span style="display:none" rsf:id="studentMaxPoints2" class="studentMaxPoints2"></span>
                         <span style="display:none" rsf:id="student-groups" class="item-groups"></span>
@@ -1006,6 +1007,8 @@
                             <span rsf:id="questionMultipleChoiceAnswerId" class="questionMultipleChoiceAnswerId"></span>
                             <span rsf:id="questionMultipleChoiceAnswerText" class="questionMultipleChoiceAnswerText"></span>
                             <span rsf:id="questionMultipleChoiceAnswerCorrect" class="questionMultipleChoiceAnswerCorrect"></span>
+                            <!-- SAK-46296 -->
+                            <input type="hidden" class="raw-questionAnswer-text" rsf:id="raw-questionAnswer-text" />
                         </div>
                         <span style="display:none" rsf:id="questionShowPoll" class="questionShowPoll"></span>
                         <span style="display:none" rsf:id="questionGrade" class="questionGrade"></span>
@@ -2083,8 +2086,12 @@
                             <label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label>
                         </p>
                         <p class="shorttext">
+                            <label for="gradebook-title" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.gradebook-title"></span></label>
+                            <input type="text" name="gradebook-title" id="gradebook-title" rsf:id="gradebook-title" maxlength="255"/>
+                        </p>
+                        <p class="shorttext">
                             <label for="student-max" class="indnt2 pageTitle"><span rsf:id="msg=simplepage.comments-max"></span></label>
-                            <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlenght="5"/>
+                            <input type="text" name="student-max" id="student-max" rsf:id="student-max" size="5" maxlength="5"/>
                         </p>
                         <br /><br />
                     </div>
@@ -2424,7 +2431,7 @@
                                         <div class="form-group">
                                             <h4><span rsf:id="msg=simplepage.layout.section.title"></span></h4>
                                             <label class="sr-only" for="layout-section-title"><span rsf:id="msg=simplepage.layout.section.title"></span></label>
-                                            <input type="text" class="form-control" id="layout-section-title" rsf:id="layout-section-title" placeholder="Section Title" />
+                                            <input type="text" class="form-control" id="layout-section-title" rsf:id="layout-section-title" />
                                         </div>
                                         <div class="form-group">
                                             <h4><span rsf:id="msg=simplepage.layout.color.scheme"></span></h4>

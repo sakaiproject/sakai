@@ -115,7 +115,7 @@ function printView(url) {
 			#else
 				<div class="listNav">
 						## download all
-							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$view")" class="button" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="button" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
 							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="button" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>

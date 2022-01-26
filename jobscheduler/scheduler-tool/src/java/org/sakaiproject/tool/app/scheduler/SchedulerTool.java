@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.app.scheduler;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.faces.application.FacesMessage;
@@ -30,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +73,10 @@ public class SchedulerTool
   private static final int TRIGGER_NAME_LENGTH_LIMIT = 80;
   /** The maximum length of a job name. */
   private static final int JOB_NAME_LENGTH_LIMIT = 80;
+  
+  private static String BEFORE = "before";
+  private static String AFTER = "after";
+  private static String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm";
 
   private SchedulerManager schedulerManager;
   private String jobName;
@@ -1459,6 +1465,22 @@ public class SchedulerTool
 
    public String processSetFilters()
    {
+       Map<String, String> req = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+       String beforeText = req.get(BEFORE);
+       String afterText = req.get(AFTER);
+       SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+       try {
+           if (StringUtils.isNotBlank(beforeText)) {
+               getEventPager().setBefore(sdf.parse(beforeText));
+           }
+           if (StringUtils.isNotBlank(afterText)) {
+               getEventPager().setAfter(sdf.parse(afterText));
+           }
+       } catch (ParseException error) {
+           FacesMessage message = new FacesMessage(rb.getFormattedMessage("parse_exception", error));
+           message.setSeverity(FacesMessage.SEVERITY_ERROR);
+           throw new ValidatorException(message);
+       }
        getEventPager().setFilterEnabled(true);
 
        return "events";

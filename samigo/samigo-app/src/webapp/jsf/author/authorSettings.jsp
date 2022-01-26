@@ -44,7 +44,7 @@
       <script>
         $(document).ready(function() {
           // set up the accordion for settings
-          var accordionPanel = 0;
+          var accordionPanel = 2;
           var itemName = "samigo_assessmentsettings_" + <h:outputText value="#{assessmentSettings.assessmentId}"/>;
           if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
               accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
@@ -131,7 +131,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{assessmentSettings.extendedTimeStartString}"/>',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeStart}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
@@ -139,7 +139,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{assessmentSettings.extendedTimeDueString}"/>',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeDue}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
@@ -147,16 +147,10 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '<h:outputText value="#{assessmentSettings.extendedTimeRetractString}"/>',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeRetract}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{author.userTimeZone}"/></h:outputText>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
-          
-var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-if (releaseToVal === 'Anonymous Users') {
-  handleAnonymousUsers(releaseToVal, "");
-}
           showHideReleaseGroups();
-          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();

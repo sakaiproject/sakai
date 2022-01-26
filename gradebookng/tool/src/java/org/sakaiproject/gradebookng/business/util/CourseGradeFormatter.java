@@ -38,8 +38,6 @@ public class CourseGradeFormatter {
 	private final boolean isCourseGradeVisible;
 	private final boolean showPoints;
 	private final boolean showOverride;
-	private final boolean isCalculatedLetter;
-	private final boolean showCalculatedGrade;
 
 	/**
 	 * Constructor to initialise the data
@@ -56,17 +54,13 @@ public class CourseGradeFormatter {
 	public CourseGradeFormatter(final Gradebook gradebook, final GbRole currentUserRole,
 			final boolean isCourseGradeVisible,
 			final boolean showPoints,
-			final boolean showOverride,
-			final boolean isCalculatedLetter,
-			final boolean showCalculatedGrade) {
+			final boolean showOverride) {
 
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
 		this.isCourseGradeVisible = isCourseGradeVisible;
 		this.showPoints = showPoints;
 		this.showOverride = showOverride;
-		this.isCalculatedLetter = isCalculatedLetter;
-		this.showCalculatedGrade = showCalculatedGrade;
 	}
 
 	/**
@@ -122,11 +116,10 @@ public class CourseGradeFormatter {
 	 */
 	private String build(final CourseGrade courseGrade) {
 		final List<String> parts = new ArrayList<>();
-		final String calculatedGrade;
 
 		// letter grade
 		String letterGrade = null;
-		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade()) && !this.isCalculatedLetter) {
+		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 			letterGrade = courseGrade.getEnteredGrade();
 		} else {
 			letterGrade = courseGrade.getMappedGrade();
@@ -139,11 +132,7 @@ public class CourseGradeFormatter {
 
 		// percentage
 		// not shown in final grade mode
-		if(this.isCalculatedLetter || this.showCalculatedGrade) {
-			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getAutoCalculatedGrade());
-		} else {
-			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
-		}
+		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
 
 		if (StringUtils.isNotBlank(calculatedGrade)
 				&& (this.gradebook.isCourseAverageDisplayed() || shouldDisplayFullCourseGrade())) {

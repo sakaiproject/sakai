@@ -22,7 +22,7 @@
 
         <property name="dateCreated" column="DATE_CREATED" type="timestamp" not-null="true"/>
 
-        <many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true"/>
+        <many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true" index="FK_GB_SPRD_GRADEBOOK_I" />
 
     </class>
 </hibernate-mapping>

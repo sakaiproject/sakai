@@ -274,10 +274,15 @@ table.discTria img, .topicHeadings img,  .msgHeadings img{
 /*a block that contains a twistie and a title - used to hide then reveal optional elements*/
 /*see or preview an assignment*/
 .discTria{
-	background-color: var(--sakai-background-color-2);
-	padding: .3em;
+	background-color: var(--button-background);
+	padding: .5em;
+	margin: 0;
+	border: 1px solid var(--sakai-border-color);
 }
 
+.sakaiUserTheme-dark .discTria img {
+	filter: var(--sakai-image-invert);
+}
 /*block to act on items it is listed under*/
 /*see list of links under an assignment in assignment list*/
 .itemAction{
@@ -469,8 +474,9 @@ h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
 /*see: preview an assignment - view the student view*/
 .inopPanel {
 	border: 1px solid var(--sakai-border-color);
+	border-top: none;
 	padding: 1em;
-	background: var(--sakai-background-color-1) url(images/ib.gif) top left repeat;
+	background: var(--sakai-background-color-2);
 }
 
 /*to highlight info or controls in some high threshhold situations*/

@@ -1,15 +1,15 @@
 .#{$namespace}sakai-profile2 {
 
-	.profile-twitter-account td.label{
+	.profile-twitter-account td.label {
 		text-align: left;
 		width: 250px;
 	}
 
-	@media only screen and (max-width : 800px ){
+	@media only screen and (max-width : 800px ) {
 		.profile-twitter-account td{
 			display: block !important;
 		}
-		.profile-twitter-account td.label{
+		.profile-twitter-account td.label {
 			width: 100%;
 		}
 	}
@@ -18,10 +18,10 @@
 		max-width: 100%;
 		position: relative;	
 		/* centre the image inside this div */
-		text-align:center;
-		margin-top:0;
-		margin-bottom:0;
-		padding:0;
+		text-align: center;
+		margin-top: 0;
+		margin-bottom: 0;
+		padding: 0;
 		/* end of centreing the image */
 	}
 
@@ -29,14 +29,24 @@
 		max-width: 200px;
 		width: 200px;
 		background-color: transparent;
-		text-align:center;
+		text-align: center;
 	}
 
-	.edit-image-button {
+	.sakai-wicket-iconwithtooltip {
+		float: right;
+	}
+
+	.profileContent .radio label, .profileContent .checkbox label {
+		font-size: 1.2em;
+	}
+
+	.editable:hover > .edit-button, .edit-button:focus {
 		@include sakai_secondary_button();
-		position:absolute;
-		right:0;
-		top:0;
+		float: right;
+		clear: none;
+		display: block;
+		clip: unset;
+		right: 15px;
 
 		&:before {
 			@extend .fa;
@@ -45,21 +55,16 @@
 		}
 	}
 
-	.sakai-wicket-iconwithtooltip{
-		float: right;
-	}
-
-	.profileContent .radio label, .profileContent .checkbox label{
-		font-size: 1.2em;
-	}
-
-	.edit-button {
-		@include sakai_secondary_button();
-		float:right;
-		clear: none;
-		display:block;
+	.edit-button, .edit-image-button {
 		position: absolute;
-		right: 15px;
+		clip: rect(1px, 1px, 1px, 1px);
+	}
+
+	#myPhoto:hover > .edit-image-button, .edit-image-button:focus {
+		@include sakai_secondary_button();
+		clip: unset;
+		right: 0;
+		top: 0;
 
 		&:before {
 			@extend .fa;
@@ -89,7 +94,7 @@
 	}
 
 	.right {
-		float:right;
+		float: right;
 	}
 
 	.instruction {
@@ -97,7 +102,7 @@
 	}
 
 	.clear {
-		clear:both;
+		clear: both;
 	}
 
 	h2 {
@@ -267,7 +272,7 @@
 	}
 	
 	/* sideLink styles */
-	#sideLink{
+	#sideLink {
 		list-style-type: none;
 		padding: 0;
 		margin: $standard-space-2x 0;
@@ -296,14 +301,14 @@
 		padding-top: 2px;
 		padding-bottom: 2px;
 		padding-left: 2px;
-		display:block;
+		display: block;
 		font-weight: bold;
 		background-color: var(--sakai-background-color-2);
 		word-wrap: break-word;
 	}
 
 	.side-widget-content {
-		display:block;
+		display: block;
 		margin-bottom: 4px;
 	}
 
@@ -315,22 +320,22 @@
 		margin-bottom: 2px;
 	}
 
-	.side-widget-item-count, .side-widget-more-link  {
+	.side-widget-item-count, .side-widget-more-link {
 		font-size: 70%;
 		position: absolute;
 	}
 
 	.side-widget-item-count {
-		   left: 0;
-		   padding-left: 2px;
-		   width: 40%;
+		left: 0;
+		padding-left: 2px;
+		width: 40%;
 	}
 
 	.side-widget-more-link {
-	   right: 0;
-	   text-align: right; /* depends on element width */
-	   padding-right: 2px;
-	   width: 60%;
+		right: 0;
+		text-align: right; /* depends on element width */
+		padding-right: 2px;
+		width: 60%;
 	}
 
 	/* kudos styles */
@@ -352,7 +357,7 @@
 	}
 
 	.mainSectionHeading {
-		display:block;
+		display: block;
 		font-weight: bold;
 		border-bottom: 1px solid var(--sakai-primary-color-1);
 		margin-bottom: 0;
@@ -370,7 +375,7 @@
 	}
 
 	/* profile and preferences information sections */
-	.profileContent, .preferencesContent{
+	.profileContent, .preferencesContent {
 		padding-top: 2px;
 		padding-bottom: 2px;
 		font-size: 90%;
@@ -382,11 +387,11 @@
 		margin-bottom: 12px;
 	}
 
-	.profileContent td{
+	.profileContent td {
 		padding: 0.5em 1em 0.5em 0em !important;
 	}
 
-	.profileContent td:last-child{
+	.profileContent td:last-child {
 		padding: 0.5em 0 0.5em 0 !important;
 	}
 
@@ -421,14 +426,14 @@
 		-moz-hyphens: auto;
 		-webkit-hyphens: auto;
 		/* Only split after 8 characters. Webkit only. */
-		-webkit-hyphenate-limit-before:8;
+		-webkit-hyphenate-limit-before: 8;
 	}
 
 	.contentExample {
 		color: var(--sakai-text-color-2);
 	}
 
-	.preferencesContent .item  {
+	.preferencesContent .item {
 		padding-left: 4px;
 		padding-right: 4px;
 		text-align: center;
@@ -479,7 +484,7 @@
 	}
 
 	.feedbackLabel {
-		display:block;
+		display: block;
 		font-weight: bold;
 	}
 
@@ -518,7 +523,7 @@
 		text-align: center;
 	}
 
-	#friends-feed-wrapper table{
+	#friends-feed-wrapper table {
 		border: none;
 		margin: 0 auto;
 		table-layout: fixed;
@@ -546,8 +551,8 @@
 		max-width: 55px;
 		width: 55px;
 		/* centre the image inside this cell */
-		display:block;
-		margin:auto;
+		display: block;
+		margin: auto;
 		/* end centreing */
 		cursor: pointer;
 	}
@@ -572,7 +577,7 @@
 	}
 
 	.connection, .search-result {
-		display:block;
+		display: block;
 		position: relative;
 		left: 0;
 		top: 0;
@@ -599,7 +604,7 @@
 		width: 200px;
 	}
 
-	.connection-info-name, .search-result-info-name, wall-item-name {
+	.connection-info-name, .search-result-info-name, .wall-item-name {
 		display: inline;
 		font-weight: bold;
 		word-wrap:break-word;
@@ -665,10 +670,8 @@
 				&:before {
 					@extend .fa;
 					margin-right: $standard-space-2x;
-					line-height:18px;
+					line-height: 18px;
 				}
-
-
 			}
 		}
 	}
@@ -696,17 +699,17 @@
 	}
 
 	.search-result-summary {
-		word-wrap:break-word;
+		word-wrap: break-word;
 	}
 
 	.connection-action-icon {
-		float:right;
+		float: right;
 		margin-left: 2px;
 	}
 
 	.iconAdd, .iconRemove {
-		width:18px;
-		height:18px;
+		width: 18px;
+		height: 18px;
 		background-repeat: no-repeat;
 		background-position: 4px center;
 		margin: 0;
@@ -777,17 +780,17 @@
 		border-style: solid;
 		border-color: var(--sakai-border-color);
 		margin: 1px 0 0 0;
-		text-align:left;
+		text-align: left;
 	}
 
 	div.wicket-aa ul {
-		list-style:none;
+		list-style: none;
 		margin-top: 0 !important;
 		margin-bottom: 0 !important;
 	}
 
 	div.wicket-aa li {
-		list-style:none;
+		list-style: none;
 		margin-left: -17px; /*strip the default margin */
 		padding-left: 5px;
 		padding-top: 2px;
@@ -805,7 +808,7 @@
 	}
 
 	.message-thread-item {
-		display:block;
+		display: block;
 		position: relative;
 		left: 0;
 		top: 0;
@@ -825,12 +828,12 @@
 	}
 
 	.message-thread-photo-wrap {
-		display:table-cell;
-		vertical-align:top;
+		display: table-cell;
+		vertical-align: top;
 	}
 
 	.message-thread-photo{
-		float:left;
+		float: left;
 		max-width: 50px;
 		width: 50px;
 	}
@@ -890,7 +893,7 @@
 	}
 
 	.message-item {
-		display:block;
+		display: block;
 		position: relative;
 		left: 0;
 		top: 0;
@@ -904,8 +907,8 @@
 	}
 
 	.message-photo-wrap {
-		display:table-cell;
-		vertical-align:top;	
+		display: table-cell;
+		vertical-align: top;
 	}
 
 	.message-photo{
@@ -1031,8 +1034,8 @@
 	.gallery-feed-item img {
 		max-width: 55px;
 		width: 55px;
-		display:block;
-		   margin:auto;
+		display: block;
+		margin: auto;
 	}
 
 	/* wall-related */
@@ -1042,7 +1045,7 @@
 	}
 
 	.wall-item {
-		clear:left;
+		clear: left;
 		border-top: 1px solid var(--sakai-border-color);
 		padding: 5px;
 	}
@@ -1167,13 +1170,6 @@
 		margin-top: 10px;
 	}
 
-	/* visible to screen reader only */
-	.offscreen {
-		position: absolute !important;
-		clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
-		clip: rect(1px, 1px, 1px, 1px);
-	}
-
 	/* center the datepicker icon */
 	img.ui-datepicker-trigger {
 		vertical-align: middle;
@@ -1188,13 +1184,13 @@
 	}
 
 	.create-worksite {
-	   .create-worksite-panel {
-	       .content {
-	           .label {
-	               color:var(--sakai-text-color-2);
-	           }
-	       }
-	   }
+		.create-worksite-panel {
+			.content {
+				.label {
+					color: var(--sakai-text-color-2);
+				}
+			}
+		}
 	}
 
 	.label{
@@ -1237,15 +1233,15 @@
 	}
 
 	.navIntraTool {
-	    margin: -2px -14px 0 0;
-	    @media #{$phone}{
-	    	margin-top: 10px;
-	    }
+		margin: -2px -14px 0 0;
+		@media #{$phone}{
+			margin-top: 10px;
+		}
 	}
 
 	.Mrphs-pageColumns--single {
-	    margin: 1em 0 1em 0;
-	    clear: both;
+		margin: 1em 0 1em 0;
+		clear: both;
 	}
 
 	.portletBody {
@@ -1254,14 +1250,14 @@
 
 	/* tabs */
 	.tab-row ul {
-	  @extend .nav;
-	  @extend .nav-tabs;
-	  @extend .sakai_tabs;
+		@extend .nav;
+		@extend .nav-tabs;
+		@extend .sakai_tabs;
 	}
 
 	.panel-profile-message{
 		padding: $standard-spacing;
-		background:var(--sakai-background-color-2);
+		background: var(--sakai-background-color-2);
 		position: relative;
 	}
 
@@ -1334,7 +1330,7 @@
 	}
 
 	.profileContent {
-	    max-width: 65em;
+		max-width: 65em;
 	}
 
 }

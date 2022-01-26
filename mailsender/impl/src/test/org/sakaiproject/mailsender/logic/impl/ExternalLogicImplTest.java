@@ -45,6 +45,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.Attachment;
+import org.sakaiproject.email.api.ContentType;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -60,6 +61,7 @@ import org.sakaiproject.mailarchive.api.MailArchiveMessageHeaderEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -291,15 +293,27 @@ public class ExternalLogicImplTest {
 	@Test(expected = MailsenderException.class)
 	public void sendMailEmptyTo() throws Exception {
 		impl.sendEmail(null, "from@example.com", null,
-				new HashMap<String, String>(), null, null, null);
+				new HashMap<>(), null, null, null);
 		fail("Must define 'to'");
 	}
 
 	@Test
 	public void sendMailRequiredArgs() throws Exception {
-		HashMap<String, String> to = new HashMap<String, String>();
+		HashMap<String, String> to = new HashMap<>();
 		to.put("test", "test");
 		impl.sendEmail(null, "from@example.com", null, to, null, null, null);
+	}
+
+	@Test
+	public void sendPlainTextOnly() throws Exception {
+		// create config with onlyPlainText
+		ConfigEntry config = new ConfigEntry();
+		config.setOnlyPlainText(true);
+		// sendEmail
+		HashMap<String, String> to = new HashMap<>();
+		to.put("test", "test");
+		impl.sendEmail(null, "from@example.com", null, to, null, null, null);
+		verify(emailService).send(argThat(emailMessage -> ContentType.TEXT_PLAIN.equals(emailMessage.getContentType())), anyBoolean());
 	}
 
 	@Test

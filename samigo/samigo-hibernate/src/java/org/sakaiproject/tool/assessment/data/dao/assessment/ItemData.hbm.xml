@@ -179,19 +179,19 @@
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment"
       discriminator-value="1" lazy="false" > 
       <many-to-one name="assessment" column="ASSESSMENTID" not-null="false"
-        class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData"/>
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData" index="FK_SAM_ATTACH_ASSESSMENT_I" />
     </subclass>
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment"
       discriminator-value="2" lazy="false" > 
       <many-to-one name="section" column="SECTIONID" not-null="false"
-        class="org.sakaiproject.tool.assessment.data.dao.assessment.SectionData"/>
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.SectionData" index="FK_SAM_ATTACH_SECTION_I" />
     </subclass>
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment"
       discriminator-value="3" lazy="false" > 
       <many-to-one name="item" column="ITEMID" not-null="false"
-        class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"/>
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData" index="FK_SAM_ATTACH_ITEM_I" />
     </subclass>
 
     <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment"

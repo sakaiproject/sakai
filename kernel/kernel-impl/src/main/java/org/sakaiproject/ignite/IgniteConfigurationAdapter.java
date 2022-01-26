@@ -1,10 +1,27 @@
+/**
+ * Copyright (c) 2003-2021 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.ignite;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +31,7 @@ import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
+import org.apache.ignite.plugin.segmentation.SegmentationPolicy;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
 import org.apache.ignite.spi.collision.fifoqueue.FifoQueueCollisionSpi;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
@@ -79,6 +97,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
             boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
+            Map<String, Object> attributes = new HashMap<>();
             // disable banner
             System.setProperty("IGNITE_NO_ASCII", "true");
             System.setProperty("IGNITE_QUIET", "true");
@@ -124,6 +143,8 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                 igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
             }
 
+            igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
+
             // local node network configuration
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
@@ -158,11 +179,15 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                 discoveryAddresses.addAll(Arrays.asList(remoteAddresses));
             }
 
+            attributes.put("DiscoveryAddressesSize", discoveryAddresses.size());
+
             finder.setAddresses(discoveryAddresses);
             tcpDiscovery.setIpFinder(finder);
 
             igniteConfiguration.setDiscoverySpi(tcpDiscovery);
             igniteConfiguration.setCommunicationSpi(tcpCommunication);
+
+            igniteConfiguration.setUserAttributes(attributes);
 
             log.info("Ignite configured with home=[{}], node=[{}], name=[{}], client mode=[{}], tcp ports=[{}..{}], discovery ports=[{}..{}]",
                     igniteConfiguration.getIgniteHome(),

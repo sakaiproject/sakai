@@ -256,7 +256,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			for (ScoreDoc scoreDoc : hits) {
 				Document doc = searcher.doc(scoreDoc.doc);
 				ResourceBean resource = getResourceFromDocument(doc);
-				resource.setScore(scoreDoc.score * 100);
+				resource.setScore(scoreDoc.score);
 				results.add(resource);
 			}
 
@@ -557,18 +557,16 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 					if (doc != null)
 					{
 						indexWriter.addDocument(doc);
-						log.debug("added resource '" + resource.getName() + "', doc count="
-								+ indexWriter.maxDoc());
+						log.debug("added resource '{}', doc count={}", resource.getName(), indexWriter.getDocStats().maxDoc);
 					}
 					else
 					{
-						log.debug("failed to add resource '" + "' (" + resource.getName());
+						log.debug("failed to add resource '{}'", resource.getName());
 					}
 				}
 				catch (IOException e)
 				{
-					log.error("I/O error while adding resource '" + "' ("
-							+ resource.getName() + "): " + e.getMessage(), e);
+					log.error("I/O error while adding resource '{}' ({})", resource.getName(), e.toString());
 				}
 			}
 

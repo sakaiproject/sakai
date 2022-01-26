@@ -91,7 +91,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -167,6 +166,8 @@ import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.timesheet.api.TimeSheetEntry;
+import org.sakaiproject.timesheet.api.TimeSheetService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -245,12 +246,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private UserDirectoryService userDirectoryService;
     @Resource private UserMessagingService userMessagingService;
     @Setter private UserTimeService userTimeService;
+    @Setter private TimeSheetService timeSheetService;
 
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
-
-    private Pattern timesheetTimePattern;
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -286,16 +286,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         userMessagingService.importTemplateFromResourceXmlFile("templates/releaseResubmission.xml", AssignmentConstants.TOOL_ID + ".releaseresubmission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/submission.xml", AssignmentConstants.TOOL_ID + ".submission");
         userMessagingService.importTemplateFromResourceXmlFile("templates/dueReminder.xml", AssignmentConstants.TOOL_ID + ".duereminder");
-
-        timesheetTimePattern = Pattern.compile(serverConfigurationService.getString("assignment.timesheet.timePattern", SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT));
     }
 
     @Override
     public boolean isTimeSheetEnabled(String siteId) {
-        List<String> timesheetConfig = serverConfigurationService.getStringList(SAK_PROP_ASSIGNMENT_TIMESHEET_SITES_ALLOWED, Collections.singletonList("none"));
-
-        // TODO logic for determining whether this feature is enabled in the current site
-        return Stream.of("all", siteId).filter(Objects::nonNull).anyMatch(timesheetConfig::contains);
+       return timeSheetService.isTimeSheetEnabled(siteId);
     }
 
     @Override
@@ -856,35 +851,48 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return assignment;
     }
 
-    @Override
     @Transactional
-    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) throws PermissionException {
+    @Override
+    public void saveTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheetEntry) throws PermissionException {
         if (submissionSubmitter != null && timeSheetEntry != null) {
             AssignmentSubmission submission = submissionSubmitter.getSubmission();
             String siteId = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getContext();
             if (!allowAddSubmission(siteId)) {
                 throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, null);
             }
-            assignmentRepository.newTimeSheetEntry(submissionSubmitter, timeSheetEntry);
+            timeSheetEntry.setReference(AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+            timeSheetService.create(timeSheetEntry);
             log.debug("Add time sheet entry for submitter: {}", submissionSubmitter);
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public void deleteTimeSheetEntry(Long timeSheetEntryId) throws PermissionException {
-        TimeSheetEntry timeSheetEntry = getTimeSheetEntry(timeSheetEntryId);
-        if (timeSheetEntry != null) {
-            String siteId = AssignmentReferenceReckoner.reckoner().submission(timeSheetEntry.getAssignmentSubmissionSubmitter().getSubmission()).reckon().getContext();
-            if (!allowAddSubmission(siteId)) {
-                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
-            }
-            assignmentRepository.deleteTimeSheetEntry(timeSheetEntryId);
-            log.debug("Deleting time sheet entry: {}", timeSheetEntryId);
-        } else {
-            log.warn("Attempted to delete time sheet entry: {} however it does not exist.", timeSheetEntryId);
-        }
+      String timeSheetEntryReference = getTimeSheetEntryReference(timeSheetEntryId);
+      if (StringUtils.isNotBlank(timeSheetEntryReference)) {
+          String siteId = AssignmentReferenceReckoner.reckoner().reference(timeSheetEntryReference).reckon().getContext();
+          if (!allowAddSubmission(siteId)) {
+              throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+          }
+          timeSheetService.delete(timeSheetEntryId);
+          log.debug("Deleting time sheet entry: {}", timeSheetEntryId);
+      } else {
+          log.warn("Attempted to delete time sheet entry: {} however it does not exist.", timeSheetEntryId);
+      }
     }
+
+    @Override
+    public List<TimeSheetEntry> getTimeSheetEntries(AssignmentSubmissionSubmitter submissionSubmitter) {
+        if (submissionSubmitter != null) {
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submissionSubmitter.getSubmission()).reckon().getReference();
+            return timeSheetService.getByReference(reference);
+        } else {
+            // submission is null
+            log.debug("SubmissionSubmitter is null");
+            return null;
+        }
+      }
 
     public String getTimeSpent(AssignmentSubmission submission) {
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
@@ -1478,6 +1486,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 Priorities.HIGH);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+
+        Map<String, String> assignmentProperties = assignment.getProperties();
+        String resubmitNumber = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        String resubmitCloseTime = StringUtils.trimToNull(assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+        if (StringUtils.isNotBlank(resubmitNumber)) {
+            String ref = String.format("%s/%s/%s", 
+                    AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference(),
+                    resubmitNumber,
+                    resubmitCloseTime);
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT, ref, true));
+        }
     }
 
     @Override
@@ -1714,23 +1733,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return null;
     }
 
-    @Override
-    public TimeSheetEntry getTimeSheetEntry(Long timeSheetId) throws PermissionException {
-        if (timeSheetId != null) {
-            TimeSheetEntry timeSheet = assignmentRepository.findTimeSheetEntry(timeSheetId);
-            if (timeSheet != null) {
-                String reference = AssignmentReferenceReckoner.reckoner().submission(timeSheet.getAssignmentSubmissionSubmitter().getSubmission()).reckon().getReference();
-                if (allowGetSubmission(reference)) {
-                    return timeSheet;
-                } else {
-                    throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
-                }
-            } else {
-                // timesheet not found
-                log.debug("TimeSheet does not exist {}", timeSheetId);
-            }
-        }
-        return null;
+    private String getTimeSheetEntryReference(Long timeSheetId) {
+      return timeSheetService.getTimeSheetEntryReference(timeSheetId);
+
     }
 
     @Override
@@ -2016,8 +2021,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
         }
+        // If it is submitted, "in progress" is assumed (i.e. for LTI Assignments)
         if (submission.getSubmitted() && submission.getUserSubmission()) {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
         } else {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
         }
@@ -2353,6 +2360,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             // otherwise, use assignment close time as the resubmission close time
                             resubmitCloseTime = assignment.getCloseDate();
                         }
+                        if (StringUtils.isNotBlank(allowResubmitNumString)) {
+                            String ref = String.format("%s/%s/%s",
+                                    AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference(),
+                                    allowResubmitNumString,
+                                    resubmitCloseTime);
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION, ref, true));
+                        }
                         return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && !currentTime.isAfter(resubmitCloseTime);
                     } catch (NumberFormatException e) {
                         log.warn("allowResubmitNumString = {}, allowResubmitCloseTime = {}", allowResubmitNumString, allowResubmitCloseTime, e);
@@ -2586,6 +2600,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                                     ? assignmentAllowResubmitCloseDate
                                                     : String.valueOf(a.getCloseDate().toEpochMilli()));
                                 }
+                                if (StringUtils.isNotBlank(assignmentAllowResubmitNumber)) {
+                                    String ref = String.format("%s/%s/%s",
+                                            AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(),
+                                            assignmentAllowResubmitNumber,
+                                            assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME));
+                                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_RESUBMIT_ASSIGNMENT_SUBMISSION, ref, true));
+                                }
                                 assignmentRepository.updateSubmission(submission);
                                 submitterMap.put(user, submission);
                             } else {
@@ -2629,6 +2650,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             } else {
                                 submitter = user.getId();
                             }
+                        } else if (groupIdsMatchingAssignmentForUser.size() > 1 && !assignment.getIsGroup()) {
+                            submitter = user.getId();
                         } else {
                             log.warn("User {} is on more than one group for this assignment {}, please remove the user from a group so that they are only a member of a single group", user.getId(), assignment.getId());
                         }
@@ -2893,16 +2916,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         }
                     }
                     // get localized number format
-                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
-                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                    NumberFormat numberFormat = formattedText.getNumberFormat(dec, dec, false);
+                    DecimalFormat decimalFormat = (DecimalFormat) numberFormat;
                     // show grade in localized number format
+                    Double aDouble = 0D;
                     try {
-                        Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
-                        decimalGradePoint = nbFormat.format(dblGrade);
-                        returnGrade = decimalGradePoint;
+                        aDouble = decimalFormat.parse(decimalGradePoint).doubleValue();
                     } catch (Exception e) {
-                        log.warn("Could not parse grade [{}], {}", returnGrade, e.getMessage());
+                        log.warn("Parsing the grade [{}] as a SCORE_TYPE failed, {}, returning grade as a 0", returnGrade, e.toString());
                     }
+                    decimalGradePoint = numberFormat.format(aDouble);
+                    returnGrade = decimalGradePoint;
                 }
                 break;
             case UNGRADED_GRADE_TYPE:
@@ -4972,7 +4996,33 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return dupes;
     }
 
-    public boolean isValidTimesheetTime(String time) {
-        return timesheetTimePattern.matcher(time).matches();
+    @Override
+    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter) {
+        AssignmentSubmission submission = asnSubmissionSubmitter.getSubmission();
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        return timeSheetService.existsAny(reference);
     }
+
+    @Override
+    public boolean isValidTimeSheetTime(String time) {
+        return timeSheetService.isValidTimeSheetTime(time);
+    }
+
+    @Override
+    public String getTotalTimeSheet(AssignmentSubmissionSubmitter asnSubmissionSubmitter) {
+        AssignmentSubmission submission = asnSubmissionSubmitter.getSubmission();
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        return timeSheetService.getTotalTimeSheet(reference);
+    }
+
+    @Override
+    public Integer timeToInt(String time) {
+        return timeSheetService.timeToInt(time);
+    }
+
+    @Override
+    public String intToTime(int time) {
+        return timeSheetService.intToTime(time);
+    }
+
 }

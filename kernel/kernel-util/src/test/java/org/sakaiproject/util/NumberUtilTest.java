@@ -58,11 +58,15 @@ public class NumberUtilTest {
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("456457546"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("3524,055"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("2.300"));
+        // No integer part
+        Assert.assertTrue(NumberUtil.isValidLocaleDouble(",01"));
+        // Longer numbers with separators
+        Assert.assertTrue(NumberUtil.isValidLocaleDouble("1.234.456,00"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("2.00"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3,520.55"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3.4561,00"));
-        Assert.assertFalse(NumberUtil.isValidLocaleDouble(",01"));
+        Assert.assertFalse(NumberUtil.isValidLocaleDouble("1234.567,00"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble(".02"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("A4FC9"));
@@ -78,11 +82,15 @@ public class NumberUtilTest {
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("456457546"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("3524.055"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("2,300"));
+        // No integer part
+        Assert.assertTrue(NumberUtil.isValidLocaleDouble(".01"));
+        // Longer numbers with separators
+        Assert.assertTrue(NumberUtil.isValidLocaleDouble("1,234,567.00"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("2,00"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3.520,55"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3,4561.00"));
-        Assert.assertFalse(NumberUtil.isValidLocaleDouble(".01"));
+        Assert.assertFalse(NumberUtil.isValidLocaleDouble("1234,567.00"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble(",02"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("A4FC9"));
@@ -103,11 +111,12 @@ public class NumberUtilTest {
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("456457546"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("3524" + arabicDecimal + "055"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("2" + arabicGroup + "300"));
+        // No integer part
+        Assert.assertTrue(NumberUtil.isValidLocaleDouble(arabicDecimal + "02"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3" + arabicDecimal + "520" + arabicGroup + "55"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("3" + arabicDecimal + "4561" + arabicGroup + "00"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble(arabicGroup + "01"));
-        Assert.assertFalse(NumberUtil.isValidLocaleDouble(arabicDecimal + "02"));
 
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("A4FC9"));
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("0x42"));

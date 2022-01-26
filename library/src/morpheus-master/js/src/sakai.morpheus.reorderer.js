@@ -1,9 +1,4 @@
 $PBJQ(document).ready(function(){
-    if ($PBJQ('[id$="reorder-list"] .reorder-element').size() - 1 > 15) {
-        $PBJQ('.grabHandle').show();
-        $PBJQ('#inputFieldMessage').show();
-        $PBJQ('#inputKbdMessage').remove();
-    }
     //get the initial order TODO - make an  array instead of putting the values in a span
     $PBJQ('[id$="reorder-list"] .reorder-element').each(function(n){
         $PBJQ('#lastMoveArrayInit').append($PBJQ(this).attr('id') + ' ');
@@ -65,18 +60,9 @@ $PBJQ(document).ready(function(){
         // the new value in the text field
         var newVal = parseInt(this.value);
         if (isNaN(newVal) || newVal > $PBJQ('input[id^="index"]').size()) {
-            var failedValidMessage = $PBJQ('#failedValidMessage').text();
+            var failedValidMessage = $PBJQ('#messageHolder').text();
             $PBJQ('#messageHolder').text(failedValidMessage.replace('#', $PBJQ('input[id^="index"]').size()));
             $PBJQ('.orderable-selected').removeClass('orderable-selected');
-            $PBJQ('#messageHolder').removeClass('messageSuccess');
-            $PBJQ('#messageHolder').addClass('messageValidation');
-			var messagePos = $PBJQ(that).position();
-			$PBJQ("#messageHolder").css({
-				'position':'absolute',
-				'height':'1.3em',
-				'top':messagePos.top,
-				'left':55
-			});
             $PBJQ('#messageHolder').fadeIn('slow');
             $PBJQ("#messageHolder").animate({
                 opacity: 1.0
@@ -99,21 +85,23 @@ $PBJQ(document).ready(function(){
         
         //insert the row in new location - if new value is 1, insert before, if it is the last possible
         // insert after, otherwise insert before or after depending on if it is going up or down
+        var thisElement = $PBJQ(this).parents('.reorder-element');
         if (newVal === '1') {
-            $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+            $PBJQ(thisElement).insertBefore(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
         }
-        else 
+        else {
             if (newVal == inputs.length) {
-                $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                $PBJQ(thisElement).insertAfter(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
             }
             else {
                 if (newVal > oldVal) {
-                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                    $PBJQ(thisElement).insertAfter(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
                 else {
-                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
+                    $PBJQ(thisElement).insertBefore(thisElement.siblings('.reorder-element').find('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
             }
+        }
         registerChange('notfluid', $PBJQ(this).parents('.reorder-element'));
     });
 

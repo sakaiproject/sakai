@@ -80,6 +80,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -570,7 +571,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllUsers(SignupMeeting meeting) {
 		List<SignupSite> signupSites = meeting.getSignupSites();
-		Set<SignupUser> signupUsers = new TreeSet<SignupUser>();
+		List<SignupUser> signupUsers = new ArrayList<>();
 		for (SignupSite signupSite : signupSites) {
 			if (signupSite.isSiteScope()) {
 				getUsersForSiteWithSiteScope(signupUsers, signupSite);
@@ -591,7 +592,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossibleAttendees(SignupMeeting meeting){
 		List<SignupSite> signupSites = meeting.getSignupSites();
-		Set<SignupUser> signupUsers = new TreeSet<SignupUser>();
+		ArrayList<SignupUser> signupUsers = new ArrayList<>();
 		for (SignupSite signupSite : signupSites) {
 			if (signupSite.isSiteScope()) {
 				getAttendeesForSiteWithSiteScope(signupUsers, signupSite);
@@ -611,7 +612,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting) {
-		List<SignupUser> coordinators = new ArrayList<SignupUser>();
+		List<SignupUser> coordinators = new ArrayList<>();
 		List<SignupUser> signUpUsers = getAllUsers(meeting);
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		Set<String> userIdsHasPermissionToCreate = new HashSet<String>();
@@ -633,7 +634,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SignupUser> getAllPossbileCoordinatorsOnFastTrack(SignupMeeting meeting) {
-		List<SignupUser> coordinators = new ArrayList<SignupUser>();
+		List<SignupUser> coordinators = new ArrayList<>();
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		Set<String> userIdsHasPermissionToCreate = new HashSet<String>();
 		if (signupSites != null) {
@@ -644,6 +645,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 		
 		List<User> sakaiUsers = userDirectoryService.getUsers(userIdsHasPermissionToCreate);
+		Collections.sort(sakaiUsers, new UserSortNameComparator());
 		for (User user : sakaiUsers) {
 			SignupUser signupUser = new SignupUser(user.getEid(), user.getId(), user.getFirstName(), user.getLastName(), 
 					null, "", true);
@@ -837,7 +839,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 	/* get all users in a specific group */
 	@SuppressWarnings("unchecked")
-	private void getUsersForGroup(Set<SignupUser> signupUsers, SignupSite signupSite, SignupGroup signupGroup) {
+	private void getUsersForGroup(List<SignupUser> signupUsers, SignupSite signupSite, SignupGroup signupGroup) {
 		Site site = null;
 		try {
 			site = siteService.getSite(signupSite.getSiteId());
@@ -867,9 +869,10 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		addAndPopulateSignupUsersInfo(signupUsers,memberRoleMap,userIds, site);
 	}
 	
-	private void addAndPopulateSignupUsersInfo(Set<SignupUser> signupUsers, Map<String,Role> memberRoleMap, List<String> userIds, Site site){
+	private void addAndPopulateSignupUsersInfo(List<SignupUser> signupUsers, Map<String,Role> memberRoleMap, List<String> userIds, Site site){
 		//it should filter out non-existing userIds
 		List<User> sakaiUsers = userDirectoryService.getUsers(userIds);
+		Collections.sort(sakaiUsers, new UserSortNameComparator());
 		
 		if(sakaiUsers !=null){
 			for (User user : sakaiUsers) {
@@ -884,7 +887,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	
 	/* get all users in a specific group */
 	@SuppressWarnings("unchecked")
-	private void getAttendeesForGroup(Set<SignupUser> signupUsers, SignupSite signupSite, SignupGroup signupGroup) {
+	private void getAttendeesForGroup(List<SignupUser> signupUsers, SignupSite signupSite, SignupGroup signupGroup) {
 		Site site = null;
 		try {
 			site = siteService.getSite(signupSite.getSiteId());
@@ -923,7 +926,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 	/* get all users in a site */
 	@SuppressWarnings("unchecked")
-	private void getUsersForSiteWithSiteScope(Set<SignupUser> signupUsers, SignupSite signupSite) {
+	private void getUsersForSiteWithSiteScope(List<SignupUser> signupUsers, SignupSite signupSite) {
 		Site site = null;
 		try {
 			site = siteService.getSite(signupSite.getSiteId());
@@ -935,8 +938,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			return;
 
 		//SIGNUP-241 : get bulk SakaiUsers for performance
-		List<String> userIds = new ArrayList<String>();
-		Map<String,Role> memberRoleMap = new Hashtable<String, Role>();
+		List<String> userIds = new ArrayList<>();
+		Map<String,Role> memberRoleMap = new Hashtable<>();
 		Set<Member> members = site.getMembers();
 		for (Member member : members) {
 			if (member.isActive()
@@ -954,7 +957,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	
 	/* get all users in a site */
 	@SuppressWarnings("unchecked")
-	private void getAttendeesForSiteWithSiteScope(Set<SignupUser> signupUsers, SignupSite signupSite) {
+	private void getAttendeesForSiteWithSiteScope(List<SignupUser> signupUsers, SignupSite signupSite) {
 		Site site = null;
 		try {
 			site = siteService.getSite(signupSite.getSiteId());
@@ -967,8 +970,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 		Set<Member> members = site.getMembers();
 		//SIGNUP-241 : get bulk SakaiUsers for performance
-		List<String> userIds = new ArrayList<String>();
-		Map<String,Role> memberRoleMap = new Hashtable<String, Role>();
+		List<String> userIds = new ArrayList<>();
+		Map<String,Role> memberRoleMap = new Hashtable<>();
 		for (Member member : members) {
 			if (member.isActive()
 					&& (hasPredefinedViewPermisson(member)
@@ -992,7 +995,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 * @param signupUser
 	 *            a SignupUser object
 	 */
-	private void processAddOrUpdateSignupUsers(Set<SignupUser> signupUsers, SignupUser signupUser) {
+	private void processAddOrUpdateSignupUsers(List<SignupUser> signupUsers, SignupUser signupUser) {
 		boolean update = true;
 		if (!signupUsers.isEmpty() && signupUsers.contains(signupUser)) {
 			for (SignupUser sUser : signupUsers) {

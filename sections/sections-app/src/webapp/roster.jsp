@@ -25,12 +25,15 @@
             <f:selectItems value="#{rosterBean.filterItems}"/>
         </h:selectOneMenu>
         <h:outputText value="#{msgs.filter_all_sections}" rendered="#{ ! rosterBean.sectionAssignable}"/>
+        <h:selectOneMenu id="selectSectionFilter" value="#{rosterBean.filter}" onchange="this.form.submit()" rendered="#{!rosterBean.sectionAssignable}">
+            <f:selectItems value="#{rosterBean.sectionFilterSelectItems}" />
+        </h:selectOneMenu>
 	</t:div>
 	
     <h:panelGrid styleClass="sectionContainerNav" columns="1" columnClasses="sectionLeftNav,sectionRightNav">
         <t:div>
             <h:inputText id="search" onkeydown="submitSearchText(event)" value="#{rosterBean.searchText}"
-                onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')"/>
+                onfocus="clearIfDefaultString(this, `#{msgs.roster_search_text}`)"/>
             <h:commandButton value="#{msgs.roster_search_button}" actionListener="#{rosterBean.search}"/>
             <h:commandButton value="#{msgs.roster_clear_button}" actionListener="#{rosterBean.clearSearch}"/>
         </t:div>

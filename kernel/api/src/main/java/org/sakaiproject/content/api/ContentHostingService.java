@@ -272,6 +272,13 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public static final String PREVIEW = "PREVIEW";
 
+    // These are used by the built in getHtmlForRef converter. NOT the fileconversionservice. Used
+    // as a key in the returned content map to indicate the status of the conversiont.
+    public static final String CONVERSION_TOO_BIG = "CONVERSION_TOO_BIG";
+    public static final String CONVERSION_OK = "CONVERSION_OK";
+    public static final String CONVERSION_FAILED = "CONVERSION_FAILED";
+    public static final String CONVERSION_NOT_SUPPORTED = "CONVERSION_NOT_SUPPORTED";
+
 	public static final String SAK_PROP_MAX_UPLOAD_FILE_SIZE = "content.upload.max";
 
 	/**
@@ -2137,7 +2144,7 @@ public interface ContentHostingService extends EntityProducer
 
 	public String expandMacros(String url);
 
-	public Optional<String> getHtmlForRef(String ref);
+	public Map<String,String> getHtmlForRef(String ref);
 
 	/**
 	 * Get the name of the "instructor" upload folder name for direct-upload.

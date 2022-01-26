@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -34,13 +34,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
-
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 
@@ -65,10 +65,9 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 @Slf4j
 public class ShowAttachmentMediaServlet extends HttpServlet
 {
-  /**
-	 * 
-	 */
+
   private static final long serialVersionUID = 2203681863823855810L;
+  private static final ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 
   public ShowAttachmentMediaServlet()
   {
@@ -106,42 +105,58 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 		if (cr == null) {
 			return;
 		}
-		media = cr.getContent();
-		if (media == null) {
-			return;
-		}
+
 		res.setContentLength((int) cr.getContentLength());
-	    log.debug("**** media.length = " + media.length);
-		
 	} catch (PermissionException e) {
 		log.warn("PermissionException from doPost(): " +  e.getMessage());
 	} catch (IdUnusedException e) {
 		log.warn("IdUnusedException from doPost(): " + e.getMessage());
 	} catch (TypeException e) {
 		log.warn("TypeException from doPost(): " + e.getMessage());
-	} catch (ServerOverloadException e) {
-		log.warn("ServerOverloadException from doPost(): " + e.getMessage());
-	}
-	finally {
-		// in case of any exceptions above being caught, media would still be null 
-		if (media == null) {
-			return;
-		}
 	}
 
+
+	  try {
+		  URI directLink = AssessmentService.getContentHostingService().getDirectLinkToAsset(cr);
+		  if (directLink != null) {
+			  res.addHeader("Accept-Ranges", "none");
+			  if (serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
+				  int hostLength = new String(directLink.getScheme() + "://" + directLink.getHost()).length();
+				  String linkPath = "/sendfile" + directLink.toString().substring(hostLength);
+
+				  // Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
+				  res.addHeader("X-Accel-Redirect", linkPath);
+				  res.addHeader("X-Sendfile", linkPath);
+				  return;
+			  } else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+				  res.sendRedirect(directLink.toString());
+				  return;
+			  }
+		  }
+	  } catch (Exception e) {
+		  log.warn("Tried to fetch direct link to asset", e);
+	  }
+
+	  // This will fetch the byte array
+	  try {
+		  media = cr.getContent();
+	  } catch (ServerOverloadException e) {
+		  log.warn("ServerOverload trying to fetch getContent", e);
+	  }
+
+	  if (media == null) {
+		  return;
+	  }
 	ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(media);
 	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
 	ServletOutputStream outputStream = res.getOutputStream();
     BufferedOutputStream buf_outputStream = null;
-    int count=0;
     try{
-    	
     	buf_outputStream = new BufferedOutputStream(outputStream);
 
     	int i=0;
     	while ((i=buf_inputStream.read()) != -1){
     		buf_outputStream.write(i);
-    		count++;
     	}
 
     	//res.setContentLength(count);

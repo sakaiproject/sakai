@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -46,6 +48,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -81,12 +84,14 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
 
         final String siteId = view.getEntityReference().getId();
 
+        final String siteRef = Entity.SEPARATOR + "site" + Entity.SEPARATOR + siteId;
+
         // expects permissions/siteId/getPerms[/:TOOL:]
         String tool = view.getPathSegment(3);
 
         String userId = developerHelperService.getCurrentUserId();
-        if (!securityService.isSuperUser(userId) && !authzGroupService.isAllowed(userId, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId)) {
-            throw new SecurityException("This action (getPerms) is not allowed.");
+        if (!authzGroupService.allowUpdate(siteRef)) {
+            throw new EntityException("This action (getPerms) is not allowed.", siteRef, HttpServletResponse.SC_FORBIDDEN);
         }
 
         String groupRef = (String) params.get("ref");
@@ -144,8 +149,15 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
             throw new SecurityException(
             "This action (setPerms) is not accessible to anon and there is no current user.");
         }
+
+
         String siteId = entityRef.getId();
         Site site = getSiteById(siteId);
+
+        if (!authzGroupService.allowUpdate(site.getReference())) {
+            throw new EntityException("This action (setPerms) is not allowed.", site.getReference(), HttpServletResponse.SC_FORBIDDEN);
+        }
+
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 

@@ -19,7 +19,6 @@
         <start-class>org.sakaiproject.rubrics.RubricsApplication</start-class>
         <rest.assured.version>3.1.1</rest.assured.version>
         <spring.boot.version>2.2.1.RELEASE</spring.boot.version>
-        <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
     </properties>
 
     <dependencies>
@@ -120,12 +119,10 @@
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>${thymeleaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring5</artifactId>
-            <version>${thymeleaf.version}</version>
         </dependency>
         <!-- Spring AOP -->
         <dependency>

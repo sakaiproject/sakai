@@ -55,6 +55,7 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="timeSheetService" ref="org.sakaiproject.timesheet.api.TimeSheetService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentContentProducer"
@@ -129,7 +130,6 @@
                 <value>org.sakaiproject.assignment.api.model.Assignment</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentSubmission</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter</value>
-                <value>org.sakaiproject.assignment.api.model.TimeSheetEntry</value>
                 <value>org.sakaiproject.assignment.api.model.AssessorSubmissionId</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess</value>

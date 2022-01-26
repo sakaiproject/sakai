@@ -98,7 +98,7 @@ public class AuthorBean implements Serializable {
   private String selectActionOutcome;
   private String importOutcome;
   private boolean showTemplateList;
-  private boolean isEditPendingAssessmentFlow = true;
+  private boolean isEditPendingAssessmentFlow;
   private String fromPage;
   private String firstFromPage;
   private boolean isRetractedForEdit = false;
@@ -973,5 +973,9 @@ public class AuthorBean implements Serializable {
 			log.debug("Current user doesn't have permission to get a rubric: {}", hcee.getMessage());
 		}
 		return Boolean.FALSE;
+	}
+
+	public int getAssessmentSortingColumn() {
+		return ServerConfigurationService.getInt("samigo.assessmentSortingColumn", 2);
 	}
 }

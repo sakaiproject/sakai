@@ -61,7 +61,7 @@ module.exports = {
     "no-unmodified-loop-condition": "error",
     "no-unneeded-ternary": ["error", { defaultAssignment: false }],
     "no-unreachable-loop": "error",
-    "no-unused-vars": ["error", { caughtErrors: "all" }],
+    "no-unused-vars": ["error"],
     "no-use-before-define": ["error", "nofunc"],
     "no-useless-backreference": "error",
     "no-useless-call": "error",

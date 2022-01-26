@@ -41,6 +41,8 @@
             class="org.sakaiproject.entitybroker.providers.ServerConfigEntityProvider">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="clusterService" ref="org.sakaiproject.cluster.api.ClusterService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
@@ -135,5 +137,13 @@
     <bean id="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"
           parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
           class="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.IgniteEntityProvider"
+          parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.IgniteEntityProvider">
+
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+    </bean>
 
 </beans>

@@ -203,7 +203,8 @@ public class GradeImportConfirmationStep extends BasePanel {
 				// Modify any that need modification
 				itemsToModify.forEach(item -> {
 
-					final Double points = NumberUtils.toDouble(item.getItemPointValue());
+					final String itemPoints = FormatHelper.formatGradeFromUserLocale(item.getItemPointValue());
+					final Double points = FormatHelper.validateDouble(itemPoints);
 					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
 					assignment.setPoints(points);
 

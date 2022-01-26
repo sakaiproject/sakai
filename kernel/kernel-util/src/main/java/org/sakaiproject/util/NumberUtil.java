@@ -45,15 +45,15 @@ public class NumberUtil {
         final DecimalFormatSymbols fs = df.getDecimalFormatSymbols();
         final String doublePattern =
                 new StringBuilder()
-                        .append("\\d+\\")
+                        .append("\\d{1,3}(\\")
                         .append(fs.getGroupingSeparator())
-                        .append("\\d\\d\\d\\")
+                        .append("\\d{3})+")
                         .append(fs.getDecimalSeparator())
-                        .append("\\d+|\\d+\\")
+                        .append("\\d+|\\d*\\")
                         .append(fs.getDecimalSeparator())
-                        .append("\\d+|\\d+\\")
+                        .append("\\d+|\\d{1,3}(\\")
                         .append(fs.getGroupingSeparator())
-                        .append("\\d\\d\\d|\\d+")
+                        .append("\\d{3})+|\\d+")
                         .toString();
         return origin.matches(doublePattern);
     }

@@ -1,18 +1,18 @@
-/****************************************************************************** 
-* Copyright (c) 2020 Apereo Foundation
-
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-
-*          http://opensource.org/licenses/ecl2
-
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
- ******************************************************************************/
+/**
+ * Copyright (c) 2003-2021 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.mailsender.tool.controller;
 
 import java.io.File;
@@ -296,6 +296,7 @@ public class MainController {
         String reqSubject = request.getParameter("subject");
         String rcptsall = request.getParameter("rcptsall");
         //Get checkboxes values
+        String onlyPlainText = request.getParameter("onlyPlainText");
         String reqSendMeACopy = request.getParameter("smac");
         String reqAddToArchive = request.getParameter("addToArchive");
         String reqAppendRecipientList = request.getParameter("appendRecipientList");
@@ -311,9 +312,10 @@ public class MainController {
         if (StringUtils.isNotBlank(rcptsall)) {
             newEmailEntry.setAllIds(Boolean.parseBoolean(rcptsall));
         }
-        config.setSendMeACopy((reqSendMeACopy != null) ? Boolean.parseBoolean(reqSendMeACopy) : false);
-        config.setAddToArchive((reqAddToArchive != null) ? Boolean.parseBoolean(reqAddToArchive) : false);
-        config.setAppendRecipientList((reqAppendRecipientList != null) ? Boolean.parseBoolean(reqAppendRecipientList) : false);
+        config.setOnlyPlainText(Boolean.parseBoolean(onlyPlainText));
+        config.setSendMeACopy(Boolean.parseBoolean(reqSendMeACopy));
+        config.setAddToArchive(Boolean.parseBoolean(reqAddToArchive));
+        config.setAppendRecipientList(Boolean.parseBoolean(reqAppendRecipientList));
 
         newEmailEntry.setConfig(config);
         String reqOtherRecipients= request.getParameter("otherRecipients");

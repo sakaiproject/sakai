@@ -24,6 +24,7 @@ package org.sakaiproject.announcement.impl;
 // import
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -603,17 +605,25 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		}
 	}
 
-	public Map<String, List<AnnouncementMessage>> getAllAnnouncementsForCurrentUser() {
+	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays) {
 
 		Map<String, List<AnnouncementMessage>> allAnnouncements = new HashMap<>();
 
 		// First grab all the current user's sites
 		m_siteService.getUserSites().forEach(site -> {
 
-			String channelRef = channelReference(site.getId(), "main");
+			String siteId = site.getId();
+			String channelRef = channelReference(siteId, "main");
 			try {
-				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, null, true, true));
+				ViewableFilter viewableFilter = new ViewableFilter(null, null, Integer.MAX_VALUE, this);
+				if (maxAgeInDays != null) {
+					long now = Instant.now().toEpochMilli();
+					Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+					viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
+				}
+				allAnnouncements.put(site.getId(), (List<AnnouncementMessage>) getMessages(channelRef, viewableFilter, true, true));
 			} catch (Exception e) {
+				log.warn("Failed to add announcements from site {}", siteId, e);
 			}
 		});
 

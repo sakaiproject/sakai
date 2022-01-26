@@ -77,6 +77,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.lti13.util.SakaiLineItem;
+import org.sakaiproject.lti13.LineItemUtil;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -135,6 +137,20 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 		return false;
 	}
+
+	/**
+	 * Check if the current user can update the site associated with this entity
+	 *
+	 * @param ref
+	 *		The Reference to the entity.
+	 * @return true if allowed, false if not.
+	 */
+	protected boolean checkSiteUpdate(Reference ref)
+	{
+		String contextId = ref.getContext();
+		return siteService.allowUpdateSite(contextId);
+	}
+
 	/*******************************************************************************
 	 * Init and Destroy
 	 *******************************************************************************/
@@ -302,15 +318,29 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI();
 		String query_string = req.getQueryString();
+		String messageTypeParm = req.getParameter(SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER);
 
 		if ( StringUtils.isNotEmpty(query_string)) {
 			login_hint = login_hint + "?" + query_string;
 		}
+
+
 		String launch_url = StringUtils.trimToNull((String) tool.get(LTIService.LTI_LAUNCH));
 		if ( content != null ) {
 			String content_launch_url = StringUtils.trimToNull((String) content.get(LTIService.LTI_LAUNCH));
 			if ( content_launch_url != null ) launch_url = content_launch_url;
+
+			// See if we have a lineItem associated with this launch in case we need it later
+			String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
+			SakaiLineItem sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
+
+			if ( SakaiBLTIUtil.MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
+				if ( sakaiLineItem != null && sakaiLineItem.submissionReview != null && StringUtils.isNotEmpty(sakaiLineItem.submissionReview.url) ) launch_url = sakaiLineItem.submissionReview.url;
+			}
 		}
+
+		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		String deployment_id = ServerConfigurationService.getString(SakaiBLTIUtil.LTI13_DEPLOYMENT_ID, SakaiBLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
 		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
 		String encoded_login_hint = new String(bytesEncoded);
@@ -319,6 +349,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			redirect.addParameter("iss", SakaiBLTIUtil.getOurServerUrl());
 			redirect.addParameter("login_hint", encoded_login_hint);
 			redirect.addParameter("lti_storage_target", "_parent");
+			if ( client_id != null ) redirect.addParameter("client_id", client_id);
+			if ( deployment_id != null ) redirect.addParameter("lti_deployment_id", deployment_id);
 			SakaiBLTIUtil.addSakaiBaseCapabilities(redirect);
 			if (StringUtils.isNotBlank(launch_url)) {
 				redirect.addParameter("target_link_uri", launch_url);
@@ -483,7 +515,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						protect = SakaiBLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
 					}
 
-					if ( protect > 0 ) {
+					if ( protect > 0 && ! checkSiteUpdate(ref) ) {
 						String launch_code = (String) session.getAttribute(launch_code_key);
 
 						// We don't remove the token until later because LTI 1.3 pass through this twice

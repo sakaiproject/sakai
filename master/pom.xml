@@ -35,24 +35,24 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>6.8.18</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>7.16.3</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
-    <sakai.httpcore.version>4.4.14</sakai.httpcore.version>
+    <sakai.httpcore.version>4.4.15</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.1</sakai.httpclient5.version>
-    <sakai.httpcore5.version>5.1.1</sakai.httpcore5.version>
+    <sakai.httpclient5.version>5.1.2</sakai.httpclient5.version>
+    <sakai.httpcore5.version>5.1.2</sakai.httpcore5.version>
     <sakai.ignite.version>2.10.0</sakai.ignite.version>
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.12.5</sakai.jackson.version>
+    <sakai.jackson.version>2.13.1</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
-    <sakai.woodstox.version>6.2.6</sakai.woodstox.version>
+    <sakai.woodstox.version>6.2.7</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.20</sakai.lombok.version>
-    <sakai.lucene.version>7.7.3</sakai.lucene.version>
+    <sakai.lombok.version>1.18.22</sakai.lombok.version>
+    <sakai.lucene.version>8.10.1</sakai.lucene.version>
     <sakai.netty.version>4.1.68.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -68,18 +68,18 @@
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.27</sakai.tika.version>
-    <sakai.tomcat.version>9.0.54</sakai.tomcat.version>
-    <sakai.thymeleaf.version>3.0.12.RELEASE</sakai.thymeleaf.version>
+    <sakai.tomcat.version>9.0.58</sakai.tomcat.version>
+    <sakai.thymeleaf.version>3.0.14.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
-    <sakai.log4j.version>2.14.1</sakai.log4j.version>
-    <sakai.slf4j.version>1.7.32</sakai.slf4j.version>
-    <sakai.poi.version>5.0.0</sakai.poi.version>
+    <sakai.log4j.version>2.17.1</sakai.log4j.version>
+    <sakai.slf4j.version>1.7.33</sakai.slf4j.version>
+    <sakai.poi.version>5.2.0</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.12</joda.time.version>
+    <joda.time.version>2.10.13</joda.time.version>
     <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.6.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
@@ -255,17 +255,6 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
-    <pluginRepository>
-        <id>opencast</id>
-        <name>Opencast Repo</name>
-        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-    </pluginRepository>
   </pluginRepositories>
   <repositories>
     <repository>
@@ -314,17 +303,6 @@
       </snapshots>
     </repository>
     <repository>
-        <id>opencast</id>
-        <name>Opencast Repo</name>
-        <url>https://nexus.opencast.org/nexus/content/groups/public</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-    </repository>
-    <repository>
       <id>gridgain</id>
       <name>Gridgain Systems</name>
       <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
@@ -338,6 +316,14 @@
     <repository>
       <id>shib-release</id>
       <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>codelibs.org</id>
+      <name>CodeLibs Repository</name>
+      <url>https://maven.codelibs.org/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -897,6 +883,12 @@
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-1.2-api</artifactId>
+        <version>${sakai.log4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
         <version>${sakai.log4j.version}</version>
         <scope>provided</scope>
@@ -999,7 +991,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpasyncclient</artifactId>
-        <version>4.1.4</version>
+        <version>4.1.5</version>
         <scope>provided</scope>
       </dependency>
       <!-- httpcore5 & httpclient5 -->
@@ -1066,7 +1058,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1291,6 +1283,24 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-geo</artifactId>
+        <version>${sakai.elasticsearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-lz4</artifactId>
+        <version>${sakai.elasticsearch.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.8.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
         <version>${sakai.elasticsearch.version}</version>
@@ -1311,7 +1321,7 @@
       <dependency>
         <groupId>org.codelibs.elasticsearch.module</groupId>
         <artifactId>analysis-common</artifactId>
-        <version>6.8.12</version>
+        <version>${sakai.elasticsearch.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1468,26 +1478,14 @@
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-spatial</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-spatial-extras</artifactId>
-        <version>${sakai.lucene.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-spatial3d</artifactId>
         <version>${sakai.lucene.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
+        <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
-        <version>5.5.0</version>
+        <version>5.10.0</version>
         <scope>provided</scope>
       </dependency>
       <!-- elasticsearch 3rd party libs -->
@@ -1512,7 +1510,7 @@
       <dependency>
         <groupId>com.carrotsearch</groupId>
         <artifactId>hppc</artifactId>
-        <version>0.7.2</version>
+        <version>0.8.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2500,7 +2498,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.2.2</version>
+          <version>4.4.2</version>
          <configuration>
             <spotbugsXmlOutput>true</spotbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -2511,7 +2509,7 @@
             <dependency>
               <groupId>com.github.spotbugs</groupId>
               <artifactId>spotbugs</artifactId>
-               <version>4.2.2</version>
+               <version>4.4.2</version>
              </dependency>
           </dependencies>
         </plugin>
@@ -2551,7 +2549,7 @@
         <plugin>
             <groupId>com.mycila</groupId>
             <artifactId>license-maven-plugin</artifactId>
-            <version>4.0</version>
+            <version>4.1</version>
             <configuration>
                 <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
                 <includes>
@@ -2563,6 +2561,7 @@
                     <!-- Columbia header -->
                     <exclude>**/delegatedaccess/**</exclude>
                     <exclude>**/jsf/**</exclude>
+                    <exclude>**/gradebookng/**</exclude>
                 </excludes>
                 <properties>
                     <holder>The Apereo Foundation</holder>
@@ -2575,7 +2574,7 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin-git</artifactId>
                     <!-- make sure you use the same version as license-maven-plugin -->
-                    <version>4.0</version>
+                    <version>4.1</version>
                 </dependency>
             </dependencies>
         </plugin>

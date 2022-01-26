@@ -149,7 +149,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
@@ -1188,7 +1187,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         super.init(config);
         WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-        assignmentToolUtils = applicationContext.getBean("assignmentToolUtils", AssignmentToolUtils.class);
+        assignmentToolUtils = applicationContext.getBean("org.sakaiproject.assignment.tool.AssignmentToolUtils", AssignmentToolUtils.class);
     }
 
     /**
@@ -1706,8 +1705,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("nonElectronicType", Boolean.TRUE);
             }
             if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
-                context.put("externalTool", Boolean.TRUE);
                 putExternalToolIntoContext(context, assignment, state);
+                context.put("externalTool", Boolean.TRUE);
             }
 
             User submitter = (User) state.getAttribute("student");
@@ -1765,18 +1764,17 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             Optional<AssignmentSubmissionSubmitter> submitterA = s.getSubmitters().stream().findAny();
+            if(submitterA.isPresent()) {
+                String submissionTimeSpent = StringUtils.isNotBlank(submitterA.get().getTimeSpent()) ?
+                        submitterA.get().getTimeSpent() : "";
+                state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
 
-            String submissionTimeSpent = "";
-            if(submitterA.isPresent() && StringUtils.isNotBlank(submitterA.get().getTimeSpent())){
-                submissionTimeSpent = submitterA.get().getTimeSpent();
-            }
-            state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
-
-            if(submitterA.isPresent() && !submitterA.get().getTimeSheetEntries().isEmpty()) {
-                String timeSpent = "";
-               	timeSpent = getTotalTimeSheet(submitterA.get().getTimeSheetEntries());
-                state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
-                isAnyRegTimeSheet = true;
+                String timeSpent = assignmentService.getTotalTimeSheet(submitterA.get());
+               	if (StringUtils.isNotBlank(timeSpent)) {
+               	    context.put("timeSheetEntries", assignmentService.getTimeSheetEntries(submitterA.get()));
+                    state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
+                    isAnyRegTimeSheet = true;
+               	}
             }
             setScoringAgentProperties(context, assignment, s, false);
 
@@ -1811,9 +1809,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
             context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
-            // put the resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-            assignment_extension_option_into_context(context, state);
+            // put the resubmit and extension information into context
+            boolean isDateExtended = putResubmissionAndExtensionOptionsIntoContext(context, state);
+            if (assignment.getCloseDate().isBefore(Instant.now()) && !isDateExtended) {
+                addAlert(state, rb.getString("stuviewsubm.theclodat"));
+            }
 
             rangeAndGroups.buildStudentViewSubmissionContext(state, context, user.getId(), assignment, this);
 
@@ -2261,9 +2261,8 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
-            // put resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-            assignment_extension_option_into_context(context, state);
+            // put resubmit and extension information into context
+            putResubmissionAndExtensionOptionsIntoContext(context, state);
 
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
@@ -2340,9 +2339,6 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
-            // put the resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-
             if (state.getAttribute(SAVED_FEEDBACK) != null) {
                 context.put("savedFeedback", Boolean.TRUE);
                 state.removeAttribute(SAVED_FEEDBACK);
@@ -2364,6 +2360,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
                 context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
                 context.put("name_check_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+            }
+
+            // put the resubmit and extension information into context
+            boolean isDateExtended = putResubmissionAndExtensionOptionsIntoContext(context, state);
+            if (assignment.getCloseDate().isBefore(Instant.now()) && !isDateExtended) {
+                addAlert(state, rb.getString("stuviewsubm.theclodat"));
             }
         }
 
@@ -2434,9 +2436,8 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
-            // put the resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-            assignment_extension_option_into_context(context, state);
+            // put the resubmit and extension information into context
+            putResubmissionAndExtensionOptionsIntoContext(context, state);
 
             if (state.getAttribute(SAVED_FEEDBACK) != null) {
                 context.put("savedFeedback", Boolean.TRUE);
@@ -2581,9 +2582,14 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             boolean isAnyRegTimeSheet = false;
-            if (submissionSubmitter.isPresent() && !submissionSubmitter.get().getTimeSheetEntries().isEmpty()) {
+            if (submissionSubmitter.isPresent() && assignmentService.existsTimeSheetEntries(submissionSubmitter.get())) {
             	isAnyRegTimeSheet = true;
            		context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
+            }
+
+            Map<String, String> submissionProperties = submission.getProperties();
+            if (submissionProperties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null) {
+                context.put("prevFeedbackComment", submissionProperties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT));
             }
 
             // can the student view model answer or not
@@ -3182,9 +3188,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
-        // put resubmission option into context
-        assignment_resubmission_option_into_context(context, state);
-        assignment_extension_option_into_context(context, state);
+        // put resubmission and extension options into context
+        putResubmissionAndExtensionOptionsIntoContext(context, state);
 
         // get all available assignments from Gradebook tool except for those created fromcategoryTable
         boolean gradebookExists = isGradebookDefined();
@@ -3574,8 +3579,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_ContentTitle", state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE));
         context.put("value_ContentLaunchNewWindow", state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW));
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
-        String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
-        context.put("value_GradePoints", displayGrade(state, maxGrade, assignmentService.getScaleFactor()));
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
         context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
         context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
@@ -3620,6 +3623,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
                 context.put("isDraft", a.getDraft());
                 if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                    String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
                     context.put("value_GradePoints", displayGrade(state, maxGrade, a.getScaleFactor()));
                 }
             }
@@ -3708,6 +3712,10 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             a.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", attachmentReferences);
+
+            if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
+            }
         }
 
         String submissionRef = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
@@ -3771,11 +3779,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
             }
 
-            // put the re-submission info into context
+            // put the re-submission and extension info into context
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
-            assignment_resubmission_option_into_context(context, state);
             putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-            assignment_extension_option_into_context(context, state);
+            putResubmissionAndExtensionOptionsIntoContext(context, state);
             if (s.getDateSubmitted() != null){ //if there is a submission date, we assume the student submitted; then, extension options should not be available.
                 context.put("displayExtensionOptions", false);
             } else {
@@ -3829,8 +3836,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
-        context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
-
 
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
@@ -4662,13 +4667,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 rangeAndGroups.buildInstructorGradeAssignmentContext(state, context, assignment);
             }
 
-            // put the re-submission info into context
+            // put the re-submission and extension info into context
             assignment_resubmission_option_into_state(assignment, null, state);
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
-            assignment_resubmission_option_into_context(context, state);
             assignment_extension_option_into_state(assignment, null, state);
             putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-            assignment_extension_option_into_context(context, state);
+            putResubmissionAndExtensionOptionsIntoContext(context, state);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -4835,9 +4839,8 @@ public class AssignmentAction extends PagedResourceActionII {
             // In case we need to launch an external tool to test it - doView_external_tool_launch
             state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentId);
 
-            // put the resubmit information into context
-            assignment_resubmission_option_into_context(context, state);
-            assignment_extension_option_into_context(context, state);
+            // put the resubmit and extension information into context
+            putResubmissionAndExtensionOptionsIntoContext(context, state);
 
             // put external tool information into context
             putExternalToolIntoContext(context, assignment, state);
@@ -4919,12 +4922,22 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private void putExternalToolIntoContext(Context context, Assignment assignment, SessionState state) {
+        context.put("value_ContentId", null);
+        context.put("value_ContentTitle", null);
+        context.put("value_ContentLaunchURL", null);
         try {
             if ( assignment == null || assignment.getContentId() == null) return;
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             Long contentKey = assignment.getContentId().longValue();
-            if ( contentKey < 1 ) return;
+            if ( contentKey < 1 ) {
+				log.warn("putExternalToolIntoContext contentId not set {} ", assignment);
+				return;
+			}
             Map<String, Object> content = ltiService.getContent(contentKey, site.getId());
+			if ( content == null ) {
+				log.warn("putExternalToolIntoContext contentId not loaded {} ", contentKey);
+				return;
+			}
             context.put("value_ContentId", contentKey);
             String content_launch = ltiService.getContentLaunch(content);
             context.put("value_ContentLaunchURL", content_launch);
@@ -4934,10 +4947,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
                 context.put("value_ContentTitle", toolTitle);
             }
-
         } catch(org.sakaiproject.exception.IdUnusedException e ) {
-            context.put("value_ContentTitle", null);
-            context.put("value_ContentLaunchURL", null);
+            log.warn("putExternalToolIntoContext could not find site {} ", e);
         }
     }
 
@@ -5644,7 +5655,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (StringUtils.isNotBlank(submitter.getTimeSpent())) {
                         submissionTimeSpent = submitter.getTimeSpent();
                     }
-                        timeSpent = getTotalTimeSheet(submitter.getTimeSheetEntries());
+                        timeSpent = assignmentService.getTotalTimeSheet(submitter);
                 }
                 state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
                 state.setAttribute(AssignmentConstants.ASSIGNMENT_INPUT_ADD_SUBMISSION_TIME_SPENT, submissionTimeSpent);
@@ -5774,9 +5785,9 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
 
-        // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
         state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+        // get attachment input and generate alert message according to assignment submission type
+        checkSubmissionTextAttachmentInput(data, state, a, text, false);
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
@@ -5815,7 +5826,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
 
         // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text);
+        checkSubmissionTextAttachmentInput(data, state, a, text, false);
         state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
 
         String timeSpent = params.getCleanString(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
@@ -6507,17 +6518,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     text = null;
                 }
 
-                if (typeOfSubmission == Assignment.SubmissionType.VIDEO_SUBMISSION) {
-                     // Get the video from the current attachments or get the video from the form post.
-                     List<Reference> v = post ? (List<Reference>) state.getAttribute(ATTACHMENTS) : this.getVideoAttachments(data, state, a);
-                     if ((v == null) || (v.size() != 1)) {
-                         addAlert(state, rb.getString("youmust9"));
-                     } 
-                    state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, v);
-                } else {
-                    // get attachment input and generate alert message according to assignment submission type
-                    checkSubmissionTextAttachmentInput(data, state, a, text);
-                }
+                // get attachment input and generate alert message according to assignment submission type
+                checkSubmissionTextAttachmentInput(data, state, a, text, post);
             }
             if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null)) {
                 AssignmentSubmission submission;
@@ -6535,11 +6537,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (submission != null) {
                     // the submission already exists, change the text and honor pledge value, post it
-                    submission.setUserSubmission(true);
-                    submission.setSubmittedText(text);
-                    submission.setDateSubmitted(Instant.now());
-                    submission.setSubmitted(post);
-
                     Map<String, String> properties = submission.getProperties();
 
                     if (a.getIsGroup()) {
@@ -6555,9 +6552,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     if (NumberUtils.isParsable(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER))) {
-                        // if this submission has been already been submitted previously.
-                        boolean isResub = properties.entrySet().stream().anyMatch(e -> e.getKey().startsWith("log") && e.getValue().contains("submitted"));
-                        if (submission.getSubmitted() && isResub) {
+                        // if this submission has been already been submitted previously
+                        if (post && submission.getDateSubmitted() != null) {
                             // decrease the allow_resubmit_number,
                             int number = Integer.parseInt(properties.get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
                             // minus 1 from the submit number, if the number is not -1 (not unlimited)
@@ -6568,6 +6564,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     } else {
                         setResubmissionProperties(a, submission);
                     }
+
+                    // update submission info after resubmission which prevents updating resubmission count for the first submission
+                    submission.setUserSubmission(true);
+                    submission.setSubmittedText(text);
+                    submission.setSubmitted(post);
+                    // post differentiates a submission from saving a draft
+                    if (post) submission.setDateSubmitted(Instant.now());
 
                     String currentUser = sessionManager.getCurrentSessionUserId();
                     // identify who the submittee is using the session
@@ -6686,9 +6689,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         submission.setUserSubmission(true);
                         submission.setSubmittedText(text);
-                        submission.setDateSubmitted(Instant.now());
                         submission.setSubmitted(post);
-                        
+                        if (post) submission.setDateSubmitted(Instant.now());
+
                         submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitterId)).findAny().ifPresent(s -> s.setTimeSpent(saveSpent));
                         // set the resubmission properties
                         setResubmissionProperties(a, submission);
@@ -6919,7 +6922,7 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private void checkSubmissionTextAttachmentInput(RunData data,
-                                                    SessionState state, Assignment assignment, String text) {
+                                                    SessionState state, Assignment assignment, String text, boolean post) {
         // SAK-26329 - determine if the submission has text
         boolean textIsEmpty = isHtmlEmpty(text);
         if (assignment != null) {
@@ -6942,6 +6945,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (v.size() != 1) {
                     addAlert(state, rb.getString("youmust8"));
                 }
+            } else if (submissionType == Assignment.SubmissionType.VIDEO_SUBMISSION) {
+                // get the video from the form post
+                List<Reference> v = post ? (List<Reference>) state.getAttribute(ATTACHMENTS) : this.getVideoAttachments(data, state, assignment);
+                if ((v == null) || (v.size() != 1)) {
+                    addAlert(state, rb.getString("youmust9"));
+                }
+                state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, v);
             } else {
                 // for the inline and attachment submission / other submission types
                 // There must be at least one thing submitted: inline text or at least one attachment
@@ -6955,11 +6965,11 @@ public class AssignmentAction extends PagedResourceActionII {
             if (StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getEstimateRequired()) {
                 if (StringUtils.isBlank(timeSpent)) {
     	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.isValidTimesheetTime(timeSpent)) {
+    	        } else if (!assignmentService.isValidTimeSheetTime(timeSpent)) {
     	            addAlert(state, rb.getFormattedMessage("timeformat"));
     	        }
             }
-            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimesheetTime(timeSpent)) {
+            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimeSheetTime(timeSpent)) {
             	addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -7149,7 +7159,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String timeSheet = params.getString(ResourceProperties.NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE);
             if (StringUtils.isBlank(timeSheet)) {
                 addAlert(state, rb.getString("timeempty"));
-            } else if (!assignmentService.isValidTimesheetTime(timeSheet)) {
+            } else if (!assignmentService.isValidTimeSheetTime(timeSheet)) {
                 addAlert(state, rb.getFormattedMessage("timeformat"));
             }
         }
@@ -14171,16 +14181,6 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void assignment_extension_option_into_context(Context context, SessionState state){
-        String allowExtensionTimeString = null;
-        if (state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null){
-            allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
-            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
-            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
-        }
-        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-    }
-
     private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
         String allowExtensionTimeString = null;
         if (s != null) {    // if submission is present, get the resubmission values from submission object first
@@ -14199,7 +14199,17 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private void assignment_resubmission_option_into_context(Context context, SessionState state) {
+    private boolean putResubmissionAndExtensionOptionsIntoContext(Context context, SessionState state) {
+        boolean isDateExtended = false;
+        String allowExtensionTimeString = null;
+        if (state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null){
+            allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+            isDateExtended = extensionCloseTime.isAfter(Instant.now());
+            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
+        }
+        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+
         context.put("name_allowResubmitNumber", AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
 
         String allowResubmitNumber = state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null ? (String) state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : null;
@@ -14219,6 +14229,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             // put into context
             if (resubmitCloseTime != null) {
+                isDateExtended = isDateExtended || resubmitCloseTime.isAfter(Instant.now());
                 context.put("resubmitCloseTime", assignmentService.getUsersLocalDateTimeString(resubmitCloseTime));
             }
         }
@@ -14226,6 +14237,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
         context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
 
+        return isDateExtended;
     }
 
     private void assignment_resubmission_option_into_state(Assignment a, AssignmentSubmission s, SessionState state) {
@@ -15044,6 +15056,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private class AssignmentComparator implements Comparator {
         Collator collator = null;
+        Map<String, Integer> crSubmissionScoreMap = new HashMap<>();
 
         /**
          * the SessionState object
@@ -15355,42 +15368,26 @@ public class AssignmentAction extends PagedResourceActionII {
                     } else if (s2 == null) {
                         result = 1;
                     } else {
-                        List<ContentReviewResult> r1 = assignmentService.getContentReviewResults(s1);
-                        List<ContentReviewResult> r2 = assignmentService.getContentReviewResults(s2);
+                        // Avoid expensive calls below if possible
+                        Integer score1 = crSubmissionScoreMap.get(s1.getId());
+                        Integer score2 = crSubmissionScoreMap.get(s2.getId());
 
-                        if (CollectionUtils.isEmpty(r1) && CollectionUtils.isEmpty(r2)) {
+                        if (score1 == null) {
+                          score1 = getContentReviewResultScore(assignmentService.getContentReviewResults(s1));
+                          crSubmissionScoreMap.put(s1.getId(), score1);
+                        }
+                        if (score2 == null) {
+                          score2 = getContentReviewResultScore(assignmentService.getContentReviewResults(s2));
+                          crSubmissionScoreMap.put(s2.getId(), score2);
+                        }
+
+                        if (score1 == null && score2 == null) {
                             result = 0;
-                        } else if (CollectionUtils.isEmpty(r1)) {
+                        } else if (score1 == null) {
                             result = -1;
-                        } else if (CollectionUtils.isEmpty(r2)) {
+                        } else if (score2 == null) {
                             result = 1;
                         } else {
-                            int score1 = -99;
-                            int score2 = -99;
-
-                            // Find the highest score in all of the possible submissions
-                            for (ContentReviewResult crr1 : r1) {
-                                if (score1 <= -2 && crr1.isPending()) {
-                                    score1 = -2;
-                                } else if (score1 <= -1 && StringUtils.equals(crr1.getReviewReport(), "Error")) {
-                                    // Yes, "Error" appears to be magic throughout the review code
-                                    // Error should appear before pending
-                                    score1 = -1;
-                                } else if (crr1.getReviewScore() > score1) {
-                                    score1 = crr1.getReviewScore();
-                                }
-                            }
-
-                            for (ContentReviewResult crr2 : r2) {
-                                if (score2 <= -2 && crr2.isPending()) {
-                                    score2 = -2;
-                                } else if (score2 <= -1 && StringUtils.equals(crr2.getReviewReport(), "Error")) {
-                                    score2 = -1;
-                                } else if (crr2.getReviewScore() > score2) {
-                                    score2 = crr2.getReviewScore();
-                                }
-                            }
-
                             result = score1 == score2 ? 0 : (score1 > score2 ? 1 : -1);
                         }
                     }
@@ -15704,46 +15701,34 @@ public class AssignmentAction extends PagedResourceActionII {
                 result = -1;
             } else {
                 int i1, i2;
-                i1 = timeToInt(t1);
-                i2 = timeToInt(t2);
+                i1 = assignmentService.timeToInt(t1);
+                i2 = assignmentService.timeToInt(t2);
                 result = (i1 < i2) ? -1 : 1;
             }
             return result;
         }
 
-        private int timeToInt(String time) {
-            String timeSheet[] = time.split("h|H");
-            int timeParseInt=0;
-            if(timeSheet.length > 1) {
-                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-                timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
-            }else {
-                if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
-                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
-                }else {
-                    timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
+        private int getContentReviewResultScore(List<ContentReviewResult> resultList) {
+            if (CollectionUtils.isEmpty(resultList)) {
+                return -1;
+            }
+
+            // Find the highest score in all of the possible submissions
+            int score = -99;
+
+            for (ContentReviewResult crr : resultList) {
+                if (score <= -2 && crr.isPending()) {
+                    score = -2;
+                } else if (score <= -1 && StringUtils.equals(crr.getReviewReport(), "Error")) {
+                    // Yes, "Error" appears to be magic throughout the review code
+                    // Error should appear before pending
+                    score = -1;
+                } else if (crr.getReviewScore() > score) {
+                    score = crr.getReviewScore();
                 }
             }
-            return timeParseInt;
-        }
 
-        private String intToTime(int time) {
-            String timeReturn = "";
-            if(time >= 60) {
-                timeReturn = timeReturn.concat((time/60)+"h").concat(" ");
-                timeReturn = timeReturn.concat((time%60)+"m");
-            }else if(time>0 && time<60) {
-                timeReturn = time+"m";
-            }
-            return timeReturn;
-        }
-
-        private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
-            int totalTime = 0;
-            for (TimeSheetEntry assignmentTimeSheet : ats) {
-                totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
-            }
-            return intToTime(totalTime);
+            return score;
         }
 
         /**
@@ -16034,43 +16019,6 @@ public class AssignmentAction extends PagedResourceActionII {
         return attachments;
     }
 
-	private int timeToInt(String time) {
-		String timeSheet[] = time.split("h|H");
-		int timeParseInt=0;
-		if(timeSheet.length > 1) {
-			timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-			timeParseInt = timeParseInt + Integer.parseInt(timeSheet[1].split("m|M")[0].trim());
-		}else {
-			if(timeSheet[0].contains("m") || timeSheet[0].contains("M")) {
-				timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].split("m|M")[0].trim());
-			}else {
-				timeParseInt = timeParseInt + Integer.parseInt(timeSheet[0].trim())*60;
-			}
-		}
-		return timeParseInt;
-	}
-
-    private String intToTime(int time) {
-        String timeReturn = "";
-        if(time > 0) {
-            if(time > 59) {
-                timeReturn = timeReturn.concat((time/60)+"h").concat(" ");
-                timeReturn = timeReturn.concat((time%60)+"m");
-            }else {
-                timeReturn = time+"m";
-            }
-        }
-        return timeReturn;
-    }
-
-    private String getTotalTimeSheet(Set<TimeSheetEntry> ats) {
-        int totalTime = 0;
-        for (TimeSheetEntry assignmentTimeSheet : ats) {
-            totalTime = totalTime + timeToInt(assignmentTimeSheet.getDuration());	
-        }
-        return intToTime(totalTime);
-    }
-
     private String getRateTimeSpent(Set<AssignmentSubmission> as) {
         int totalTime = 0;
         int nSubmision = 0;
@@ -16079,7 +16027,7 @@ public class AssignmentAction extends PagedResourceActionII {
         for (AssignmentSubmission submission : as) {
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 if(submitter.getTimeSpent()!=null) {
-                    spentSubmision = timeToInt(submitter.getTimeSpent());
+                    spentSubmision = assignmentService.timeToInt(submitter.getTimeSpent());
                     if(spentSubmision > 0) {
                         nSubmision++;
                         assigmentRateSpent = assigmentRateSpent + spentSubmision;
@@ -16089,9 +16037,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         }
         if(assigmentRateSpent > 0) {
-            return intToTime(assigmentRateSpent/nSubmision);	
+            return assignmentService.intToTime(assigmentRateSpent/nSubmision);	
         }
-        return intToTime(assigmentRateSpent);
+        return assignmentService.intToTime(assigmentRateSpent);
     }
     private String getRateSubmissionTimeSpent(AssignmentSubmission submission) {
         int totalTime = 0;
@@ -16101,7 +16049,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if(submission!=null) {
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 if(submitter.getTimeSpent()!=null) {
-                    spentSubmision = timeToInt(submitter.getTimeSpent());
+                    spentSubmision = assignmentService.timeToInt(submitter.getTimeSpent());
                     if(spentSubmision > 0) {
                         assigmentRateSpent = assigmentRateSpent + spentSubmision;
                     }
@@ -16109,8 +16057,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
         if(assigmentRateSpent > 0) {
-            return intToTime(assigmentRateSpent);
+            return assignmentService.intToTime(assigmentRateSpent);
         }
-        return intToTime(assigmentRateSpent);
+        return assignmentService.intToTime(assigmentRateSpent);
     }
 }

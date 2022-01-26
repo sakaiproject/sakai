@@ -95,23 +95,23 @@ public class SoftSiteDeletionJob implements Job {
 			// for now, just do it in code. There won't be many sites to process at
 			// once.
 			for (Site s : sites) {
-				log.debug("Looking at : " + s.getTitle() + " (" + s.getId() + ")");
+				log.debug("Looking at : {} ({})", s.getTitle(), s.getId());
 	
 				if (!s.isSoftlyDeleted()) {
-					log.warn("Site was in returned list but isn't deleted: " + s.getId());
+					log.warn("Site was in returned list but isn't deleted: {}", s.getId());
 					continue;
 				}
 	
 				// get calendar for the softly deleted date
 				Date deletedDate = s.getSoftlyDeletedDate();
 				if (deletedDate == null) {
-					log.warn("Site doesn't have a deleted date: " + s.getId());
+					log.warn("Site doesn't have a deleted date: {}", s.getId());
 					continue;
 				}
 	
 				// if this deleted date is before the gracetime, delete the site.
 				if (deletedDate.before(graceDate)) {
-					log.info("Site: " + s.getId() + " is due for deletion");
+					log.info("Site: {} is due for deletion", s.getId());
 	
 					try {
 						enableSecurityAdvisor();

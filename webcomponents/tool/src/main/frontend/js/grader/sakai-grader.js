@@ -6,6 +6,7 @@ import "./sakai-grader-file-picker.js";
 import "../sakai-date-picker.js";
 import "../sakai-group-picker.js";
 import "../sakai-document-viewer.js";
+import "../sakai-lti-iframe.js";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { Submission } from "./submission.js";
 import "/webcomponents/rubrics/rubric-association-requirements.js";
@@ -67,6 +68,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       rubric: { type: Object },
       assignmentsI18n: Object,
       showingHistory: Boolean,
+      ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
     };
   }
 
@@ -186,6 +188,22 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     return html`
       <div class="gradable">
+        ${this.submission.ltiSubmissionLaunch ? html`
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
+          <sakai-lti-iframe
+            allow-resize="yes"
+            new-window-text="${this.i18n.lti_grade_launch_button}"
+            launch-url="${this.submission.ltiSubmissionLaunch}"
+         />
+        ` : "" }
+        ${(this.ltiGradableLaunch && ! this.submission.ltiSubmissionLaunch )  ? html`
+          <div class="sak-banner-info">${unsafeHTML(this.i18n.lti_grade_launch_instructions)}</div>
+          <sakai-lti-iframe
+            allow-resize="yes"
+            new-window-text="${this.i18n.lti_grade_launch_button}"
+            launch-url="${this.ltiGradableLaunch}"
+         />
+        ` : "" }
         ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
           ${this.submittedTextMode ? html`
             <div class="sak-banner-info">${unsafeHTML(this.i18n.inline_feedback_instruction)}</div>
@@ -218,6 +236,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderGrader() {
+
+    // Hide the right UI until we have push notifications for grade changes
+    if ( this.submission.ltiSubmissionLaunch ) return "";
 
     return html`
       ${this.submission.id !== "dummy" ? html`
@@ -348,6 +369,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <fa-icon size="1.5em" i-class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </div>
           <button @click=${this.doneWithFeedbackDialog}>${this.assignmentsI18n["gen.don"]}</button>
+          <button @click=${this.cancelRubric}>${this.assignmentsI18n["gen.cancel"]}</button>
         </div>
         <div class="feedback-attachments-block grader-label">
           ${this.submission.feedbackAttachments ? html`
@@ -482,7 +504,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       });
       this.rubricShowing = true;
     } else {
-      $("#rubric-panel").dialog("destroy");
+      try {
+        $("#rubric-panel").dialog("destroy");
+      } catch (error) {
+        console.info(this.i18n.destroy_rubric_panel_log);
+      }
       this.rubricShowing = false;
     }
   }
@@ -493,14 +519,23 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.querySelector("#grader-rubric-link").focus();
   }
 
-  replaceWithEditor(id, width = 160, height = 60) {
+  cancelRubric() {
 
-    const editor = CKEDITOR.replace(id, {
-      toolbar: [['Bold', 'Italic', 'Underline', 'TextColor'], ['NumberedList', 'BulletedList', 'Blockquote']],
-      width,
-      height,
-      startupFocus: true
+    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    rubricGrading && rubricGrading.cancel();
+
+    this.rubricShowing = true;
+    this.doneWithRubricDialog();
+  }
+
+  replaceWithEditor(id) {
+
+    const editor = sakai.editor.launch(id, {
+      autosave: { delay: 10000000, messageType: "no" },
+      toolbarSet: "Basic",
+      startupFocus: true,
     });
+
     editor.on("change", () => this.modified = true);
     return editor;
   }
@@ -508,7 +543,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   toggleInlineFeedback(e, cancelling) {
 
     if (!this.feedbackTextEditor) {
-      this.feedbackTextEditor = this.replaceWithEditor("grader-feedback-text-editor", "100%", 600);
+      this.feedbackTextEditor = this.replaceWithEditor("grader-feedback-text-editor");
       this.feedbackTextEditor.setData(this.submission.feedbackText, () => this.modified = false);
       this.querySelector("#grader-feedback-text").style.display = "none";
       this.querySelector("#edit-inline-feedback-button").style.display = "none";
@@ -538,7 +573,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         width: "auto",
         close: () => this.toggleFeedback()
       });
-      this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment", "100%", 120);
+      this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
     } else {
       this.submission.feedbackComment = this.feedbackCommentEditor.getData();
       this.feedbackCommentEditor.destroy();
@@ -562,7 +597,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         width: "auto",
         close: () => this.togglePrivateNotes()
       });
-      this.privateNotesEditor = this.replaceWithEditor("grader-private-notes", "100%", 120);
+      this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
     } else {
       this.submission.privateNotes = this.privateNotesEditor.getData();
       this.privateNotesEditor.destroy();
@@ -787,6 +822,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.resetEditors(true);
 
+    this.cancelRubric();
+
     this.modified = false;
 
     switch (this.gradeScale) {
@@ -820,7 +857,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   canNavigate() {
-    const nFiles = this.querySelector("sakai-grader-file-picker").files.length;
+    // Deal with the right pane not present
+    const nFiles = this.querySelector("sakai-grader-file-picker") ? this.querySelector("sakai-grader-file-picker").files.length : 0;
     return this.modified || nFiles > 0 ?
       confirm(this.i18n.confirm_discard_changes) ?
         this.clearSubmission() : false
@@ -828,6 +866,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   validateGradeInput(e) {
+
+    if (e.key === "Tab") return;
 
     const decimalSeparator = (1.1).toLocaleString(portal.locale).substring(1, 2);
     const rgxp = new RegExp(`[\\d${decimalSeparator}]`);

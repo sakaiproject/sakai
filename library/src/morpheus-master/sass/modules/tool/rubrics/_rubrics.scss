@@ -323,8 +323,7 @@
             }
 
             .add-criterion-item {
-                display: none;
-                opacity: 0.5;
+                display: block;
                 position: absolute;
                 padding-top: 5px;
                 right: -10px;
@@ -332,16 +331,19 @@
                 bottom: 0;
                 width: 20px;
                 z-index: 5;
-
-                &:hover {
-                    opacity: 1;
+                button {
+                    background-color: transparent !important;
+                    border-color: transparent !important;
+                    border-width: 0 !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    span {
+                        pointer-events: none;
+                    }
                 }
             }
 
             &:hover, &.active {
-                .add-criterion-item {
-                    display: block;
-                }
 
                 sakai-rubric-criterion-edit {
                     display: inline-block;

@@ -4824,11 +4824,12 @@ public class DiscussionForumTool {
    */
   public boolean isDisplayPendingMsgQueue() {
     if (displayPendingMsgQueue == null) {
+      List<String> membershipList = new ArrayList<>();
       List<Topic> moderatedTopics = forumManager.getModeratedTopicsInSite();
 
       // Avoid the expensive queries below if there are no moderated topics
       if (moderatedTopics != null && !moderatedTopics.isEmpty()) {
-        List<String> membershipList = uiPermissionsManager.getCurrentUserMemberships();
+        membershipList = uiPermissionsManager.getCurrentUserMemberships();
         int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList, moderatedTopics);
 
         if (numModTopicWithPerm < 1) {
@@ -4840,23 +4841,26 @@ public class DiscussionForumTool {
       else {
         displayPendingMsgQueue = false;
       }
+
+      if (refreshPendingMsgs && displayPendingMsgQueue) {
+        refreshPendingMessages(membershipList, moderatedTopics);
+      }
     }
 
-    if (refreshPendingMsgs && displayPendingMsgQueue.booleanValue()) {
-      refreshPendingMessages();
-    }
-    return displayPendingMsgQueue.booleanValue();
+    return displayPendingMsgQueue;
   }
   
   /**
    * Retrieve pending msgs from db and make DiscussionMessageBeans
    *
+   * @param membershipList
+   * @param moderatedTopics
    */
-  private void refreshPendingMessages()
+  private void refreshPendingMessages(List<String> membershipList, List<Topic> moderatedTopics)
   {
 	  pendingMsgs = new ArrayList();
 	  numPendingMessages = 0;
-	  List messages = forumManager.getPendingMsgsInSiteByMembership(uiPermissionsManager.getCurrentUserMemberships());
+	  List<Message> messages = forumManager.getPendingMsgsInSiteByMembership(membershipList, moderatedTopics);
 	  
 	  if (messages != null && !messages.isEmpty())
 	  {
@@ -4868,11 +4872,8 @@ public class DiscussionForumTool {
 		  // Maps userIds to all the messages that are within an anonymous context
 		  Map<String, List<DiscussionMessageBean>> userIdAnonMessagesMap = new HashMap<>();
 	  
-		  Iterator msgIter = messages.iterator();
-		  while (msgIter.hasNext())
+		  for (Message msg : messages)
 		  {
-			  Message msg = (Message) msgIter.next();
-
 			  // Determine if we should display anonIds in the context of this message's topic, keep track of this in a map to minimize redundant permission checks, etc.
 			  Topic topic = msg.getTopic();
 			  Boolean useAnonId = topicUseAnonIdMap.get(topic);
@@ -4932,11 +4933,6 @@ public class DiscussionForumTool {
    */
   public List getPendingMessages()
   {
-	  if (refreshPendingMsgs)
-	  {
-	  	refreshPendingMessages();
-	  }
-	  
 	  return pendingMsgs;
   }
   

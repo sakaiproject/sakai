@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -104,6 +106,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected String leadInText;
   protected Integer answerOptionsRichCount;
   protected Integer answerOptionsSimpleOrRich;
+  
+  @Getter @Setter private Long originalItemId;
 
   
   /** ItemFacade is the class that is exposed to developer

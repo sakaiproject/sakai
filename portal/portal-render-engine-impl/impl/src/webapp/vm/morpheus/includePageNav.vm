@@ -31,13 +31,13 @@
 			<div class="Mrphs-toolsNav__menuitem--status-block">
 				#if (${page.hidden} && !${page.locked})
 				<div class="fa fa-eye-slash tool-status-icon"
-                    tabindex="0"
+                    role="note"
                     title="${rloader.site_tool_hidden_tooltip}"
                     aria-label="${rloader.site_tool_hidden_tooltip}"></div>
 				#{end}
 				#if (${page.locked})
 				<div class="fa fa-lock tool-status-icon"
-                    tabindex="0"
+                    role="note"
                     title="${rloader.site_tool_locked_tooltip}"
                     aria-label="${rloader.site_tool_locked_tooltip}"></div>
 				#{end}
@@ -56,7 +56,6 @@
 
     #end ## END of IF ($sitePages.siteHTMLInclude)
 
-    <h2 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
     <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
 	#if(${sitePages.pageNavIconUrl} != "")
         <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
@@ -64,6 +63,8 @@
 
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
+			<h2 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
+
 			<ul>
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
@@ -161,7 +162,7 @@
 				#end ## END of IF (${sitePages.pageNavShowHelp})
 	
 				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools #if ($toolsCollapsed) min #else max #end">
-					<button type="button" aria-pressed="$toolsCollapsed" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
+					<button type="button" aria-pressed="#if(${toolsCollapsed})true#else#**#false#end" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
 						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
 						<span class="sr-only">${rloader.sit_toggle_nav}</span>
 					</button>

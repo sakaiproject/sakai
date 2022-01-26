@@ -1,4 +1,4 @@
-<nav class="Mrphs-siteHierarchy">
+<nav class="Mrphs-siteHierarchy" aria-label="${rloader.sit_toolsubnavigation}">
     <div class="Mrphs-hierarchy--sites">
 
     #set ($tabCountBread = 0)

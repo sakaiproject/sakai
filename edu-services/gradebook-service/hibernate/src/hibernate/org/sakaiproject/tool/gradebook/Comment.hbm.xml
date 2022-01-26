@@ -22,7 +22,7 @@
 
         <property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true"/>
 
-        <many-to-one name="gradableObject" column="GRADABLE_OBJECT_ID" not-null="true" unique-key="G_O_STUDENT"/>
+        <many-to-one name="gradableObject" column="GRADABLE_OBJECT_ID" not-null="true" unique-key="G_O_STUDENT" index="FK_GB_COMMENT_GB_OBJ_ID_I" />
 
 
     </class>

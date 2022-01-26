@@ -129,6 +129,8 @@
   includeWebjarLibrary('select2');
 
   $(document).ready(function() {
+    // Initialize popovers
+    $('[data-toggle="popover"]').popover();
 
     //Disable or enable the submit depending on the group title value.
     $('#create-group-submit-button').prop('disabled', $('#groupTitle').val() === '');
@@ -138,12 +140,13 @@
       $(':input[type="submit"]').prop('disabled', $(this).val() === '');
     });
 
-    $('#groupMembershipFilter').on('change', function() {
+    $('#groupMembershipFilter, #groupJoinableShowAllUsers').on('change', function() {
       const groupParams = {
         filterByGroupId: this.value,
         groupId: $('#groupId').val(),
         currentTitle: $('#groupTitle').val(),
-        currentDescription: $('#groupDescription').val()
+        currentDescription: $('#groupDescription').val(),
+        currentShowAllUsers: document.getElementById("groupJoinableShowAllUsers").checked
       };
       window.location = 'group?'+new URLSearchParams(groupParams);
     });

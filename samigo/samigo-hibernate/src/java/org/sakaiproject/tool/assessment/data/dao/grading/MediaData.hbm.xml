@@ -11,12 +11,13 @@
     </id>
     <many-to-one name="itemGradingData"
       class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"
-      column="ITEMGRADINGID" />
+      column="ITEMGRADINGID" index="FK_SAM_MEDIA_ITEM_I" />
+<!--
     <property name="dbMedia">
       <column name="MEDIA" not-null="false" length="1000000000"/>
     </property>
-<!--
     <property name="media" type="blob" length="1000000000" column="MEDIA" not-null="false"/>
+    <property name="isHtmlInline" type="boolean" column="ISHTMLINLINE" not-null="false" />
 -->
     <property name="fileSize" type="long" column="FILESIZE" not-null="false" />
     <property name="mimeType" type="string" length="80" column="MIMETYPE" not-null="false" />
@@ -24,7 +25,6 @@
     <property name="location" type="string" length="255" column="LOCATION" not-null="false" />
     <property name="filename" type="string" length="255" column="FILENAME" not-null="false" />
     <property name="isLink" type="boolean" column="ISLINK" not-null="false" />
-    <property name="isHtmlInline" type="boolean" column="ISHTMLINLINE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="false" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="false" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="false" />

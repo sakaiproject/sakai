@@ -412,7 +412,7 @@ export class SakaiConversations extends SakaiElement {
   renderTopbar(renderBackButton, mobile) {
 
     return html`
-      <div id="conv-topbar">
+      <div class="conv-topbar">
 
         ${renderBackButton ? html`
           <div id="conv-back-button-block">
@@ -424,11 +424,11 @@ export class SakaiConversations extends SakaiElement {
           </div>
         ` : ""}
               
-        <div id="conv-search">
-          <input id="conv-search-field" value="${this.i18n.search_placeholder} (${this.i18n.disabled})" disabled></input>
+        <div class="conv-search">
+          <input class="conv-search-field" aria-label="${this.i18n.search_field_tooltip}" value="${this.i18n.search_placeholder} (${this.i18n.disabled})" disabled></input>
         </div>
 
-        <div id="conv-settings-and-create">
+        <div class="conv-settings-and-create">
           ${this.data.canUpdatePermissions ? html`
           ${mobile ? html`
 
@@ -443,7 +443,7 @@ export class SakaiConversations extends SakaiElement {
               </div>
             </options-menu>
           `: html`
-          <div id="conv-settings-link">
+          <div class="conv-settings-link">
             <a href="javascript:;" @click=${() => { this.showingSettings = true; this.state = STATE_SETTINGS; }}>
               <sakai-icon type="cog" size="small"></sakai-icon>
               <span id="conv-settings-label">${this.i18n.settings}</span>
@@ -454,11 +454,11 @@ export class SakaiConversations extends SakaiElement {
 
           ${this.data.canCreateTopic ? html`
           <a href="javascript:;" @click=${this.addTopic}>
-            <div id="conv-add-topic">
-                <span id="add-topic-text">
+            <div class="conv-add-topic">
+                <span class="add-topic-text">
                 ${this.i18n.create_new}
                 </span>
-                <sakai-icon id="add-topic-icon" type="add" size="medium"></sakai-icon>
+                <sakai-icon class="add-topic-icon" type="add" size="medium"></sakai-icon>
             </div>
           </a>
           ` : ""}

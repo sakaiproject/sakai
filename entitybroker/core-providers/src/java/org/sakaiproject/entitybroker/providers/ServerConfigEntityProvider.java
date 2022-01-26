@@ -1,15 +1,11 @@
 /**
- * $Id$
- * $URL$
- * ServerConfigEntityProvider.java - entity-broker - Jul 17, 2008 2:19:03 PM - azeckoski
- **************************************************************************
- * Copyright (c) 2008, 2009 The Sakai Foundation
+ * Copyright (c) 2003-2021 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.sakaiproject.entitybroker.providers;
 
 import java.io.Serializable;
@@ -33,6 +28,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -50,7 +49,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityServerConfig;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This provides access to the server configuration as entities,
@@ -58,6 +58,8 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
+@Setter
 public class ServerConfigEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, Outputable, Resolvable, 
     CollectionResolvable, ActionsExecutable, Describeable {
 
@@ -80,14 +82,9 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
     };
 
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
     private ClusterService clusterService;
-    public void setClusterService(ClusterService clusterService) {
-        this.clusterService = clusterService;
-    }
+    private SessionManager sessionManager;
+    private SecurityService securityService;
 
     public static String PREFIX = "server-config";
     public String getEntityPrefix() {
@@ -96,6 +93,7 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
 
     @EntityCustomAction(action="servers",viewKey=EntityView.VIEW_LIST)
     public Object getClusterServers(EntityReference ref) {
+        checkAllowed();
         List<String> servers = clusterService.getServers();
         // wrapped the data in an EntityData object so it is encoded as is
         return new EntityData(servers);
@@ -103,6 +101,7 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
 
     @EntityCustomAction(action="values",viewKey=EntityView.VIEW_LIST)
     public Object getAllValues() {
+        checkAllowed();
         TreeMap<String, Object> tm = new TreeMap<String, Object>( getKnownSettings() );
         // wrapped the data in an ActionReturn object so it is encoded as is
         return new ActionReturn(tm);
@@ -110,6 +109,7 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
 
     @EntityCustomAction(action="names",viewKey=EntityView.VIEW_LIST)
     public Object getAllNames(EntityReference ref) {
+        checkAllowed();
         Map<String, Object> tm = getKnownSettings();
         ArrayList<String> names = new ArrayList<String>( tm.keySet() );
         Collections.sort(names);
@@ -336,6 +336,14 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
      */
     private EntityServerConfig makeESC(String name, Object value) {
         return new EntityServerConfig(name, value, getConfigType(value));
+    }
+
+    private void checkAllowed() {
+        Session sakaiSession = sessionManager.getCurrentSession();
+        if (sakaiSession == null || !securityService.isSuperUser(sakaiSession.getUserId())) {
+            log.warn("User attempted to access server info without the proper authority");
+            throw new SecurityException("User doesn't have the authority to perform this action");
+        }
     }
 
 }

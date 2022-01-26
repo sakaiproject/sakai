@@ -16,9 +16,13 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Programmatic view of the "Options" page in Mail Sender
  */
+@Getter @Setter
 public class ConfigEntry
 {
 	public static final ConfigEntry DEFAULT_CONFIG = new ConfigEntry(
@@ -37,7 +41,7 @@ public class ConfigEntry
 
 	public enum ConfigParams
 	{
-		replyto, sendmecopy, appendrecipientlist, emailarchive, subjectprefix, displayinvalidemailaddrs, displayemptygroups
+		replyto, sendmecopy, appendrecipientlist, emailarchive, subjectprefix, displayinvalidemailaddrs, displayemptygroups, onlyplaintext
 	}
 
 	private String replyTo;
@@ -48,6 +52,12 @@ public class ConfigEntry
 	private String subjectPrefixType;
 	private String subjectPrefix;
 	private boolean displayEmptyGroups = true;
+	private boolean onlyPlainText;
+
+	public ConfigEntry() {
+		setReplyTo(ReplyTo.no_reply_to.name());
+		setSubjectPrefixType(SubjectPrefixType.system.name());
+	}
 
 	public ConfigEntry(String subjectPrefixType, boolean sendMeACopy, boolean appendRecipientList,
 			boolean addToArchive, String replyTo, boolean displayInvalidEmails,
@@ -63,10 +73,6 @@ public class ConfigEntry
 		setDisplayEmptyGroups(displayEmptyGroups);
 	}
 
-	public String getReplyTo()
-	{
-		return replyTo;
-	}
 
 	public void setReplyTo(String replyTo)
 	{
@@ -84,73 +90,9 @@ public class ConfigEntry
 		}
 	}
 
-	public boolean isDisplayInvalidEmails()
-	{
-		return displayInvalidEmails;
-	}
-
-	public void setDisplayInvalidEmails(boolean displayInvalidEmails)
-	{
-		this.displayInvalidEmails = displayInvalidEmails;
-	}
-
-	public boolean isSendMeACopy()
-	{
-		return sendMeACopy;
-	}
-
-	public void setSendMeACopy(boolean sendMeACopy)
-	{
-		this.sendMeACopy = sendMeACopy;
-	}
-
-	public boolean isAppendRecipientList()
-	{
-		return appendRecipientList;
-	}
-        
-	public void setAppendRecipientList(boolean appendRecipientList)
-	{
-		this.appendRecipientList = appendRecipientList;
-	}
-        
-	public boolean isAddToArchive()
-	{
-		return addToArchive;
-	}
-
-	public void setAddToArchive(boolean addToArchive)
-	{
-		this.addToArchive = addToArchive;
-	}
-
-	public String getSubjectPrefix()
-	{
-		return subjectPrefix;
-	}
-
-	public void setSubjectPrefix(String subjectPrefix)
-	{
-		this.subjectPrefix = subjectPrefix;
-	}
-
-	public String getSubjectPrefixType()
-	{
-		return subjectPrefixType;
-	}
-
 	public void setSubjectPrefixType(String subjectPrefixType)
 	{
 		this.subjectPrefixType = SubjectPrefixType.valueOf(subjectPrefixType).name();
 	}
 
-	public void setDisplayEmptyGroups(boolean displayEmptyGroups)
-	{
-		this.displayEmptyGroups = displayEmptyGroups;
-	}
-
-	public boolean isDisplayEmptyGroups()
-	{
-		return displayEmptyGroups;
-	}
 }

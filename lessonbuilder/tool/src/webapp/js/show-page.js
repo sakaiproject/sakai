@@ -1176,6 +1176,11 @@ $(document).ready(function() {
 				$("#student-max").val("");
 			}
 			
+			$("#gradebook-title").val(row.find(".studentGradebookTitle").text());
+			if($("#gradebook-title").val() === "null") {
+				$("#gradebook-title").val("");
+			}
+
 			grade = row.find(".studentGrade2").text();
 			if(grade === "true") {
 				$("#student-comments-graded").prop("checked", true);
@@ -1435,7 +1440,8 @@ $(document).ready(function() {
 				
 				row.find(".questionMultipleChoiceAnswer").each(function(index, el) {
 					var id = $(el).find(".questionMultipleChoiceAnswerId").text();
-					var text = $(el).find(".questionMultipleChoiceAnswerText").text();
+					//SAK-46296
+					var text = $(el).find(".raw-questionAnswer-text").val();
 					var correct = $(el).find(".questionMultipleChoiceAnswerCorrect").text();
 					
 					var answerSlot;

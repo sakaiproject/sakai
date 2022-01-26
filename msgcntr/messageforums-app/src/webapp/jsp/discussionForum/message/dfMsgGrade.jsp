@@ -17,7 +17,7 @@
         <script src="/messageforums-tool/js/sak-10625.js"></script>
         <script src="/messageforums-tool/js/messages.js"></script>
         <script src="/messageforums-tool/js/forum.js"></script>
-        <script>includeWebjarLibrary('ckeditor')</script>
+        <script>includeWebjarLibrary('ckeditor4')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
@@ -209,14 +209,15 @@
             <sakai:button_bar>
                 <% if(isDialogBox){ %>
                     <h:commandButton id="save" action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
-                        accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );MFR_RBC.saveRubric();" />
-                    <h:commandButton action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x"
-                        onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
+                        accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );MFR.saveRubric();" />
+                    <h:commandButton id="cancel" action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x"
+                        onclick="MFR.cancelGrading();" />
                 <% }else {%>
                     <h:commandButton action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
                         accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"
-                        onclick="SPNR.disableControlsAndSpin( this, null );MFR_RBC.saveRubric();" />
-                    <h:commandButton action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
+                        onclick="SPNR.disableControlsAndSpin( this, null ); MFR.saveRubric();" />
+                    <h:commandButton action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x"
+                        onclick="MFR.cancelGrading();" />
                 <%}%>
 
             </sakai:button_bar>

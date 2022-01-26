@@ -197,6 +197,7 @@ public class SimplePageBean {
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 	public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
+	public static final String GRADEBOOK_CLASSIC_TOOL_ID = "sakai.gradebook.tool";
 
 	private static String PAGE = "simplepage.page";
 	private String contents = null;
@@ -403,6 +404,13 @@ public class SimplePageBean {
 			"Teal",
 			"Purple"
 	};
+	private String[] newColorLabelsI18n = null;
+	public String[] getNewColorLabelsI18n() {
+		if (newColorLabelsI18n == null) {
+			newColorLabelsI18n = new String[]{messageLocator.getMessage("simplepage.columnnone"), messageLocator.getMessage("simplepage.col.newgray"), messageLocator.getMessage("simplepage.col.newblack"), messageLocator.getMessage("simplepage.col.newblue"), messageLocator.getMessage("simplepage.col.newblue2"), messageLocator.getMessage("simplepage.col.newred"), messageLocator.getMessage("simplepage.col.newnavy"), messageLocator.getMessage("simplepage.col.newnavy2"), messageLocator.getMessage("simplepage.col.newgreen"), messageLocator.getMessage("simplepage.col.neworange"), messageLocator.getMessage("simplepage.col.newgold"), messageLocator.getMessage("simplepage.col.newteal"), messageLocator.getMessage("simplepage.col.newpurple")};
+		}
+		return newColorLabelsI18n;
+	}
 	public static final String pageLayoutValues[] = {"none", "addSubpageList", "interiorResources", "interiorTask"};
 	public static final String FAILURE = "failure";
 	public static final String FORCE_BTN = "forceBtn";
@@ -1347,7 +1355,7 @@ public class SimplePageBean {
 			return true;
 		SimplePageItem item = findItem(itemId);
 		
-		return item.getPageId() == getCurrentPageId();
+		return item != null ? item.getPageId() == getCurrentPageId() : true;
 	}
 	
 	public Integer getFilterLevel(Placement placement) {
@@ -8061,23 +8069,28 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
-				 	boolean add;
-					if (page.getGradebookId() != null && !page.getGradebookPoints().equals(points)) {
-					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null);
+				if (StringUtils.isBlank(gradebookTitle)) {
+					gradebookTitle = getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")";
+				}
+				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points) ||
+					!page.getGradebookTitle().equals(gradebookTitle)) {
+					boolean add;
+					if (page.getGradebookId() != null &&
+						(!page.getGradebookPoints().equals(points) || !page.getGradebookTitle().equals(gradebookTitle))) {
+						add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null);
 					} else {
-					    try {
-							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
-					    } catch(ConflictingAssignmentNameException cane) {
+						try {
+							add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, gradebookTitle, Integer.valueOf(maxPoints), null, "Lesson Builder");
+						} catch(ConflictingAssignmentNameException cane) {
 							add = false;
 							setErrMessage(messageLocator.getMessage("simplepage.existing-gradebook"));
-					    }
+						}
 					}
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 					}else {
 						page.setGradebookId("lesson-builder:page:" + page.getId());
-						page.setGradebookTitle(getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")");
+						page.setGradebookTitle(gradebookTitle);
 						page.setGradebookPoints(points);
 						regradeStudentPages(page);
 					}
@@ -8086,6 +8099,7 @@ public class SimplePageBean {
 				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
 				page.setGradebookId(null);
 				page.setGradebookPoints(null);
+				page.setGradebookTitle(null);
 			}
 			
 			// Handling the grading of comments on pages
@@ -9188,5 +9202,10 @@ public class SimplePageBean {
 			status = "cancel";
 		}
 		return status;
+	}
+
+	// Does the site contain GradebookNG or Gradebook Classic
+	public boolean isGradebookExists() {
+		return (this.getCurrentTool(this.GRADEBOOK_TOOL_ID) != null || this.getCurrentTool(this.GRADEBOOK_CLASSIC_TOOL_ID) != null);
 	}
 }

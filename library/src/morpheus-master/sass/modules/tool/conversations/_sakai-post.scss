@@ -1,3 +1,5 @@
+.#{$namespace}sakai-conversations {
+
   .post-creator-name {
     font-weight: bold;
     font-size: 14px;
@@ -237,6 +239,14 @@
     margin-left: 20px;
     margin-top: 10px;
     font-size: 14px;
-    color: #262626;
+    color: var(--sakai-text-color-1);
   }
 
+  .comment-menu-button {
+      background-color: transparent !important;
+      border-color: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+  }
+
+}

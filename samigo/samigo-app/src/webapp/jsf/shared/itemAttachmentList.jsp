@@ -28,10 +28,6 @@
     <h:outputText value="#{attach.filename}" rendered="#{attach.isInlineVideo && delivery.fromPrint}"/>
 
     <h:outputText escape="false" value="
-      <embed src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" height=\"350\" width=\"400\"/>" rendered="#{attach.isInlineFlash && !delivery.fromPrint}"/>
-    <h:outputText value="#{attach.filename}" rendered="#{attach.isInlineFlash && delivery.fromPrint}"/>
-
-    <h:outputText escape="false" value="
       <img src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" />" rendered="#{attach.isInlineImage}"/>
 
     <h:panelGrid rendered="#{!attach.isMedia && !delivery.fromPrint}" border="0" columns="2">

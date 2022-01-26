@@ -33,7 +33,6 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -43,6 +42,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -759,8 +759,6 @@ public interface AssignmentService extends EntityProducer {
      */
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
-    boolean isTimeSheetEnabled(String siteId);
-
     /**
      * This will return the internationalized title of the tool.
      * This is used when creating a new gradebook item.
@@ -823,11 +821,11 @@ public interface AssignmentService extends EntityProducer {
      */
     public List<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(String siteId, Group submissionGroup, Collection<Group> asnGroups);
 
-    public boolean isValidTimesheetTime(String timeSheet);
+    public boolean isValidTimeSheetTime(String timeSheet);
 
-    public TimeSheetEntry getTimeSheetEntry(Long timeSheetId) throws PermissionException;
+    public List<TimeSheetEntry> getTimeSheetEntries(AssignmentSubmissionSubmitter submissionSubmitter);
 	
-    public void newTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheet) throws PermissionException;
+    public void saveTimeSheetEntry(AssignmentSubmissionSubmitter submissionSubmitter, TimeSheetEntry timeSheet) throws PermissionException;
 
     public void deleteTimeSheetEntry(Long timeSheetId) throws PermissionException;
 
@@ -843,4 +841,14 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public String createContentReviewAssignment(Assignment a, String assignmentRef, Instant openTime, Instant dueTime, Instant closeTime);
+
+    public String getTotalTimeSheet(AssignmentSubmissionSubmitter asnSubmissionSubmiter);
+
+    public boolean existsTimeSheetEntries(AssignmentSubmissionSubmitter asnSubmissionSubmitter);
+
+    public Integer timeToInt(String time);
+
+    public String intToTime(int time);
+
+    public boolean isTimeSheetEnabled(String siteId);
 }

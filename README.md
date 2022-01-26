@@ -12,7 +12,7 @@ The other branches are currently or previously supported releases. See below for
 
 This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
 
-To build Sakai you need Java 1.8. Once you have clone a copy of this repository you can
+To build Sakai you need Java 1.8. Once you have, clone a copy of this repository you can
 build it by running (or `./mvnw install` if you don't have Maven installed):
 ```
 mvn install
@@ -34,7 +34,7 @@ mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/your/tomcat
 Now start Tomcat:
 ```
 cd /path/to/your/tomcat/bin
-./startup.sh && tail -f ../logs.catalina.out
+./startup.sh && tail -f ../logs/catalina.out
 ```
 
 Once Sakai has started up (it usually takes around 30 seconds), open your browser and navigate to http://localhost:8080/portal
@@ -70,10 +70,10 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-Sakai 21.1 ([release](http://source.sakaiproject.org/release/21.1/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.1+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
+Sakai 21.2 ([release](http://source.sakaiproject.org/release/21.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 Is the community supported release of Sakai 21.
 
-Sakai 20.4 ([release](http://source.sakaiproject.org/release/20.4/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.4+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
+Sakai 20.5 ([release](http://source.sakaiproject.org/release/20.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/20.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+20+Release+Notes))
 Is the community supported release of Sakai 20.
 
 Sakai 19.6 ([release](http://source.sakaiproject.org/release/19.6/) | [fixes](https://confluence.sakaiproject.org/display/DOC/19.6+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
@@ -89,14 +89,14 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 21.2](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 21. It is expected to release Q3 2021.
+[Sakai 21.3](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 21. It is expected to release Q1 2022.
 
-[Sakai 20.5](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current developement release of Sakai 20. It is expected to release Q4 2021.
+[Sakai 20.6](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 20. <strike>It is expected to release Q1 2022.</strike>
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
 
-CKSource has created a GPL licensed open source version of their [Accessibility Checker](https://cksource.com/ckeditor/services#accessibility-checker) that lets you inspect the accessibility level of content created in CKEditor and immediately solve any accessibility issues that are found. CKEditor is the open source rich text editor used throughout Sakai. Whlie the Accessibility Checker, due to the GPL license, can not be bundled with Sakai, it can be used with Sakai and the A11y group has created [instructions](https://confluence.sakaiproject.org/display/2ACC/CKEditor+Accessibility+Checker) to help you.
+CKSource has created a GPL licensed open source version of their [Accessibility Checker](https://cksource.com/ckeditor/services#accessibility-checker) that lets you inspect the accessibility level of content created in CKEditor and immediately solve any accessibility issues that are found. CKEditor is the open source rich text editor used throughout Sakai. While the Accessibility Checker, due to the GPL license, can not be bundled with Sakai, it can be used with Sakai and the A11y group has created [instructions](https://confluence.sakaiproject.org/display/2ACC/CKEditor+Accessibility+Checker) to help you.
 
 ## Skinning Sakai
 Documentation on how to alter the Sakai skin (look and feel) is here https://github.com/sakaiproject/sakai/tree/master/library
@@ -125,6 +125,7 @@ From its inception, the Sakai project has been envisioned and designed for globa
 | tr_TR | Turkish |
 | zh_CN | Chinese |
 | ar | Arabic |
+| ro_RO | Romanian |
 
 ### Other languages
 

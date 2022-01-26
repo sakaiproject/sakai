@@ -87,7 +87,7 @@ public class HideDivisionRenderer extends Renderer
 		
 		writer.write("<fieldset>");
 		writer.write("<legend>");
-		writer.write("<a role='button' data-toggle='collapse' aria-expanded='true' aria-target='" + id + "' href='#" + id + "' data-target=\"[id='" + id + "']\">" + title + "</a>");
+		writer.write("<a role='button' data-toggle='collapse' aria-expanded='true' href='#" + id + "' data-target=\"[id='" + id + "']\">" + title + "</a>");
 		writer.write("</legend>");
 
 		writer.write("<div class='collapse in' " +

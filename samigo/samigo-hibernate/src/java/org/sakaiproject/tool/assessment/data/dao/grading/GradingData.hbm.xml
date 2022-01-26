@@ -29,7 +29,6 @@
 	
 	<set name="itemGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
         inverse="true" lazy="true">
-        <cache usage="read-write"/>
         <key column="ITEMGRADINGID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment" not-found="ignore"/>
     </set>
@@ -62,13 +61,11 @@
     
     <set name="itemGradingSet" table="SAM_ITEMGRADING_T" cascade="all" order-by="itemGradingId asc"
       inverse="true" lazy="true">
-      <cache usage="read-write"/>
       <key column="ASSESSMENTGRADINGID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
     </set>
     <set name="assessmentGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
         inverse="true" lazy="true">
-        <cache usage="read-write"/>
         <key column="ASSESSMENTGRADINGID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment" not-found="ignore"/>
     </set>
@@ -81,7 +78,7 @@
       </generator>
     </id>
     <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-       column="PUBLISHEDASSESSMENTID" not-null="true"/>
+       column="PUBLISHEDASSESSMENTID" not-null="true" index="FK_SAM_GRADE_SUM_ASSESSMENT_I" />
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
     <property name="totalSubmitted" type="integer" column="TOTALSUBMITTED" not-null="false" />
     <property name="totalSubmittedForGrade" type="integer" column="TOTALSUBMITTEDFORGRADE" not-null="false" />
@@ -149,13 +146,13 @@
     <subclass name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"
       discriminator-value="1" lazy="true" > 
       <many-to-one name="itemGrading" column="ITEMGRADINGID" not-null="false"
-        class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
+        class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData" index="FK_SAM_GRADE_ATTACH_ITEM_I" />
     </subclass>
     
     <subclass name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment"
       discriminator-value="4" lazy="true" > 
       <many-to-one name="assessmentGrading" column="ASSESSMENTGRADINGID" not-null="false"
-        class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"/>
+        class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData" index="FK_SAM_GRADE_ATTACH_ASSESS_I" />
     </subclass>
 
   </class>

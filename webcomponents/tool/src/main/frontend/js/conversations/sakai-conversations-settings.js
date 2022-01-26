@@ -83,20 +83,75 @@ export class SakaiConversationsSettings extends SakaiElement {
       <div class="add-topic-wrapper">
         <h1>${this.i18n.general_settings}</h1>
         <div id="settings-grid">
-          <div>${this.i18n.allow_reactions}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="allowReactions" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.allowReactions}></sakai-toggle></div>
-          <div>${this.i18n.allow_upvoting}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="allowUpvoting" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.allowUpvoting}></sakai-toggle></div>
-          <div>${this.i18n.allow_anon_posting}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="allowAnonPosting" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.allowAnonPosting}></sakai-toggle></div>
-          <div>${this.i18n.allow_bookmarking}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="allowBookmarking" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.allowBookmarking}></sakai-toggle></div>
-          <div>${this.i18n.allow_pinning}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="allowPinning" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.allowPinning}></sakai-toggle></div>
-          <div>${this.i18n.lock_this_site}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="siteLocked" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.siteLocked}></sakai-toggle></div>
-          <div>${this.i18n.enable_community_guidelines}</div>
-          <div><sakai-toggle @toggled=${this.setSetting} data-setting="requireGuidelinesAgreement" on-text="${this.i18n.on}" off-text="${this.i18n.off}" ?on=${this.settings.requireGuidelinesAgreement}></sakai-toggle></div>
+          <div id="setting-allow-reactions">${this.i18n.allow_reactions}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="allowReactions"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-allow-reactions"
+                ?on=${this.settings.allowReactions}>
+            </sakai-toggle>
+          </div>
+          <div id="setting-allow-upvoting">${this.i18n.allow_upvoting}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="allowUpvoting"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-allow-upvoting"
+                ?on=${this.settings.allowUpvoting}>
+            </sakai-toggle>
+          </div>
+          <div id="setting-allow-anon-posting">${this.i18n.allow_anon_posting}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="allowAnonPosting"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-allow-anon-posting"
+                ?on=${this.settings.allowAnonPosting}>
+            </sakai-toggle>
+          </div>
+          <div id="setting-allow-bookmarking">${this.i18n.allow_bookmarking}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="allowBookmarking"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-allow-bookmarking"
+                ?on=${this.settings.allowBookmarking}>
+            </sakai-toggle>
+          </div>
+          <div id="setting-allow-pinning">${this.i18n.allow_pinning}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="allowPinning"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-allow-pinning"
+                ?on=${this.settings.allowPinning}>
+            </sakai-toggle>
+          </div>
+          <div if="setting-lock-site">${this.i18n.lock_this_site}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="siteLocked"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-lock-site"
+                ?on=${this.settings.siteLocked}>
+            </sakai-toggle></div>
+          <div id="setting-require-guidelines">${this.i18n.enable_community_guidelines}</div>
+          <div>
+            <sakai-toggle @toggled=${this.setSetting}
+                data-setting="requireGuidelinesAgreement"
+                on-text="${this.i18n.on}"
+                off-text="${this.i18n.off}"
+                labelled-by="setting-require-guidelines"
+                ?on=${this.settings.requireGuidelinesAgreement}>
+            </sakai-toggle>
+          </div>
         </div>
         ${this.settings.requireGuidelinesAgreement ? html`
         <div id="settings-guidelines-block">

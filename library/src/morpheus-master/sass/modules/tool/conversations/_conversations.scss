@@ -8,6 +8,8 @@
 @import "_statistics.scss";
 //@import "svg-arrow.scss";
 
+.#{$namespace}sakai-conversations {
+
   #conv-no-topics-wrapper {
     display: flex;
     height: 400px;
@@ -85,7 +87,7 @@
     flex: 1;
   }
 
-  #conv-topbar {
+  .conv-topbar {
     height: 60px;
     display: grid;
     grid-template-columns: 1fr min-content;
@@ -94,16 +96,12 @@
     border-bottom: 1px solid #E0E0E0;
   }
 
-  #conv-search-field {
+  .conv-search-field {
     max-width: 519px;
     min-width: 300px;
     height: 34px;
     border-radius: 4px;
     padding-left: 20px;
-  }
-
-  #conv-settings-link {
-    white-space: nowrap;
   }
 
   #conv-settings {
@@ -113,36 +111,37 @@
     white-space: nowrap;
   }
 
-  #conv-settings-and-create {
+  .conv-settings-and-create {
     display: flex;
     align-items: center;
+
+    .conv-settings-link {
+      white-space: nowrap;
+      margin-left: 4px;
+
+      a {
+        font-weight: bold;
+        font-size: 12px;
+        text-align: center;
+        color: #666666;
+        text-decoration: none;
+      }
+    }
   }
 
-  #conv-settings-link {
-    margin-left: 4px;
-  }
-
-  #conv-settings-link > a {
-    font-weight: bold;
-    font-size: 12px;
-    text-align: center;
-    color: #666666;
-    text-decoration: none;
-  }
-
-  #conv-add-topic {
+  .conv-add-topic {
     white-space: nowrap;
     border-radius: 100px;
     padding: 6px 12px;
     background: #0F4B6F;
     color: white;
     margin-left: 14px;
-  }
 
-  #conv-add-topic > a {
-    font-size: 14px;
-    text-decoration: none;
-    color: white;
+    a {
+      font-size: 14px;
+      text-decoration: none;
+      color: white;
+    }
   }
 
   #conv-topic-list-and-content {
@@ -187,7 +186,7 @@
     #conv-settings-label {
       display: none;
     }
-    #conv-search input {
+    .conv-search input {
       min-width: 150px;
       width: 150px;
     }
@@ -200,10 +199,10 @@
     #conv-mobile {
       display: none;
     }
-    #add-topic-text {
+    .add-topic-text {
       display: inline;
     }
-    #add-topic-icon {
+    .add-topic-icon {
       display: none;
     }
   }
@@ -216,10 +215,10 @@
     #conv-mobile {
       display: block;
     }
-    #add-topic-text {
+    .add-topic-text {
       display: none;
     }
-    #add-topic-icon {
+    .add-topic-icon {
       display: inline;
       color: green;
     }
@@ -236,7 +235,7 @@
       border: inherit;
     }
 
-    #conv-add-topic {
+    .conv-add-topic {
       border-radius: inherit;
       padding: inherit;
       background: inherit;
@@ -261,7 +260,7 @@
       flex-wrap: wrap;
     }
 
-    #conv-topbar {
+    .conv-topbar {
       display: flex;
     }
 
@@ -285,3 +284,5 @@
       width: 100px;
     }
   }
+
+}

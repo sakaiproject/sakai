@@ -495,7 +495,7 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	 */
 	public String getGroupFieldsSql()
 	{
-		return "select SS.GROUP_ID, SS.TITLE, SS.DESCRIPTION " + "from SAKAI_SITE_GROUP SS where SS.SITE_ID = ?";
+		return "select SS.GROUP_ID, SS.TITLE, SS.DESCRIPTION " + "from SAKAI_SITE_GROUP SS where SS.SITE_ID = ? order by SS.TITLE";
 	}
 
 	/**

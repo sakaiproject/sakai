@@ -34,6 +34,7 @@ public class ConfigEntryTest {
 	ConfigEntry entry;
 
 	String subjectPrefixType = SubjectPrefixType.system.toString();
+	boolean onlyPlainText = false;
 	boolean sendMeACopy = false;
 	boolean appendRecipientList = false;
 	boolean addToArchive = false;
@@ -51,6 +52,7 @@ public class ConfigEntryTest {
 	@Test
 	public void getDefaults() {
 		assertEquals(subjectPrefixType, entry.getSubjectPrefixType());
+		assertEquals(onlyPlainText, entry.isOnlyPlainText());
 		assertEquals(sendMeACopy, entry.isSendMeACopy());
 		assertEquals(appendRecipientList, entry.isAppendRecipientList());
 		assertEquals(addToArchive, entry.isAddToArchive());

@@ -10,7 +10,7 @@ class SakaiRubricsManager extends RubricsElement {
 
     super();
 
-    this.siteRubricsExpanded = "false";
+    this.siteRubricsExpanded = "true";
     this.sharedRubricsExpanded = "false";
 
     SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
@@ -59,15 +59,19 @@ class SakaiRubricsManager extends RubricsElement {
         <br>
         <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}"></sakai-rubrics-list>
       </div>
+      
+      <hr>
+      <h3>${tr("public_rubrics_title")}</h3>
+      <p>${tr("public_rubrics_info")}</p>
 
         <div id="shared-rubrics-title" aria-expanded="${this.sharedRubricsExpanded}" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="${tr("toggle_shared_rubrics")}" tabindex="0" @click="${this.toggleSharedRubrics}">
           <div>
-            <span class="collpase-icon fa fa-chevron-down"></span>
+            <span class="collpase-icon fa fa-chevron-right"></span>
             <sr-lang key="shared_rubrics">shared_rubrics</sr-lang>
           </div>
         </div>
 
-      <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
+      <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics" style="display:none;">
         <div id="sharedlist">
           <div class="rubric-title-sorting">
           <div @click="${this.sortRubrics}"><a href="javascript:void(0)" style="text-decoration: none;"><sr-lang class="shared-name" key="site_name">site_name</sr-lang><span class="collpase-icon fa fa-chevron-up shared-name sort-element-shared"></span></a></div>

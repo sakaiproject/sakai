@@ -36,7 +36,6 @@ public class CourseGrade implements Serializable {
 	private Double pointsEarned;
 	private Double totalPointsPossible;
 	private Date dateRecorded;
-	private String autoCalculatedGrade;
 
 	public CourseGrade() {
 		//
@@ -119,14 +118,6 @@ public class CourseGrade implements Serializable {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-	}
-
-	public String getAutoCalculatedGrade() {
-		return this.autoCalculatedGrade;
-	}
-
-	public void setAutoCalculatedGrade(final String autoCalculatedGrade) {
-		this.autoCalculatedGrade = autoCalculatedGrade;
 	}
 
 }

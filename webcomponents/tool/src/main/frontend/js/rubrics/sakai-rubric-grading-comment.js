@@ -110,7 +110,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
     if (!this.criterion.comments) {
       this.criterion.comments = "";
     }
-    this.dispatchEvent(new CustomEvent('update-comment', { detail: { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments }, bubbles: true, composed: true }));
+
     this.requestUpdate();
   }
 
@@ -125,11 +125,31 @@ export class SakaiRubricGradingComment extends RubricsElement {
         height: 40
       });
 
-      commentEditor.on('change', () => this.criterion.comments = commentEditor.getData());
+      commentEditor.on('blur', () => {
+
+        // When we click away from the comment editor we need to save the comment, but only if the comment has been updated
+        const updatedComments = commentEditor.getData();
+
+        if (this.criterion.comments !== updatedComments) {
+          this.criterion.comments = updatedComments;
+          const updateEvent = new CustomEvent('update-comment', {
+            detail: {
+              evaluatedItemId: this.evaluatedItemId,
+              entityId: this.entityId,
+              criterionId: this.criterion.id,
+              value: this.criterion.comments
+            },
+            bubbles: true, composed: true });
+          this.dispatchEvent(updateEvent);
+        }
+
+        this.hideTooltip();
+      });
     } catch (error) {
       console.log(error);
     }
   }
 }
 
-customElements.define("sakai-rubric-grading-comment", SakaiRubricGradingComment);
+const tagName = "sakai-rubric-grading-comment";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricGradingComment);

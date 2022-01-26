@@ -5,26 +5,13 @@ name: Java CI with Maven
 
 on:
   pull_request:
-    branches: [ master, 19.x, 20.x, 21.x, 22.x, 23.x ]
 
 jobs:
-  build:
+  maven-build:
     runs-on: ubuntu-20.04
     steps:
-      # https://github.com/actions/checkout#checkout-pull-request-head-commit-instead-of-merge-commit
       - name: Git Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Git Pull
-        run: |
-          GIT_MERGE_BASE_SHA=$(git merge-base origin/$GITHUB_BASE_REF $GITHUB_SHA)
-          echo "Commits before pull"
-          git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
-          echo "Pull with fast forward only"
-          git pull --ff-only origin $GITHUB_BASE_REF
-          echo "Commits after pull"
-          git log --oneline $GIT_MERGE_BASE_SHA~1..HEAD
       - name: JDK 11
         uses: actions/setup-java@v1
         with:
@@ -41,7 +28,8 @@ jobs:
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
         run: mvn --batch-mode -PskipBrokenTests test
-      - name: Report jUnit Annotations as Github Actions Annotations
-        uses: shyim/junit-report-annotations-action@0.2.0
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
         with:
-          path: '**/surefire-reports/*.xml'
+          skip_publishing: true

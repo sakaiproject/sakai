@@ -446,6 +446,8 @@ public class DeliveryBean implements Serializable {
   // Rubrics
   @Getter @Setter
   private String rbcsToken;
+  @Getter @Setter
+  private String rubricAssociation;
 
   private static final String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static final String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path");
@@ -1652,8 +1654,6 @@ public class DeliveryBean implements Serializable {
     // 1. create a media record
     File media = new File(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
-    boolean SAVETODB = getSaveToDb();
-    log.debug("**** SAVETODB={}", SAVETODB);
     MediaData mediaData;
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId={}", itemGradingData.getItemGradingId());
     // 1b. get filename
@@ -1670,23 +1670,13 @@ public class DeliveryBean implements Serializable {
     String updatedFilename = gradingService.getFileName(itemGradingData.getItemGradingId(), agent, filename);
     log.debug("**** updatedFilename={}", updatedFilename);
     
-    if (SAVETODB) { // put the byte[] in
       byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
-                                updatedFilename, false, false, 1,
+                                updatedFilename, false, 1,
                                 agent, new Date(),
                                 agent, new Date(), null);
-    } else { // put the location in
-      mediaData = new MediaData(itemGradingData, null,
-    		  					Long.valueOf(media.length() + ""),
-                                mimeType, "description", mediaLocation,
-                                updatedFilename, false, false, 1,
-                                agent, new Date(),
-                                agent, new Date(), null);
-
-    }
     Long mediaId = gradingService.saveMedia(mediaData);
     log.debug("mediaId={}", mediaId);
     log.debug("***6c. addMediaToItemGrading, media.itemGradinDataId={}", ( (ItemGradingData) mediaData.getItemGradingData()).getItemGradingId());
@@ -1699,12 +1689,10 @@ public class DeliveryBean implements Serializable {
     EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ATTACHMENT_NEW, "itemGradingId=" + itemGradingData.getItemGradingId() + ", " + mediaData.getFilename(), null, true, NotificationService.NOTI_REQUIRED));
     // 3. if saveToDB, remove file from file system
     try {
-      	if (SAVETODB) {
       	    boolean success = media.delete();
       	    if (!success){
       		    log.warn("Error: media.delete() failed for mediaId ={}", mediaId);
       	    }
-      	}
     } catch(Exception e) {
       log.warn(e.getMessage());
     }
@@ -1796,10 +1784,6 @@ public class DeliveryBean implements Serializable {
   }
   public void setAgentAccessString(String agentString) {
     deliveryAgent.setAgentInstanceString(agentString);
-  }
-
-  public boolean getSaveToDb(){
-    return ServerConfigurationService.getBoolean("samigo.saveMediaToDb", true);
   }
 
   public void attachToItemContentBean(ItemGradingData itemGradingData, String questionId){

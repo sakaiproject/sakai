@@ -193,8 +193,9 @@ public class ElasticSearchTest {
         sites.add(site);
         when(serverConfigurationService.getBoolean("search.enable", false)).thenReturn(true);
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(Collections.emptyList());
-        when(serverConfigurationService.getServerId()).thenReturn("server1");
-        when(serverConfigurationService.getServerName()).thenReturn("clusterName");
+        long pid = ProcessHandle.current().pid();
+        when(serverConfigurationService.getServerId()).thenReturn("node-" + pid);
+        when(serverConfigurationService.getServerName()).thenReturn("cluster-" + pid);
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         siteIds.add(siteId);
@@ -283,7 +284,7 @@ public class ElasticSearchTest {
                 "    \"analysis\": {\n" +
                 "        \"filter\": {\n" +
                 "            \"substring\": {\n" +
-                "                \"type\": \"nGram\",\n" +
+                "                \"type\": \"ngram\",\n" +
                 "                \"min_gram\": 1,\n" +
                 "                \"max_gram\": 20\n" +
                 "            }\n" +

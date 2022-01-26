@@ -236,15 +236,14 @@ public class DeepLinkResponse {
 			throw new java.lang.RuntimeException("Incorrect MESSAGE_TYPE");
 		}
 		
-		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
-		if ( deep_links == null || deep_links.size() < 1 ) {
-			throw new java.lang.RuntimeException("A deep link response must include at least one content_item");
-		}
-
 		String returnedData = (String) body.get(DATA);
 		if ( returnedData == null || returnedData.length() < 1 ) {
 			throw new java.lang.RuntimeException("Missing data element from ContentItem return");
 		}
+
+		// It is OK for this to be null
+		deep_links = BasicLTIUtil.getArray(body, DEEP_LINKS);
+
 	}
 	
 	/**
@@ -313,6 +312,7 @@ public class DeepLinkResponse {
 	 */
 	public JSONObject getItemOfType(String itemType)
 	{
+		if ( deep_links == null ) return null;
 		for ( Object i : deep_links ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;

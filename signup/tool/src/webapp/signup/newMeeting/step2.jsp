@@ -453,8 +453,8 @@
 								
 								<h:panelGroup id="emailAttendeeOnly">
 									<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs" >
-										<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}" itemDisabled="true"/>
-										<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}" itemDisabled="true"/>
+										<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>
+										<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>
 									</h:selectOneRadio>
 								</h:panelGroup>
 							</h:panelGrid>

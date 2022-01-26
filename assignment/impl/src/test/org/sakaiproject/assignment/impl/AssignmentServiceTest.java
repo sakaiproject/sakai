@@ -66,7 +66,6 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.api.model.TimeSheetEntry;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -1028,6 +1027,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             configureScale(1000, locale);
             Assert.assertEquals(/*"0.005 or 0,005"*/"0"+ds+"005", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
             Assert.assertEquals(/*"50.000 or 50,000"*/"50"+ds+"000", assignmentService.getGradeDisplay("50000", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+
+            Assert.assertEquals("0" + ds + "00", assignmentService.getGradeDisplay("Pass", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
         }
 
         Assert.assertEquals("", assignmentService.getGradeDisplay("", Assignment.GradeType.UNGRADED_GRADE_TYPE, null));
@@ -1411,17 +1412,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             BeanUtils.copyProperties(s, submitter);
             submitter.setId(null);
             submitter.setSubmission(duplicateSubmission);
-            submitter.setTimeSheetEntries(new HashSet<>());
-            s.getTimeSheetEntries().forEach(ts -> {
-                TimeSheetEntry timeSheet = new TimeSheetEntry();
-                BeanUtils.copyProperties(ts, timeSheet);
-                timeSheet.setId(null);
-                timeSheet.setComment(ts.getComment());
-                timeSheet.setStartTime(ts.getStartTime());
-                timeSheet.setDuration(ts.getDuration());
-                timeSheet.setAssignmentSubmissionSubmitter(submitter);
-                submitter.getTimeSheetEntries().add(timeSheet);
-            });
             duplicateSubmission.getSubmitters().add(submitter);
         });
         duplicateSubmission.setDateCreated(Instant.now().plusSeconds(5));

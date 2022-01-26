@@ -480,10 +480,11 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   }
   var isExtraCredit = false;
 
+  const numberValue = GbGradeTable.localizedStringToNumber(value);
   if (GbGradeTable.settings.isPointsGradeEntry) {
-    isExtraCredit = parseFloat(value) > parseFloat(column.points);
+    isExtraCredit = numberValue > parseFloat(column.points);
   } else if (GbGradeTable.settings.isPercentageGradeEntry) {
-    isExtraCredit = parseFloat(value) > 100;
+    isExtraCredit = numberValue > 100;
   }
 
   if (isExtraCredit && !hasExcuse) {
@@ -1011,15 +1012,20 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     $('body').append($dropdownMenu.detach());
 
-    // SAK-40644 Hide move left for the leftmost, move right for the rightmost.
+    // Remove "Move left" menu option for the leftmost item and "Move right" for the rightmost item.
     var $header = $link.closest("th.gb-item");
     if ($header.length) {
+      var menuOption;
+      // Retrieve JQuery <a> element
       if (!$header.prev("th.gb-item").length || $header.prev("th").hasClass("gb-item-category")) {
-        $dropdownMenu.find(".gb-move-left").hide();
+        menuOption = $dropdownMenu.find(".gb-move-left");
       }
-
       if (!$header.next("th.gb-item").length || $header.next("th").hasClass("gb-item-category")) {
-        $dropdownMenu.find(".gb-move-right").hide();
+        menuOption = $dropdownMenu.find(".gb-move-right"); 
+      }
+      // Remove DOM <li> element
+      if (menuOption != null && menuOption.length > 0) {
+        menuOption[0].parentElement.remove();
       }
     }
 
@@ -1747,10 +1753,10 @@ GbGradeTable.applyStudentFilter = function(data) {
       if (GbGradeTable.settings.isStudentNumberVisible) {
           searchableFields.push(student.studentNumber);
       }
-      var studentSearchString = searchableFields.join(";")
+      const studentSearchString = searchableFields.join(";").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
       for (var i=0; i<queryStrings.length; i++) {
-        var queryString = queryStrings[i];
+        const queryString = queryStrings[i].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         if (studentSearchString.match(new RegExp(queryString, "i")) == null) {
           return false;
@@ -2245,8 +2251,8 @@ GbGradeTable.sort = function(colIndex, direction) {
   }
 
   clone.sort(function(row_a, row_b) {
-    var a = row_a[colIndex];
-    var b = row_b[colIndex];
+    var a = GbGradeTable.localizedStringToNumber(row_a[colIndex]);
+    var b = GbGradeTable.localizedStringToNumber(row_b[colIndex]);
 
     return sortCompareFunction(a, b);
   });
@@ -2709,35 +2715,51 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
       // menu focused
       if ($focus.closest(".dropdown-menu ").length > 0) {
-        // up arrow
-        if (event.keyCode == 38) {
-          iGotThis(true);
-          if ($focus.closest("li").index() == 0) {
-            // first item, so close the menu
-            $(".btn-group.open .dropdown-toggle").dropdown("toggle");
-            $current.focus();
-          } else {
-            $focus.closest("li").prev().find("a").focus();
-          }
-        }
-        // down arrow
-        if (event.keyCode == 40) {
-          iGotThis();
-          $focus.closest("li").next().find("a").focus();
-        }
-        // esc
-        if (event.keyCode == 27) {
-          iGotThis(true);
-          $(".btn-group.open .dropdown-toggle").dropdown("toggle");
-          $current.focus();
-        }
-        // enter
-        if (event.keyCode == 13) {
-          iGotThis(true);
-          // deselect cell so keyboard focus is given to the menu's action
-          GbGradeTable.instance.deselectCell();
-        }
-
+		  
+		  
+		switch (event.keyCode) {
+			case 38: //up arrow
+				iGotThis(true);
+				if ($focus.closest("li").index() == 0) {
+					// first item, so close the menu
+					$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+					$current.focus();
+				} else {
+					$focus.closest("li").prev().find("a").focus();
+				}
+				break;
+			case 40: //down arrow
+				iGotThis();
+				$focus.closest("li").next().find("a").focus();
+				break;
+			case 37: //left arrow
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 39: //right arrow
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 27: //esc
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			case 13: //enter
+				iGotThis(true);
+				// deselect cell so keyboard focus is given to the menu's action
+				GbGradeTable.instance.deselectCell();
+				break;
+			case 9: //tab
+				iGotThis(true);
+				$(".btn-group.open .dropdown-toggle").dropdown("toggle");
+				$current.focus();
+				break;
+			default:
+				break;
+		}
         if (handled) {
           GbGradeTable.hideMetadata();
           return;
@@ -3132,6 +3154,17 @@ GbGradeTable.localizeNumber = function(number) {
     return '' + number;
 };
 
+GbGradeTable.localizedStringToNumber = function(localizedString) {
+    // Get the thousands and decimals separator for a random localized number and remove duplicated values converting it into a set
+    const parts = [...new Set(GbGradeTable.localizeNumber(11111111.1).replace(/\d+/g,'').split(''))];
+    if (localizedString === null) return null;
+    if (parts.length == 1) parts.unshift('');
+
+    // Remove thousands separator and change decimal separator to "." (to convert the localized String into a Number object)
+    return Number(String(localizedString)
+        .replaceAll(parts[0],'')
+        .replace(parts[1],'.'));
+};
 
 // Commit values to the grade data and the table meta data where applicable
 GbGradeTable.syncScore = function(studentId, assignmentId, value) {

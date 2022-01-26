@@ -24,6 +24,12 @@ public class LaunchJWT extends BaseJWT {
 	public static String ROLE_LEARNER = LTI13ConstantsUtil.ROLE_LEARNER;
 	public static String ROLE_INSTRUCTOR = LTI13ConstantsUtil.ROLE_INSTRUCTOR;
 
+	// Submission Review (Draft)
+	public static final String MESSAGE_TYPE_LTI_SUBMISSION_REVIEW_REQUEST = "LtiSubmissionReviewRequest";
+
+	// Data Privacy Launch (Draft)
+	public static final String MESSAGE_TYPE_LTI_DATA_PRIVACY_LAUNCH_REQUEST = "DataPrivacyLaunchRequest";
+
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
 
@@ -81,17 +87,21 @@ public class LaunchJWT extends BaseJWT {
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings")
 	public DeepLink deep_link;
-	//
-	// TODO: Remove after transition
-	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti11_legacy_user_id")
-	public String lti11_legacy_user_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1p1")
 	public LTI11Transition lti11_transition;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/for_user")
+	public ForUser for_user;
+
 	// Constructor
 	public LaunchJWT() {
-		this.message_type = MESSAGE_TYPE_LAUNCH;
+		this(MESSAGE_TYPE_LAUNCH);
+	}
+
+	// Constructor
+	public LaunchJWT(String messageType) {
+		this.message_type = messageType;
 		this.version = "1.3.0";
 		this.launch_presentation = new LaunchPresentation();
 	}

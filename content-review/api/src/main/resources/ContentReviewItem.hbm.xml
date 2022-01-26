@@ -33,4 +33,8 @@
             <element column="VALUE" type="string"/>
         </map>
     </class>
+    <database-object>
+		<create>create index FK_CON_REVIEW_ITEM_I on CONTENTREVIEW_ITEM_PROPERTIES (CONTENTREVIEW_ITEM_ID)</create>
+		<drop></drop>
+	</database-object>
 </hibernate-mapping>

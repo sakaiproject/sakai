@@ -1,19 +1,18 @@
-/**********************************************************************************
-Copyright (c) 2018 Apereo Foundation
-
-Licensed under the Educational Community License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-            http://opensource.org/licenses/ecl2
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
- **********************************************************************************/
-
+/**
+ * Copyright (c) 2003-2021 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.jsf2.renderer;
 
 import java.io.IOException;
@@ -95,7 +94,6 @@ public class PagerRenderer extends Renderer {
         // get stuff for page size selection and display
 
         String textPageSize = getString(context, component, "textPageSize", "Show {0}");
-        String textPageSizeAll = getString(context, component, "textPageSizeAll", "all");
         String pageSizesStr = getString(context, component, "pageSizes", "5,10,20,50,100");
         String[] pageSizes = pageSizesStr.split(",");
         String idSelect = clientId+"_pageSize";
@@ -114,14 +112,12 @@ public class PagerRenderer extends Renderer {
         // TODO: Probably need to cache this for performance
         String onchangeHandler = "javascript:this.form.submit(); return false;";
         String selectedValue = String.valueOf(pageSize);
-        String[] optionTexts = new String[pageSizes.length+1];
-        String[] optionValues = new String[pageSizes.length+1];
+        String[] optionTexts = new String[pageSizes.length];
+        String[] optionValues = new String[pageSizes.length];
         for (int i=0; i<pageSizes.length; i++) {
             optionTexts[i] = MessageFormat.format(textPageSize, new Object[] {pageSizes[i]});
             optionValues[i] = pageSizes[i];
         }
-        optionTexts[pageSizes.length] = MessageFormat.format(textPageSize, new Object[] {textPageSizeAll});
-        optionValues[pageSizes.length] = "0";
 
         // Output HTML
 
