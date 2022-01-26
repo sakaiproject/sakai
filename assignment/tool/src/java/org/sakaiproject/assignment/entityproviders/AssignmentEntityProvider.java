@@ -548,7 +548,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String duration = (String) params.get("tsDuration");
 
-        if (StringUtils.isBlank(duration) || !assignmentService.isValidTimeSheetTime(duration)) {
+        if (!assignmentService.isValidTimeSheetTime(duration)) {
             log.warn("Wrong time format. Must match XXh YYm");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }

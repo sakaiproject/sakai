@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.timesheet.api.TimeSheetService;
@@ -63,7 +64,7 @@ public class TimeSheetServiceImpl implements TimeSheetService {
 
     @Override
     public boolean isValidTimeSheetTime(String time) {
-        return timeSheetTimePattern.matcher(time).matches();
+        return StringUtils.isNotBlank(time) && timeSheetTimePattern.matcher(time).matches();
     }
 
     @Override

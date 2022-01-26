@@ -38,7 +38,7 @@ ASN_SVS.undoCancel = function()
 
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/addTimeSheet.json";
-    var messages = [];
+    const messages = [];
 
     const tsComment = document.getElementById("comment").value;
     if (tsComment == null || tsComment.trim() === '') {
@@ -158,7 +158,7 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     button.classList.remove("spinButton");
     button.disabled = false;
     document.getElementById("alertTsheetAddRecord").style.display="block";
-    let messageArray = [];
+    const messageArray = [];
     document.getElementById("alertTsheetAddRecord").innerHTML
       = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
