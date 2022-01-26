@@ -1389,7 +1389,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
 			log.error("Invalid authorization {}", authorization);
-			LTI13Util.return400(response, "invalid_authorization");
+			LTI13Util.return403(response, "invalid_authorization");
 			return null;
 		}
 
@@ -1397,7 +1397,7 @@ public class LTI13Servlet extends HttpServlet {
 		String[] parts = authorization.split("\\s+");
 		if (parts.length != 2 || parts[1].length() < 1) {
 			log.error("Bad authorization {}", authorization);
-			LTI13Util.return400(response, "invalid_authorization");
+			LTI13Util.return403(response, "invalid_authorization");
 			return null;
 		}
 
@@ -1408,7 +1408,7 @@ public class LTI13Servlet extends HttpServlet {
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
 			log.error("Signature error {}\n{}", e.getMessage(), jws);
-			LTI13Util.return400(response, "signature_error");
+			LTI13Util.return403(response, "signature_error");
 			return null;
 		}
 
@@ -1422,7 +1422,7 @@ public class LTI13Servlet extends HttpServlet {
 			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
 		} catch (IOException ex) {
 			log.error("PARSE ERROR {}\n{}", ex.getMessage(), claims.toString());
-			LTI13Util.return400(response, "token_parse_failure", ex.getMessage());
+			LTI13Util.return403(response, "token_parse_failure", ex.getMessage());
 			return null;
 		}
 
@@ -1431,7 +1431,7 @@ public class LTI13Servlet extends HttpServlet {
 			// All good
 		} else {
 			log.error("SakaiAccessToken missing required data {}", sat);
-			LTI13Util.return400(response, "Missing required data in access_token");
+			LTI13Util.return403(response, "Missing required data in access_token");
 			return null;
 		}
 
@@ -1923,6 +1923,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
 		if (tool == null) {
+			LTI13Util.return400(response, "Could not load tool associated with content");
 			log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
 			return;
 		}
@@ -1937,7 +1938,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if ( a == null ) {
-			LTI13Util.return400(response, "Could not load column");
+			LTI13Util.return404(response, "Could not load column");
 			log.error("Could not load column={}", lineitem_key);
 			return;
 		}
