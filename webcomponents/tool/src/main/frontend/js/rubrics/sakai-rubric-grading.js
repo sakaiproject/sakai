@@ -193,6 +193,9 @@ export class SakaiRubricGrading extends RubricsElement {
 
   release() {
 
+    // If there are no criteria, this evaluation has been cancelled.
+    if (this.criteria.length == 0) return;
+
     this._dispatchRatingChanged(this.criteria, 2).then(evaluation => {
 
       // We've saved the new returned evaluation. We now need to save the returned, backup copy.
@@ -260,7 +263,7 @@ export class SakaiRubricGrading extends RubricsElement {
       });
     });
 
-    this.updateTotalPoints(false);
+    this.updateTotalPoints({ notify: false });
   }
 
   fineTuneRating(e) {
@@ -369,14 +372,9 @@ export class SakaiRubricGrading extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.criteria.forEach(c => {
-
-          c.selectedvalue = 0.0;
-          c.pointoverride = 0.0;
-          c.ratings.forEach(rat => rat.selected = false);
-        });
-        this.updateTotalPoints();
+        this.updateTotalPoints({ notify: true, totalPoints: 0 });
         this.evaluation = { criterionOutcomes: [] };
+        this.criteria = [];
         this.requestUpdate();
       } else {
         throw new Error("Server error while deleting evaluation");
@@ -440,14 +438,18 @@ export class SakaiRubricGrading extends RubricsElement {
     this.querySelectorAll(`sakai-rubric-grading-comment:not(#${e.target.id})`).forEach(c => c.hide());
   }
 
-  updateTotalPoints(notify = true) {
+  updateTotalPoints(options = { notify: true }) {
 
-    this.calculateTotalPointsFromCriteria();
+    if (options.totalPoints) {
+      this.totalPoints = options.totalPoints;
+    } else {
+      this.calculateTotalPointsFromCriteria();
+    }
 
     // Make sure total points is not negative
     if (parseFloat(this.totalPoints) < 0) this.totalPoints = 0;
 
-    if (notify) {
+    if (options.notify) {
       const detail = {
         evaluatedItemId: this.evaluatedItemId,
         entityId: this.entityId,
