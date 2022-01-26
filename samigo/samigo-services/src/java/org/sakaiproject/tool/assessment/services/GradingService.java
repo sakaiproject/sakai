@@ -2845,7 +2845,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return a list of matching key values OR empty if none are found
    */
   private List<String> extractCalculatedQuestionKeyFromItemText(String itemText, Pattern identifierPattern) {
-      LinkedHashSet<String> keys = new LinkedHashSet<>();
+      List<String> keys = new ArrayList<>();
       if (itemText != null && itemText.trim().length() > 0) {
           Matcher keyMatcher = identifierPattern.matcher(itemText);
           while (keyMatcher.find()) {
@@ -2862,7 +2862,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               }*/
           }
       }
-      return new ArrayList<>(keys);
+      return keys;
   }
 
   /**
