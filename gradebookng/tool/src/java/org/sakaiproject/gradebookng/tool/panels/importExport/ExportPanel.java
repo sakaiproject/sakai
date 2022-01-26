@@ -482,7 +482,11 @@ public class ExportPanel extends BasePanel {
 						line.add(courseGrade.getMappedGrade());
 					}
 					if (isCustomExport && this.includeGradeOverride) {
-						line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+						if (courseGrade.getEnteredGrade() != null) {
+							line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
+						} else {
+							line.add(null);
+						}
 					}
 					if (isCustomExport && this.includeLastLogDate) {
 						if (courseGrade.getDateRecorded() == null) {

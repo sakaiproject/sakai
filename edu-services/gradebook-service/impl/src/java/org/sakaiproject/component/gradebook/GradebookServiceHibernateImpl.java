@@ -43,10 +43,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
@@ -57,7 +57,6 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
@@ -3223,11 +3222,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// set date recorded
 				cg.setDateRecorded(gr.getDateRecorded());
 
+				// set entered points
+				cg.setEnteredPoints(gr.getEnteredPoints());
+
 				if (!assignments.isEmpty()) {
+
+					boolean showCalculatedGrade = serverConfigService.getBoolean("gradebook.coursegrade.showCalculatedGrade", true);
 
 					// calculated grade
 					// may be null if no grade entries to calculate
-					Double calculatedGrade = gr.getAutoCalculatedGrade();
+					Double calculatedGrade = showCalculatedGrade == true ? gr.getAutoCalculatedGrade() : gr.getEnteredPoints();
+
+					if (calculatedGrade == null) {
+						calculatedGrade = gr.getAutoCalculatedGrade();
+					}
+
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
 
@@ -3470,7 +3479,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade) {
+	public void updateCourseGradeForStudent(final String gradebookUid, final String studentUuid, final String grade, final String gradeScale) {
 
 		// must be instructor type person
 		if (!currentUserHasEditPerm(gradebookUid)) {
@@ -3502,13 +3511,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		} else {
 			// if passed in grade override is same as existing grade override, nothing to do
-			if (StringUtils.equals(courseGradeRecord.getEnteredGrade(), grade)) {
+			if ( (StringUtils.equals(courseGradeRecord.getEnteredGrade(), gradeScale)) && (Double.compare(courseGradeRecord.getEnteredPoints(), Double.parseDouble(grade)) == 0) ) {
 				return;
 			}
 		}
 
 		// set the grade override
-		courseGradeRecord.setEnteredGrade(grade);
+		courseGradeRecord.setEnteredGrade(gradeScale);
+		if (grade == null) {
+			courseGradeRecord.setEnteredPoints(null);
+		} else {
+			courseGradeRecord.setEnteredPoints(Double.parseDouble(grade));
+		}
+
 		// record the last grade override date
 		courseGradeRecord.setDateRecorded(new Date());
 

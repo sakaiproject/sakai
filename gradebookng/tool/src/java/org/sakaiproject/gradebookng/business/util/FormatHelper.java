@@ -24,12 +24,15 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -220,7 +223,7 @@ public class FormatHelper {
 	 * @param locale
 	 * @return
 	 */
-	private static String formatGradeForLocale(final String grade, final Locale locale) {
+	public static String formatGradeForLocale(final String grade, final Locale locale) {
 		if (StringUtils.isBlank(grade)) {
 			return "";
 		}
@@ -392,5 +395,85 @@ public class FormatHelper {
 	
 	public static String htmlUnescape(String input){
 		return HtmlUtils.htmlUnescape(input);
+	}
+
+	/**
+	 * Helper to accept numerical grades and get the scale value.
+	 * Returns the scale whose value equals to the numeric value received, or if it doesn't exists, the highest value lower.
+	 *
+	 * @param newGrade the grade to convert
+	 * @param schema the current schema of Gradebook
+	 * @param currentUserLocale the locale to format the grade with the right decimal separator
+	 * @return fully formatted string ready for display
+	 */
+	public static String getGradeFromNumber(String newGrade, Map<String, Double> schema, Locale currentUserLocale) {
+		Double currentGradeValue = new Double(0.0);
+		Double maxValue = new Double(0.0);
+		String returnGrade = newGrade;
+		try	{
+			NumberFormat nf = NumberFormat.getInstance(currentUserLocale);
+			ParsePosition parsePosition = new ParsePosition(0);
+			Number n = nf.parse(newGrade,parsePosition);
+			if (parsePosition.getIndex() != newGrade.length())
+				throw new NumberFormatException("Grade has a bad format.");
+			Double dValue = n.doubleValue();
+
+			for (Entry<String, Double> entry : schema.entrySet()) {
+				Double tempValue = entry.getValue();
+				if (dValue.equals(tempValue)) {
+					return entry.getKey();
+				}
+				else {
+					if (maxValue.compareTo(tempValue) < 0) maxValue=tempValue;
+					if ((dValue.compareTo(tempValue) > 0 ) && (tempValue.compareTo(currentGradeValue) >= 0 )) {
+						currentGradeValue = tempValue;
+						returnGrade=entry.getKey();
+					}
+				}
+				if (dValue < 0) throw new NumberFormatException("Grade cannot be lower than 0.");
+				if (dValue.compareTo(maxValue) > 0 && dValue > 100) throw new NumberFormatException("Grade exceeds the maximum number allowed in current scale.");
+			}
+			return returnGrade;
+		}
+		catch (NumberFormatException e) {
+			throw new NumberFormatException("Grade is not a number, neither a scale value.");
+		}
+	}
+
+	/**
+	 *
+	 * @param gradeScale the scale value to convert
+	 * @param schema the current schema of Gradebook
+	 * @param currentUserLocale the locale to format the grade with the right decimal separator
+	 * @return the grade
+	 */
+	public static String getNumberFromGrade(String gradeScale, Map<String, Double> schema, Locale currentUserLocale) {
+		Double newGrade = schema.get(gradeScale);
+		NumberFormat nf = NumberFormat.getInstance(currentUserLocale);
+		return nf.format(newGrade);
+	}
+
+	/**
+	 *
+	 * @param newGrade the grade to transform
+	 * @param locale the locale to format the grade with the right decimal separator
+	 * @return the new grade
+	 */
+	public static String transformNewGrade(String newGrade, Locale locale) {
+		try	{
+			NumberFormat nf = NumberFormat.getInstance(locale);
+			ParsePosition parsePosition = new ParsePosition(0);
+			Number n = nf.parse(newGrade,parsePosition);
+			if (parsePosition.getIndex() != newGrade.length()) {
+				throw new NumberFormatException("Grade has a bad format.");
+			}
+			Double dValue = n.doubleValue();
+
+			return (dValue.toString());
+
+		}
+		catch (NumberFormatException e) {
+			throw new NumberFormatException("Grade is not a number.");
+		}
 	}
 }
