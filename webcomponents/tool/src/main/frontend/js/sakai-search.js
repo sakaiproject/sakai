@@ -1,7 +1,7 @@
-import {SakaiElement} from "./sakai-element.js";
+import { SakaiElement } from "./sakai-element.js";
 import "./sakai-pager.js";
-import {html} from "./assets/lit-element/lit-element.js";
-import {unsafeHTML} from "./assets/lit-html/directives/unsafe-html.js";
+import { html } from "./assets/lit-element/lit-element.js";
+import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
 
 class SakaiSearch extends SakaiElement {
 
@@ -29,6 +29,7 @@ class SakaiSearch extends SakaiElement {
     this.showField = this.searchTerms.length > 3 && this.results.length > 0;
 
     this.loadTranslations("search").then(t => {
+
       this.i18n = t;
       this.toolNameMapping = {
         "announcement": this.i18n.toolname_announcement,
@@ -46,10 +47,11 @@ class SakaiSearch extends SakaiElement {
   static get properties() {
 
     return {
-      showField: Boolean,
-      results: Array,
-      pages: Number,
-      i18n: Object,
+      pageSize: { attribute: "page-size", type: Number },
+      showField: { attribute: false, type: Boolean },
+      results: { attribute: false, type: Array },
+      pages: { attribute: false, type: Number },
+      i18n: { attribute: false, type: Object },
     };
   }
 
@@ -68,11 +70,20 @@ class SakaiSearch extends SakaiElement {
   render() {
 
     return html`
-      <div class="sakai-search-input">
+      <div class="sakai-search-input" role="search">
         ${this.showField ? html`
-            <input type="text" id="sakai-search-input" tabindex="0" @input=${this.search} @keyup=${this.search} .value=${this.searchTerms} placeholder="${this.i18n.search_placeholder}" aria-label="${this.i18n.search_placeholder}"/>
-          ` : ""}
-        <a href="javascript:;" @click=${this.toggleField} title="${this.i18n.search_tooltip}"><span class="icon-sakai--sakai-search"></span></a>
+        <input type="text"
+            id="sakai-search-input"
+            role="searchbox"
+            tabindex="0"
+            @input=${this.search}
+            @keyup=${this.search}
+            .value=${this.searchTerms}
+            aria-label="${this.i18n.search_placeholder}" />
+        ` : ""}
+        <a href="javascript:;" @click=${this.toggleField} title="${this.i18n.search_tooltip}">
+          <span class="icon-sakai--sakai-search"></span>
+        </a>
       </div>
       ${this.noResults && this.showField ? html`
         <div class="sakai-search-results" tabindex="1">
@@ -80,7 +91,7 @@ class SakaiSearch extends SakaiElement {
         </div>
       ` : ""}
       ${this.results.length > 0 && this.showField ? html`
-        <div class="sakai-search-results" tabindex="1">
+        <div class="sakai-search-results">
           ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
             <a href="${r.url}">
@@ -102,37 +113,12 @@ class SakaiSearch extends SakaiElement {
       ` : ""}
     `;
   }
-  //<sakai-pager total-things="${this.results.length}" page-size="${this.pageSize}" @page-clicked=${this.pageClicked}></sakai-pager>
 
   toggleField() {
-
-    const $input = $('#sakai-search-input');
 
     this.showField = !this.showField;
     if (!this.showField) {
       this.clear();
-    } else if (!$input.data('ui-autocomplete')) {
-      this.updateComplete.then(() => {
-
-        $('#sakai-search-input').autocomplete({
-          source(request, response) {
-            const query = document.getElementById("sakai-search-input").value;
-            fetch(`/direct/search/suggestions.json?q=${encodeURIComponent(query)}`)
-                .then(r => {
-
-                  if (r.ok) {
-                    return r.json();
-                  }
-                  throw new Error("Failed to get search suggestions");
-
-                })
-                .then(data => response(data))
-                .catch (error => console.error("Failed to get search suggestions", error));
-          },
-          minLength: 2,
-          select: (e, ui) => { const ev = {keyCode: "13", target: {value: ui.item.value}}; this.search(ev); }
-        });
-      });
     }
 
     this.requestUpdate();
@@ -156,8 +142,13 @@ class SakaiSearch extends SakaiElement {
     if (keycode == "13" && e.target.value.length > 2) {
       sessionStorage.setItem("searchterms", e.target.value);
       fetch(`/direct/search/search.json?searchTerms=${e.target.value}`, {cache: "no-cache", credentials: "same-origin"})
-        .then(res => res.json())
-        .then(data => {
+        .then(r => {
+
+          if (r.ok) {
+            return r.json();
+          }
+          throw new Error("Failed to get search results.");
+        }).then(data => {
 
           this.results = data;
           this.noResults = this.results.length === 0;
@@ -169,7 +160,7 @@ class SakaiSearch extends SakaiElement {
           sessionStorage.setItem("searchresults", JSON.stringify(this.results));
           this.requestUpdate();
         })
-        .catch(error => console.error(`Failed to search with ${e.target.value}`, error));
+        .catch(error => console.error(error));
     } else {
       this.clear();
     }
@@ -212,6 +203,5 @@ class SakaiSearch extends SakaiElement {
   }
 }
 
-if (!customElements.get("sakai-search")) {
-  customElements.define("sakai-search", SakaiSearch);
-}
+const tagName = "sakai-search";
+!customElements.get(tagName) && customElements.define(tagName, SakaiSearch);
