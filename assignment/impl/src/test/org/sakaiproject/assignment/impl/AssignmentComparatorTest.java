@@ -109,7 +109,7 @@ public class AssignmentComparatorTest {
 		when(usersWithSpace[5].getSortName()).thenReturn("Martinez Torcal, Apple");
 		when(usersWithSpace[6].getSortName()).thenReturn("Martin Troncoso, X");
 		for (int i = 0; i < namesWithSpaceSubmissions.length; i++) {
-			namesWithSpaceSubmissions[i] = mockSubmissionForUserID(USERS_WITH_SPACE_PREFIX + i);
+			namesWithSpaceSubmissions[i] = createSubmissionForUserID(USERS_WITH_SPACE_PREFIX + i);
 		}
 
 		sortNameComparator = new UserIdComparator(userDirectoryService);
@@ -117,22 +117,22 @@ public class AssignmentComparatorTest {
 	}
 
 	/**
-	 * Mock a submission object, as well as its assignment and submitters.
-	 * The assignment will not be a group assignment, and the specified userId will be the only submitter.
+	 * Create a submission object, as well as its assignment and submitters.
+	 * The assignment will not be a group assignment, and the specified userID will be the only submitter.
 	 */
-	public static AssignmentSubmission mockSubmissionForUserID(String userID)
+	public static AssignmentSubmission createSubmissionForUserID(String userID)
 	{
-		AssignmentSubmission submission = Mockito.mock(AssignmentSubmission.class);
+		AssignmentSubmission submission = new AssignmentSubmission();
 
-		Assignment assignment = Mockito.mock(Assignment.class);
-		when(submission.getAssignment()).thenReturn(assignment);
-		when(assignment.getIsGroup()).thenReturn(false);
+		Assignment assignment = new Assignment();
+		assignment.setIsGroup(false);
+		submission.setAssignment(assignment);
 
 		Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>(1);
-		AssignmentSubmissionSubmitter submitter = Mockito.mock(AssignmentSubmissionSubmitter.class);
-		when(submitter.getSubmitter()).thenReturn(userID);
+		AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+		submitter.setSubmitter(userID);
 		submitters.add(submitter);
-		when(submission.getSubmitters()).thenReturn(submitters);
+		submission.setSubmitters(submitters);
 
 		return submission;
 	}
