@@ -159,10 +159,8 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     button.disabled = false;
     document.getElementById("alertTsheetAddRecord").style.display="block";
     let messageArray = [];
-    for (const [index, key] of Object.entries(messages)) {
-        messageArray.push(window.i18nWlogTab[key]);
-    }
-    document.getElementById("alertTsheetAddRecord").innerHTML= messageArray.join('<br>');
+    document.getElementById("alertTsheetAddRecord").innerHTML
+      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 
 ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
