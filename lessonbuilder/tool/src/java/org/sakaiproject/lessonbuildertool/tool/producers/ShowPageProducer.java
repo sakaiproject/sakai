@@ -3292,7 +3292,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// Output the poll data
 					if("multipleChoice".equals(i.getAttribute("questionType")) &&
 							(canEditPage || ("true".equals(i.getAttribute("questionShowPoll")) &&
-									(questionStatus == Status.COMPLETED || questionStatus == Status.FAILED)))) {
+									(questionStatus == Status.COMPLETED || questionStatus == Status.FAILED || questionStatus == Status.NEEDSGRADING)))) {
 						UIOutput.make(tableRow, "showPollGraph", messageLocator.getMessage("simplepage.show-poll"));
 						UIOutput questionGraph = UIOutput.make(tableRow, "questionPollGraph");
 						questionGraph.decorate(new UIFreeAttributeDecorator("id", "poll" + i.getId()));
