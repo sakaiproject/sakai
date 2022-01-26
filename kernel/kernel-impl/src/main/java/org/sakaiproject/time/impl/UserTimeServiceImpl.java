@@ -40,7 +40,9 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.ResourceLoader;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,6 +62,8 @@ public class UserTimeServiceImpl implements UserTimeService {
     private MemoryService memoryService;
     private SessionManager sessionManager;
     private PreferencesService preferencesService;
+
+    @Setter private ResourceLoader resourceLoader;
 
     public void setMemoryService(MemoryService memoryService) {
         this.memoryService = memoryService;
@@ -169,10 +173,9 @@ public class UserTimeServiceImpl implements UserTimeService {
         if (date == null) return "";
         if (dateStyle == null) { dateStyle = FormatStyle.MEDIUM; }
         if (timeStyle == null) { timeStyle = FormatStyle.SHORT; }
-        Locale locale = preferencesService.getLocale(sessionManager.getCurrentSessionUserId());
         DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(dateStyle, timeStyle)
                                                 .withZone(getLocalTimeZone().toZoneId())
-                                                .withLocale(locale);
+                                                .withLocale(resourceLoader.getLocale());
         return df.format(date);
     }
 
