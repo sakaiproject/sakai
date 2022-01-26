@@ -170,11 +170,8 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     button.classList.remove("spinButton");
     button.disabled = false;
     document.getElementById("alertTsheetDelRecord").style.display="block";
-    let messageArray = [];
-    for (const [index, key] of Object.entries(messages)) {
-        messageArray.push(window.i18nWlogTab[key]);
-    }
-    document.getElementById("alertTsheetDelRecord").innerHTML= messageArray.join('<br>');
+    document.getElementById("alertTsheetDelRecord").innerHTML
+      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 
 ASN.checkTimesheetRecord = function () {
