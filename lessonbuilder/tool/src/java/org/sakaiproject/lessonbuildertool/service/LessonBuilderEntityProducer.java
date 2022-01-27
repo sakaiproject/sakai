@@ -704,10 +704,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     */
    public String getEntityUrl(Reference ref)
    {
-       //Just return a URL to the top of the page based on the item's pageId and toolId
-       long id = idFromRef(ref.getReference());
-       SimplePageItem item = simplePageToolDao.findItem(id);
        String URL = "";
+       long id = idFromRef(ref.getReference());
+       if ("page".equals(ref.getSubType())) {
+    	   SimplePage currentPage = simplePageToolDao.getPage(id);
+    	   URL = String.format("%s/site/%s/page/%s", ServerConfigurationService.getPortalUrl(), currentPage.getSiteId(), currentPage.getToolId());
+    	   return URL;
+       }
+       //Just return a URL to the top of the page based on the item's pageId and toolId
+       SimplePageItem item = simplePageToolDao.findItem(id);
        if (item != null) {
            URL = item.getURL();
            if (URL == null || "".equals(URL) ) {
