@@ -92,12 +92,14 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
-			defaultSkin = serverConfigurationService.getString("portal.templates", "morpheus");
+			
+			//this is rather the template folder name then what we would refer to as skin
+			defaultSkin = serverConfigurationService.getString("portal.templates", "trinity");
+			defaultSkin = "morpheus"; 
 		}
 		catch (Exception ex)
 		{
-			log
-					.warn("No Server configuration service available, assuming default settings ");
+			log.warn("No Server configuration service available, assuming default settings ");
 		}
 		if ( sessionManager == null ) {
 			log.warn("No session Manager, assuming test mode ");

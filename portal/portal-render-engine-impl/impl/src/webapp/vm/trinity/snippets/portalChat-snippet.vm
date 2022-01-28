@@ -1,0 +1,40 @@
+
+#if ( $neoChat && $loggedIn )
+
+<script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}" ></script>
+<script>
+	var portalChatPollInterval = ${portalChatPollInterval};
+</script>
+
+#if ( $neoChatVideo )
+<script type="text/javascript">
+    portal.chat.video.enabled = true;
+    portal.chat.video.timeout = ${portalVideoChatTimeout};
+    portal.chat.video.messages = {
+        "pc_video_status_setup": "${rloader.pc_video_status_setup}",
+        "pc_video_status_user_hung": "${rloader.pc_video_status_user_hung}",
+        "pc_video_status_hangup": "${rloader.pc_video_status_hangup}",
+        "pc_video_status_user_refused": "${rloader.pc_video_status_user_refused}",
+        "pc_video_status_incoming_call": "${rloader.pc_video_status_incoming_call}",
+        "pc_video_status_call_timeout": "${rloader.pc_video_status_call_timeout}",
+        "pc_video_status_waiting_peer": "${rloader.pc_video_status_waiting_peer}",
+        "pc_video_status_call_accepted": "${rloader.pc_video_status_call_accepted}",
+        "pc_video_status_call_not_accepted": "${rloader.pc_video_status_call_not_accepted}",
+        "pc_video_status_call_in_progress": "${rloader.pc_video_status_call_in_progress}",
+        "pc_video_status_answer_timeout": "${rloader.pc_video_status_answer_timeout}",
+        "pc_video_status_connecting": "${rloader.pc_video_status_connecting}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}",
+        "pc_video_status_call_failed": "${rloader.pc_video_status_call_failed}",
+        "pc_video_status_you_ignored": "${rloader.pc_video_status_you_ignored}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}"
+    };
+</script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/webrtc-adapter.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/videocall.js$!{portalCDNQuery}"></script>
+
+#end ## END OF IF ( $neoChatVideo )
+
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/jescape.js$!{portalCDNQuery}"></script>
+<script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
+
+#end ## END of IF ( $neoChat && $loggedIn )
