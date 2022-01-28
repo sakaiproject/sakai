@@ -30,13 +30,13 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-public class WebAppConfiguration implements WebApplicationInitializer {
+public class GroupManagerConfiguration implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.setServletContext(servletContext);
-        rootContext.register(ThymeleafConfig.class);
+        rootContext.register(GroupManagerThymeleafConfig.class);
 
         servletContext.addListener(new ToolListener());
         servletContext.addListener(new SakaiContextLoaderListener(rootContext));

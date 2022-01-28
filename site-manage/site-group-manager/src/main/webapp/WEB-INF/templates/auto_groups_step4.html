@@ -15,7 +15,7 @@
     </div>
     <div class="row" >
       <div class="col-sm-8">
-        <form id="autogroups-wizard-step4-form" th:action="@{/autogroups/confirmAutoGroups}" th:object="${autoGroupsForm}" method="post">
+        <form id="autogroups-wizard-step4-form" class="autogroups-wizard-form" th:action="@{/autogroups/confirmAutoGroups}" th:object="${autoGroupsForm}" method="post">
           <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
           <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
           <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">

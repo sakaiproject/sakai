@@ -78,9 +78,9 @@
                   <div class="col-sm-12">
                     <div class="sak-banner-info" th:text="#{joinableset.additional.instructions}">These groups will be added after saving the joinable set.</div>
                     <label class="form-control-label" for="groupNumber" th:text="#{joinableset.numberofgroups}">Number of groups:</label>
-                    <input class="form-control" name="groupNumber" id="groupNumber" type="number" min="0" max="999" th:field="*{groupNumber}"/>
+                    <input class="form-control" name="groupNumber" id="groupNumber" type="number" min="0" max="999" th:field="*{groupNumber}" />
                     <label class="form-control-label" for="groupMaxMembers" th:text="#{joinableset.maxmembers}" th:field="*{groupMaxMembers}">Max members per group:</label>
-                    <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}" value="1"/>
+                    <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}" />
                     <div class="checkbox">
                       <label for="allowPreviewMembership">
                         <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}">
