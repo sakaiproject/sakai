@@ -20,7 +20,7 @@
     </div>
     <div class="row" th:if="${!siteRoleList.isEmpty()}">
       <div class="col-sm-8">
-          <form id="autogroups-wizard-step1-form" th:action="@{/autogroups/submitStep1}" th:object="${autoGroupsForm}" method="post">
+          <form id="autogroups-wizard-step1-form" class="autogroups-wizard-form" th:action="@{/autogroups/submitStep1}" th:object="${autoGroupsForm}" method="post">
             <table class="table table-bordered table-striped table-hover">
             <thead>
               <tr>
@@ -30,7 +30,7 @@
             </thead>
             <tbody>
               <tr th:each="role : ${siteRoleList}">
-                <td><input th:id="${role.id}" type="checkbox" name="selectedRoleList" th:field="*{selectedRoleList}" th:value="${role.id}"/></td>
+                <td><input th:id="${role.id}" type="checkbox" class="group-manager-role-checkbox" name="selectedRoleList" th:field="*{selectedRoleList}" th:value="${role.id}"/></td>
                 <td><label th:for="${role.id}" th:text="${role.id}"></label></td>
               </tr>
             </tbody>

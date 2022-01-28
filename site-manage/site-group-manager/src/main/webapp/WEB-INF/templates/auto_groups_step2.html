@@ -29,7 +29,7 @@
     </div>
     <div class="row">
       <div class="col-sm-8">
-        <form id="autogroups-wizard-step2-form" th:action="@{/autogroups/submitStep2}" th:object="${autoGroupsForm}" method="post">
+        <form id="autogroups-wizard-step2-form" class="autogroups-wizard-form" th:action="@{/autogroups/submitStep2}" th:object="${autoGroupsForm}" method="post">
           <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
           <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
           <div class="radio">
@@ -49,11 +49,11 @@
             </thead>
             <tbody>
               <tr th:each="section : ${sectionList}">
-                <td><input th:id="${section.id}" type="checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
+                <td><input th:id="${section.id}" type="checkbox" class="group-manager-step2-checkbox" name="selectedSectionList" th:field="*{selectedSectionList}" th:value="${section.id}"/></td>
                 <td><label th:for="${section.id}" th:text="${section.title}"></label></td>
               </tr>
               <tr>
-                <td><input id="useManuallyAddedUsers" type="checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
+                <td><input id="useManuallyAddedUsers" type="checkbox" class="group-manager-step2-checkbox" name="useManuallyAddedUsers" th:field="*{useManuallyAddedUsers}"/></td>
                 <td><label for="useManuallyAddedUsers" th:text="#{autogroups.manually.added}"></label></td>
               </tr>
             </tbody>
