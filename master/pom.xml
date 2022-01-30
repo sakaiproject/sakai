@@ -408,19 +408,6 @@
         <version>2.6.2</version>
         <scope>provided</scope>
       </dependency>
-      <!-- block these versions if the user really wants them they will have to be specific -->
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>1.4.01</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xmlParserAPIs</artifactId>
-        <version>2.0.2</version>
-        <scope>provided</scope>
-      </dependency>
       <!-- shared/lib -->
       <!-- 3rd party APIs/Implementations -->
       <dependency>

@@ -173,6 +173,10 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xmlParserAPIs</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -211,10 +215,6 @@
             <artifactId>sakai-rsf-core</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
