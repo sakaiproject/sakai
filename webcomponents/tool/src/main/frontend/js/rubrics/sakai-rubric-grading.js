@@ -87,7 +87,7 @@ export class SakaiRubricGrading extends RubricsElement {
         <h3>${this.rubric.title}</h3>
         ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
           <div class="sak-banner-warn">
-            <sr-lang key="draft_evaluation">DRAFT</sr-lang>
+            ${tr('draft_evaluation', [tr(this.getToolDraftMessageKey())])}
           </div>
         ` : "" }
         <div class="criterion grading style-scope sakai-rubric-criteria-grading">
@@ -445,6 +445,10 @@ export class SakaiRubricGrading extends RubricsElement {
       console.info(textStatus);
       console.error(errorThrown);
     });
+  }
+
+  getToolDraftMessageKey() {
+    return `draft_evaluation_${this.toolId}`;
   }
 }
 
