@@ -166,7 +166,7 @@ public class LineItemUtil {
 		// Check for duplicate labels
 		List<Assignment> assignments = getColumnsForToolDAO(context_id, tool_id);
 		if ( assignments == null ) {
-			throw new RuntimeException("Could not list columns for "+context_id+" tool="+tool_id);
+			throw new RuntimeException("Could not list columns for "+context_id+" tool="+tool_id+" (is the gradebook in the site?)");
 		}
 
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
