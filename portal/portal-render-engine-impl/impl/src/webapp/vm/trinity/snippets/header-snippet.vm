@@ -2,7 +2,7 @@
 
 <header role="banner" class="Mrphs-headerLogo">
     <span class="Mrphs-headerLogo--institution"></span>
-    <span class="Mrphs-headerLogo--banner">morpheus</span>
+    <span class="Mrphs-headerLogo--banner">trinity</span>
 
-    #parse("/vm/morpheus/includeLoginNav.vm")
+    #parse("/vm/trinity/includeLoginNav.vm")
 </header>

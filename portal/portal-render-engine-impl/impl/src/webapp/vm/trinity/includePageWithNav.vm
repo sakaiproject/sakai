@@ -1,0 +1,35 @@
+##
+## the Page part of the standard view, with page navigation
+##
+<!-- START VM includePageWithNav.vm -->
+
+    <div id="pageBody">
+    
+    #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+        #parse("/vm/trinity/includePageNav.vm")
+
+    #else 
+
+        <!-- no page nav requested -->
+
+    #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+    <div class="Mrphs-pagebody">
+        #parse("/vm/trinity/snippets/siteStatus-snippet.vm")
+
+        #parse("/vm/trinity/includeSiteHierarchy.vm")
+
+        #parse("/vm/trinity/includePageBody.vm")
+        
+        #parse("/vm/trinity/includeFooter.vm")
+
+    </div>
+    
+    </div>
+    
+
+</div>
+
+    
+<!-- END VM includePageWithNav.vm -->

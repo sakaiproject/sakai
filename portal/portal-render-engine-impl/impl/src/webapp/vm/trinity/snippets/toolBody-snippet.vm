@@ -1,0 +1,19 @@
+## Get the tool title: replace the spaces with hyphens and make it lowercase so that we have a unique class http://stackoverflow.com/questions/2932392/java-how-to-replace-2-or-more-spaces-with-single-space-in-string-and-delete-lead
+
+#set($portalPrefix = "Mrphs-toolBody--")
+#set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+#if (${tool.hasRenderResult})
+
+    <div class="Mrphs-toolBody ${portalPrefix}${toolTitleClass}">
+        ${tool.toolRenderResult.getContent()}
+    </div>
+
+#else
+
+    <div class="Mrphs-toolBody Mrphs-toolBody__iframe ${portalPrefix}${toolTitleClass}">
+        <iframe name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" class="Mrphs-iframe ${toolTitleClass}" src="${tool.toolUrl}?panel=Main">
+        </iframe>
+    </div>
+
+#end ## END of IF (${tool.hasRenderResult})
