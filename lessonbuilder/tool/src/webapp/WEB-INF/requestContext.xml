@@ -308,6 +308,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService"/>
 	</bean>
 	
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->

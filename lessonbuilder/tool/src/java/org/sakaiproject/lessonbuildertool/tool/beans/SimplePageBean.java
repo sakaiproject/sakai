@@ -102,6 +102,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -294,6 +297,11 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
+	@Getter @Setter private boolean createTask;
+	@Getter @Setter private boolean questionCreateTask;
+	@Getter @Setter private boolean commentsCreateTask;
+	@Getter @Setter private boolean studentContentsCreateTask;
+	
     // for BLTI, values window, inline, and null for in a new page with navigation
     // but sameWindow should also be set properly, based on the format
 	private String format;
@@ -461,6 +469,7 @@ public class SimplePageBean {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
+    @Getter @Setter private TaskService taskService;
 
     private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
@@ -1024,7 +1033,6 @@ public class SimplePageBean {
 		this.replacefile = replacefile;
 	}
 	
-
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -2172,6 +2180,10 @@ public class SimplePageBean {
 		}
 
 		b = simplePageToolDao.deleteItem(i);
+		
+		// Delete task
+		String reference = "/lessonbuilder/item/" + i.getId();
+		taskService.removeTaskByReference(reference);
 		
 		if (b) {
 			// minimize opening for race conditions on sequence number by forcing new fetches
@@ -4421,7 +4433,7 @@ public class SimplePageBean {
 		if (StringUtils.isBlank(pageTitle)) {
 			return "notitle";
 		}
-
+		
 		// because we're using a security advisor, need to make sure it's OK ourselves
 		if (!canEditPage()) {
 		    return "permission-failed";
@@ -4599,6 +4611,14 @@ public class SimplePageBean {
 		if (needRecompute)
 		    recomputeGradebookEntries(page.getPageId(), points);
 		// points, not newPoints because API wants a string
+		
+		// Create or update a task
+		String reference = "/lessonbuilder/page/" + page.getPageId();
+		if (this.createTask) {
+			createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
+		} else {
+			updateTask(reference, page.getTitle(), null);
+		}
 
 		if (pageItem.getPageId() == 0) {
 			return "reload";
@@ -7327,6 +7347,9 @@ public class SimplePageBean {
 			SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, currentPageId, userId, comment, idManager.createUuid(), html);
 			commentObject.setPoints(grade);
 			
+			// Complete user task
+			this.completeUserTask(itemId, userId);
+			
 			saveItem(commentObject, false);
 		}else {
 			SimplePageComment commentObject = simplePageToolDao.findCommentById(Long.valueOf(editId));
@@ -7421,6 +7444,15 @@ public class SimplePageBean {
 				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
 				comment.setGradebookId(null);
 				comment.setGradebookPoints(null);
+			}
+			
+			// Create or update a task
+			String reference = "/lessonbuilder/item/" + comment.getId();
+			String title = getPage(comment.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.comments-task-title");
+			if (this.commentsCreateTask) {
+				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
+			} else {
+				updateTask(reference, title, null);
 			}
 			
  			// for forced comments, the UI won't ever do this, but if
@@ -7602,6 +7634,9 @@ public class SimplePageBean {
 			
 			newPage.setTopParent(page.getId());
 			update(newPage, false);
+			
+			// Complete user task
+			this.completeUserTask(itemId, user.getId());
 			
 			try {
 				updatePageItem(containerItem.getId());
@@ -7830,6 +7865,15 @@ public class SimplePageBean {
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
+		
+		// Create or update a task
+		String reference = "/lessonbuilder/item/" + item.getId();
+		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
+		if (this.questionCreateTask) {
+			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
+		} else {
+			updateTask(reference, title, null);
+		}
 
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
@@ -7947,6 +7991,9 @@ public class SimplePageBean {
 		
 		gradeQuestionResponse(response);
 
+		// Complete user task
+		this.completeUserTask(questionId, userId);
+
 		saveItem(response);
 		
 		return "success";
@@ -7977,6 +8024,9 @@ public class SimplePageBean {
 		    questionResponse = questionResponse.trim();
 		response.setShortanswer(questionResponse);
 		gradeQuestionResponse(response);
+		
+		// Complete user task
+		this.completeUserTask(questionId, userId);
 		
 		saveItem(response);
 		
@@ -8142,6 +8192,15 @@ public class SimplePageBean {
 				page.setAltGradebook(null);
 				page.setAltPoints(null);
 				ungradeStudentPageComments(page);
+			}
+			
+			// Create or update a task
+			String reference = "/lessonbuilder/item/" + itemId;
+			String title = getPage(page.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.student-contents-task-title");
+			if (this.studentContentsCreateTask) {
+				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
+			} else {
+				updateTask(reference, title, null);
 			}
 			
 			update(page);
@@ -9208,4 +9267,43 @@ public class SimplePageBean {
 	public boolean isGradebookExists() {
 		return (this.getCurrentTool(this.GRADEBOOK_TOOL_ID) != null || this.getCurrentTool(this.GRADEBOOK_CLASSIC_TOOL_ID) != null);
 	}
+	
+	private void updateTask(String reference, String title, Date dueDate) {
+		Optional<Task> taskOpt = taskService.getTask(reference);
+		if (taskOpt.isPresent()) {
+			Task task = taskOpt.get();
+			task.setDescription(title);
+			task.setDue(dueDate == null ? null : dueDate.toInstant());
+			taskService.saveTask(task);
+		}
+	}
+	
+	private void createOrUpdateTask(String reference, String siteId, String title, Date dueDate) {
+		Optional<Task> taskOpt = taskService.getTask(reference);
+		if (!taskOpt.isPresent()) {
+			try {
+				Task task = new Task();
+				task.setSiteId(siteId);
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(title);
+				task.setDue(dueDate == null ? null : dueDate.toInstant());
+				Site site = siteService.getSite(siteId);
+				Set<String> users = site.getUsersIsAllowed("section.role.student");
+				taskService.createTask(task, users, Priorities.HIGH);
+			} catch (Exception e) {
+				log.error(messageLocator.getMessage("simplepage.errorCreatingTask"), e);
+			}
+		} else {
+			Task task = taskOpt.get();
+			task.setDescription(title);
+			task.setDue(dueDate == null ? null : dueDate.toInstant());
+			taskService.saveTask(task);
+		}
+	}
+	
+	private void completeUserTask(Long itemId, String userId) {
+		taskService.completeUserTaskByReference("/lessonbuilder/item/" + itemId, Arrays.asList(userId) );
+	}
+	
 }
