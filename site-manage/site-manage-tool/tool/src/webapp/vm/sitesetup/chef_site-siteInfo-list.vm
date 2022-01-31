@@ -387,9 +387,7 @@
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							#end
 							<th>$tlang.getString("group.description")</th>
-							#if ($!unjoinableGroups.contains($g.Id))
 							<th>$tlang.getString("sinfo.list.joinable.unjoin")</th>
-							#end
 						</tr>
 					</thead>
 					<tbody>
@@ -398,9 +396,8 @@
 						<tr>
 							<td>
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
-
 							</td>
-							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
+							#if ($!viewRoster)
 							<td>
 								<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
 							</td>
@@ -411,15 +408,15 @@
 							#end
 							</td>
 
-							#if ($!unjoinableGroups.contains($g.Id))
 							<td>
+							#if ($!unjoinableGroups.contains($g.Id))
 								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
 									<input type="hidden" name="group-ref" value="$g.reference" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
 								</form>
-							</td>
 							#end
+							</td>
 						</tr>
 					#end
 					</tbody>
