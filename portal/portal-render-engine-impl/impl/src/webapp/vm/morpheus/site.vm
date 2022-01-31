@@ -125,10 +125,6 @@
             <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
         #end ## END of IF ($loggedIn)
         
-        <!--[if lt IE 9]>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
-<![endif]-->
-
         <script>
             if (typeof Handlebars == 'undefined') {
                 document.write('\x3Cscript src="${pageWebjarsPath}handlebars/4.0.6/handlebars.runtime.min.js$!{portalCDNQuery}">\x3C/script>');
@@ -212,10 +208,6 @@
         ${d}PBJQ(document).ready(portal_check_pnotify);
     #end
         </script>
-
-        <!--[if lt IE 9]>
-        <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
-<![endif]-->
 
         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 

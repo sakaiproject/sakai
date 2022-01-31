@@ -118,8 +118,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -192,7 +190,6 @@ public class ResourcesAction
 	private static final SecurityService securityService  = ComponentManager.get(SecurityService.class);
 	private static final SiteService siteService = ComponentManager.get(SiteService.class);
 	private static final EntityManager entityManager = ComponentManager.get(EntityManager.class);
-	private static final UsageSessionService usageSessionService = ComponentManager.get(UsageSessionService.class);
 	private static final SessionManager sessionManager = ComponentManager.get(SessionManager.class);
 	private static final ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static final UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
@@ -5576,18 +5573,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		context.put("webdav_instructions" ,webdav_instructions);
 
-		// TODO: Consider whether we should return a trivial session
-		// or a null in the case of anonymous users.
-		UsageSession session = usageSessionService.getSession();
-		if ( session != null )
-		{
-			String browserID = usageSessionService.getSession().getBrowserId();
-			if(browserID.equals(UsageSession.WIN_IE))
-			{
-				context.put("isWinIEBrowser", Boolean.TRUE.toString());
-			}
-		}
-		
 		String siteId = toolManager.getCurrentPlacement().getContext();
 		boolean inMyWorkspace = siteService.isUserSite(toolManager.getCurrentPlacement().getContext());
 		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
