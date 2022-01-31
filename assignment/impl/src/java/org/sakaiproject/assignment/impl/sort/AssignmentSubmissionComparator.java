@@ -92,9 +92,12 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
         }
 
         Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+        /*
+         * On a non-group assignment, there should be precisely one submitter.
+         * Even when an instructor submits on behalf of a student, they do not create a new submitter entry (rather a submission property is created).
+         * So expect the submitters set to contain only one user: the student. Log and return empty otherwise.
+         */
         if (submitters.size() != 1) {
-            // On a non-group assignment, there should be precisely one submitter.
-            // When instructors submit on behalf of a user, it does not create a new submitter entry; rather it adds a submission property.
             log.warn("Submission for a non-group assignment has multiple submitters. SubmissionID: {}", submission.getId());
             return Optional.empty();
         }
