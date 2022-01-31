@@ -27,9 +27,10 @@
 .sakai-search-results {
   position: absolute;
   right: 0;
-  background-color: var(--sakai-background-color-1);
+  background-color: var(--sites-nav-menu-item-selected-background);
   color: var(--sakai-text-color-1);
   border: 1px solid var(--sakai-border-color);
+  border-radius: 4px;
   padding: 5px;
   z-index: 99;
 
@@ -45,6 +46,7 @@
 
     a {
       display: inline-block;
+      text-decoration: none;
     }
 
     .search-result-title-label {
