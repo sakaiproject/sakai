@@ -1,0 +1,10 @@
+<!-- START VM tool.vm -->
+
+    #parse("/vm/trinity/includeStandardHead.vm")
+
+    <body class="Mrphs-portalBody Mrphs-portalBody--tool">
+        #parse("/vm/trinity/includeToolBody.vm")
+    </body>
+
+<!-- END VM tool.vm -->
+</html>
