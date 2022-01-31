@@ -93,6 +93,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -3297,6 +3298,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     gradebookAssignmentsLabel.put(formattedText.escapeHtml(gaId), label);
                 }
             }
+
+            // Items sorted by name
+            gradebookAssignmentsLabel = gradebookAssignmentsLabel.entrySet().stream()
+                    .sorted(Entry.comparingByValue())
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+                            (e1, e2) -> e1, LinkedHashMap::new));
+
         } catch (GradebookNotFoundException e) {
             // exception
             log.debug(this + ":currentAssignmentGradebookIntegrationIntoContext " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
