@@ -1,0 +1,46 @@
+<nav id="skipNav" class="Mrphs-skipNav" aria-label="${rloader.sit_skipnavigation}">
+    <ul class="Mrphs-skipNav__menu">
+
+        #if ($siteNavHasAccessibilityURL)
+            <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--accessibility">
+                <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link" title="${rloader.sit_accessibility}" accesskey="0">
+                    ${rloader.sit_accessibility}
+                    <span class="accesibility_key">[0]</span>
+                </a>
+            </li>
+        #end ## END of IF ($siteNavHasAccessibilityURL)
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--content">
+            <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c">
+                ${rloader.sit_jumpcontent}
+                <span class="accesibility_key">[c]</span>
+            </a>
+        </li>
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
+            <a href="#" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
+                <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> ${rloader.sit_worksites}
+                <span class="accesibility_key">[w]</span>
+            </a>
+        </li>
+        <li class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
+            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
+                <i class="fa fa-bars tools-icon" aria-hidden="true"></i>
+                ${rloader.sit_menutools}
+                <span class="accesibility_key">[l]</span>
+            </a>
+			#foreach( $page in $sitePages.pageNavTools )
+				#if (${page.current})
+					<a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="xs-visible Mrphs-skipNav--toolName">
+						<span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+						<span>${page.pageTitle}</span>
+					</a>
+
+                    #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+                        <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="manage-overview-link-mobile">
+                            <span class="fa fa-pencil"></span>$rloader.sit_manover
+                        </a>
+                    #end
+				#end
+			#end
+        </li>
+    </ul>
+</nav>
