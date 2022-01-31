@@ -95,7 +95,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			
 			//this is rather the template folder name then what we would refer to as skin
 			defaultSkin = serverConfigurationService.getString("portal.templates", "trinity");
-			defaultSkin = "morpheus"; 
 		}
 		catch (Exception ex)
 		{
