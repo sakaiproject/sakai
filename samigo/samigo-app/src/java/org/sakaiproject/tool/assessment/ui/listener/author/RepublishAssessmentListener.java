@@ -17,21 +17,30 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -45,6 +54,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -66,6 +76,7 @@ public class RepublishAssessmentListener implements ActionListener {
 	    IntegrationContextFactory.getInstance().isIntegrated();
 	
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+	private TaskService taskService = ComponentManager.get(TaskService.class);;
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	  
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -122,9 +133,38 @@ public class RepublishAssessmentListener implements ActionListener {
 		delivery.setPublishedAssessment(assessment);
 		
 		//update Calendar Events
-       boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate2") != null;
-       calendarService.updateAllCalendarEvents(assessment, publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
+		boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate2") != null;
+		calendarService.updateAllCalendarEvents(assessment, publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 
+		// Update task for the widget or create it
+		String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + assessment.getPublishedAssessmentId();
+		Optional<Task> optTask = taskService.getTask(reference);
+		if (optTask.isPresent()) {
+			Task task = optTask.get();
+			task.setDescription(assessment.getTitle());
+			task.setDue((assessment.getDueDate() == null) ? null : assessment.getDueDate().toInstant());
+			taskService.saveTask(task);
+		} else {
+			// Create task if needed
+			if (assessmentBean.isCreateTask()) {
+				Task task = new Task();
+				task.setSiteId(AgentFacade.getCurrentSiteId());
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(assessment.getTitle());
+				task.setDue((assessment.getDueDate() == null ? null : assessment.getDueDate().toInstant()));
+				SelectItem[] usersMap = publishedAssessmentSettings.getUsersInSite();
+				Set<String> users = new HashSet<>();
+				for(SelectItem item : usersMap) {
+					String userId = (String)item.getValue(); 
+					if (StringUtils.isNotBlank(userId)) {
+						users.add(userId);
+					}
+				}
+				taskService.createTask(task, users, Priorities.HIGH);
+			}
+		}
+		
 		author.setOutcome("author");
 	}
 	

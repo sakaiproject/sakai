@@ -517,6 +517,7 @@
       </ul>
     </div>
   </h:panelGroup>
+
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >

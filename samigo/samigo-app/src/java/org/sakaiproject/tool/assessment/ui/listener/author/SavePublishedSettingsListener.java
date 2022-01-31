@@ -219,14 +219,14 @@ implements ActionListener
 		assessmentSettings.setOutcome(author.getFromPage());
 		
 		//update calendar event dates:
-	    //need to add the calendar even back on the calendar if there already exists one (user opted to have it added to calendar)
-	    boolean addDueDateToCalendar = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID) != null;
-	    PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-	    PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
-	    String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateString(), assessmentSettings.getPublishedUrl(),
+		//need to add the calendar even back on the calendar if there already exists one (user opted to have it added to calendar)
+		boolean addDueDateToCalendar = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID) != null;
+		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateString(), assessmentSettings.getPublishedUrl(),
 				assessmentSettings.getDueDateString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), 
 				assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString(), assessmentSettings.getFeedbackEndDateString(), assessmentSettings.getFeedbackScoreThreshold());
-	    calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
+		calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 	}
 
 	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, boolean retractNow) {
