@@ -1,0 +1,6 @@
+#if ( ${bufferedResponse} && ${responseHead} ) 
+    <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
+    ${responseHead}
+    <!-- End of Head material from Tool -->
+#end ## END of IF ( ${bufferedResponse} && ${responseHead} )
+<title>${pageTitle}</title>
