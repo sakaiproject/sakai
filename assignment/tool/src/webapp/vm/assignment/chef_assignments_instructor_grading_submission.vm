@@ -350,6 +350,7 @@
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
+                enable-pdf-export="$enablePdfExport"
                 #if ($groupRef)
                 evaluated-item-owner-id="$groupRef"
                 group

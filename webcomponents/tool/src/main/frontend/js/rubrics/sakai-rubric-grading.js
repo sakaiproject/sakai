@@ -1,6 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "../assets/lit-element/lit-element.js";
 import "./sakai-rubric-grading-comment.js";
+import "./sakai-rubric-pdf.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 import { getUserId } from "../sakai-portal-utils.js";
 
@@ -32,7 +33,8 @@ export class SakaiRubricGrading extends RubricsElement {
       totalPoints: Number,
       translatedTotalPoints: { type: Number },
       criteria: { type: Array },
-      rubric: { type: Object }
+      rubric: { type: Object },
+      enablePdfExport: {attribute: "enable-pdf-export", type: Object}
     };
   }
 
@@ -83,7 +85,19 @@ export class SakaiRubricGrading extends RubricsElement {
 
     return html`
       <div class="rubric-details grading">
-        <h3>${this.rubric.title}</h3>
+        <h3>
+          <span>${this.rubric.title}</span>
+          ${this.enablePdfExport ? html`
+            <sakai-rubric-pdf
+                rubricTitle="${this.rubric.title}"
+                rubricId="${this.rubric.id}"
+                token="${this.token}"
+                toolId="${this.toolId}"
+                entityId="${this.entityId}"
+                evaluatedItemId="${this.evaluatedItemId}"
+            />
+          ` : ""}
+        </h3>
         ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
           <div class="sak-banner-warn">
             ${tr('draft_evaluation', [tr(this.getToolDraftMessageKey())])}

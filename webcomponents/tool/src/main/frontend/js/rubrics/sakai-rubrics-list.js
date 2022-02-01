@@ -12,11 +12,17 @@ const rubricModified = 'modified';
 
 export class SakaiRubricsList extends RubricsElement {
 
+  constructor() {
+    super();
+    this.enablePdfExport = false;
+  }
+
   static get properties() {
 
     return {
       token: { type: String },
       rubrics: { type: Array },
+      enablePdfExport: { type: Boolean }
     };
   }
 
@@ -40,7 +46,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}"></sakai-rubric>
+            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
           </div>
         `)}
         </div>

@@ -38,6 +38,8 @@ public class MainController {
     @GetMapping("/index")
     public String index(ModelMap model) {
         String token = rubricsService.generateJsonWebToken("sakai.rubrics");
+        boolean enablePdfExport = rubricsService.isPdfExportEnabled();
+        model.addAttribute("enablePdfExport", enablePdfExport);
         model.addAttribute("token", token);
         model.addAttribute("sakaiSessionId", rubricsService.getCurrentSessionId());
         model.addAttribute("cdnQuery", PortalUtils.getCDNQuery());
