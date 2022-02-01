@@ -7,6 +7,7 @@ import "./sakai-item-delete.js";
 import "./sakai-rubric-site-title.js";
 import "./sakai-rubric-modified-date.js";
 import "./sakai-rubric-creator-name.js";
+import "./sakai-rubric-pdf.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 
@@ -22,6 +23,7 @@ export class SakaiRubric extends RubricsElement {
         "Content-Type": "application/json-patch+json",
       },
     };
+    this.enablePdfExport = false;
   }
 
   static get properties() {
@@ -32,7 +34,8 @@ export class SakaiRubric extends RubricsElement {
       shareIcon: { type: String },
       weightedIcon: String,
       totalWeight: String,
-      validWeight: Boolean
+      validWeight: Boolean,
+      enablePdfExport: { type: Boolean },
     };
   }
 
@@ -118,6 +121,15 @@ export class SakaiRubric extends RubricsElement {
             :
             ""
           }
+          ${this.enablePdfExport ? html`
+            <div class="action-container">
+              <sakai-rubric-pdf
+                  rubricTitle="${this.rubric.title}"
+                  token="${this.token}"
+                  rubricId="${this.rubric.id}"
+              />
+            </div>
+          ` : ""}
         </div>
       </div>
 
