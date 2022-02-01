@@ -74,6 +74,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissio
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.component.app.messageforums.ui.delegates.LRSDelegate;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -89,6 +90,8 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -483,6 +486,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
                 NotificationService.NOTI_OPTIONAL, params.lrsStatement);
         eventTrackingService.post(event);
     }
+
+    TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
+    List<String> userList = new ArrayList<>();
+    userList.add(message.getAuthorId());
+    // Complete task related to forum 
+    String referenceForum = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + message.getTopic().getBaseForum().getId();
+    taskService.completeUserTaskByReference(referenceForum, userList);
+    // Complete task related to topic 
+    String referenceTopic = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + message.getTopic().getBaseForum().getId() + "/topic/" + message.getTopic().getId();
+    taskService.completeUserTaskByReference(referenceTopic, userList);
 
     return persistedMessage;
   }

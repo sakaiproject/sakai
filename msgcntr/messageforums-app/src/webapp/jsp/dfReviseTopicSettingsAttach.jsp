@@ -50,15 +50,21 @@
 
 			var elems = document.getElementsByTagName('sakai-rubric-association');
 			var topicAssignments = document.getElementById("revise:topic_assignments");
+			const createTaskGroup = document.getElementById("revise:createTaskGroup");
+			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
 			if ( topicAssignments !== null && topicAssignments.value != null && topicAssignments.value != 'Default_0') {
 				for (var i = 0; i < elems.length; i++) {
 					elems[i].setAttribute("entity-id", topicAssignments.value);
 					elems[i].style.display = 'inline';
 				}
+				createTaskGroup.style.display = 'inline';
+				createTaskEmptyPanel.style.display = 'inline';
 			} else {
 				for (var i = 0; i < elems.length; i++) {
 					elems[i].style.display = 'none';
 				}
+				createTaskGroup.style.display = 'none';
+				createTaskEmptyPanel.style.display = 'none';
 			}
 		}
 
@@ -337,12 +343,17 @@
 				<h:outputText value="#{msgs.perm_choose_assignment_none_t}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
 				<h:outputText value=" #{msgs.perm_choose_instruction_topic} " styleClass="instrWithGrades" style="margin-left:0;"/>
 				<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
-                    <h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}" />
-                </h:outputLink>
+					<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}" />
+				</h:outputLink>
 			</h:panelGroup>
 			<h:panelGroup styleClass="displayMorePanel" style="display:none"></h:panelGroup>
 			<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none">
 				<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_topic_more}"/>
+			</h:panelGroup>
+			<h:panelGroup id="createTaskEmptyPanel" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}"></h:panelGroup>
+			<h:panelGroup id="createTaskGroup" style="display:#{((ForumTool.selectedTopic.gradeAssign != null && ForumTool.selectedTopic.gradeAssign != 'Default_0') ? 'block' : 'none')}">
+				<h:selectBooleanCheckbox id="createTask" title="createTask" value="#{ForumTool.selectedTopic.createTask}"/>
+				<h:outputLabel for="createTask" value="#{msgs.perm_create_task_topic}" style="margin-left:5px"/>
 			</h:panelGroup>
 		</h:panelGrid>
 		<sakai-rubric-association style="margin-left:20px;display:none"

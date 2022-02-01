@@ -49,15 +49,18 @@
 	function updateGradeAssignment(){
 		var elems = document.getElementsByTagName('sakai-rubric-association');
 		var forumAssignments = document.getElementById("revise:forum_assignments");
-		if( forumAssignments != null && forumAssignments.value != null && forumAssignments.value != 'Default_0'){
+		const createTaskGroup = document.getElementById("revise:createTaskGroup");
+		if (forumAssignments?.value && forumAssignments.value !== "Default_0") {
 			for (var i = 0; i<elems.length; i++) {
                 elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
 			}
+			createTaskGroup.style.display = 'inline';
 		} else {
 			for (var i = 0; i<elems.length; i++) {
 				elems[i].style.display = 'none';
 			}
+			createTaskGroup.style.display = 'none';
 		}
 	}
 
@@ -322,22 +325,28 @@
 				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading">
 					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
 					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
-						<h:panelGroup layout="block" styleClass="row">
-				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-							<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-			   	    			<f:selectItems value="#{ForumTool.assignments}" />
-			      			</h:selectOneMenu>
-							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-							<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-							<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-			    		</h:panelGroup>
-			    		</h:panelGroup>
-			    		<h:panelGroup layout="block" styleClass="row"> 
-							<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
-							<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
-								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
-			    			</h:panelGroup>
-			    		</h:panelGroup>
+						<h:panelGrid>
+							<h:panelGroup layout="block" styleClass="row">
+								<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
+									<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+										<f:selectItems value="#{ForumTool.assignments}" />
+									</h:selectOneMenu>
+									<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+									<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+									<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+								</h:panelGroup>
+							</h:panelGroup>
+							<h:panelGroup layout="block" styleClass="row"> 
+								<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
+								<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
+									<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
+								</h:panelGroup>
+							</h:panelGroup>
+							<h:panelGroup id="createTaskGroup" style="display:#{((ForumTool.selectedForum.gradeAssign != null && ForumTool.selectedForum.gradeAssign != 'Default_0') ? 'block' : 'none')}">
+								<h:selectBooleanCheckbox id="createTask" title="createTask" value="#{ForumTool.selectedForum.createTask}"/>
+								<h:outputLabel for="createTask" value="#{msgs.perm_create_task_forum}" style="margin-left:5px"/>
+							</h:panelGroup>
+						</h:panelGrid>
 					</h:panelGroup>
 				</h:panelGroup>
 			
