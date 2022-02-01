@@ -25,11 +25,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -42,7 +42,6 @@ import org.sakaiproject.conversations.api.ConversationsStat;
 import org.sakaiproject.conversations.api.Events;
 import org.sakaiproject.conversations.api.Permissions;
 import org.sakaiproject.conversations.api.Reaction;
-import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
 import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
@@ -72,9 +71,7 @@ import org.sakaiproject.conversations.api.repository.TopicReactionRepository;
 import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.memory.api.Cache;
@@ -88,16 +85,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.comparator.UserSortNameComparator;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import org.apache.commons.lang3.StringUtils;
-
-import javax.persistence.PersistenceException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,11 +98,9 @@ import lombok.Setter;
 
 @Slf4j
 @Setter
-public class ConversationsServiceImpl implements ConversationsService/*, EntityProducer, Statisticable*/ {
+public class ConversationsServiceImpl implements ConversationsService, Observer {
 
     private AuthzGroupService authzGroupService;
-
-    //private EntityManager entityManager;
 
     private FunctionManager functionManager;
 
@@ -159,7 +150,27 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
 
         Permissions.stream().forEach(p -> functionManager.registerFunction(p.label, true));
         this.sortedStatsCache = memoryService.<String, List<ConversationsStat>>getCache("conversationsSortedStatsCache");
-        //entityManager.registerEntityProducer(this, this.getEntityPrefix());
+        eventTrackingService.addObserver(this);
+    }
+
+    public void update(Observable observable, Object arg) {
+
+        if (arg instanceof Event) {
+            Event e = (Event) arg;
+            String event = e.getEvent();
+            if (event.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP)) {
+                String baseCacheKey = e.getContext() + "/conversations/";
+                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_NAME_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_CREATED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_ASCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_POSTS_CREATED_DESCENDING);
+                this.sortedStatsCache.remove(baseCacheKey + SORT_REACTIONS_MADE_ASCENDING);
+            }
+        }
     }
 
     public String getEntityPrefix() {
@@ -1388,7 +1399,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(nameAscendingKey, sortedStats);
                     }
                     break;
-                case "nameDescending":
+                case SORT_NAME_DESCENDING:
                     String nameDescendingKey = baseCacheKey + SORT_NAME_DESCENDING;
                     sortedStats = sortedStatsCache.get(nameDescendingKey);
                     if (sortedStats == null) {
@@ -1396,7 +1407,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(nameDescendingKey, sortedStats);
                     }
                     break;
-                case "topicsCreatedAscending":
+                case SORT_TOPICS_CREATED_ASCENDING:
                     String topicsCreatedAscendingKey = baseCacheKey + SORT_TOPICS_CREATED_ASCENDING;
                     sortedStats = sortedStatsCache.get(topicsCreatedAscendingKey);
                     if (sortedStats == null) {
@@ -1404,7 +1415,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsCreatedAscendingKey, sortedStats);
                     }
                     break;
-                case "topicsCreatedDescending":
+                case SORT_TOPICS_CREATED_DESCENDING:
                     String topicsCreatedDescendingKey = baseCacheKey + SORT_TOPICS_CREATED_DESCENDING;
                     sortedStats = sortedStatsCache.get(topicsCreatedDescendingKey);
                     if (sortedStats == null) {
@@ -1412,7 +1423,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsCreatedDescendingKey, sortedStats);
                     }
                     break;
-                case "topicsViewedAscending":
+                case SORT_TOPICS_VIEWED_ASCENDING:
                     String topicsViewedAscendingKey = baseCacheKey + SORT_TOPICS_VIEWED_ASCENDING;
                     sortedStats = sortedStatsCache.get(topicsViewedAscendingKey);
                     if (sortedStats == null) {
@@ -1420,7 +1431,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsViewedAscendingKey, sortedStats);
                     }
                     break;
-                case "topicsViewedDescending":
+                case SORT_TOPICS_VIEWED_DESCENDING:
                     String topicsViewedDescendingKey = baseCacheKey + SORT_TOPICS_VIEWED_DESCENDING;
                     sortedStats = sortedStatsCache.get(topicsViewedDescendingKey);
                     if (sortedStats == null) {
@@ -1428,7 +1439,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(topicsViewedDescendingKey, sortedStats);
                     }
                     break;
-                case "postsCreatedAscending":
+                case SORT_POSTS_CREATED_ASCENDING:
                     String postsCreatedAscendingKey = baseCacheKey + SORT_POSTS_CREATED_ASCENDING;
                     sortedStats = sortedStatsCache.get(postsCreatedAscendingKey);
                     if (sortedStats == null) {
@@ -1436,7 +1447,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(postsCreatedAscendingKey, sortedStats);
                     }
                     break;
-                case "postsCreatedDescending":
+                case SORT_POSTS_CREATED_DESCENDING:
                     String postsCreatedDescendingKey = baseCacheKey + SORT_POSTS_CREATED_DESCENDING;
                     sortedStats = sortedStatsCache.get(postsCreatedDescendingKey);
                     if (sortedStats == null) {
@@ -1444,7 +1455,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(postsCreatedDescendingKey, sortedStats);
                     }
                     break;
-                case "reactionsMadeAscending":
+                case SORT_REACTIONS_MADE_ASCENDING:
                     String reactionsMadeAscendingKey = baseCacheKey + SORT_REACTIONS_MADE_ASCENDING;
                     sortedStats = sortedStatsCache.get(reactionsMadeAscendingKey);
                     if (sortedStats == null) {
@@ -1452,7 +1463,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
                         sortedStatsCache.put(reactionsMadeAscendingKey, sortedStats);
                     }
                     break;
-                case "reactionsMadeDescending":
+                case SORT_REACTIONS_MADE_DESCENDING:
                     String reactionsMadeDescendingKey = baseCacheKey + SORT_REACTIONS_MADE_DESCENDING;
                     sortedStats = sortedStatsCache.get(reactionsMadeDescendingKey);
                     if (sortedStats == null) {
@@ -1467,7 +1478,7 @@ public class ConversationsServiceImpl implements ConversationsService/*, EntityP
         int start = pageSize * (page - 1);
         int end = start + pageSize;
 
-        if (end > users.size()) end = users.size();
+        if (end > sortedStats.size()) end = sortedStats.size();
 
         data.put("stats", sortedStats.subList(start, end));
 
