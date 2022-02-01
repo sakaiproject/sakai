@@ -3758,7 +3758,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("users", users);
 
             context.put("submitterNames", getSubmitterFormattedNames(s, "build_instructor_grade_submission_context"));
-            context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
+            context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId(), true));
             s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getSubmitter()));
 
             s.getSubmitters().stream().findAny().ifPresent(spent -> context.put("submitterTimeSpent", spent.getTimeSpent()));
@@ -10604,7 +10604,7 @@ public class AssignmentAction extends PagedResourceActionII {
         AssignmentSubmission s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state);
         // whether the user can access the Submission object
         if (s != null) {
-            String status = assignmentService.getSubmissionStatus(s.getId());
+            String status = assignmentService.getSubmissionStatus(s.getId(), true);
 
             // show submission view unless group submission with group error
             Assignment a = s.getAssignment();
@@ -15280,8 +15280,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     // comparing submission status
                     AssignmentSubmission as1 = findAssignmentSubmission((Assignment) o1);
                     AssignmentSubmission as2 = findAssignmentSubmission((Assignment) o2);
-                    String s1 = assignmentService.getSubmissionStatus(as1.getId());
-                    String s2 = assignmentService.getSubmissionStatus(as2.getId());
+                    String s1 = assignmentService.getSubmissionStatus(as1.getId(), false);
+                    String s2 = assignmentService.getSubmissionStatus(as2.getId(), false);
                     result = as1 == null ? 1 : as2 == null ? -1 : compareString(s1, s2);
                 }
             } else if (m_criteria.equals(SORTED_BY_NUM_SUBMISSIONS)) {
@@ -15482,7 +15482,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (s1 == null) {
                         status1 = rb.getString("listsub.nosub");
                     } else {
-                        status1 = assignmentService.getSubmissionStatus(s1.getId());
+                        status1 = assignmentService.getSubmissionStatus(s1.getId(), false);
                     }
                 }
 
@@ -15493,7 +15493,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (s2 == null) {
                         status2 = rb.getString("listsub.nosub");
                     } else {
-                        status2 = assignmentService.getSubmissionStatus(s2.getId());
+                        status2 = assignmentService.getSubmissionStatus(s2.getId(), false);
                     }
                 }
 
@@ -15615,8 +15615,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             } else if (m_criteria.equals(SORTED_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
-                String s1 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o1).getId());
-                String s2 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o2).getId());
+                String s1 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o1).getId(), false);
+                String s2 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o2).getId(), false);
                 result = compareString(s1, s2);
             } else if (m_criteria.equals(SORTED_SUBMISSION_BY_GRADE)) {
                 // sort by submission grade
