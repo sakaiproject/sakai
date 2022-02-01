@@ -72,4 +72,5 @@ public interface RubricsService {
 
     void deleteSiteRubrics(String siteId);
 
+    boolean isPdfExportEnabled();
 }

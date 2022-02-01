@@ -2,6 +2,7 @@ import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric-criterion-preview.js";
 import "./sakai-rubric-criterion-student.js";
+import "./sakai-rubric-pdf.js";
 import "./sakai-rubric-student-comment.js";
 import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
 
@@ -30,6 +31,7 @@ class SakaiRubricStudent extends RubricsElement {
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
       forcePreview: { attribute: "force-preview", type: Boolean },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Object }
     };
   }
 
@@ -82,7 +84,19 @@ class SakaiRubricStudent extends RubricsElement {
       <hr class="itemSeparator" />
 
       <div class="rubric-details student-view">
-        <h3>${this.rubric.title}</h3>
+        <h3>
+          <span>${this.rubric.title}</span>
+          ${this.enablePdfExport ? html`
+            <sakai-rubric-pdf
+                rubricTitle="${this.rubric.title}"
+                rubricId="${this.rubric.id}"
+                token="${this.token}"
+                toolId="${this.toolId}"
+                entityId="${this.entityId}"
+                evaluatedItemId="${this.evaluatedItemId}"
+            />
+          ` : ""}
+        </h3>
 
         ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview

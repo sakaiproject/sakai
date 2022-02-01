@@ -316,6 +316,7 @@
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
+        enable-pdf-export="$enablePdfExport"
     ></sakai-rubric-student>
     #end
 
