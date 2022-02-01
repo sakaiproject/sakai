@@ -67,7 +67,8 @@
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"
 		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
-        name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
+		name="org.sakaiproject.service.gradebook.GradebookServiceTarget"
+		init-method="init">
         <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
         <property name="sectionAwareness">
             <ref bean="org.sakaiproject.section.api.SectionAwareness" />
@@ -89,14 +90,15 @@
         </property>
         <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
           class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
           name="org.sakaiproject.service.gradebook.GradebookPermissionServiceTarget">
         <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
         <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
-	</bean>
-	
+	</bean>	
 
 	<bean id="gradebookServiceTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"

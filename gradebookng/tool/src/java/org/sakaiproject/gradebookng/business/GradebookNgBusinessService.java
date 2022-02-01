@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -53,6 +54,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -101,6 +103,9 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.Priorities;
+import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -180,6 +185,10 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private UserTimeService userTimeService;
+	
+	@Setter
+	private TaskService taskService;
+	
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -1978,7 +1987,20 @@ public class GradebookNgBusinessService {
 					Integer.MAX_VALUE);
 
 			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
-
+			
+			// Create the task
+			if (assignment.isCreateTask()) {
+				String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
+				Task task = new Task();
+				task.setSiteId(getCurrentSiteId());
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(assignment.getName());
+				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+				Set<String> users = new HashSet<>(this.getGradeableUsers());
+				taskService.createTask(task, users, Priorities.HIGH);
+			}			
+			
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -2221,7 +2243,29 @@ public class GradebookNgBusinessService {
 		final Assignment original = this.getAssignment(assignment.getId());
 
 		this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
-
+		
+		// Update task
+		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + original.getId();
+		Optional<Task> optTask = taskService.getTask(reference);
+		if (optTask.isPresent()) {
+			Task task = optTask.get();
+			task.setDescription(assignment.getName());
+			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+			taskService.saveTask(task);
+		} else {
+			// Create the task
+			if (assignment.isCreateTask()) {
+				Task task = new Task();
+				task.setSiteId(getCurrentSiteId());
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(assignment.getName());
+				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+				Set<String> users = new HashSet<>(this.getGradeableUsers());
+				taskService.createTask(task, users, Priorities.HIGH);
+			}
+		}
+        
 		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
 
 		if (original.getCategoryId() != null && assignment.getCategoryId() != null
@@ -2590,6 +2634,10 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
+
+		// Delete task
+		String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId; 
+		taskService.removeTaskByReference(reference);
 
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradebookService.removeAssignment(assignmentId);

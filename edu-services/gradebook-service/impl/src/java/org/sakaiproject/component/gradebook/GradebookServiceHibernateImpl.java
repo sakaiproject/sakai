@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +50,10 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -77,7 +82,10 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.service.gradebook.shared.exception.UnmappableCourseGradeOverrideException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -91,6 +99,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 
@@ -110,9 +119,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@Setter
 	protected ServerConfigurationService serverConfigService;
+	
+	@Setter private EntityManager entityManager;
+	@Setter private ToolManager toolManager;
 
 	@Getter @Setter
 	private RubricsService rubricsService;
+	
+	public void init() {
+		// register as an entity producer
+		entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+	}
+	
 	@Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName) {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -128,6 +146,32 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 		return (assignment != null);
+	}
+	
+	@Override
+	public Optional<String> getEntityUrl(Reference ref, Entity.UrlType urlType) {
+		try {
+			Site site = siteService.getSite(ref.getContext());
+			ToolConfiguration fromTool = site.getToolForCommonId("sakai.gradebookng");
+			String entityUrl = null;
+			if (fromTool != null) {
+				entityUrl = String.format("%s/directtool/%s", serverConfigService.getPortalUrl(), fromTool.getId());
+			}
+			return Optional.of(entityUrl);
+		} catch (Exception e) {
+			log.error("ERROR getting gradebook assignment entity URL", e);
+			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public boolean parseEntityReference(String stringReference, Reference reference) {
+		if (StringUtils.startsWith(stringReference, REFERENCE_ROOT)) {
+			String[] parts = StringUtils.splitPreserveAllTokens(stringReference, Entity.SEPARATOR);
+			reference.set(SAKAI_GBASSIGNMENT, parts[2], parts[4], parts[3], parts[3]);
+			return true;
+		}
+		return false;
 	}
 
 	private boolean isUserAbleToViewAssignments(final String gradebookUid) {
@@ -197,6 +241,27 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + assignmentId);
 		}
 
+		return getAssignmentDefinition(assignment);
+	}
+	
+	/**
+	 * Method to retrieve Assignment by ID.
+	 *
+	 * @param gradeableObjectID
+	 * @return
+	 */
+	public Assignment getAssignmentByID(final Long gradeableObjectID) throws AssessmentNotFoundException {
+		GradebookAssignment assignment = (GradebookAssignment) getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
+			public Object doInHibernate(final Session session) throws HibernateException {
+				return getAssignmentById(gradeableObjectID);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gradeableObjectID);
+		}
+		
 		return getAssignmentDefinition(assignment);
 	}
 

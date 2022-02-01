@@ -22,6 +22,7 @@
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
+		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService" />
 	</bean>
 
 	<bean

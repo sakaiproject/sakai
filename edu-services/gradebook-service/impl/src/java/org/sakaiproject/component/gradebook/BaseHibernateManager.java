@@ -236,6 +236,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 .setParameter("gradebookuid", gradebookUid)
                 .uniqueResult();
 	}
+	
+	protected GradebookAssignment getAssignmentById(final Long assignmentId) throws HibernateException {
+		return (GradebookAssignment) getSessionFactory().getCurrentSession()
+				.createCriteria(GradebookAssignment.class)
+				.add(Restrictions.eq("id", assignmentId))
+				.add(Restrictions.eq("removed", false))
+				.uniqueResult();
+	}
 
 	protected void updateAssignment(final GradebookAssignment assignment) throws ConflictingAssignmentNameException, HibernateException {
 		// Ensure that we don't have the assignment in the session, since
