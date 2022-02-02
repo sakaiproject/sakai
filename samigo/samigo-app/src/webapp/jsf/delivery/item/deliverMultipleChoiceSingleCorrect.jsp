@@ -75,8 +75,10 @@ should be included in file importing DeliveryMessages
         <h:outputText value=" #{selection.answer.label}" escape="false" />
         <h:outputText value="#{deliveryMessages.dot} " rendered="#{selection.answer.label ne ''}" />
       </span>
-      <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false">
+      <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false" rendered="#{question.itemData.typeId == 3}">
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+      </h:outputText>
+      <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false" rendered="#{question.itemData.typeId != 3}">
         <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
       </h:outputText>
     </h:panelGroup>
