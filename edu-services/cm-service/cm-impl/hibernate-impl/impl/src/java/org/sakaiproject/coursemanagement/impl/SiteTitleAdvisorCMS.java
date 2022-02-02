@@ -125,6 +125,13 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                     // Get the current user's section membership/role map
                     Map<String, String> sectionRoles = cms.findSectionRoles( currentUser.getEid() );
 
+                    /*
+                     * As we iterate over providers, track any section in which the user has a student role.
+                     * If the user is not enrolled as a student in any sections whose category is preferred (portalUseSecTitlePreferredCategory),
+                     * we'll fall back to any other section in which the user is enrolled as a student.
+                     */
+                    String titleOfSectionWithStudentRole = null;
+
                     // Iterate over the section IDs for the site; find the first matching section ID
                     for( String sectionID : providerIDs )
                     {
@@ -136,9 +143,13 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                             {
                                 // If the section is of the preferred type, use the section title instead of the site title
                                 Section section = cms.getSection( sectionID );
+
+                                // Track the section title in case we can't find a section whose category is preferred
+                                titleOfSectionWithStudentRole = section.getTitle();
+
                                 if( portalUseSecTitlePreferredCategory.equals( section.getCategory() ) )
                                 {
-                                    return section.getTitle();
+                                    return titleOfSectionWithStudentRole;
                                 }
                             }
                             catch( IdNotFoundException ex )
@@ -146,6 +157,11 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                                 log.warn( "SiteTitleAdvisorCMS.getSiteOrSectionTitle: section not found " + sectionID, ex );
                             }
                         }
+                    }
+                    if (titleOfSectionWithStudentRole != null)
+                    {
+                        // The user is not enrolled in any sections with the preferred category, but they are enrolled in at least one section as a student; display a section title
+                        return titleOfSectionWithStudentRole;
                     }
                 }
             }
