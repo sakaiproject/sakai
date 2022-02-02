@@ -1286,6 +1286,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     public boolean isPdfExportEnabled() {
-        return serverConfigurationService.getBoolean(RUBRICS_EXPORT_PDF, false);
+        return serverConfigurationService.getBoolean(RUBRICS_EXPORT_PDF, true);
     }
 }
