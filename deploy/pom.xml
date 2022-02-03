@@ -189,6 +189,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- openpdf library -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- lucene jars required by elasticsearch and help -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
