@@ -205,7 +205,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	public void setOpenDate(String date){
 		String hiddenOpenDate = JsfUtil.getStringFromParam("openDateISO8601");
-		log.debug("Date from openDate field: {}; date from hidden field=", date, hiddenOpenDate);
+		log.debug("Date from openDate field: {}; date from hidden field={}", date, hiddenOpenDate);
 		Calendar cal = JsfUtil.convertISO8601StringToCalendar(hiddenOpenDate);
 		if (cal != null) {
 			this.openDate = cal;
