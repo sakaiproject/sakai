@@ -52,7 +52,6 @@ public class ExtendedTimeValidator
 {
     public static final String ERROR_KEY_USER_OR_GROUP_NOT_SET        = "extended_time_user_and_group_set";
     public static final String ERROR_KEY_DUE_BEFORE_START             = "extended_time_due_earlier_than_available";
-    public static final String ERROR_KEY_DUE_IN_PAST                  = "extended_time_due_in_past";
     public static final String ERROR_KEY_RETRACT_BEFORE_START         = "extended_time_retract_earlier_than_available";
     public static final String ERROR_KEY_DUE_SAME_AS_START            = "extended_time_due_same_as_available";
     public static final String ERROR_KEY_OPEN_WINDOW_LESS_THAN_LIMIT  = "extended_time_open_window_less_than_time_limit";
@@ -63,6 +62,7 @@ public class ExtendedTimeValidator
     public static final String MSG_KEY_DUP_USERS      = "extended_time_duplicate_users";
     public static final String MSG_KEY_DUP_GROUPS     = "extended_time_duplicate_groups";
     public static final String MSG_KEY_NAME_NOT_FOUND = "extended_time_name_not_found";
+    public static final String MSG_KEY_DUE_IN_PAST  = "extended_time_due_in_past";
 
     public static final String ASSESSMENT_SETTINGS_BUNDLE = "org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages";
 
@@ -133,7 +133,7 @@ public class ExtendedTimeValidator
             // Due date can't be in the past
             if( dueDate != null && dueDate.before( new Date() ) )
             {
-                addError( ERROR_KEY_DUE_IN_PAST, entry, context );
+                addWarn( MSG_KEY_DUE_IN_PAST, entry, context );
                 entry.setStartDate( new Date() );
             }
 
@@ -261,6 +261,17 @@ public class ExtendedTimeValidator
         errorMsg = MessageFormat.format( errorMsg, new Object[] { replacements } );
         context.addMessage( null, new FacesMessage( FacesMessage.SEVERITY_WARN, errorMsg, null ) );
         valid = false;
+    }
+    
+    /**
+     * Utility method to add a warning message to the {@link FacesContext}
+     * @param messageKey the key of the error message to be added
+     * @param entry the {@link ExtendedTime} entry
+     * @param context the {@link FacesContext}
+     */
+    private void addWarn( String messageKey, ExtendedTime entry, FacesContext context ) {
+        String errorMsg = getError( messageKey, entry );
+        context.addMessage( null, new FacesMessage( FacesMessage.SEVERITY_INFO, errorMsg, null ) );
     }
 
     /**
