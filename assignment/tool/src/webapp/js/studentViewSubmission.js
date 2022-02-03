@@ -63,9 +63,8 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
         "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
-
-        "tsComment" : tsComment,
-        "tsDuration" : tsDuration
+        tsComment,
+        tsDuration
     };
 
     button.classList.add("spinButton");
@@ -129,10 +128,14 @@ ASN.tsHandleAjaxAddSuccess = function (data) {
         const button = document.getElementById("btnTimesheetAdd");
         button.classList.remove("spinButton");
         button.disabled = false;
-        alertTsheetAddRecord.style.display = "block";
         alertTsheetAddRecord.innerHTML = window.i18nWlogTab[data.error.message];
+        if(alertTsheetAddRecord.classList.contains('hidden')) {
+            alertTsheetAddRecord.classList.toggle('hidden');
+        }
     } else {
-        alertTsheetAddRecord.style.display = "none";
+        if(!alertTsheetAddRecord.classList.contains('hidden')) {
+            alertTsheetAddRecord.classList.toggle('hidden');
+        }
         ASN.submitForm('addSubmissionForm', 'view', null, null);
     }
 };
@@ -143,10 +146,14 @@ ASN.tsHandleAjaxRemoveSuccess = function (data) {
         const button = document.getElementById("btnTimesheetDelete");
         button.classList.remove("spinButton");
         button.disabled = false;
-        alertTsheetDelRecord.style.display = "block";
         alertTsheetDelRecord.innerHTML = window.i18nWlogTab[data.error.message];
+        if(alertTsheetDelRecord.classList.contains('hidden')) {
+            alertTsheetDelRecord.classList.toggle('hidden');
+        }
     } else {
-        alertTsheetDelRecord.style.display = "none";
+        if(!alertTsheetDelRecord.classList.contains('hidden')) {
+            alertTsheetDelRecord.classList.toggle('hidden');
+        }
         ASN.submitForm('addSubmissionForm', 'view', null, null);
     }
 };
@@ -155,11 +162,14 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
 
     const button = document.getElementById("btnTimesheetAdd");
+    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
     button.classList.remove("spinButton");
     button.disabled = false;
-    document.getElementById("alertTsheetAddRecord").style.display="block";
+    if(alertTsheetAddRecord.classList.contains('hidden')) {
+        alertTsheetAddRecord.classList.toggle('hidden');
+    }
     const messageArray = [];
-    document.getElementById("alertTsheetAddRecord").innerHTML
+    alertTsheetAddRecord.innerHTML
       = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 
@@ -167,10 +177,13 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
 
     var button = document.getElementById("btnTimesheetDelete");
+    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
     button.classList.remove("spinButton");
     button.disabled = false;
-    document.getElementById("alertTsheetDelRecord").style.display="block";
-    document.getElementById("alertTsheetDelRecord").innerHTML
+    if(alertTsheetDelRecord.classList.contains('hidden')) {
+        alertTsheetDelRecord.classList.toggle('hidden');
+    }
+    alertTsheetDelRecord.innerHTML
       = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 

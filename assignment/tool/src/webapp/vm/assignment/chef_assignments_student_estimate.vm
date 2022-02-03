@@ -19,7 +19,7 @@
     <hr>
     ##Checks for Timesheet records
     ##BOOTSTRAP (red)
-    <div id="alertTsheetDelRecord" class="sak-banner-error" role="alert" style="display: none;"></div>
+    <div id="alertTsheetDelRecord" class="sak-banner-error hidden" role="alert"></div>
     
     #if ($!isAnyRegTimeSheet)
         <div>
@@ -92,7 +92,7 @@
                     <h5 class="modal-title" id="exampleModalLabel">$!tlang.getString("ts.modal.new")</h5>
                     <div class="modal-body">
                         ##BOOTSTRAP (red)
-                        <div id="alertTsheetAddRecord" class="alert alert-danger" role="alert" style="display:none;">
+                        <div id="alertTsheetAddRecord" class="alert alert-danger hidden" role="alert">
                                 $!tlang.getString("ts.modal.msg.err")
                         </div>
                         <form>
