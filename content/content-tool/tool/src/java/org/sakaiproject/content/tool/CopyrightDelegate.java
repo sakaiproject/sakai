@@ -30,7 +30,7 @@ import org.sakaiproject.util.ParameterParser;
 public class CopyrightDelegate
 {
 	private String copyrightStatus;	// Copyright Status takes its value from the dropdown (eg. "I hold copyright")
-	private String copyrightInfo;	// Copyright Info takes its value from the text area (ie. when  "Use copyright below." is selected)
+	private String copyrightInfo;	// Copyright Info takes its value from the text area (ie. when "Use copyright below." is selected)
 	private boolean copyrightAlert;	// copyrightAlert takes it's value from the copyright alert checkbox ("Display copyright alert and require acknowledgement...")
 
 	// Keys to put these into the context
