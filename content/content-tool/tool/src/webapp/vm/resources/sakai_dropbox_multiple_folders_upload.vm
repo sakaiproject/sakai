@@ -27,7 +27,7 @@
 			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="handleFileChange()"/>
 		</div>
 		<div class="form-group">
-			<label for="displayName">$tlang.getString("label.display")</label> 
+			<label for="MultipleFolderDisplayName">$tlang.getString("label.display")</label>
 			<input class="form-control" type="text" id="MultipleFolderDisplayName" name="MultipleFolderDisplayName" #if($!displayName)value="$displayName"#end/>
 		</div>
 		<div class="form-group">
