@@ -254,7 +254,7 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
                             //updating was causing issues without a _source, so doing delete and re-add
                             try {
                                 deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                                bulkRequest.add(prepareIndex(reference, ecp, false));
+                                bulkRequest.add(prepareIndex(reference, ecp, true));
                                 numberOfDocs++;
                             } catch (Exception e) {
                                 getLog().error(e.getMessage(), e);
