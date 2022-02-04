@@ -35,32 +35,32 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   save() {
 
     this.task.description = this.shadowRoot.getElementById("description").value;
-    this.task.notes = this.getEditor().getData();
+    this.task.notes = this.getEditorTag().getContent();
 
-    fetch(`/api/tasks/${this.task.taskId}`, {
+    const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
+    fetch(url, {
       credentials: "include",
-      method: "PUT",
+      method: this.task.taskId ? "PUT" : "POST",
       cache: "no-cache",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(this.task),
     })
-      .then(r => {
+    .then(r => {
 
-        if (r.ok) {
-          this.error = false;
-          return r.json();
-        }
-        this.error = true;
-        throw new Error();
+      if (r.ok) {
+        this.error = false;
+        return r.json();
+      }
+      this.error = true;
+      throw new Error("Network error while saving task");
+    })
+    .then(savedTask => {
 
-      })
-      .then(savedTask => {
-
-        this.task = savedTask;
-        this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
-        this.close();
-      })
-      .catch(() => {});
+      this.task = savedTask;
+      this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
+      this.close();
+    })
+    .catch(error => console.error(error));
   }
 
   resetDate() {
@@ -111,13 +111,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   getEditorTag() {
-
-    const el = this.shadowRoot.querySelector("slot[name='task-text'");
-
-    if (el) {
-      const slottedNodes = this.shadowRoot.querySelector("slot[name='task-text'").assignedNodes();
-      return slottedNodes[0].querySelector("sakai-editor");
-    }
+    return this.shadowRoot.querySelector("sakai-editor");
   }
 
   getEditor() {
@@ -135,24 +129,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     if (e.target.checked) {
       this.task.softDeleted = false;
     }
-
-    console.log(this.task);
-  }
-
-  resetEditor() {
-    this.getEditor().setData(this.task.notes || "");
-  }
-
-  connectedCallback() {
-
-    super.connectedCallback();
-
-    if (typeof CKEDITOR !== "undefined") {
-      const tag = this.getEditorTag();
-      if (tag) {
-        return tag.attachEditor();
-      }
-    }
   }
 
   content() {
@@ -162,7 +138,9 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       <div class="label">
         <label for="description">${this.i18n.description}</label>
       </div>
-      <div class="input"><input type="text" id="description" size="50" maxlength="150" .value=${this.task.description}></div>
+      <div class="input">
+        <input type="text" id="description" size="50" maxlength="150" .value=${this.task.description}>
+      </div>
       <div id="due-and-priority-block">
         <div id="due-block">
           <div class="label">
@@ -206,7 +184,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         <label for="text">${this.i18n.text}</label>
       </div>
       <div class="input">
-        <slot id="task-text" name="task-text"></slot>
+        <sakai-editor element-id="task-text-editor" textarea></sakai-editor>
       </div>
       ${this.error ? html`<div id="error">${this.i18n.save_failed}</div>` : ""}
     `;
@@ -246,10 +224,12 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         font-weight: bold;
         color: var(--sakai-tasks-save-failed-color, red)
       }
+      sakai-editor {
+        width: 100%;
+      }
     `];
   }
 }
 
-if (!customElements.get("sakai-tasks-create-task")) {
-  customElements.define("sakai-tasks-create-task", SakaiTasksCreateTask);
-}
+const tagName = "sakai-tasks-create-task";
+!customElements.get(tagName) && customElements.define(tagName, SakaiTasksCreateTask);

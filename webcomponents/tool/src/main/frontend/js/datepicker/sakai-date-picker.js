@@ -87,6 +87,7 @@ class SakaiDatePicker extends LitElement {
     const config = {
       enableTime: true,
       appendTo: this.shadowRoot,
+      static: true,
       time_24hr: true,
       allowInput: !this.disabled,
       defaultHour: this.start.hours(),
