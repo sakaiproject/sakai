@@ -10,7 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket8.version>8.12.0</wicket8.version>
+		<wicket8.version>8.14.0</wicket8.version>
 	</properties>
 
 	<name>Sakai Wicket 8 Tool</name>
