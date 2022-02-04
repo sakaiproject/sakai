@@ -78,9 +78,9 @@
 <script type="text/javascript">
 	function validateFolderNames()
 	{
-		var textInputs = document.querySelectorAll("#fileInputDiv input[type=text]");
-		var allFolderNamesPresent = true;
-		for (var i=0; i<textInputs.length; i++)
+		const textInputs = document.querySelectorAll("#fileInputDiv input[type=text]");
+		let allFolderNamesPresent = true;
+		for (let i = 0; i < textInputs.length; i++)
 		{
 			if (textInputs[i].id.indexOf('content${DOT}')===0)
 			{

@@ -184,8 +184,8 @@
 
 	function handleFileChange()
 	{
-		let fileField = document.getElementById('MultipleFolderContent');
-		let nameField = document.getElementById('MultipleFolderDisplayName');
+		const fileField = document.getElementById('MultipleFolderContent');
+		const nameField = document.getElementById('MultipleFolderDisplayName');
 
 		## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
 
@@ -211,9 +211,9 @@
 		 * I suspect that validation occurs on the entire http post, and I'm unsure how to address this, but this validation is useful for most cases.
 		 *#
 		#if ($!uploadMaxSize)
-		let maxFileSize = $!uploadMaxSize * 1024 * 1024;
-		let resourceAlert = document.getElementById('resourceAlert');
-		let submitButton = document.getElementById('saveChanges');
+		const maxFileSize = $!uploadMaxSize * 1024 * 1024;
+		const resourceAlert = document.getElementById('resourceAlert');
+		const submitButton = document.getElementById('saveChanges');
 		if (fileField.files[0].size > maxFileSize)
 		{
 			resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
