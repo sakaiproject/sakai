@@ -1,4 +1,4 @@
-export var tasksI18n = `
+export const tasksI18n = `
 filter_current=All Current
 filter_priority_5=Priority: 5
 filter_priority_4=Priority: 4

@@ -5,7 +5,6 @@ import '../sakai-icon.js';
 import moment from "../assets/moment/dist/moment.js";
 import "../assets/@lion/dialog/lion-dialog.js";
 import "./sakai-tasks-create-task.js";
-import "../sakai-editor.js";
 
 export class SakaiTasks extends SakaiPageableElement {
 
@@ -267,14 +266,13 @@ export class SakaiTasks extends SakaiPageableElement {
             slot="content"
             @task-created=${this.taskCreated}
             @soft-deleted=${this.softDeleteTask}>
-
-            <div slot="task-text">
-              <sakai-editor element-id="task-text-editor" toolbar="basic" delay></sakai-editor>
-            </div>
-
           </sakai-tasks-create-task>
 
-          <div slot="invoker"><a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}"><sakai-icon type="add" size="small"></a></div>
+          <div slot="invoker">
+            <a @click=${this.add} href="javascript:;" title="${this.i18n.add_task}" aria-label="${this.i18n.add_task}">
+              <sakai-icon type="add" size="medium">
+            </a>
+          </div>
 
         </lion-dialog>
       </div>
