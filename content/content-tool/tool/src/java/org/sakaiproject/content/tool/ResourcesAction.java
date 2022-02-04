@@ -8234,7 +8234,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			if(uploadMax == null && uploadCeiling == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, "20");
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING);
 			}
 			else if(uploadCeiling == null)
 			{
@@ -9340,7 +9340,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	    // Max upload size:
 	    String max_file_size_mb = (String)state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-	    max_file_size_mb = max_file_size_mb == null ? "20" : max_file_size_mb;
+	    max_file_size_mb = max_file_size_mb == null ? ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING : max_file_size_mb;
 	    context.put("uploadMaxSize", max_file_size_mb);
 
 	    return TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD;

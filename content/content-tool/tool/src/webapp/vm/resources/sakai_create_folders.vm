@@ -82,9 +82,9 @@
 		var allFolderNamesPresent = true;
 		for (var i=0; i<textInputs.length; i++)
 		{
-			if (textInputs[i].id.indexOf('content${DOT}')==0)
+			if (textInputs[i].id.indexOf('content${DOT}')===0)
 			{
-				if (textInputs[i].value == null || textInputs[i].value == "")
+				if (!textInputs[i].value)
 				{
 					allFolderNamesPresent = false;
 					break;

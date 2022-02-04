@@ -184,17 +184,17 @@
 
 	function handleFileChange()
 	{
-		var fileField = document.getElementById('MultipleFolderContent');
-		var nameField = document.getElementById('MultipleFolderDisplayName');
+		let fileField = document.getElementById('MultipleFolderContent');
+		let nameField = document.getElementById('MultipleFolderDisplayName');
 
 		## Goal: update the display name field. But if the user provided their own display name, don't overwrite it
 
 #if ($!alreadyUploadedFile)
 		## A file was uploaded to the server, and there was a validation error; track if the file name matches the serverside file
-		var matchesPreviousFile = nameField.value.trim() == "$validator.escapeHtml("$alreadyUploadedFile.getFileName()")".trim();
+		let matchesPreviousFile = nameField.value.trim() == "$validator.escapeHtml("$alreadyUploadedFile.getFileName()")".trim();
 #else
 		## A file was not yet uploaded to the server
-		var matchesPreviousFile = false;
+		let matchesPreviousFile = false;
 #end
 		## Compare with the name of the last selected file in the file picker
 		matchesPreviousFile = matchesPreviousFile || nameField.value.trim() == previousFileName.trim();
@@ -211,9 +211,9 @@
 		 * I suspect that validation occurs on the entire http post, and I'm unsure how to address this, but this validation is useful for most cases.
 		 *#
 		#if ($!uploadMaxSize)
-		var maxFileSize = $!uploadMaxSize * 1024 * 1024;
-		var resourceAlert = document.getElementById('resourceAlert');
-		var submitButton = document.getElementById('saveChanges');
+		let maxFileSize = $!uploadMaxSize * 1024 * 1024;
+		let resourceAlert = document.getElementById('resourceAlert');
+		let submitButton = document.getElementById('saveChanges');
 		if (fileField.files[0].size > maxFileSize)
 		{
 			resourceAlert.innerText = "$tlang.getFormattedMessage('size.exceeded', $!uploadMaxSize)";
