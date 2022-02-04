@@ -351,6 +351,8 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
 		short rowPos = 0;
+		CellStyle style = wb.createCellStyle();
+		style.setDataFormat((short) 15);
 		while (dataIter.hasNext()) {
 			List<Object> rowData = dataIter.next();
 
@@ -376,9 +378,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 				Row row = sheet.createRow(rowPos++);
 				short colPos = 0;
 				Iterator colIter = rowData.iterator();
-
-				CellStyle style = wb.createCellStyle();
-				style.setDataFormat((short) 15);
 
 				while (colIter.hasNext()) {
 				//for (short i = 0; i < rowData.size(); i++) {
