@@ -95,7 +95,8 @@ export class Submission {
     }
   }
   
-  set extensionAllowed(value){
+  set extensionAllowed(value) {
+  
     this._extensionAllowed = value;
     this.extensionDate = moment(this.assignmentCloseTime).valueOf();
   }
