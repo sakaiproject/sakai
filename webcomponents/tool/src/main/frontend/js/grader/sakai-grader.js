@@ -1090,12 +1090,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.showResubmission = e.target.checked;
   }
   
-  toggleExtensionBlock(e){
-    if (!e.target.checked) {
-      this.submission.extensionAllowed = true;
-    } else {
-      this.submission.extensionAllowed = false;
-    }
+  toggleExtensionBlock(e) {
+  
+    this.submission.extensionAllowed = !e.target.checked;
     this.allowExtension = e.target.checked;
   }
   
