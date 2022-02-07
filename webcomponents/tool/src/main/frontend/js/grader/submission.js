@@ -103,5 +103,5 @@ export class Submission {
 
   get resubmitsAllowed() { return this._resubmitsAllowed; }
   
-  get extensionAllowed(){return this._extensionAllowed;}
+  get extensionAllowed() { return this._extensionAllowed; } 
 }
