@@ -1066,7 +1066,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.modified = true;
   }
   
-  extensionDateSelected(e){
+  extensionDateSelected(e) {
+  
     this.submission.extensionDate = e.detail.epochMillis;
     this.modified = true;
   }
