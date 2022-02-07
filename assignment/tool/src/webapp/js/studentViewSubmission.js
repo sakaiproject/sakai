@@ -38,6 +38,23 @@ ASN_SVS.undoCancel = function()
 
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
     const endpoint = "/direct/assignment/addTimeSheet.json";
+    const messages = [];
+
+    const tsComment = document.getElementById("comment").value;
+    if (tsComment == null || tsComment.trim() === '') {
+        messages.push("ts.add.err.comment");
+    }
+
+    const tsDuration = document.getElementById("duration").value;
+    if (tsDuration == null || tsDuration.trim() === '') {
+        messages.push("ts.add.err.duration");
+    }
+
+    if (messages.length !== 0) {
+        onError(null, messages);
+        return;
+    }
+
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
         "tsStartTime" : document.getElementById("startTime").value,
@@ -46,9 +63,8 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
         "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
-
-        "tsComment" : document.getElementById("comment").value,
-        "tsDuration" : document.getElementById("duration").value,
+        tsComment,
+        tsDuration
     };
 
     button.classList.add("spinButton");
@@ -107,45 +123,68 @@ ASN.switchTimesheetTab = function (source) {
 };
 
 ASN.tsHandleAjaxAddSuccess = function (data) {
+    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
     if (data.error && data.error.message) {
         const button = document.getElementById("btnTimesheetAdd");
         button.classList.remove("spinButton");
         button.disabled = false;
-        const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
-        alertTsheetAddRecord.classList.toggle('hidden');
-        alertTsheetAddRecord.innerHTML= window.i18nWlogTab[data.error.message];
+        alertTsheetAddRecord.innerHTML = window.i18nWlogTab[data.error.message];
+        if(alertTsheetAddRecord.classList.contains('hidden')) {
+            alertTsheetAddRecord.classList.toggle('hidden');
+        }
     } else {
-        ASN.submitForm( 'addSubmissionForm', 'view', null, null );
+        if(!alertTsheetAddRecord.classList.contains('hidden')) {
+            alertTsheetAddRecord.classList.toggle('hidden');
+        }
+        ASN.submitForm('addSubmissionForm', 'view', null, null);
     }
 };
 
 ASN.tsHandleAjaxRemoveSuccess = function (data) {
+    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
     if (data.error && data.error.message) {
         const button = document.getElementById("btnTimesheetDelete");
         button.classList.remove("spinButton");
         button.disabled = false;
-        const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
-        alertTsheetDelRecord.classList.toggle('hidden');
-        alertTsheetDelRecord.innerHTML= window.i18nWlogTab[data.error.message];
+        alertTsheetDelRecord.innerHTML = window.i18nWlogTab[data.error.message];
+        if(alertTsheetDelRecord.classList.contains('hidden')) {
+            alertTsheetDelRecord.classList.toggle('hidden');
+        }
     } else {
-        ASN.submitForm( 'addSubmissionForm', 'view', null, null );
+        if(!alertTsheetDelRecord.classList.contains('hidden')) {
+            alertTsheetDelRecord.classList.toggle('hidden');
+        }
+        ASN.submitForm('addSubmissionForm', 'view', null, null);
     }
 };
 
-ASN.tsAddHandleAjaxError = function (xhr) {
+ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
+    const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+
     const button = document.getElementById("btnTimesheetAdd");
+    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
     button.classList.remove("spinButton");
     button.disabled = false;
-    alert('Error: ' + xhr.status);
-    console.error("Ajax call error when add time sheet register.");
+    if(alertTsheetAddRecord.classList.contains('hidden')) {
+        alertTsheetAddRecord.classList.toggle('hidden');
+    }
+    const messageArray = [];
+    alertTsheetAddRecord.innerHTML
+      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 
-ASN.tsRemoveHandleAjaxError = function (xhr) {
-    const button = document.getElementById("btnTimesheetDelete");
+ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
+    const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+
+    var button = document.getElementById("btnTimesheetDelete");
+    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
     button.classList.remove("spinButton");
     button.disabled = false;
-    alert('Error: ' + xhr.status);
-    console.error("Ajax call error when remove time sheet register.");
+    if(alertTsheetDelRecord.classList.contains('hidden')) {
+        alertTsheetDelRecord.classList.toggle('hidden');
+    }
+    alertTsheetDelRecord.innerHTML
+      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
 };
 
 ASN.checkTimesheetRecord = function () {

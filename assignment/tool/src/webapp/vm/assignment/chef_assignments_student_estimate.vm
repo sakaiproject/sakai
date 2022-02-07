@@ -4,7 +4,7 @@
     window.i18nWlogTab['ts.add.err.userId']=" $tlang.getString('ts.add.err.userId')";
     window.i18nWlogTab['ts.add.err.assignmentId']=" $tlang.getString('ts.add.err.assignmentId')";
     window.i18nWlogTab['ts.add.err.startTime']=" $tlang.getString('ts.add.err.startTime')";
-    window.i18nWlogTab['ts.add.err.regComment']=" $tlang.getString('ts.add.err.comment')";
+    window.i18nWlogTab['ts.add.err.comment']=" $tlang.getString('ts.add.err.comment')";
     window.i18nWlogTab['ts.add.err.duration']=" $tlang.getString('ts.add.err.duration')";
     window.i18nWlogTab['ts.add.err.permission']=" $tlang.getString('ts.add.err.permission')";
     window.i18nWlogTab['ts.rem.err.userId']=" $tlang.getString('ts.rem.err.userId')";
