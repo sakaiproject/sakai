@@ -151,7 +151,7 @@
                 </p>
             #end
         #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
             <div>
                 <h4>
                     $tlang.getString("gen.totaltimespentconfirm")

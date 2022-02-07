@@ -292,7 +292,7 @@
                 </div>
             #end
             ## Submitted time spent
-            #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+            #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
                 <h3>
                     $tlang.getString("gen.totaltimespent")
                 </h3>

@@ -366,7 +366,7 @@ function printView(url) {
 							</a>
 						</th>
 					#end
-					#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+					#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 						<th id="estimate">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_estimate")'; return false;"  title="$tlang.getString("gen.sorbyspenttime")">
 								$tlang.getString("gen.spenttime")
@@ -593,7 +593,7 @@ function printView(url) {
 									</sakai-rubric-student-button>
 								</td>
 							#end	
-							#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+							#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 								<td headers="estimate">
 									$!userSubmission.getTimeSpent()
 								</td>
@@ -633,7 +633,7 @@ function printView(url) {
 									&nbsp;
 								</td>
 							#end
-							#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+							#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 								<td headers="estimate">
 									&nbsp;
 								</td>
@@ -726,7 +726,7 @@ function printView(url) {
 				#end
 			</td>
 		</tr>
-		#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+		#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<tr>
 				<th>
 					$tlang.getString("gen.estimatedselfempl")

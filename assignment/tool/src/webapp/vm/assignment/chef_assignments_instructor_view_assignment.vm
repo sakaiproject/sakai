@@ -151,7 +151,7 @@
 					#end
 				</td>
 			</tr>
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 				<tr>
 					<th>
 						$tlang.getString("gen.estimatedselfempl")
@@ -328,7 +328,7 @@
 							#end
 						</td>
 					</tr>
-					#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+					#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 						<tr>
 							<th>
 								$tlang.getString("gen.estimatedselfempl")
@@ -377,7 +377,7 @@
 						</p>	
 						<textarea cols="80" rows="8" wrap="virtual" name="textarea" id="textarea" disabled="disabled">&nbsp;</textarea><br />
 					#end
-					#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+					#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 					<div id="spenttimepanel">
 						<h4>
 							$tlang.getString("gen.spenttime")
