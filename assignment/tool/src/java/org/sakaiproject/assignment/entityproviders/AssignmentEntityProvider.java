@@ -549,7 +549,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String duration = (String) params.get("tsDuration");
 
         if (!assignmentService.isValidTimeSheetTime(duration)) {
-
             log.warn("Wrong time format. Must match XXh YYm");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
         }
@@ -557,7 +556,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         String comment = (String) params.get("tsComment");
         StringBuilder alertMsg = new StringBuilder();
         comment = formattedText.processFormattedText(comment, alertMsg);
-        if (alertMsg.length() > 0) {
+        if (StringUtils.isBlank(comment) || alertMsg.length() > 0) {
             log.warn("Comment field format is not valid");
             return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.comment");
         }
