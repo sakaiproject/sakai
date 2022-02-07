@@ -226,9 +226,17 @@ if (releaseToVal === 'Anonymous Users') {
   </div>
   <br/>
   
-  <p>
-    <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-  </p>
+
+  <h:dataTable value="#{assessmentSettings.errorMessages}" var="message" styleClass="sak-banner-error" rendered="#{assessmentSettings.renderErrorMessage}">
+  	<h:column>
+  	  <h:outputText value="#{message.detail}"/>
+  	</h:column>
+  </h:dataTable>
+  <h:dataTable value="#{assessmentSettings.infoMessages}" var="message" styleClass="sak-banner-warn" rendered="#{assessmentSettings.renderInfoMessage}">
+  	<h:column>
+  	  <h:outputText value="#{message.detail}"/>
+  	</h:column>
+  </h:dataTable>
 
 <div class="tier1" id="jqueryui-accordion">
 
