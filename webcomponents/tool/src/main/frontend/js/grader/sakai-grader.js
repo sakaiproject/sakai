@@ -741,7 +741,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       formData.set("resubmitNumber", this.submission.resubmitsAllowed);
       formData.set("resubmitDate", this.submission.resubmitDate);
     }
-    if(this.allowExtension){
+    if (this.allowExtension) {
       formData.set("extensionDate", this.submission.extensionDate);
     }
     formData.set("siteId", portal.siteId);
