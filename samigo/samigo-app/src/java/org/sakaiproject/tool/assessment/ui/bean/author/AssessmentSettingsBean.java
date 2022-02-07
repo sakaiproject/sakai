@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
@@ -40,6 +42,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.core.net.Severity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -1971,5 +1974,27 @@ public class AssessmentSettingsBean implements Serializable {
         this.extendedTime = new ExtendedTime(this.getAssessment().getData());
         this.transitoryExtendedTime = null;
         this.editingExtendedTime = false;
+    }
+    
+    public List<FacesMessage> getErrorMessages() {
+        List<FacesMessage> list = FacesContext.getCurrentInstance().getMessageList();
+        Stream<FacesMessage> stream = list.stream();
+        return stream.filter(message -> FacesMessage.SEVERITY_WARN.equals(message.getSeverity()))
+        		.collect(Collectors.toList());
+    }
+    
+    public List<FacesMessage> getInfoMessages() {
+        List<FacesMessage> list = FacesContext.getCurrentInstance().getMessageList();
+        Stream<FacesMessage> stream = list.stream();
+        return stream.filter(message -> FacesMessage.SEVERITY_INFO.equals(message.getSeverity()))
+        		.collect(Collectors.toList());
+    }
+    
+    public boolean isRenderErrorMessage() {
+        return !getErrorMessages().isEmpty();
+    }
+    
+    public boolean isRenderInfoMessage() {
+        return !getInfoMessages().isEmpty();
     }
 }
