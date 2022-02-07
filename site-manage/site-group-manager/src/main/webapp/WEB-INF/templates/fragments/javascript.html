@@ -25,7 +25,8 @@
     const anyCheckboxEnabled = 
       document.querySelectorAll(".group-manager-delete-checkbox:checked").length > 0;
 
-    document.getElementById("delete-groups-submit-button").disabled = !anyCheckboxEnabled;
+    const submitButton = document.getElementById("delete-groups-submit-button");
+    submitButton && (submitButton.disabled = !anyCheckboxEnabled);
   };
 
   const gmCancelButton = document.getElementById("delete-groups-cancel-button");
@@ -40,7 +41,8 @@
 
     document.querySelectorAll(".group-manager-delete-checkbox")
       .forEach(box => box.checked = e.target.checked);
-    document.getElementById("delete-groups-submit-button").disabled = !e.target.checked;
+    const submitButton = document.getElementById("delete-groups-submit-button");
+    submitButton && (submitButton.disabled = !e.target.checked);
   });
 
   document.querySelectorAll(".group-manager-delete-checkbox").forEach(box => {
@@ -78,7 +80,8 @@
   $(document).ready(function() {
 
     //Disable the submit button
-    document.getElementById("create-joinableset-submit-button").disabled = true;
+    const submitButton = document.getElementById("create-joinableset-submit-button");
+    submitButton && (submitButton.disabled = true);
 
     const groupTitle = document.getElementById("groupTitle");
     const groupNumber = document.getElementById("groupNumber");
@@ -138,7 +141,8 @@
     const groupTitle = document.getElementById("groupTitle");
 
     //Disable or enable the submit depending on the group title value.
-    document.getElementById("create-group-submit-button").disabled = !groupTitle.value
+    const submitButton = document.getElementById("create-group-submit-button");
+    submitButton && (submitButton.disabled = !groupTitle.value);
 
     //Enable or disable the submit button depending on the required fields
     groupTitle.addEventListener("keyup", e => {
