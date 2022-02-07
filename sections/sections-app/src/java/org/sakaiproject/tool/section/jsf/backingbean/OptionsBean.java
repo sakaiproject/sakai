@@ -87,20 +87,21 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	}
 
 	public String confirmExternallyManaged() {
-		return update(false);
+		return updateOptions(false);
 	}
 
-	public String update() {
-		return update(managementToggleEnabled);
+	public String updateOptions() {
+		return updateOptions(managementToggleEnabled);
 	}
 	
-	public String update(boolean checkForConfirmation) {
+	public String updateOptions(boolean checkForConfirmation) {
 		if (errorflag) {
+			log.warn("Error flag set");
 			return "options";
 		}
 		if(!isSectionOptionsManagementEnabled()) {
 			// This should never happen
-			log.warn("Updating section options not permitted for user " + getUserUid());
+			log.warn("Updating section options not permitted for user {}", getUserUid());
 			return "overview";
 		}
 		
@@ -165,7 +166,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	 * @return
 	 */
 	public String getManagement() {
-		if(log.isDebugEnabled()) log.debug("---- management = " + management);
+		log.debug("---- management = {}", management);
 		return management;
 	}
 
@@ -174,8 +175,10 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	 * @return
 	 */
 	public void setManagement(String management) {
-		if(log.isDebugEnabled()) log.debug("---- setting management to " + management);
-		this.management = management;
+		if (StringUtils.isNotBlank(management)) {
+			log.debug("---- setting management to {}", management);
+			this.management = management;
+		}
 	}
 
 	public boolean isConfirmMode() {
@@ -189,6 +192,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	public boolean isManagementToggleEnabled() {
 		return managementToggleEnabled;
 	}
+
 	public String getOpenDate() {
 		if (openDate == null) {
 			return null;
@@ -201,9 +205,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 
 	public void setOpenDate(String date){
 		String hiddenOpenDate = JsfUtil.getStringFromParam("openDateISO8601");
-		if (log.isDebugEnabled()) {
-			log.debug("Date from openDate field: " + date + ";date from hidden field=" + hiddenOpenDate);
-		}
+		log.debug("Date from openDate field: {}; date from hidden field={}", date, hiddenOpenDate);
 		Calendar cal = JsfUtil.convertISO8601StringToCalendar(hiddenOpenDate);
 		if (cal != null) {
 			this.openDate = cal;
