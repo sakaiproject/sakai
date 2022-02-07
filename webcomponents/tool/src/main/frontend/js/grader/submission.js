@@ -73,7 +73,7 @@ export class Submission {
         this.resubmitDate = moment(parseInt(init.properties.allow_resubmit_closeTime, 10)).valueOf();
       }
       this.extensionAllowed = init.properties["allow_extension_closeTime"] != null;
-      if(this.extensionAllowed){
+      if (this.extensionAllowed) {
         this.extensionDate = moment(parseInt(init.properties["allow_extension_closeTime"], 10)).valueOf();
       }
 
