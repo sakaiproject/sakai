@@ -319,27 +319,27 @@ document.links[newindex].onclick();
 
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
-		<h:panelGroup layout="block" styleClass="input-group col-sm-6">
-			<p class="input-group-addon">
-				<h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
-				<h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-			</p>
-			<%-- REVIEW ASSESSMENT --%>
-			<h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-			<p class="input-group-addon">
-				<%-- REVIEW ASSESSMENT --%>
-				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-				<%-- DELIVER ASSESSMENT --%>
-				<h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
-					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
-				</h:outputText>
-				<h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
-				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
-					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
-				</h:outputText>
-			</p>
-			<h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}" />
-		</h:panelGroup>
+        <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
+          <h:panelGroup layout="block" styleClass="col-sm-6">
+            <h:panelGroup layout="block" styleClass="row">
+              <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
+                <p class="input-group-addon">
+                  <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
+                  <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
+                </p>
+                <%-- REVIEW ASSESSMENT --%>
+                <h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+
+                <h:panelGroup layout="block" rendered="#{delivery.actionString != 'gradeAssessment' && delivery.actionString != 'reviewAssessment'}">
+                  <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
+                </h:panelGroup>
+              </h:panelGroup>
+              <h:panelGroup layout="block" styleClass="col-sm-12 input-group" rendered="#{delivery.actionString != 'takeAssessment' && delivery.actionString != 'takeAssessmentViaUrl' && delivery.actionString != 'previewAssessment'}">
+                <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
+              </h:panelGroup>
+            </h:panelGroup>
+          </h:panelGroup>
+        </h:panelGroup>
 
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
