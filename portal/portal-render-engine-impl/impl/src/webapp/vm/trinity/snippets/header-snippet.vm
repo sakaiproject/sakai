@@ -1,8 +1,8 @@
 ## Header that shows institution and/or banner logos
 
-<header role="banner" class="Mrphs-headerLogo">
+<header role="banner" class="Mrphs-headerLogo sakai-topHeader bg-dark d-flex align-items-center">
     <span class="Mrphs-headerLogo--institution"></span>
-    <span class="Mrphs-headerLogo--banner">trinity</span>
+    <span class="Mrphs-headerLogo--banner bg-primary fs-3 text">trinity</span>
 
     #parse("/vm/trinity/includeLoginNav.vm")
 </header>

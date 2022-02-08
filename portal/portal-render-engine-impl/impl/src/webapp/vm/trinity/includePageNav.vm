@@ -1,7 +1,7 @@
 <!-- START VM includePageNav.vm -->
 
 #macro(toolLink $url $current $tab $popup $subsite)
-	<li #if ($current)class="is-current"#{end}>
+	<li class="list-group-item #if ($current)is-current#{end}">
 		<a class="Mrphs-toolsNav__menuitem--link #if (${page.hidden} || ${page.locked})is-invisible#{end}"
 			#if ($tab || $popup)
 				href="javascript:;"
@@ -63,9 +63,9 @@
 
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
-			<h2 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
+			<h2 class="skip fs-5 text" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
 
-			<ul>
+			<ul class="list-group">
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
 	
@@ -99,7 +99,7 @@
 		## Start rendering the categories and tools in that category. 
 	
 		#foreach($key in $categoryList )
-			<li ><a href="#"class="Mrphs-toolsNav__category" >$key</a><ul class="Mrphs-toolsNav__subnav">
+			<li class="list-group-item"><a href="#"class="Mrphs-toolsNav__category" >$key</a><ul class="Mrphs-toolsNav__subnav">
 			#foreach( $page in $sitePages.pageNavTools )
 				#if (${page.pageProps.get("sitePage.pageCategory")}==$key)
 					#if (${page.current})
@@ -134,7 +134,7 @@
 	
 				#if (${sitePages.pageNavCanAddMoreTools})
 
-					<li>
+					<li class="list-group-item">
 						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
 							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
 							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
@@ -145,7 +145,7 @@
 
 				#if (${sitePages.pageNavShowHelp})
 	
-					<li class="Mrphs-toolsNav__menuitem--help">
+					<li class="Mrphs-toolsNav__menuitem--help list-group-item">
 						<a class="Mrphs-toolsNav__menuitem--link"
 							accesskey="6"
 							href="javascript:;"

@@ -6,7 +6,7 @@
 
     <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
 
-        <div id="maximised-indicator">
+        <div id="maximised-indicator" class="d-none">
             <div>
                 <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
             </div>

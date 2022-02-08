@@ -3,7 +3,7 @@
 ##
 <!-- START VM includePageWithNav.vm -->
 
-    <div id="pageBody">
+    <div id="pageBody" class="d-flex">
     
     #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
@@ -15,7 +15,7 @@
 
     #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
-    <div class="Mrphs-pagebody">
+    <div class="Mrphs-pagebody px-3">
         #parse("/vm/trinity/snippets/siteStatus-snippet.vm")
 
         #parse("/vm/trinity/includeSiteHierarchy.vm")
