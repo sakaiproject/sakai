@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "TIMESHEET_ENTRY", indexes = {
-        @Index(name = "IDX_TIMESHEETENTRY_REF_USER_TYPE", columnList = "REFERENCE, USER_ID")
+        @Index(name = "IDX_TIMESHEETENTRY_REF_USER", columnList = "REFERENCE, USER_ID")
 })
 public class TimeSheetEntry implements PersistableEntity<Long> {
     @Id
