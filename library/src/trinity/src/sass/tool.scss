@@ -89,7 +89,13 @@ $success: #7952b3;
 @import "icon-list";
 
 body {
-  padding: 1.5rem;
+  //padding: 1.5rem;
+}
+
+.navIntraTool {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
 }
 
 sui-button sui-icon {

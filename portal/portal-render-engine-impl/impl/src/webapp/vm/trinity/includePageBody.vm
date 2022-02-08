@@ -55,7 +55,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation}">
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav d-none" aria-label="${rloader.sit_toolnavigation}">
 
                                 #if (${tool.toolShowResetButton})
 
@@ -66,7 +66,6 @@
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
                                                 <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
-					                        <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #else
@@ -76,7 +75,6 @@
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
                                                 <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
-                                            <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #end ## END of IF ($!{tool.toolInline})
@@ -87,7 +85,7 @@
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
-                                <div class="Mrphs-toolTitleNav__button_container #if(${homePage})home#end">
+                                <div class="Mrphs-toolTitleNav__button_container d-none #if(${homePage})home#end">
 
 
                                 #if (${tool.toolJSR168Edit})
@@ -98,7 +96,6 @@
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
-				                    <span class="Mrphs-toolTitleNav__addRight"></span>
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                     <button class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
