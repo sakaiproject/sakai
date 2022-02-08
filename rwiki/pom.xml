@@ -96,7 +96,7 @@ limitations under the License.
       <dependency>
           <groupId>xerces</groupId>
           <artifactId>xercesImpl</artifactId>
-          <version>2.12.1</version>
+          <version>2.12.2</version>
           <type>jar</type>
           <scope>compile</scope>
       </dependency>
