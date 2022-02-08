@@ -167,6 +167,8 @@ export class SakaiRubricGrading extends RubricsElement {
 
   updateComment(e) {
 
+    console.debug("updateComment");
+
     this.criteria.forEach(c => {
 
       if (c.id === e.detail.criterionId) {
@@ -174,29 +176,17 @@ export class SakaiRubricGrading extends RubricsElement {
       }
     });
 
-    this._dispatchRatingChanged(this.criteria, 1);
-  }
-
-  calculateTotalPointsFromCriteria() {
-
-    this.totalPoints = this.criteria.reduce((a, c) => {
-
-      if (c.pointoverride) {
-        return a + parseFloat(c.pointoverride);
-      } else if (c.selectedvalue) {
-        return a + parseFloat(c.selectedvalue);
-      } else {
-        return a;
-      }
-    }, 0);
+    this.dispatchRatingChanged(this.criteria, 1);
   }
 
   release() {
 
+    console.debug("release");
+
     // If there are no criteria, this evaluation has been cancelled.
     if (this.criteria.length == 0) return;
 
-    this._dispatchRatingChanged(this.criteria, 2).then(evaluation => {
+    this.dispatchRatingChanged(this.criteria, 2).then(evaluation => {
 
       // We've saved the new returned evaluation. We now need to save the returned, backup copy.
 
@@ -230,10 +220,15 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   save() {
-    this._dispatchRatingChanged(this.criteria, 1);
+
+    console.debug("save");
+
+    this.dispatchRatingChanged(this.criteria, 1);
   }
 
   decorateCriteria() {
+
+    console.debug("decorateCriteria");
 
     this.evaluation.criterionOutcomes.forEach(ed => {
 
@@ -268,6 +263,8 @@ export class SakaiRubricGrading extends RubricsElement {
 
   fineTuneRating(e) {
 
+    console.debug("fineTuneRating");
+
     const value = e.target.value;
 
     const parsed = parseFloat(value.replace(/,/g, "."));
@@ -295,10 +292,12 @@ export class SakaiRubricGrading extends RubricsElement {
     this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
 
     this.updateTotalPoints();
-    this._dispatchRatingChanged(this.criteria, 1);
+    this.dispatchRatingChanged(this.criteria, 1);
   }
 
-  _dispatchRatingChanged(criteria, status) {
+  dispatchRatingChanged(criteria, status) {
+
+    console.debug("dispatchRatingChanged");
 
     const crit = criteria.map(c => {
 
@@ -331,6 +330,8 @@ export class SakaiRubricGrading extends RubricsElement {
 
   saveEvaluation(evaluation) {
 
+    console.debug("saveEvaluation");
+
     let url = "/rubrics-service/rest/evaluations";
     if (this.evaluation && this.evaluation.id) url += `/${this.evaluation.id}`;
     return fetch(url, {
@@ -361,6 +362,8 @@ export class SakaiRubricGrading extends RubricsElement {
 
   deleteEvaluation() {
 
+    console.debug("deleteEvaluation");
+
     if (!this?.evaluation?.id) return;
 
     const url = `/rubrics-service/rest/evaluations/${this.evaluation.id}`;
@@ -374,7 +377,7 @@ export class SakaiRubricGrading extends RubricsElement {
       if (r.ok) {
         this.updateTotalPoints({ notify: true, totalPoints: 0 });
         this.evaluation = { criterionOutcomes: [] };
-        this.criteria = [];
+        this.criteria.forEach(c => this.emptyCriterion(c));
         this.requestUpdate();
       } else {
         throw new Error("Server error while deleting evaluation");
@@ -384,6 +387,8 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   getOverriddenClass(ovrdvl, selected) {
+
+    console.debug("getOverriddenClass");
 
     if (!this.association.parameters.fineTunePoints) {
       return '';
@@ -396,7 +401,19 @@ export class SakaiRubricGrading extends RubricsElement {
     }
   }
 
+  emptyCriterion(criterion) {
+
+    console.debug("emptyCriterion");
+
+    criterion.selectedvalue = 0.0;
+    criterion.selectedRatingId = 0;
+    criterion.pointoverride = 0.0;
+    criterion.ratings.forEach(r => r.selected = false);
+  }
+
   toggleRating(e) {
+
+    console.debug("toggleRating");
 
     e.stopPropagation();
 
@@ -410,9 +427,7 @@ export class SakaiRubricGrading extends RubricsElement {
     criterion.ratings.forEach(r => r.selected = false);
 
     if (rating.selected) {
-      criterion.selectedvalue = 0.0;
-      criterion.selectedRatingId = 0;
-      criterion.pointoverride = 0.0;
+      this.emptyCriterion(criterion);
       rating.selected = false;
     } else {
       const auxPoints = this.rubric.weighted ?
@@ -431,19 +446,33 @@ export class SakaiRubricGrading extends RubricsElement {
     this.requestUpdate();
     this.updateTotalPoints();
 
-    this._dispatchRatingChanged(this.criteria, 1);
+    this.dispatchRatingChanged(this.criteria, 1);
   }
 
   commentShown(e) {
+
+    console.debug("commentShown");
+
     this.querySelectorAll(`sakai-rubric-grading-comment:not(#${e.target.id})`).forEach(c => c.hide());
   }
 
   updateTotalPoints(options = { notify: true }) {
 
-    if (options.totalPoints) {
+    console.debug("updateTotalPoints");
+
+    if (typeof options.totalPoints !== "undefined") {
       this.totalPoints = options.totalPoints;
     } else {
-      this.calculateTotalPointsFromCriteria();
+      this.totalPoints = this.criteria.reduce((a, c) => {
+
+        if (c.pointoverride) {
+          return a + parseFloat(c.pointoverride);
+        } else if (c.selectedvalue) {
+          return a + parseFloat(c.selectedvalue);
+        }
+        return a;
+
+      }, 0);
     }
 
     // Make sure total points is not negative
@@ -460,6 +489,8 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   cancel() {
+
+    console.debug("cancel");
 
     if (this.evaluation.status !== "DRAFT") return;
 
@@ -490,6 +521,8 @@ export class SakaiRubricGrading extends RubricsElement {
 
   getAssociation() {
 
+    console.debug("getAssociation");
+
     if (!this.toolId || !this.entityId || !this.token || !this.evaluatedItemId) {
       return;
     }
@@ -517,6 +550,8 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   getRubric(rubricId) {
+
+    console.debug("getRubric");
 
     const url = `/rubrics-service/rest/rubrics/${rubricId}?projection=inlineRubric`;
     fetch(url, {
@@ -572,6 +607,8 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   getReturnedEvaluation(originalEvaluationId) {
+
+    console.debug("getReturnedEvaluation");
 
     const returnedUrl = `/rubrics-service/rest/returned-evaluations/search/by-original-evaluation-id?id=${originalEvaluationId}`;
     return fetch(returnedUrl, {
