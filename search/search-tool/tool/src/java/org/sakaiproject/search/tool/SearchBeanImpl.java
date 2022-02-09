@@ -685,17 +685,6 @@ import org.sakaiproject.util.api.FormattedText;
 				+ "/opensearch";
 	}
 	
-	
-	public String getSherlockIconUrl()
-	{
-		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_IMAGE,false);
-	}
-
-	public String getSherlockUpdateUrl()
-	{
-		return formattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_URL,false);
-	}
-
 	public String getBaseUrl()
 	{
 		return serverConfigurationService.getPortalUrl() + "/tool/" + placementId;

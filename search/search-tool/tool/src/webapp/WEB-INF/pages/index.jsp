@@ -45,15 +45,6 @@
            type="application/opensearchdescription+xml" 
            href="<%= searchBean.getOpenSearchUrl() %>"
            title="<%= org.sakaiproject.search.tool.Messages.getString("jsp_worksite_search") %>" />
-    <script type="text/javascript" >
-        function searchLocalAddSherlock() {
-        	addSherlockButton(
-        	    "<%= searchBean.getSiteTitle() %>",
-        		"<%= org.sakaiproject.search.tool.Messages.getString("jsp_sakai_search") %>",
-        		"<%= searchBean.getBaseUrl() %>");
-        }
-        appendLoader(searchLocalAddSherlock);
-    </script>
     </head>
     <body 
     onload="callAllLoaders(); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); "
@@ -91,16 +82,6 @@
 	
 	
 	<div class="searchHeader">
-	<span id="sherlockButtonHolder" >
-<!--
-	    <a href="#" id="addSherlockButton" >
-	    	<img src="/library/image/transparent.gif" 
-	    		border="0"   
-	    		title="<%= org.sakaiproject.search.tool.Messages.getString("jsp_install_plugin") %>" 
-	    		alt="<%= org.sakaiproject.search.tool.Messages.getString("jsp_install_plugin") %>" />
-	    </a>
--->
-	</span>
 	<%= searchBean.getHeader(searchHeaderFormat) %>
 	</div>
 
