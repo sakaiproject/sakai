@@ -27,7 +27,7 @@ $(document).ready(function(){
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
-#if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
     #navBarTimesheet("Assignment")
 #end
 ## submission times
@@ -140,7 +140,7 @@ $(document).ready(function(){
 		#progressBar($!service.getProgressBarStatus($!submission))
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
-	#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+	#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 		#parse ("/vm/assignment/chef_assignments_student_estimate.vm")
 	#end
 		<div id="StudentAssignmentCurrent">
@@ -297,7 +297,7 @@ $(document).ready(function(){
 					</div>
 				#end
 			#end
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryHeader">$tlang.getString("gen.estimatedselfempl")</div>
@@ -674,7 +674,7 @@ $(document).ready(function(){
 					#end
 				#end
 			#end
-			#if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+			#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<div id="spenttimepanel" class="highlightPanel">
 				<h3>
 					$tlang.getString("gen.spenttime")

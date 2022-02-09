@@ -140,7 +140,7 @@
                             </div>
                         </form>
 
-                        #if ($assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
+                        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals("") && !$!nonElectronicType)
                             <div class="modal-footer">
                                 <button name="btnTimesheetAdd" id="btnTimesheetAdd" class="btn btn-primary" onclick="ASN.addTimeSheet(this);">$!tlang.getString("ts.modal.btn.save")</button>
                             </div>

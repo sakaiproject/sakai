@@ -1476,7 +1476,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (assignmentAllPurposeItem != null) {
                 this.allPurposeItemText = assignmentAllPurposeItem.getText();
             }
-            this.estimateRequired = a.getEstimateRequired();
+            this.estimateRequired = assignmentService.isTimeSheetEnabled(a.getContext()) && a.getEstimateRequired();
             this.estimate = a.getEstimate();
 
             this.allowPeerAssessment = a.getAllowPeerAssessment();
