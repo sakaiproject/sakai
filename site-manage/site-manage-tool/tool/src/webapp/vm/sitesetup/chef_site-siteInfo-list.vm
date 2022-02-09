@@ -383,7 +383,7 @@
 					<thead>
 						<tr>
 							<th>$tlang.getString("group.title")</th>
-							#if ($!viewRoster)
+							#if ($!viewRoster || $viewMembershipGroups.size())
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							#end
 							<th>$tlang.getString("group.description")</th>
@@ -397,9 +397,13 @@
 							<td>
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 							</td>
-							#if ($!viewRoster)
+							#if ($!viewRoster || $viewMembershipGroups.contains($g.Id))
 							<td>
-								<span class="itemAction"><a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb.view")</a></span>
+								<input type="button"
+										class="group-membership-button"
+										data-group-id="$g.Id"
+										value="$tlang.getString("sinfo.list.groups.memb.view")"
+										title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" />
 							</td>
 							#end
 							<td>
