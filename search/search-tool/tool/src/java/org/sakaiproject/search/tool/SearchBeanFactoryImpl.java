@@ -36,7 +36,6 @@ import org.sakaiproject.search.tool.api.OpenSearchBean;
 import org.sakaiproject.search.tool.api.SearchAdminBean;
 import org.sakaiproject.search.tool.api.SearchBean;
 import org.sakaiproject.search.tool.api.SearchBeanFactory;
-import org.sakaiproject.search.tool.api.SherlockSearchBean;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -162,24 +161,6 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 			throw new RuntimeException(
 					Messages.getString("searchbeanfact_siteerror"));
 		}
-	}
-
-	public SherlockSearchBean newSherlockSearchBean(HttpServletRequest request) throws PermissionException
-	{
-		try
-		{
-			SherlockSearchBean sherlockSearchBean = 
-				new SherlockSearchBeanImpl(request, 
-					context, 
-					searchService, siteService, toolManager);
-
-			return sherlockSearchBean;
-		}
-		catch (IdUnusedException e)
-		{
-			throw new RuntimeException(
-					Messages.getString("searchbeanfact_siteerror"));
-		}	
 	}
 
 	/**
