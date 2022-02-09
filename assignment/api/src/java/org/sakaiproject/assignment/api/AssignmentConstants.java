@@ -343,7 +343,7 @@ public final class AssignmentConstants {
     public static final String ALLOW_EXTENSION_CLOSEYEAR = "allow_extension_closeYear";
     public static final String ALLOW_EXTENSION_CLOSEHOUR = "allow_extension_closeHour";
     public static final String ALLOW_EXTENSION_CLOSEMIN = "allow_extension_closeMin";
-
+    public static final String ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS = "allow_extension_close_epoch_millis";
     public static final String GRADE_SUBMISSION_DONT_CLEAR_CURRENT_ATTACHMENTS = "grade_submission_dont_clear_current_attachments";
 
     public static final String GRADEBOOK_INTEGRATION_NO = "no";
