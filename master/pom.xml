@@ -72,7 +72,7 @@
     <sakai.tomcat.version>9.0.58</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.xerces.impl.version>2.12.1</sakai.xerces.impl.version>
+    <sakai.xerces.impl.version>2.12.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>2.17.1</sakai.log4j.version>
     <sakai.slf4j.version>1.7.35</sakai.slf4j.version>
