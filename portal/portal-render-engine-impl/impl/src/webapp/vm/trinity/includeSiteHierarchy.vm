@@ -104,7 +104,7 @@
         #if (${page.current})
             <li class="breadcrumb-item">
                 <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
-                    <span class="Mrphs-breadcrumb--reset-icon fa fa-share" aria-hidden="true"></span>
+                    <span class="Mrphs-breadcrumb--reset-icon fa fa-share d-none" aria-hidden="true"></span>
                     <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
                     <span class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</span>
                 </a>
