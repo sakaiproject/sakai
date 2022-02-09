@@ -47,8 +47,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.InetAddress;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,22 +55,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
-import java.util.UUID;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
@@ -83,10 +76,9 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -107,6 +99,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -120,8 +113,6 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
@@ -520,27 +511,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 		
 		String attrString = item.getAttributeString(); //json encoded attributes
-
-		final JSONParser jsonParser = new JSONParser(); // JSON parser used to parse the attribute string into a JSON object
-
-		try {
-			JSONObject attributeObj = (JSONObject) jsonParser.parse(attrString); // Get full attribute string as JSON object
-			JSONArray checklistArr = (JSONArray) attributeObj.get("checklistItems"); // Get the checklist JSON array from the object
-
-			if (checklistArr != null && !checklistArr.isEmpty()) {
-				for (Object checklistObj : checklistArr) { // Iterate through each checklist item to check for links
-					JSONObject checklistObjJson = (JSONObject) checklistObj;
-					if (checklistObjJson != null && checklistObjJson.get("link") != null && (Long) checklistObjJson.get("link") > 0L) { // Null safe check if it is a linked checklist item
-						checklistObjJson.put("link", -2L); // This is a linked checklist item so set it to -2 to indicate link needs to be updated
-					}
-				}
-			}
-			attributeObj.put("checklistItems", checklistArr); // Update the JSON object for the JSON attribute with the modified checklist
-
-			attrString = attributeObj.toJSONString(); // Replace the attribute string with the version with the modified checklist
-		} catch (ParseException e) {
-			log.error("Exception caught while parsing checklist array. No modifications will be made to attribute string.", e.getMessage(), e);
-		}
 
 		if (attrString != null) {
 		    Element attributeElement = doc.createElement("attributes");
@@ -1095,9 +1065,27 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                        simplePageToolDao.quickUpdate(item);
                    }
                }
-           }
+           } else if (item.getType() == SimplePageItem.CHECKLIST) {
+	           String attrString = item.getAttributeString(); //json encoded attributes
+	           final JSONParser jsonParser = new JSONParser(); // JSON parser used to parse the attribute string into a JSON object
+	           try {
+	               JSONObject attributeObj = (JSONObject) jsonParser.parse(attrString); // Get full attribute string as JSON object
+	               JSONArray checklistArr = (JSONArray) attributeObj.get("checklistItems"); // Get the checklist JSON array from the object
+	               if (checklistArr != null && !checklistArr.isEmpty()) {
+		               for (Object checklistObj : checklistArr) {
+			               JSONObject checklistObjJson = (JSONObject) checklistObj;
+			               checklistObjJson.put("link", itemMap.get(checklistObjJson.get("link")));
+		               }
+	               }
+	               attributeObj.put("checklistItems", checklistArr); // Update the JSON object for the JSON attribute with the modified checklist
+	               attrString = attributeObj.toJSONString(); // Replace the attribute string with the version with the modified checklist
+	               item.setAttributeString(attrString);
+	               simplePageToolDao.quickUpdate(item);
+	           } catch (ParseException e) {
+	               log.error("Exception caught while parsing checklist array. No modifications will be made to attribute string.", e.getMessage(), e);
+	           }
+	       }
        }
-
     }
 
     public String fixUrls(String s, String oldServer, String siteId, String fromSiteId, Map<Long,Long> itemMap) {
