@@ -1816,6 +1816,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
             context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
+            context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
+
             // put the resubmit and extension information into context
             boolean isDateExtended = putResubmissionAndExtensionOptionsIntoContext(context, state);
             if (assignment.getCloseDate().isBefore(Instant.now()) && !isDateExtended) {
@@ -2220,6 +2222,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("name_ASSIGNMENT_INPUT_ADD_TIME_SPENT", ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
         context.put("value_ASSIGNMENT_INPUT_ADD_TIME_SPENT", state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT));
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
 
         state.removeAttribute(STATE_SUBMITTER);
         String template = (String) getContext(data).get("template");
@@ -2288,6 +2291,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // put supplement item into context
         supplementItemIntoContext(state, context, assignment, submission);
+
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_ASSIGNMENT;
@@ -2386,6 +2391,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
         context.put("contentTypeImageService", contentTypeImageService);
 
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
+
         //confirm custom messages
         String confirmMessage = serverConfigurationService.getString("assignment.submissionConfirmMessage", rb.getFormattedMessage("submissionConfirmMessage"));
         context.put("studentConfirmMessage", confirmMessage);
@@ -2479,6 +2486,8 @@ public class AssignmentAction extends PagedResourceActionII {
         stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
         context.put("submissionAttachmentReferences", submissionAttachmentReferences);
         context.put("contentTypeImageService", contentTypeImageService);
+
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_PREVIEW_SUBMISSION;
@@ -2688,6 +2697,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("name_ASSIGNMENT_INPUT_ADD_TIME_SPENT", ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
         context.put("value_ASSIGNMENT_INPUT_ADD_TIME_SPENT", state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT));
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_GRADE;
@@ -3856,6 +3866,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
 
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
+
         if (addGradeDraftAlert) {
             addAlert(state, rb.getString("grading.alert.draft.beforeclosedate"));
         }
@@ -4704,6 +4716,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("attachments", state.getAttribute(ATTACHMENTS));
         context.put("contentTypeImageService", contentTypeImageService);
         context.put("submission_expand_flag", state.getAttribute(GRADE_SUBMISSION_EXPAND_FLAG));
+        context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
 
         add2ndToolbarFields(data, context);
 
@@ -4888,6 +4901,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // for sorting assignment groups using the standard comparator
             String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+            context.put("isTimesheet", assignmentService.isTimeSheetEnabled(contextString));
             try {
                 Site site = siteService.getSite(contextString);
                 AssignmentComparator groupComparator = new AssignmentComparator(null, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString());
@@ -6979,16 +6993,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
 
-            String timeSpent = (String)state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
-            if (StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getEstimateRequired()) {
-                if (StringUtils.isBlank(timeSpent)) {
-    	            addAlert(state, rb.getString("timeempty"));
-    	        } else if (!assignmentService.isValidTimeSheetTime(timeSpent)) {
-    	            addAlert(state, rb.getFormattedMessage("timeformat"));
-    	        }
-            }
-            if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimeSheetTime(timeSpent)) {
-            	addAlert(state, rb.getFormattedMessage("timeformat"));
+            if (assignmentService.isTimeSheetEnabled(assignment.getContext())) {
+                String timeSpent = (String)state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
+                if (StringUtils.isNotBlank(assignment.getEstimate()) && assignment.getEstimateRequired()) {
+                    if (StringUtils.isBlank(timeSpent)) {
+                        addAlert(state, rb.getString("timeempty"));
+                    } else if (!assignmentService.isValidTimeSheetTime(timeSpent)) {
+                        addAlert(state, rb.getFormattedMessage("timeformat"));
+                    }
+                }
+                if (StringUtils.isNotBlank(timeSpent) && !assignmentService.isValidTimeSheetTime(timeSpent)) {
+                	addAlert(state, rb.getFormattedMessage("timeformat"));
+                }
             }
         }
     }

@@ -23,7 +23,7 @@
 <div class="portletBody">
     #set($timeSheetSource = "grade")
     ##tabs
-    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
         #navBarTimesheet("Assignment")
     #end
     #if ($taggable)
@@ -65,7 +65,7 @@
     #set($extensionTime=$submission.properties.get("allow_extension_closeTime"))
     #set($returnTime=false)
     #set($returnTime=$submission.DateReturned)
-    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
         #parse ("/vm/assignment/chef_assignments_student_estimate.vm")
     #end
     <div id="StudentAssignmentCurrent" style="display:block;">
@@ -260,7 +260,7 @@
 
         #parse ("/vm/assignment/assignments_display_video_submission.vm")
 
-	    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+	    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
 			<h4>$tlang.getString("gen.totaltimespent")</h4>
 			<div class="textPanel borderPanel">$formattedText.escapeHtml($!submitter_time_spent)</div>
 		#end

@@ -103,7 +103,7 @@
                 </td>
             </tr>
         #end
-        #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+        #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
             <tr>
                 <th>
                     $tlang.getString("gen.estimatedselfempl")
@@ -136,7 +136,7 @@
         </div>
     #end
     
-    #if ($assignment.Estimate && !$assignment.Estimate.equals(""))
+    #if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
         <div>
             <h4>
                 $tlang.getString("gen.totaltimespent")
