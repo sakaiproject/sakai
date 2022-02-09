@@ -74,15 +74,6 @@ public interface SearchBeanFactory
 		throws PermissionException;
 	
 	/**
-	 * get a Sherlock SearchBean model
-	 * @param request
-	 * @return
-	 * @throws PermissionException
-	 */
-	SherlockSearchBean newSherlockSearchBean(HttpServletRequest request)
-		throws PermissionException;
-
-	/**
 	 * set the servlet context that this factory is associated with
 	 * @param servletContext
 	 */

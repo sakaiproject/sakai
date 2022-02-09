@@ -1,10 +1,4 @@
-<%@ page language="java" contentType="application/opensearchdescription+xml;charset=UTF-8" pageEncoding="UTF-8"  %><%
-	org.sakaiproject.search.tool.SearchBeanFactory searchBeanFactory = 
-	  (org.sakaiproject.search.tool.SearchBeanFactory)
-		request.getAttribute(org.sakaiproject.search.tool.SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR);
-	org.sakaiproject.search.tool.SherlockSearchBean sSearchBean = 
-		searchBeanFactory.newSherlockSearchBean(request);
-%>
+<%@ page language="java" contentType="application/opensearchdescription+xml;charset=UTF-8" pageEncoding="UTF-8"  %>
 # Status: working beta
 # Mozilla/Netscape 6+ plugin for Sakai search tool
 # by <ian@__NOSPAMPLEASE_caret.cam.ac.uk>

@@ -63,16 +63,6 @@
 		</div>
 	</div>
 	<div class="searchHeader">
-	<span id="sherlockButtonHolder" >
-<!--
-	    <a href="#" id="addSherlockButton" >
-	    	<img src="/library/image/transparent.gif" 
-	    		border="0"   
-	    		title="${rlb.jsp_install_plugin}" 
-	    		alt="${rlb.jsp_install_plugin}" />
-	    </a>
--->
-	</span>
 	
  #if ( ${searchModel.hasResults()} ) 
 	<a href="${searchModel.rssURL}" target="rss" id="rssLink" >
