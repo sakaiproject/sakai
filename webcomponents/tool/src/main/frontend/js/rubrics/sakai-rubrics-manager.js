@@ -29,7 +29,7 @@ class SakaiRubricsManager extends RubricsElement {
     this._enablePdfExport = (newValue === 'true');
   }
 
-  get enablePdfExport() { 
+  get enablePdfExport() {
     return this._enablePdfExport;
   }
 

@@ -155,7 +155,32 @@ class SakaiSearch extends SakaiElement {
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
           this.updateComplete.then(() => {
-            document.querySelector(".sakai-search-results .search-result-container a").focus();
+
+            const firstResult = document.querySelector(".search-result-container a");
+            firstResult && firstResult.focus();
+
+            document.querySelectorAll(".search-result-container").forEach(el => {
+
+              el.addEventListener("keydown", ke => {
+
+                ke.stopPropagation();
+                switch (ke.code) {
+                  case "ArrowDown":
+                    if (el.nextElementSibling.classList.contains("search-result-container")) {
+                      el.nextElementSibling.querySelector("a").focus();
+                      ke.preventDefault();
+                    }
+                    break;
+                  case "ArrowUp":
+                    if (el.previousElementSibling.classList.contains("search-result-container")) {
+                      el.previousElementSibling.querySelector("a").focus();
+                      ke.preventDefault();
+                    }
+                    break;
+                  default:
+                }
+              });
+            });
           });
           sessionStorage.setItem("searchresults", JSON.stringify(this.results));
           this.requestUpdate();
