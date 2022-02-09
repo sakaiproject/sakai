@@ -63,6 +63,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       submissionsOnly: Boolean,
       showResubmission: Boolean,
       isChecked: { attribute: false, type: Boolean },
+      allowExtension: Boolean,
       totalGraded: Number,
       token: { type: String },
       rubric: { type: Object },
@@ -94,7 +95,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.rubricParams = new Map();
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
     this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"];
-
+    this.allowExtension = this._submission.extensionAllowed;
     this.submittedTextMode = this._submission.submittedText;
 
     // If there's no submitted text and at least one attachment, show the first attachment
@@ -427,7 +428,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div class="text-feedback">
         </div>
-        ${this.submission.submittedTime ? html`
+        ${this.submission.submittedTime && !this.submission.showExtension ? html`
           <div class="resubmission-checkbox">
             <label>
               <input type="checkbox" .checked=${this.showResubmission} @change=${this.toggleResubmissionBlock}/>
@@ -450,6 +451,19 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               </sakai-date-picker>
             </div>
           ` : ""}
+        ` : ""}
+        ${this.submission.showExtension ? html`
+            <div id="grader-extension-section" >
+                <input type="checkbox" .checked=${this.allowExtension} id="allowExtensionToggle" name="allowExtensionToggle" @change=${this.toggleExtensionBlock}" />
+                <label for="allowExtensionToggle" >${this.assignmentsI18n["allowExtension"]}</label>
+                ${this.allowExtension ? html`
+                    <div >${this.assignmentsI18n["allowExtensionCaptionGrader"]}</div>
+                    <div id="allowExtensionTime" >
+                    <label >${this.assignmentsI18n["gen.acesubunt"]}</label>
+                    <sakai-date-picker epoch-millis="${this.submission.extensionDate}" @datetime-selected="${this.extensionDateSelected}" ></sakai-date-picker>
+                    </div>  
+                ` : ""}
+                </div>
         ` : ""}
         <div class="action-button-block act">
           <button accesskey="s" class="btn btn-primary active" name="save" @click=${this.save}>${this.assignmentsI18n["gen.sav"]}</button>
@@ -727,7 +741,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       formData.set("resubmitNumber", this.submission.resubmitsAllowed);
       formData.set("resubmitDate", this.submission.resubmitDate);
     }
-
+    if (this.allowExtension) {
+      formData.set("extensionDate", this.submission.extensionDate);
+    }
     formData.set("siteId", portal.siteId);
 
     if (this.debug) {
@@ -1049,6 +1065,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submission.resubmitDate = e.detail.epochMillis;
     this.modified = true;
   }
+  
+  extensionDateSelected(e) {
+  
+    this.submission.extensionDate = e.detail.epochMillis;
+    this.modified = true;
+  }
 
   onSettingsKeydown(e) {
 
@@ -1067,6 +1089,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
     this.showResubmission = e.target.checked;
   }
+  
+  toggleExtensionBlock(e) {
+  
+    this.submission.extensionAllowed = !e.target.checked;
+    this.allowExtension = e.target.checked;
+  }
+  
 }
 
 if (!customElements.get("sakai-grader")) {

@@ -845,7 +845,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String resubmitNumber = (String) params.get("resubmitNumber");
         String resubmitDate = (String) params.get("resubmitDate");
-
+        String extensionDate = (String) params.get("extensionDate");
         List<String> alerts = new ArrayList<>();
 
         Assignment assignment = submission.getAssignment();
@@ -867,7 +867,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         if (!StringUtils.isBlank(resubmitDate)) {
             options.put(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS, resubmitDate);
         }
-
+        if(!StringUtils.isBlank(extensionDate)){
+            options.put(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS, extensionDate);
+        }
         Set<String> attachmentKeys
             = params.keySet().stream().filter(k -> k.startsWith("attachment")).collect(Collectors.toSet());
 
