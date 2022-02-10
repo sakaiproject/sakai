@@ -283,7 +283,12 @@ ASN.setupAssignNew = function(){
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
         }
     });
-    
+
+    const isEstimate = document.getElementById('new_assignment_check_add_estimate');
+    if (isEstimate.checked) {
+        document.getElementById('checkestimaterequired').classList.remove('hidden');
+        document.getElementById('inputtimestimate').classList.remove('hidden');
+    }
 };
 
 ASN.resizeFrame = function(updown)
@@ -852,12 +857,17 @@ ASN.toggleAutoAnnounceEstimate = function(checked){
     const timeEstimate = document.getElementById('inputtimestimate');
     const timeEstimateInput = document.getElementById('new_assignment_input_add_time_estimate');
     const estimateRequiredCheck = document.getElementById('new_assignment_check_add_estimate_required');
-    
-    const display = checked ? 'block': 'none';
+
     const resizeState = checked ? 'grow': 'shrink';
-    
-    estimateRequired && (estimateRequired.style.display = display);
-    timeEstimate && (timeEstimate.style.display = display);
+
+    if (checked) {
+        estimateRequired.classList.remove('hidden');
+        timeEstimate.classList.remove('hidden');
+    } else {
+        estimateRequired.classList.add('hidden');
+        timeEstimate.classList.add('hidden');
+    }
+
     ASN.resizeFrame(resizeState);
     if (!checked) {
         timeEstimateInput && (timeEstimateInput.value = '');

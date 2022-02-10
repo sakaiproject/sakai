@@ -654,52 +654,34 @@ function showExternalIframe(title, doreload) {
 </script>
 
 		#if ($!isTimesheet)
-		<div id="timesheetsetupsection" style="display: block">
-			<h4>
-				$tlang.getString("gen.estimate")
-			</h4>
-	
-			#if ($!name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
+			<div id="timesheetsetupsection">
+				<h4>
+					$tlang.getString("gen.estimate")
+				</h4>
+
 				<div class="checkbox">
 					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" checked="checked" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
-					#end
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE" type="checkbox" value="true" #if ($value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE) checked #end onclick="ASN.toggleAutoAnnounceEstimate(this.checked)" />
 						$tlang.getString("gen.isestimate")
 					</label>
 				</div>
-	
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="checkestimaterequired" class="checkbox">
-				#else
-					<div id="checkestimaterequired" style="display:none" class="checkbox">
-				#end
+
+				<div id="checkestimaterequired" class="checkbox hidden">
 					<label for="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED">
-					#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED.equals("true"))
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" checked="checked" />
-					#else
-						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" />
-					#end
+						<input id="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" name="$name_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED" type="checkbox" value="true" #if ($value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE_REQUIRED) checked #end />
 						$tlang.getString("gen.reqestimate")
 					</label>
 				</div>
-				
-				#if ($!value_NEW_ASSIGNMENT_CHECK_ADD_ESTIMATE)
-					<div id="inputtimestimate" class="form-group row form-required">
-				#else
-					<div id="inputtimestimate" style="display:none" class="form-group row form-required">
-				#end
+
+				<div id="inputtimestimate" class="form-group row form-required hidden">
 						<label for="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" class="col-sm-2 form-required">
 							$tlang.getString("gen.timestimate")
 						</label>
 						<div class="col-sm-2">
 							<input name="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" id="$name_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE" type="text" value="$formattedText.escapeHtml($!value_NEW_ASSIGNMENT_INPUT_ADD_TIME_ESTIMATE)" size="20" maxlength="20" class="form-control" placeholder="$!tlang.getString('ts.modal.field.tspent.format')" />
 						</div>
-					</div>
-			#end
 				</div>
+			</div>
 			#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound)
 			<script>
 				ASN.disableTimesheetSetupSection();
