@@ -91,11 +91,17 @@ $success: #7952b3;
 body {
   //padding: 1.5rem;
 }
-
+.Mrphs-pagebody {
+  width: 100%;
+}
 .navIntraTool {
   display: flex;
   flex-wrap: wrap;
   list-style: none;
+
+  li {
+    margin-right: 1em;
+  }
 }
 
 sui-button sui-icon {
