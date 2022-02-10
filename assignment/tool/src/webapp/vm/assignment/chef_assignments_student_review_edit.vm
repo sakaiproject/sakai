@@ -323,7 +323,7 @@
 
             #if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
                 <div id="attachmentspanel" class="highlightPanel">
-                    <h3 style="margin-top:0;margin-bottom:.5em">
+                    <h3>
                         #if ($submissionType == 5)
                             $tlang.getString("gen.att.single")
                         #else
@@ -339,7 +339,7 @@
                             #end
                         </p>
                     #else
-                        <table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto" summary="$tlang.getString("stuviewsubm.listsummary")">
+                        <table class="attachList listHier indnt1 centerLines" summary="$tlang.getString("stuviewsubm.listsummary")">
                             #foreach ($attachment in $attachments)
                                 #set ($props = false)
                                 #set ($props = $attachment.Properties)
@@ -417,7 +417,7 @@
                     ## for single file upload case
                     #if ($submissionType==5 && $attachments && $attachments.size() == 0)
                         <div class="highlightPanel">
-                            <table border="0" cellpadding="0" cellspacing="0" class="listHier centerLines" style="width:auto;margin:0;">
+                            <table border="0" cellpadding="0" cellspacing="0" class="listHier centerLines">
                                 <tbody>
                                     <tr>
                                         <td>
