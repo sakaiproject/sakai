@@ -76,12 +76,12 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
 
 sakai.setupGroupModalLinks = function (dialogTarget, memberstr, printstr, tablestr1,tablestr2,tablestr3){
 
-	[...document.querySelectorAll(".moreInfoGroups")].forEach(el => {
+	[...document.querySelectorAll(".group-membership-button")].forEach(el => {
 
 		el.addEventListener("click", e => {
 
 			e.preventDefault();
-			sakai.getGroupInfo(e.target.id, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
+			sakai.getGroupInfo(e.target.dataset.groupId, dialogTarget, memberstr, printstr, tablestr1, tablestr2, tablestr3);
 		});
 	});
 };
@@ -539,28 +539,6 @@ sakai.siteTypeSetup = function(){
     
     // Click the first item in the create site screen
     $('input[name="itemType"]').first().click();
-};
-
-sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
-    // toggler=class of click target
-    // togglee=class of container to expand
-    // openInit=true - all togglee open on enter
-    // speed=speed of expand/collapse animation
-
-    if (openInit === true && openInit !== null) {
-        $('.expand').hide();
-    }
-    else {
-        $('.' + togglee).hide();
-        $('.collapse').hide();
-        utils.resizeFrame();
-    }
-    $('.' + toggler).click(function(){
-        $(this).next('.' + togglee).fadeToggle(speed);
-        $(this).find('.expand').toggle();
-        $(this).find('.collapse').toggle();
-        utils.resizeFrame();
-    });
 };
 
 /*
