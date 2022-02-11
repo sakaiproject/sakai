@@ -55,6 +55,8 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 	private final String studentNumber;
 
+	private final String sortName;
+
 	@Setter
 	@Accessors(chain = true)
 	private List<String> sections;
@@ -71,9 +73,10 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.lastName = FormatHelper.htmlEscape(u.getLastName());
 		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
 		this.sections = Collections.emptyList();
+		this.sortName = u.getSortName();
 	}
 
-	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
+	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber, final String sortName) {
 		this.userUuid = userUUID;
 		this.displayId = displayID;
 		this.displayName = FormatHelper.htmlEscape(displayName);
@@ -81,10 +84,11 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.lastName = FormatHelper.htmlEscape(lastName);
 		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
 		this.sections = Collections.emptyList();
+		this.sortName = sortName;
 	}
 
 	public static GbUser forDisplayOnly(final String displayID, final String displayName) {
-		return new GbUser("", displayID, displayName, "", "", "");
+		return new GbUser("", displayID, displayName, "", "", "", "");
 	}
 
 	public boolean isValid() {
@@ -92,14 +96,12 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	}
 
 	@Override
-	public int compareTo(GbUser user)
+	public int compareTo(GbUser other)
 	{
-		int comp = displayId.compareToIgnoreCase(user.displayId);
-		if (comp == 0) {
-			comp = displayName.compareToIgnoreCase(user.displayName);
+		if (StringUtils.isBlank(sortName) && StringUtils.isBlank(other.getSortName())) {
+			return displayName.compareToIgnoreCase(other.getDisplayName());
 		}
-
-		return comp;
+		return sortName.compareToIgnoreCase(other.getSortName());
 	}
 
 	@Override
