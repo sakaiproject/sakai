@@ -1853,6 +1853,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return resourceLoader.getString("grad3");
             case HONOR_ACCEPTED:
                 return resourceLoader.getString("gen.hpsta");
+            case RETURNED_PENDING_RESUBMIT:
+                return resourceLoader.getString("gen.pending_resubmit");
             default:
                 return "Undefined Status";
         }
@@ -1874,6 +1876,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private AssignmentConstants.SubmissionStatus getGradersCanonicalSubmissionStatus(AssignmentSubmission submission) {
         if (submission == null) return SubmissionStatus.NO_SUBMISSION;
 
+        String resubmissionString = StringUtils.trimToNull(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        boolean resubmissionAllowed = NumberUtils.isCreatable(resubmissionString) ?
+                Integer.parseInt(resubmissionString) > 0 || Integer.parseInt(resubmissionString) == -1 : // "-1" means infinite resubmissions allowed
+                false;
+
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
 
@@ -1889,10 +1896,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 return SubmissionStatus.RESUBMITTED;
                             }
                         } else {
-                            return SubmissionStatus.RETURNED;
+                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED;
                         }
                     } else {
-                        return SubmissionStatus.RETURNED;
+                        if (returnTime != null && returnTime.isAfter(submitTime)) {
+                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED; 
+                        } else {
+                            return SubmissionStatus.RETURNED;
+                        }
                     }
                 } else if (submission.getGraded()) {
                     return StringUtils.isNotBlank(submission.getGrade()) ? SubmissionStatus.GRADED : SubmissionStatus.COMMENTED;
@@ -1926,6 +1937,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private AssignmentConstants.SubmissionStatus getSubmittersCanonicalSubmissionStatus(AssignmentSubmission submission) {
         if (submission == null) return SubmissionStatus.NOT_STARTED;
 
+        String resubmissionString = StringUtils.trimToNull(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER));
+        boolean resubmissionAllowed = NumberUtils.isCreatable(resubmissionString) ?
+                Integer.parseInt(resubmissionString) > 0 || Integer.parseInt(resubmissionString) == -1 : // "-1" means infinite resubmissions allowed
+                false;
+
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
         Instant lastModTime = submission.getDateModified();
@@ -1942,10 +1958,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 return SubmissionStatus.RESUBMITTED;
                             }
                         } else {
-                            return SubmissionStatus.RETURNED;
+                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED;
                         }
                     } else {
-                        return SubmissionStatus.RETURNED;
+                        if (returnTime != null && returnTime.isAfter(submitTime)) {
+                            return resubmissionAllowed ? SubmissionStatus.RETURNED_PENDING_RESUBMIT : SubmissionStatus.RETURNED; 
+                        } else {
+                            return SubmissionStatus.RETURNED;
+                        }
                     }
                 } else {
                     return SubmissionStatus.SUBMITTED;
