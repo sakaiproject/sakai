@@ -479,10 +479,25 @@ h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
 	background: var(--sakai-background-color-2);
 }
 
+#attachmentspanel table .attachList {
+  margin-bottom: 0.5em;
+  margin-top: 0;
+}
+
 /*to highlight info or controls in some high threshhold situations*/
 /*do an assignment that requires honor code check as a student*/
 .highlightPanel {
-	margin: 1em 0;
+  margin: 1em 0;
+}
+
+.highlightPanel h3 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.highlightPanel table .listHier {
+  width: auto;
+  margin: 0;
 }
 
 /*to isolate blocks of data in low threshhold situations*/
