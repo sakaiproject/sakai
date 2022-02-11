@@ -383,7 +383,7 @@
 					<thead>
 						<tr>
 							<th>$tlang.getString("group.title")</th>
-							#if ($!viewRoster || $viewMembershipGroups.size())
+							#if ($!viewRoster || !$viewMembershipGroups.isEmpty())
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							#end
 							<th>$tlang.getString("group.description")</th>
