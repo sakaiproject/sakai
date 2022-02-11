@@ -682,6 +682,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.getSubmitters().add(submitter);
         assignment.getSubmissions().add(submission);
 
+        Map<String, String> submissionProperties = submission.getProperties();
+
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionReference)).thenReturn(true);
@@ -705,32 +707,55 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(submission.getDateSubmitted().plus(3, ChronoUnit.DAYS));
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RESUBMITTED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded = RETURNED
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded | resubmission is not allowed = RETURNED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
         submission.setReturned(true);
         submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
         submission.setGraded(true);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned not exists = RETURNED
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned not exists | resubmission is not allowed = RETURNED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
         submission.setReturned(true);
         submission.setDateReturned(null);
         submission.setGraded(false);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted = RETURNED
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission is not allowed = RETURNED
         submission.setSubmitted(true);
         submission.setDateSubmitted(now);
         submission.setReturned(true);
         submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
         submission.setGraded(false);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned after DateSubmitted | resubmission is allowed = RESUBMISSION PENDING
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().plus(1, ChronoUnit.DAYS));
+        submission.setGraded(false);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED_PENDING_RESUBMIT, assignmentService.getSubmissionCanonicalStatus(submission, false));
+
+        // submission is Submitted | DateSubmitted exists | submission is Returned | DateReturned exists | DateReturned before DateSubmitted | submission is Graded | resubmission is allowed = RESUBMISSION PENDING
+        submission.setSubmitted(true);
+        submission.setDateSubmitted(now);
+        submission.setReturned(true);
+        submission.setDateReturned(submission.getDateSubmitted().minus(1, ChronoUnit.DAYS));
+        submission.setGraded(true);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "1");
+        assignment.setDueDate(null);
+        Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED_PENDING_RESUBMIT, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
         // submission is Submitted | DateSubmitted exists | submission not Returned | submission is Graded | User can Grade | Grade exists = GRADED
         submission.setSubmitted(true);
@@ -772,13 +797,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.UNGRADED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
-        // submission is Submitted | DateSubmitted not exists | submission is Returned = RETURNED
+        // submission is Submitted | DateSubmitted not exists | submission is Returned | resubmission is not allowed = RETURNED
         submission.setSubmitted(true);
         submission.setDateSubmitted(null);
         submission.setReturned(true);
         submission.setDateReturned(null);
         submission.setGraded(false);
         submission.setGrade(null);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         assignment.setDueDate(null);
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
@@ -859,33 +885,37 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submission.setDateModified(now.minus(12, ChronoUnit.HOURS));
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission not Submitted | submission Graded | submission Returned | DateModified not exists = RETURNED
+        // submission not Submitted | submission Graded | submission Returned | DateModified not exists | resubmission is not allowed = RETURNED
         submission.setSubmitted(false);
         submission.setReturned(true);
         submission.setDateReturned(null);
         submission.setGraded(true);
         submission.setDateModified(null);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission not Submitted | submission Graded | submission Returned | DateReturned not exists = RETURNED
+        // submission not Submitted | submission Graded | submission Returned | DateReturned not exists | resubmission is not allowed = RETURNED
         submission.setSubmitted(false);
         submission.setReturned(true);
         submission.setDateReturned(null);
         submission.setGraded(true);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission not Submitted | submission Graded | submission Returned | DateModified before DateReturned plus 10 seconds = RETURNED
+        // submission not Submitted | submission Graded | submission Returned | DateModified before DateReturned plus 10 seconds | resubmission is not allowed = RETURNED
         submission.setSubmitted(false);
         submission.setReturned(true);
         submission.setDateReturned(now.minus(1, ChronoUnit.DAYS));
         submission.setGraded(true);
         submission.setDateModified(now.minus(2, ChronoUnit.DAYS));
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, false));
 
-        // submission not Submitted | submission Graded | submission Returned | User can Grade = RETURNED
+        // submission not Submitted | submission Graded | submission Returned | User can Grade | resubmission is not allowed = RETURNED
         submission.setSubmitted(false);
         submission.setReturned(true);
         submission.setGraded(true);
+        submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, "0");
         Assert.assertEquals(AssignmentConstants.SubmissionStatus.RETURNED, assignmentService.getSubmissionCanonicalStatus(submission, true));
 
         // submission not Submitted | submission Graded | submission not Returned | User can Grade | Grade exists = GRADED
