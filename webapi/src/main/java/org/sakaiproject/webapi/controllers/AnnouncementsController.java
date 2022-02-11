@@ -100,7 +100,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
         try {
             Site site = siteService.getSite(siteId);
             String channelRef = announcementService.channelReference(siteId, "main");
-            return ((List<AnnouncementMessage>)announcementService.getMessages(channelRef, null, true, true))
+            return ((List<AnnouncementMessage>) announcementService.getMessages(channelRef, null, false, true))
                 .stream()
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
