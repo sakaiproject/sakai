@@ -67,7 +67,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
-	private String defaultSkin = "morpheus";
+	private String defaultSkin = "trinity";
 
 	private boolean styleAble = false;
 
@@ -93,7 +93,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
 			
-			//this is rather the template folder name then what we would refer to as skin
+			//this variable will decide which templates and configs (bundle) are picked
 			defaultSkin = serverConfigurationService.getString("portal.templates", "trinity");
 		}
 		catch (Exception ex)
@@ -201,7 +201,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		}
 		catch (Exception ex)
 		{
-			log.info("No options loaded ", ex);
+			log.info("No options loaded. Check options.config for " + defaultSkin, ex);
 
 		} 
 		finally {
