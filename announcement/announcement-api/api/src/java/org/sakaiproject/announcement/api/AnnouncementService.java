@@ -186,7 +186,7 @@ public interface AnnouncementService extends MessageService
 	 *        Channel's reference String
 	 * @param filter
 	 *        A filtering object to accept messages, or null if no filtering is desired.
-	 * @param order
+	 * @param ascending
 	 *        Order of messages, ascending if true, descending if false
 	 * @param merged
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
@@ -197,7 +197,7 @@ public interface AnnouncementService extends MessageService
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
+	public List getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException;
 
 	public Map<String, List<AnnouncementMessage>> getViewableAnnouncementsForCurrentUser(Integer maxAgeInDays);
 }
