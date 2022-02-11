@@ -275,6 +275,12 @@
 									<input type="file" name="upload" class="upload" id="clonableUpload" onchange="SPNR.insertSpinnerAfter(this, null, null);ASN.submitPeerReviewAttachment('gradeForm', '#toolLinkParam("AssignmentAction" "doAttachUpload" "")');""/>
                                 </div>
                             </td>
+                            <td>
+                                <span class="navIntraToolLink">
+                                    <input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" 
+                                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'attach', null, null, 'attachmentspanel' ); return false;" />
+                                </span>
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
@@ -314,6 +320,122 @@
                 </div>
 			#end
 		#end
+
+            #if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
+                <div id="attachmentspanel" class="highlightPanel">
+                    <h3>
+                        #if ($submissionType == 5)
+                            $tlang.getString("gen.att.single")
+                        #else
+                            $tlang.getString("gen.att")
+                        #end
+                    </h3>
+                    #if ($size == 0)
+                        <p class="instruction">
+                            #if ($submissionType == 5)
+                                $tlang.getString("gen.noatt.single")
+                            #else
+                                $tlang.getString("gen.noatt")
+                            #end
+                        </p>
+                    #else
+                        <table class="attachList listHier indnt1 centerLines" summary="$tlang.getString("stuviewsubm.listsummary")">
+                            #foreach ($attachment in $attachments)
+                                #set ($props = false)
+                                #set ($props = $attachment.Properties)
+                                #if ($!props)
+                                    <tr>
+                                        <td>
+                                            #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+                                            #else
+                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+                                            #end
+                                            <a href="$attachment.Url" target="_blank">$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                        </td>
+                                        <td>
+                                            #propertyDetails($props)
+                                        </td>
+                                        <td class="itemAction">
+                                            <div class="spinnerBesideContainer">
+                                                <a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id', 'attachmentspanel' ); return false;">
+                                                    $tlang.getString("stuviewsubm.removeatt")<span class="skip"> $formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                #end
+                            #end
+                        </table>
+                    #end
+                    #if (($submissionType==2) || ($submissionType==3))
+                        <div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;">
+                            #if ($!deleted.equalsIgnoreCase("true"))
+                                ##if the assignment has been deleted, disable the action button
+                                <input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" />
+                            #else
+                                #if ($!canSubmit)
+                                    #if ($size==0)
+                                        #set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
+                                        #set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
+                                    #else
+                                        #set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
+                                        #set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+                                    #end
+                                    <input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+                                    <table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
+                                        <tr>
+                                            <td>
+                                                <span><label for="clonableUpload">$howManySubAtts</label></span>
+                                            </td>
+                                            <td>
+                                                <div id="clonableUploadW spinnerBesideContainer">
+                                                    <input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
+                                                </div>
+                                                </td>
+                                                ##Only show for inline and attachments
+                                                #if ($submissionType == 3)
+                                                <td>
+                                                    <span class="navIntraToolLink">
+                                                        <input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+                                                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null, 'attachmentspanel' ); return false;" />
+                                                    </span>
+                                                </td>
+                                                #end
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td id="clonedHolder"></td>
+                                            <td></td>
+                                        </tr>
+                                    </table>
+
+                                #end
+                            #end
+                        </div>
+                    #end
+                    ## for single file upload case
+                    #if ($submissionType==5 && $attachments && $attachments.size() == 0)
+                        <div class="highlightPanel">
+                            <table border="0" cellpadding="0" cellspacing="0" class="listHier centerLines">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <label for="upload">$tlang.getString("att.upl")</label>
+                                        </td>
+                                        <td>
+                                            <div class="spinnerBesideContainer">
+                                                <input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null, 'attachmentspanel' );"/>
+                                            </div>
+                                            <input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    #end
+                </div>
+            #end
 						
 		<div class="navPanel">
 		  <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
