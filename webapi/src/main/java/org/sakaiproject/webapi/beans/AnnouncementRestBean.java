@@ -15,6 +15,8 @@ package org.sakaiproject.webapi.beans;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 
@@ -42,8 +44,9 @@ public class AnnouncementRestBean {
         author = am.getAnnouncementHeader().getFrom().getDisplayName();
         date = am.getAnnouncementHeader().getInstant().toEpochMilli();
         ResourceProperties props = am.getProperties();
-        String release = props.getProperty(AnnouncementService.RELEASE_DATE);
-        if (release != null) date = Long.parseLong(release);
+        try {
+            date = props.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
+        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
         this.url = url;
     }
 }
