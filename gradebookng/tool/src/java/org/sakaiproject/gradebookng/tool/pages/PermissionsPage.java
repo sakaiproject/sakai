@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,6 +89,7 @@ public class PermissionsPage extends BasePage {
 
 		// get the list of TAs
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
+		Collections.sort(teachingAssistants);
 
 		// get the TA GbUser for selected (if provided)
 		if (StringUtils.isNotBlank(taUuid)) {
@@ -149,7 +151,7 @@ public class PermissionsPage extends BasePage {
 					@Override
 					public Object getDisplayValue(final GbUser u) {
 						return new StringResourceModel("permissionspage.label.tausername", null,
-								new Object[] { u.getDisplayName(), u.getDisplayId() }).getString();
+								new Object[] { u.getSortName(), u.getDisplayId() }).getString();
 					}
 
 					@Override
