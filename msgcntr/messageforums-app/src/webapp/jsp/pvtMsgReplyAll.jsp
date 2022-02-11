@@ -223,20 +223,19 @@
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext" rendered= "#{PrivateMessagesTool.emailCopyOptional || PrivateMessagesTool.emailCopyAlways}">
+						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel>
 								<h:outputText value="#{msgs.pvt_send_cc}"/>
 							</h:outputLabel>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="checkbox" style="white-space: nowrap;" rendered= "#{PrivateMessagesTool.emailCopyOptional}">
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out">
+						<h:panelGroup styleClass="checkbox" style="white-space: nowrap;">
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut || PrivateMessagesTool.emailCopyAlways}" id="send_email_out" disabled="#{!PrivateMessagesTool.emailCopyOptional}"></h:selectBooleanCheckbox>
 							</h:selectBooleanCheckbox>
 							<h:outputLabel for="send_email_out">
 								<h:outputText value="#{msgs.pvt_send_as_email}"/>
 							</h:outputLabel>
-							<h:outputText value="#{msgs.pvt_send_as_email_always}" rendered= "#{PrivateMessagesTool.emailCopyAlways}"></h:outputText>
 						</h:panelGroup>
 					</div>
 				</div>
