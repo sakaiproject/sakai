@@ -153,7 +153,13 @@ export class SakaiRubricGrading extends RubricsElement {
               </div>
             </div>
             <div class="criterion-actions">
-              <sakai-rubric-grading-comment id="comment-for-${c.id}" @comment-shown=${this.commentShown} @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
+              <sakai-rubric-grading-comment id="comment-for-${c.id}"
+                  @comment-shown=${this.commentShown}
+                  @update-comment="${this.updateComment}"
+                  criterion="${JSON.stringify(c)}"
+                  evaluated-item-id="${this.evaluatedItemId}"
+                  entity-id="${this.entityId}">
+              </sakai-rubric-grading-comment>
               <div class="rubric-grading-points-value">
                 <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
                   ${c.selectedvalue.toLocaleString(this.locale)}
@@ -429,6 +435,7 @@ export class SakaiRubricGrading extends RubricsElement {
     criterion.selectedRatingId = 0;
     criterion.pointoverride = 0.0;
     criterion.ratings.forEach(r => r.selected = false);
+    criterion.comments = undefined;
   }
 
   toggleRating(e) {
