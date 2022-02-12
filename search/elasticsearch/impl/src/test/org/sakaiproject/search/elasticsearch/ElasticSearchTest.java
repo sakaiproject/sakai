@@ -222,6 +222,9 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setBulkRequestSize(20);
         elasticSearchIndexBuilder.setMappingConfig(
                 "\n{\n" +
+                "    \"_source\": {\n" +
+                "       \"enabled\": \"false\"\n" +
+                "    },\n" +
                 "    \"properties\": {\n" +
                 "        \"siteid\": {\n" +
                 "            \"type\": \"keyword\",\n" +

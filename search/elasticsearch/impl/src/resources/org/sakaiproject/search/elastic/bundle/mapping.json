@@ -1,4 +1,7 @@
 {
+    "_source": {
+        "enabled": "false"
+    },
     "properties": {
         "siteid": {
             "type": "keyword",

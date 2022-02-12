@@ -722,10 +722,11 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected SearchRequest addFindContentQueueRequestParams(SearchRequest searchRequest) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(matchAllQuery())
-                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .postFilter(boolQuery().should(termQuery(SearchService.FIELD_INDEXED, false)).should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))))
                 .size(contentIndexBatchSize)
                 .storedFields(Arrays.asList("questionId", "subtype"));
         return searchRequest
+                .indices(indexName)
                 .source(searchSourceBuilder)
                 .types(indexedDocumentType);
     }

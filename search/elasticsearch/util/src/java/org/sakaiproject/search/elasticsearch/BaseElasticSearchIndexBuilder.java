@@ -597,10 +597,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(matchAllQuery())
-                .postFilter(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED)).filter(termsQuery(SearchService.FIELD_INDEXED, false)))
+                .postFilter(boolQuery().should(termQuery(SearchService.FIELD_INDEXED, false)).should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))))
                 .size(contentIndexBatchSize)
                 .storedFields(Arrays.asList(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID));
         return searchRequest
+                .indices(indexName)
                 .source(searchSourceBuilder)
                 .types(indexedDocumentType);
     }
@@ -812,7 +813,7 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             String content = ecp.getContent(resourceName);
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
             if (StringUtils.isNotBlank(content)) {
-                return contentSourceBuilder
+                contentSourceBuilder
                         // cannot rely on ecp for providing something reliable to maintain index state
                         // indexed indicates if the document was indexed
                         .field(SearchService.FIELD_INDEXED, true)
@@ -820,6 +821,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             } else {
                 return noContentForIndexRequest(contentSourceBuilder, resourceName, ecp, includeContent);
             }
+        } else {
+            contentSourceBuilder.field(SearchService.FIELD_INDEXED, false);
         }
         return contentSourceBuilder;
     }
@@ -872,10 +875,8 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
     public int getPendingDocuments() {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(boolQuery()
-                .must(matchAllQuery())
-                .filter(boolQuery()
-                        .mustNot(existsQuery(SearchService.FIELD_INDEXED))
-                        .filter(termsQuery(SearchService.FIELD_INDEXED, false))));
+                .should(termQuery(SearchService.FIELD_INDEXED, false))
+                .should(boolQuery().mustNot(existsQuery(SearchService.FIELD_INDEXED))));
         CountRequest countRequest = new CountRequest(indexName).source(searchSourceBuilder);
         try {
             CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
