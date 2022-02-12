@@ -108,6 +108,7 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.copyright.api.CopyrightInfo;
 import org.sakaiproject.content.copyright.api.CopyrightItem;
 import org.sakaiproject.content.exception.ZipMaxTotalSizeException;
+import org.sakaiproject.content.tool.inputpreserver.*;
 import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -680,6 +681,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** The from state name */
 	private static final String STATE_FROM = PREFIX + REQUEST + "from";
 	
+	/** The value of STATE_MODE from the most recent invocation of buildMainPanelContext */
+	private static final String STATE_LAST_MODE = "last_mode";
+
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
 	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + REQUEST + "has_attachment_before";
 	
@@ -4763,8 +4767,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// place if notification is enabled and current site is not of My Workspace type
 		boolean isUserSite = siteService.isUserSite(toolManager.getCurrentPlacement().getContext());
 		context.put("notification", !isUserSite && notificationEnabled(state));
+
 		// get the mode
 		String mode = (String) state.getAttribute (STATE_MODE);
+
+		String lastMode = (String)state.getAttribute(STATE_LAST_MODE);
+		if (lastMode != null && !StringUtils.equals(mode, lastMode))
+		{
+			// new mode - clear previous UI's input fields. Add cases for each UI that supports input preservation on validation errors.
+			switch(lastMode)
+			{
+				case MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD:
+					DropboxMultipleFoldersUploadInputPreserver.get().clearFormData(state);
+			}
+		}
+		state.setAttribute(STATE_LAST_MODE, mode);
+
 		if (mode.equals (MODE_LIST))
 		{
 			String list_pref = (String) state.getAttribute(STATE_LIST_PREFERENCE);
@@ -8216,7 +8234,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			if(uploadMax == null && uploadCeiling == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, "20");
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING);
 			}
 			else if(uploadCeiling == null)
 			{
@@ -9292,7 +9310,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public String buildDropboxMultipleFoldersUploadPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
 	    String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-	    List<List<String>> usersDropboxList = new ArrayList();
+	    DropboxMultipleFoldersUploadInputPreserver inputPreserver = DropboxMultipleFoldersUploadInputPreserver.get();
+	    inputPreserver.reloadFormData(state, context);
+	    List<List<String>> usersDropboxList = Collections.emptyList();
 	    try {
 	        Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 	        String siteType = site.getType();
@@ -9303,59 +9323,26 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 	        Collection<Group> site_groups = site.getGroups();
 
-			// Adding Groups to selector
-			for(Group grp : site_groups)
-			{
-				List<String> tempList = new ArrayList<>();
-				StringBuilder sb = new StringBuilder();
-				tempList.add(grp.getId());
-				sb.append(trb.getString("multiple.file.upload.group")).append(" ").append(grp.getTitle());
-				tempList.add(sb.toString());
-				tempList.add("group");
-				usersDropboxList.add(tempList);
-			}
-
 	        // form the azGroups for a context-as-implemented-by-site
 	        Collection<String> azGroups = new ArrayList<>(2);
 	        azGroups.add(siteService.siteReference(site.getId()));
 	        azGroups.add("!site.helper");
 	        // get the user ids who has dropbox.own permissions
 	        Set userIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	        List<User> users = userDirectoryService.getUsers(userIds);
 
-	        // Adding users to selector
-	        for (Iterator<String> it = userIds.iterator(); it.hasNext();) {
-	            String tempUserId = it.next();
-	            try {
-	                User tempUser = userDirectoryService.getUser(tempUserId);
-	                String userDisplayName;
-	                String lastName = tempUser.getLastName();
-	                String firstName = tempUser.getFirstName();
-	                if (lastName != null && !"".equals(lastName)) {
-	                    if (firstName != null && !"".equals(firstName)) {
-	                        userDisplayName = lastName + ", " + firstName;
-	                    } else {
-	                        userDisplayName = lastName;
-	                    }
-	                } else {
-	                    userDisplayName = tempUser.getDisplayName();
-	                    if (userDisplayName == null || "".equals(userDisplayName)) {
-	                        userDisplayName = tempUser.getEid();
-	                    }
-	                }
-	                List<String> tempList = new ArrayList<>();
-	                tempList.add(tempUserId);
-	                tempList.add(userDisplayName);
-	                tempList.add("user");
-	                usersDropboxList.add(tempList);
-	            } catch (UserNotDefinedException e) {
-	                log.error("User is not defined", e);
-	            }
-	        }
+	        usersDropboxList = inputPreserver.prepareGroupsAndUsersForContext(site_groups, users);
 	    } catch (Exception ex) {
 	        log.error("Exception while getting users collections", ex);
 	    }
 		copyrightChoicesIntoContext(state, context);
 	    context.put("usersDropboxList", usersDropboxList);
+
+	    // Max upload size:
+	    String max_file_size_mb = (String)state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+	    max_file_size_mb = max_file_size_mb == null ? ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING : max_file_size_mb;
+	    context.put("uploadMaxSize", max_file_size_mb);
+
 	    return TEMPLATE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD;
 	} // buildDropboxMultipleFoldersUploadPanelContext
 
@@ -9386,8 +9373,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 	    ParameterParser params = data.getParameters();
 	    String siteId = toolManager.getCurrentPlacement().getContext();
-	    // Getting parameters
-	    FileItem fileitem = params.getFileItem("MultipleFolderContent");
+
+	    // Preserve user input in case of a validation error
+	    DropboxMultipleFoldersUploadInputPreserver inputPreserver = DropboxMultipleFoldersUploadInputPreserver.get();
+	    inputPreserver.saveFormData(data, state);
+
+	    /* If the user uploaded a file in this form submission, we can pull it from params.
+	     * But consider when a user uploads a file, submits & faces a validation error, then corrects the issue without re-uploading the file.
+	     * To cover both cases, we delegate responsibility to the InputPreserver to retrieve the latest uploaded file */
+	    FileItem fileitem = inputPreserver.parseFileItem(params, state);
+
 	    String displayName = params.getString("MultipleFolderDisplayName");
 	    String[] multipleDropboxSelected = params.getStrings("usersDropbox-selection");
 	    Set usersCollectionIds = new TreeSet();
@@ -9395,24 +9390,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String newCopyright = "";
 		boolean copyrightAlert = false;
 
-	    if (fileitem == null) {
-	        String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-	        int max_bytes;
-	        try {
-	            max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-	        } catch (Exception e) {
-	            // if unable to parse an integer from the value in the properties file, use 1 MB as a default
-	            max_file_size_mb = "1";
-	            max_bytes = 1024 * 1024;
-	        }
-
-	        String max_bytes_string = ResourcesAction.getFileSizeString(max_bytes, rb);
-	        // "The user submitted a file to upload but it was too big!"
-	        addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[] { max_bytes_string }));
-	        state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
-	        return;
-
-	    } else if (StringUtils.isBlank(fileitem.getFileName())) {
+	    if (fileitem == null || StringUtils.isBlank(fileitem.getFileName())) {
 	        // no file selected -- skip this one
 	        addAlert(state, trb.getString("multiple.file.upload.nofileselected"));
 	        state.setAttribute(STATE_MODE, MODE_DROPBOX_MULTIPLE_FOLDERS_UPLOAD);
@@ -9539,6 +9517,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 							noti = NotificationService.NOTI_REQUIRED;
 						}
 						contentHostingService.commitResource(cr, noti);
+						DropboxMultipleFoldersUploadInputPreserver.get().clearFormData(state);
 					} catch (IOException e) {
 						log.warn("Failed to close stream.", e);
 					}
