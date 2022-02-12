@@ -16,6 +16,7 @@
 package org.sakaiproject.content.tool;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.util.ParameterParser;
@@ -28,9 +29,14 @@ import org.sakaiproject.util.ParameterParser;
  */
 public class CopyrightDelegate
 {
-	private String copyrightInfo;	// Copyright info takes its value from the dropdown (eg. "I hold copyright")
-	private String copyrightStatus;	// Copyright status takes its value from the text area (ie. when "Use copyright below." is selected)
+	private String copyrightStatus;	// Copyright Status takes its value from the dropdown (eg. "I hold copyright")
+	private String copyrightInfo;	// Copyright Info takes its value from the text area (ie. when "Use copyright below." is selected)
 	private boolean copyrightAlert;	// copyrightAlert takes it's value from the copyright alert checkbox ("Display copyright alert and require acknowledgement...")
+
+	// Keys to put these into the context
+	public static final String COPYRIGHT_STATUS_KEY = "copyrightStatus_selection";
+	public static final String COPYRIGHT_INFO_KEY = "copyrightInfo_selection";
+	public static final String COPYRIGHT_ALERT_KEY = "copyrightAlert_selection";
 
 	/**
 	 * Overload of captureCopyright; puts properties into this class's members
@@ -58,8 +64,8 @@ public class CopyrightDelegate
 		boolean crAlert = params.getBoolean("copyrightAlert");
 		if (li == null)
 		{
-			copyrightInfo = copyright;
-			copyrightStatus = newCopyright;
+			copyrightStatus = copyright;
+			copyrightInfo = newCopyright;
 			copyrightAlert = crAlert;
 		}
 		else
@@ -91,33 +97,33 @@ public class CopyrightDelegate
 		boolean crAlert;
 		if (li == null)
 		{
-			crInfo = StringUtils.trimToNull(copyrightInfo);
 			crStatus = StringUtils.trimToNull(copyrightStatus);
+			crInfo = StringUtils.trimToNull(copyrightInfo);
 			crAlert = copyrightAlert;
 		}
 		else
 		{
-			crInfo = StringUtils.trimToNull(li.getCopyrightInfo());
 			crStatus = StringUtils.trimToNull(li.getCopyrightStatus());
+			crInfo = StringUtils.trimToNull(li.getCopyrightInfo());
 			crAlert = li.hasCopyrightAlert();
 		}
 
-		if (crInfo == null)
+		if (crStatus == null)
 		{
 			props.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
 		}
 		else
 		{
-			props.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, crInfo);
+			props.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, crStatus);
 		}
 
-		if (crStatus == null)
+		if (crInfo == null)
 		{
 			props.removeProperty(ResourceProperties.PROP_COPYRIGHT);
 		}
 		else
 		{
-			props.addProperty(ResourceProperties.PROP_COPYRIGHT, crStatus);
+			props.addProperty(ResourceProperties.PROP_COPYRIGHT, crInfo);
 		}
 
 		if (crAlert)
@@ -128,5 +134,15 @@ public class CopyrightDelegate
 		{
 			props.removeProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
 		}
+	}
+
+	/**
+	 * Puts previously parsed values into the context (e.g. by UserInputPreserver)
+	 */
+	public void reloadSelectionsInContext(Context context)
+	{
+		context.put(COPYRIGHT_STATUS_KEY, copyrightStatus);
+		context.put(COPYRIGHT_INFO_KEY, copyrightInfo);
+		context.put(COPYRIGHT_ALERT_KEY, copyrightAlert);
 	}
 }
