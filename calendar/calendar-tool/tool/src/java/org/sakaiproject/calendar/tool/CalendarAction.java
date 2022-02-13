@@ -5415,7 +5415,6 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		
 		calendarSubscriptionsPage.doAddSubscription( runData, context, state, getSessionState(runData));
-		doUpdate(runData, context);
 	}
 
 	/**
