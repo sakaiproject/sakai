@@ -316,7 +316,7 @@ public class PrivateMessagesTool {
   private List<String> selectedComposeBccList = new ArrayList<>();
   @Getter @Setter
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
-  @Getter @Setter
+  @Setter
   private boolean booleanEmailOut = ServerConfigurationService.getBoolean("mc.messages.ccEmailDefault", false);
   @Getter
   private String composeSubject;
@@ -519,6 +519,10 @@ public class PrivateMessagesTool {
       }
 
       return !isEmailCopyDisabled() && area.getSendToEmail() == Area.EMAIL_COPY_OPTIONAL;
+  }
+
+  public boolean isBooleanEmailOut() {
+      return booleanEmailOut || isEmailCopyAlways();
   }
 
   public boolean isEmailForwardDisabled(){

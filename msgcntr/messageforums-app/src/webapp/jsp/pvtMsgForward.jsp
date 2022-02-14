@@ -202,7 +202,7 @@
 					</div>
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup styleClass="checkbox" style="white-space: nowrap;">
-							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut || PrivateMessagesTool.emailCopyAlways}" id="send_email_out" disabled="#{!PrivateMessagesTool.emailCopyOptional}"></h:selectBooleanCheckbox>
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out" disabled="#{!PrivateMessagesTool.emailCopyOptional}"></h:selectBooleanCheckbox>
 							<h:outputLabel for="send_email_out"><h:outputText value="#{msgs.pvt_send_as_email}"/></h:outputLabel>
 						</h:panelGroup>
 					</div>
