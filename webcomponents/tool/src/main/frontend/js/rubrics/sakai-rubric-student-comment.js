@@ -20,7 +20,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
         content: () => this.criterion.comments,
         html: true,
         title: () =>  this.criterion.title,
-        placement: "auto left",
+        placement: "auto",
       });
     });
   }
