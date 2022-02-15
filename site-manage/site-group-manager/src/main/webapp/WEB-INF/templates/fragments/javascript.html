@@ -52,7 +52,8 @@
       });
   });
 
-  document.getElementById("group-manager-form").addEventListener("submit", e => {
+  const gmForm = document.getElementById("group-manager-form");
+  gmForm && gmForm.addEventListener("submit", e => {
 
     e.preventDefault();
     $('#confirmation-modal').modal('show');
@@ -62,13 +63,15 @@
       .forEach(box => deletedGroupsList.innerHTML += `<li>${box.getAttribute("groupinfo")}</li>`);
   });
 
-  document.getElementById("modal-btn-confirm").addEventListener("click", () => {
+  const gmConfirm = document.getElementById("modal-btn-confirm");
+  gmConfirm && gmConfirm.addEventListener("click", () => {
 
-    document.getElementById("group-manager-form").submit();
+    gmForm && gmForm.submit();
     $('#confirmation-modal').modal('hide');
   });
 
-  document.getElementById("modal-btn-cancel").addEventListener("click", () => {
+  const cancel = document.getElementById("modal-btn-cancel");
+  cancel && cancel.addEventListener("click", () => {
     $('#confirmation-modal').modal('hide');
   });
 
@@ -102,19 +105,21 @@
   var confirmationModal = function (callback) {
 
     const deleteButton = document.getElementById("delete-joinableset-submit-button");
-    deleteButton.addEventListener("click", e => {
+    deleteButton && deleteButton.addEventListener("click", e => {
 
       e.preventDefault();
       $('#confirmation-modal').modal('show');
     });
 
-    document.getElementById("modal-btn-confirm").addEventListener("click", () => {
+    const confirmButton = document.getElementById("modal-btn-confirm");
+    confirmButton && confirmButton.addEventListener("click", () => {
 
       $('#confirmation-modal').modal('hide');
       window.location.replace(deleteButton.getAttribute("href"));
     });
 
-    document.getElementById("modal-btn-cancel").addEventListener("click", () => {
+    const cancelButton = document.getElementById("modal-btn-cancel");
+    cancelButton && cancelButton.addEventListener("click", () => {
 
       callback(false);
       $('#confirmation-modal').modal('hide');
@@ -142,10 +147,10 @@
 
     //Disable or enable the submit depending on the group title value.
     const submitButton = document.getElementById("create-group-submit-button");
-    submitButton && (submitButton.disabled = !groupTitle.value);
+    submitButton && (submitButton.disabled = !groupTitle?.value);
 
     //Enable or disable the submit button depending on the required fields
-    groupTitle.addEventListener("keyup", e => {
+    groupTitle && groupTitle.addEventListener("keyup", e => {
 
       document.querySelectorAll('#creategroup-form input[type="submit"]').forEach(submit => {
         submit.disabled = !e.target.value;
@@ -161,9 +166,9 @@
           const groupParams = {
             filterByGroupId: e.target.value,
             groupId: document.getElementById("groupId")?.value,
-            currentTitle: document.getElementById("groupTitle")?.value,
+            currentTitle: groupTitle?.value,
             currentDescription: document.getElementById("groupDescription")?.value,
-            currentShowAllUsers: gmJoinableShowAllUsersCheckbox?.checked
+            currentShowAllUsers: gmJoinableShowAllUsersCheckbox?.checked ? true : false,
           };
           window.location = `group?${new URLSearchParams(groupParams)}`;
         })
@@ -172,11 +177,13 @@
     const groupJoinableSet = document.getElementById("groupJoinableSet");
     const joinableOptionsDiv = document.getElementById("joinableOptionsDiv");
     if (!groupJoinableSet?.value) {
-      joinableOptionsDiv.style.display = "none";
+      joinableOptionsDiv && (joinableOptionsDiv.style.display = "none");
     }
 
-    groupJoinableSet.addEventListener("change", e => {
+    groupJoinableSet && groupJoinableSet.addEventListener("change", e => {
+      if (joinableOptionsDiv) {
         joinableOptionsDiv.style.display = e.target.value === "" ? "none" : "block";
+      }
     });
 
     //Initialize the select2 component
@@ -203,13 +210,15 @@
 
 <script th:fragment="autoGroupsStep2Js" th:inline="javascript">
   /*<![CDATA[*/
+  const selectSectionDiv = document.getElementById("selectSectionDiv");
   const useSectionsRadio = document.getElementById("sectionOptionUseSections");
   useSectionsRadio && useSectionsRadio.addEventListener("change", e => {
-    document.getElementById("selectSectionDiv").style.display = "block";
+    selectSectionDiv && (selectSectionDiv.style.display = "block");
   });
 
-  document.getElementById("sectionOptionDontUseSections").addEventListener("change", e => {
-    document.getElementById("selectSectionDiv").style.display = "none";
+  const dontUse = document.getElementById("sectionOptionDontUseSections");
+  dontUse && dontUse.addEventListener("change", e => {
+    selectSectionDiv && (selectSectionDiv.style.display = "none");
   });
 
   const allSectionsRadio = document.getElementById("group-manager-select-all-sections");
@@ -219,7 +228,8 @@
       .forEach(box => box.checked = e.target.checked);
   });
 
-  document.getElementById("autogroups-back-button").addEventListener("click", () => {
+  const backButton = document.getElementById("autogroups-back-button");
+  backButton && backButton.addEventListener("click", () => {
 
     document.getElementById("wizardAction").value = "back";
     document.getElementById("autogroups-wizard-step2-form").submit();
@@ -230,30 +240,40 @@
 <script th:fragment="autoGroupsStep3Js" th:inline="javascript">
   /*<![CDATA[*/
   const options = document.getElementById("mixtureStructureOptions");
-  document.getElementById("mixtureConfiguration").addEventListener("change", () => {
-    options.style.display = "block";
+  const mixtureConfiguration = document.getElementById("mixtureConfiguration");
+  mixtureConfiguration && mixtureConfiguration.addEventListener("change", () => {
+    options && (options.style.display = "block");
   });
-  document.getElementById("pureConfiguration").addEventListener("change", () => {
-    options.style.display = "none";
-  });
-
-  var groupSelectedClass = 'optGroupSelectSelected';
-  document.getElementById("splitByUser").addEventListener("change", () => {
-
-    document.getElementById('splitByGroups').classList.remove(groupSelectedClass);
-    document.getElementById('splitByUsers').classList.add(groupSelectedClass);
-    document.getElementById("splitByGroupsOptions").style.display = "none";
-    document.getElementById("splitByUsersOptions").style.display = "block";
-  });
-  document.getElementById("splitByGroup").addEventListener("change", () => {
-
-    document.getElementById('splitByUsers').classList.remove(groupSelectedClass);
-    document.getElementById('splitByGroups').classList.add(groupSelectedClass);
-    document.getElementById("splitByUsersOptions").style.display = "none";
-    document.getElementById("splitByGroupsOptions").style.display = "block";
+  const pureConfiguration = document.getElementById("pureConfiguration");
+  pureConfiguration && pureConfiguration.addEventListener("change", () => {
+    options && (options.style.display = "none");
   });
 
-  $("#autogroups-back-button").on('click', function () {
+  const splitByGroups = document.getElementById("splitByGroups");
+  const splitByGroupsOptions = document.getElementById("splitByGroupsOptions");
+  const splitByUsers = document.getElementById("splitByUsers");
+  const splitByUsersOptions = document.getElementById("splitByUsersOptions");
+  const groupSelectedClass = 'optGroupSelectSelected';
+  const byUser = document.getElementById("splitByUser");
+  byUser && byUser.addEventListener("change", () => {
+
+    splitByGroups && splitByGroups.classList.remove(groupSelectedClass);
+    splitByUsers && splitByUsers.classList.add(groupSelectedClass);
+    splitByGroupsOptions && (splitByGroupsOptions.style.display = "none");
+    splitByUsersOptions && (splitByUsersOptions.style.display = "block");
+  });
+
+  const byGroup = document.getElementById("splitByGroup");
+  byGroup && byGroup.addEventListener("change", () => {
+
+    splitByUsers && splitByUsers.classList.remove(groupSelectedClass);
+    splitByGroups && splitByGroups.classList.add(groupSelectedClass);
+    splitByUsersOptions && (splitByUsersOptions.style.display = "none");
+    splitByGroupsOptions && (splitByGroupsOptions.style.display = "block");
+  });
+
+  const backButton = document.getElementById("autogroups-back-button");
+  backButton && backButton.addEventListener("click", () => 
 
     document.getElementById('wizardAction').value = "back";
     document.getElementById("autogroups-wizard-step3-form").submit();
