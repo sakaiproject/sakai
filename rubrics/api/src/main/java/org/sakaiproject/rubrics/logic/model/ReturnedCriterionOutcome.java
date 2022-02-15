@@ -44,7 +44,7 @@ import lombok.ToString;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "rbc_returned_criterion_outcome")
+@Table(name = "rbc_returned_criterion_out")
 @ToString(exclude = {"criterion"})
 public class ReturnedCriterionOutcome implements Serializable {
 
