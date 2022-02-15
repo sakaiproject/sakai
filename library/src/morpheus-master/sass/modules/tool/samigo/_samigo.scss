@@ -448,3 +448,30 @@
 		color: var(--sakai-text-color-disabled);
 	}
 }
+
+.#{$namespace}sakai-samigo, .#{$namespace}toolBody--sakai-samigo {
+	.gradeAssessment, .reviewAssessment {
+		.input-group {
+			&:first-of-type {
+				.input-group-addon {
+					@include border-radius($button-radius 0 0 0);
+				}
+
+				.form-control {
+					@include border-radius(0 $button-radius 0 0);
+				}
+			}
+
+			&:last-of-type {
+				.input-group-addon {
+					@include border-radius(0 0 $button-radius $button-radius);
+					border-left: 1px solid var(--sakai-border-color);
+					border-right: 1px solid var(--sakai-border-color);
+					border-top: 0;
+					line-height: $line-height-base;
+					white-space: initial;
+				}
+			}
+		}
+	}
+}
