@@ -82,9 +82,8 @@
                                         ## https://www.smashingmagazine.com/2017/11/building-accessible-menu-systems/
                                         ## https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/mouse-and-keyboard-events/links/link-behavior/
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);"
-						title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
-						aria-haspopup="true" aria-expanded="false" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                            <a href="#" title="${loginUserFirstName} ${rloader.sit_profile_drop_down}" aria-haspopup="true"
+                                            aria-expanded="false" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
                                                 <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
                                                 <span class="textlink">${loginUserFirstName}</span>
                                             </a>
@@ -110,10 +109,13 @@
                                     <div class="Mrphs-userNav__submenuitem--profile-and-image">
                                         #if (${tabsSites.mrphs_profileToolUrl})
                                             <div class="has-avatar">
-                                                <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-haspopup="dialog">
-                                                    <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
-                                                    <span class="sr-only">${rloader.pic_changer_title}</span>
-                                                </a>
+                                                #if (${picEditorEnabled})
+                                                    <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-label="${rloader.pic_changer_title}" aria-haspopup="dialog">
+                                                        <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                    </a>
+                                                #else
+                                                    <span class="Mrphs-userNav__submenuitem--profilepicture-static" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                #end
                                             </div>
                                             <div class="Mrphs-userNav__submenuitem--profile">
                                                 <a href="${tabsSites.mrphs_profileToolUrl}">
