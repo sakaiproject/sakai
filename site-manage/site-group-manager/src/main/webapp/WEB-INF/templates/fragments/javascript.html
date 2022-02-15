@@ -170,7 +170,6 @@
             currentDescription: document.getElementById("groupDescription")?.value,
             currentShowAllUsers: gmJoinableShowAllUsersCheckbox?.checked ? true : false,
           };
-          console.log(groupParams);
           window.location = `group?${new URLSearchParams(groupParams)}`;
         })
       });
