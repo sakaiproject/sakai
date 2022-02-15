@@ -987,6 +987,7 @@
   }
   .multipleChoiceAnswer label {
     margin-left: 5px;
+    font-weight: normal;
   }
   .shortanswerDiv .bold {
     display: block;
@@ -1585,7 +1586,8 @@
   .questionText, .questionStatusText {
     white-space:pre-wrap;
     margin-bottom: 0.5em;
-    margin-top: 0em;
+    margin-top: 0;
+    font-weight: 400;
   }
   .twitter-div {
     overflow-y: auto;
@@ -1598,7 +1600,7 @@
   .edit-twitter-div {
     float:left;
   }
-  #question-text-input {
+  #question-text-area-evolved\:\:input {
     width: 400px;
   }
   .question-multiplechoice-answer, .question-shortanswer-answer {
