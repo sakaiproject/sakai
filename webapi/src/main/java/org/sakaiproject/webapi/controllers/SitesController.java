@@ -56,6 +56,15 @@ public class SitesController extends AbstractSakaiApiController {
     @Resource
     private SiteService siteService;
 
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private PreferencesService preferencesService;
+
+    @Autowired
+    private ToolManager toolManager;
+
     @GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId)
         throws UserNotDefinedException {
@@ -94,15 +103,6 @@ public class SitesController extends AbstractSakaiApiController {
         return data;
     }
 
-    @Autowired
-    private SecurityService securityService;
-
-    @Autowired
-    private PreferencesService preferencesService;
-
-    @Autowired
-    private ToolManager toolManager;
-
     @GetMapping(value = "/users/{userId}/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages(@PathVariable String userId) throws UserNotDefinedException {
 
@@ -114,6 +114,7 @@ public class SitesController extends AbstractSakaiApiController {
             return new HashMap<>();
         }
         return getUserFavoriteSitesWithPagesMap(userId);
+
     }
 
     @GetMapping(value = "/users/favorites", produces = MediaType.APPLICATION_JSON_VALUE) 
@@ -122,6 +123,7 @@ public class SitesController extends AbstractSakaiApiController {
         Session session = checkSakaiSession();
         String requestUserId = session.getUserId();
         return getUserFavoriteSitesWithPagesMap(requestUserId);
+
     }
 
     private Map<String, List<Map<String, Object>>> getUserFavoriteSitesWithPagesMap(String userId) throws UserNotDefinedException  {
@@ -175,5 +177,7 @@ public class SitesController extends AbstractSakaiApiController {
         Map<String, List<Map<String, Object>>> data = new HashMap<>();
         data.put("favorites", sitesList);
         return data;
+
     }
+
 }
