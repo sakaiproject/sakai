@@ -40,6 +40,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -55,8 +56,6 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
-import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
@@ -231,76 +230,21 @@ public class MyProfile extends BasePage {
 			userProfile.setLocked(this.isLocked());
 		}
 
-
-		//what type of picture changing method do we use?
-		int profilePictureType = sakaiProxy.getProfilePictureType();
-
-		//change picture panel (upload or url depending on property)
-		final Panel changePicture;
-
-		//render appropriate panel with appropriate constructor ie if superUser etc
-		if(profilePictureType == ProfileConstants.PICTURE_SETTING_UPLOAD) {
-
-			if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
-				changePicture = new ChangeProfilePictureUpload("changePicture", userUuid);
-			} else {
-				changePicture = new ChangeProfilePictureUpload("changePicture");
-			}
-		} else if (profilePictureType == ProfileConstants.PICTURE_SETTING_URL) {
-			if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
-				changePicture = new ChangeProfilePictureUrl("changePicture", userUuid);
-			} else {
-				changePicture = new ChangeProfilePictureUrl("changePicture");
-			}
-		} else if (profilePictureType == ProfileConstants.PICTURE_SETTING_OFFICIAL) {
-			//cannot edit anything if using official images
-			changePicture = new EmptyPanel("changePicture");
-		} else {	
-			//no valid option for changing picture was returned from the Profile2 API.
-			log.error("Invalid picture type returned: " + profilePictureType);
-			changePicture = new EmptyPanel("changePicture");
-		}
-		changePicture.setOutputMarkupPlaceholderTag(true);
-		changePicture.setVisible(false);
-		add(changePicture);
-		
 		//add the current picture
 		add(new ProfileImage("photo", new Model<String>(userUuid)));
-		
-		//change profile image button
-		AjaxLink<Void> changePictureLink = new AjaxLink<Void>("changePictureLink") {
-			private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
-				
-				//show the panel
-				changePicture.setVisible(true);
-				target.add(changePicture);
-				
-				//resize iframe to fit it
-				target.appendJavaScript("resizeFrame('grow');");
-			}
-						
-		};
-		changePictureLink.add(new Label("changePictureLabel", new ResourceModel("link.change.profile.picture")));
-		
-		//is picture changing disabled? (property, or locked)
-		if((!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) && !sakaiProxy.isSuperUser()) {
-			changePictureLink.setEnabled(false);
-			changePictureLink.setVisible(false);
+		//change profile image button
+		final Button changePicButton = new Button("changePicButton");
+
+		changePicButton.add(new Label("changePictureLabel", new ResourceModel("link.change.profile.picture")));
+
+		if(!imageLogic.isPicEditorEnabled()) {
+			changePicButton.setEnabled(false);
+			changePicButton.setVisible(false);
 		}
-		
-		//if using official images, is the user allowed to select an alternate?
-		//or have they specified the official image in their preferences.
-		if(sakaiProxy.isOfficialImageEnabledGlobally() && (!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled() || prefs.isUseOfficialImage())) {
-			changePictureLink.setEnabled(false);
-			changePictureLink.setVisible(false);
-		}
-		
-		
-		add(changePictureLink);
-		
-		
+
+		add(changePicButton);
+
 		/* SIDELINKS */
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
 		int visibleSideLinksCount = 0;

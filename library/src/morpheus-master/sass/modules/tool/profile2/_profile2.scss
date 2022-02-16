@@ -1,5 +1,10 @@
 .#{$namespace}sakai-profile2 {
 
+	#leftPanel{
+		min-width: fit-content;
+		margin-bottom: 20px;
+	}
+
 	.profile-twitter-account td.label {
 		text-align: left;
 		width: 250px;
@@ -14,22 +19,19 @@
 		}
 	}
 
-	#myPhoto {
-		max-width: 100%;
-		position: relative;	
-		/* centre the image inside this div */
-		text-align: center;
-		margin-top: 0;
-		margin-bottom: 0;
-		padding: 0;
-		/* end of centreing the image */
+	#photoContainer {
+		margin-bottom: 12px;
 	}
 
-	#myPhoto img {
-		max-width: 200px;
+	.btn-holder {
+		display: block;	
+		position: relative;
 		width: 200px;
-		background-color: transparent;
-		text-align: center;
+		margin: 0 auto 0 auto;
+	}
+
+	#photoContainer img {
+		border-radius: 4px;
 	}
 
 	.sakai-wicket-iconwithtooltip {
@@ -42,6 +44,7 @@
 
 	.editable:hover > .edit-button, .edit-button:focus {
 		@include sakai_secondary_button();
+		margin: 3px 0 0 0;
 		float: right;
 		clear: none;
 		display: block;
@@ -60,8 +63,11 @@
 		clip: rect(1px, 1px, 1px, 1px);
 	}
 
-	#myPhoto:hover > .edit-image-button, .edit-image-button:focus {
+	.btn-holder:hover > .edit-image-button,
+	.edit-image-button:focus > .edit-image-button:focus-visible,
+	.edit-image-button:focus-visible {
 		@include sakai_secondary_button();
+		margin: 3px 3px 0 0;
 		clip: unset;
 		right: 0;
 		top: 0;
@@ -76,11 +82,6 @@
 	.new-items-count {
 		padding-left: 4px !important;
 		font-weight: bold;
-	}
-
-	/* profile heading styles */
-	#profileHeading {
-		margin-left: -10px;
 	}
 
 	#profileHeadingName {
@@ -298,13 +299,12 @@
 	.side-widget-heading {
 		margin-top: 4px;
 		border-right: 1px solid var(--sakai-border-color);
-		padding-top: 2px;
-		padding-bottom: 2px;
-		padding-left: 2px;
+		padding: 2px 5px;
 		display: block;
 		font-weight: bold;
 		background-color: var(--sakai-background-color-2);
 		word-wrap: break-word;
+		border-radius: 4px;
 	}
 
 	.side-widget-content {

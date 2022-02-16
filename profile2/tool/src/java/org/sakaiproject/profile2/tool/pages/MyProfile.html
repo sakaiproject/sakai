@@ -30,15 +30,15 @@
 		<div class="row">
 
 			<div id="leftPanel" class="col-md-3">
-				<div id="myPhoto">
-					<img wicket:id="photo" />
-					<a href="#" wicket:id="changePictureLink" class="edit-image-button" role="button">
-						<span wicket:id="changePictureLabel">Change picture</span>
-					</a>
+				<div id="photoContainer">
+					<div class="btn-holder">
+						<img id="myPhoto" wicket:id="photo" />
+						<button wicket:id="changePicButton" class="edit-image-button call-pic-editor">
+							<span wicket:id="changePictureLabel">Change picture</span>
+						</button>
+					</div>
 				</div>
 
-				<div wicket:id="changePicture" />
-				
 				<ul id="sideLink" wicket:id="sideLinks">
 					<li wicket:id="addFriendContainer">
 						<a wicket:id="addFriendLink" class="connection-add">
@@ -71,8 +71,6 @@
 				<!-- tabs -->
 				<div class="main-profile-tabpanel" wicket:id="myProfileTabs">[my profile tabs]</div>
 			</div>
-
-			<div id="rightPanel" class="col-md-3" />
 		</div>
 	</div>
 

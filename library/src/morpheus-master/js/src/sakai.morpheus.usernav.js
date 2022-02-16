@@ -1,10 +1,9 @@
-/**
- * ESC handler to dismiss user nav
- */
+let modalVisible = false;
 
+// ESC handler to dismiss user nav
 function userNavEscHandler(e){
 
-  if (e.keyCode === 27) { // esc keycode
+  if (e.keyCode === 27 && !modalVisible) { // esc keycode
     toggleUserNav(e);
   }
 }
@@ -16,6 +15,8 @@ function userNavEscHandler(e){
 function toggleUserNav(event) {
 
   event.preventDefault();
+
+  const dropBtn = $PBJQ('.Mrphs-userNav__drop-btn');
 
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
 
@@ -29,18 +30,19 @@ function toggleUserNav(event) {
 
     // ESC key also closes it
     $PBJQ(document).on('keyup.usernav',userNavEscHandler);
-    $PBJQ('.Mrphs-userNav__drop-btn').attr('aria-expanded', 'true');
+    dropBtn.attr('aria-expanded', 'true');
   } else {
     $PBJQ('.user-dropdown-overlay').remove();
-    $PBJQ(document).off('keyup',userNavEscHandler);    
-    $PBJQ('.Mrphs-userNav__drop-btn').attr('aria-expanded', 'false');
+    $PBJQ(document).off('keyup',userNavEscHandler);
+    dropBtn.attr('aria-expanded', 'false');
+    dropBtn.focus();
   }
 }
 
  // Logout Confirm
   $PBJQ('#loginLink1').click(function(e){
     if ($PBJQ(this).attr("data-warning") !== "" && !confirm($PBJQ(this).attr("data-warning"))){
-	e.preventDefault();
+    e.preventDefault();
     }
   });
 
@@ -48,7 +50,10 @@ function toggleUserNav(event) {
 $PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 $PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 
-$PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
+$PBJQ('.Mrphs-userNav__submenuitem--profilelink').on("click", loadPicEditor);
+$PBJQ('.call-pic-editor').on("click", loadPicEditor);
+
+function loadPicEditor(event) {
 
     var $profileLink = $PBJQ(this);
 
@@ -173,19 +178,20 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
     function refreshProfileImageTagsAndHideDialog() {
 
-        var picLink = $PBJQ('#loginUser > .Mrphs-userNav__submenuitem--profilepicture');
-        var parent = picLink.parent();
-        picLink.detach();
-        var d = new Date();
-        var style = 'background-image: url(/direct/profile/' + portal.user.id + '/image/thumb?' + d.getTime() + ')';
+        const d = new Date();
+
+        const picProfile = $PBJQ('#myPhoto');
+        if (picProfile) {
+            picProfile.attr("src", `/direct/profile/${portal.user.id}/image?${d.getTime()}`);
+        }
+
+        const style = `background-image: url(/direct/profile/${portal.user.id}/image/thumb?${d.getTime()})`;
+
+        let picLink = $PBJQ('.Mrphs-userNav__drop-btn > .Mrphs-userNav__submenuitem--profilepicture');
         picLink.attr('style', style);
-        parent.prepend(picLink);
 
         picLink = $PBJQ('.Mrphs-userNav__submenuitem--profilelink > .Mrphs-userNav__submenuitem--profilepicture');
-        parent = picLink.parent();
-        picLink.detach();
         picLink.attr('style', style);
-        parent.prepend(picLink);
 
         $PBJQ('#profileImageUpload').modal('hide');
     }
@@ -214,9 +220,9 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
     // show popup!
     var $modal = $PBJQ('#profileImageUpload');
-    var modalVisible = false;
     $modal.on("shown.bs.modal", function() {
         loadExistingProfileImage();
+        modalVisible = true;
     });
     $modal.modal({
         width: 320
@@ -255,8 +261,13 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
         });
     });
 
+    $modal.on('hidden.bs.modal', function(ev) {
+        $profileLink.focus();
+        modalVisible = false;
+    });
+
     return false;
-});
+};
 
 var header = $PBJQ(".Mrphs-topHeader");
 var currentHeaderWidth = -1;
@@ -270,31 +281,31 @@ $PBJQ(document).ready( function(){
   }
  
   $PBJQ(window).resize(function() {
-	  currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
+      currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
   });
  
   $PBJQ(window).scroll(function(){
-		var size = 0;
-		var stick = (($PBJQ(document).height() - $PBJQ(window).height()) > $PBJQ(header).height()) === true;
-		if($PBJQ(window).scrollTop() > 0) {
-			if($PBJQ(header).data("sticked") === false && stick === true) {
-				$PBJQ(header).data("sticked",true);
-				$PBJQ(".Mrphs-mainHeader").addClass("is-fixed");
-		  }
-		} else {
-		  $PBJQ(".Mrphs-mainHeader").removeClass("is-fixed");
-		  $PBJQ(header).data("sticked",false);
-		}
+        var size = 0;
+        var stick = (($PBJQ(document).height() - $PBJQ(window).height()) > $PBJQ(header).height()) === true;
+        if($PBJQ(window).scrollTop() > 0) {
+            if($PBJQ(header).data("sticked") === false && stick === true) {
+                $PBJQ(header).data("sticked",true);
+                $PBJQ(".Mrphs-mainHeader").addClass("is-fixed");
+          }
+        } else {
+          $PBJQ(".Mrphs-mainHeader").removeClass("is-fixed");
+          $PBJQ(header).data("sticked",false);
+        }
   });
   
   currentHeaderWidth = $PBJQ(".Mrphs-mainHeader").width();
 
-	$PBJQ('.Mrphs-headerLogo').on('click', function() {
-		// scroll to top on banner click/touch
-		document.body.scrollTop = 0;
-		document.body.scrollLeft = 0;
-		$PBJQ(window).trigger('scroll');
-	});
+    $PBJQ('.Mrphs-headerLogo').on('click', function() {
+        // scroll to top on banner click/touch
+        document.body.scrollTop = 0;
+        document.body.scrollLeft = 0;
+        $PBJQ(window).trigger('scroll');
+    });
 
   /////////////////////////////////////////////////
   // Add become user to body as a class
