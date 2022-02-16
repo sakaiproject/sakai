@@ -1,34 +1,32 @@
 /******************************************************************************
- * Copyright 2015 sakaiproject.org Licensed under the Educational
- * Community License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of the License at
- *
- * http://opensource.org/licenses/ECL-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+* Copyright 2015 sakaiproject.org Licensed under the Educational
+* Community License, Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the License at
+*
+* http://opensource.org/licenses/ECL-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,22 +43,22 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- */
+*/
 @Slf4j
 @RestController
 public class SitesController extends AbstractSakaiApiController {
 
-	@Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
-	private CourseManagementService cmService;
+    @Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+    private CourseManagementService cmService;
 
-	@Resource
-	private SiteService siteService;
+    @Resource
+    private SiteService siteService;
 
-	@GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId)
         throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+        Session session = checkSakaiSession();
 
         final List<Map<String, Object>> terms = cmService.getAcademicSessions().stream().map(as -> {
 
@@ -92,89 +90,88 @@ public class SitesController extends AbstractSakaiApiController {
         data.put("sites", sites);
 
         return data;
-	}
+    }
 
-    @Resource
-    private SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+    @Autowired
+    private SecurityService securityService;
 
-    @Resource
-    private PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+    @Autowired
+    private PreferencesService preferencesService;
 
-    @Resource
-    private ActiveToolManager activeToolManager = (ActiveToolManager) ComponentManager.get(ActiveToolManager.class);
+    @Autowired
+    private ToolManager toolManager;
 
-    @Resource
-    private ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
-
-	@GetMapping(value = "/users/{userId}/favs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getFavsWithPages(@PathVariable String userId)
-        throws UserNotDefinedException {
+    @GetMapping(value = "/users/{userId}/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages(@PathVariable String userId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
-        String reqUser = session.getUserId();
+        String requestUserId = session.getUserId();
         //If non admin user requests data of another user, return empty map and warn
-        if(!securityService.isSuperUser() && !userId.equals(reqUser)) {
-            log.warn("User " + reqUser + " requested favorites from user " + userId);
+        if(!securityService.isSuperUser() && !userId.equals(requestUserId)) {
+            log.warn("User " + requestUserId + " requested favorites from user " + userId);
             return new HashMap<>();
         }
-        return getUserFavoriteSitesWithPages(userId);
-	}
+        return getUserFavoriteSitesWithPagesMap(userId);
+    }
 
-	@GetMapping(value = "/user/favs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getFavsWithPages()
-        throws UserNotDefinedException {
+    @GetMapping(value = "/users/favorites", produces = MediaType.APPLICATION_JSON_VALUE) 
+    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages() throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
-        String reqUser = session.getUserId();
-        return getUserFavoriteSitesWithPages(reqUser);
-	}
+        String requestUserId = session.getUserId();
+        return getUserFavoriteSitesWithPagesMap(requestUserId);
+    }
 
-    private Map<String, List<Map<String, Object>>> getUserFavoriteSitesWithPages(String userId)
-        throws UserNotDefinedException  {
+    private Map<String, List<Map<String, Object>>> getUserFavoriteSitesWithPagesMap(String userId) throws UserNotDefinedException  {
 
-        ResourceProperties props = preferencesService.getPreferences(userId).getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-        List<Map<String, Object>> sites = props.getPropertyList("order").stream().map(f -> {
-            Map<String, Object> site = new HashMap<>();
+        ResourceProperties resourceProperties = preferencesService.getPreferences(userId).getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+        List<String> propertyList = resourceProperties.getPropertyList("order");
+
+        if(propertyList == null) return new HashMap<>();
+
+        List<Map<String, Object>> sitesList = propertyList.stream().map(favoriteSiteId -> {
+            Map<String, Object> siteMap = new HashMap<>();
             try {
-                Site s = siteService.getSite(f);
-                site.put("id", s.getId());
-                site.put("title", s.getTitle());
-                site.put("url", s.getUrl());
-                site.put("type", s.getType());
-                List<Map<String, Object>> pages = s.getOrderedPages().stream().map(p -> {
-                    Map<String, Object> page = new HashMap<>();
-                    List<ToolConfiguration> toolList = p.getTools();
+                Site site = siteService.getSite(favoriteSiteId);
+                siteMap.put("id", site.getId());
+                siteMap.put("title", site.getTitle());
+                siteMap.put("url", site.getUrl());
+                siteMap.put("type", site.getType());
+                List<Map<String, Object>> pageList = site.getOrderedPages().stream().map(page -> {
+                    Map<String, Object> pageMap = new HashMap<>();
+                    List<ToolConfiguration> toolList = page.getTools();
                     if(toolList != null && toolList.size() == 1 ) {
                         String toolId = toolList.get(0).getId();
-                        String toolUrl = p.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
-                        page.put("url", toolUrl);
-                        page.put("reset-url", toolUrl.replaceFirst("tool", "tool-reset"));
-                        page.put("toolid", toolList.get(0).getToolId());
+                        String toolUrl = page.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
+                        pageMap.put("url", toolUrl);
+                        pageMap.put("reset-url", toolUrl.replaceFirst("tool", "tool-reset"));
+                        pageMap.put("toolid", toolList.get(0).getToolId());
                     } else {
-                        page.put("url", p.getUrl());
-                        page.put("reset-url",  p.getUrl().replaceFirst("page", "page-reset"));
+                        pageMap.put("url", page.getUrl());
+                        pageMap.put("reset-url",  page.getUrl().replaceFirst("page", "page-reset"));
                     }
                     if(toolList.size() > 0 && toolManager.isHidden(toolList.get(0))) {
-                        page.put("hidden", true);
+                        pageMap.put("hidden", true);
                     }
-                    if(!toolManager.isFirstToolVisibleToAnyNonMaintainerRole(p)) {
-                        page.put("locked", true);
+                    if(!toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)) {
+                        pageMap.put("locked", true);
                     }
-                    //page.put("stealthed", activeToolManager.isStealthed(toolList.get(0).getToolId()));
-                    page.put("title", p.getTitle());
-                    page.put("url", p.getUrl());
-                    page.put("isPopup", p.isPopUp());
-                    return page;
+                    if(page.isPopUp()) {
+                        pageMap.put("isPopup", true);
+                    }
+                    pageMap.put("title", page.getTitle());
+                    pageMap.put("url", page.getUrl());
+                    return pageMap;
                 }).collect(Collectors.toList());
-                site.put("pages", pages);
+                siteMap.put("pages", pageList);
             } catch (IdUnusedException e) {
                 log.error(e.getMessage());
             }
-            return site;
+            return siteMap;
         }).collect(Collectors.toList());
 
         Map<String, List<Map<String, Object>>> data = new HashMap<>();
-        data.put("favorites", sites);
+        data.put("favorites", sitesList);
         return data;
-	}
+    }
 }
