@@ -34,6 +34,8 @@ public interface GoogleDriveService {
 	public final String GOOGLEDRIVE_CLIENT_SECRET = "client_secret";
 	public final String GOOGLEDRIVE_REDIRECT_URI = "redirect_uri";
 	public final String GOOGLEDRIVE_APP_NAME = "SAKAI-GOOGLE-DRIVE";
+	public final String GOOGLEDRIVE_ADDITIONAL = "additional.";
+	public final String GOOGLEDRIVE_ORGANIZATION = "organization";
 
 	public final List<String> fileFieldsToRequest = Arrays.asList("id", "name", "mimeType", "webViewLink", "webContentLink", "size", "iconLink", "thumbnailLink"); //, "exportLinks", "permissions");
 
@@ -52,4 +54,6 @@ public interface GoogleDriveService {
 	public void cleanGoogleDriveCacheForUser(String userId);
 	public GoogleDriveItem getDriveItem(String userId, String itemId);
 	public InputStream downloadDriveFile(String userId, String itemId);
+	public boolean isGoogleDriveEnabledForUser();
+
 }
