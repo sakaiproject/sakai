@@ -212,7 +212,8 @@ body.is-logged-out{
 		vertical-align: top;
 		padding: $standard-spacing $standard-spacing 0 $standard-spacing;
 
-		.#{$namespace}userNav__submenuitem--profilepicture{
+		.#{$namespace}userNav__submenuitem--profilepicture,
+		.#{$namespace}userNav__submenuitem--profilepicture-static{
 			width: 64px;
 			height: 64px;
 			margin: 0; /* to override, within the dropdown panel */
@@ -535,14 +536,14 @@ body.is-logged-out{
 		.#{$namespace}userNav__submenuitem--profilelink{
 			padding: 0 !important;
 		}
-		.#{$namespace}userNav__submenuitem--profilepicture{
+		.#{$namespace}userNav__submenuitem--profilepicture,
+		.#{$namespace}userNav__submenuitem--profilepicture-static{
 			width: 2.3em;
 			height: 2.3em;
 			display:inline-block;
 			background-size: auto 100%;
 			background-position: 50%;
 			border-radius:50%;
-			margin: 0 4px 0 0;
 			border: $top-header-profile-border-thickness solid var(--top-header-profile-border-color-top);
 			border-right-color: var(--top-header-profile-border-color-right);
 			border-bottom-color: var(--top-header-profile-border-color-bottom);
@@ -550,7 +551,8 @@ body.is-logged-out{
 			border-radius: 50%;
 			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner);
 			position: relative;
-
+		}
+		.#{$namespace}userNav__submenuitem--profilepicture{
 			&:hover, &:active
 			{
 					box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.2);
@@ -563,10 +565,9 @@ body.is-logged-out{
 				margin-right: 0;
 			}
 		}
-		.#{$namespace}userNav__pic-changer{
-			overflow: hidden;
-			&:hover, &:active
-			{
+		.#{$namespace}userNav__submenuitem--profilelink:focus > .#{$namespace}userNav__pic-changer,
+			.#{$namespace}userNav__pic-changer:hover{
+				overflow: hidden;
 				&:after {
 					content: 'Change';
 					background: var(--sakai-background-color-3);
@@ -580,7 +581,7 @@ body.is-logged-out{
 					box-shadow: -1px 0 3px var(--sakai-background-color-3);
 				}
 			}
-		}
+		
 		.#{$namespace}userNav__submenuitem--username span.textlink, .#{$namespace}userNav__submenuitem--userid span.textlink {
 			@media #{$phone}{
 				display: none;
@@ -726,6 +727,15 @@ body.is-logged-out{
 				top: -0.6em;
 				left: 0.4em;
 			}
+		}
+		a[href]:focus{
+			outline: none;
+		}
+		a[href]:focus > a[href]:focus-visible,
+		a[href]:focus-visible{
+			outline: 3px solid;
+			outline-color: var(--focus-outline-color);
+			outline-offset: 2px;
 		}
 	}
 
@@ -1281,12 +1291,18 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
 }
 
 #profileImageUpload {
+
+    .modal-header {
+        padding: 5px 15px;
+    }
+
     .modal-dialog {
         width: 332px !important;
     }
 
-    #upload {
+    #file {
         position: relative;
+        margin-bottom: 5px;
 
         input[type="file"] {
             position: absolute;
@@ -1300,7 +1316,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
     #cropme {
         height: 300px;
         width: 300px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
 
        .cropper-view-box {
             border-radius: 50% !important;

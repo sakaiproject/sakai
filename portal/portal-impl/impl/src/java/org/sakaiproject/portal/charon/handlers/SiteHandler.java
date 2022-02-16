@@ -57,6 +57,7 @@ import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -137,11 +138,14 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
+	protected ProfileImageLogic imageLogic;
+
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
+		imageLogic = ComponentManager.get(ProfileImageLogic.class);
 	}
 
 	@Override
@@ -680,6 +684,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
+			rcontext.put("picEditorEnabled", imageLogic.isPicEditorEnabled());
 
 			try
 			{

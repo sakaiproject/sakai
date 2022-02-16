@@ -101,6 +101,7 @@
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+    	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
     </bean>
     
     <!-- ProfileMessagingLogic -->
