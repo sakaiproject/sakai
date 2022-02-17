@@ -29,14 +29,14 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +50,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class SitesController extends AbstractSakaiApiController {
 
-    @Resource(name = "org.sakaiproject.coursemanagement.api.CourseManagementService")
+    @Autowired
+    @Qualifier("org.sakaiproject.coursemanagement.api.CourseManagementService")
     private CourseManagementService cmService;
 
-    @Resource
+    @Autowired
     private SiteService siteService;
 
     @Autowired
@@ -103,40 +104,21 @@ public class SitesController extends AbstractSakaiApiController {
         return data;
     }
 
-    @GetMapping(value = "/users/{userId}/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages(@PathVariable String userId) throws UserNotDefinedException {
+    @GetMapping(value = "/users/current/favourites", produces = MediaType.APPLICATION_JSON_VALUE) 
+    public Map<String, List<Map<String, Object>>> getFavouriteSitesWithPages() throws UserNotDefinedException {
 
-        Session session = checkSakaiSession();
-        String requestUserId = session.getUserId();
-        //If non admin user requests data of another user, return empty map and warn
-        if(!securityService.isSuperUser() && !userId.equals(requestUserId)) {
-            log.warn("User " + requestUserId + " requested favorites from user " + userId);
-            return new HashMap<>();
-        }
-        return getUserFavoriteSitesWithPagesMap(userId);
+        String userId = checkSakaiSession().getUserId();
 
-    }
+        ResourceProperties resourceProperties = preferencesService.getPreferences(userId)
+            .getProperties(PreferencesService.SITENAV_PREFS_KEY);
+        List<String> siteIds = resourceProperties.getPropertyList("order");
 
-    @GetMapping(value = "/users/favorites", produces = MediaType.APPLICATION_JSON_VALUE) 
-    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages() throws UserNotDefinedException {
+        if (siteIds == null) return Collections.emptyMap();
 
-        Session session = checkSakaiSession();
-        String requestUserId = session.getUserId();
-        return getUserFavoriteSitesWithPagesMap(requestUserId);
-
-    }
-
-    private Map<String, List<Map<String, Object>>> getUserFavoriteSitesWithPagesMap(String userId) throws UserNotDefinedException  {
-
-        ResourceProperties resourceProperties = preferencesService.getPreferences(userId).getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-        List<String> propertyList = resourceProperties.getPropertyList("order");
-
-        if(propertyList == null) return new HashMap<>();
-
-        List<Map<String, Object>> sitesList = propertyList.stream().map(favoriteSiteId -> {
+        List<Map<String, Object>> sitesList = siteIds.stream().map(siteId -> {
             Map<String, Object> siteMap = new HashMap<>();
             try {
-                Site site = siteService.getSite(favoriteSiteId);
+                Site site = siteService.getSite(siteId);
                 siteMap.put("id", site.getId());
                 siteMap.put("title", site.getTitle());
                 siteMap.put("url", site.getUrl());
@@ -144,7 +126,7 @@ public class SitesController extends AbstractSakaiApiController {
                 List<Map<String, Object>> pageList = site.getOrderedPages().stream().map(page -> {
                     Map<String, Object> pageMap = new HashMap<>();
                     List<ToolConfiguration> toolList = page.getTools();
-                    if(toolList != null && toolList.size() == 1 ) {
+                    if (toolList.size() == 1 ) {
                         String toolId = toolList.get(0).getId();
                         String toolUrl = page.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
                         pageMap.put("url", toolUrl);
@@ -154,13 +136,13 @@ public class SitesController extends AbstractSakaiApiController {
                         pageMap.put("url", page.getUrl());
                         pageMap.put("reset-url",  page.getUrl().replaceFirst("page", "page-reset"));
                     }
-                    if(toolList.size() > 0 && toolManager.isHidden(toolList.get(0))) {
+                    if (toolList.size() > 0 && toolManager.isHidden(toolList.get(0))) {
                         pageMap.put("hidden", true);
                     }
-                    if(!toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)) {
+                    if (!toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page)) {
                         pageMap.put("locked", true);
                     }
-                    if(page.isPopUp()) {
+                    if (page.isPopUp()) {
                         pageMap.put("isPopup", true);
                     }
                     pageMap.put("title", page.getTitle());
@@ -175,9 +157,7 @@ public class SitesController extends AbstractSakaiApiController {
         }).collect(Collectors.toList());
 
         Map<String, List<Map<String, Object>>> data = new HashMap<>();
-        data.put("favorites", sitesList);
+        data.put("favourites", sitesList);
         return data;
-
     }
-
 }
