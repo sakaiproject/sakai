@@ -61,6 +61,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.rubrics.logic.model.Criterion;
@@ -237,8 +238,13 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 }
                 jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_ROLES, roles.toArray(new String[]{}));
 
-                Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, "site.visit", null);
-                jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_GROUPS, groups.toArray(new String[]{}));
+                try {
+                    jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_GROUPS
+                        , siteService.getSite(siteId).getGroups().stream()
+                            .map(g -> g.getReference()).toArray(String[]::new));
+                } catch (IdUnusedException e) {
+                    log.error("No site for id {}. No groups were added to the JWT token.", siteId);
+                }
             }
             jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID, siteId);
             jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE, SITE_CONTEXT_TYPE);
