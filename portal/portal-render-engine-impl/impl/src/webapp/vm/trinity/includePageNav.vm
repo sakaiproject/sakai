@@ -46,7 +46,7 @@
 	</li>
 #end
 
-<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools mt-3" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
 
     #if ($sitePages.siteHTMLInclude)
 

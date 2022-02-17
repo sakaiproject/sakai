@@ -1,8 +1,49 @@
 ## login component
 
-<nav id="mastLogin" class="Mrphs-loginNav d-none" aria-label="${rloader.sit_subnavigation}">
+#if (!${loginTopLogin})
 
-    #if (!${loginTopLogin})
+<nav class="navbar-nav">
+    <ul class="list-group list-group-horizontal fs-2">
+        <li class="list-group-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+            </svg>
+        </li>
+        <li class="list-group-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+            </svg>
+        </li>
+        <li class="list-group-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+            </svg>
+        </li>
+        <li class="list-group-item"><button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">${loginUserFirstName}</button></li>
+    </ul>
+</nav>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasExampleLabel">${loginUserDispName} (${loginUserDispId})</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="#" class="nav-link">Calendar</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Preferences</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Tutorial</a></li>
+            <li class="nav-item">
+                <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message nav-link" data-warning="${logoutWarningMessage}"><span class="Mrphs-login-Message">${loginMessage}</span></a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<nav id="mastLogin" class="Mrphs-loginNav d-none" aria-label="${rloader.sit_subnavigation}">
 
         #if (${userIsLoggedIn})
 
@@ -196,10 +237,10 @@
         </ul> <!-- end of nav#loginLinks-->
 
         ## parse("/vm/trinity/snippets/loginImage-snippet.vm")
-    #else ## ELSE of IF (!${loginTopLogin})
+    </nav>
+#else ## ELSE of IF (!${loginTopLogin})
 
+    <nav id="mastLogin" class="Mrphs-loginNav" aria-label="${rloader.sit_subnavigation}">
         #parse("/vm/trinity/snippets/loginForm-snippet.vm")
-
-    #end ## END of IF (!${loginTopLogin})
-
-</nav>
+    </nav>
+#end ## END of IF (!${loginTopLogin})
