@@ -1,8 +1,14 @@
 ## Header that shows institution and/or banner logos
 
-<header role="banner" class="Mrphs-headerLogo sakai-topHeader bg-dark d-flex align-items-center">
-    <span class="Mrphs-headerLogo--institution"></span>
-    <span class="Mrphs-headerLogo--banner bg-primary fs-3 text">trinity</span>
+<header role="banner" class="sakai-topHeader navbar bg-dark py-0">
+    <!--<span class="Mrphs-headerLogo--institution"></span>-->
+    <!--<span class="Mrphs-headerLogo--banner bg-primary fs-3 text visually-hidden">trinity</span>-->
+
+    <div class="bg-primary">
+        <a class="navbar-brand" href="/portal">
+            <img src="/library/skin/trinity/images/sakaiLogo.png" alt="Sakai logo" width="220" height="64" class="d-inline-block align-text-top">
+        </a>
+    </div>
 
     #parse("/vm/trinity/includeLoginNav.vm")
 </header>
