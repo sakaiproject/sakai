@@ -25,12 +25,12 @@
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 		<sakai.skin.source>trinity</sakai.skin.source>
 		<sakai.skin.target>trinity</sakai.skin.target>
-		<sakai.skin.customization.file>src/trinity/sass/examples/_empty.scss</sakai.skin.customization.file>
-		<sakai.skin.customization.scss.lib>src/trinity/sass/examples/_empty.scss</sakai.skin.customization.scss.lib>
+		<sakai.skin.customization.file>src/trinity/src/sass/examples/_empty.scss</sakai.skin.customization.file>
+		<sakai.skin.customization.scss.lib>src/trinity/src/sass/examples/_empty.scss</sakai.skin.customization.scss.lib>
 		<!-- Backwards compatability with -Dsakai.skin.customization.file -->
 		<sakai.skin.customization.scss.main>${sakai.skin.customization.file}</sakai.skin.customization.scss.main>
-		<sakai.skin.customization.js.lib>src/trinity/js/examples/_empty.js</sakai.skin.customization.js.lib>
-		<sakai.skin.customization.js.main>src/trinity/js/examples/_empty.js</sakai.skin.customization.js.main>
+		<sakai.skin.customization.js.lib>src/trinity/src/js/examples/_empty.js</sakai.skin.customization.js.lib>
+		<sakai.skin.customization.js.main>src/trinity/src/js/examples/_empty.js</sakai.skin.customization.js.main>
 	</properties>
 	<dependencies>
 		<dependency>

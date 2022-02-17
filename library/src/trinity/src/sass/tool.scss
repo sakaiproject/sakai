@@ -25,13 +25,14 @@
 // Place variable overrides first, then import just the styles you need. Note that some stylesheets are required no matter what.
 
 // Toggle global options
-$enable-gradients: true;
+$enable-gradients: false;
 $enable-shadows: true;
 $enable-cssgrid: true;
 
 $offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
 
 // Customize some defaults
+$primary: #003a6b;
 $body-color: #333;
 $body-bg: #fff;
 $border-radius: .4rem;
@@ -91,19 +92,30 @@ $success: #7952b3;
 body {
   //padding: 1.5rem;
 }
+sui-button sui-icon {
+  margin-right: .25em;
+}
+
+
+//
+// Custom styles that need to be relocated
+//
+
+
+//
+// Temporary Styles for Morpheus to Trinity conversion
+//
+
 .Mrphs-pagebody {
   width: 100%;
 }
 .navIntraTool {
   display: flex;
   flex-wrap: wrap;
+  padding-left: 0;
   list-style: none;
 
   li {
     margin-right: 1em;
   }
-}
-
-sui-button sui-icon {
-  margin-right: .25em;
 }
