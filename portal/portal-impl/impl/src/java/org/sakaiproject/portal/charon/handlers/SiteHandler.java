@@ -684,7 +684,6 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
-			rcontext.put("picEditorEnabled", imageLogic.isPicEditorEnabled());
 
 			try
 			{
@@ -692,6 +691,7 @@ public class SiteHandler extends WorksiteHandler
 				{
 					includeLogo(rcontext, req, session, siteId);
 					includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
+					rcontext.put("picEditorEnabled", imageLogic.isPicEditorEnabled());
 				}
 				else
 				{

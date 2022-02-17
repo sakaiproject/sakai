@@ -85,8 +85,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	@Setter
 	private CacheManager cacheManager;
 
-        @Setter
-        private ProfileLogic profileLogic;
+	@Setter
+	private ProfileLogic profileLogic;
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.images";
