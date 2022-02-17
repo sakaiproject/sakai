@@ -10,7 +10,7 @@ class SakaiEditor extends SakaiElement {
     return {
       elementId: { attribute: "element-id", type: String },
       debug: { type: Boolean },
-      content: String,
+      content: {attribute: "content", type: String},
       active: { type: Boolean },
       delay: { type: Boolean },
       textarea: { type: Boolean },
@@ -34,6 +34,14 @@ class SakaiEditor extends SakaiElement {
       return this.querySelector(`#${this.elementId}`).value;
     }
     return this.editor.getData();
+  }
+
+  setContent(text) {
+    this.content = text;
+    if (this.textarea) {
+      return this.querySelector(`#${this.elementId}`).value = this.content;
+    }
+    return this.editor.setData(this.content);
   }
 
   clear() {

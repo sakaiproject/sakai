@@ -106,7 +106,7 @@ public class DashboardController extends AbstractSakaiApiController {
         // Load up all the available widgets, from properties
         String[] courseWidgetsArray = serverConfigurationService.getStrings("dashboard.course.widgets");
         if (courseWidgetsArray == null) {
-            courseWidgetsArray = new String[] { "announcements", "calendar","forums", "grades" };
+            courseWidgetsArray = new String[] {"tasks", "announcements", "calendar","forums", "grades" };
         }
         courseWidgets = Arrays.asList(courseWidgetsArray);
 
@@ -120,19 +120,19 @@ public class DashboardController extends AbstractSakaiApiController {
 
         String[] courseWidgetLayout1 = serverConfigurationService.getStrings("dashboard.course.widget.layout1");
         if (courseWidgetLayout1 == null) {
-            courseWidgetLayout1 = new String[] { "calendar", "announcements", "grades" };
+            courseWidgetLayout1 = new String[] {"tasks", "calendar", "announcements", "grades" };
         }
         defaultWidgetLayouts.put("1", Arrays.asList(courseWidgetLayout1));
 
         String[] courseWidgetLayout2 = serverConfigurationService.getStrings("dashboard.course.widget.layout2");
         if (courseWidgetLayout2 == null) {
-            courseWidgetLayout2 = new String[] { "calendar", "forums", "grades", "announcements" };
+            courseWidgetLayout2 = new String[] {"tasks", "calendar", "forums", "grades", "announcements" };
         }
         defaultWidgetLayouts.put("2", Arrays.asList(courseWidgetLayout2));
 
         String[] courseWidgetLayout3 = serverConfigurationService.getStrings("dashboard.course.widget.layout3");
         if (courseWidgetLayout3 == null) {
-            courseWidgetLayout3 = new String[] { "calendar", "announcements", "grades", "forums" };
+            courseWidgetLayout3 = new String[] {"tasks", "calendar", "announcements", "grades", "forums" };
         }
         defaultWidgetLayouts.put("3", Arrays.asList(courseWidgetLayout3));
 

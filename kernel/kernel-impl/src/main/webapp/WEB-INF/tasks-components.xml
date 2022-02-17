@@ -13,6 +13,11 @@
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
+    <bean id="org.sakaiproject.tasks.api.repository.TaskAssignedRepository"
+        class="org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
     <bean id="org.sakaiproject.tasks.api.TaskService"
         class="org.sakaiproject.tasks.impl.TaskServiceImpl" init-method="init">
 
@@ -29,6 +34,7 @@
 			<list>
 				<value>org.sakaiproject.tasks.api.Task</value>
 				<value>org.sakaiproject.tasks.api.UserTask</value>
+				<value>org.sakaiproject.tasks.api.TaskAssigned</value>
 			</list>
 		</property>
 	</bean>

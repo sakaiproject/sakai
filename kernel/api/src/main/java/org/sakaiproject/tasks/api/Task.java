@@ -83,4 +83,8 @@ public class Task implements PersistableEntity<Long> {
     @Column(name = "DUE")
     @Type(type = "org.hibernate.type.InstantType")
     private Instant due;
+    
+    @Column(name = "TASK_OWNER", length = 99)
+    private String owner;
+    
 }
