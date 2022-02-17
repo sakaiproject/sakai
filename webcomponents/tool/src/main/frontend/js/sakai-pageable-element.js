@@ -23,17 +23,13 @@ export class SakaiPageableElement extends LitElement {
   }
 
   set siteId(value) {
-
     this._siteId = value;
-    this._loadData();
   }
 
   get siteId() { return this._siteId; }
 
   set userId(value) {
-
     this._userId = value;
-    this._loadData();
   }
 
   get userId() { return this._userId; }
@@ -82,6 +78,11 @@ export class SakaiPageableElement extends LitElement {
 
   shouldUpdate() {
     return this.dataPage;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._loadData();
   }
 
   render() {

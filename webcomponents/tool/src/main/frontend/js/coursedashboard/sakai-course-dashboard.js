@@ -14,6 +14,7 @@ export class SakaiCourseDashboard extends LitElement {
       data: { type: Object },
       i18n: Object,
       state: String,
+      userId: { attribute: "user-id", type: String },
       siteId: { attribute: "site-id", type: String },
       editing: { type: Boolean },
     };
@@ -222,6 +223,7 @@ export class SakaiCourseDashboard extends LitElement {
         widget-ids=${JSON.stringify(this.data.widgets)}
         layout=${JSON.stringify(this.data.layout)}
         site-id="${this.siteId}"
+        user-id="${this.userId}"
         columns=${columns}
         ?editing=${this.editing}
       >

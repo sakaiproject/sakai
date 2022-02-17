@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -39,10 +41,13 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tasks.api.AssignationType;
 import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.UserTask;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
+import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tool.api.SessionManager;
@@ -68,6 +73,7 @@ public class TaskServiceImpl implements TaskService, Observer {
     @Autowired private SiteService siteService;
     @Autowired private TaskRepository taskRepository;
     @Autowired private UserTaskRepository userTaskRepository;
+    @Autowired private TaskAssignedRepository taskAssignedRepository;
 
     @Setter private TransactionTemplate transactionTemplate;
 
@@ -201,6 +207,14 @@ public class TaskServiceImpl implements TaskService, Observer {
         BeanUtils.copyProperties(transfer, userTask);
         return userTaskRepository.save(userTask);
     }
+    
+    @Transactional
+    public UserTask createUserTask(Task task, UserTaskAdapterBean transfer) {
+        UserTask userTask = new UserTask();
+        userTask.setTask(task);
+        BeanUtils.copyProperties(transfer, userTask);
+        return userTaskRepository.save(userTask);
+    }
 
     @Transactional
     public void removeUserTask(Long userTaskId) {
@@ -221,6 +235,22 @@ public class TaskServiceImpl implements TaskService, Observer {
         String userId = sessionManager.getCurrentSessionUserId();
 
         return userTaskRepository.findByUserId(userId)
+                .stream()
+                .map(ut -> {
+                    UserTaskAdapterBean bean = new UserTaskAdapterBean();
+                    BeanUtils.copyProperties(ut, bean);
+                    BeanUtils.copyProperties(ut.getTask(), bean);
+                    bean.setUserTaskId(ut.getId());
+                    bean.setTaskId(ut.getTask().getId());
+                    return bean;
+                }).collect(Collectors.toList());
+    }
+    
+    public List<UserTaskAdapterBean> getAllTasksForCurrentUserOnSite(String siteId) {
+    	
+        String userId = sessionManager.getCurrentSessionUserId();
+
+        return userTaskRepository.findByUserIdAndSiteId(userId, siteId)
                 .stream()
                 .map(ut -> {
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();
@@ -255,8 +285,29 @@ public class TaskServiceImpl implements TaskService, Observer {
 
     @Transactional
     public void removeTask(Task task) {
-
+        taskAssignedRepository.deleteByTask(task);
         userTaskRepository.deleteByTask(task);
         taskRepository.delete(task);
+    }
+    
+    @Transactional
+    public void assignTask(Task task, AssignationType type, String objectId) {
+        assignTask(task, type, Arrays.asList(objectId));
+    }
+    
+    @Transactional
+    public void assignTask(Task task, AssignationType type, List<String> objectIds) {
+        for (String objectId : objectIds) {
+            TaskAssigned taskAssigned = new TaskAssigned();
+            taskAssigned.setTask(task);
+            taskAssigned.setType(type);
+            taskAssigned.setObjectId(objectId);
+            taskAssignedRepository.save(taskAssigned);
+        }
+    }
+    
+    @Transactional
+    public List<TaskAssigned> getTaskAssignments(Long taskId) {
+        return taskAssignedRepository.findByTaskId(taskId);
     }
 }
