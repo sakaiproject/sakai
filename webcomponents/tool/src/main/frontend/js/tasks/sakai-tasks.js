@@ -40,12 +40,6 @@ export class SakaiTasks extends SakaiPageableElement {
 
   get data() { return this._data; }
 
-  set siteId(value) {
-    this._siteId = value;
-  }
-
-  get siteId() { return this._siteId; }
-
   decorateTask(t) {
 
     t.visible = true;
@@ -58,8 +52,11 @@ export class SakaiTasks extends SakaiPageableElement {
   }
 
   async loadAllData() {
-
-    const url = "/api/tasks";
+    const currSiteId = this.siteId;
+    let url = `/api/tasks`;
+    if (currSiteId) {
+      url = `/api/tasks/site/${currSiteId}`;
+    }
     return fetch(url)
       .then(r => {
 
@@ -147,11 +144,12 @@ export class SakaiTasks extends SakaiPageableElement {
     const task = this.data.find(t => t.taskId == e.currentTarget.dataset.taskId);
     this.shadowRoot.getElementById("add-edit-dialog").__toggle();
     this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.task = task;
+    this.shadowRoot.getElementById("add-edit-dialog")._overlayContentNode.mode = "edit";
   }
 
   deleteTask(e) {
 
-    if (!confirm("Are you sure you want to delete this task?")) {
+    if (!confirm(`${this.i18n.alert_want_to_delete}`)) {
       return false;
     }
 
@@ -170,6 +168,7 @@ export class SakaiTasks extends SakaiPageableElement {
             this.filter("current");
           } else {
             this.requestUpdate();
+            this.repage();
           }
         } else {
           throw new Error(`Failed to delete task at ${url}`);
@@ -197,6 +196,7 @@ export class SakaiTasks extends SakaiPageableElement {
 
         if (r.ok) {
           this.requestUpdate();
+          this.repage();
         } else {
           throw new Error(`Failed to soft delete task at ${url}`);
         }
@@ -247,6 +247,7 @@ export class SakaiTasks extends SakaiPageableElement {
     }
 
     this.filter("current");
+    this.currentFilter = "current";
     this.repage();
   }
 
@@ -264,6 +265,8 @@ export class SakaiTasks extends SakaiPageableElement {
           <sakai-tasks-create-task class="dialog-content"
             id="create-task"
             slot="content"
+            site-id="${this.siteId}"
+            user-id="${this.userId}"
             @task-created=${this.taskCreated}
             @soft-deleted=${this.softDeleteTask}>
           </sakai-tasks-create-task>

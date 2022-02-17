@@ -33,6 +33,7 @@ public interface UserTaskRepository extends SpringCrudRepository<UserTask, Long>
 
     List<UserTask> findByTaskIdAndUserIdIn(Long taskId, List<String> userIds);
     List<UserTask> findByUserId(String userId);
+    List<UserTask> findByUserIdAndSiteId(String userId, String siteId);
     List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant instant);
     List<UserTask> findByTask_SiteId(String siteId);
     void deleteByTask(Task task);

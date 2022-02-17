@@ -57,6 +57,15 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
         return (List<UserTask>) session.createCriteria(UserTask.class)
             .add(Restrictions.eq("userId", userId)).list();
     }
+    
+    public List<UserTask> findByUserIdAndSiteId(String userId, String siteId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery("select u from UserTask u where userId = :userId and task.siteId = :siteId")
+        	.setParameter("userId", userId)
+        	.setParameter("siteId", siteId).list();
+    }
 
     public List<UserTask> findByUserIdAndTask_StartsLessThanEqual(String userId, Instant instant) {
 

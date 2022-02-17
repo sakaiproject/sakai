@@ -31,11 +31,14 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Task;
+import org.sakaiproject.tasks.api.TaskAssigned;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
+import org.sakaiproject.tasks.api.repository.TaskAssignedRepository;
 import org.sakaiproject.tasks.api.repository.TaskRepository;
 import org.sakaiproject.tasks.api.repository.UserTaskRepository;
 import org.sakaiproject.tasks.impl.TaskServiceImpl;
+import org.sakaiproject.tasks.impl.repository.TaskAssignedRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.TaskRepositoryImpl;
 import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
 import org.sakaiproject.tool.api.SessionManager;
@@ -63,7 +66,7 @@ public class TaskServiceTestConfiguration {
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.taskservice")
     public AdditionalHibernateMappings hibernateMappings() {
 
-        Class[] annotatedClasses = new Class[] {Task.class, UserTask.class};
+        Class[] annotatedClasses = new Class[] {Task.class, UserTask.class, TaskAssigned.class};
         AdditionalHibernateMappings mappings = new AdditionalHibernateMappingsImpl();
         mappings.setAnnotatedClasses(annotatedClasses);
         return mappings;
@@ -160,6 +163,12 @@ public class TaskServiceTestConfiguration {
         utr.setSessionFactory(sessionFactory);
         return utr;
     } 
-
     
+    @Bean
+    public TaskAssignedRepository taskAssignedRepository(SessionFactory sessionFactory) {
+        TaskAssignedRepositoryImpl tar = new TaskAssignedRepositoryImpl();
+        tar.setSessionFactory(sessionFactory);
+        return tar;
+    }
+
 }
