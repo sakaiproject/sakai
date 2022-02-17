@@ -120,6 +120,12 @@ export class SakaiRubricCriteria extends RubricsElement {
                   </p>
                 </div>
                 <span class="points">
+                  ${this.weighted && r.points > 0 ? html`
+                    <b>
+                      (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                    </b>`
+                    : ""
+                  }
                   ${parseFloat(r.points).toLocaleString(this.locale)} <sr-lang key="points">Points</sr-lang>
                 </span>
 
