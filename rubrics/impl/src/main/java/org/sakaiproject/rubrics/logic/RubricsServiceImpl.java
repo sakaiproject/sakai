@@ -236,9 +236,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_ROLES, roles.toArray(new String[]{}));
 
                 try {
-                    jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_GROUPS
-                        , siteService.getSite(siteId).getGroups().stream()
-                            .map(g -> g.getReference()).toArray(String[]::new));
+                    String[] groupRefs = siteService.getSite(siteId).getGroupsWithMember(userId).stream()
+                            .map(g -> g.getReference()).toArray(String[]::new);
+                    if (groupRefs.length > 0) {
+                        jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_GROUPS, groupRefs);
+                    }
                 } catch (IdUnusedException e) {
                     log.error("No site for id {}. No groups were added to the JWT token.", siteId);
                 }
