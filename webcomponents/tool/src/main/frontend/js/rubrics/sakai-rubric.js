@@ -318,6 +318,8 @@ export class SakaiRubric extends RubricsElement {
       this.weightedIcon = "fa-hashtag";
       this.weightLabel = tr("standard_label");
     }
+
+    this.dispatchEvent(new SharingChangeEvent());
   }
 
   handleShareLink() {
