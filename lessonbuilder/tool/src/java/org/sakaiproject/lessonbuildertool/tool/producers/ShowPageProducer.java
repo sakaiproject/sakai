@@ -1274,13 +1274,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    headerText = i.getName();
 					}
 					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
-					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
+					UIOutput collapsedButton = UIOutput.make(sectionWrapper, "sectionCollapsedButton");
 					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
 					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
 						if(forceButtonColor){
 							sectionContainer.decorate(new UIStyleDecorator("hasColor"));
 						}
-					boolean needIcon = false;
 					if (collapsible) {
 						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
 						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
@@ -1289,13 +1288,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (defaultClosed ) {
 							sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
 							sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
-							needIcon = true;
 						} else {
 							sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
 						}
 					}
-					if (!needIcon)
-					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+					else {
+					    collapsedButton.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+					}
 
 					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
 					cols = colCount(itemList, i.getId());
