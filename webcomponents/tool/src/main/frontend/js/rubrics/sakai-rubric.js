@@ -230,6 +230,7 @@ export class SakaiRubric extends RubricsElement {
           if(saveSuccessLbl) saveSuccessLbl.classList.remove('in');
         }, 5000);
         this.requestUpdate();
+        this.dispatchEvent(new SharingChangeEvent());
       }).fail((jqXHR, error, message) => {
         console.log(error);console.log(message);
       });
