@@ -16,6 +16,7 @@
 package org.sakaiproject.contentreview.turnitin;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,7 +106,7 @@ public class TurnitinContentValidator {
 		return 100;
 	}
 	
-	public boolean isAcceptableContent(ContentResource resource) {
+	public boolean isAcceptableContent(ContentResource resource, String[] acceptableFileExtensions, String[] acceptableMimeTypes) {
 		//for now we accept all content
 		// TODO: Check against content types accepted by Turnitin
 		/*
@@ -121,8 +122,7 @@ public class TurnitinContentValidator {
 		log.debug("Got a content type of " + mime);
 
 		Boolean fileTypeOk = false;
-		if ((mime.equals("text/plain") || mime.equals("text/html") || mime.equals("application/msword") || 
-				mime.equals("application/postscript") || mime.equals("application/pdf") || mime.equals("text/rtf")) ) {
+		if (Arrays.asList(acceptableMimeTypes).contains(mime)) {
 			fileTypeOk =  true;
 			log.debug("FileType matches a known mime");
 		}
@@ -132,13 +132,9 @@ public class TurnitinContentValidator {
 			ResourceProperties resourceProperties = resource.getProperties();
 			String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
 			if (fileName.indexOf(".")>0) {
-
 				String extension = fileName.substring(fileName.lastIndexOf("."));
 				log.debug("file has an extension of " + extension);
-				if (extension.equals(".doc") || extension.equals(".wpd") || extension.equals(".eps") 
-						||  extension.equals(".txt") || extension.equals(".htm") || extension.equals(".html") 
-						|| extension.equals(".pdf") || extension.equals(".docx") || ".rtf".equals(extension))
-					fileTypeOk = true;
+				fileTypeOk = Arrays.asList(acceptableFileExtensions).contains(extension);
 
 			} else {
 				//we don't know what this is so lets submit it anyway
@@ -164,7 +160,7 @@ public class TurnitinContentValidator {
 			log.debug("File is Ob");
 			return false;
 		}
-		
+
 		//if this is a msword type file we can check the legth
 		if (isMsWordDoc(resource)) {
 			if (wordDocLength(resource) < 20) {
@@ -172,7 +168,6 @@ public class TurnitinContentValidator {
 			}
 		}
 
-
-		return true;
+		return fileTypeOk;
 	}
 }

@@ -545,13 +545,13 @@ $(document).ready(function(){
 									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
 									<em>
 										$plagiarismNote
-										#if ($plagiarismFileTypes || $plagiarismFileSize)
+										#if ($plagiarismFileTypes || $plagiarismProviderInfo)
 											<ul>
 												#if ($plagiarismFileTypes)
-													<li>$plagiarismFileTypes</li>
+													$plagiarismFileTypes
 												#end
-												#if ($plagiarismFileSize)
-													$plagiarismFileSize
+												#if ($plagiarismProviderInfo)
+													$plagiarismProviderInfo
 												#end
 											</ul>
 										#end
@@ -647,13 +647,13 @@ $(document).ready(function(){
 							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
 							<em>
 								$plagiarismNote
-								#if ($plagiarismFileTypes || $plagiarismFileSize)
+								#if ($plagiarismFileTypes || $plagiarismProviderInfo)
 									<ul>
 										#if ($plagiarismFileTypes)
-											<li>$plagiarismFileTypes</li>
+											$plagiarismFileTypes
 										#end
-										#if ($plagiarismFileSize)
-											$plagiarismFileSize
+										#if ($plagiarismProviderInfo)
+											$plagiarismProviderInfo
 										#end
 									</ul>
 								#end

@@ -2082,7 +2082,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 * isAcceptableContent(org.sakaiproject.content.api.ContentResource)
 	 */
 	public boolean isAcceptableContent(ContentResource resource) {
-		return turnitinContentValidator.isAcceptableContent(resource);
+		return turnitinContentValidator.isAcceptableContent(resource, getAcceptableFileExtensions(), getAcceptableMimeTypes());
 	}
 
 	public String[] getAcceptableFileExtensions() {
