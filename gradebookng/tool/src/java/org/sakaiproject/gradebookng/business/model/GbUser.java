@@ -99,9 +99,9 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	public int compareTo(GbUser other)
 	{
 		if (StringUtils.isBlank(sortName) && StringUtils.isBlank(other.getSortName())) {
-			return displayName.compareToIgnoreCase(other.getDisplayName());
+			return StringUtils.compareIgnoreCase(displayName, other.getDisplayName());
 		}
-		return sortName.compareToIgnoreCase(other.getSortName());
+		return StringUtils.compareIgnoreCase(sortName, other.getSortName());
 	}
 
 	@Override
