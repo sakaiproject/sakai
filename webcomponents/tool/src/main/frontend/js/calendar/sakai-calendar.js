@@ -1,15 +1,13 @@
-import { html, css } from "../assets/lit-element/lit-element.js";
-import {ifDefined} from '../assets/lit-html/directives/if-defined.js';
-import  "./sakai-calendar-display-event.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { LionCalendar } from "../assets/@lion/calendar/src/LionCalendar.js";
-import moment from "../assets/moment/dist/moment.js";
 import '../sakai-icon.js';
 import { loadProperties } from "../sakai-i18n.js";
-import "../assets/@lion/dialog/lion-dialog.js";
+import { calendarStyles } from "./calendar-styles.js";
 
 export class SakaiCalendar extends LionCalendar {
 
   static get localizeNamespaces() {
+
     return [
       {
         'lion-calendar': /** @param {string} locale */ locale => {
@@ -62,15 +60,12 @@ export class SakaiCalendar extends LionCalendar {
   static get properties() {
 
     return {
-      current: String,
-      selected: Object,
-      readOnly: { attribute: "read-only", type: Boolean },
-      compact: Boolean,
-      i18n: Object,
+      i18n: { attribute: false, type: Object },
       siteId: { attribute: "site-id", type: String },
       userId: { attribute: "user-id", type: String },
-      selectedDate: Number,
-      events: { type: Array },
+      selectedDate: { attribute: false, type: Date },
+      events: { attribute: false, type: Array },
+      days: { attribute: false, type: Number },
     };
   }
 
@@ -80,15 +75,11 @@ export class SakaiCalendar extends LionCalendar {
     loadProperties("calendar").then(r => this.i18n = r);
     this.daysEvents = [];
 
-    this.events = [];
-
-    this.readOnly = true;
-
     this.addEventListener("user-selected-date-changed", event => {
 
       const time = event.detail.selectedDate.getTime();
       this.daysEvents = this.events.filter(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
-      this.selectedDate = time;
+      this.selectedDate = event.detail.selectedDate;
     });
   }
 
@@ -109,20 +100,32 @@ export class SakaiCalendar extends LionCalendar {
   get userId() { return this._userId; }
 
   shouldUpdate(changed) {
-    return this.events && super.shouldUpdate(changed);
+    return super.shouldUpdate(changed);
   }
 
   loadData() {
 
     const url = this.siteId
-      ? `/api/sites/${this.siteId}/calendar` : `/api/users/${this.userId}/calendar`;
+      ? `/api/sites/${this.siteId}/calendar` : `/api/users/current/calendar`;
 
     fetch(url, {
       cache: "no-cache",
       credentials: "same-origin"
     })
-      .then(res => res.json())
-      .then(data => this.events = data);
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+
+      throw new Error(`Network error while retrieving calendar events from ${url}`);
+    })
+    .then(data => {
+
+      this.events = data.events;
+      this.days = data.days;
+    })
+    .catch (error => console.error(error));
   }
 
   update(changed) {
@@ -135,16 +138,20 @@ export class SakaiCalendar extends LionCalendar {
       c.classList.remove("deadline");
 
       const time = c.date.getTime();
-      const matchingEvent = this.events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
-      if (matchingEvent) {
-        c.classList.add("has-events");
-        if (matchingEvent.type === "deadline") {
-          c.classList.add("deadline");
+
+      if (this.events) {
+        const matchingEvent = this.events.find(e => e.start > time && e.start < (time + 24 * 60 * 60 * 1000));
+        if (matchingEvent) {
+          c.classList.add("has-events");
+          if (matchingEvent.type === "deadline") {
+            c.classList.add("deadline");
+          }
         }
       }
     });
   }
 
+  // Override lion-calendar's function
   __renderNavigation() {
 
     return html`
@@ -161,16 +168,14 @@ export class SakaiCalendar extends LionCalendar {
 
     return html`
 
+      <div>${this.i18n.days_message.replace("{}", this.days)}</div>
+
       <div id="container">
-        <lion-dialog id="display-dialog">
-          <sakai-calendar-display-event slot="content" selected="${ifDefined(this.selected ? JSON.stringify(this.selected) : undefined)}"></sakai-calendar-display-event>
-          <button slot="invoker" style="display: none">none</button>
-        </lion-dialog>
         ${super.render()}
         ${this.selectedDate && this.daysEvents.length > 0 ? html`
         <div id="days-events">
           <div id="days-events-title">
-            ${this.i18n.events_for} ${moment(this.selectedDate).format("LL")}
+            ${this.i18n.events_for} ${this.selectedDate.toLocaleDateString(undefined, { dateStyle: "medium"})}
           </div>
           ${this.daysEvents.map(e => html`
             <div>
@@ -190,119 +195,10 @@ export class SakaiCalendar extends LionCalendar {
 
     return [
       ...super.styles,
-      css`
-        .sakai-calendar__navigation-wrapper {
-          display: grid;
-          grid-template-columns: 1fr min-content;
-          align-items: center;
-        }
-
-        .calendar__navigation {
-          display: inline-block;
-        }
-
-        .calendar__navigation-heading {
-          font-size: 22px;
-        }
-
-        .calendar__navigation__year, .calendar__navigation__month {
-          display: inline-flex;
-        }
-
-        .calendar__next-button, .calendar__previous-button {
-          min-width: 25px;
-          min-height: 25px;
-          font-size: 20px;
-          background: var(--sakai-background-color);
-          color: var(--sakai-text-color);
-        }
-
-        .sakai-calendar__navigation__today {
-          display: inline-block;
-          margin-right: 14px;
-        }
-
-        .sakai-calendar__navigation__today > a {
-          font-weight: bold;
-          text-decoration: none;
-          color: var(--sakai-text-color);
-        }
-
-        #add-block {
-          flex: 3;
-          text-align: right;
-          margin-bottom: 10px;
-        }
-          sakai-icon[type="add"] {
-            color: var(--sakai-color-green);
-          }
-
-        .sakai-event {
-          font-size: 14px;
-        }
-
-        .deadline {
-          background-color: var(--sakai-calendar-deadline-background-color);
-        }
-
-        #days-events {
-          margin-top: 10px;
-        }
-        #days-events sakai-icon {
-          margin-right: 10px;
-        }
-        #days-events-title {
-          font-weight: bold;
-          margin-bottom: 10px;
-        }
-        #days-events a {
-          color: var(--sakai-text-color);
-          text-decoration: none;
-        }
-
-        .calendar__day-button[today] {
-          background-color: var(--sakai-calendar-today-background-color);
-          color: var(--sakai-calendar-today-color);
-          font-weight: bold;
-          border-radius: 50%;
-        }
-        .calendar__previous-month-button,
-        .calendar__next-month-button,
-        .calendar__day-button {
-          background-color: var(--sakai-background-color);
-          font-weight: bold;
-          color: var(--sakai-calendar-button-color);
-        }
-
-        .has-events {
-          background-color: var(--sakai-calendar-has-events-background-color);
-          color: var(--sakai-calendar-has-events-color);
-          border-radius: 50%;
-        }
-
-        .calendar__day-button[previous-month],
-        .calendar__day-button[next-month] {
-          color: var(--sakai-calendar-button-color);
-        }
-
-        .calendar__day-button:hover {
-          border-color: var(--sakai-border-color);
-        }
-
-        a {
-          text-decoration: none;
-          color: var(--link-color);
-        }
-
-        .calendar__day-button[disabled] {
-          background-color: var(--sakai-calendar-button-disabled-background-color, #fff);
-          color: var(--sakai-text-color-disabled, #eee);
-        }
-      `,
+      calendarStyles,
     ];
   }
 }
 
-if (!customElements.get("sakai-calendar")) {
-  customElements.define("sakai-calendar", SakaiCalendar);
-}
+const tagName = "sakai-calendar";
+!customElements.get(tagName) && customElements.define(tagName, SakaiCalendar);
