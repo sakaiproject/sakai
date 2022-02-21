@@ -18,6 +18,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,7 +90,7 @@ public class PermissionsPage extends BasePage {
 
 		// get the list of TAs
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
-		Collections.sort(teachingAssistants);
+		teachingAssistants.sort(Comparator.nullsLast(GbUser::compareTo));
 
 		// get the TA GbUser for selected (if provided)
 		if (StringUtils.isNotBlank(taUuid)) {

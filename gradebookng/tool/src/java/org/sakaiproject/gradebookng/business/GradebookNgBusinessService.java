@@ -2610,7 +2610,10 @@ public class GradebookNgBusinessService {
 		try {
 			final Set<String> userUuids = this.siteService.getSite(siteId).getUsersIsAllowed(GbRole.TA.getValue());
 			for (final String userUuid : userUuids) {
-				rval.add(getUser(userUuid));
+				GbUser user = getUser(userUuid);
+				if (user != null) {
+					rval.add(getUser(userUuid));
+				}
 			}
 		} catch (final IdUnusedException e) {
 			log.warn("IdUnusedException trying to getTeachingAssistants", e);
