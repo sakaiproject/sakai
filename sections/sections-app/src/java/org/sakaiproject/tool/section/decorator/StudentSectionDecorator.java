@@ -46,8 +46,8 @@ public class StudentSectionDecorator extends SectionDecorator
 		
 	public StudentSectionDecorator(CourseSection courseSection, String categoryForDisplay,
 			List<String> instructorNames, int totalEnrollments, boolean member,
-			boolean memberOtherSection, boolean showNegativeSpots) {
-		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments, showNegativeSpots);
+			boolean memberOtherSection, boolean showNegativeSpots, boolean  currentUserEnrollmentPermission) {
+		super(courseSection, categoryForDisplay, instructorNames, totalEnrollments, showNegativeSpots, currentUserEnrollmentPermission);
 		this.member = member;
 		if( ! this.member && "0".equals(this.spotsAvailable)) {
 			this.full = true;

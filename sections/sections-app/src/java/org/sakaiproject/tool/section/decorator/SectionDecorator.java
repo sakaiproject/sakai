@@ -78,8 +78,13 @@ public class SectionDecorator implements Serializable, Comparable{
     private static Set<String> readOnlyCategories;
 
     protected boolean lockedForDeletion;
+    protected boolean currentUserEnrollmentPermission;
 
-    /**
+    public boolean isCurrentUserEnrollmentPermission() {
+		return currentUserEnrollmentPermission;
+	}
+
+	/**
      * Creates a SectionDecorator from a vanilla CourseSection.
      *
      * @param section
@@ -117,12 +122,13 @@ public class SectionDecorator implements Serializable, Comparable{
      * @param totalEnrollments The total number of enrollments in this CourseSection
      */
     public SectionDecorator(CourseSection section, String categoryForDisplay,
-                            List<String> instructorNames, int totalEnrollments, boolean showNegativeSpots) {
+                            List<String> instructorNames, int totalEnrollments, boolean showNegativeSpots, boolean currentUserEnrollmentPermission) {
         this(section, showNegativeSpots);
         this.categoryForDisplay = categoryForDisplay;
 
         this.instructorNames = instructorNames;
         this.totalEnrollments = totalEnrollments;
+        this.currentUserEnrollmentPermission = currentUserEnrollmentPermission;
 
         if(section.getMaxEnrollments() == null) {
             spotsAvailable = JsfUtil.getLocalizedMessage("section_max_size_unlimited");
