@@ -4765,10 +4765,10 @@ public class SimplePageBean {
 			sequence++;
 			String overviewHtmlAppender = "";
 			if(StringUtils.equals(this.pageLayoutSelect, INTERIOR_RESOURCES)){	//special Overview text for interiorResources only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.tasks"));
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.label.tasks"));
 				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.task");
 			} else {	//text items for interiorTask only
-				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.learningoutcomes"));
+				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview",messageLocator.getMessage("simplepage.layout.page.overview.label.learningoutcomes"));
 				overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.lo");
 			}
 			overviewHtmlAppender = overviewHtmlAppender + messageLocator.getMessage("simplepage.layout.page.overview.tail");
@@ -4782,7 +4782,7 @@ public class SimplePageBean {
 			itemNow.setAttribute(CHECKLIST_ITEMS,null);
 			itemNow.setAttribute(COL_COLOR,"trans");
 			update(itemNow);	//finish writing third item, Break for the checklist
-			itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.CHECKLIST,null,messageLocator.getMessage("simplepage.layout.page.overview.checklist"));
+			itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.CHECKLIST,null,messageLocator.getMessage("simplepage.layout.page.overview.label.checklist"));
 			sequence++;
 			itemNow.setDescription(messageLocator.getMessage("simplepage.layout.page.trackprogress"));
 			itemNow.setAttribute(INDENT_LEVEL,"0");
@@ -4799,7 +4799,7 @@ public class SimplePageBean {
 				itemNow.setHtml(messageLocator.getMessage("simplepage.layout.page.dates"));
 				itemNow.setAttribute(CHECKLIST_ITEMS,null);
 				update(itemNow); 	//finish writing fifth item, Important Dates
-				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,messageLocator.getMessage("simplepage.layout.page.overview.resources"));
+				itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null,messageLocator.getMessage("simplepage.layout.page.overview.label.resources"));
 				sequence++;
 				itemNow.setFormat(SECTION);
 				itemNow.setAttribute(FORCE_BTN,Boolean.FALSE.toString());
@@ -4808,7 +4808,7 @@ public class SimplePageBean {
 				update(itemNow);	//finish writing last page, Resources heading
 			} else {	//parts unique to interiorTask
 				for(int count=1; count<=this.pageTaskCount; count++){
-					itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null, messageLocator.getMessage("simplepage.layout.page.overview.task") + count);
+					itemNow = simplePageToolDao.makeItem(getCurrentPageId(),sequence,SimplePageItem.BREAK,null, messageLocator.getMessage("simplepage.layout.page.overview.label.task") + count);
 					sequence++;
 					itemNow.setFormat(SECTION);
 					itemNow.setAttribute(FORCE_BTN,Boolean.FALSE.toString());
