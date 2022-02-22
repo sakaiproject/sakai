@@ -50,6 +50,7 @@
             if (notEmptyTableTd > 0) {
                 var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
                     "paging": false,
+                    "info": false,
                     "aaSorting": [[4, "desc"]],
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
@@ -84,6 +85,7 @@
                 var tableThread = $("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
                     "paging": false,
                     "aaSorting": [[4, "desc"]],
+                    "info": false,
                     "columns": [
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false},
