@@ -17,7 +17,7 @@ package org.sakaiproject.webapi.controllers;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -27,6 +27,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -57,10 +58,13 @@ public class SitesController extends AbstractSakaiApiController {
     private SiteService siteService;
 
     @Autowired
-    private SecurityService securityService;
+    private SqlService sqlService; 
 
     @Autowired
     private PreferencesService preferencesService;
+
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
     @Autowired
     private ToolManager toolManager;
@@ -103,37 +107,32 @@ public class SitesController extends AbstractSakaiApiController {
         return data;
     }
 
-    @GetMapping(value = "/users/{userId}/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages(@PathVariable String userId) throws UserNotDefinedException {
+    @GetMapping(value = "/users/current/recent-sites", produces = MediaType.APPLICATION_JSON_VALUE) 
+    public Map<String, List<Map<String, Object>>> getRecentSitesWithPages() throws UserNotDefinedException {
 
-        Session session = checkSakaiSession();
-        String requestUserId = session.getUserId();
-        //If non admin user requests data of another user, return empty map and warn
-        if(!securityService.isSuperUser() && !userId.equals(requestUserId)) {
-            log.warn("User " + requestUserId + " requested favorites from user " + userId);
-            return new HashMap<>();
-        }
-        return getUserFavoriteSitesWithPagesMap(userId);
+        String userId = checkSakaiSession().getUserId();
 
+        int maxSites = serverConfigurationService.getInt("recent.sites.shown", 3);
+
+        //Get list of last visited site ids ingoring users home site
+        String sql = String.format("SELECT DISTINCT se.CONTEXT FROM SAKAI_EVENT se, SAKAI_SESSION ss " +
+            "WHERE se.EVENT = 'pres.begin' AND se.SESSION_ID = ss.SESSION_ID " +
+            "AND ss.SESSION_USER = '%s' AND se.CONTEXT != '~%s' " +
+            "AND se.context != '!error' ORDER BY se.EVENT_DATE DESC LIMIT %d;", userId, userId, maxSites);
+
+        List<String> siteIds = sqlService.dbRead(sql);
+
+        if (siteIds == null) return Collections.emptyMap();
+
+        List<Map<String, Object>> sitesList = getSitesWithPages(siteIds);
+
+        Map<String, List<Map<String, Object>>> data = new HashMap<>();
+        data.put("recents", sitesList);
+        return data;
     }
 
-    @GetMapping(value = "/users/favorites", produces = MediaType.APPLICATION_JSON_VALUE) 
-    public Map<String, List<Map<String, Object>>> getFavoriteSitesWithPages() throws UserNotDefinedException {
-
-        Session session = checkSakaiSession();
-        String requestUserId = session.getUserId();
-        return getUserFavoriteSitesWithPagesMap(requestUserId);
-
-    }
-
-    private Map<String, List<Map<String, Object>>> getUserFavoriteSitesWithPagesMap(String userId) throws UserNotDefinedException  {
-
-        ResourceProperties resourceProperties = preferencesService.getPreferences(userId).getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-        List<String> propertyList = resourceProperties.getPropertyList("order");
-
-        if(propertyList == null) return new HashMap<>();
-
-        List<Map<String, Object>> sitesList = propertyList.stream().map(favoriteSiteId -> {
+    private List<Map<String, Object>> getSitesWithPages(List<String> siteIds) throws UserNotDefinedException {
+        return siteIds.stream().map(siteId -> {
             Map<String, Object> siteMap = new HashMap<>();
             try {
                 Site site = siteService.getSite(favoriteSiteId);
@@ -173,11 +172,6 @@ public class SitesController extends AbstractSakaiApiController {
             }
             return siteMap;
         }).collect(Collectors.toList());
-
-        Map<String, List<Map<String, Object>>> data = new HashMap<>();
-        data.put("favorites", sitesList);
-        return data;
-
     }
 
 }
