@@ -1107,6 +1107,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private String prevUngradedWithSubmissionRef = "";
 
     // Content providers names
+    private static final String CONTENT_PROVIDER_TURNITIN = "Turnitin";
     private static final String CONTENT_PROVIDER_URKUND = "Urkund";
 
     private AnnouncementService announcementService;
@@ -1663,16 +1664,20 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
 
                 if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment)) {
-                		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
+                    state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
                     context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
 
                     String reviewServiceName = contentReviewService.getServiceName();
                     switch(reviewServiceName) {
                         case CONTENT_PROVIDER_URKUND:
                             long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
-                            String plagiarismFileSize = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
-                            state.setAttribute("plagiarismFileSize", plagiarismFileSize); 
-                            context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                            String plagiarismProviderInfo = rb.getFormattedMessage("gen.onlythefoll." + reviewServiceName.toLowerCase(), new Object[]{maxFileSizeBytes/MEGABYTE});
+                            state.setAttribute("plagiarismProviderInfo", plagiarismProviderInfo); 
+                            context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
+                            break;
+                        case CONTENT_PROVIDER_TURNITIN:
+                            state.setAttribute("plagiarismProviderInfo", rb.getString("gen.onlythefoll." + reviewServiceName.toLowerCase())); 
+                            context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                             break;
                         default:
                     }
@@ -2367,7 +2372,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignment.getContentReview()) {
                 context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                 context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
                 context.put("name_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -2469,7 +2474,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignment.getContentReview()) {
                 context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                 context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
                 context.put("name_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -3102,13 +3107,17 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!contentReviewService.allowAllContent()) {
             String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
             String reviewServiceName = contentReviewService.getServiceName();
-            Object[] params = new Object[2];
+            Object[] params = new Object[3];
             params[0] = fileTypesMessage;
             params[1] = "";
+            params[2] = "";
             switch(reviewServiceName) {
                 case CONTENT_PROVIDER_URKUND:
                     long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
-                    params[1] = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                    params[1] = rb.getFormattedMessage("gen.onlythefoll." + reviewServiceName.toLowerCase(), new Object[]{maxFileSizeBytes/MEGABYTE});
+                    break;
+                case CONTENT_PROVIDER_TURNITIN:
+                    params[2] = rb.getString("content_review.note." + reviewServiceName.toLowerCase());
                     break;
                 default:
             }
@@ -14542,7 +14551,22 @@ public class AssignmentAction extends PagedResourceActionII {
                             Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
                             if (a.getContentReview()) {
                                 if (!contentReviewService.isAcceptableContent(attachment)) {
-                                    addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));
+                                    List<String> parameters = new ArrayList<>();
+                                    parameters.add(contentReviewService.getServiceName());
+                                    parameters.add(getContentReviewAcceptedFileTypesMessage());
+
+                                    // Specific message for different providers
+                                    String reviewServiceName = contentReviewService.getServiceName();
+                                    switch(reviewServiceName) {
+                                        case CONTENT_PROVIDER_TURNITIN:
+                                            parameters.add(rb.getString("review.file.not.accepted." + reviewServiceName.toLowerCase()));
+                                            break;
+                                        default:
+                                            parameters.add(StringUtils.EMPTY);
+                                            break;
+                                    }
+
+                                    addAlert(state, rb.getFormattedMessage("review.file.not.accepted", parameters.stream().toArray(Object[]::new)));
                                     blockedByCRS = true;
                                     // TODO: delete the file? Could we have done this check without creating it in the first place?
                                 }
