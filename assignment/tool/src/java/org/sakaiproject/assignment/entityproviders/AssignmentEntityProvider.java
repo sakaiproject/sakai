@@ -107,38 +107,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private FormattedText formattedText;
     private LTIService ltiService;
 
-    @Setter
-    @Getter
-    public class BuildTimeSheetReturnMessage implements Serializable {
-
-        @Setter
-        @Getter
-        public class ErrorTimeSheetReturnMessage implements Serializable {
-            private int code;
-            private String message;
-
-            private ErrorTimeSheetReturnMessage() {}
-
-            private ErrorTimeSheetReturnMessage(int codeMsg, String textMsg) {
-                this.code = codeMsg;
-                this.message = textMsg;
-            }
-        }
-
-        private ErrorTimeSheetReturnMessage error;
-        private boolean success;
-
-        public BuildTimeSheetReturnMessage () {}
-
-        public BuildTimeSheetReturnMessage (boolean isSuccess, int codeMsg, String textMsg) {
-            this.success = isSuccess;
-            if (!isSuccess) {
-                this.error = new ErrorTimeSheetReturnMessage(codeMsg, textMsg);
-            }
-        }
-    }
-
-    
     // HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
     public String[] getHandledOutputFormats() {
         return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
@@ -497,13 +465,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     }
 
     @EntityCustomAction(action = "addTimeSheet", viewKey = EntityView.VIEW_NEW)
-    public BuildTimeSheetReturnMessage addTimeSheet(Map<String, Object> params) {
+    public int addTimeSheet(Map<String, Object> params) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(userId)) {
             log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
+            throw new EntityException("You need to be logged in to add time sheet register", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
         User user;
@@ -511,13 +479,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             user = userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException unde) {
             log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.userId");
+            throw new EntityException("You need to be logged in to add time sheet register", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
         String assignmentId = (String) params.get("tsAssignmentId");
         if (StringUtils.isBlank(assignmentId)) {
             log.warn("You need to supply the assignmentId and ref");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
+            throw new EntityException("You need to supply the assignmentId and ref", "", HttpServletResponse.SC_NOT_FOUND);
         }
 
         AssignmentSubmission submission;
@@ -525,7 +493,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             submission = assignmentService.getSubmission(assignmentId, user);
         } catch (PermissionException pe) {
             log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+            throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         if (submission == null) {
@@ -542,7 +510,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             } catch (PermissionException e) {
                 log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.toString());
-                return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
+                throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
 
@@ -550,7 +518,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (!assignmentService.isValidTimeSheetTime(duration)) {
             log.warn("Wrong time format. Must match XXh YYm");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.duration");
+            throw new EntityException("Wrong time format. Must be XXHXXM","",HttpServletResponse.SC_BAD_REQUEST);
         }
 
         String comment = (String) params.get("tsComment");
@@ -558,7 +526,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         comment = formattedText.processFormattedText(comment, alertMsg);
         if (StringUtils.isBlank(comment) || alertMsg.length() > 0) {
             log.warn("Comment field format is not valid");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.comment");
+            throw new EntityException("Comment field format is not valid", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
         Instant startTime;
@@ -578,7 +546,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (submissionSubmitter == null) {
             log.warn("You submitter does not exist");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.submitter");
+            throw new EntityException("You submitter does not exist", "", HttpServletResponse.SC_NOT_FOUND);
         }
 
         TimeSheetEntry timeSheet = new TimeSheetEntry();
@@ -591,19 +559,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             assignmentService.saveTimeSheetEntry(submissionSubmitter, timeSheet);
         } catch (PermissionException e) {
             log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+            throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
-        return new BuildTimeSheetReturnMessage(true, 0, "");
+        return HttpServletResponse.SC_OK;
     }
 
     @EntityCustomAction(action = "removeTimeSheet", viewKey = EntityView.VIEW_NEW)
-    public BuildTimeSheetReturnMessage removeTimeSheet(Map<String, Object> params) {
+    public int removeTimeSheet(Map<String, Object> params) {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
         if (StringUtils.isBlank(userId)) {
             log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
+            throw new EntityException("You need to be logged in to remove time sheet register", "", HttpServletResponse.SC_FORBIDDEN);
 
         }
 
@@ -612,13 +580,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             user = userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException unde) {
             log.warn("You need to be logged in to add time sheet register");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.userId");
+            throw new EntityException("You need to be logged in to remove time sheet register", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
         String assignmentId = (String) params.get("tsAssignmentId");
         if (StringUtils.isBlank(assignmentId)) {
             log.warn("You need to supply the assignmentId and ref");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.assignmentId");
+            throw new EntityException("You need to supply the assignmentId and ref", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
         AssignmentSubmission submission;
@@ -626,7 +594,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             submission = assignmentService.getSubmission(assignmentId, user);
         } catch (PermissionException e1) {
             log.warn("You can't modify this sumbitter");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.add.err.permission");
+            throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         List<Long> timeSheetIds;
@@ -638,24 +606,24 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             timeSheetIds = Collections.singletonList(Long.parseLong(ts.toString()));
         } else {
             log.warn("Selected time sheets could not be retrieved from request parameters");
-            return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.empty");
+            throw new EntityException("Selected time sheet must be provided.", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
         for (Long timeSheetId : timeSheetIds) {
             if (null == timeSheetId) {
                 log.warn("A selected time sheet was null");
-                return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.submitterId");
+                throw new EntityException("You need to supply the submissionId and ref", "", HttpServletResponse.SC_BAD_REQUEST);
             }
 
             try {
                 assignmentService.deleteTimeSheetEntry(timeSheetId);
             } catch (PermissionException e) {
                 log.warn("Could not delete the selected time sheet");
-                return new BuildTimeSheetReturnMessage(false, 1, "ts.rem.err.permission");
+                throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
 
-        return new BuildTimeSheetReturnMessage(true, 0, "");
+        return HttpServletResponse.SC_OK;
     }
 
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
