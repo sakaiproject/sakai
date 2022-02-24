@@ -123,10 +123,10 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           <div class="site cell ${i % 2 === 0 ? "even" : "odd"}">${a.siteTitle}</div>
         ` : ""}
         <div class="url cell ${i % 2 === 0 ? "even" : "odd"}">
-          <a href="${a.url}"
+          <a href="${a.links.find(link => link.rel == "self").href}"
               title="${this.i18n.url_tooltip}"
               aria-label="${this.i18n.url_tooltip}">
-            <sakai-icon type="right" size="small">
+            <sakai-icon type="right" size="small"></sakai-icon>
           </a>
         </div>
       `)}
