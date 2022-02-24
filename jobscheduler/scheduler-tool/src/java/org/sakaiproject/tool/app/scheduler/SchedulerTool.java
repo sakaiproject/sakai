@@ -1469,6 +1469,8 @@ public class SchedulerTool
        String beforeText = req.get(BEFORE);
        String afterText = req.get(AFTER);
        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+       getEventPager().setBefore(null);
+       getEventPager().setAfter(null);
        try {
            if (StringUtils.isNotBlank(beforeText)) {
                getEventPager().setBefore(sdf.parse(beforeText));
