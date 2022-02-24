@@ -10,6 +10,10 @@ module.exports = {
         "ecmaVersion": 13,
         "sourceType": "module"
     },
+    "ignorePatterns": [
+        "../examples/",
+        "../node_modules/"
+    ],
     "rules": {
     }
 };
