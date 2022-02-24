@@ -14,11 +14,17 @@
 package org.sakaiproject.webapi.beans;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
+
+import org.springframework.hateoas.Link;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,21 +38,40 @@ public class AnnouncementRestBean {
     private String siteTitle;
     private String subject;
     private String author;
-    private String url;
+    private String access;
+    private boolean hasAtachment;
     private long date;
+    private Long release;
+    private Long retract;
+    private List<Link> links;
 
-    public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
-
+    public AnnouncementRestBean(Site site, AnnouncementMessage am, String url, String access) {
         id = am.getId();
         siteId = site.getId();
         siteTitle = site.getTitle();
-        subject = am.getAnnouncementHeader().getSubject();
-        author = am.getAnnouncementHeader().getFrom().getDisplayName();
-        date = am.getAnnouncementHeader().getInstant().toEpochMilli();
-        ResourceProperties props = am.getProperties();
+        this.access = access;
+        AnnouncementMessageHeader header = am.getAnnouncementHeader();
+        subject = header.getSubject();
+        author = header.getFrom().getDisplayName();
+        date = header.getInstant().toEpochMilli();
+        hasAtachment = !header.getAttachments().isEmpty();
+        ResourceProperties resourceProperties = am.getProperties();
         try {
-            date = props.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
+            release = resourceProperties.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
+            date = release;
         } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
-        this.url = url;
+        try {
+            retract = resourceProperties.getInstantProperty(AnnouncementService.RETRACT_DATE).toEpochMilli();
+        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
+        links = new ArrayList<Link>();
+        links.add(Link.of(url));
+        links.add(getActionLink(url, "doReviseannouncement"));
+        links.add(getActionLink(url, "doDelete_announcement_link"));
+        links.add(getActionLink(url, "doDuplicateAnnouncement"));
+    }
+
+    private Link getActionLink(String reference, String actionName) {
+
+        return Link.of(reference.replaceFirst("doShowmetadata", actionName), actionName);
     }
 }

@@ -161,6 +161,13 @@ public interface AnnouncementService extends MessageService
 	public Reference getAnnouncementReference(String context);
 	
 	/**
+	* Get announcement's range/scope
+	* @param message announcement message (site-id)
+	* @return String describing announcement's scope (public, site, list of groups)
+	*/
+	public String getAnnouncementRange(AnnouncementMessage message);
+
+	/**
 	* Get URL to access the announcement rss feed
 	* @param ref The announcement entity reference
 	* @return URL for announcement rss feed

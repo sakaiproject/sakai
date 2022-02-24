@@ -454,6 +454,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	}
 
+	//TODO: Can be removed in the process of refactoring, as this method is also in AnnouncementService 
 	/**
 	 * get announcement range information
 	 */
