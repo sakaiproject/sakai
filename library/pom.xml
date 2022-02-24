@@ -494,19 +494,19 @@
 									<fileSets>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.js.lib}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.lib.js</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/js/_customization-lib.js</destinationFile>
 										</fileSet>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.js.main}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/js/_custom.main.js</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/js/_customization-main.js</destinationFile>
 										</fileSet>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-lib.scss</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/sass/_customization-lib.scss</destinationFile>
 										</fileSet>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/sass/_customization-main.scss</destinationFile>
 										</fileSet>
 									</fileSets>
 								</configuration>
@@ -613,7 +613,7 @@
 								</goals>
 								<configuration>
 									<arguments>
-										run -dd build
+										run build
 									</arguments>
 								</configuration>
 							</execution>
