@@ -288,17 +288,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <label class="grader-label graderOriginalityLabel" >${this.submission.originalityServiceName}&nbsp;${this.assignmentsI18n["review.report"]}</label>
             ${this.submission.originalitySupplies.map(result => html`
               <div class="graderOriginalitySection" >
-                ${result[this.submission.originalityConstants["originalityLink"]] !== 'Error' ? html`
-                  <a target="_blank" href="${result[this.submission.originalityConstants["originalityLink"]]}" class="graderOriginalityLink"  ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${result[this.submission.originalityConstants["originalityScore"]]}${this.assignmentsI18n["content_review.score_display.grader"]}</a>
-                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants["originalityName"]]}</span>
+                ${result[this.submission.originalityConstants.originalityLink] !== 'Error' ? html`
+                  <a target="_blank" href="${result[this.submission.originalityConstants.originalityLink]}" class="graderOriginalityLink"  ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${result[this.submission.originalityConstants.originalityScore]}${this.assignmentsI18n["content_review.score_display.grader"]}</a>
+                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants.originalityName]}</span>
                 ` : html`
-                  ${result[this.submission.originalityConstants["originalityStatus"]] === 'true' ? html`
-                    <a href="#${result[this.submission.originalityConstants["originalityKey"]]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants["originalityKey"]]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.pending"]}</a>
+                  ${result[this.submission.originalityConstants.originalityStatus] === 'true' ? html`
+                    <a href="#${result[this.submission.originalityConstants.originalityKey]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants.originalityKey]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.pending"]}</a>
                   ` : html`
-                    <a href="#${result[this.submission.originalityConstants["originalityKey"]]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants["originalityKey"]]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.error"]}</a>
+                    <a href="#${result[this.submission.originalityConstants.originalityKey]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants.originalityKey]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.error"]}</a>
                   `}
-                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants["originalityName"]]}</span>
-                  <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants["originalityKey"]]}"><div>${result[this.submission.originalityConstants["originalityError"]]}</div></div>
+                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants.originalityName]}</span>
+                  <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants.originalityKey]}"><div>${result[this.submission.originalityConstants.originalityError]}</div></div>
                 `}
                 <br />
               </div>
@@ -310,18 +310,18 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <label class="grader-label graderOriginalityLabel" >${this.submission.originalityServiceName}&nbsp;${this.assignmentsI18n["review.report"]}</label>
             ${this.submission.originalitySupplies.map(result => html`
               <div class="graderOriginalitySection" >
-                ${result[this.submission.originalityConstants["originalityLink"]] !== 'Error' ? html`
-                  <a target="_blank" href="${result[this.submission.originalityConstants["originalityLink"]]}" class="graderOriginalityLink"  ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${result[this.submission.originalityConstants["originalityScore"]]}${this.assignmentsI18n["content_review.score_display.grader"]}</a>
-                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants["originalityName"]]}</span>
+                ${result[this.submission.originalityConstants.originalityLink] !== 'Error' ? html`
+                  <a target="_blank" href="${result[this.submission.originalityConstants.originalityLink]}" class="graderOriginalityLink"  ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${result[this.submission.originalityConstants.originalityScore]}${this.assignmentsI18n["content_review.score_display.grader"]}</a>
+                  <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants.originalityName]}</span>
                 ` : html`
-                  ${result[this.submission.originalityConstants["originalityStatus"]] === 'true' ? html`
-                    <a href="#${result[this.submission.originalityConstants["originalityKey"]]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants["originalityKey"]]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.pending"]}</a>
-                    <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants["originalityName"]]}</span>
-                    <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants["originalityKey"]]}" ><div>${this.assignmentsI18n["content_review.notYetSubmitted.grader"]}&nbsp;${this.submission.originalityServiceName}</div></div>
+                  ${result[this.submission.originalityConstants.originalityStatus] === 'true' ? html`
+                    <a href="#${result[this.submission.originalityConstants.originalityKey]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants.originalityKey]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.pending"]}</a>
+                    <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants.originalityName]}</span>
+                    <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants.originalityKey]}" ><div>${this.assignmentsI18n["content_review.notYetSubmitted.grader"]}&nbsp;${this.submission.originalityServiceName}</div></div>
                   ` : html`
-                    <a href="#${result[this.submission.originalityConstants["originalityKey"]]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants["originalityKey"]]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants["originalityIcon"]]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.error"]}</a>
-                    <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants["originalityName"]]}</span>
-                    <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants["originalityKey"]]}"><div>${result[this.submission.originalityConstants["originalityError"]]}</div></div>
+                    <a href="#${result[this.submission.originalityConstants.originalityKey]}" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="${result[this.submission.originalityConstants.originalityKey]}" class="graderOriginalityLink" ><i class="${result[this.submission.originalityConstants.originalityIcon]}"></i>&nbsp;${this.assignmentsI18n["content_review.disclosure.error"]}</a>
+                    <span>&nbsp;${this.assignmentsI18n["content_review.delimiter"]}&nbsp;${result[this.submission.originalityConstants.originalityName]}</span>
+                    <div class="collapse graderOriginalityCaption" id="${result[this.submission.originalityConstants.originalityKey]}"><div>${result[this.submission.originalityConstants.originalityError]}</div></div>
                   `}
                 `}
                 <br />
@@ -1221,6 +1221,17 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
 }
+
+Submission.originalityConstants = {
+  originalityKey: 0,
+  originalityLink: 1,
+  originalityIcon: 2,
+  originalityScore: 3,
+  originalityName: 4,
+  originalityInline: 5,
+  originalityStatus: 6,
+  originalityError: 7
+};
 
 if (!customElements.get("sakai-grader")) {
   customElements.define("sakai-grader", SakaiGrader);

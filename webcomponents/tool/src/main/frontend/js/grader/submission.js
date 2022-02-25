@@ -76,17 +76,6 @@ export class Submission {
       if (this.extensionAllowed) {
         this.extensionDate = moment(parseInt(init.properties.allow_extension_closeTime, 10)).valueOf();
       }
-
-      this.originalityConstants = {
-        "originalityKey": 0,
-        "originalityLink": 1,
-        "originalityIcon": 2,
-        "originalityScore": 3,
-        "originalityName": 4,
-        "originalityInline": 5,
-        "originalityStatus": 6,
-        "originalityError": 7
-      };
       this.originalityServiceName = init.properties["originalityServiceName"];
       this.originalitySupplies = [];
       for (let index = 1; init.properties[`originalityLink${index}`] != null; index++) {
