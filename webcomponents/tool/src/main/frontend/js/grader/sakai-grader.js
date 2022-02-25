@@ -29,6 +29,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.hasUngraded = false;
     this.hasUnsubmitted = false;
     this.resubmitNumber = "1";
+    this.previousPrivateNotes = "";
+    this.previousFeedback = "";
 
     this.assignmentsI18n = {};
 
@@ -167,7 +169,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
       </div>
       <div class="grader-navigator">
-        <div><a class="user-list-link" href="${this.userListUrl}" title="${this.assignmentsI18n["nav.list"]}">${this.assignmentsI18n["nav.list"]}</a></div>
+        <div><a class="user-list-link" href="${this.userListUrl}" title="${this.assignmentsI18n["nav.list"]}" @click=${this.toStudentList}>${this.assignmentsI18n["nav.list"]}</a></div>
         <div>
           <a href="javascript:;" @click=${this.previous}><fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
           <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected}>
@@ -370,7 +372,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <fa-icon size="1.5em" i-class="fas video" path-prefix="/webcomponents/assets" style="vertical-align: middle;"></fa-icon>
           </div>
           <button @click=${this.doneWithFeedbackDialog}>${this.assignmentsI18n["gen.don"]}</button>
-          <button @click=${this.cancelRubric}>${this.assignmentsI18n["gen.cancel"]}</button>
+          <button @click=${this.cancelFeedbackToogle}>${this.assignmentsI18n["gen.can"]}</button>
+        </div>
+        <div id="confirm-feedback-panel" class="grader-panel" title="${this.assignmentsI18n.feedbackcomment}" style="display: none;">
+          <div class="feedback-instruction sak-banner-warn">${this.assignmentsI18n["gen.can.discard"]}</div>
+          <button @click=${this.confirmNotSaveFeedback}>${this.assignmentsI18n["gen.yes"]}</button>
+          <button @click=${this.cancelNotSave}>${this.assignmentsI18n["gen.no"]}</button>
         </div>
         <div class="feedback-attachments-block grader-label">
           ${this.submission.feedbackAttachments ? html`
@@ -425,6 +432,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div class="sak-banner-info">${unsafeHTML(this.i18n.private_notes_tooltip)}</div>
           <div><textarea id="grader-private-notes" .value=${this.submission.privateNotes}></textarea></div>
           <button @click=${this.doneWithPrivateNotesDialog}>${this.assignmentsI18n["gen.don"]}</button>
+          <button @click=${this.cancelPrivateNotesToogle}>${this.assignmentsI18n["gen.can"]}</button>
+        </div>
+        <div id="confirm-private-notes-panel" class="grader-panel" title="${this.assignmentsI18n["note.label"]}" style="display: none;">
+          <div class="feedback-instruction sak-banner-warn">${this.assignmentsI18n["gen.can.discard"]}</div>
+          <button @click=${this.confirmNotSavePvtNotes}>${this.assignmentsI18n["gen.yes"]}</button>
+          <button @click=${this.cancelNotSave}>${this.assignmentsI18n["gen.no"]}</button>
         </div>
         <div class="text-feedback">
         </div>
@@ -551,6 +564,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     });
 
     editor.on("change", () => this.modified = true);
+    editor.on("instanceReady", (e) => {
+      e.editor.dataProcessor.writer.setRules('p', { breakAfterClose: false });
+    });
     return editor;
   }
 
@@ -579,17 +595,27 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   toggleFeedback() {
-
     const feedbackPanel = $("#feedback-panel");
 
     if (!feedbackPanel.dialog("instance")) {
       feedbackPanel.dialog({
         width: "auto",
-        close: () => this.toggleFeedback()
+        beforeClose: () => {
+          const isUnsaved = this.isFeedbackUnsaved();
+          if (isUnsaved) {
+            this.cancelFeedbackToogle();
+          }
+          return !isUnsaved;
+        },
+        close: () => this.cancelFeedbackToogle()
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
-    } else {
-      this.submission.feedbackComment = this.feedbackCommentEditor.getData();
+      this.previousFeedback = this.submission.feedbackComment;
+    }
+    else if (this.isFeedbackUnsaved()) {
+      this.toggleConfirm("confirm-feedback-panel");
+    }
+    else {
       this.feedbackCommentEditor.destroy();
       feedbackPanel.dialog("destroy");
       this.requestUpdate();
@@ -597,23 +623,61 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithFeedbackDialog() {
-
+    this.submission.feedbackComment = this.feedbackCommentEditor.getData();
+    this.previousFeedback = this.submission.feedbackComment;
+    this.modified = true;
     this.toggleFeedback();
     document.getElementById("grader-feedback-button").focus();
   }
 
-  togglePrivateNotes() {
+  isFeedbackUnsaved() {
+    return this.feedbackCommentEditor.getData() !== this.previousFeedback;
+  }
 
+  isPvtNotesUnsaved() {
+    return this.privateNotesEditor.getData() !== this.previousPrivateNotes;
+  }
+
+  cancelFeedbackToogle() {
+    if (this.isFeedbackUnsaved()) {
+      this.toggleConfirm("confirm-feedback-panel");
+    }
+    else {
+      this.toggleFeedback();
+    }
+  }
+
+  cancelPrivateNotesToogle() {
+    if (this.isPvtNotesUnsaved()) {
+      this.toggleConfirm("confirm-private-notes-panel");
+    }
+    else {
+      this.togglePrivateNotes();
+    }
+  }
+
+  togglePrivateNotes() {
     const privateNotesPanel = $("#private-notes-panel");
 
     if (!privateNotesPanel.dialog("instance")) {
       privateNotesPanel.dialog({
         width: "auto",
-        close: () => this.togglePrivateNotes()
+        beforeClose: () => {
+          const isUnsaved = this.isPvtNotesUnsaved();
+          if (isUnsaved) {
+            this.cancelPrivateNotesToogle();
+          }
+          return !isUnsaved;
+        },
+        close: () => this.cancelPrivateNotesToogle()
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
-    } else {
-      this.submission.privateNotes = this.privateNotesEditor.getData();
+      this.previousPrivateNotes = this.submission.privateNotes;
+    }
+    else if (this.isPvtNotesUnsaved()) {
+      this.toggleConfirm("confirm-private-notes-panel");
+    }
+    else {
       this.privateNotesEditor.destroy();
       privateNotesPanel.dialog("destroy");
       this.requestUpdate();
@@ -621,9 +685,42 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithPrivateNotesDialog() {
-
+    this.submission.privateNotes = this.privateNotesEditor.getData();
+    this.previousPrivateNotes = this.submission.privateNotes;
+    this.modified = true;
     this.togglePrivateNotes();
     document.getElementById("grader-private-notes-button").focus();
+  }
+
+  confirmNotSaveFeedback() {
+    this.submission.feedbackComment = this.previousFeedback;
+    this.feedbackCommentEditor.setData(this.submission.feedbackComment);
+    this.toggleConfirm("confirm-feedback-panel");
+    this.toggleFeedback();
+  }
+
+  confirmNotSavePvtNotes() {
+    this.submission.privateNotes = this.previousPrivateNotes;
+    this.privateNotesEditor.setData(this.submission.privateNotes);
+    this.toggleConfirm("confirm-private-notes-panel");
+    this.togglePrivateNotes();
+  }
+
+  cancelNotSave(e) {
+    this.toggleConfirm(e.srcElement.parentElement.id);
+  }
+
+  toggleConfirm(panelId) {
+    const confirmPanel = $("#".concat(panelId));
+    if(!confirmPanel.dialog("instance")) {
+      confirmPanel.dialog({
+        width: "auto",
+        close: () => this.toggleConfirm(panelId)
+      });
+    }
+    else {
+      confirmPanel.dialog("destroy");
+    }
   }
 
   displaySubmittedText(e) {
@@ -879,6 +976,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       confirm(this.i18n.confirm_discard_changes) ?
         this.clearSubmission() : false
       : true;
+  }
+
+  toStudentList(e){
+    e.preventDefault();
+    if (this.canNavigate()) {
+      location.href = this.userListUrl;
+    }
   }
 
   validateGradeInput(e) {
