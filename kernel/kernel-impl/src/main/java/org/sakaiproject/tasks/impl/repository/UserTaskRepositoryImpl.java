@@ -22,10 +22,17 @@
 package org.sakaiproject.tasks.impl.repository;
 
 import java.util.List;
+import java.util.Set;
 import java.time.Instant;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
 
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.UserTask;
@@ -60,6 +67,21 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
             .add(Restrictions.le("task.starts", instant)).list();
     }
 
+    public List<UserTask> findByTask_SiteId(String siteId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserTask> cq = cb.createQuery(UserTask.class);
+        Root<UserTask> root = cq.from(UserTask.class);
+        Join<UserTask, Task> taskJoin = root.join("task");
+        cq.select(root);
+        cq.where(cb.equal(taskJoin.get("siteId"), siteId));
+
+        return session.createQuery(cq).list();
+
+    }
+
     public void deleteByTask(Task task) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -67,5 +89,17 @@ public class UserTaskRepositoryImpl extends SpringCrudRepositoryImpl<UserTask, L
         session.createQuery("delete from UserTask where task = :task")
             .setParameter("task", task).executeUpdate();
         session.delete(task);
+    }
+
+    public void deleteByTaskAndUserIdNotIn(Task task, Set<String> users) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<UserTask> cd = cb.createCriteriaDelete(UserTask.class);
+        Root<UserTask> root = cd.from(UserTask.class);
+        cd.where(cb.equal(root.get("task"), task), cb.not(root.get("userId").in(users)));
+
+        session.createQuery(cd).executeUpdate();
     }
 }

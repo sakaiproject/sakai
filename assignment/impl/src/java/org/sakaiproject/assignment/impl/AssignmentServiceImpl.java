@@ -1477,6 +1477,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         task.setReference(reference);
         task.setSystem(true);
         task.setDescription(assignment.getTitle());
+        task.setGroups(assignment.getGroups());
 
         if (!assignment.getHideDueDate()) {
             task.setDue(assignment.getDueDate());

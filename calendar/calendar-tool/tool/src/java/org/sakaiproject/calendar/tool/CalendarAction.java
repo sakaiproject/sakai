@@ -4859,7 +4859,7 @@ extends VelocityPortletStateAction
 				List attachments = state.getAttachments();
 
 				// prepare to create the event
-				Collection groups = new Vector();
+				Collection<Group> groups = new Vector<>();
 				CalendarEvent.EventAccess access = CalendarEvent.EventAccess.GROUPED;
 				if (scheduleTo.equals("site")) access = CalendarEvent.EventAccess.SITE;
 
@@ -4929,14 +4929,13 @@ extends VelocityPortletStateAction
 						Site site = SiteService.getSite(calendarObj.getContext());
 						users = site.getUsersIsAllowed("section.role.student");
 					} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
-						for (Iterator groupsIter = groups.iterator(); groupsIter.hasNext();) {
-							Group groupTask = (Group) groupsIter.next();
-							Set<Member> members = groupTask.getMembers();
-							for (Iterator membersIter = members.iterator(); membersIter.hasNext();) {
-								Member member = (Member) membersIter.next();
-								users.add(member.getUserId());
-							}
+						Set<String> groupRefs = new HashSet<>();
+						for (Group group : groups) {
+							groupRefs.add(group.getReference());
+							users.addAll(group.getMembers().stream()
+								.map(m -> m.getUserId()).collect(Collectors.toSet()));
 						}
+						task.setGroups(groupRefs);
 					}
 					if (users.size() == 0) {
 						users.add(UserDirectoryService.getCurrentUser().getId());
