@@ -651,6 +651,30 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	/**
 	 * @inheritDoc
 	 */
+	public String getAnnouncementRange(AnnouncementMessage a) {
+		if ("true".equals(a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW))) {
+			return announcementResourceLoader.getString("gen.public");
+		} else if (a.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL)) {
+			return announcementResourceLoader.getString("range.allgroups");
+		} else {
+			try {
+				Site site = m_siteService.getSite(m_entityManager.newReference(a.getReference()).getContext());
+				String allGroupString = a.getAnnouncementHeader().getGroups().stream().reduce("", (ourString, groupId) -> {
+					return ourString.concat(", " + site.getGroup(groupId).getTitle());
+				});
+				allGroupString = allGroupString.substring(2);
+				return allGroupString;
+			}
+			catch (IdUnusedException e) {
+				log.error("Site could not be loaded: {}", e.toString());
+			}
+			return "";
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public String channelReference(String context, String id)
 	{
@@ -1102,7 +1126,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			}			
 		}
 		catch (NullPointerException e) {
-			log.warn(e.getMessage());
+			log.warn(e.toString());
 		}
 		return messageList;
 
@@ -1382,7 +1406,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					catch(Exception e)
 					{
-						log.debug("Unable to remove Announcements ", e.getMessage(), e);
+						log.debug("Unable to remove Announcements ", e.toString(), e);
 					}
 				}
 
@@ -1930,7 +1954,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					catch(Exception e)
 					{
-						log.debug("Unable to remove Announcements {}", e.getMessage(), e);
+						log.debug("Unable to remove Announcements {}", e.toString(), e);
 					}
 				}
 			}

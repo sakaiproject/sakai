@@ -168,7 +168,7 @@ public class SitesController extends AbstractSakaiApiController {
                 }).collect(Collectors.toList());
                 siteMap.put("pages", pageList);
             } catch (IdUnusedException e) {
-                log.error(e.getMessage());
+                log.error(e.toString());
             }
             return siteMap;
         }).collect(Collectors.toList());
