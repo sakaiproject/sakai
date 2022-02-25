@@ -668,7 +668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				return allGroupString;
 			}
 			catch (IdUnusedException e) {
-				log.error("Site could not be loaded: {}", e.getMessage());
+				log.error("Site could not be loaded: {}", e.toString());
 			}
 			return "";
 		}
@@ -1128,7 +1128,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			}			
 		}
 		catch (NullPointerException e) {
-			log.warn(e.getMessage());
+			log.warn(e.toString());
 		}
 		return messageList;
 
@@ -1408,7 +1408,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					catch(Exception e)
 					{
-						log.debug("Unable to remove Announcements ", e.getMessage(), e);
+						log.debug("Unable to remove Announcements ", e.toString(), e);
 					}
 				}
 
@@ -1956,7 +1956,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					catch(Exception e)
 					{
-						log.debug("Unable to remove Announcements {}", e.getMessage(), e);
+						log.debug("Unable to remove Announcements {}", e.toString(), e);
 					}
 				}
 			}

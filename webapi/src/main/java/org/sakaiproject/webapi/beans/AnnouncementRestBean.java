@@ -39,7 +39,7 @@ public class AnnouncementRestBean {
     private String subject;
     private String author;
     private String access;
-    private boolean hasAtachment;
+    private boolean hasAttachment;
     private long date;
     private Long release;
     private Long retract;
@@ -54,15 +54,15 @@ public class AnnouncementRestBean {
         subject = header.getSubject();
         author = header.getFrom().getDisplayName();
         date = header.getInstant().toEpochMilli();
-        hasAtachment = !header.getAttachments().isEmpty();
+        hasAttachment = !header.getAttachments().isEmpty();
         ResourceProperties resourceProperties = am.getProperties();
         try {
             release = resourceProperties.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
             date = release;
-        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) { /*No action needed*/ }
         try {
             retract = resourceProperties.getInstantProperty(AnnouncementService.RETRACT_DATE).toEpochMilli();
-        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) { /*No action needed*/ }
         links = new ArrayList<Link>();
         links.add(Link.of(url));
         links.add(getActionLink(url, "doReviseannouncement"));
