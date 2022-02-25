@@ -69,8 +69,8 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@Resource
 	private UserDirectoryService userDirectoryService;
 
-	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
+	@GetMapping(value = "/users/current/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<AnnouncementRestBean> getUserAnnouncements() throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
         return announcementService.getViewableAnnouncementsForCurrentUser(10).entrySet()
