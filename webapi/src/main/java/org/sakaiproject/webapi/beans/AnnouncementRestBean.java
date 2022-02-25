@@ -32,7 +32,8 @@ public class AnnouncementRestBean {
     private String siteTitle;
     private String subject;
     private String author;
-    private String url;
+    private String access;
+    private boolean hasAttachment;
     private long date;
 
     public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
@@ -40,13 +41,29 @@ public class AnnouncementRestBean {
         id = am.getId();
         siteId = site.getId();
         siteTitle = site.getTitle();
-        subject = am.getAnnouncementHeader().getSubject();
-        author = am.getAnnouncementHeader().getFrom().getDisplayName();
-        date = am.getAnnouncementHeader().getInstant().toEpochMilli();
-        ResourceProperties props = am.getProperties();
+        this.access = access;
+        AnnouncementMessageHeader header = am.getAnnouncementHeader();
+        subject = header.getSubject();
+        author = header.getFrom().getDisplayName();
+        date = header.getInstant().toEpochMilli();
+        hasAttachment = !header.getAttachments().isEmpty();
+        ResourceProperties resourceProperties = am.getProperties();
         try {
-            date = props.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
-        } catch (EntityPropertyTypeException|EntityPropertyNotDefinedException e) { /*No action needed*/ }
-        this.url = url;
+            release = resourceProperties.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
+            date = release;
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) { /*No action needed*/ }
+        try {
+            retract = resourceProperties.getInstantProperty(AnnouncementService.RETRACT_DATE).toEpochMilli();
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) { /*No action needed*/ }
+        links = new ArrayList<Link>();
+        links.add(Link.of(url));
+        links.add(getActionLink(url, "doReviseannouncement"));
+        links.add(getActionLink(url, "doDelete_announcement_link"));
+        links.add(getActionLink(url, "doDuplicateAnnouncement"));
+    }
+
+    private Link getActionLink(String reference, String actionName) {
+
+        return Link.of(reference.replaceFirst("doShowmetadata", actionName), actionName);
     }
 }
