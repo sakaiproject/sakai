@@ -22,6 +22,7 @@
   <properties>
     <sakai.version>23-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
+    <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.11.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.12.0</sakai.commons.lang3.version>
@@ -787,6 +788,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>${sakai.commons-httpclient.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${sakai.commons-io.version}</version>
@@ -811,19 +818,28 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.21</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.9.4</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-digester</groupId>
         <artifactId>commons-digester</artifactId>
         <version>2.1</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
         <version>${sakai.commons-validator.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
             <groupId>commons-net</groupId>
