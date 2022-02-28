@@ -11,7 +11,18 @@ var setupSkipNav = function(){
 };
 
 $PBJQ( document ).ready(function() {
-	
+
+    // Accessibility fix for accesskey-c to display a visible focus applied to the tool reset button
+    if (MorpheusViewportHelper.isDesktop()) {
+	var toContentHeading = $PBJQ("h2#tocontent");
+	var toolResetButton = $PBJQ(".Mrphs-hierarchy--toolName:first");
+	toContentHeading.focus(function(e) {
+            setTimeout(function() {
+		toolResetButton.focus();
+            }, 10);
+	});
+    }
+
 	var lastScrollTop = 0;
 
 	$PBJQ(document).scroll(function(event){
