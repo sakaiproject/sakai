@@ -451,7 +451,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	public List<CalendarEvent> getFilteredEvents(Map<EventFilterKey, Object> options) {
 
-        options = options == null ? Collections.emptyMap() : options;
+        if (options == null) { options = Collections.emptyMap(); }
 
 		List<String> allRefs = new ArrayList<>();
 
