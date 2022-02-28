@@ -513,8 +513,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public List<Object[]> findAuthoredNewMessageCountForAllStudentsByTopicId(final Long topicId) {
-        if (log.isDebugEnabled())
-            log.debug("findAuthoredNewMessageCountForAllStudentsByTopicId executing");
 
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
@@ -528,8 +526,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public List<Object[]> findAuthoredNewMessageCountForAllStudentsByForumId(final Long forumId) {
-        if (log.isDebugEnabled())
-            log.debug("findAuthoredNewMessageCountForAllStudentsByForumId executing");
 
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
@@ -543,8 +539,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByTopicId(final Long topicId) {
-        if (log.isDebugEnabled())
-            log.debug("findAuthoredRepliesMessageCountForAllStudentsByTopicId executing");
 
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
@@ -558,8 +552,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public List<Object[]> findAuthoredRepliesMessageCountForAllStudentsByForumId(final Long forumId) {
-        if (log.isDebugEnabled())
-            log.debug("findAuthoredRepliesMessageCountForAllStudentsByForumId executing");
 
         HibernateCallback<List<Object[]>> hcb =
                 session -> {
