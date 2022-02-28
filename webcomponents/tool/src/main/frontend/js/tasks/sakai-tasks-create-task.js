@@ -1,7 +1,7 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
-import "../datepicker/sakai-date-picker.js";
+import "../sakai-date-picker.js";
 import "../sakai-icon.js";
 import "../sakai-editor.js";
 
@@ -147,7 +147,11 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <label for="due">${this.i18n.due}</label>
           </div>
           <div class="input">
-            <sakai-date-picker id="due" @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }} epoch-millis=${this.task.due}></sakai-date-picker>
+            <sakai-date-picker id="due"
+                @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }}
+                epoch-millis=${this.task.due}
+                label="${this.i18n.due}">
+            </sakai-date-picker>
           </div>
         </div>
         <div id="spacer"></div>
