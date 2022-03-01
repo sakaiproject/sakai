@@ -29,8 +29,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.hasUngraded = false;
     this.hasUnsubmitted = false;
     this.resubmitNumber = "1";
-    this.previousPrivateNotes = "";
-    this.previousFeedback = "";
 
     this.assignmentsI18n = {};
 
@@ -595,13 +593,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   toggleFeedback() {
+
     const feedbackPanel = $("#feedback-panel");
 
     if (!feedbackPanel.dialog("instance")) {
       feedbackPanel.dialog({
         width: "auto",
         beforeClose: () => {
-          const isUnsaved = this.isFeedbackUnsaved();
+          const isUnsaved = this.feedbackCommentEditor.checkDirty();
           if (isUnsaved) {
             this.cancelFeedbackToogle();
           }
@@ -610,9 +609,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         close: () => this.cancelFeedbackToogle()
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
-      this.previousFeedback = this.submission.feedbackComment;
     }
-    else if (this.isFeedbackUnsaved()) {
+    else if (this.feedbackCommentEditor.checkDirty()) {
       this.toggleConfirm("confirm-feedback-panel");
     }
     else {
@@ -623,23 +621,18 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithFeedbackDialog() {
+
     this.submission.feedbackComment = this.feedbackCommentEditor.getData();
-    this.previousFeedback = this.submission.feedbackComment;
     this.modified = true;
+    this.feedbackCommentEditor.resetDirty();
     this.toggleFeedback();
     document.getElementById("grader-feedback-button").focus();
   }
 
-  isFeedbackUnsaved() {
-    return this.feedbackCommentEditor.getData() !== this.previousFeedback;
-  }
-
-  isPvtNotesUnsaved() {
-    return this.privateNotesEditor.getData() !== this.previousPrivateNotes;
-  }
 
   cancelFeedbackToogle() {
-    if (this.isFeedbackUnsaved()) {
+
+    if (this.feedbackCommentEditor.checkDirty()) {
       this.toggleConfirm("confirm-feedback-panel");
     }
     else {
@@ -648,7 +641,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   cancelPrivateNotesToogle() {
-    if (this.isPvtNotesUnsaved()) {
+
+    if (this.privateNotesEditor.checkDirty()) {
       this.toggleConfirm("confirm-private-notes-panel");
     }
     else {
@@ -657,13 +651,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   togglePrivateNotes() {
+
     const privateNotesPanel = $("#private-notes-panel");
 
     if (!privateNotesPanel.dialog("instance")) {
       privateNotesPanel.dialog({
         width: "auto",
         beforeClose: () => {
-          const isUnsaved = this.isPvtNotesUnsaved();
+          const isUnsaved = this.privateNotesEditor.checkDirty();
           if (isUnsaved) {
             this.cancelPrivateNotesToogle();
           }
@@ -672,9 +667,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         close: () => this.cancelPrivateNotesToogle()
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
-      this.previousPrivateNotes = this.submission.privateNotes;
     }
-    else if (this.isPvtNotesUnsaved()) {
+    else if (this.privateNotesEditor.checkDirty()) {
       this.toggleConfirm("confirm-private-notes-panel");
     }
     else {
@@ -685,23 +679,26 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   doneWithPrivateNotesDialog() {
+
     this.submission.privateNotes = this.privateNotesEditor.getData();
-    this.previousPrivateNotes = this.submission.privateNotes;
     this.modified = true;
+    this.privateNotesEditor.resetDirty();
     this.togglePrivateNotes();
     document.getElementById("grader-private-notes-button").focus();
   }
 
   confirmNotSaveFeedback() {
-    this.submission.feedbackComment = this.previousFeedback;
+
     this.feedbackCommentEditor.setData(this.submission.feedbackComment);
+    this.feedbackCommentEditor.resetDirty();
     this.toggleConfirm("confirm-feedback-panel");
     this.toggleFeedback();
   }
 
   confirmNotSavePvtNotes() {
-    this.submission.privateNotes = this.previousPrivateNotes;
+
     this.privateNotesEditor.setData(this.submission.privateNotes);
+    this.privateNotesEditor.resetDirty();
     this.toggleConfirm("confirm-private-notes-panel");
     this.togglePrivateNotes();
   }
@@ -711,6 +708,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   toggleConfirm(panelId) {
+
     const confirmPanel = $("#".concat(panelId));
     if(!confirmPanel.dialog("instance")) {
       confirmPanel.dialog({
