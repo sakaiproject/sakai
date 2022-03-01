@@ -709,8 +709,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
         if (totalApproved > 0) {
-            final int finalTotalApproved = totalApproved;
-            userViewableMap.forEach((userId, cnt) -> userViewableMap.put(userId, cnt + finalTotalApproved));
+            for (String userId : userIds) {
+                userViewableMap.merge(userId, totalApproved, Integer::sum);
+            }
         }
 
         return userViewableMap;
