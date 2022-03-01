@@ -18,6 +18,7 @@ package org.sakaiproject.ignite;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
+import org.apache.ignite.failure.FailureHandler;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.plugin.segmentation.SegmentationPolicy;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
@@ -140,9 +142,12 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
             igniteConfiguration.setFailureDetectionTimeout(20000);
             if (stopOnFailure) {
-                igniteConfiguration.setFailureHandler(new IgniteStopNodeAndExitHandler());
+                IgniteStopNodeAndExitHandler failureHandler = new IgniteStopNodeAndExitHandler();
+                failureHandler.setIgnoredFailureTypes(Collections.emptySet());
+                igniteConfiguration.setFailureHandler(failureHandler);
             }
 
+            igniteConfiguration.setSystemWorkerBlockedTimeout(60000);
             igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
 
             // local node network configuration
