@@ -349,13 +349,22 @@
 							</h:panelGroup>
 						</t:column>	
 						
+						<t:column>
+							<f:facet name="header">
+								<t:commandSortHeader columnName="#{SignupMeetingsBean.signupSorter.participantsColumn}" immediate="true" arrow="true">
+									<h:outputText value="#{msgs.tab_event_signed}" escape="false"/>
+								</t:commandSortHeader>
+							</f:facet>
+							<h:outputText value="#{wrapper.meeting.participantsNum}"/>
+						</t:column>	
+						
 						<t:column rendered="#{SignupMeetingsBean.allowedToDelete}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.tab_event_remove}" escape="false"/>
 							</f:facet>
 							<h:outputLabel for="eventRemove" value="#{msgs.tab_event_remove} - #{wrapper.meeting.title}" styleClass="sr-only" escape="false"/>
 							<h:selectBooleanCheckbox id="eventRemove" value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
-						</t:column>				
+						</t:column>			
 						
 					</t:dataTable></div>
 					

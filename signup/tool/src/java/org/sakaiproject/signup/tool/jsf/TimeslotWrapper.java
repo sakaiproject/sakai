@@ -556,4 +556,12 @@ public class TimeslotWrapper implements Comparable{
 	public String getGroupId() {
 		return timeSlot.getGroupId();
 	}
+	
+	public int getParticipants() {
+		return this.timeSlot.getParticipantsNum();
+	}
+	
+	public int getWaitingListSize() {
+		return this.timeSlot.getWaitingListNum();
+	}
 }

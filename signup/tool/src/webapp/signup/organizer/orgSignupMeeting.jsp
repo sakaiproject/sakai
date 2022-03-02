@@ -155,6 +155,23 @@
 				lastTsEditPanel=tsEditPanel;
 			
 			}
+			
+			function showWaitingList(timeslotPosIndex){
+				clearTimeslotPanel();			
+				var tsEditPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":editWaitingList");
+				tsEditPanel.style.display == 'none' ? tsEditPanel.style.display = 'block' : tsEditPanel.style.display = 'none';
+				lastTsEditPanel=tsEditPanel;
+			
+			}
+			
+			function showAttendeesList(timeslotPosIndex){
+				clearTimeslotPanel();			
+				var tsEditPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":editAttendeesList");
+				tsEditPanel.style.display == 'none' ? tsEditPanel.style.display = 'block' : tsEditPanel.style.display = 'none';
+				lastTsEditPanel=tsEditPanel;
+			
+			}
+			
 			function clearPanels(){
 				if (lastTsEditPanel)
 					lastTsEditPanel.style.display="none";
@@ -584,7 +601,7 @@
 					   		<h:column>		   
 								<f:facet name="header">
 									<h:panelGroup>
-										<h:outputText value="#{msgs.tab_attendees}"/>
+										<h:outputText value="#{OrganizerSignupMBean.getTextParticipants(msgs.tab_event_total_attendees)}"/>
 										
 										<%-- SIGNUP-86 allow all attendees to be mailed. To is self, bcc is the attendees --%>
 										<h:panelGroup rendered="#{OrganizerSignupMBean.showEmailAllAttendeesLink}">
@@ -611,102 +628,111 @@
 								</h:panelGroup>
 								<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
 									<h:panelGrid columns="1" styleClass="organizerAction" columnClasses="noWrapCol">
-						   				<h:dataTable id="availableSpots" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
-						   					<h:column>
-						   						<h:panelGrid columns="2" columnClasses="editAddImages,attName"  rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" id="editLink">
-						   							<h:panelGroup>
-							   							<h:graphicImage id="editAttendee" value="/images/edit.png" title="#{msgs.event_tool_tips_edit}" styleClass="openCloseImageIcon"
-							   								onclick="showHideEditPanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}','#{attendeeWrapper.signupAttendee.attendeeUserId}');" 
-							   								alt="#{msgs.edit}" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
-							   							<h:outputText value="&nbsp;" escape="false"/>
-							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}" onclick="return confirm('#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
-							   								<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
-							   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
-							   							</h:commandLink>
-														<%--creating mailtos--%>
-															<h:outputText value="&nbsp;" escape="false" />
-						   								<h:outputLink 
-																value="mailto:#{attendeeWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
-																title="#{attendeeWrapper.attendeeEmail}"
-																 rendered="#{attendeeWrapper.attendeeEmail !=null}">
-																<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{attendeeWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
-															</h:outputLink>	
-															<h:graphicImage 
-																value="/images/email_error.png" 
-																width="16" 
-																height="16" 
-																alt="#{msgs.event_attendee_noEmail}" 
-																title="#{msgs.event_attendee_noEmail}"
-																styleClass="openCloseImageIcon"
-																rendered="#{attendeeWrapper.attendeeEmail==null}"/>
-							   							<h:outputText value="&nbsp;" escape="false" />
-						   							</h:panelGroup>
-						   							
-						   							<!-- Attendee Name & Comment -->
-						   							<h:panelGroup>
-							   							<h:commandLink id="view_comment" action="#{OrganizerSignupMBean.viewAttendeeComment}">
-							   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
-							   								<f:param id="attendeeUserId" name="attendeeUserId" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>				   										   								
-							   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-							   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
-							   							</h:commandLink>
-							   							<br />
-							   							<h:outputText id="attendeeInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime) != ''}" 
-							   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
-						   							</h:panelGroup>
-						   							
-						   						</h:panelGrid>
-						   						
-								   				<h:panelGroup id="editPanel" style="display: none;">
-									   					<h:panelGrid columns="1" >
-									   							<h:panelGroup rendered="#{!OrganizerSignupMBean.groupType}" >
-										   							<h:selectOneRadio id="selcetActionType" value="#{OrganizerSignupMBean.selectedAction}" onclick="showHideActionTypePanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}',this.value)">
-										   								<f:selectItem id="moveTo" itemValue="#{OrganizerSignupMBean.moveAction}" itemLabel="#{msgs.event_move}" itemDisabled="#{OrganizerSignupMBean.groupType}"/>							
-																		<f:selectItem id="replacedBy" itemValue="#{OrganizerSignupMBean.replaceAction}" itemLabel="#{msgs.event_replace}" />							
-																		<f:selectItem id="swapWith"  itemValue="#{OrganizerSignupMBean.swapAction}" itemLabel="#{msgs.event_swap}" itemDisabled="#{OrganizerSignupMBean.groupType}"/>	
-										   							</h:selectOneRadio>	
-									   							</h:panelGroup>
-									   									   				
-										   						<h:panelGrid id="replaceAction" columns="2" style="display: none;">
-										   							<h:outputText value="#{msgs.event_replaceby}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
-										   							<h:outputText value="#{msgs.event_replaceby_Eid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
-										   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-											   							<h:selectOneMenu  id="replaceAttendeeList" binding="#{OrganizerSignupMBean.replacedAttendeeEidOrEmail}" >
-										   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
-										   								</h:selectOneMenu>
+
+										<h:panelGroup id="folderAttendees" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
+							   				<h:outputLink title="#{msgs.event_tool_tips_lockAttendees}" onclick="showAttendeesList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
+						   						<h:outputText value="#{OrganizerSignupMBean.getTimeslotNum(msgs.tab_event_timeslot_attendees, timeSlotWrapper.positionInTSlist, 1)}" escape="false" />	
+						   					</h:outputLink>
+						   				</h:panelGroup>
+						   				
+								   		<h:panelGroup  id="editAttendeesList" style="display: none;">		
+							   				<h:dataTable id="availableSpots" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
+							   					<h:column>
+							   						<h:panelGrid columns="2" columnClasses="editAddImages,attName"  rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" id="editLink">
+							   							<h:panelGroup>
+								   							<h:graphicImage id="editAttendee" value="/images/edit.png" title="#{msgs.event_tool_tips_edit}" styleClass="openCloseImageIcon"
+								   								onclick="showHideEditPanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}','#{attendeeWrapper.signupAttendee.attendeeUserId}');" 
+								   								alt="#{msgs.edit}" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
+								   							<h:outputText value="&nbsp;" escape="false"/>
+								   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}" onclick="return confirm('#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
+								   								<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
+								   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
+								   							</h:commandLink>
+															<%--creating mailtos--%>
+																<h:outputText value="&nbsp;" escape="false" />
+							   								<h:outputLink 
+																	value="mailto:#{attendeeWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
+																	title="#{attendeeWrapper.attendeeEmail}"
+																	 rendered="#{attendeeWrapper.attendeeEmail !=null}">
+																	<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{attendeeWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
+																</h:outputLink>	
+																<h:graphicImage 
+																	value="/images/email_error.png" 
+																	width="16" 
+																	height="16" 
+																	alt="#{msgs.event_attendee_noEmail}" 
+																	title="#{msgs.event_attendee_noEmail}"
+																	styleClass="openCloseImageIcon"
+																	rendered="#{attendeeWrapper.attendeeEmail==null}"/>
+								   							<h:outputText value="&nbsp;" escape="false" />
+							   							</h:panelGroup>
+							   							
+							   							<!-- Attendee Name & Comment -->
+							   							<h:panelGroup>
+								   							<h:commandLink id="view_comment" action="#{OrganizerSignupMBean.viewAttendeeComment}">
+								   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
+								   								<f:param id="attendeeUserId" name="attendeeUserId" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>				   										   								
+								   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
+								   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
+								   							</h:commandLink>
+								   							<br />
+								   							<h:outputText id="attendeeInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime) != ''}" 
+								   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
+							   							</h:panelGroup>
+							   							
+							   						</h:panelGrid>
+							   						
+									   				<h:panelGroup id="editPanel" style="display: none;">
+										   					<h:panelGrid columns="1" >
+										   							<h:panelGroup rendered="#{!OrganizerSignupMBean.groupType}" >
+											   							<h:selectOneRadio id="selcetActionType" value="#{OrganizerSignupMBean.selectedAction}" onclick="showHideActionTypePanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}',this.value)">
+											   								<f:selectItem id="moveTo" itemValue="#{OrganizerSignupMBean.moveAction}" itemLabel="#{msgs.event_move}" itemDisabled="#{OrganizerSignupMBean.groupType}"/>							
+																			<f:selectItem id="replacedBy" itemValue="#{OrganizerSignupMBean.replaceAction}" itemLabel="#{msgs.event_replace}" />							
+																			<f:selectItem id="swapWith"  itemValue="#{OrganizerSignupMBean.swapAction}" itemLabel="#{msgs.event_swap}" itemDisabled="#{OrganizerSignupMBean.groupType}"/>	
+											   							</h:selectOneRadio>	
 										   							</h:panelGroup>
-										   							<h:inputText id="replaceEidInput" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" size="10"/>
-									   								
-										   						</h:panelGrid>
+										   									   				
+											   						<h:panelGrid id="replaceAction" columns="2" style="display: none;">
+											   							<h:outputText value="#{msgs.event_replaceby}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
+											   							<h:outputText value="#{msgs.event_replaceby_Eid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
+											   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
+												   							<h:selectOneMenu  id="replaceAttendeeList" binding="#{OrganizerSignupMBean.replacedAttendeeEidOrEmail}" >
+											   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
+											   								</h:selectOneMenu>
+											   							</h:panelGroup>
+											   							<h:inputText id="replaceEidInput" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" size="10"/>
+										   								
+											   						</h:panelGrid>
+											   					
+											   						<h:panelGrid id="swapAction" columns="2" style="display: none;">
+											   							<h:outputText value="#{msgs.event_swapWith}" escape="false"/>
+											   							<h:panelGroup>
+												   							<h:selectOneMenu  id="swapAttendeeList"  binding="#{OrganizerSignupMBean.attendeeTimeSlotWithId}">
+											   									<f:selectItems value="#{timeSlotWrapper.swapDropDownList}"/>
+											   								</h:selectOneMenu>
+										   								</h:panelGroup>
+											   						</h:panelGrid>
+											   					
+											   						<h:panelGrid id="moveAction" columns="2" style="display: none;">
+											   							<h:outputText value="#{msgs.event_moveToTimeslot}" escape="false"/>
+											   							<h:panelGroup>
+												   							<h:selectOneMenu  id="selectTimeslot" binding="#{OrganizerSignupMBean.selectedTimeslotId}"> 
+											   									<f:selectItems value="#{timeSlotWrapper.moveAvailableTimeSlots}"/>
+											   								</h:selectOneMenu>
+										   								</h:panelGroup>
+											   						</h:panelGrid>
+											   					
+											   						<h:panelGrid columns="2"  style="width:50%;">
+											   							<h:commandButton id="edit_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.editTimeslotAttendee}"/>
+											   							<h:commandButton id="edit_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels();return false;" immediate="true"/>
+											   						</h:panelGrid>
 										   					
-										   						<h:panelGrid id="swapAction" columns="2" style="display: none;">
-										   							<h:outputText value="#{msgs.event_swapWith}" escape="false"/>
-										   							<h:panelGroup>
-											   							<h:selectOneMenu  id="swapAttendeeList"  binding="#{OrganizerSignupMBean.attendeeTimeSlotWithId}">
-										   									<f:selectItems value="#{timeSlotWrapper.swapDropDownList}"/>
-										   								</h:selectOneMenu>
-									   								</h:panelGroup>
-										   						</h:panelGrid>
-										   					
-										   						<h:panelGrid id="moveAction" columns="2" style="display: none;">
-										   							<h:outputText value="#{msgs.event_moveToTimeslot}" escape="false"/>
-										   							<h:panelGroup>
-											   							<h:selectOneMenu  id="selectTimeslot" binding="#{OrganizerSignupMBean.selectedTimeslotId}"> 
-										   									<f:selectItems value="#{timeSlotWrapper.moveAvailableTimeSlots}"/>
-										   								</h:selectOneMenu>
-									   								</h:panelGroup>
-										   						</h:panelGrid>
-										   					
-										   						<h:panelGrid columns="2"  style="width:50%;">
-										   							<h:commandButton id="edit_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.editTimeslotAttendee}"/>
-										   							<h:commandButton id="edit_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels();return false;" immediate="true"/>
-										   						</h:panelGrid>
-									   					
-									   					</h:panelGrid>
-								   				</h:panelGroup>
-								   						
-						   					</h:column>
-						   				</h:dataTable>
+										   					</h:panelGrid>
+									   				</h:panelGroup>
+									   						
+							   					</h:column>
+							   				</h:dataTable>
+						   				</h:panelGroup>
 						   				
 					   					<h:panelGroup id="addAttendee" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 					   						<%-- TODO add spacer only if the attendees exist in atleast one timeslot --%>
@@ -762,7 +788,7 @@
 					   		
 					   		<h:column rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
 								<f:facet name="header">
-									<h:panelGroup>
+									<h:panelGroup> 
 										<h:outputText value="#{msgs.tab_waiting_list}" escape="false"/>
 										<h:outputText value="#{msgs.tab_waiting_list_disabled}" escape="false" style="color:gray;" />
 									</h:panelGroup>
@@ -775,45 +801,54 @@
 					   		<!-- TS waiting list -->
 					   		<h:column rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
 								<f:facet name="header">
-									<h:outputText value="#{msgs.tab_waiting_list}" escape="false"/>
+									<h:outputText value="#{OrganizerSignupMBean.getTextWaitingList(msgs.tab_event_total_waiting_list)}"/>
 								</f:facet>
 								<h:panelGroup>
 										<h:panelGrid columns="1" rendered="#{!timeSlotWrapper.timeSlot.unlimitedAttendee}" styleClass="organizerAction">
-									   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
-									   				<h:column>
-									   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
-																<h:panelGroup>
-									   						<h:commandLink id="removeWaitingList" action="#{OrganizerSignupMBean.removeAttendeeFromWList}" title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" style="text-decoration:none !important">
-									   							<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"/>
-									   							<f:param id="waiterUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{waiterWrapper.signupAttendee.attendeeUserId}"/>
-									   							<h:outputText value="&nbsp;" escape="false" />
-									   						</h:commandLink>
-																<h:outputText value="&nbsp;" escape="false"/>
-																<%-- //mailto: for waitlisted --%>
-							   								<h:outputLink 
-																	value="mailto:#{waiterWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
-																	title="#{waiterWrapper.attendeeEmail}"
-																  rendered="#{waiterWrapper.attendeeEmail !=null}">
-																	<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{waiterWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
-																</h:outputLink>	
-																<h:graphicImage 
-																	value="/images/email_error.png" 
-																	width="16" height="16" 
-																	alt="#{msgs.event_attendee_noEmail}"
-																	title="#{msgs.event_attendee_noEmail}" 
-																	styleClass="openCloseImageIcon"
-																	rendered="#{waiterWrapper.attendeeEmail ==null}"/>
+
+												<h:panelGroup id="folderWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
+									   				<h:outputLink title="#{msgs.event_tool_tips_lockAttendees}" onclick="showWaitingList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
+								   						<h:outputText value="#{OrganizerSignupMBean.getTimeslotNum(msgs.tab_event_timeslot_waiting_list, timeSlotWrapper.positionInTSlist, 2)}" escape="false" />	
+								   					</h:outputLink>
+								   				</h:panelGroup>
+								   				
+									   			<h:panelGroup  id="editWaitingList" style="display: none;">
+										   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
+										   				<h:column>
+										   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
+																	<h:panelGroup>
+										   						<h:commandLink id="removeWaitingList" action="#{OrganizerSignupMBean.removeAttendeeFromWList}" title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" style="text-decoration:none !important">
+										   							<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"/>
+										   							<f:param id="waiterUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{waiterWrapper.signupAttendee.attendeeUserId}"/>
+										   							<h:outputText value="&nbsp;" escape="false" />
+										   						</h:commandLink>
 																	<h:outputText value="&nbsp;" escape="false"/>
-															</h:panelGroup>
-									   						<h:panelGroup>
-									   							<h:outputText value="#{waiterWrapper.displayName}"/>
-									   							<br />
-									   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
-									   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
-									   						</h:panelGroup>
-									   					</h:panelGrid>		  
-									   				</h:column>				   		
-									   			</h:dataTable>
+																	<%-- //mailto: for waitlisted --%>
+								   								<h:outputLink 
+																		value="mailto:#{waiterWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
+																		title="#{waiterWrapper.attendeeEmail}"
+																	  rendered="#{waiterWrapper.attendeeEmail !=null}">
+																		<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{waiterWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
+																	</h:outputLink>	
+																	<h:graphicImage 
+																		value="/images/email_error.png" 
+																		width="16" height="16" 
+																		alt="#{msgs.event_attendee_noEmail}"
+																		title="#{msgs.event_attendee_noEmail}" 
+																		styleClass="openCloseImageIcon"
+																		rendered="#{waiterWrapper.attendeeEmail ==null}"/>
+																		<h:outputText value="&nbsp;" escape="false"/>
+																</h:panelGroup>
+										   						<h:panelGroup>
+										   							<h:outputText value="#{waiterWrapper.displayName}"/>
+										   							<br />
+										   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
+										   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
+										   						</h:panelGroup>
+										   					</h:panelGrid>		  
+										   				</h:column>				   		
+										   			</h:dataTable>
+									   			</h:panelGroup>
 									   			
 									   			<h:panelGroup id="addWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 									   				<h:outputLink rendered="#{!timeSlotWrapper.timeSlot.available}" value="javascript:showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter" title="#{msgs.event_tool_tips_add}">

@@ -57,6 +57,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.SwapAttendee;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1457,5 +1458,42 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	
 	public String getDisplayTimeFromInstant(Instant instant) {
 		return signupMeetingService.getUsersLocalDateTimeString(instant);
+	}
+	
+	public int getNumSigned(List<TimeslotWrapper> lista, int partOrWait) {
+		int retorno = 0;
+		if (lista == null) {
+			return retorno;
+		}
+
+		if(partOrWait == 1) {
+			for (TimeslotWrapper timeslot : lista) {
+				retorno = retorno + timeslot.getParticipants();
+			}
+		}else {
+			for (TimeslotWrapper timeslot : lista) {
+				retorno = retorno + timeslot.getWaitingListSize();
+			}
+		}
+		return retorno;
+	}
+	
+	public String getTextParticipants(String property) {
+		return MessageFormat.format(property, getNumSigned(timeslotWrappers, 1));
+	}
+	
+	public String getTextWaitingList(String property) {
+		return MessageFormat.format(property, getNumSigned(timeslotWrappers, 2));
+	}
+	
+	public String getTimeslotNum(String proterty, int position, int partOrWait) {
+		int num = 0;
+		if(partOrWait == 1) {
+			num = timeslotWrappers.get(position).getParticipants();
+		}else {
+			num = timeslotWrappers.get(position).getWaitingListSize();
+		}
+		
+		return MessageFormat.format(proterty, num);
 	}
 }

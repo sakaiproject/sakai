@@ -288,6 +288,24 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 	}
 
 	/**
+	 * This method will obtain the the number of participants signed
+	 * 
+	 * @return a int
+	 */
+	public int getParticipantsNum() {
+		int retorno = 0;
+		if (signupTimeSlots == null) {
+			return 0;
+		}
+
+		for (SignupTimeslot timeslot : signupTimeSlots) {
+			retorno = retorno + timeslot.getAttendees().size();
+		}
+
+		return retorno;
+	}
+	
+	/**
 	 * This method will check if the event/meeting is already expired
 	 * 
 	 * @return true if the event/meeting is expired
