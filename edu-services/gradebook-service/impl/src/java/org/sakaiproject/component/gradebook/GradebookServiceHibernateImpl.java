@@ -210,6 +210,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final Gradebook gradebook = getGradebook(gradebookUid);
 		final Long gradebookId = gradebook.getId();
+		// Determine whether this gradebook uses Categories Only or Weighted Categories by checking category type.
+		// We will avoid adding any legacy category information on the individual gb items if the instructor is no
+		// longer using categories in the gradebook.
 		final boolean gbUsesCategories = gradebook.getCategory_type() > CATEGORY_TYPE_NO_CATEGORY;
 
 		final List<GradebookAssignment> internalAssignments = getAssignments(gradebookId);
