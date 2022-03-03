@@ -43,6 +43,7 @@ public class OverviewPage extends BasePage {
 	private String						currentUserId;
 
 	private boolean						siteStatsView = false;
+	private boolean						siteStatsViewAll = false;
 	
 	public OverviewPage() {
 		this(null);
@@ -58,9 +59,11 @@ public class OverviewPage extends BasePage {
 		}
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
+		siteStatsViewAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
 		boolean siteStatsOwn = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
 		currentUserId = statsAuthz.getCurrentSessionUserId();
-		if(siteStatsView || siteStatsOwn) {
+		//if(siteStatsView || siteStatsOwn) {
+		if(siteStatsView) {
 			renderBody();
 			Locator.getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
@@ -96,7 +99,7 @@ public class OverviewPage extends BasePage {
 		
 		// Activity
 		boolean activityVisible = statsManager.isEnableSiteActivity();
-		if(activityVisible && siteStatsView) {
+		if(activityVisible && siteStatsViewAll) {
 			add(new ActivityWidget("activityWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("activityWidget").setRenderBodyOnly(true));
@@ -110,7 +113,7 @@ public class OverviewPage extends BasePage {
 		}catch(Exception e) {
 			resourcesVisible = false;
 		}
-		if(resourcesVisible && siteStatsView) {
+		if(resourcesVisible && siteStatsViewAll) {
 			add(new ResourcesWidget("resourcesWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
@@ -125,7 +128,7 @@ public class OverviewPage extends BasePage {
 			lessonsVisible = false;
 		}
 
-		if (lessonsVisible && siteStatsView) {
+		if (lessonsVisible && siteStatsViewAll) {
 			add(new LessonsWidget("lessonsWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("lessonsWidget").setRenderBodyOnly(true));
