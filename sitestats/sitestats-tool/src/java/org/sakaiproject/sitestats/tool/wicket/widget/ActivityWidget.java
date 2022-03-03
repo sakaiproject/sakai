@@ -33,6 +33,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.Stat;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.report.Report;
@@ -62,12 +63,17 @@ public class ActivityWidget extends Panel {
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
 		setOutputMarkupId(true);
+
+		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
+		boolean siteStatsAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
 		widgetMiniStats.add(getMiniStatActivityEvents());
 		widgetMiniStats.add(getMiniStatMostActiveTool());
-		widgetMiniStats.add(getMiniStatMostActiveUser());
+		if (siteStatsAll) {
+			widgetMiniStats.add(getMiniStatMostActiveUser());
+		}
 		//widgetMiniStats.add(getMiniStatConfigureLink());		
 		
 		// Tabs
