@@ -44,6 +44,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 		functionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
 		functionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);
 		functionManager.registerFunction(PERMISSION_SITESTATS_OWN);
+		functionManager.registerFunction(PERMISSION_SITESTATS_ALL);
 		functionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
 		functionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
 	}
@@ -51,6 +52,11 @@ public class StatsAuthzImpl implements StatsAuthz {
 	@Override
 	public boolean isUserAbleToViewSiteStats(String siteId) {
 		return isUserAbleToViewSiteStatsForSiteRef(siteService.siteReference(siteId));
+	}
+
+	@Override
+	public boolean isUserAbleToViewSiteStatsAll(String siteId) {
+		return hasPermission(siteService.siteReference(siteId), PERMISSION_SITESTATS_ALL);
 	}
 
 	@Override
