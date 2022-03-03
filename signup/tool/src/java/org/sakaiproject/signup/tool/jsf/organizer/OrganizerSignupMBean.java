@@ -57,7 +57,6 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.SwapAttendee;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1460,22 +1459,11 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		return signupMeetingService.getUsersLocalDateTimeString(instant);
 	}
 	
-	public int getNumSigned(List<TimeslotWrapper> lista, int partOrWait) {
-		int retorno = 0;
-		if (lista == null) {
-			return retorno;
+	public int getNumSigned(List<TimeslotWrapper> timeslotsList, int partOrWait) {
+		if (timeslotsList == null) {
+			return 0;
 		}
-
-		if(partOrWait == 1) {
-			for (TimeslotWrapper timeslot : lista) {
-				retorno = retorno + timeslot.getParticipants();
-			}
-		}else {
-			for (TimeslotWrapper timeslot : lista) {
-				retorno = retorno + timeslot.getWaitingListSize();
-			}
-		}
-		return retorno;
+		return timeslotsList.stream().map(s -> partOrWait == 1 ? s.getParticipants() : s.getWaitingListSize()).reduce(Integer::sum).orElse(0);
 	}
 	
 	public String getTextParticipants(String property) {
