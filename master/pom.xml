@@ -75,7 +75,7 @@
     <sakai.xerces.impl.version>2.12.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>2.17.2</sakai.log4j.version>
-    <sakai.slf4j.version>1.7.35</sakai.slf4j.version>
+    <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
     <sakai.poi.version>5.2.0</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
