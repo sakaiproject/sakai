@@ -1499,7 +1499,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // TODO these permissions checks should coincide with the changes that are being made for the submission
         if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
@@ -2339,8 +2339,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
 
                 // check for allow resubmission or not
-                //if an Extension exists for the user, we switch out the assignment's overall Close date for the extension deadline. We do this if the grade has been actually released, or if the submission object has not actually been submitted yet. Additionally, we make sure that a Resubmission date is not set [make sure it's null], so that this date-switching happens ONLY under Extension-related circumstances.
-                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getSubmitted()))){
+                // If an Extension exists for the user, we switch out the assignment's overall
+                // Close date for the extension deadline. We do this if the grade has been actually
+                // released, or if the submission object has not actually been submitted yet.
+                // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
+                // so that this date-switching happens ONLY under Extension-related circumstances.
+                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
+                        && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getUserSubmission()))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
                 }
