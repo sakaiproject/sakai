@@ -45,6 +45,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_METRICS_UPDATE_FREQ = "ignite.metrics.update.freq";
     public static final String IGNITE_METRICS_LOG_FREQ = "ignite.metrics.log.freq";
     public static final String IGNITE_TCP_MESSAGE_QUEUE_LIMIT = "ignite.tcpMessageQueueLimit";
+    public static final String IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT = "ignite.tcpSlowClientMessageQueueLimit";
     public static final String IGNITE_STOP_ON_FAILURE = "ignite.stopOnFailure";
 
     private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
@@ -82,6 +83,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             name = serverConfigurationService.getServerName();
             node = serverConfigurationService.getServerId();
             int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
+            int tcpSlowClientMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT, tcpMessageQueueLimit / 2);
             boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
             Map<String, Object> attributes = new HashMap<>();
@@ -111,6 +113,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
             transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
             transactionConfiguration.setDefaultTxIsolation(TransactionIsolation.READ_COMMITTED);
+            transactionConfiguration.setDefaultTxTimeout(3000);
             igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
 
             igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
@@ -140,7 +143,14 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
 
+            // limits outbound/inbound message queue
             tcpCommunication.setMessageQueueLimit(tcpMessageQueueLimit);
+
+            if (tcpSlowClientMessageQueueLimit > tcpMessageQueueLimit) {
+                tcpSlowClientMessageQueueLimit = tcpMessageQueueLimit;
+            }
+            // detection of a nodes with a high outbound message queue
+            tcpCommunication.setSlowClientQueueLimit(tcpSlowClientMessageQueueLimit);
 
             Set<String> discoveryAddresses = new HashSet<>();
             String localDiscoveryAddress;
