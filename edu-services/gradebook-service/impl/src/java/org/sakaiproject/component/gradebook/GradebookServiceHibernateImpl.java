@@ -165,7 +165,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new GradebookSecurityException();
 		}
 
-		final Long gradebookId = getGradebook(gradebookUid).getId();
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		final Long gradebookId = gradebook.getId();
+		// Determine whether this gradebook uses Categories Only or Weighted Categories by checking category type.
+		// We will avoid adding any legacy category information on the individual gb items if the instructor is no
+		// longer using categories in the gradebook.
+		final boolean gbUsesCategories = gradebook.getCategory_type() > CATEGORY_TYPE_NO_CATEGORY;
 
 		final List<GradebookAssignment> internalAssignments = getAssignments(gradebookId);
 
@@ -174,7 +179,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = new ArrayList<>();
 		for (final GradebookAssignment gradebookAssignment : internalAssignments) {
 			final GradebookAssignment assignment = gradebookAssignment;
-			assignments.add(getAssignmentDefinition(assignment));
+			assignments.add(getAssignmentDefinition(assignment, gbUsesCategories));
 		}
 		return assignments;
 	}
@@ -267,6 +272,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(final GradebookAssignment internalAssignment) {
+		return getAssignmentDefinition(internalAssignment, true);
+	}
+
+	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(final GradebookAssignment internalAssignment, final boolean gbUsesCategories) {
 		final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
     	assignmentDefinition.setName(internalAssignment.getName());
     	assignmentDefinition.setPoints(internalAssignment.getPointsPossible());
@@ -279,7 +288,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setReleased(internalAssignment.isReleased());
     	assignmentDefinition.setId(internalAssignment.getId());
     	assignmentDefinition.setExtraCredit(internalAssignment.isExtraCredit());
-    	if(internalAssignment.getCategory() != null) {
+    	if (gbUsesCategories && internalAssignment.getCategory() != null) {
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
@@ -1386,9 +1395,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// Now we need to convert these to the assignment template objects
 		if (viewableAssignments != null && !viewableAssignments.isEmpty()) {
+			final boolean gbUsesCategories = gradebook.getCategory_type() > GradebookService.CATEGORY_TYPE_NO_CATEGORY;
 			for (final Object element : viewableAssignments) {
 				final GradebookAssignment assignment = (GradebookAssignment) element;
-				assignmentsToReturn.add(getAssignmentDefinition(assignment));
+				assignmentsToReturn.add(getAssignmentDefinition(assignment, gbUsesCategories));
 			}
 		}
 
