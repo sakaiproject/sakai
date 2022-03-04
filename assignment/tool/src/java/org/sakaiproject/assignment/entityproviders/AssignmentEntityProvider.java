@@ -864,10 +864,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put(WITH_GRADES, true);
         options.put(ALLOW_RESUBMIT_NUMBER, resubmitNumber);
 
-        if (!StringUtils.isBlank(resubmitDate)) {
+        if (StringUtils.isNotBlank(resubmitDate)) {
             options.put(ALLOW_RESUBMIT_CLOSE_EPOCH_MILLIS, resubmitDate);
         }
-        if(!StringUtils.isBlank(extensionDate)){
+        if (StringUtils.isNotBlank(extensionDate)){
             options.put(ALLOW_EXTENSION_CLOSE_EPOCH_MILLIS, extensionDate);
         }
         Set<String> attachmentKeys
@@ -1024,9 +1024,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         boolean canUserAccessWizardPageAndLinkedArtifcact = false;
-        if (!"".equals(decSiteId) && !"".equals(decPageId)
-                && !"null".equals(submissionId)) {
-            Map<String, Object> params = new HashMap<String, Object>();
+        if (StringUtils.isNotEmpty(decSiteId) && StringUtils.isNotEmpty(decPageId) && !"null".equals(submissionId)) {
+            Map<String, Object> params = new HashMap<>();
             params.put("siteId", decSiteId);
             params.put("pageId", decPageId);
             params.put("linkedArtifactId", submissionId);
