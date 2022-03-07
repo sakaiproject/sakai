@@ -645,8 +645,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.privateNotesEditor.resetDirty();
         this.confirmedNotSavePvtNotes = false;
         document.getElementById("private-notes-unsaved-msg").classList.add("hidden");
-      }
-      else {
+      } else {
         this.confirmedNotSavePvtNotes = true;
         document.getElementById("private-notes-unsaved-msg").classList.remove("hidden");
         return false;
