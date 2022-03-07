@@ -601,8 +601,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         beforeClose: () => { return this.cancelFeedbackToggle() },
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
-    }
-    else {
+    } else {
       this.feedbackCommentEditor.destroy();
       feedbackPanel.dialog("destroy");
     }
