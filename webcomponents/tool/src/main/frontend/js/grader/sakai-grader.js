@@ -621,7 +621,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   cancelFeedbackToggle() {
 
     if (this.feedbackCommentEditor.checkDirty()) {
-      if (this.confirmedNotSaveFeedback){
+      if (this.confirmedNotSaveFeedback) {
         this.feedbackCommentEditor.setData(this.submission.feedbackComment, () => this.modified = false);
         this.feedbackCommentEditor.resetDirty();
         this.confirmedNotSaveFeedback = false;
