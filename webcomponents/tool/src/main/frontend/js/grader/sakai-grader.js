@@ -626,8 +626,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         this.feedbackCommentEditor.resetDirty();
         this.confirmedNotSaveFeedback = false;
         document.getElementById("feedback-comment-unsaved-msg").classList.add("hidden");
-      }
-      else {
+      } else {
         this.confirmedNotSaveFeedback = true;
         document.getElementById("feedback-comment-unsaved-msg").classList.remove("hidden");
         return false;
