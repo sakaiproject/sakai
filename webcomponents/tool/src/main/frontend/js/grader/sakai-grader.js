@@ -950,7 +950,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       : true;
   }
 
-  toStudentList(e){
+  toStudentList(e) {
 
     e.preventDefault();
     if (this.canNavigate()) {
