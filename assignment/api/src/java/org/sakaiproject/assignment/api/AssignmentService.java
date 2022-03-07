@@ -708,6 +708,18 @@ public interface AssignmentService extends EntityProducer {
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
     /**
+     * @param assignmentId
+     * @return Formatted grade scale or null if assignment is not found
+     */
+    public String getScaleDisplay(String assignmentId);
+
+    /**
+     * @param assignmentId
+     * @return Formatted access (Entire site, groups,...) or null if assignment is not found
+     */
+    public String getAccessDisplay(String assignmentId);
+
+    /**
      * @param factor
      * @param maxGradePoint
      * @return

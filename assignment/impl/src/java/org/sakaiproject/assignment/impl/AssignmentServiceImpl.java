@@ -83,6 +83,8 @@ import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnGroup;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnUser;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment.Access;
+import org.sakaiproject.assignment.api.model.Assignment.GradeType;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
@@ -2981,6 +2983,68 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 }
         }
         return returnGrade;
+    }
+
+    public String getScaleDisplay(String assignmentId) {
+        Assignment assignment;
+        try {
+            assignment = getAssignment(assignmentId);
+        } catch (Exception e) {
+            log.error("Assignment with id {} could not be retrieved", assignmentId);
+            return null;
+        }
+        GradeType gradeType = assignment.getTypeOfGrade();
+        switch(gradeType) {
+            case GRADE_TYPE_NONE:
+                return resourceLoader.getString("gen.notset");
+            case UNGRADED_GRADE_TYPE:
+                return resourceLoader.getString("gen.nograd");
+            case LETTER_GRADE_TYPE:
+                return resourceLoader.getString("letter");
+            case SCORE_GRADE_TYPE:
+                return String.format("%s %s", getMaxPointGradeDisplay(assignment.getScaleFactor(), assignment.getMaxGradePoint()),
+                    resourceLoader.getString("points"));
+            case PASS_FAIL_GRADE_TYPE:
+                return resourceLoader.getString("gen.pf");
+            case CHECK_GRADE_TYPE:
+                return resourceLoader.getString("gen.checkmark");
+            default:
+                log.error("Grade type '{}' unknown to getScaleDisplay() for Assignment {}", gradeType.toString(), assignmentId);
+                return null;
+        }
+    }
+
+    public String getAccessDisplay(String assignmentId) {
+        Assignment assignment;
+        try {
+            assignment = getAssignment(assignmentId);
+        } catch (Exception e) {
+            log.error("Assignment with id {} could not be retrieved", assignmentId);
+            return null;
+        }
+
+        Site site;
+        try {
+            site = siteService.getSite(assignment.getContext());
+        } catch (IdUnusedException e) {
+            log.error("Site {} not found from assignment {} context: {}", assignment.getContext(), assignment.getId(), e.toString());
+            return null;
+        }
+
+        Access accessType = assignment.getTypeOfAccess();
+        switch(accessType) {
+            case SITE:
+                return resourceLoader.getString("gen.viewallgroupssections");
+            case GROUP:
+                String allGroupString = assignment.getGroups().stream().reduce("", (currentString, groupId) -> {
+                    return currentString.concat(", " + site.getGroup(groupId).getTitle());
+                });
+                allGroupString = allGroupString.substring(2);
+                return allGroupString;
+            default:
+                log.error("Access type '{}' unknown to getAccessDisplay() for Assignment {}", accessType.toString(), assignmentId);
+                return null;
+        }
     }
 
     @Override
