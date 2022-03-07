@@ -1045,6 +1045,11 @@ public class BasicTimeService implements TimeService
 	}
 
 	@Override
+	public String dateFormat(Instant date, FormatStyle dateStyle) {
+		return userTimeService.dateFormat(date, dateStyle);
+	}
+
+	@Override
 	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
 		return userTimeService.shortLocalizedTimestamp(instant, timezone, locale);
 	}

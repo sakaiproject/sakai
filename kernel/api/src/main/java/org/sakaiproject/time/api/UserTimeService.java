@@ -100,6 +100,16 @@ public interface UserTimeService {
      * @return
      */
     public String dateTimeFormat(Instant date, FormatStyle dateStyle, FormatStyle timeStyle);
+
+    /**
+     * Gets the date formatter with the given formatting style in the current user's locale
+     * and preferred timezone. If you pass null for dateStyle, you'll get MEDIUM
+     *
+     * @param date
+     * @param dateStyle use FormatSyle.SHORT, MEDIUM, LONG, or FULL
+     * @return
+     */
+    public String dateFormat(Instant date, FormatStyle dateStyle);
     
     /**
      * Formats a point in time, in the given time zone, for display to the user in a concise way that still presents all relevant information

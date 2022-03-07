@@ -257,6 +257,11 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 	}
 
 	@Override
+	protected void additionalContentReviewItemPreparation(ContentReviewItem item) {
+		// no op
+	}
+
+	@Override
 	public String getEndUserLicenseAgreementLink(String userId) {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} getEndUserLicenseAgreementLink {}", ret, userId);

@@ -198,6 +198,15 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		}
 	}
 
+	@Override
+	@Transactional
+	public Optional<ContentReviewItem> getItemByContentId(String contentId) {
+		Objects.requireNonNull(contentId, "contentId cannot be null");
+
+		return itemDao.findByContentId(contentId);
+	}
+
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.service.ContentReviewQueueService#getQueuedItem(java.lang.Integer, java.lang.String)
 	 */
@@ -249,6 +258,15 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	public List<ContentReviewItem> getAwaitingReports(Integer providerId) {
 		Objects.requireNonNull(providerId, "providerId cannot be null");
 		return itemDao.findByProviderAwaitingReports(providerId);
+	}
+
+	@Override
+	@Transactional
+	public boolean itemsExistForSiteAndTaskId(String siteId, String taskId)
+	{
+		Objects.requireNonNull(siteId);
+		Objects.requireNonNull(taskId);
+		return itemDao.itemsExistForSiteAndTaskId(siteId, taskId);
 	}
 	
 	

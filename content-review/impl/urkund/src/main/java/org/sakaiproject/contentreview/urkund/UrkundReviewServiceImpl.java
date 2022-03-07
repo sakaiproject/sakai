@@ -969,17 +969,6 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	@Override
-	public ContentReviewItem getContentReviewItemByContentId(String contentId){
-		Optional<ContentReviewItem> cri = crqs.getQueuedItem(getProviderId(), contentId);
-		if(cri.isPresent()){
-			ContentReviewItem item = cri.get();
-			//Urkund specific work
-			return item;
-		}
-		return null;
-	}
-
-	@Override
 	public String getEndUserLicenseAgreementLink(String userId) {
 		return null;
 	}
