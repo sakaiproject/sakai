@@ -666,8 +666,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         beforeClose: () => this.cancelPrivateNotesToggle(),
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
-    }
-    else {
+    } else {
       this.privateNotesEditor.destroy();
       privateNotesPanel.dialog("destroy");
     }
