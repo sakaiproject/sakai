@@ -199,7 +199,7 @@ public class ChartServiceImpl implements ChartService {
 	 * @see org.sakaiproject.sitestats.api.chart.ChartService#generateChart(java.lang.String, java.lang.Object, java.lang.String, int, int, boolean, float, boolean, java.lang.String)
 	 */
 	public byte[] generateChart(
-			String siteId, Object dataset, String chartType,
+			String siteId, String reportWhat, Object dataset, String chartType,
 			int width, int height,
 			boolean render3d, float transparency,
 			boolean itemLabelsVisible, String timePeriod) {
@@ -228,14 +228,14 @@ public class ChartServiceImpl implements ChartService {
 		}else if(StatsManager.CHARTTYPE_TIMESERIES.equals(chartType)) {
 			if(dataset instanceof IntervalXYDataset) {
 				IntervalXYDataset ds = (IntervalXYDataset) dataset;
-				return generateTimeSeriesChart(siteId, ds, width, height, false, transparency, itemLabelsVisible, false, timePeriod);
+				return generateTimeSeriesChart(siteId, reportWhat, ds, width, height, false, transparency, itemLabelsVisible, false, timePeriod);
 			}else{
 				log.warn("Dataset not supported for "+chartType+" chart type: only classes implementing XYDataset are supported.");
 			}
 		}else if(StatsManager.CHARTTYPE_TIMESERIESBAR.equals(chartType)) {
 			if(dataset instanceof IntervalXYDataset) {
 				IntervalXYDataset ds = (IntervalXYDataset) dataset;
-				return generateTimeSeriesChart(siteId, ds, width, height, true, transparency, itemLabelsVisible, false, timePeriod);
+				return generateTimeSeriesChart(siteId, reportWhat, ds, width, height, true, transparency, itemLabelsVisible, false, timePeriod);
 			}else{
 				log.warn("Dataset not supported for "+chartType+" chart type: only classes implementing XYDataset are supported.");
 			}
@@ -276,6 +276,7 @@ public class ChartServiceImpl implements ChartService {
 					true,
 					report.getReportDefinition().getReportParams().getHowChartSeriesPeriod()
 					);*/
+			String reportWhat = report.getReportDefinition().getReportParams().getWhat();
 			String siteId = report.getReportDefinition().getReportParams().getSiteId();
 			String timePeriod = report.getReportDefinition().getReportParams().getHowChartSeriesPeriod();
 			Date firstDate = report.getReportDefinition().getReportParams().getWhenFrom();
@@ -304,14 +305,14 @@ public class ChartServiceImpl implements ChartService {
 			}else if(StatsManager.CHARTTYPE_TIMESERIES.equals(chartType)) {
 				if(dataset instanceof IntervalXYDataset) {
 					IntervalXYDataset ds = (IntervalXYDataset) dataset;
-					return generateTimeSeriesChart(siteId, ds, width, height, false, transparency, itemLabelsVisible, false, timePeriod, firstDate, lastDate);
+					return generateTimeSeriesChart(siteId, reportWhat, ds, width, height, false, transparency, itemLabelsVisible, false, timePeriod, firstDate, lastDate);
 				}else{
 					log.warn("Dataset not supported for "+chartType+" chart type: only classes implementing XYDataset are supported.");
 				}
 			}else if(StatsManager.CHARTTYPE_TIMESERIESBAR.equals(chartType)) {
 				if(dataset instanceof IntervalXYDataset) {
 					IntervalXYDataset ds = (IntervalXYDataset) dataset;
-					return generateTimeSeriesChart(siteId, ds, width, height, true, transparency, itemLabelsVisible, false, timePeriod, firstDate, lastDate);
+					return generateTimeSeriesChart(siteId, reportWhat, ds, width, height, true, transparency, itemLabelsVisible, false, timePeriod, firstDate, lastDate);
 				}else{
 					log.warn("Dataset not supported for "+chartType+" chart type: only classes implementing XYDataset are supported.");
 				}
@@ -505,12 +506,12 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private byte[] generateTimeSeriesChart(
-			String siteId, IntervalXYDataset dataset, int width, int height,
+			String siteId, String reportWhat, IntervalXYDataset dataset, int width, int height,
 			boolean renderBar, float transparency,
 			boolean itemLabelsVisible, 
 			boolean smallFontInDomainAxis,
 			String timePeriod) {
-		return generateTimeSeriesChart(siteId, dataset, width, height, 
+		return generateTimeSeriesChart(siteId, reportWhat, dataset, width, height, 
 				renderBar, transparency, 
 				itemLabelsVisible,
 				smallFontInDomainAxis,
@@ -518,17 +519,25 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private byte[] generateTimeSeriesChart(
-			String siteId, IntervalXYDataset dataset, int width, int height,
+			String siteId, String reportWhat, IntervalXYDataset dataset, int width, int height,
 			boolean renderBar, float transparency,
 			boolean itemLabelsVisible, 
 			boolean smallFontInDomainAxis,
 			String timePeriod, Date firstDate, Date lastDate) {
 		JFreeChart chart = null;
+
+		String yLabelString = null;
+		switch (reportWhat) {
+			case ReportManager.WHAT_PRESENCES:
+				yLabelString = msgs.getString("minutes");
+				break;
+		}
+
 		if(!renderBar) {
-			chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, true, false, false);
+			chart = ChartFactory.createTimeSeriesChart(null, null, yLabelString, dataset, true, false, false);
 		}else {
 			chart = ChartFactory.createXYBarChart(null, 
-	                null, true, null, dataset, PlotOrientation.VERTICAL, 
+	                null, true, yLabelString, dataset, PlotOrientation.VERTICAL, 
 	                true, false, false); 
 		}
 		XYPlot plot = (XYPlot) chart.getPlot();
@@ -1372,11 +1381,11 @@ public class ChartServiceImpl implements ChartService {
 			}else if(ReportManager.WHAT_PRESENCES.equals(what)) {
 				if(s instanceof SitePresence) {
 					double duration = (double) ((SitePresence) s).getDuration();
-					duration = Util.round(duration / 1000 / 60, 1); // in minutes
+					duration = duration / 1000 / 60; // in minutes
 					if(existingValue != null) {
 						duration += existingValue.doubleValue();
 					}
-					return duration;
+					return Util.round(duration, 2);
 				}
 			}
 			long count = s.getCount();
