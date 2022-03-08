@@ -1,16 +1,17 @@
 import {
   html,
   LitElement,
-  unsafeCSS,
+  // unsafeCSS,
 } from "../../assets/lit-element/lit-element.js?version=__buildNumber__";
 import { TabulatorFull as Tabulator } from "../../assets/tabulator-tables/dist/js/tabulator_esm.min.js?version=__buildNumber__";
-import styles from "./sui-table.scss";
+// import styles from "./sui-table.scss";
 import "../../sui-icon/sui-icon.js";
 
+// TODO update all sui-icon and sui-button implementation to use this
 // TODO discuss whether to make the action bar a component
 // TODO research whether to convert most props to single config object
 // TODO discuss shadow dom
-// TODO unit tests
+// TODO write unit tests
 // TODO use property defined sorting column
 // TODO review tabulator progressive ajax loading for long lists
 // TODO review tabulator persistance
@@ -452,6 +453,8 @@ export class SuiTable extends LitElement {
   }
 
   static get styles() {
-    return [unsafeCSS(styles)];
+    return [
+      // (typeof styles !== 'undefined' ? unsafeCSS(styles) : null)
+    ];
   }
 }

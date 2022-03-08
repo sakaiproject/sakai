@@ -1,9 +1,9 @@
 import {
   html,
   LitElement,
-  unsafeCSS,
+  // unsafeCSS,
 } from "../assets/lit-element/lit-element.js?version=__buildNumber__";
-import styles from "./sui-button.scss";
+// import styles from "./sui-button.scss";
 import "../sui-icon/sui-icon";
 export class SakaiUIButton extends LitElement {
   createRenderRoot() {
@@ -101,7 +101,9 @@ export class SakaiUIButton extends LitElement {
   }
 
   static get styles() {
-    return [unsafeCSS(styles)];
+    return [
+      // (typeof styles !== 'undefined' ? unsafeCSS(styles) : null)
+    ];
   }
 }
 

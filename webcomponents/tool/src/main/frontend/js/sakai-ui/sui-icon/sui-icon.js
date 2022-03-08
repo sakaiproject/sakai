@@ -1,7 +1,7 @@
 import {
   html,
   LitElement,
-  unsafeCSS,
+  // unsafeCSS,
 } from '../assets/lit-element/lit-element.js?version=__buildNumber__';
 import {
   icon,
@@ -64,7 +64,7 @@ import {
   faPlay,
 } from "../assets/@fortawesome/free-solid-svg-icons/index.es.js?version=__buildNumber__";
 
-import styles from "./sui-icon.scss";
+// import styles from "./sui-icon.scss";
 export class SakaiUIIcon extends LitElement {
   createRenderRoot() {
     // Render to the real dom, not the shadow. We can now pull
@@ -98,7 +98,9 @@ export class SakaiUIIcon extends LitElement {
   }
 
   static get styles() {
-    return [unsafeCSS(styles)];
+    return [
+      // (typeof styles !== 'undefined' ? unsafeCSS(styles) : null)
+    ];
   }
 }
 

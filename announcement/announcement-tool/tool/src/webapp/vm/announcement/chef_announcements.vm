@@ -427,6 +427,7 @@
 					<sui-table
 						debug
 						id="announcementsList"
+						permissions: { menu-new}
 						show-actions
 						show-filters
 						table-actions='[

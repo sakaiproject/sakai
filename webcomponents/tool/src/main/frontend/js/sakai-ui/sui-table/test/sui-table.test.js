@@ -1,10 +1,10 @@
+/* eslint-disable no-undef */
 import { html, fixture, expect } from '@open-wc/testing';
 import '../sui-table.js';
 
-/* eslint-disable */
 describe("SuiTable", () => {
-  it("has a columns array", async () => {
-/* eslint-enable */
+  // it renders with no properties
+  it("renders with no properties", async () => {
     const el = await fixture(html` <sui-table></sui-table> `);
 
     expect(el.columns).isArray();
