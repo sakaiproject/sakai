@@ -847,6 +847,7 @@
                 </fieldset>
             </div>
         </div>
+        <input type="hidden" id="grade-is-released" name="grade-is-released" value="$submission.getGradeReleased()" />
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
         <input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
     </form>
