@@ -41,7 +41,6 @@
 </p>
 #else
 <p>$tlang.getString("content.no.tools")</p>
-<p>
 <p class="act">
 <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 </p>
