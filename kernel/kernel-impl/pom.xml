@@ -266,6 +266,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring-cache-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-hibernate-core</artifactId>
         </dependency>
         <dependency>
