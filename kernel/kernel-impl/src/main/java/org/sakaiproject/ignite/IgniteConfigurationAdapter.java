@@ -113,7 +113,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             TransactionConfiguration transactionConfiguration = new TransactionConfiguration();
             transactionConfiguration.setDefaultTxConcurrency(TransactionConcurrency.OPTIMISTIC);
             transactionConfiguration.setDefaultTxIsolation(TransactionIsolation.READ_COMMITTED);
-            transactionConfiguration.setDefaultTxTimeout(3000);
+            transactionConfiguration.setDefaultTxTimeout(30 * 1000);
             igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
 
             igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS);
