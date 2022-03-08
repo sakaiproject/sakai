@@ -12,11 +12,15 @@
           init-method="init">
         <property name="dynamicCacheConfiguration">
             <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                <property name="atomicityMode" value="ATOMIC"/>
                 <property name="cacheMode" value="REPLICATED"/>
                 <property name="dataRegionName" value="spring_region"/>
                 <property name="onheapCacheEnabled" value="false"/>
                 <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.expiryPolicy"/>
                 <property name="eagerTtl" value="true"/>
+                <property name="writeSynchronizationMode" value="FULL_ASYNC"/>
+                <property name="readFromBackup" value="true"/>
+                <property name="statisticsEnabled" value="true"/>
             </bean>
         </property>
         <property name="sakaiIgnite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
