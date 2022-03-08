@@ -122,7 +122,7 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		// Set the portal redirect URI
 		redirectUri = serverConfigurationService.getServerUrl() + "/sakai-googledrive-tool";
 		log.info("Google redirect URI set to {}", redirectUri);
-		
+
 		String defaultClientId = serverConfigurationService.getString(GOOGLEDRIVE_PREFIX + GOOGLEDRIVE_CLIENT_ID, null);
 		String defaultClientSecret = serverConfigurationService.getString(GOOGLEDRIVE_PREFIX + GOOGLEDRIVE_CLIENT_SECRET, null);
 
@@ -180,7 +180,8 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		}
 		String userId = this.getCurrentUserId();
 		String userGoogleOrganization = this.getUserGoogleOrganization(userId);
-		String redirectTo = this.getGoogleAuthorizationCodeFlow(userGoogleOrganization).newAuthorizationUrl()
+		GoogleAuthorizationCodeFlow flow = this.getGoogleAuthorizationCodeFlow(userGoogleOrganization);
+		String redirectTo = flow.newAuthorizationUrl()
 				.setRedirectUri(redirectUri)
 				.setState(redirectUri)
 				.build();
@@ -436,7 +437,8 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 		try {
 			cleanGoogleDriveCacheForUser(userId);
 			String userGoogleOrganization = this.getUserGoogleOrganization(userId);
-			DataStore<StoredCredential> credentialStore = this.getGoogleAuthorizationCodeFlow(userGoogleOrganization).getCredentialDataStore();
+			GoogleAuthorizationCodeFlow flow = this.getGoogleAuthorizationCodeFlow(userGoogleOrganization);
+			DataStore<StoredCredential> credentialStore = flow.getCredentialDataStore();
 			return (credentialStore.delete(userId) != null);
 		} catch (Exception e) {
 			log.warn("Error while trying to remove GoogleDrive configuration : {}", e.getMessage());
@@ -532,10 +534,10 @@ public class GoogleDriveServiceImpl implements GoogleDriveService {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error getting properties for user {}, {}", userId, e.getMessage());
+			log.error("Error getting the user organization for {}, assigning the default organization: {}", userId, e.getMessage());
 		}
 		log.debug("User {} does not match with any organization, returning the default.", userId);
-		return null;
+		return GOOGLE_DEFAULT_ORGANIZATION;
 	}
 
 }
