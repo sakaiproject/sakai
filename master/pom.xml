@@ -424,7 +424,8 @@
       <dependency>
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring-data-commons</artifactId>
-        <version>${sakai.ignite.spring.ext.version}</version>
+        <version>1.1.0</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.ignite</groupId>
