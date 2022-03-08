@@ -459,6 +459,7 @@
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring-data-commons</artifactId>
         <version>${sakai.ignite.spring.ext.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.ignite</groupId>
