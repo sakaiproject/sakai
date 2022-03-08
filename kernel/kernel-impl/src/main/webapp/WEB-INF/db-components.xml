@@ -455,6 +455,7 @@
 				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext</prop>
 				<prop key="org.apache.ignite.hibernate.default_access_type">READ_ONLY</prop>
 				<prop key="hibernate.id.new_generator_mappings">false</prop>
+				<prop key="javax.persistence.query.timeout">30000</prop>
 			</props>
 		</property>
 	</bean>
