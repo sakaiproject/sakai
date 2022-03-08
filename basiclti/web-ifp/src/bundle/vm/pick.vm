@@ -7,9 +7,9 @@
 <script>
 	includeLatestJQuery('web-ifp pick.vm');
 </script>
-	<h3>
-		$tlang.getString("gen.custom")
-	</h3>
+	<div class="page-header">
+		<h1>$tlang.getString("gen.custom")</h1>
+	</div>
 	#if ($alertMessage)
 	<div class="sak-banner-error">
 	$tlang.getString("gen.alert") $alertMessage
