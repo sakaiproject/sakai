@@ -9,6 +9,8 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="googledriveRepo" ref="org.sakaiproject.googledrive.repository.GoogleDriveUserRepository"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
 
     <bean id="org.sakaiproject.googledrive.repository.GoogleDriveUserRepository"

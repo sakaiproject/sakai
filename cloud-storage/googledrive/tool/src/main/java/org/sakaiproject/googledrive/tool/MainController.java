@@ -46,8 +46,8 @@ public class MainController {
 	public String showIndex(@RequestParam(required=false) String code, Model model) {
 		log.debug("GoogleDriveServlet : Called the main servlet.");
 		String userId = sessionManager.getCurrentSessionUserId();
-		Object pickerRedirectUrlObject = sessionManager.getCurrentSession().getAttribute(googleDriveService.GOOGLEDRIVE_REDIRECT_URI);
-		sessionManager.getCurrentSession().removeAttribute(googleDriveService.GOOGLEDRIVE_REDIRECT_URI);
+		Object pickerRedirectUrlObject = sessionManager.getCurrentSession().getAttribute(GoogleDriveService.GOOGLEDRIVE_REDIRECT_URI);
+		sessionManager.getCurrentSession().removeAttribute(GoogleDriveService.GOOGLEDRIVE_REDIRECT_URI);
 		String pickerRedirectUrl = pickerRedirectUrlObject != null ? pickerRedirectUrlObject.toString() : null;
 		log.debug("GoogleDriveServlet : request code {}", code);
 		log.debug("GoogleDriveServlet : sakai user {}", userId);
