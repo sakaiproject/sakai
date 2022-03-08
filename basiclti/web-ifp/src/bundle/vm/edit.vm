@@ -34,10 +34,9 @@
 		</p>
 	</form>
 <script type="text/javascript">
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function() {
    fontawesome_icon_picker('#fa_icon');
    $("#launch-input").hide();
 });
-
 </script>
 </div>

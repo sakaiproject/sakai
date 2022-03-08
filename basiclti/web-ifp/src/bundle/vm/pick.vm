@@ -47,11 +47,4 @@
 </p>
 #end
 	</form>
-
-<script type="text/javascript">
-$(document).ready(function () {
-   // TODO: Maybe need something here.
-});
-
-</script>
 </div>

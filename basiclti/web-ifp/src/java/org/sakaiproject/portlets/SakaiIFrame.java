@@ -42,7 +42,7 @@ import javax.portlet.RenderResponse;
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -585,5 +585,4 @@ public class SakaiIFrame extends GenericPortlet {
 		return null;
 	}
 
-	// vim: set noet ts=4
 }
