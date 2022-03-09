@@ -994,14 +994,14 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String submitterId = UUID.randomUUID().toString();
 
         // test for non existent submission
-        String status = assignmentService.getSubmissionStatus("SUBMISSION_DOESNT_EXIST");
+        String status = assignmentService.getSubmissionStatus("SUBMISSION_DOESNT_EXIST", true);
         Assert.assertEquals("Not Started", status);
 
         try {
             AssignmentSubmission submission = createNewSubmission(context, submitterId, null);
             when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
                                         AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("In progress", status);
             AssignmentConstants.SubmissionStatus subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, subStatus);
@@ -1010,7 +1010,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             // A grader should see additional info before about the status
             String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("Ungraded - In progress", status);
 
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
@@ -1021,8 +1021,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submission.setDateSubmitted(Instant.now());
             submission.setSubmittedText("submittedText");
             assignmentService.updateSubmission(submission);
-            status = assignmentService.getSubmissionStatus(submission.getId());
+            status = assignmentService.getSubmissionStatus(submission.getId(), true);
             Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()), status);
+            String statusWithDate = assignmentService.getSubmissionStatus(submission.getId(), false);
+            Assert.assertEquals("Submitted " + submission.getDateSubmitted(), statusWithDate);
             subStatus = assignmentService.getSubmissionCanonicalStatus(submission, false);
             Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
 

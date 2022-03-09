@@ -1800,7 +1800,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getSubmissionStatus(String submissionId) {
+    public String getSubmissionStatus(String submissionId, boolean returnFormattedDate) {
         AssignmentSubmission submission = null;
         SubmissionStatus submissionStatus;
         String submitTime = "";
@@ -1815,7 +1815,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 canGrade = allowGradeSubmission(assignmentReference);
 
                 if (submission.getDateSubmitted() != null) {
-                    submitTime = userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null);
+                    submitTime = returnFormattedDate ?
+                            userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null) :
+                            submission.getDateSubmitted().toString();
                 }
             }
         } catch (PermissionException e) {

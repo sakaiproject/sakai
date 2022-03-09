@@ -169,7 +169,7 @@ public class Assignments extends AbstractWebService {
     			uElement.setAttribute("feedback-comment", thisSub.getFeedbackComment());
     			uElement.setAttribute("feedback-text", thisSub.getFeedbackText());
     			uElement.setAttribute("grade", thisSub.getGrade());
-    			uElement.setAttribute("status", assignmentService.getSubmissionStatus(thisSub.getId()));
+    			uElement.setAttribute("status", assignmentService.getSubmissionStatus(thisSub.getId(), true));
     			uElement.setAttribute("submitted-text", thisSub.getSubmittedText());
     			for (AssignmentSubmissionSubmitter submitter : thisSub.getSubmitters()) {
     				uElement.setAttribute("submitter-id", submitter.getSubmitter());
