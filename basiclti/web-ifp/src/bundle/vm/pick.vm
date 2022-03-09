@@ -7,43 +7,42 @@
 <script>
 	includeLatestJQuery('web-ifp pick.vm');
 </script>
-	<div class="page-header">
-		<h1>$tlang.getString("gen.custom")</h1>
-	</div>
-	#if ($alertMessage)
-	<div class="sak-banner-error">
-	$tlang.getString("gen.alert") $alertMessage
-	</div>
+<div class="page-header">
+	<h1>$tlang.getString("gen.custom")</h1>
+</div>
+#if ($alertMessage)
+    <div class="sak-banner-error">
+        $tlang.getString("gen.alert") $alertMessage
+    </div>
+#end
 
-	#end
-	<form action="$actionUrl" method="post" name="customizeForm" >
-
+<form action="$actionUrl" method="post" name="customizeForm" >
 #if ($tools && $tools.size() > 0)
-        <p style="clear:all;">
-            <label for="tool_id" style="display:block;float:none;">
-                <span style="color:#903;font-weight:bold" title="Tool Title">*</span>
+<p style="clear:all;">
+    <label for="tool_id" style="display:block;float:none;">
+    <span style="color:#903;font-weight:bold">*</span>
         $tlang.getString("content.select.tool")
-            </label>
-   <select id="tool_id" name="tool_id"">
-      <option value="--none--">$tlang.getString("content.select.one")</option>
-    #foreach ($tool in $tools)
-        #set( $selected = "" )
-        #if ( $tool_id && $tool_id.toString().equals($tool.get("id").toString()))
-            #set( $selected = "selected" )
+    </label>
+    <select id="tool_id" name="tool_id"">
+        <option value="--none--">$tlang.getString("content.select.one")</option>
+        #foreach ($tool in $tools)
+            #set( $selected = "" )
+            #if ( $tool_id && $tool_id.toString().equals($tool.get("id").toString()))
+                #set( $selected = "selected" )
+            #end
+            <option value="$tool.get("id")" $selected > $tool.get("title")</option>
         #end
-               <option value="$tool.get("id")" $selected > $tool.get("title")</option>
-    #end
-   </select>
+    </select>
 </p>
 <p class="act">
-<input type="submit" accesskey ="s" class="active" name="$doChoose" value="$tlang.getString('gen.save')" />
-<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+    <input type="submit" accesskey ="s" class="active" name="$doChoose" value="$tlang.getString('gen.save')" />
+    <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 </p>
 #else
 <p>$tlang.getString("content.no.tools")</p>
 <p class="act">
-<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+    <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 </p>
 #end
-	</form>
+</form>
 </div>
