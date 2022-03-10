@@ -72,54 +72,56 @@ import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.api.ImportMetadata;
-import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
@@ -135,10 +137,11 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.tool.MenuBuilder.SiteInfoActiveTab;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
@@ -147,26 +150,31 @@ import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.SiteTypeUtil;
+import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 import org.sakaiproject.sitemanage.api.SectionField;
+import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.sitemanage.api.SiteManageService;
+import org.sakaiproject.sitemanage.api.SiteTypeProvider;
+import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService;
 import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -181,8 +189,9 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.ToolTitleComparator;
-import org.sakaiproject.site.tool.MathJaxEnabler;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 
@@ -196,67 +205,8 @@ public class SiteAction extends PagedResourceActionII {
 	// SAK-23491 add template_used property
 	private static final String TEMPLATE_USED = "template_used";
 
-	private RubricsService rubricsService = (RubricsService) ComponentManager.get(RubricsService.class);
-	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-	private LinkMigrationHelper m_linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
-
-	private ImportService importService = org.sakaiproject.importer.cover.ImportService
-			.getInstance();
-
-	private static String showOrphanedMembers = ServerConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
-
-	/** portlet configuration parameter values* */
-	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
-	private static ResourceLoader cfgRb = new ResourceLoader("multipletools");
-
-	private Locale comparator_locale = rb.getLocale();	
-
-	private org.sakaiproject.authz.api.SecurityService securityService = (org.sakaiproject.authz.api.SecurityService) ComponentManager.get(
-			org.sakaiproject.authz.api.SecurityService.class);
-
-	private org.sakaiproject.user.api.UserDirectoryService userDirectoryService = (org.sakaiproject.user.api.UserDirectoryService) ComponentManager.get(
-			org.sakaiproject.user.api.UserDirectoryService.class );
-	
-	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
-			.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
-
-	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
-			.get(org.sakaiproject.authz.api.GroupProvider.class);
-
-	private AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
-
-	private org.sakaiproject.archive.api.ArchiveService archiveService = (org.sakaiproject.archive.api.ArchiveService) ComponentManager
-			.get(org.sakaiproject.archive.api.ArchiveService.class);
-	
-	private org.sakaiproject.sitemanage.api.SectionFieldProvider sectionFieldProvider = (org.sakaiproject.sitemanage.api.SectionFieldProvider) ComponentManager
-			.get(org.sakaiproject.sitemanage.api.SectionFieldProvider.class);
-	
-	private org.sakaiproject.sitemanage.api.AffiliatedSectionProvider affiliatedSectionProvider = (org.sakaiproject.sitemanage.api.AffiliatedSectionProvider) ComponentManager
-	.get(org.sakaiproject.sitemanage.api.AffiliatedSectionProvider.class);
-	
-	private org.sakaiproject.sitemanage.api.SiteTypeProvider siteTypeProvider = (org.sakaiproject.sitemanage.api.SiteTypeProvider) ComponentManager
-	.get(org.sakaiproject.sitemanage.api.SiteTypeProvider.class);
-
-	private AliasService aliasService = ComponentManager.get(AliasService.class);
-	
-	private FormattedText formattedText = ComponentManager.get(FormattedText.class);
-	
-	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
-	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
-	
-	private static org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
-	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
-	
-	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
-	
-	private PreferencesService preferencesService = (PreferencesService)ComponentManager.get(PreferencesService.class);
-
-	private MemoryService memoryService = (MemoryService) ComponentManager.get(MemoryService.class);
-	private Cache m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.SiteService.userSiteCache");
-	private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
-	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
+	private static final ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
+	private static final ResourceLoader cfgRb = new ResourceLoader("multipletools");
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -362,7 +312,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_DISABLE_JOINABLE_SITE_TYPE = "disable_joinable_site_types";
 
 	
-	private final static String PROP_SITE_LANGUAGE = "locale_string";
+	private static final String PROP_SITE_LANGUAGE = "locale_string";
 
 	/**
 	 * Name of the state attribute holding the site list column list is sorted
@@ -380,12 +330,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_VIEW_SELECTED = "site.view.selected";
 	
 	private static final String STATE_TERM_VIEW_SELECTED = "site.termview.selected";
-
-	/*******************
-	 *  SAK-16600
-	 *
-	 * Refactor methods to update these values in state/context
-	 */
 
 	/** Names of lists related to tools groups */
 	private static final String STATE_TOOL_GROUP_LIST = "toolsByGroup";
@@ -418,22 +362,20 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String STATE_PROJECT_TOOL_LIST = "projectToolList";
 
-	private final static String STATE_MULTIPLE_TOOL_ID_SET = "multipleToolIdSet";
-	private final static String STATE_MULTIPLE_TOOL_ID_TITLE_MAP = "multipleToolIdTitleMap";
-	private final static String STATE_MULTIPLE_TOOL_CONFIGURATION = "multipleToolConfiguration";
+	private static final String STATE_MULTIPLE_TOOL_ID_SET = "multipleToolIdSet";
+	private static final  String STATE_MULTIPLE_TOOL_ID_TITLE_MAP = "multipleToolIdTitleMap";
+	private static final String STATE_MULTIPLE_TOOL_CONFIGURATION = "multipleToolConfiguration";
 
-	private final static String SITE_DEFAULT_LIST = ServerConfigurationService
-			.getString("site.types");
-
-	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType", null);
-	private final static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicChangeable");
-	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
-	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
+	private static String SITE_DEFAULT_LIST;
+	private static String DEFAULT_SITE_TYPE_SAK_PROP;
+	private static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP;
+	private static String[] PUBLIC_SITE_TYPES_SAK_PROP;
+	private static String[] PRIVATE_SITE_TYPES_SAK_PROP;
 
 	private static final String SAK_PROP_DEFAULT_SITE_VIS = "wsetup.defaultSiteVisibility";
 	private static final boolean SAK_PROP_DEFAULT_SITE_VIS_DFLT = true;
 
-	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
+	private static final String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
 	
 	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
 	
@@ -459,7 +401,7 @@ public class SiteAction extends PagedResourceActionII {
 	// %%% same for CourseItems
 
 	// Names for other state attributes that are lists
-	private final static String STATE_WORKSITE_SETUP_PAGE_LIST = "wSetupPageList"; // the
+	private static final String STATE_WORKSITE_SETUP_PAGE_LIST = "wSetupPageList"; // the
 
 	// list
 	// of
@@ -479,41 +421,41 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String FORM_ADDITIONAL = "form.additional";
 
 	/** %%% in transition from putting all form variables in state */
-	private final static String FORM_TITLE = "form_title";
+	private static final String FORM_TITLE = "form_title";
 
-	private final static String FORM_SITE_URL_BASE = "form_site_url_base";
+	private static final String FORM_SITE_URL_BASE = "form_site_url_base";
 	
-	private final static String FORM_SITE_ALIAS = "form_site_alias";
+	private static final String FORM_SITE_ALIAS = "form_site_alias";
 	
-	private final static String FORM_DESCRIPTION = "form_description";
+	private static final String FORM_DESCRIPTION = "form_description";
 
-	private final static String FORM_HONORIFIC = "form_honorific";
+	private static final String FORM_HONORIFIC = "form_honorific";
 
-	private final static String FORM_INSTITUTION = "form_institution";
+	private static final String FORM_INSTITUTION = "form_institution";
 
-	private final static String FORM_SUBJECT = "form_subject";
+	private static final String FORM_SUBJECT = "form_subject";
 
-	private final static String FORM_PHONE = "form_phone";
+	private static final String FORM_PHONE = "form_phone";
 
-	private final static String FORM_EMAIL = "form_email";
+	private static final String FORM_EMAIL = "form_email";
 
-	private final static String FORM_REUSE = "form_reuse";
+	private static final String FORM_REUSE = "form_reuse";
 
-	private final static String FORM_RELATED_CLASS = "form_related_class";
+	private static final String FORM_RELATED_CLASS = "form_related_class";
 
-	private final static String FORM_RELATED_PROJECT = "form_related_project";
+	private static final String FORM_RELATED_PROJECT = "form_related_project";
 
-	private final static String FORM_NAME = "form_name";
+	private static final String FORM_NAME = "form_name";
 
-	private final static String FORM_SHORT_DESCRIPTION = "form_short_description";
+	private static final String FORM_SHORT_DESCRIPTION = "form_short_description";
 
-	private final static String FORM_ICON_URL = "iconUrl";
+	private static final String FORM_ICON_URL = "iconUrl";
 	
-	private final static String FORM_SITEINFO_URL_BASE = "form_site_url_base";
+	private static final String FORM_SITEINFO_URL_BASE = "form_site_url_base";
 	
-	private final static String FORM_SITEINFO_ALIASES = "form_site_aliases";
+	private static final String FORM_SITEINFO_ALIASES = "form_site_aliases";
 
-	private final static String FORM_WILL_NOTIFY = "form_will_notify";
+	private static final String FORM_WILL_NOTIFY = "form_will_notify";
 
 	/** Context action */
 	private static final String CONTEXT_ACTION = "SiteAction";
@@ -596,29 +538,29 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_NEXT_SITE = "state_next_site";
 
 	/** for course information */
-	private final static String STATE_TERM_COURSE_LIST = "state_term_course_list";
+	private static final String STATE_TERM_COURSE_LIST = "state_term_course_list";
 
-	private final static String STATE_TERM_COURSE_HASH = "state_term_course_hash";
+	private static final String STATE_TERM_COURSE_HASH = "state_term_course_hash";
 
-	private final static String STATE_TERM_SELECTED = "state_term_selected";
+	private static final String STATE_TERM_SELECTED = "state_term_selected";
 
-	private final static String STATE_INSTRUCTOR_SELECTED = "state_instructor_selected";
+	private static final String STATE_INSTRUCTOR_SELECTED = "state_instructor_selected";
 
-	private final static String STATE_FUTURE_TERM_SELECTED = "state_future_term_selected";
+	private static final String STATE_FUTURE_TERM_SELECTED = "state_future_term_selected";
 
-	private final static String STATE_ADD_CLASS_PROVIDER = "state_add_class_provider";
+	private static final String STATE_ADD_CLASS_PROVIDER = "state_add_class_provider";
 
-	private final static String STATE_ADD_CLASS_PROVIDER_CHOSEN = "state_add_class_provider_chosen";
+	private static final String STATE_ADD_CLASS_PROVIDER_CHOSEN = "state_add_class_provider_chosen";
 	
-	private final static String STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN = "state_add_class_provider_description_chosen";
+	private static final String STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN = "state_add_class_provider_description_chosen";
 
-	private final static String STATE_ADD_CLASS_MANUAL = "state_add_class_manual";
+	private static final String STATE_ADD_CLASS_MANUAL = "state_add_class_manual";
 
-	private final static String STATE_AUTO_ADD = "state_auto_add";
+	private static final String STATE_AUTO_ADD = "state_auto_add";
 
-	private final static String STATE_MANUAL_ADD_COURSE_NUMBER = "state_manual_add_course_number";
+	private static final String STATE_MANUAL_ADD_COURSE_NUMBER = "state_manual_add_course_number";
 
-	private final static String STATE_MANUAL_ADD_COURSE_FIELDS = "state_manual_add_course_fields";
+	private static final String STATE_MANUAL_ADD_COURSE_FIELDS = "state_manual_add_course_fields";
 
 	public final static String PROP_SITE_REQUEST_COURSE = "site-request-course-sections";
 
@@ -626,9 +568,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	public final static String SITE_MANUAL_COURSE_LIST = "site_manual_course_list";
 
-	private final static String STATE_SUBJECT_AFFILIATES = "site.subject.affiliates";
+	private static final String STATE_SUBJECT_AFFILIATES = "site.subject.affiliates";
 
-	private final static String STATE_ICONS = "icons";
+	private static final String STATE_ICONS = "icons";
 
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
@@ -687,12 +629,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	//for user search in site_info page
 	private static final String SITE_USER_SEARCH = "search_user";
-	private String cmSubjectCategory;
 
 	public static final String STATE_SITE_PARTICIPANT_FILTER = "site_participant_filter";
     
-	private boolean warnedNoSubjectCategory = false;
-	
 	/**
 	 * {@link org.sakaiproject.component.api.ServerConfigurationService} property.
 	 * If <code>false</code>, ensures that a site's joinability settings are not affected should
@@ -725,10 +664,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
 
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
-	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
-	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
+	private static final String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
+	private static final String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
 	// used in the configuration file to specify the default tool title 
-	private String CONFIG_TOOL_TITLE = "wsetup.config.tool.title_";
+	private static final String CONFIG_TOOL_TITLE = "wsetup.config.tool.title_";
 	
 	// home tool id
 	private static final String TOOL_ID_HOME = "home";
@@ -745,7 +684,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String IMPORT_QUEUED = "import.queued";
 	
 	// map of synoptic tool and the related tool ids
-	private final static Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
+	private static final Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
 	static
 	{
 		SYNOPTIC_TOOL_ID_MAP = new HashMap<String, List<String>>();
@@ -757,7 +696,7 @@ public class SiteAction extends PagedResourceActionII {
 	}
 	
 	// map of synoptic tool and message bundle properties, used to lookup an internationalized tool title
-	private final static Map<String, String> SYNOPTIC_TOOL_TITLE_MAP;
+	private static final Map<String, String> SYNOPTIC_TOOL_TITLE_MAP;
 	static
 	{
 		SYNOPTIC_TOOL_TITLE_MAP = new HashMap<String, String>();
@@ -769,47 +708,47 @@ public class SiteAction extends PagedResourceActionII {
 	}
 	
 	/** the web content tool id **/
-	private final static String WEB_CONTENT_TOOL_ID = "sakai.iframe";
-	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG = "source";
-	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://";
+	private static final String WEB_CONTENT_TOOL_ID = "sakai.iframe";
+	private static final String WEB_CONTENT_TOOL_SOURCE_CONFIG = "source";
+	private static final String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://";
 
 	/** the news tool **/
-	private final static String NEWS_TOOL_ID = "sakai.simple.rss";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG = "javax.portlet-feed_url";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakailms.org/blog-feed.xml";
+	private static final String NEWS_TOOL_ID = "sakai.simple.rss";
+	private static final String NEWS_TOOL_CHANNEL_CONFIG = "javax.portlet-feed_url";
+	private static final String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakailms.org/blog-feed.xml";
 	
-   	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
+   	private static final String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
 
-	private final static int UUID_LENGTH = 36;
+	private static final int UUID_LENGTH = 36;
 	
 	/** the course set definition from CourseManagementService **/
-	private final static String STATE_COURSE_SET = "state_course_set";
+	private static final String STATE_COURSE_SET = "state_course_set";
 	
 	// the maximum tool title length enforced in UI
-	private final static int MAX_TOOL_TITLE_LENGTH = 20;
+	private static final int MAX_TOOL_TITLE_LENGTH = 20;
 	
-	private final static String SORT_KEY_SESSION = "worksitesetup.sort.key.session";
-	private final static String SORT_ORDER_SESSION = "worksitesetup.sort.order.session";
-	private final static String SORT_KEY_COURSE_SET = "worksitesetup.sort.key.courseSet";
-	private final static String SORT_ORDER_COURSE_SET = "worksitesetup.sort.order.courseSet";
-	private final static String SORT_KEY_COURSE_OFFERING = "worksitesetup.sort.key.courseOffering";
-	private final static String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
-	private final static String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
-	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
+	private static final String SORT_KEY_SESSION = "worksitesetup.sort.key.session";
+	private static final String SORT_ORDER_SESSION = "worksitesetup.sort.order.session";
+	private static final String SORT_KEY_COURSE_SET = "worksitesetup.sort.key.courseSet";
+	private static final String SORT_ORDER_COURSE_SET = "worksitesetup.sort.order.courseSet";
+	private static final String SORT_KEY_COURSE_OFFERING = "worksitesetup.sort.key.courseOffering";
+	private static final String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
+	private static final String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
+	private static final String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
 
 	public final static String SAK_PROP_SITE_SETUP_GROUP_SUPPORT = "wsetup.group.support";
 	public final static boolean SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT = true;
 
 	// SAK-23255
-	private final static String CONTEXT_IS_ADMIN = "isAdmin";
-	private final static String CONTEXT_SKIP_MANUAL_COURSE_CREATION = "skipManualCourseCreation";
-	private final static String CONTEXT_SKIP_COURSE_SECTION_SELECTION = "skipCourseSectionSelection";
-	private final static String CONTEXT_FILTER_TERMS = "filterTerms";
-	private final static String SAK_PROP_SKIP_MANUAL_COURSE_CREATION = "wsetup.skipManualCourseCreation";
-	private final static String SAK_PROP_SKIP_COURSE_SECTION_SELECTION = "wsetup.skipCourseSectionSelection";
+	private static final String CONTEXT_IS_ADMIN = "isAdmin";
+	private static final String CONTEXT_SKIP_MANUAL_COURSE_CREATION = "skipManualCourseCreation";
+	private static final String CONTEXT_SKIP_COURSE_SECTION_SELECTION = "skipCourseSectionSelection";
+	private static final String CONTEXT_FILTER_TERMS = "filterTerms";
+	private static final String SAK_PROP_SKIP_MANUAL_COURSE_CREATION = "wsetup.skipManualCourseCreation";
+	private static final String SAK_PROP_SKIP_COURSE_SECTION_SELECTION = "wsetup.skipCourseSectionSelection";
 	
 	//SAK-22432 Template descriptions are not copied
-	private final static String SAK_PROP_COPY_TEMPLATE_DESCRIPTION = "site.setup.copy.template.description";
+	private static final String SAK_PROP_COPY_TEMPLATE_DESCRIPTION = "site.setup.copy.template.description";
 
 	private static final String SAK_PROP_SHOW_ROSTER_EID = "wsetup.showRosterEIDs";
 	private static final boolean SAK_PROP_SHOW_ROSTER_EID_DEFAULT = false;
@@ -819,8 +758,6 @@ public class SiteAction extends PagedResourceActionII {
 	//Setup property to email authorizer (default to true)
 	private static final String SAK_PROP_EMAIL_AUTHORIZER = "wsetup.emailAuthorizer";
 
-	private List prefLocales = new ArrayList();
-	
 	private static final String VM_ALLOWED_ROLES_DROP_DOWN 	= "allowedRoles";
 	
 	// SAK-23256
@@ -836,20 +773,16 @@ public class SiteAction extends PagedResourceActionII {
 	private static final boolean SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT = false;
 
 	// state variable for whether any multiple instance tool has been selected
-	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
+	private static final String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
 	// state variable for lti tools
-	private String STATE_LTITOOL_LIST = "state_ltitool_list";
+	private static final String STATE_LTITOOL_LIST = "state_ltitool_list";
 	// state variable for selected lti tools in site
-	private String STATE_LTITOOL_EXISTING_SELECTED_LIST = "state_ltitool_existing_selected_list";
+	private static final String STATE_LTITOOL_EXISTING_SELECTED_LIST = "state_ltitool_existing_selected_list";
 	// state variable for selected lti tools during tool modification
-	private String STATE_LTITOOL_SELECTED_LIST = "state_ltitool_selected_list";
+	private static final String STATE_LTITOOL_SELECTED_LIST = "state_ltitool_selected_list";
 	// special prefix String for basiclti tool ids
-	private String LTITOOL_ID_PREFIX = "lti_";
+	private static final String LTITOOL_ID_PREFIX = "lti_";
 	
-	private String m_filePath;
-	private String moreInfoPath;
-	private String libraryPath;
-
 	private static final String STATE_HARD_DELETE = "hardDelete";
 	private static final String STATE_SOFT_DELETE = "softDelete";
 
@@ -857,21 +790,103 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_UPLOADED_ARCHIVE_PATH = "uploadedArchivePath";
 	private static final String STATE_UPLOADED_ARCHIVE_NAME = "uploadedArchiveNAme";
 	
-	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
-	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
-	
-	private PrivacyManager privacyManager = (PrivacyManager) ComponentManager.get(PrivacyManager.class);
-	
 	// SAK-28990 - enable/disable continue with no roster
 	private static final String VM_CONT_NO_ROSTER_ENABLED = "contNoRosterEnabled";
 	private static final String SAK_PROP_CONT_NO_ROSTER_ENABLED = "sitemanage.continueWithNoRoster";
 	
 	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
 
+	private Cache m_userSiteCache;
+	private ImportService importService;
+	private List prefLocales;
+	private Locale comparator_locale;
+	private String libraryPath;
+	private String moreInfoPath;
+	private String showOrphanedMembers;
+
+	private AffiliatedSectionProvider affiliatedSectionProvider;
+	private AliasService aliasService;
+	private ArchiveService archiveService;
+	private AuthzGroupService authzGroupService;
+	private ContentHostingService contentHostingService;
+	private CourseManagementService courseManagementService;
+	private DeveloperHelperService devHelperService;
+	private EntityManager entityManager;
+	private EventTrackingService eventTrackingService;
+	private FormattedText formattedText;
+	private GroupProvider groupProvider;
+	private IdManager idManager;
+	private LTIService ltiService;
+	private LinkMigrationHelper linkMigrationHelper;
+	private MemoryService memoryService;
+	private PreferencesService preferencesService;
+	private PrivacyManager privacyManager;
+	private RubricsService rubricsService;
+	private SectionFieldProvider sectionFieldProvider;
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
+	private ShortenedUrlService shortenedUrlService;
+	private SiteService siteService;
 	private SiteManageService siteManageService;
+	private SiteSetupQuestionService questionService;
+	private SiteTypeProvider siteTypeProvider;
+	private ThreadLocalManager threadLocalManager;
+	private ToolManager toolManager;
+	private UserAuditRegistration userAuditRegistration;
+	private UserAuditService userAuditService;
+	private UserDirectoryService userDirectoryService;
+	private UserNotificationProvider userNotificationProvider;
+	private UserTimeService userTimeService;
 
 	public SiteAction() {
+		affiliatedSectionProvider = ComponentManager.get(AffiliatedSectionProvider.class);
+		aliasService = ComponentManager.get(AliasService.class);
+		archiveService = ComponentManager.get(ArchiveService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		courseManagementService = ComponentManager.get(CourseManagementService.class);
+		contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		devHelperService = ComponentManager.get(DeveloperHelperService.class);
+		entityManager = ComponentManager.get(EntityManager.class);
+		eventTrackingService = ComponentManager.get(EventTrackingService.class);
+		formattedText = ComponentManager.get(FormattedText.class);
+		groupProvider = ComponentManager.get(GroupProvider.class);
+		idManager = ComponentManager.get(IdManager.class);
+		linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
+		ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		memoryService = ComponentManager.get(MemoryService.class);
+		preferencesService = ComponentManager.get(PreferencesService.class);
+		privacyManager = ComponentManager.get(PrivacyManager.class);
+		questionService = ComponentManager.get(SiteSetupQuestionService.class);
+		rubricsService = ComponentManager.get(RubricsService.class);
+		sectionFieldProvider = ComponentManager.get(SectionFieldProvider.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		shortenedUrlService = ComponentManager.get(ShortenedUrlService.class);
+		siteService = ComponentManager.get(SiteService.class);
 		siteManageService = ComponentManager.get(SiteManageService.class);
+		siteTypeProvider = ComponentManager.get(SiteTypeProvider.class);
+		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
+		toolManager = ComponentManager.get(ToolManager.class);
+		userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
+		userAuditService = ComponentManager.get(UserAuditService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class );
+		userNotificationProvider = ComponentManager.get(UserNotificationProvider.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
+
+		importService = org.sakaiproject.importer.cover.ImportService.getInstance();
+		comparator_locale = rb.getLocale();
+		prefLocales = new ArrayList<>();
+
+		SITE_DEFAULT_LIST = serverConfigurationService.getString("site.types");
+		DEFAULT_SITE_TYPE_SAK_PROP = serverConfigurationService.getString("site.types.defaultType", null);
+		PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.publicChangeable");
+		PUBLIC_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.publicOnly");
+		PRIVATE_SITE_TYPES_SAK_PROP = serverConfigurationService.getStrings("site.types.privateOnly");
+
+		showOrphanedMembers = serverConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
+		m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.siteService.userSiteCache");
 	}
 
 	/**
@@ -894,10 +909,10 @@ public class SiteAction extends PagedResourceActionII {
 		
 		// First: get the tool ids from configuration files
 		// initially by "wsetup.home.toolids" + site type, and if missing, use "wsetup.home.toolids"
-		if (ServerConfigurationService.getStrings("wsetup.home.toolids." + siteType) != null) {
-			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids." + siteType)));
-		} else if (ServerConfigurationService.getStrings("wsetup.home.toolids") != null) {
-			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids")));
+		if (serverConfigurationService.getStrings("wsetup.home.toolids." + siteType) != null) {
+			rv = new ArrayList(Arrays.asList(serverConfigurationService.getStrings("wsetup.home.toolids." + siteType)));
+		} else if (serverConfigurationService.getStrings("wsetup.home.toolids") != null) {
+			rv = new ArrayList(Arrays.asList(serverConfigurationService.getStrings("wsetup.home.toolids")));
 		}
 		
 		// Second: if tool list is empty, get it from the template site settings
@@ -907,14 +922,14 @@ public class SiteAction extends PagedResourceActionII {
 			Site templateSite = null;
 			String templateSiteId = "";
 			
-			if (SiteService.isUserSite(site.getId()))
+			if (siteService.isUserSite(site.getId()))
 			{
 				// myworkspace type site: get user type first, and then get the template site
 				try
 				{
-					User user = UserDirectoryService.getUser(SiteService.getSiteUserId(site.getId()));
-					templateSiteId = SiteService.USER_SITE_TEMPLATE + "." + user.getType();
-					templateSite = SiteService.getSite(templateSiteId);
+					User user = userDirectoryService.getUser(siteService.getSiteUserId(site.getId()));
+					templateSiteId = siteService.USER_SITE_TEMPLATE + "." + user.getType();
+					templateSite = siteService.getSite(templateSiteId);
 				}
 				catch (Throwable t)
 				{
@@ -923,8 +938,8 @@ public class SiteAction extends PagedResourceActionII {
 					// use the fall-back, user template site
 					try
 					{
-						templateSiteId = SiteService.USER_SITE_TEMPLATE;
-						templateSite = SiteService.getSite(templateSiteId);
+						templateSiteId = siteService.USER_SITE_TEMPLATE;
+						templateSite = siteService.getSite(templateSiteId);
 					}
 					catch (Throwable tt)
 					{
@@ -941,20 +956,20 @@ public class SiteAction extends PagedResourceActionII {
 				if (templateSite == null)
 				{
 					// second: if no template is chosen by user, then use template based on site type 
-					templateSiteId = SiteService.SITE_TEMPLATE + "." + siteType;
+					templateSiteId = siteService.SITE_TEMPLATE + "." + siteType;
 					try
 					{
-						templateSite = SiteService.getSite(templateSiteId);
+						templateSite = siteService.getSite(templateSiteId);
 					}
 					catch (Throwable t)
 					{
 						log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
 					
 						// thrid: if cannot find template site with the site type, use the default template
-						templateSiteId = SiteService.SITE_TEMPLATE;
+						templateSiteId = siteService.SITE_TEMPLATE;
 						try
 						{
-							templateSite = SiteService.getSite(templateSiteId);
+							templateSite = siteService.getSite(templateSiteId);
 						}
 						catch (Throwable tt)
 						{
@@ -976,7 +991,7 @@ public class SiteAction extends PagedResourceActionII {
 						for(ToolConfiguration tConfiguration : (List<ToolConfiguration>) page.getTools())
 						{
 							String toolId = tConfiguration.getToolId();
-							if (ToolManager.getTool(toolId) != null)
+							if (toolManager.getTool(toolId) != null)
 								rv.add(toolId);
 						}
 						break;
@@ -991,39 +1006,39 @@ public class SiteAction extends PagedResourceActionII {
 			if (siteType.equalsIgnoreCase("myworkspace"))
 			{
 				// first try with MOTD tool
-				if (ToolManager.getTool("sakai.motd") != null)
+				if (toolManager.getTool("sakai.motd") != null)
 					rv.add("sakai.motd");
 				
 				if (rv.isEmpty())
 				{
 					// then try with the myworkspace information tool
-					if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
+					if (toolManager.getTool("sakai.iframe.myworkspace") != null)
 						rv.add("sakai.iframe.myworkspace");
 				}
 			}
 			else
 			{
 				// try the site information tool
-				if (ToolManager.getTool("sakai.iframe.site") != null)
+				if (toolManager.getTool("sakai.iframe.site") != null)
 					rv.add("sakai.iframe.site");
 			}
 			
 			// synoptical tools
-			if (ToolManager.getTool(TOOL_ID_SUMMARY_CALENDAR) != null)
+			if (toolManager.getTool(TOOL_ID_SUMMARY_CALENDAR) != null)
 			{
 				rv.add(TOOL_ID_SUMMARY_CALENDAR);
 			}
 			
-			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_ANNOUNCEMENT) != null)
+			if (toolManager.getTool(TOOL_ID_SYNOPTIC_ANNOUNCEMENT) != null)
 			{
 				rv.add(TOOL_ID_SYNOPTIC_ANNOUNCEMENT);
 			}
 			
-			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_CHAT) != null)
+			if (toolManager.getTool(TOOL_ID_SYNOPTIC_CHAT) != null)
 			{
 				rv.add(TOOL_ID_SYNOPTIC_CHAT);
 			}
-			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_MESSAGECENTER) != null)
+			if (toolManager.getTool(TOOL_ID_SYNOPTIC_MESSAGECENTER) != null)
 			{
 				rv.add(TOOL_ID_SYNOPTIC_MESSAGECENTER);
 			}
@@ -1063,7 +1078,7 @@ public class SiteAction extends PagedResourceActionII {
 	protected void initState(SessionState state, VelocityPortlet portlet,
 			JetspeedRunData rundata) {
 		ServletContext ctx = rundata.getRequest().getSession().getServletContext();
-		String serverContextPath = ServerConfigurationService.getString("config.sitemanage.moreInfoDir", "library/image/");
+		String serverContextPath = serverConfigurationService.getString("config.sitemanage.moreInfoDir", "library/image/");
 		libraryPath = File.separator + serverContextPath;
 		moreInfoPath = setMoreInfoPath(ctx) + serverContextPath;
 		// Cleanout if the helper has been asked to start afresh.
@@ -1081,7 +1096,7 @@ public class SiteAction extends PagedResourceActionII {
 		super.initState(state, portlet, rundata);
 
 		// store current userId in state
-		User user = UserDirectoryService.getCurrentUser();
+		User user = userDirectoryService.getCurrentUser();
 		String userId = user.getEid();
 		state.setAttribute(STATE_CM_CURRENT_USERID, userId);
 		PortletConfig config = portlet.getPortletConfig();
@@ -1111,11 +1126,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		// certain type(s) of site cannot get its "joinable" option set
 		if (state.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE) == null) {
-			if (ServerConfigurationService
-					.getStrings("wsetup.disable.joinable") != null) {
+			if (serverConfigurationService.getStrings("wsetup.disable.joinable") != null) {
 				state.setAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE,
-						new ArrayList(Arrays.asList(ServerConfigurationService
-								.getStrings("wsetup.disable.joinable"))));
+						new ArrayList(Arrays.asList(serverConfigurationService.getStrings("wsetup.disable.joinable"))));
 			} else {
 				state.setAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE,
 						new Vector());
@@ -1131,22 +1144,19 @@ public class SiteAction extends PagedResourceActionII {
 			setupIcons(state);
 		}
 		
-		if (ServerConfigurationService.getStrings("site.type.titleNotEditable") != null) {
+		if (serverConfigurationService.getStrings("site.type.titleNotEditable") != null) {
 			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
-					.asList(ServerConfigurationService
-							.getStrings("site.type.titleNotEditable"))));
+					.asList(serverConfigurationService.getStrings("site.type.titleNotEditable"))));
 		} else {
 			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
-					.asList(new String[]{ServerConfigurationService
-							.getString("courseSiteType", "course")})));
+					.asList(new String[]{serverConfigurationService.getString("courseSiteType", "course")})));
 		}
 
 		if (state.getAttribute(EDIT_VIEW_ROSTER_SITE_TYPE) == null) {
 			List siteTypes = new Vector();
-			if (ServerConfigurationService.getStrings("editViewRosterSiteType") != null) {
+			if (serverConfigurationService.getStrings("editViewRosterSiteType") != null) {
 				siteTypes = new ArrayList(Arrays
-						.asList(ServerConfigurationService
-								.getStrings("editViewRosterSiteType")));
+						.asList(serverConfigurationService.getStrings("editViewRosterSiteType")));
 			}
 			state.setAttribute(EDIT_VIEW_ROSTER_SITE_TYPE, siteTypes);
 		}
@@ -1276,8 +1286,8 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		String contextString = ToolManager.getCurrentPlacement().getContext();
-		String siteRef = SiteService.siteReference(contextString);
+		String contextString = toolManager.getCurrentPlacement().getContext();
+		String siteRef = siteService.siteReference(contextString);
 
 		// if it is in Worksite setup tool, pass the selected site's reference
 		if (state.getAttribute(STATE_SITE_MODE) != null
@@ -1298,7 +1308,7 @@ public class SiteAction extends PagedResourceActionII {
 		// ... with this description
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb
 				.getString("setperfor")
-				+ " " + SiteService.getSiteDisplay(contextString));
+				+ " " + siteService.getSiteDisplay(contextString));
 
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "site.");
@@ -1352,7 +1362,7 @@ public class SiteAction extends PagedResourceActionII {
 		String template = null;
 		context.put("action", CONTEXT_ACTION);
 
-		ToolSession session = SessionManager.getCurrentToolSession();
+		ToolSession session = sessionManager.getCurrentToolSession();
 		if(session.getAttribute(ATTR_TOP_REFRESH) != null && session.getAttribute(ATTR_TOP_REFRESH).equals(Boolean.TRUE)) {
 			session.removeAttribute(ATTR_TOP_REFRESH);
 			return "sitesetup/chef_refresh";
@@ -1477,7 +1487,7 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
 		//SAK-29525 Open Template list by default when creating site
-		context.put("isExpandTemplates", ServerConfigurationService.getBoolean("site.setup.creation.expand.template", false));
+		context.put("isExpandTemplates", serverConfigurationService.getBoolean("site.setup.creation.expand.template", false));
 
 		// the last visited template index
 		if (preIndex != null)
@@ -1510,23 +1520,23 @@ public class SiteAction extends PagedResourceActionII {
 		List toolRegistrationSelectedList = new Vector();
 
 		// all site types
-		context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
-		context.put("portfolioSiteTypeStrings", SiteService.getSiteTypeStrings("portfolio"));
-		context.put("projectSiteTypeStrings", SiteService.getSiteTypeStrings("project"));
+		context.put("courseSiteTypeStrings", siteService.getSiteTypeStrings("course"));
+		context.put("portfolioSiteTypeStrings", siteService.getSiteTypeStrings("portfolio"));
+		context.put("projectSiteTypeStrings", siteService.getSiteTypeStrings("project"));
 		
 		//can the user create course sites?
-		context.put(STATE_SITE_ADD_COURSE, SiteService.allowAddCourseSite());
+		context.put(STATE_SITE_ADD_COURSE, siteService.allowAddCourseSite());
 		
 		// can the user create portfolio sites?
 		context.put("portfolioSiteType", STATE_PORTFOLIO_SITE_TYPE);
-		context.put(STATE_SITE_ADD_PORTFOLIO, SiteService.allowAddPortfolioSite());
+		context.put(STATE_SITE_ADD_PORTFOLIO, siteService.allowAddPortfolioSite());
 		
 		// can the user create project sites?
 		context.put("projectSiteType", STATE_PROJECT_SITE_TYPE);
-		context.put(STATE_SITE_ADD_PROJECT, SiteService.allowAddProjectSite());
+		context.put(STATE_SITE_ADD_PROJECT, siteService.allowAddProjectSite());
 		
 		// can the user user create sites from archives?
-		context.put(STATE_SITE_IMPORT_ARCHIVE, SiteService.allowImportArchiveSite());
+		context.put(STATE_SITE_IMPORT_ARCHIVE, siteService.allowImportArchiveSite());
 
 		Site site = getStateSite(state);
 
@@ -1547,7 +1557,7 @@ public class SiteAction extends PagedResourceActionII {
 			Hashtable views = new Hashtable();
 
 			// Allow a user to see their deleted sites.
-			if (ServerConfigurationService.getBoolean("site.soft.deletion", true)) {
+			if (serverConfigurationService.getBoolean("site.soft.deletion", true)) {
 				views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
 				if (SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED))) {
 					context.put("canSeeSoftlyDeletedSites", true);
@@ -1560,7 +1570,7 @@ public class SiteAction extends PagedResourceActionII {
 			// If we're in the restore view
 			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
 
-			boolean isSuperUser = SecurityService.isSuperUser();
+			boolean isSuperUser = securityService.isSuperUser();
 			if (isSuperUser) {
 				context.put("superUser", Boolean.TRUE);
 				context.put("canDelSoftDel", Boolean.TRUE);
@@ -1583,7 +1593,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 				// Allow SuperUser to see all deleted sites.
-				if (ServerConfigurationService.getBoolean("site.soft.deletion", true)) {
+				if (serverConfigurationService.getBoolean("site.soft.deletion", true)) {
 					views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
 				}
 
@@ -1592,7 +1602,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_VIEW_SELECTED, SiteConstants.SITE_TYPE_ALL);
 			}
 
-			if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !SecurityService.isSuperUser()) {
+			if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !securityService.isSuperUser()) {
 				views.put(SiteConstants.SITE_ACTIVE, rb.getString("java.myActive"));
 				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
 			}
@@ -1631,9 +1641,9 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_TERM_VIEW_SELECTED) == null) {
 				state.setAttribute(STATE_TERM_VIEW_SELECTED, TERM_OPTION_ALL);
 				
-				if ( ServerConfigurationService.getBoolean(SAK_PROP_AUTO_FILTER_TERM, Boolean.FALSE)) {
+				if ( serverConfigurationService.getBoolean(SAK_PROP_AUTO_FILTER_TERM, Boolean.FALSE)) {
 					// SAK-28059 auto filter term to use the most current term
-					List<AcademicSession> currentTerms = cms.getCurrentAcademicSessions();
+					List<AcademicSession> currentTerms = courseManagementService.getCurrentAcademicSessions();
 					// current terms are sorted by start date we will just take the first
 					if (!currentTerms.isEmpty()) {
 						int termIndex = termViewKeys.indexOf(currentTerms.get(0).getTitle());
@@ -1674,7 +1684,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (sortedAsc != null)
 				context.put("currentSortAsc", sortedAsc);
 
-			String portalUrl = ServerConfigurationService.getPortalUrl();
+			String portalUrl = serverConfigurationService.getPortalUrl();
 			context.put("portalUrl", portalUrl);
 
 			List<Site> allSites = prepPage(state);
@@ -1684,7 +1694,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (!isSuperUser) {
 				boolean canDelSoftDel = false;
 				for (Site s : allSites) {
-					canDelSoftDel = SecurityService.unlock("site.del.softly.deleted", s.getReference());
+					canDelSoftDel = securityService.unlock("site.del.softly.deleted", s.getReference());
 					if (canDelSoftDel) {
 						break;
 					}
@@ -1705,10 +1715,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			// put the service in the context (used for allow update calls on
 			// each site)
-			context.put("service", SiteService.getInstance());
+			context.put("service", siteService);
 			context.put("sortby_title", SortType.TITLE_ASC.toString());
 			context.put("sortby_id", SortType.ID_ASC.toString());
-			context.put("show_id_column", ServerConfigurationService.getBoolean("site.setup.showSiteIdColumn", false));
+			context.put("show_id_column", serverConfigurationService.getBoolean("site.setup.showSiteIdColumn", false));
 			context.put("sortby_type", SortType.TYPE_ASC.toString());
 			context.put("sortby_createdby", SortType.CREATED_BY_ASC.toString());
 			context.put("sortby_publish", SortType.PUBLISHED_ASC.toString());
@@ -1754,7 +1764,7 @@ public class SiteAction extends PagedResourceActionII {
 				types.addAll(mTypes);
 			}
 			context.put("siteTypes", types);
-			context.put("templateControls", ServerConfigurationService.getString("site.setup.templateControls",ServerConfigurationService.getString("templateControls", "")));
+			context.put("templateControls", serverConfigurationService.getString("site.setup.templateControls",serverConfigurationService.getString("templateControls", "")));
 			// put selected/default site type into context
 			String typeSelected = (String) state.getAttribute(STATE_TYPE_SELECTED);
 			context.put("typeSelected", state.getAttribute(STATE_TYPE_SELECTED) != null?state.getAttribute(STATE_TYPE_SELECTED):types.get(0));
@@ -1791,7 +1801,7 @@ public class SiteAction extends PagedResourceActionII {
 			// information related to LTI tools
 			buildLTIToolContextForTemplate(context, state, site, true);
 			
-			if (SecurityService.isSuperUser()) {
+			if (securityService.isSuperUser()) {
 				context.put("superUser", Boolean.TRUE);
 			} else {
 				context.put("superUser", Boolean.FALSE);
@@ -1804,11 +1814,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("check_home", checkToolGroupHome);
 			context.put("ltitool_id_prefix", LTITOOL_ID_PREFIX);
-			context.put("serverName", ServerConfigurationService
-					.getServerName());
-			context.put("sites", SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					null, null, null, SortType.TITLE_ASC, null));
+			context.put("serverName", serverConfigurationService.getServerName());
+			context.put("sites", siteService.getSites(SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null));
 			context.put("import", state.getAttribute(STATE_IMPORT));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put(MathJaxEnabler.CONTEXT_MATHJAX_HELP_URL, MathJaxEnabler.HELP_URL);
@@ -1831,13 +1838,13 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
-			context.put("neoChat", ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
+			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
 			//get expanded groups
 			List<String> expandedGroups_lst = new ArrayList<>();
-			String[] tokens = ServerConfigurationService.getStrings("sitemanage.tools.groups.expanded");
+			String[] tokens = serverConfigurationService.getStrings("sitemanage.tools.groups.expanded");
 			if(tokens != null) {
 				for(String token : tokens) {
 					if(StringUtils.isNotEmpty(token)) {
@@ -1861,19 +1868,19 @@ public class SiteAction extends PagedResourceActionII {
 			String[] removals = (String[]) state
 					.getAttribute(STATE_SITE_REMOVALS);
 			List remove = new Vector();
-			String user = SessionManager.getCurrentSessionUserId();
-			String workspace = SiteService.getUserSiteId(user);
+			String user = sessionManager.getCurrentSessionUserId();
+			String workspace = siteService.getUserSiteId(user);
 			// Are we attempting to softly delete a site.
-			boolean softlyDeleting = ServerConfigurationService.getBoolean("site.soft.deletion", true);
+			boolean softlyDeleting = serverConfigurationService.getBoolean("site.soft.deletion", true);
 			boolean hardDeleting = false;
 			if (removals != null && removals.length != 0) {
 				for (int i = 0; i < removals.length; i++) {
 					String id = (String) removals[i];
 					if (!(id.equals(workspace))) {
-						if (SiteService.allowRemoveSite(id)) {
+						if (siteService.allowRemoveSite(id)) {
 							try {
 								// check whether site exists
-								Site removeSite = SiteService.getSite(id);
+								Site removeSite = siteService.getSite(id);
 								
 								//check site isn't already softly deleted
 								if(softlyDeleting && removeSite.isSoftlyDeleted()) {
@@ -1920,7 +1927,7 @@ public class SiteAction extends PagedResourceActionII {
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (SiteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
-				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
+				context.put("disableCourseSelection", serverConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("isProjectSite", Boolean.FALSE);
 				putSelectedProviderCourseIntoContext(context, state);
 				if (state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
@@ -1985,8 +1992,7 @@ public class SiteAction extends PagedResourceActionII {
 			context
 					.put("emailId", state
 							.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
-			context.put("serverName", ServerConfigurationService
-					.getServerName());
+			context.put("serverName", serverConfigurationService.getServerName());
 			context.put("include", Boolean.valueOf(siteInfo.include));
 			context.put("published", Boolean.valueOf(siteInfo.published));
 			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
@@ -1998,7 +2004,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("importSiteTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
-			context.put("siteService", SiteService.getInstance());
+			context.put("siteService", siteService);
 
 			// those manual inputs
 			context.put("form_requiredFields", sectionFieldProvider
@@ -2017,9 +2023,9 @@ public class SiteAction extends PagedResourceActionII {
 			// Put the link for downloading participant list PDF into the context
 			putDownloadParticipantPDFLinkIntoContext(context, data, site);
 
-			boolean allowUpdateSiteMembership = SiteService.allowUpdateSiteMembership(site.getId());
-			boolean allowUpdateSite = SiteService.allowUpdateSite(site.getId());
-			boolean allowViewRoster = SiteService.allowViewRoster(site.getId());
+			boolean allowUpdateSiteMembership = siteService.allowUpdateSiteMembership(site.getId());
+			boolean allowUpdateSite = siteService.allowUpdateSite(site.getId());
+			boolean allowViewRoster = siteService.allowViewRoster(site.getId());
 			boolean isMyWorkspace = isSiteMyWorkspace(site);
 
 			// Add the menus to vm
@@ -2039,7 +2045,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			if (isMyWorkspace) {
-				context.put("siteUserId", SiteService.getSiteUserId(site.getId()));
+				context.put("siteUserId", siteService.getSiteUserId(site.getId()));
 			}
 
 			context.put("allowUpdateSiteMembership", allowUpdateSiteMembership);
@@ -2080,13 +2086,13 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("allRoles", allRoles);
 
 			// Will have the choice to active/inactive user or not
-			context.put("activeInactiveUser", ServerConfigurationService.getBoolean("activeInactiveUser", false));
+			context.put("activeInactiveUser", serverConfigurationService.getBoolean("activeInactiveUser", false));
 
-			context.put("showEnrollmentStatus", ServerConfigurationService.getBoolean(
+			context.put("showEnrollmentStatus", serverConfigurationService.getBoolean(
 				"sitemanage.manageParticipants.showEnrollmentStatus", false));
 
 			// Provide last modified time
-			realmId = SiteService.siteReference(site.getId());
+			realmId = siteService.siteReference(site.getId());
 			try {
 				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 				context.put("realmModifiedTime",getDateFormat(realm.getModifiedDate()));
@@ -2148,7 +2154,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
 					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
-					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
+					context.put("allowUnjoin", siteService.allowUnjoinSite(site.getId()));
 				}
 
 				if (site.isPublished()) {
@@ -2163,10 +2169,10 @@ public class SiteAction extends PagedResourceActionII {
 
 				ResourceProperties siteProperties = site.getProperties();
 
-				allowUpdateSite = SiteService.allowUpdateSite(site.getId());
+				allowUpdateSite = siteService.allowUpdateSite(site.getId());
 				isMyWorkspace = isSiteMyWorkspace(site);
-				boolean allowUpdateGroupMembership = SiteService.allowUpdateGroupMembership(site.getId());
-				allowViewRoster = SiteService.allowViewRoster(site.getId());
+				boolean allowUpdateGroupMembership = siteService.allowUpdateGroupMembership(site.getId());
+				allowViewRoster = siteService.allowViewRoster(site.getId());
 
 				context.put("allowUpdate", allowUpdateSite);
 				context.put("additionalAccess", getAdditionRoles(site));
@@ -2176,10 +2182,11 @@ public class SiteAction extends PagedResourceActionII {
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.SITE_INFO);
 
+				User currentUser = userDirectoryService.getCurrentUser();
 				if(state.getAttribute(IMPORT_QUEUED) != null){
 					context.put("importQueued", true);
 					state.removeAttribute(IMPORT_QUEUED);
-					if(StringUtils.isBlank(UserDirectoryService.getCurrentUser().getEmail()) || !ServerConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)){
+					if(StringUtils.isBlank(currentUser.getEmail()) || !serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)){
 						context.put("importQueuedNoEmail", true);
 					}
 				}
@@ -2232,10 +2239,10 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				
 				Collection<Group> groups = null;
-				if (ServerConfigurationService.getBoolean("wsetup.group.support.summary", true))
+				if (serverConfigurationService.getBoolean("wsetup.group.support.summary", true))
 				{
 					if ((allowUpdateSite || allowUpdateGroupMembership) 
-							&& (!isMyWorkspace && ServerConfigurationService.getBoolean(SAK_PROP_SITE_SETUP_GROUP_SUPPORT, SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT)))
+							&& (!isMyWorkspace && serverConfigurationService.getBoolean(SAK_PROP_SITE_SETUP_GROUP_SUPPORT, SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT)))
 					{
 						// show all site groups
 						groups = site.getGroups();
@@ -2243,7 +2250,7 @@ public class SiteAction extends PagedResourceActionII {
 					else
 					{
 						// show groups that the current user is member of
-						groups = site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId());
+						groups = site.getGroupsWithMember(currentUser.getId());
 					}
 				}
 				if (groups != null)
@@ -2252,7 +2259,7 @@ public class SiteAction extends PagedResourceActionII {
 					List<Group> filteredGroups = new ArrayList<Group>();
 					List<Group> filteredSections = new ArrayList<Group>();
 					Collection<String> viewMembershipGroups = new ArrayList<String>();
-					Collection<String> unjoinableGroups = new ArrayList<String>();
+					Set<JoinableGroup> unJoinableGroups = new HashSet<>();
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2268,29 +2275,32 @@ public class SiteAction extends PagedResourceActionII {
 						if (vProp != null && vProp.equals(Boolean.TRUE.toString())){
 							viewMembershipGroups.add(g.getId());
 						}
-						Object joinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET);
-						Object unjoinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE);
-						if (joinableProp != null && !"".equals(joinableProp.toString())
-								&& unjoinableProp != null && unjoinableProp.equals(Boolean.TRUE.toString())
-								&& g.getMember(UserDirectoryService.getCurrentUser().getId()) != null){
-							unjoinableGroups.add(g.getId());
+						String joinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET);
+						String unjoinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE);
+						if (StringUtils.isNotBlank(joinableProp)
+							&& BooleanUtils.toBoolean(unjoinableProp)
+							&& g.getMember(currentUser.getId()) != null) {
+							unJoinableGroups.add(new JoinableGroup(g));
 						}
 					}
+
+					context.put("viewMembershipGroups", viewMembershipGroups);
+
 					Collections.sort(filteredGroups, new GroupTitleComparator());
 					context.put("groups", filteredGroups);
+
 					Collections.sort(filteredSections, new GroupTitleComparator());
 					context.put("sections", filteredSections);
-					context.put("viewMembershipGroups", viewMembershipGroups);
-					context.put("unjoinableGroups", unjoinableGroups);
+
+					context.put("unjoinableGroups", new ArrayList<>(unJoinableGroups));
 				}
 				
-				//joinable groups:
-				List<JoinableGroup> joinableGroups = new ArrayList<JoinableGroup>();
+				Set<JoinableGroup> joinableGroups = new HashSet<>();
 				if(site.getGroups() != null){
 					//find a list of joinable-sets this user is already a member of
 					//in order to not display those groups as options
 					Set<String> joinableSetsMember = new HashSet<String>();
-					for(Group group : site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId())){
+					for(Group group : site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId())){
 						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
 						if(joinableSet != null && !"".equals(joinableSet.trim())){
 							joinableSetsMember.add(joinableSet);
@@ -2299,74 +2309,15 @@ public class SiteAction extends PagedResourceActionII {
 					for(Group group : site.getGroups()){
 						String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
 						if(joinableSet != null && !"".equals(joinableSet.trim()) && !joinableSetsMember.contains(joinableSet)){
-							String reference = group.getReference();
-							String title = group.getTitle();
-							int max = 0;
-							try{
-								max = Integer.parseInt(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX));
-							}catch (Exception e) {
-							}
-							boolean preview = Boolean.valueOf(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW));
-							String groupMembers = "";
-							int size = 0;
-							try
-							{
-								AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
-								Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
-								size = gMembers.size();
-								if (size > 0)
-								{
-									Set<String> hiddenUsers = new HashSet<String>();
-									boolean viewHidden = viewHidden = SecurityService.unlock("roster.viewHidden", site.getReference()) || SecurityService.unlock("roster.viewHidden", g.getReference());
-									if(!SiteService.allowViewRoster(siteId) && !viewHidden){
-										//find hidden users in this group:
-										//add hidden users to set so we can filter them out
-										Set<String> memberIds = new HashSet<String>();
-										for(Member member : gMembers){
-											memberIds.add(member.getUserId());
-										}
-										hiddenUsers = privacyManager.findHidden(site.getReference(), memberIds);
-									}
-									for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
-										Member p = (Member) gItr.next();
-										
-										// exclude those user with provided roles and rosters
-										String userId = p.getUserId();
-										if(!hiddenUsers.contains(userId)){
-											try
-											{
-												User u = UserDirectoryService.getUser(userId);
-												if(!"".equals(groupMembers)){
-													groupMembers += ", ";
-												}
-												groupMembers += u.getDisplayName();
-											}
-											catch (Exception e)
-											{
-												log.debug(this + "joinablegroups: cannot find user with id " + userId);
-												// need to remove the group member
-												size--;
-											}
-									}
-									}
-								}
-							}
-							catch (GroupNotDefinedException e)
-							{
-								log.debug(this + "joinablegroups: cannot find group " + group.getReference());
-							}
-							joinableGroups.add(new JoinableGroup(reference, title, joinableSet, size, max, groupMembers, preview));
+							joinableGroups.add(new JoinableGroup(group));
 						}
 					}
-					if(joinableGroups.size() > 0){
-						Collections.sort(joinableGroups, new Comparator<JoinableGroup>() {
-							public int compare(JoinableGroup g1, JoinableGroup g2){
-								return new AlphaNumericComparator().compare(g1.getTitle(), g2.getTitle());
-							}
-						});
-					}
 				}
-				context.put("joinableGroups", joinableGroups);
+
+				List<JoinableGroup> sortedJoinableGroups = joinableGroups.stream()
+						.sorted((g1, g2) -> new AlphaNumericComparator().compare(g1.getTitle(), g2.getTitle()))
+						.collect(Collectors.toList());
+				context.put("joinableGroups", sortedJoinableGroups);
 				
 			} catch (Exception e) {
 				log.error(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
@@ -2607,7 +2558,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			context.put("title", site.getTitle());
-			context.put("neoChat", ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
+			context.put("neoChat", serverConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (isSiteMyWorkspace(site)) {
@@ -2633,8 +2584,8 @@ public class SiteAction extends PagedResourceActionII {
 			List publicChangeableSiteTypes = (List) state
 					.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
 
-			context.put("authAllowed", ServerConfigurationService.getBoolean("sitemanage.grant.auth", false));
-			context.put("anonAllowed", ServerConfigurationService.getBoolean("sitemanage.grant.anon", false));
+			context.put("authAllowed", serverConfigurationService.getBoolean("sitemanage.grant.auth", false));
+			context.put("anonAllowed", serverConfigurationService.getBoolean("sitemanage.grant.anon", false));
 
 			if (site != null) {
 				// editing existing site
@@ -2655,8 +2606,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
 
-				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
-				context.put("viewDelegatedAccessUsers", ServerConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
+				context.put("shoppingPeriodInstructorEditable", serverConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
+				context.put("viewDelegatedAccessUsers", serverConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
 
 				// SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNotNull( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
@@ -2724,7 +2675,7 @@ public class SiteAction extends PagedResourceActionII {
 				String realmTemplate = "!site.template";
 				// if create based on template, use the roles from the template
 				if (templateSite != null) {
-					realmTemplate = SiteService.siteReference(templateSite.getId());
+					realmTemplate = siteService.siteReference(templateSite.getId());
 				} else if (siteInfo.site_type != null) {
 					realmTemplate = realmTemplate + "." + siteInfo.site_type;
 				}
@@ -2798,15 +2749,15 @@ public class SiteAction extends PagedResourceActionII {
 					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel = m_ltiService.getContentModelIfConfigurable(Long.valueOf(ltiToolId), site.getId());
+					String[] contentToolModel = ltiService.getContentModelIfConfigurable(Long.valueOf(ltiToolId), site.getId());
 					if (contentToolModel != null) {
 
 						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 						for(int k = 0; k < contentToolModel.length; k++) {
 							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
 						}
-						Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
-						String formInput = m_ltiService.formInput(ltiTool, contentToolModel);
+						Map<String, Object> ltiTool = ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
+						String formInput = ltiService.formInput(ltiTool, contentToolModel);
 						toolMap.put("formInput", formInput);
 						toolMap.put("hasConfiguration", true);
 
@@ -2815,16 +2766,16 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 				context.put("ltiTools", dialogLtiTools);
-				context.put("ltiService", m_ltiService);
+				context.put("ltiService", ltiService);
 				context.put("oldLtiTools", state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST));
 			}
 			
-			context.put("toolManager", ToolManager.getInstance());
+			context.put("toolManager", toolManager);
 
 			AcademicSession thisAcademicSession = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
 			String emailId = null;
 
-			boolean prePopulateEmail = ServerConfigurationService.getBoolean("wsetup.mailarchive.prepopulate.email",true);
+			boolean prePopulateEmail = serverConfigurationService.getBoolean("wsetup.mailarchive.prepopulate.email",true);
 			if(prePopulateEmail == true && state.getAttribute(STATE_TOOL_EMAIL_ADDRESS)==null){
 				if(thisAcademicSession!=null){
 					String siteTitle1 = siteInfo.title.replaceAll("[(].*[)]", "");
@@ -2842,8 +2793,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("emailId", emailId);
 			}
 
-			context.put("serverName", ServerConfigurationService
-					.getServerName());
+			context.put("serverName", serverConfigurationService.getServerName());
 
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
@@ -2943,7 +2893,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<String> selectedTools = new ArrayList<>();
 			List<String> filteredTools = new ArrayList<>();
 			for (String toolId : toolsToInclude) {
-				if ((!filteredTools.contains(toolId) && !ToolManager.isStealthed(toolId)) || SecurityService.isSuperUser()) {
+				if ((!filteredTools.contains(toolId) && !toolManager.isStealthed(toolId)) || securityService.isSuperUser()) {
 					filteredTools.add(toolId);
 				}
 
@@ -2994,9 +2944,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
-			context.put("hideImportedContent", ServerConfigurationService.getBoolean("content.import.hidden", false));
+			context.put("hideImportedContent", serverConfigurationService.getBoolean("content.import.hidden", false));
 			
-			Tool siteInfoTool = ToolManager.getTool(SiteManageConstants.SITE_INFO_TOOL_ID);
+			Tool siteInfoTool = toolManager.getTool(SiteManageConstants.SITE_INFO_TOOL_ID);
 			if (siteInfoTool != null) {
 				context.put("siteInfoToolTitle", siteInfoTool.getTitle());
 			}
@@ -3095,8 +3045,8 @@ public class SiteAction extends PagedResourceActionII {
                 selectedTools = importableToolsIdsInDestinationSite;
 			}
 
-			if (!SecurityService.isSuperUser()) {
-				selectedTools = selectedTools.stream().filter(toolID -> !ToolManager.isStealthed(toolID)).collect(Collectors.toList());
+			if (!securityService.isSuperUser()) {
+				selectedTools = selectedTools.stream().filter(toolID -> !toolManager.isStealthed(toolID)).collect(Collectors.toList());
 			}
 			context.put("selectedTools", selectedTools);
 
@@ -3115,7 +3065,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
 
-			Tool siteInfoTool = ToolManager.getTool(SiteManageConstants.SITE_INFO_TOOL_ID);
+			Tool siteInfoTool = toolManager.getTool(SiteManageConstants.SITE_INFO_TOOL_ID);
 			if (siteInfoTool != null) {
 				context.put("siteInfoToolTitle", siteInfoTool.getTitle());
 			}
@@ -3174,7 +3124,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (hasEmailArchive) {
 				context.put("hasEmailArchive", hasEmailArchive);
 				context.put("emailAddress", state.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
-				context.put("serverName", ServerConfigurationService.getServerName());
+				context.put("serverName", serverConfigurationService.getServerName());
 				state.setAttribute(STATE_DUP_SITE_HAS_EMAIL_ARCHIVE, hasEmailArchive);
 			}
 			
@@ -3198,7 +3148,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(SITE_DUPLICATED_NAME) != null) {
 				context.put("duplicatedName", state.getAttribute(SITE_DUPLICATED_NAME));
 			}
-			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
+			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
 			// Add option to also copy ScoringComponent associations
 			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
 			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
@@ -3229,7 +3179,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-newSiteCourse.vm
 			 */		
 			// SAK-9824
-			Boolean enableCourseCreationForUser = ServerConfigurationService.getBoolean("site.enableCreateAnyUser", Boolean.FALSE);
+			Boolean enableCourseCreationForUser = serverConfigurationService.getBoolean("site.enableCreateAnyUser", Boolean.FALSE);
 			context.put("enableCourseCreationForUser", enableCourseCreationForUser);
 				
 			if (site != null) {
@@ -3267,7 +3217,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				context.put("term", t);
 				if (t != null) {
-					String userId = UserDirectoryService.getCurrentUser().getEid();
+					String userId = userDirectoryService.getCurrentUser().getEid();
 					List courses = prepareCourseAndSectionListing(userId, t
 							.getEid(), state);
 					if (courses != null && courses.size() > 0) {
@@ -3346,16 +3296,16 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("termCourseList", state.getAttribute(STATE_TERM_COURSE_LIST));
 
-			Boolean showRosterEIDs = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ROSTER_EID, SAK_PROP_SHOW_ROSTER_EID_DEFAULT);
+			Boolean showRosterEIDs = serverConfigurationService.getBoolean(SAK_PROP_SHOW_ROSTER_EID, SAK_PROP_SHOW_ROSTER_EID_DEFAULT);
 			context.put("showRosterEIDs", showRosterEIDs);
 
 			// SAK-29000
-			Boolean isAuthorizationRequired = ServerConfigurationService.getBoolean( SAK_PROP_REQUIRE_AUTHORIZER, Boolean.TRUE );
+			Boolean isAuthorizationRequired = serverConfigurationService.getBoolean( SAK_PROP_REQUIRE_AUTHORIZER, Boolean.TRUE );
 			context.put( VM_ADD_ROSTER_AUTH_REQUIRED, isAuthorizationRequired );
 
 			// added for 2.4 -daisyf
 			context.put("campusDirectory", getCampusDirectory());
-			context.put("userId", state.getAttribute(STATE_INSTRUCTOR_SELECTED) != null ? (String) state.getAttribute(STATE_INSTRUCTOR_SELECTED) : UserDirectoryService.getCurrentUser().getId());
+			context.put("userId", state.getAttribute(STATE_INSTRUCTOR_SELECTED) != null ? (String) state.getAttribute(STATE_INSTRUCTOR_SELECTED) : userDirectoryService.getCurrentUser().getId());
 			/*
 			 * for measuring how long it takes to load sections java.util.Date
 			 * date = new java.util.Date(); log.debug("***2. finish at:
@@ -3368,14 +3318,14 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// SAK-21706
 			context.put( CONTEXT_SKIP_COURSE_SECTION_SELECTION, 
-					ServerConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
+					serverConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
 			context.put( CONTEXT_SKIP_MANUAL_COURSE_CREATION, 
-					ServerConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
+					serverConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
 			
 			context.put("siteType", state.getAttribute(STATE_TYPE_SELECTED));
 			
 			// SAK-28990 remove continue with no roster
-			context.put(VM_CONT_NO_ROSTER_ENABLED, ServerConfigurationService.getBoolean(SAK_PROP_CONT_NO_ROSTER_ENABLED, false));
+			context.put(VM_CONT_NO_ROSTER_ENABLED, serverConfigurationService.getBoolean(SAK_PROP_CONT_NO_ROSTER_ENABLED, false));
 			
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
@@ -3393,8 +3343,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("form_additional", siteInfo.additional);
 			context.put("form_title", siteInfo.title);
 			context.put("form_description", siteInfo.description);
-			context.put("officialAccountName", ServerConfigurationService
-					.getString("officialAccountName", ""));
+			context.put("officialAccountName", serverConfigurationService.getString("officialAccountName", ""));
 			if (state.getAttribute(STATE_SITE_QUEST_UNIQNAME) == null)
 			{
 				context.put("value_uniqname", getAuthorizers(state, STATE_SITE_QUEST_UNIQNAME));
@@ -3436,18 +3385,18 @@ public class SiteAction extends PagedResourceActionII {
 			isFutureTermSelected(state);
 			context.put("isFutureTerm", state
 					.getAttribute(STATE_FUTURE_TERM_SELECTED));
-			context.put("weeksAhead", ServerConfigurationService.getString(
+			context.put("weeksAhead", serverConfigurationService.getString(
 					"roster.available.weeks.before.term.start", "0"));
 			
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			context.put("publishTemplate", (Boolean) state.getAttribute(STATE_TEMPLATE_PUBLISH));
 			
-			context.put("requireAuthorizer", ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
+			context.put("requireAuthorizer", serverConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
 			
 			// SAK-21706/SAK-23255
-			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
-			context.put( CONTEXT_SKIP_COURSE_SECTION_SELECTION, ServerConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
-			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
+			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
+			context.put( CONTEXT_SKIP_COURSE_SECTION_SELECTION, serverConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
+			context.put( CONTEXT_FILTER_TERMS, serverConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[37];
 		case 42:
@@ -3473,8 +3422,7 @@ public class SiteAction extends PagedResourceActionII {
 			context
 					.put("emailId", state
 							.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
-			context.put("serverName", ServerConfigurationService
-					.getServerName());
+			context.put("serverName", serverConfigurationService.getServerName());
 			context.put("include", Boolean.valueOf(siteInfo.include));
 			return (String) getContext(data).get("template") + TEMPLATE[42];
 		case 43:
@@ -3486,7 +3434,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
-			context.put("allowAddRoster", SecurityService.unlock(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference()));
+			context.put("allowAddRoster", securityService.unlock(siteService.SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference()));
 			context.put("siteTitle", site.getTitle());
 			coursesIntoContext(state, context, site);
 
@@ -3614,13 +3562,13 @@ public class SiteAction extends PagedResourceActionII {
 			List<SectionObject> requestedSections = (List<SectionObject>) state
 					.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 
-			if (courseManagementIsImplemented() && cms != null) {
+			if (courseManagementIsImplemented() && courseManagementService != null) {
 				context.put("cmsAvailable", Boolean.valueOf(true));
 			}
 			
 			int cmLevelSize = 0;
 
-			if (cms == null || !courseManagementIsImplemented() || cmLevels == null || cmLevels.size() < 1) {
+			if (courseManagementService == null || !courseManagementIsImplemented() || cmLevels == null || cmLevels.size() < 1) {
 				// TODO: redirect to manual entry: case #37
 			} else {
 				cmLevelSize = cmLevels.size();
@@ -3645,7 +3593,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					else if (numSelections < cmLevelSize)
 					{
-						levelOpts[numSelections] = sortCourseSets(cms.findCourseSets(getSelectionString(selections, numSelections)));
+						levelOpts[numSelections] = sortCourseSets(courseManagementService.findCourseSets(getSelectionString(selections, numSelections)));
 					}
 				}
 				// always set the top level
@@ -3710,12 +3658,12 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("value_uniqname", state.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
-			context.put("requireAuthorizer", ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
+			context.put("requireAuthorizer", serverConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
 			
 			// SAK-21706/SAK-23255
-			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
-			context.put( CONTEXT_SKIP_MANUAL_COURSE_CREATION, ServerConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
-			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
+			context.put( CONTEXT_IS_ADMIN, securityService.isSuperUser() );
+			context.put( CONTEXT_SKIP_MANUAL_COURSE_CREATION, serverConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
+			context.put( CONTEXT_FILTER_TERMS, serverConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
@@ -3854,7 +3802,7 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	public static boolean isSiteMyWorkspace(Site site) {
-		return SiteService.isUserSite(site.getId()) && SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId());
+		return org.sakaiproject.site.cover.SiteService.isUserSite(site.getId()) && org.sakaiproject.site.cover.SiteService.getSiteUserId(site.getId()).equals(org.sakaiproject.tool.cover.SessionManager.getCurrentSessionUserId());
 	}
 
 	//sort tools based on their layout hints
@@ -3899,12 +3847,12 @@ public class SiteAction extends PagedResourceActionII {
 	public static String getAddUserHelper(Site site) {
 		String helperId = site.getProperties().getProperty("sitemanage.add.user.tool");
 		if (helperId == null) {
-			helperId = ServerConfigurationService.getString(
+			helperId = org.sakaiproject.component.cover.ServerConfigurationService.getString(
 					"sitemanage.add.user.tool", "sakai-site-manage-participant-helper"
 			);
 		}
 		// Validate it's a helpers before attempting to use it.
-		Tool tool = ToolManager.getTool(helperId);
+		Tool tool = org.sakaiproject.tool.cover.ToolManager.getTool(helperId);
 		if (tool == null || !tool.getCategories().contains("sakai.helper")) {
 			helperId = "sakai-site-manage-participant-helper";
 		}
@@ -3997,7 +3945,7 @@ public class SiteAction extends PagedResourceActionII {
 		Map<String, AdditionalRole> additionalRoles = new HashMap<String, AdditionalRole>();
 		for (String roleId : authzGroupService.getAdditionalRoles()) {
 				// Check if the role is allowed to be granted in the realm
-				boolean allowedRoleId = ServerConfigurationService.getBoolean("sitemanage.grant"+roleId, false);
+				boolean allowedRoleId = serverConfigurationService.getBoolean("sitemanage.grant"+roleId, false);
 				if(!allowedRoleId){
 					continue;
 				}
@@ -4036,8 +3984,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("emailId", state
 					.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
 		}
-		context.put("serverName", ServerConfigurationService
-				.getServerName());
+		context.put("serverName", serverConfigurationService.getServerName());
 		
 		// all info related to multiple tools
 		multipleToolIntoContext(context, state);
@@ -4062,31 +4009,31 @@ public class SiteAction extends PagedResourceActionII {
 		List<Map<String, Object>> visibleTools, allTools;
 		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
 		// get the list of launchable tools - visible and including stealthed
-		visibleTools = m_ltiService.getToolsLaunch(siteId);
+		visibleTools = ltiService.getToolsLaunch(siteId);
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
 			// Get tools specfic for this site or that are available in all sites.
-			allTools = m_ltiService.getToolsLaunch(site.getId());
+			allTools = ltiService.getToolsLaunch(site.getId());
 		}
 		if (visibleTools != null && !visibleTools.isEmpty()) {
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<>();
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<>();
 			// Find the tools that exist in the site, this should only be done if we already have a site.
 			if (site != null) {
-				List<Map<String, Object>> contents = m_ltiService.getContentsDao(null, null, 0, 0, site.getId(), m_ltiService.isAdmin(site.getId()));
+				List<Map<String, Object>> contents = ltiService.getContentsDao(null, null, 0, 0, site.getId(), ltiService.isAdmin(site.getId()));
 				for (Map<String, Object> content : contents) {
-					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-					String ltiSiteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+					String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
+					String ltiSiteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
 					if (siteId != null) {
 						// whether the tool is already enabled in site
 						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
 						if (StringUtils.trimToNull(pstr) != null) {
 							// the lti tool is enabled in the site
-							ToolConfiguration toolConfig = SiteService.findTool(pstr);
+							ToolConfiguration toolConfig = siteService.findTool(pstr);
 							if (toolConfig != null && toolConfig.getSiteId().equals(ltiSiteId)) {
 								Map<String, Object> m = new HashMap<>();
-								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId), ltiSiteId);
+								Map<String, Object> ltiToolValues = ltiService.getTool(Long.valueOf(ltiToolId), ltiSiteId);
 								if (ltiToolValues != null) {
 									m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
 									m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
@@ -4103,7 +4050,7 @@ public class SiteAction extends PagedResourceActionII {
          // First search list of visibleTools for those not selected (excluding stealthed tools)
 			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
-				String ltiSiteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
+				String ltiSiteId = StringUtils.trimToNull((String) toolMap.get(ltiService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiSiteId));
 				if ( ltiSiteId == null || (site != null && siteId.equals(site.getId())))
 				{
@@ -4170,7 +4117,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		else
 		{
-			courseSet = cms.getCourseSets();
+			courseSet = courseManagementService.getCourseSets();
 			state.setAttribute(STATE_COURSE_SET, courseSet);
 		}
 		return courseSet;
@@ -4185,7 +4132,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void pageOrderToolTitleIntoContext(Context context, SessionState state, String siteType, boolean newSite, String overrideSitePageOrderSetting) {
 		// check if this is an existing site and PageOrder is enabled for the site. If so, show tool title
-		if (!newSite && !ToolManager.isStealthed("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType, overrideSitePageOrderSetting))
+		if (!newSite && !toolManager.isStealthed("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType, overrideSitePageOrderSetting))
 		{
 			// the actual page titles
 			context.put(STATE_TOOL_REGISTRATION_TITLE_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST));
@@ -4207,8 +4154,8 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return
 	 */
 	private Set<CourseSet> filterCourseSetList(Set<CourseSet> courseSets) {
-		if (ServerConfigurationService.getStrings("sitemanage.cm.courseset.categories") != null) {
-			List<String> showCourseSetTypes = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("sitemanage.cm.courseset.categories")));
+		if (serverConfigurationService.getStrings("sitemanage.cm.courseset.categories") != null) {
+			List<String> showCourseSetTypes = new ArrayList(Arrays.asList(serverConfigurationService.getStrings("sitemanage.cm.courseset.categories")));
 			Set<CourseSet> rv = new HashSet<CourseSet>();
 			for(CourseSet courseSet:courseSets)
 			{
@@ -4230,7 +4177,7 @@ public class SiteAction extends PagedResourceActionII {
 	private void putImportSitesInfoIntoContext(Context context, Site site, SessionState state, boolean ownTypeOnly) {
 		context.put("currentSite", site);
 		context.put("importSiteList", state.getAttribute(STATE_IMPORT_SITES));
-		final List<Site> siteList = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, ownTypeOnly?site.getType():null, null, null, SortType.TITLE_ASC, null);
+		final List<Site> siteList = siteService.getSites(SelectionType.UPDATE, ownTypeOnly ? site.getType() : null, null, null, SortType.TITLE_ASC, null);
 		List<String> hiddenSiteIdList = new ArrayList<>();
 		List<Site> hiddenSiteList = new ArrayList<>();
 		List<Site> visibleSiteList = new ArrayList<>();
@@ -4282,7 +4229,7 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					try
 					{
-						Section s = cms.getSection(providerSectionId);
+						Section s = courseManagementService.getSection(providerSectionId);
 						if (s != null)
 						{
 							providerSectionListTitles.put(s.getEid(), s.getTitle()); 
@@ -4317,7 +4264,7 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			// read the setting from sakai properties
 			boolean rv = true;
-			String hidePageOrderSiteTypes = ServerConfigurationService.getString(SiteConstants.SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES, "");
+			String hidePageOrderSiteTypes = org.sakaiproject.component.cover.ServerConfigurationService.getString(SiteConstants.SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES, "");
 			if ( hidePageOrderSiteTypes.length() != 0)
 			{
 				if (new ArrayList<String>(Arrays.asList(StringUtils.split(hidePageOrderSiteTypes, ","))).contains(siteType))
@@ -4404,12 +4351,12 @@ public class SiteAction extends PagedResourceActionII {
 	private void skinIconSelection(Context context, SessionState state, boolean isCourseSite, Site site, SiteInfo siteInfo) {
 		// 1. the skin list
 		// For course site, display skin list based on "disable.course.site.skin.selection" value set with sakai.properties file. The setting defaults to be false.
-		boolean disableCourseSkinChoice = ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true");
+		boolean disableCourseSkinChoice = serverConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true");
 		//Do we allow them to use a specific icon for the site. Related to SAK-29458 for Sakai 11
 		//Default to true for now. Requires the portal.siteicon.allow value in the sakai.properties file.
-		context.put("allowSiteIcon",ServerConfigurationService.getBoolean("portal.siteicon.allow",true));
+		context.put("allowSiteIcon",serverConfigurationService.getBoolean("portal.siteicon.allow",true));
 		// For non-course site, display skin list based on "disable.noncourse.site.skin.selection" value set with sakai.properties file. The setting defaults to be true.
-		boolean disableNonCourseSkinChoice = ServerConfigurationService.getString("disable.noncourse.site.skin.selection", "true").equals("true");
+		boolean disableNonCourseSkinChoice = serverConfigurationService.getString("disable.noncourse.site.skin.selection", "true").equals("true");
 		if ((isCourseSite && !disableCourseSkinChoice) || (!isCourseSite && !disableNonCourseSkinChoice))
 		{
 			context.put("allowSkinChoice", Boolean.TRUE);
@@ -4441,8 +4388,7 @@ public class SiteAction extends PagedResourceActionII {
 		//
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");
@@ -4464,8 +4410,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
 		startHelper(data.getRequest(), getAddUserHelper(getStateSite(state)));
@@ -4491,8 +4436,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-manage-link-helper");
@@ -4532,8 +4476,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
@@ -4545,28 +4488,12 @@ public class SiteAction extends PagedResourceActionII {
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
-		SessionManager.getCurrentToolSession().setAttribute(
-				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+		sessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", getStateSite(state).getId());
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai.useraudit");
 	}
 	
-	public static boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
-	{
-		String helperId = ServerConfigurationService.getString(helperName, defaultHelperId);
-		
-		// if the state variable regarding the helper is not set yet, set it with the configured helper id
-		if (state.getAttribute(stateHelperString) == null)
-		{
-			state.setAttribute(stateHelperString, helperId);
-		}
-		if (!ToolManager.isStealthed(helperId)) {
-			return true;
-		}
-		return false;
-	}
-
 	// htripath: import materials from classic
 	/**
 	 * Master import -- for import materials from a file
@@ -4579,7 +4506,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// state.setAttribute(FILE_UPLOAD_MAX_SIZE,
-		// ServerConfigurationService.getString("content.upload.max", "1"));
+		// serverConfigurationService.getString("content.upload.max", "1"));
 		state.setAttribute(STATE_TEMPLATE_INDEX, "45");
 	} // doImportMtrlFrmFile
 
@@ -4602,7 +4529,7 @@ public class SiteAction extends PagedResourceActionII {
 		String fileName = null;
 		fileFromUpload = data.getParameters().getFileItem("file");
 
-		String max_file_size_mb = ServerConfigurationService.getString(
+		String max_file_size_mb = serverConfigurationService.getString(
 				"content.upload.max", "1");
 		long max_bytes = 1024 * 1024;
 		try {
@@ -4811,8 +4738,7 @@ public class SiteAction extends PagedResourceActionII {
 		 	log.info("our data source is a Sakai format");
 			((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
 		 	log.info("source folder is {}", ((SakaiArchive) importDataSource).getSourceFolder());
-			ArchiveService.merge(((SakaiArchive) importDataSource)
-					.getSourceFolder(), siteId, null);
+			archiveService.merge(((SakaiArchive) importDataSource).getSourceFolder(), siteId, null);
 		} else {
 			importService.doImportItems(importDataSource
 					.getItemsForCategories(fnlList), siteId);
@@ -4916,7 +4842,7 @@ public class SiteAction extends PagedResourceActionII {
 				String sectionId = (String) providerCourseList.get(i);
 				try
 				{
-					Section s = cms.getSection(sectionId);
+					Section s = courseManagementService.getSection(sectionId);
 					if (s != null)
 					{
 						sectionTitles.put(sectionId, s.getTitle());
@@ -4991,7 +4917,7 @@ public class SiteAction extends PagedResourceActionII {
 					
 					try
 					{
-						Section s = cms.getSection(courseEid);
+						Section s = courseManagementService.getSection(courseEid);
 						if (s!=null)
 						{
 							soList.add(new SectionObject(s));
@@ -5045,7 +4971,7 @@ public class SiteAction extends PagedResourceActionII {
 	protected int sizeResources(SessionState state) {
 		int size = 0;
 		String search = "";
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		String term = (String) state.getAttribute(STATE_TERM_VIEW_SELECTED);
 		Map<String,String> termProp = null;
 		if(term != null && !"".equals(term) && !TERM_OPTION_ALL.equals(term)){
@@ -5057,59 +4983,48 @@ public class SiteAction extends PagedResourceActionII {
 		if (((String) state.getAttribute(STATE_TEMPLATE_INDEX)).equals("0")) {
 			search = StringUtils.trimToNull((String) state
 					.getAttribute(STATE_SEARCH));
-			if (SecurityService.isSuperUser()) {
+			if (securityService.isSuperUser()) {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						// search for non-user sites, using
 						// the criteria
-						size = SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										null, search, termProp);
+						size = siteService.countSites(SelectionType.NON_USER, null, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site
 						// for the particular user id in the
 						// criteria - exact match only
 						try {
-							SiteService.getSite(SiteService
-									.getUserSiteId(search));
+							siteService.getSite(siteService.getUserSiteId(search));
 							size++;
 						} catch (IdUnusedException e) {
 						}
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
-						size = SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ANY_DELETED,
-										null, search, null);
+						size = siteService.countSites(SelectionType.ANY_DELETED, null, search, null);
 					} else {
 						// search for specific type of sites
-						size = SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										view, search, termProp);
+						size = siteService.countSites(SelectionType.NON_USER, view, search, termProp);
 					}
 				}
 			} else {
 				Site userWorkspaceSite = null;
 				try {
-					userWorkspaceSite = SiteService.getSite(SiteService
-							.getUserSiteId(userId));
+					userWorkspaceSite = siteService.getSite(siteService.getUserSiteId(userId));
 				} catch (IdUnusedException e) {
 					log.error(this + "sizeResources, template index = 0: Cannot find user "
-							+ SessionManager.getCurrentSessionUserId()
+							+ sessionManager.getCurrentSessionUserId()
 							+ "'s My Workspace site.", e);
 				}
 
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
-					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
-						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					SelectionType selectionType;
+					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = SelectionType.MEMBER;
 					} else {
-						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5124,38 +5039,24 @@ public class SiteAction extends PagedResourceActionII {
 								size++;
 							}
 						}
-						size += SiteService
-								.countSites(
-										selectionType,
-										null, search, termProp);
+						size += siteService.countSites(selectionType, null, search, termProp);
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
-						size += SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.DELETED,
-										null,search, null);
+						size += siteService.countSites(SelectionType.DELETED, null,search, null);
 					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
-							SiteService.getSite(SiteService
-									.getUserSiteId(userId));
+							siteService.getSite(siteService.getUserSiteId(userId));
 							size++;
 						} catch (IdUnusedException e) {
 						}
 					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
 						view = null;
-						size += SiteService.countSites(
-							org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
-								view, search, termProp);
+						size += siteService.countSites(SelectionType.PUBVIEW, view, search, termProp);
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
-						view = null;
-						size += SiteService.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
-										null, search, termProp);
+						size += siteService.countSites(SelectionType.INACTIVE_ONLY,null, search, termProp);
 					} else {
 						// search for specific type of sites
-						size += SiteService.countSites(
-										selectionType,
-										view, search, termProp);
+						size += siteService.countSites(selectionType, view, search, termProp);
 					}
 				}
 			}
@@ -5211,67 +5112,52 @@ public class SiteAction extends PagedResourceActionII {
 				termProp.put(Site.PROP_SITE_TERM, term);
 			}
 			
-			if (SecurityService.isSuperUser()) {
+			if (securityService.isSuperUser()) {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						// search for non-user sites, using the
 						// criteria
-						return SiteService
-								.getSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										null, search, termProp, sortType,
-										new PagingPosition(first, last));
+						return siteService.getSites(SelectionType.NON_USER, null, search, termProp, sortType, new PagingPosition(first, last));
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site for
 						// the particular user id in the
 						// criteria - exact match only
 						List rv = new Vector();
 						try {
-							Site userSite = SiteService.getSite(SiteService
-									.getUserSiteId(search));
+							Site userSite = siteService.getSite(siteService.getUserSiteId(search));
 							rv.add(userSite);
 						} catch (IdUnusedException e) {
 						}
 
 						return rv;
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
-						return SiteService
-						.getSites(
-								org.sakaiproject.site.api.SiteService.SelectionType.ANY_DELETED,
-								null,
-								search, null, sortType,
-								new PagingPosition(first, last));
+						return siteService.getSites(SelectionType.ANY_DELETED, null, search, null, sortType, new PagingPosition(first, last));
 					} else {
 						// search for a specific site
-						return SiteService
-								.getSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ANY,
-										view, search, termProp, sortType,
-										new PagingPosition(first, last));
+						return siteService.getSites(SelectionType.ANY, view, search, termProp, sortType, new PagingPosition(first, last));
 					}
 				}
 			} else {
 				List rv = new Vector();
 				Site userWorkspaceSite = null;
-				String userId = SessionManager.getCurrentSessionUserId();
+				String userId = sessionManager.getCurrentSessionUserId();
 
 				try {
-					userWorkspaceSite = SiteService.getSite(SiteService
-							.getUserSiteId(userId));
+					userWorkspaceSite = siteService.getSite(siteService.getUserSiteId(userId));
 				} catch (IdUnusedException e) {
-					log.error(this + "readResourcesPage template index = 0 :Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.", e);
+					log.error(this + "readResourcesPage template index = 0 :Cannot find user " + sessionManager.getCurrentSessionUserId() + "'s My Workspace site.", e);
 				}
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
 
-					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
+					SelectionType selectionType;
 
-					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
-						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					if (serverConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = SelectionType.MEMBER;
 					} else {
-						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+						selectionType = SelectionType.ACCESS;
 					}
 
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
@@ -5286,40 +5172,22 @@ public class SiteAction extends PagedResourceActionII {
 								rv.add(userWorkspaceSite);
 							}
 						}
-						rv
-								.addAll(SiteService
-										.getSites(
-												selectionType,
-												null, search, termProp, sortType,
-												new PagingPosition(first, last)));
+						rv.addAll(siteService.getSites(selectionType, null, search, termProp, sortType, new PagingPosition(first, last)));
 					}
 					else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
-							rv.add(SiteService.getSite(SiteService.getUserSiteId(userId)));
+							rv.add(siteService.getSite(siteService.getUserSiteId(userId)));
 						} catch (IdUnusedException e) {
 						}
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
-						return SiteService
-						.getSites(
-								org.sakaiproject.site.api.SiteService.SelectionType.DELETED,
-								null,
-								search, null, sortType,
-								new PagingPosition(first, last));
+						return siteService.getSites(SelectionType.DELETED, null, search, null, sortType, new PagingPosition(first, last));
 					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
-						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
-								null, search, termProp, sortType,
-								new PagingPosition(first, last)));
+						rv.addAll(siteService.getSites(SelectionType.PUBVIEW, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
-						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
-								null, search, termProp, sortType,
-								new PagingPosition(first, last)));
+						rv.addAll(siteService.getSites(SelectionType.INACTIVE_ONLY, null, search, termProp, sortType, new PagingPosition(first, last)));
 					} else {
-						rv.addAll(SiteService
-								.getSites(
-										selectionType,
-										view, search, termProp, sortType,
-										new PagingPosition(first, last)));
+						rv.addAll(siteService.getSites(selectionType, view, search, termProp, sortType, new PagingPosition(first, last)));
 					}
 				}
 
@@ -5522,7 +5390,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		for (String siteId: toRestore) {
 			try {
-				Site s = SiteService.getSite(siteId);
+				Site s = siteService.getSite(siteId);
 
 				//check if softly deleted
 				if(!s.isSoftlyDeleted()){
@@ -5532,7 +5400,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				//reverse it
 				s.setSoftlyDeleted(false);
-				SiteService.save(s);
+				siteService.save(s);
 
 			} catch (IdUnusedException e) {
 				log.warn("Error restoring site:" + siteId + ":" + e.getClass() + ":" + e.getMessage());
@@ -5568,13 +5436,13 @@ public class SiteAction extends PagedResourceActionII {
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
 				String id = (String) i.next();
 				String site_title = NULL_STRING;
-				if (SiteService.allowRemoveSite(id)) {
+				if (siteService.allowRemoveSite(id)) {
 					try {
-						Site site = SiteService.getSite(id);
+						Site site = siteService.getSite(id);
 						site_title = site.getTitle();
 
 						//now delete the site
-						SiteService.removeSite(site, hardDelete);
+						siteService.removeSite(site, hardDelete);
 						log.debug("Removed site: " + site.getId());
 
 						// As we do not want to introduce Rubrics dependencies in the Kernel, delete the Site Rubrics here.
@@ -5629,15 +5497,15 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null) {
 			try {
-				site = SiteService.getSite((String) state
+				site = siteService.getSite((String) state
 						.getAttribute(STATE_SITE_INSTANCE_ID));
 			} catch (Exception ignore) {
 			}
 		}
 		if ( site == null && autoContext ) {
-			String siteId = ToolManager.getCurrentPlacement().getContext();
+			String siteId = toolManager.getCurrentPlacement().getContext();
 			try {
-				site = SiteService.getSite(siteId);
+				site = siteService.getSite(siteId);
 				state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
 			} catch (Exception ignore) {
 			}
@@ -5802,7 +5670,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (state.getAttribute(STATE_SITE_INFO) != null) {
 					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 				}
-				User currentUser = UserDirectoryService.getCurrentUser();
+				User currentUser = userDirectoryService.getCurrentUser();
 				List<String> idList = new ArrayList<String>();
 				idList.add(currentUser.getEid());
 				List<String> nameList = new ArrayList<String>();
@@ -5840,7 +5708,7 @@ public class SiteAction extends PagedResourceActionII {
 			Site templateSite = null;
 			try
 			{
-				templateSite = SiteService.getSite(templateSiteId);
+				templateSite = siteService.getSite(templateSiteId);
 				// save the template site in state
 				state.setAttribute(STATE_TEMPLATE_SITE, templateSite);
 			     
@@ -5930,11 +5798,7 @@ public class SiteAction extends PagedResourceActionII {
 		int weeks = 0;
 		Calendar c = (Calendar) Calendar.getInstance().clone();
 		try {
-			weeks = Integer
-					.parseInt(ServerConfigurationService
-							.getString(
-									"roster.available.weeks.before.term.start",
-									"0"));
+			weeks = Integer.parseInt(serverConfigurationService.getString("roster.available.weeks.before.term.start", "0"));
 			c.add(Calendar.DATE, weeks * 7);
 		} catch (Exception ignore) {
 		}
@@ -6004,7 +5868,7 @@ public class SiteAction extends PagedResourceActionII {
 					// if a future term is selected, do not check authorization
 					// uniqname
 					if (uniqname == null) {
-						addAlert(state, rb.getFormattedMessage("java.author", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+						addAlert(state, rb.getFormattedMessage("java.author", new Object[]{serverConfigurationService.getString("officialAccountName")}));
 					} else {
 						// in case of multiple instructors
 						List instructors = new ArrayList(Arrays.asList(uniqname.split(",")));
@@ -6012,9 +5876,9 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							String eid = StringUtils.trimToEmpty((String) iInstructors.next());
 							try {
-								UserDirectoryService.getUserByEid(eid);
+								userDirectoryService.getUserByEid(eid);
 							} catch (UserNotDefinedException e) {
-								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{serverConfigurationService.getString("officialAccountName")}));
 								log.error(this + ".doManual_add_course: cannot find user with eid=" + eid, e);
 							}
 						}
@@ -6239,7 +6103,7 @@ public class SiteAction extends PagedResourceActionII {
 			// default title
 			title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
 			try {
-				Section s = cms.getSection(sectionEid);
+				Section s = courseManagementService.getSection(sectionEid);
 				title = s != null?s.getTitle():title;
 			} catch (IdNotFoundException e) {
 				log.warn("readCourseSectionInfo: Cannot find section " + sectionEid);
@@ -6261,7 +6125,7 @@ public class SiteAction extends PagedResourceActionII {
 		SiteInfo siteInfo = new SiteInfo();
 		siteInfo.site_type = type;
 		siteInfo.published = true;
-		User u = UserDirectoryService.getCurrentUser();
+		User u = userDirectoryService.getCurrentUser();
 		if (u != null)
 		{
 			siteInfo.site_contact_name=u.getDisplayName();
@@ -6305,8 +6169,8 @@ public class SiteAction extends PagedResourceActionII {
 private Map<String, List<MyTool>> getTools(SessionState state, String type, Site site) {
 
 	boolean checkHome = BooleanUtils.toBooleanDefaultIfNull((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED), true);
-	boolean isNewToolOrderType = ServerConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
-	boolean useSeparateExternalToolsGroup = ServerConfigurationService.getBoolean("site-manage.useExternalToolsGroup", true);
+	boolean isNewToolOrderType = serverConfigurationService.getBoolean("config.sitemanage.useToolGroup", false);
+	boolean useSeparateExternalToolsGroup = serverConfigurationService.getBoolean("site-manage.useExternalToolsGroup", true);
 	String defaultGroupName = rb.getString("tool.group.default");
 	Map<String, List<MyTool>> toolGroup = new LinkedHashMap<>();
 
@@ -6317,7 +6181,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkHome));
 	} else {	
 		// get all the groups that are available for this site type
-		List<String> groups = ServerConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
+		List<String> groups = serverConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
 		for (String groupId : groups) {
 			String groupName = getGroupName(groupId);
 			List<MyTool> toolList = getGroupedToolList(groupId, groupName, type, checkHome, moreInfoDir);
@@ -6374,10 +6238,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 
 		// mark the required tools
-		List requiredTools = ServerConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));
+		List requiredTools = serverConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));
 		
 		// mark the default tools
-		List defaultTools = ServerConfigurationService.getDefaultTools(SiteTypeUtil.getTargetSiteType(type));
+		List defaultTools = serverConfigurationService.getDefaultTools(SiteTypeUtil.getTargetSiteType(type));
 		
 		// add Home tool only once
 		boolean hasHomeTool = false;
@@ -6426,7 +6290,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	private List<MyTool> getGroupedToolList(String groupId, String groupName, String type, boolean checkhome, File moreInfoDir ) {
 		List toolsInGroup = new ArrayList();
 		MyTool newTool = null;
-		List toolList = ServerConfigurationService.getToolGroup(groupId);
+		List toolList = serverConfigurationService.getToolGroup(groupId);
 		// empty list
 		if (toolList != null) {
 			for(Iterator<String> iter = toolList.iterator(); iter.hasNext();) {
@@ -6438,14 +6302,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						newTool.title = rb.getString("java.home");
 						newTool.description = rb.getString("java.home");
 						newTool.selected = checkhome;
-						newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,TOOL_ID_HOME);
+						newTool.required = serverConfigurationService.toolGroupIsRequired(groupId,TOOL_ID_HOME);
 						newTool.multiple = false;
 					} else {
-						Tool tr = ToolManager.getTool(id);
+						Tool tr = toolManager.getTool(id);
 						if (tr != null) 
 						{
 								String toolId = tr.getId();
-								if (isSiteTypeInToolCategory(SiteTypeUtil.getTargetSiteType(type), tr) && !ToolManager.isStealthed(toolId) ) // SAK 23808
+								if (isSiteTypeInToolCategory(SiteTypeUtil.getTargetSiteType(type), tr) && !toolManager.isStealthed(toolId) ) // SAK 23808
 								{
 									newTool = new MyTool();
 									newTool.title = tr.getTitle();
@@ -6453,8 +6317,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									newTool.description = tr.getDescription();
 									newTool.group = groupName;
 									newTool.moreInfo =  getMoreInfoUrl(moreInfoDir, toolId);
-									newTool.required = ServerConfigurationService.toolGroupIsRequired(groupId,toolId);
-									newTool.selected = ServerConfigurationService.toolGroupIsSelected(groupId,toolId);
+									newTool.required = serverConfigurationService.toolGroupIsRequired(groupId,toolId);
+									newTool.selected = serverConfigurationService.toolGroupIsSelected(groupId,toolId);
 									// does tool allow multiples and if so are they already defined?
 									newTool.multiple = isMultipleInstancesAllowed(toolId); // SAK-16600 - this flag will allow action for template#3 to massage list into new format
 								}
@@ -6476,7 +6340,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private String getGroupName(String groupId) {
 		// undefined group will return standard '[missing key]' error string
-		return ToolManager.getLocalizedToolProperty(groupId,"title");
+		return toolManager.getLocalizedToolProperty(groupId,"title");
 	}
 	/*
 	 * Using moreInfoDir, if toolId is found in the dir return path otherwise return null
@@ -6526,11 +6390,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List selectedLTI = new ArrayList();
 		if (site !=null) {
 			String siteId = site.getId();
-			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0, site.getId());
+			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0, site.getId());
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 			for ( Map<String,Object> content : contents ) {
-				String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-				String ltiSiteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+				String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
+				String ltiSiteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
 				if ((ltiSiteId!=null) && ltiSiteId.equals(siteId))	{
 					selectedLTI.add(ltiToolId);
 				}
@@ -6545,11 +6409,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	private boolean isLtiToolInSite(Long toolId, String siteId) {
 		if (siteId==null) return false;
 
-		Map<String,Object> toolProps= m_ltiService.getContent(toolId, siteId); // getTool(toolId);
+		Map<String,Object> toolProps= ltiService.getContent(toolId, siteId); // getTool(toolId);
 		if (toolProps==null){
 			return false;
 		} else {
-			String toolSite = StringUtils.trimToNull((String) toolProps.get(m_ltiService.LTI_SITE_ID));
+			String toolSite = StringUtils.trimToNull((String) toolProps.get(ltiService.LTI_SITE_ID));
 
 			return siteId.equals(toolSite);
 		}
@@ -6621,19 +6485,19 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String siteId = "";
 		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
-			allTools = m_ltiService.getToolsLaunch(siteId);
+			allTools = ltiService.getToolsLaunch(siteId);
 		}
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
-			allTools = m_ltiService.getToolsLaunch(siteId);
+			allTools = ltiService.getToolsLaunch(siteId);
 		}
 
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
-				String toolIdString = ObjectUtils.toString(tool.get(m_ltiService.LTI_ID));
-				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(m_ltiService.LTI_VISIBLE)));
+				String toolIdString = ObjectUtils.toString(tool.get(ltiService.LTI_ID));
+				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(ltiService.LTI_VISIBLE)));
 				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
 				String siteRestriction = Objects.toString(tool.get(LTIService.LTI_SITE_ID), "");
 				boolean allowedForSite = siteRestriction.isEmpty() || siteRestriction.equals(siteId);
@@ -6828,8 +6692,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			} else if(index == 65) { //after manage overview, go back to where the call was made
 				String pageId = params.getString("back");
 				if(StringUtils.isNotEmpty(pageId) && !"12".equals(pageId)) {
-					String redirectionUrl = getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" + SiteService.PAGE_SUBTYPE + "/" + pageId;
-					sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectionUrl);
+					String redirectionUrl = getDefaultSiteUrl(toolManager.getCurrentPlacement().getContext()) + "/" + siteService.PAGE_SUBTYPE + "/" + pageId;
+					sendParentRedirect((HttpServletResponse) threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectionUrl);
 				}
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 			}else if (params.getString("continue") != null) {
@@ -6866,7 +6730,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		else if (option.equalsIgnoreCase("change")) {
 			// change term
 			String termId = params.getString("selectTerm");
-			AcademicSession t = cms.getAcademicSession(termId);
+			AcademicSession t = courseManagementService.getAcademicSession(termId);
 			state.setAttribute(STATE_TERM_SELECTED, t);
 			isFutureTermSelected(state);
 		} else if (option.equalsIgnoreCase("cancel_edit")) {
@@ -6933,7 +6797,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// are more general and can, for example, serve the same purpose
 			// as mail channel aliases but the reverse is not true.
 			if ( aliasAssignmentForNewSitesEnabled(state) ) {
-				SecurityService.pushAdvisor(new SecurityAdvisor()
+				securityService.pushAdvisor(new SecurityAdvisor()
 				{
 					public SecurityAdvice isAllowed(String userId, String function, String reference)
 					{
@@ -6947,7 +6811,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				try {
 					setSiteReferenceAliases(state, site.getId()); // sets aliases for the site entity itself
 				} finally {
-					SecurityService.popAdvisor();
+					securityService.popAdvisor();
 				}
 			}
 
@@ -6964,7 +6828,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				// normal site creation: add the features.
 				saveFeatures(params, state, site);
 				try {
-				    site = SiteService.getSite(site.getId());
+				    site = siteService.getSite(site.getId());
 				} catch (Exception ee) {
 				    log.error(this + "doFinish: unable to reload site " + site.getId() + " after copying tools");
 				}
@@ -6977,7 +6841,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// create based on template: skip add features, and copying all the contents from the tools in template site
 					siteManageService.importToolContent(templateSite.getId(), site, null, true);
 					try {
-					    site = SiteService.getSite(site.getId());
+					    site = siteService.getSite(site.getId());
 					} catch (Exception ee) {
 					    log.error(this + "doFinish: unable to reload site " + site.getId() + " after importing tools");
 					}
@@ -7018,11 +6882,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						
 						// make sure current user stays in the site
 						newGroup = authzGroupService.getAuthzGroup(site.getReference());
-						String currentUserId = UserDirectoryService.getCurrentUser().getId();
+						String currentUserId = userDirectoryService.getCurrentUser().getId();
 						if (newGroup.getUserRole(currentUserId) == null)
 						{
 							// add advisor
-							SecurityService.pushAdvisor(new SecurityAdvisor()
+							securityService.pushAdvisor(new SecurityAdvisor()
 							{
 								public SecurityAdvice isAllowed(String userId, String function, String reference)
 								{
@@ -7033,7 +6897,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							authzGroupService.save(newGroup);
 							
 							// remove advisor
-							SecurityService.popAdvisor();
+							securityService.popAdvisor();
 						}
 					}
 					catch (Exception removeProviderException)
@@ -7042,7 +6906,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 					
 					try {
-					    site = SiteService.getSite(site.getId());
+					    site = siteService.getSite(site.getId());
 					} catch (Exception ee) {
 					    log.error(this + "doFinish: unable to reload site " + site.getId() + " after updating roster.");
 					}
@@ -7068,7 +6932,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				String newSiteIconUrl = siteManageService.transferSiteResource(templateSite.getId(), site.getId(), site.getIconUrl());
 				site.setIconUrl(newSiteIconUrl);
 				
-				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
+				userNotificationProvider.notifyTemplateUse(templateSite, userDirectoryService.getCurrentUser(), site);
 			}
 				
 			ResourcePropertiesEdit rp = site.getPropertiesEdit();
@@ -7172,7 +7036,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if ( siteInfo == null ) {
 			return;
 		}
-		String siteReference = SiteService.siteReference(siteId);
+		String siteReference = siteService.siteReference(siteId);
 		List<String> existingAliasIds = toIdList(aliasService.getAliases(siteReference));
 		Set<String> proposedAliasIds = siteInfo.siteRefAliases;
 		Set<String> aliasIdsToDelete = new HashSet<String>(existingAliasIds);
@@ -7254,7 +7118,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<SectionObject> cmAuthorizerSections = (List<SectionObject>) state
 				.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 
-		String realm = SiteService.siteReference(siteId);
+		String realm = siteService.siteReference(siteId);
 
 		if ((providerCourseList != null)
 				&& (providerCourseList.size() != 0)) {
@@ -7277,7 +7141,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 			sendSiteNotification(state, getStateSite(state), providerCourseList);
 			//Track add changes
-			trackRosterChanges(org.sakaiproject.site.api.SiteService.EVENT_SITE_ROSTER_ADD,providerCourseList);
+			trackRosterChanges(SiteService.EVENT_SITE_ROSTER_ADD, providerCourseList);
 		}
 
 		if (manualAddNumber != 0) {
@@ -7436,7 +7300,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private String buildExternalRealm(String id, SessionState state,
 			List<String> providerIdList, String existingProviderIdString) {
-		String realm = SiteService.siteReference(id);
+		String realm = siteService.siteReference(id);
 		if (!authzGroupService.allowUpdate(realm)) {
 			addAlert(state, rb.getString("java.rosters"));
 			return null;
@@ -7470,11 +7334,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private void sendSiteRequest(SessionState state, String request,
 			int requestListSize, List requestFields, String fromContext) {
-		User cUser = UserDirectoryService.getCurrentUser();
+		User cUser = userDirectoryService.getCurrentUser();
 		String sendEmailToRequestee = null;
 		StringBuilder buf = new StringBuilder();
-		boolean requireAuthorizer = ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?true:false;
-		String emailAuthorizer = ServerConfigurationService.getString(SAK_PROP_EMAIL_AUTHORIZER, "");
+		boolean requireAuthorizer = serverConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?true:false;
+		String emailAuthorizer = serverConfigurationService.getString(SAK_PROP_EMAIL_AUTHORIZER, "");
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -7483,8 +7347,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String requestReplyToEmail = getSetupRequestReplyToEmailAddress();
 		
 		if (requestEmail != null) {
-			String officialAccountName = ServerConfigurationService
-					.getString("officialAccountName", "");
+			String officialAccountName = serverConfigurationService.getString("officialAccountName", "");
 
 			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
@@ -7499,8 +7362,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				term = (AcademicSession) state
 						.getAttribute(STATE_TERM_SELECTED);
 			}
-			String productionSiteName = ServerConfigurationService
-					.getServerName();
+			String productionSiteName = serverConfigurationService.getServerName();
 
 			String from = NULL_STRING;
 			String to = NULL_STRING;
@@ -7651,10 +7513,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
-		User currentUser = UserDirectoryService.getCurrentUser();
+		User currentUser = userDirectoryService.getCurrentUser();
 		// read from configuration whether to send out site notification emails, which defaults to be true
-		boolean sendToRequestEmail = ServerConfigurationService.getBoolean("site.setup.creation.notification", true);
-		boolean sendToUser = ServerConfigurationService.getBoolean("site.setup.creation.notification.user", true);
+		boolean sendToRequestEmail = serverConfigurationService.getBoolean("site.setup.creation.notification", true);
+		boolean sendToUser = serverConfigurationService.getBoolean("site.setup.creation.notification.user", true);
 		if (requestEmail != null && currentUser != null && (sendToRequestEmail || sendToUser)) {
 			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail, sendToRequestEmail, sendToUser);
 		} // if
@@ -7803,8 +7665,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		else if ("65".equals(currentIndex)) { //after manage overview, go back to where the call was made
 			String pageId = params.getString("back");
 			if(StringUtils.isNotEmpty(pageId) && !"12".equals(pageId)) {
-				String redirectionUrl = getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" + SiteService.PAGE_SUBTYPE + "/" + pageId;
-				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectionUrl);
+				String redirectionUrl = getDefaultSiteUrl(toolManager.getCurrentPlacement().getContext()) + "/" + siteService.PAGE_SUBTYPE + "/" + pageId;
+				sendParentRedirect((HttpServletResponse) threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectionUrl);
 			}
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		}
@@ -7983,7 +7845,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private boolean isMultipleInstancesAllowed(String toolId)
 	{
-		Tool tool = ToolManager.getTool(toolId);
+		Tool tool = toolManager.getTool(toolId);
 		if (tool != null)
 		{
 			Properties tProperties = tool.getRegisteredConfig();
@@ -8000,7 +7862,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	*/
 	private boolean isDuplicateAllowed(String toolId)
 	{
-		Tool tool = ToolManager.getTool(toolId);
+		Tool tool = toolManager.getTool(toolId);
 		if (tool != null) {
 			Properties tProperties = tool.getRegisteredConfig();
 			if (tProperties.containsKey("allowToolDuplicate") &&
@@ -8058,7 +7920,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	
 		// read attribute list from configuration file
 		ArrayList<String> attributes=new ArrayList<String>();
-		String attributesConfig = ServerConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE + toolId);
+		String attributesConfig = serverConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE + toolId);
 		if ( attributesConfig != null && attributesConfig.length() > 0)
 		{
 			// read attributes from config file
@@ -8080,7 +7942,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		// read the defaul attribute setting from configuration
 		ArrayList<String> defaultValues =new ArrayList<String>();
-		String defaultValueConfig = ServerConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE_DEFAULT + toolId);
+		String defaultValueConfig = serverConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE_DEFAULT + toolId);
 		if ( defaultValueConfig != null && defaultValueConfig.length() > 0)
 		{
 			defaultValues = new ArrayList(Arrays.asList(defaultValueConfig.split(",")));
@@ -8296,7 +8158,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		{
 			// no term eid stored, need to get term eid from the term title
 			String termTitle = site.getProperties().getProperty(Site.PROP_SITE_TERM);
-			List asList = cms.getAcademicSessions();
+			List asList = courseManagementService.getAcademicSessions();
 			if (termTitle != null && asList != null)
 			{
 				boolean found = false;
@@ -8310,7 +8172,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						
 						try
 						{
-							SiteService.save(site);
+							siteService.save(site);
 						}
 						catch (Exception e)
 						{
@@ -8324,11 +8186,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		if (termEid != null)
 		{
-			state.setAttribute(STATE_TERM_SELECTED, cms.getAcademicSession(termEid));
+			state.setAttribute(STATE_TERM_SELECTED, courseManagementService.getAcademicSession(termEid));
 			
 			try
 			{
-			List sections = prepareCourseAndSectionListing(UserDirectoryService.getCurrentUser().getEid(), cms.getAcademicSession(termEid).getEid(), state);
+			List sections = prepareCourseAndSectionListing(userDirectoryService.getCurrentUser().getEid(), courseManagementService.getAcademicSession(termEid).getEid(), state);
 			isFutureTermSelected(state);
 			if (sections != null && sections.size() > 0) 
 				state.setAttribute(STATE_TERM_COURSE_LIST, sections);
@@ -8340,7 +8202,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		else
 		{
-			List currentTerms = cms.getCurrentAcademicSessions();
+			List currentTerms = courseManagementService.getCurrentAcademicSessions();
 			if (currentTerms != null && !currentTerms.isEmpty())
 			{
 				// if the term information is missing for the site, assign it to the first current term in list
@@ -8421,7 +8283,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String joinerRole = site.getJoinerRole();
 			if (joinerRole == null || joinerRole.length() == 0)
 			{
-				String[] joinerRoles = ServerConfigurationService.getStrings("siteinfo.default_joiner_role");
+				String[] joinerRoles = serverConfigurationService.getStrings("siteinfo.default_joiner_role");
 				Set<Role> roles = site.getRoles();
 				if (roles != null && joinerRole != null && joinerRoles.length > 0)
 				{
@@ -8533,7 +8395,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
-				SiteService.save(Site);
+				siteService.save(Site);
 			} catch (IdUnusedException e) {
 				// TODO:
 			} catch (PermissionException e) {
@@ -8557,16 +8419,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// method assumes that site reference roots are identical to portal 
 			// handler URL fragments, which is not guaranteed. Hence the approach
 			// below which tries to guess at the right portal handler, but just
-			// punts on page reference roots, using SiteService.PAGE_SUBTYPE for
+			// punts on page reference roots, using siteService.PAGE_SUBTYPE for
 			// that portion of the URL
 			//
 			// None of this helps other users who may try to reload an aliased site 
 			// URL that no longer resolves.
 			if ( updateSiteRefAliases ) {
-				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
-					getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
-					SiteService.PAGE_SUBTYPE + "/" + 
-					((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId());
+				sendParentRedirect((HttpServletResponse) threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
+					getDefaultSiteUrl(toolManager.getCurrentPlacement().getContext()) + "/" +
+					siteService.PAGE_SUBTYPE + "/" + 
+					((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId());
 			} else {
 				scheduleTopRefresh();
 			}
@@ -8621,7 +8483,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean aliasEditingEnabled(SessionState state, String siteId) {
-		return ServerConfigurationService.getBoolean("site-manage.enable.alias.edit", false);
+		return serverConfigurationService.getBoolean("site-manage.enable.alias.edit", false);
 	}
 	
 	/**
@@ -8635,7 +8497,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean aliasAssignmentForNewSitesEnabled(SessionState state) {
-		return ServerConfigurationService.getBoolean("site-manage.enable.alias.new", false);
+		return serverConfigurationService.getBoolean("site-manage.enable.alias.new", false);
 	}
 	
 	/**
@@ -8648,7 +8510,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private boolean aliasEditingPermissioned(SessionState state, String siteId) {
-		String siteRef = SiteService.siteReference(siteId);
+		String siteRef = siteService.siteReference(siteId);
 		return aliasService.allowSetAlias("", siteRef) &&
 			aliasService.allowRemoveTargetAliases(siteRef);
 	}
@@ -8674,7 +8536,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				t = StringUtils.trimToNull(config.getInitParameter("siteTypes"));
 			if (t != null) {
 				List types = new ArrayList(Arrays.asList(t.split(",")));
-				if (cms == null)
+				if (courseManagementService == null)
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
 					List<String> courseTypes = SiteTypeUtil.getCourseSiteTypes();
@@ -8705,7 +8567,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
 
-			String siteId = ToolManager.getCurrentPlacement().getContext();
+			String siteId = toolManager.getCurrentPlacement().getContext();
 			getReviseSite(state, siteId);
 			Hashtable h = (Hashtable) state
 					.getAttribute(STATE_PAGESIZE_SITEINFO);
@@ -8723,7 +8585,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// the setting defaults to be true
 		if (state.getAttribute(ADD_NON_OFFICIAL_PARTICIPANT) == null)
 		{
-			state.setAttribute(ADD_NON_OFFICIAL_PARTICIPANT, ServerConfigurationService.getString("nonOfficialAccount", "true"));
+			state.setAttribute(ADD_NON_OFFICIAL_PARTICIPANT, serverConfigurationService.getString("nonOfficialAccount", "true"));
 		}
 		
 		if (state.getAttribute(STATE_VISITED_TEMPLATES) == null)
@@ -8738,7 +8600,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
 		}
 		if (state.getAttribute(STATE_SITE_TITLE_MAX) == null) {
-			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
+			int siteTitleMaxLength = serverConfigurationService.getInt("site.title.maxlength", 25);
 			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
 
@@ -8770,7 +8632,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List sites = (List) state.getAttribute(STATE_SITES);
 
 		try {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 
 			if (sites != null) {
@@ -8823,7 +8685,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		Site currentSite;
 		try {
-			currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
@@ -8837,7 +8699,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						int size = group.getMembers().size();
 						if(size < max){
 							//check that the user isn't already a member
-							String userId = UserDirectoryService.getCurrentUser().getId();
+							String userId = userDirectoryService.getCurrentUser().getId();
 							boolean found =  false;
 							for(Member member : group.getMembers()){
 								if(member.getUserId().equals(userId)){
@@ -8851,7 +8713,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								if(member != null){
 									SecurityAdvisor yesMan = new SecurityAdvisor() {
 										public SecurityAdvice isAllowed(String userId, String function, String reference) {
-											if (StringUtils.equalsIgnoreCase(function, SiteService.SECURE_UPDATE_SITE)) {
+											if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
 												return SecurityAdvice.ALLOWED;
 											} else {
 												return SecurityAdvice.PASS;
@@ -8863,7 +8725,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										siteGroup.insertMember(userId, member.getRole().getId(), true, false);
 
 										securityService.pushAdvisor(yesMan);
-										SiteService.saveGroupMembership(currentSite);
+										siteService.saveGroupMembership(currentSite);
 									} catch (AuthzRealmLockException e) {
 										log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
 									} catch (IdUnusedException e) {
@@ -8896,7 +8758,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		Site currentSite;
 		try {
-			currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 			if(currentSite != null){
 				Group siteGroup = currentSite.getGroup(groupRef);
 				//make sure its a joinable set:
@@ -8905,7 +8767,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					try{
 						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
 						//check that the user is already a member
-						String userId = UserDirectoryService.getCurrentUser().getId();
+						String userId = userDirectoryService.getCurrentUser().getId();
 						boolean found =  false;
 						for(Member member : group.getMembers()){
 							if(member.getUserId().equals(userId)){
@@ -8919,7 +8781,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							if(member != null){
 								SecurityAdvisor yesMan = new SecurityAdvisor() {
 									public SecurityAdvice isAllowed(String userId, String function, String reference) {
-										if (StringUtils.equalsIgnoreCase(function, SiteService.SECURE_UPDATE_SITE)) {
+										if (StringUtils.equalsIgnoreCase(function, siteService.SECURE_UPDATE_SITE)) {
 											return SecurityAdvice.ALLOWED;
 										} else {
 											return SecurityAdvice.PASS;
@@ -8931,7 +8793,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									siteGroup.deleteMember(userId);
 
 									securityService.pushAdvisor(yesMan);
-									SiteService.saveGroupMembership(currentSite);
+									siteService.saveGroupMembership(currentSite);
 								} catch (AuthzRealmLockException e) {
 									log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
 								} catch (PermissionException e) {
@@ -9022,7 +8884,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		Site s = getStateSite(state);
-		String realmId = SiteService.siteReference(s.getId());
+		String realmId = siteService.siteReference(s.getId());
 		
 		// list of updated users
 		List<String> userUpdated = new Vector<String>();
@@ -9030,7 +8892,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<String> usersDeleted = new Vector<String>();
 	
 		if (authzGroupService.allowUpdate(realmId)
-						|| SiteService.allowUpdateSiteMembership(s.getId())) {
+						|| siteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
 				AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
@@ -9153,7 +9015,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					for (int i = 0; i < removals.size(); i++) {
 						String rId = (String) removals.get(i);
 						try {
-							User user = UserDirectoryService.getUser(rId);
+							User user = userDirectoryService.getUser(rId);
 							 // save role for permission check
 							if (user != null) {
 								String userId = user.getId();
@@ -9173,7 +9035,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							}
 						} catch (UserNotDefinedException e) {
 							log.error(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
-							if (("admins".equals(showOrphanedMembers) && SecurityService.isSuperUser()) || ("maintainers".equals(showOrphanedMembers))) {
+							if (("admins".equals(showOrphanedMembers) && securityService.isSuperUser()) || ("maintainers".equals(showOrphanedMembers))) {
 								Member userMember = realmEdit.getMember(rId);
 								if (userMember != null) {
 									Role role = userMember.getRole();
@@ -9217,29 +9079,19 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				doUpdate_related_group_participants(s, realmId);
 
 				// post event about the participant update
-				EventTrackingService.post(EventTrackingService.newEvent(
-						SiteService.SECURE_UPDATE_SITE_MEMBERSHIP,
-						realmEdit.getId(), false));
+				eventTrackingService.post(eventTrackingService.newEvent(siteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(), false));
 
 				// check the configuration setting, whether logging membership
 				// change at individual level is allowed
-				if (ServerConfigurationService.getBoolean(
+				if (serverConfigurationService.getBoolean(
 						SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
 					// event for each individual update
 					for (String userChangedRole : userUpdated) {
-						EventTrackingService
-								.post(EventTrackingService
-										.newEvent(
-												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE,
-												userChangedRole, true));
+						eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole, true));
 					}
 					// event for each individual remove
 					for (String userDeleted : usersDeleted) {
-						EventTrackingService
-								.post(EventTrackingService
-										.newEvent(
-												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE,
-												userDeleted, true));
+						eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted, true));
 					}
 				}
 			} catch (GroupNotDefinedException e) {
@@ -9260,7 +9112,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private void doUpdate_related_group_participants(Site s, String realmId) {
 		Collection groups = s.getGroups();
-		boolean trackIndividualChange = ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false);
+		boolean trackIndividualChange = serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false);
 		if (groups != null)
 		{
 			try
@@ -9313,13 +9165,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										if (trackIndividualChange)
 										{
 											// an event for each individual member role change
-											EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "uid=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
+											eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "uid=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
 										}
 									}
 								}
 							}
 							// post event about the participant update
-							EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),true));
+							eventTrackingService.post(eventTrackingService.newEvent(siteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),true));
 						}
 						catch (Exception ee)
 						{
@@ -9329,7 +9181,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					
 				}
 				// commit, save the site
-				SiteService.save(s);
+				siteService.save(s);
 			}
 			catch (Exception e)
 			{
@@ -9405,12 +9257,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (currentSitePublished && !publishUnpublish)
 				{
 					// unpublishing a published site
-					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_UNPUBLISH, sEdit.getReference(), true));
+					eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_UNPUBLISH, sEdit.getReference(), true));
 				}
 				else if (!currentSitePublished && publishUnpublish)
 				{
 					// publishing a published site
-					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
+					eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
 				}
 				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
@@ -9614,7 +9466,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 
 		} else if ( !joinable || 
-				(!joinable && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
+				(!joinable && serverConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
 			sEdit.setJoinable(false);
 			sEdit.setJoinerRole(null);
 		} // else just leave joinability alone
@@ -9699,7 +9551,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			if (forward) {
 				if (getStateSite(state) == null)
 				{
-					boolean siteVisibilityDefault = ServerConfigurationService.getBoolean(SAK_PROP_DEFAULT_SITE_VIS, SAK_PROP_DEFAULT_SITE_VIS_DFLT);
+					boolean siteVisibilityDefault = serverConfigurationService.getBoolean(SAK_PROP_DEFAULT_SITE_VIS, SAK_PROP_DEFAULT_SITE_VIS_DFLT);
 					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 					siteInfo.include = siteVisibilityDefault;
 
@@ -9849,7 +9701,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					Hashtable sites = new Hashtable();
 					for (index = 0; index < importSites.size(); index++) {
 						try {
-							Site s = SiteService.getSite((String) importSites
+							Site s = siteService.getSite((String) importSites
 									.get(index));
 							sites.put(s, new Vector());
 						} catch (IdUnusedException e) {
@@ -9880,7 +9732,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					Hashtable sites = new Hashtable();
 					for (index = 0; index < importSites.size(); index++) {
 						try {
-							Site s = SiteService.getSite((String) importSites
+							Site s = siteService.getSite((String) importSites
 									.get(index));
 							sites.put(s, new Vector());
 						} catch (IdUnusedException e) {
@@ -9898,7 +9750,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			 */
 			if (forward) {
 				if (state.getAttribute(SITE_DUPLICATED) == null) {
-					if ((SecurityService.isSuperUser())&& ((StringUtils.trimToNull(params.getString("newSiteId")) != null)&&(SiteService.siteExists(params.getString("newSiteId"))))){
+					if ((securityService.isSuperUser())&& ((StringUtils.trimToNull(params.getString("newSiteId")) != null)&&(siteService.siteExists(params.getString("newSiteId"))))){
 					    addAlert(state, rb.getString("sitdup.idused") + " ");
 					}
 
@@ -9911,7 +9763,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 							String newSiteId = null;
 							if (StringUtils.trimToNull(params.getString("newSiteId")) == null) {
-								newSiteId = IdManager.createUuid();
+								newSiteId = idManager.createUuid();
 							} else{
 								newSiteId = params.getString("newSiteId");
 							}
@@ -9924,7 +9776,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								// notification of the start/end of a site duplication.
 								String sourceSiteRef = null;
 								try {
-									Site sourceSite = SiteService.getSite(oldSiteId);
+									Site sourceSite = siteService.getSite(oldSiteId);
 									sourceSiteRef = sourceSite.getReference();
 
 								} catch (IdUnusedException e) {
@@ -9936,7 +9788,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
 
 								// Create the duplicate site
-								Site site = SiteService.addSite(newSiteId, getStateSite(state));
+								Site site = siteService.addSite(newSiteId, getStateSite(state));
 								site.setTitle(titleStripped);
 
 								// If the site contains the Email Archive tool, we're going to check for valid/unique email address;
@@ -9965,7 +9817,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 													String target = aliasService.getTarget(newEmailID);
 													boolean targetsThisSite = site.getReference().equals(target);
 													if (!targetsThisSite) {
-														addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[]{newEmailID, ServerConfigurationService.getServerName()}));
+														addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[]{newEmailID, serverConfigurationService.getServerName()}));
 														deleteTempDupSiteOnError(site);
 													}
 												} catch (IdUnusedException ex) {
@@ -9973,11 +9825,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 													try {
 														aliasService.setAlias(newEmailID, channelReference);
 													} catch (Exception e) {
-														addAlert(state, rb.getFormattedMessage("unexpectedError", new Object[] {ServerConfigurationService.getString("mail.support")}));
+														addAlert(state, rb.getFormattedMessage("unexpectedError", new Object[] {serverConfigurationService.getString("mail.support")}));
 														deleteTempDupSiteOnError(site);
 													}
 												} catch (Exception ex) {
-													addAlert(state, rb.getFormattedMessage("unexpectedError", new Object[] {ServerConfigurationService.getString("mail.support")}));
+													addAlert(state, rb.getFormattedMessage("unexpectedError", new Object[] {serverConfigurationService.getString("mail.support")}));
 													deleteTempDupSiteOnError(site);
 												}
 											}
@@ -9986,7 +9838,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 								}
 
 								if (state.getAttribute(STATE_MESSAGE) == null) {
-									boolean removeStealthToolsFromDup = ServerConfigurationService.getBoolean(SAK_PROP_RM_STLTH_ON_DUP, SAK_PROP_RM_STLTH_ON_DUP_DEFAULT);
+									boolean removeStealthToolsFromDup = serverConfigurationService.getBoolean(SAK_PROP_RM_STLTH_ON_DUP, SAK_PROP_RM_STLTH_ON_DUP_DEFAULT);
 									if (removeStealthToolsFromDup) {
 										List<SitePage> pageList = site.getPages();
 										if (CollectionUtils.isNotEmpty(pageList)) {
@@ -10002,7 +9854,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 														Tool tool = toolConf.getTool();
 														String toolId = StringUtils.trimToEmpty(tool.getId());
 
-														if (StringUtils.isNotBlank(toolId) && ToolManager.isStealthed(toolId)) {
+														if (StringUtils.isNotBlank(toolId) && toolManager.isStealthed(toolId)) {
 															// Found a stealthed tool, queue for removal
 															log.debug("found stealthed tool {}", toolId);
 															rmToolList.add(toolConf);
@@ -10035,7 +9887,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									// An event for starting the "duplicate site" action
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 
 									// get the new site icon url
 									if (site.getIconUrl() != null)
@@ -10050,17 +9902,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										if (oldSiteQuota > 0) {
 											log.info("Saving quota");
 											try {
-												String collId = m_contentHostingService
+												String collId = contentHostingService
 														.getSiteCollection(site.getId());
 
-												ContentCollectionEdit col = m_contentHostingService.editCollection(collId);
+												ContentCollectionEdit col = contentHostingService.editCollection(collId);
 
 												ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
 												resourceProperties.addProperty(
 														ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
 														new Long(oldSiteQuota)
 																.toString());
-												m_contentHostingService.commitCollection(col);
+												contentHostingService.commitCollection(col);
 
 
 											} catch (Exception ignore) {
@@ -10071,7 +9923,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									}
 
 									try {
-										SiteService.save(site);
+										siteService.save(site);
 
 										// Remove tools and pages that may not be duplicated
 										removeToolsNotForDuplication(site);
@@ -10096,7 +9948,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											String termId = StringUtils.trimToNull(params
 													.getString("selectTerm"));
 											if (termId != null) {
-												AcademicSession term = cms.getAcademicSession(termId);
+												AcademicSession term = courseManagementService.getAcademicSession(termId);
 												if (term != null) {
 													ResourcePropertiesEdit rp = site.getPropertiesEdit();
 													rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
@@ -10111,17 +9963,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										}
 
 										// save again
-										SiteService.save(site);
+										siteService.save(site);
 										state.setAttribute(STATE_DUPE_SITE_STATUS_ID, site.getId());
 										state.setAttribute(STATE_DUPE_SITE_URL, site.getUrl());
-										String realm = SiteService.siteReference(site.getId());
+										String realm = siteService.siteReference(site.getId());
 										try
 										{
 											AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
 											// also remove the provider id attribute if any
 											realmEdit.setProviderGroupId(null);
 											// add current user as the maintainer
-											realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
+											realmEdit.addMember(userDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
 
 											authzGroupService.save(realmEdit);
 										} catch (GroupNotDefinedException e) {
@@ -10145,7 +9997,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 									state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 
 									// An event for ending the "duplicate site" action
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+									eventTrackingService.post(eventTrackingService.newEvent(siteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 								}
 							} catch (IdInvalidException e) {
 								addAlert(state, rb.getString("java.siteinval"));
@@ -10278,7 +10130,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 
 					//Track provider deletes, seems like the only place to do it. If a confirmation is ever added somewhere, don't do this.
-					trackRosterChanges(org.sakaiproject.site.api.SiteService.EVENT_SITE_ROSTER_REMOVE,providerCourseDeleteList);
+					trackRosterChanges(SiteService.EVENT_SITE_ROSTER_REMOVE,providerCourseDeleteList);
 					state.setAttribute(SITE_PROVIDER_COURSE_LIST,
 							providerCourseList);
 				}
@@ -10305,7 +10157,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						String sectionId = (String) i.next();
 						try
 						{
-							SectionObject so = new SectionObject(cms.getSection(sectionId));
+							SectionObject so = new SectionObject(courseManagementService.getSection(sectionId));
 							SectionObject soFound = null;
 							for (Iterator j = cmRequestedCourseList.iterator(); soFound == null && j.hasNext();)
 							{
@@ -10338,7 +10190,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				updateCourseSiteSections(state, site.getId(), pEdit, a);
 				try
 				{
-					SiteService.save(site);
+					siteService.save(site);
 				}
 				catch (Exception e)
 				{
@@ -10390,13 +10242,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					return SecurityAdvice.ALLOWED;
 				}
 			};
-			SecurityService.pushAdvisor(yesMan);
+			securityService.pushAdvisor(yesMan);
 
 			// Now hard delete the site
-			SiteService.removeSite(tempDupSite, true);
+			siteService.removeSite(tempDupSite, true);
 		} catch (Exception e) {
 		} finally {
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		}
 	}
 	
@@ -10404,12 +10256,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * 
 	 */
 	private void trackRosterChanges(String event, List <String> rosters) {
-		if (ServerConfigurationService.getBoolean(
+		if (serverConfigurationService.getBoolean(
 				SiteHelper.WSETUP_TRACK_ROSTER_CHANGE, false)) {
 			// event for each individual update
 			if (rosters != null) {
 				for (String roster : rosters) {
-					EventTrackingService.post(EventTrackingService.newEvent(event, "roster="+roster, true));
+					eventTrackingService.post(eventTrackingService.newEvent(event, "roster="+roster, true));
 				}
 			}
 		}
@@ -10424,16 +10276,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = getStateSite(state);
 		try {
 			// the target realm
-			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(site.getId()));
 			
 			List importSites = new ArrayList(Arrays.asList(params.getStrings("importSites")));
 			for (int i = 0; i < importSites.size(); i++) {
 				String fromSiteId = (String) importSites.get(i);
 				try {
-					Site fromSite = SiteService.getSite(fromSiteId);
+					Site fromSite = siteService.getSite(fromSiteId);
 					
 					// get realm information
-					String fromRealmId = SiteService.siteReference(fromSite.getId());
+					String fromRealmId = siteService.siteReference(fromSite.getId());
 					AuthzGroup fromRealm = authzGroupService.getAuthzGroup(fromRealmId);
 					// get all users in the from site
 					Set fromUsers = fromRealm.getUsers();
@@ -10457,7 +10309,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 			
 			// post event about the realm participant update
-			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realm.getId(), false));
+			eventTrackingService.post(eventTrackingService.newEvent(siteService.SECURE_UPDATE_SITE_MEMBERSHIP, realm.getId(), false));
 			
 			// save realm
 			authzGroupService.save(realm);
@@ -10513,7 +10365,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						uAnswer.setAnswerId(answerId);
 						uAnswer.setAnswerString(answerString);
 						uAnswer.setQuestionId(question.getId());
-						uAnswer.setUserId(SessionManager.getCurrentSessionUserId());
+						uAnswer.setUserId(sessionManager.getCurrentSessionUserId());
 						//update the state variable
 						userAnswers.add(uAnswer);
 					}
@@ -10557,7 +10409,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		Site site = getStateSite(state);
 		String id = site.getId();
-		String realmId = SiteService.siteReference(id);
+		String realmId = siteService.siteReference(id);
 
 		if ((providerCourseSectionList == null)
 				|| (providerCourseSectionList.size() == 0)) {
@@ -10579,8 +10431,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 				}
 
-				String currentUserId = SessionManager.getCurrentSessionUserId();
-				boolean allowDelLastRoster = ServerConfigurationService.getBoolean(SAK_PROP_ALLOW_DEL_LAST_ROSTER, SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT);
+				String currentUserId = sessionManager.getCurrentSessionUserId();
+				boolean allowDelLastRoster = serverConfigurationService.getBoolean(SAK_PROP_ALLOW_DEL_LAST_ROSTER, SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT);
 				if (allowDelLastRoster && !hasNonProvidedMainroleUser && realmEdit1.hasRole(currentUserId, maintainRoleString)) {
 					realmEdit1.addMember(currentUserId, maintainRoleString, true, false);
 					hasNonProvidedMainroleUser = true;
@@ -10894,16 +10746,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			JoinableSiteSettings.updateSitePropertiesFromStateOnUpdateSiteAttributes( site, state );
 
 			try {
-				SiteService.save(site);
+				siteService.save(site);
 			} catch (IdUnusedException e) {
 				// TODO:
 			} catch (PermissionException e) {
 				// TODO:
 			}
 
-			if (SiteService.allowUpdateSite(id)) {
+			if (siteService.allowUpdateSite(id)) {
 				try {
-					SiteService.getSite(id);
+					siteService.getSite(id);
 					state.setAttribute(STATE_SITE_INSTANCE_ID, id);
 				} catch (IdUnusedException e) {
 					log.error(this + ".updateSiteAttributes: IdUnusedException "
@@ -11043,7 +10895,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			try {
 				String targetRef = aliasService.getTarget(aliasId);
 				if ( editingSite ) {
-					String siteRef = SiteService.siteReference(currentSiteId);
+					String siteRef = siteService.siteReference(currentSiteId);
 					boolean targetsCurrentSite = siteRef.equals(targetRef);
 					if ( !(targetsCurrentSite) ) {
 						addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}));
@@ -11105,7 +10957,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private List getRoles(SessionState state) {
 		List roles = new Vector();
-		String realmId = SiteService.siteReference((String) state
+		String realmId = siteService.siteReference((String) state
 				.getAttribute(STATE_SITE_INSTANCE_ID));
 		try {
 			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
@@ -11133,7 +10985,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	private List<Role> getJoinerRoles(String realmId, SessionState state, String siteType) {
 		List roles = new ArrayList();
 		/** related to SAK-18462, this is a list of permissions that the joinable roles shouldn't have ***/
-		String[] prohibitPermissionForJoinerRole = ServerConfigurationService.getStrings("siteinfo.prohibited_permission_for_joiner_role");
+		String[] prohibitPermissionForJoinerRole = serverConfigurationService.getStrings("siteinfo.prohibited_permission_for_joiner_role");
 		if (prohibitPermissionForJoinerRole == null) {
 			prohibitPermissionForJoinerRole = new String[]{"site.upd"};
 		}
@@ -11192,7 +11044,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		
 		// Add synoptic announcements tool
 		ToolConfiguration tool = page.addTool();
-		Tool reg = ToolManager.getTool(toolId);
+		Tool reg = toolManager.getTool(toolId);
 		tool.setTool(toolId, reg);
 		tool.setTitle(toolTitle);
 		tool.setLayoutHints(layoutHint);
@@ -11277,7 +11129,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							boolean targetsThisSite = site.getReference().equals(target) ||
 									channelReference.equals(target);
 							if (!(targetsThisSite)) {
-								addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {alias, ServerConfigurationService.getServerName()}));
+								addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {alias, serverConfigurationService.getServerName()}));
 							}
 						} catch (IdUnusedException ee) {
 							try {
@@ -11339,7 +11191,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId)) {
 						if (!pageHasToolId(toolList, homeToolId)) {
 							// not a synoptic tool and is not in Home page yet, just add it
-							Tool reg = ToolManager.getTool(homeToolId);
+							Tool reg = toolManager.getTool(homeToolId);
 							if (reg != null) {
 								ToolConfiguration tool = page.addTool();
 								tool.setTool(homeToolId, reg);
@@ -11362,7 +11214,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						//first check whether the parent tool is available in site but its parent tool is no longer selected
 						if (pageHasToolId(toolList, homeToolId) && !customOverview)
 						{
-							if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId())) {
+							if (!hasAnyParentToolId && !siteService.isUserSite(site.getId())) {
 								for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext(); ) {
 									ToolConfiguration tConf = (ToolConfiguration) iToolList.next();
 									// avoid NPE when the tool definition is missing
@@ -11601,7 +11453,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// the tool is not selectd now. Remove it from site
 					Map<String, Object> oldLtiToolValues = oldLtiTools.get(oldLtiToolsId);
 					Long contentKey = Long.valueOf(oldLtiToolValues.get("contentKey").toString());
-					m_ltiService.deleteContent(contentKey, site.getId());
+					ltiService.deleteContent(contentKey, site.getId());
 					// refresh the site object
 					site = refreshSiteObject(site);
 				}
@@ -11624,7 +11476,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
 						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
 					}
-					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
+					Object retval = ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
 					{
 						// error inserting tool content
@@ -11635,7 +11487,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					{
 						// success inserting tool content
 						String pageTitle = reqProperties.getProperty("pagetitle");
-						retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
+						retval = ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
 						if (retval instanceof String)
 						{
 							addAlert(state, ((String) retval).substring(2));
@@ -11741,7 +11593,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Set<String> categories = new HashSet<>();
 		// UMICH 1035
 		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
-		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		Set toolRegistrationSet = toolManager.findTools(categories, null);
 		if ((toolRegistrationSet == null || toolRegistrationSet.size() == 0)
 				&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
 		{
@@ -11749,7 +11601,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 			categories.clear();
 			categories.add(SiteTypeUtil.getTargetSiteType(type));
-			toolRegistrationSet = ToolManager.findTools(categories, null);
+			toolRegistrationSet = toolManager.findTools(categories, null);
 		}
 		return toolRegistrationSet;
 	}
@@ -11763,7 +11615,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// refresh the site object
         try
         {
-        	site = SiteService.getSite(site.getId());
+        	site = siteService.getSite(site.getId());
         }
         catch (Exception e)
         {
@@ -11822,7 +11674,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * SAK 23808
 	 */
 	private boolean isSiteTypeInToolCategory(String siteType, Tool tool) {
-		Set<Tool> tools = ToolManager.findTools(Collections.emptySet(), null);
+		Set<Tool> tools = toolManager.findTools(Collections.emptySet(), null);
 		Set<String> categories = tool.getCategories();
 		Iterator<String> iterator = categories.iterator();
 		while(iterator.hasNext()) {
@@ -11913,14 +11765,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							if (!multipleToolIdTitleMap.containsKey(toolId))
 							{
 								// reset tool title if there is a different title config setting
-								String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + originId);
+								String titleConfig = serverConfigurationService.getString(CONFIG_TOOL_TITLE + originId);
 								if (titleConfig != null && titleConfig.length() > 0 )
 								{
 									multipleToolIdTitleMap.put(toolId, titleConfig);
 								}
 								else
 								{
-									multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
+									multipleToolIdTitleMap.put(toolId, toolManager.getTool(originId).getTitle());
 								}
 							}
 						}
@@ -11952,9 +11804,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			{
 				// add in existing lti tools where visibility is stealth
 				existingLtiIds.keySet().stream()
-						.map(k -> m_ltiService.getTool(Long.valueOf(k), Objects.toString(state.getAttribute(STATE_SITE_INSTANCE_ID), "")))
-						.filter(m -> StringUtils.equals("1", Objects.toString(m.get(m_ltiService.LTI_VISIBLE), null)))
-						.forEach(o -> ltiSelectedTools.put(Objects.toString(o.get(m_ltiService.LTI_ID), ""), o));
+						.map(k -> ltiService.getTool(Long.valueOf(k), Objects.toString(state.getAttribute(STATE_SITE_INSTANCE_ID), "")))
+						.filter(m -> StringUtils.equals("1", Objects.toString(m.get(ltiService.LTI_VISIBLE), null)))
+						.forEach(o -> ltiSelectedTools.put(Objects.toString(o.get(ltiService.LTI_ID), ""), o));
 				state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiSelectedTools);
 			}
 			else
@@ -11982,7 +11834,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				Hashtable sites = new Hashtable();
 				for (int index = 0; index < importSites.size(); index++) {
 					try {
-						Site s = SiteService.getSite((String) importSites
+						Site s = siteService.getSite((String) importSites
 								.get(index));
 						if (!sites.containsKey(s)) {
 							sites.put(s, new Vector());
@@ -12014,7 +11866,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					Site site = getStateSite(state);
 					for (String ltiToolId : ltiSelectedTools.keySet()) {
 						// don't display configuration for LTI tools if all configuration is disabled
-						if ((existingLtiIds == null || !existingLtiIds.keySet().contains(ltiToolId)) && m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId), site.getId()) != null) {
+						if ((existingLtiIds == null || !existingLtiIds.keySet().contains(ltiToolId)) && ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId), site.getId()) != null) {
 							ltiToConfigure = true;
 							break;
 						}
@@ -12042,7 +11894,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		site.setPublished(published);
 
 		try {
-			SiteService.save(site);
+			siteService.save(site);
 		} catch (IdUnusedException e) {
 			// TODO:
 		} catch (PermissionException e) {
@@ -12053,7 +11905,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	public void commitSite(Site site) {
 		try {
-			SiteService.save(site);
+			siteService.save(site);
 		} catch (IdUnusedException e) {
 			// TODO:
 		} catch (PermissionException e) {
@@ -12063,11 +11915,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}// commitSite
 
 	private String getSetupRequestEmailAddress() {
-		String from = ServerConfigurationService.getString("setup.request",
+		String from = serverConfigurationService.getString("setup.request",
 				null);
 		if (from == null) {
-			from = "postmaster@".concat(ServerConfigurationService
-					.getServerName());
+			from = "postmaster@".concat(serverConfigurationService.getServerName());
 			log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
 		}
 		return from;
@@ -12078,7 +11929,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private String getSetupRequestReplyToEmailAddress() {
-		String rv = ServerConfigurationService.getString("setup.request.replyTo", null);
+		String rv = serverConfigurationService.getString("setup.request.replyTo", null);
 		if (rv == null) {
 			rv = getSetupRequestEmailAddress();
 		}
@@ -12105,7 +11956,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String id = StringUtils.trimToNull(siteInfo.getSiteId());
 		if (id == null) {
 			// get id
-			id = IdManager.createUuid();
+			id = idManager.createUuid();
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -12116,15 +11967,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				// if create based on template,
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				if (templateSite != null) {
-					site = SiteService.addSite(id, templateSite);
+					site = siteService.addSite(id, templateSite);
 					// set site type
 					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
-					site = SiteService.addSite(id, siteInfo.site_type);
+					site = siteService.addSite(id, siteInfo.site_type);
 				}
 				
 				// add current user as the maintainer
-				site.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
+				site.addMember(userDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
 
 				String title = StringUtils.trimToNull(siteInfo.title);
 				String description = siteInfo.description;
@@ -12201,18 +12052,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean allowedForTemplateSites = true;
 		
 		// system wide setting for disable site creation based on template sites
-		if (ServerConfigurationService.getString("wsetup.enableSiteTemplate", "true").equalsIgnoreCase(Boolean.FALSE.toString()))
+		if (serverConfigurationService.getString("wsetup.enableSiteTemplate", "true").equalsIgnoreCase(Boolean.FALSE.toString()))
 		{
 			allowedForTemplateSites = false;
 		}
 		else
 		{
-			if (ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType") != null) {
-				List<String> userTypes = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
+			if (serverConfigurationService.getStrings("wsetup.enableSiteTemplate.userType") != null) {
+				List<String> userTypes = new ArrayList(Arrays.asList(serverConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
 				if (userTypes != null && userTypes.size() > 0)
 				{
-					User u = UserDirectoryService.getCurrentUser();
-					if (!(u != null && (SecurityService.isSuperUser() || userTypes.contains(u.getType()))))
+					User u = userDirectoryService.getCurrentUser();
+					if (!(u != null && (securityService.isSuperUser() || userTypes.contains(u.getType()))))
 					{
 						// be an admin type user or any type of users defined in the configuration
 						allowedForTemplateSites = false;
@@ -12228,7 +12079,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			Map templateCriteria = new HashMap(1);
 			templateCriteria.put("template", "true");
 			
-			templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TITLE_ASC, null);
+			templateSites = siteService.getSites(SelectionType.ANY, null, null, templateCriteria, SortType.TITLE_ASC, null);
 		}
 		
 		// If no templates could be found, stick an empty list in the context
@@ -12493,7 +12344,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							multipleToolIdAttributeMap.put(mId, toolConfigurations);
 							
 							MyTool newTool = new MyTool();
-							String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + mId);
+							String titleConfig = serverConfigurationService.getString(CONFIG_TOOL_TITLE + mId);
 							if (titleConfig != null && titleConfig.length() > 0)
 							{
 								// check whether there is a different title setting
@@ -12502,7 +12353,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							else
 							{
 								// use the default
-								newTool.title = ToolManager.getTool(wSetupTool).getTitle();
+								newTool.title = toolManager.getTool(wSetupTool).getTitle();
 							}
 							newTool.id = mId;
 							newTool.selected = false;
@@ -12561,7 +12412,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private String checkNullSiteType(SessionState state, String type, String siteId) {
 		if (type == null) {
-			if (siteId != null && SiteService.isUserSite(siteId)) {
+			if (siteId != null && siteService.isUserSite(siteId)) {
 				type = "myworkspace";
 			} else if (state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null) {
 				// for those sites without type, use the tool set for default
@@ -12608,7 +12459,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 		}
 		if (type != null && toolIdList != null) {
-			List<String> orderedToolIds = ServerConfigurationService.getToolOrder(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
+			List<String> orderedToolIds = serverConfigurationService.getToolOrder(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
 			for (String tool_id : orderedToolIds) {
 				for (String toolId : toolIdList) {
 					String rToolId = originalToolId(toolId, tool_id);
@@ -12645,7 +12496,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	private void setupFormNamesAndConstants(SessionState state) {
 		String mycopyright = COPYRIGHT_SYMBOL + " " + Year.now().toString()
-				+ ", " + UserDirectoryService.getCurrentUser().getDisplayName()
+				+ ", " + userDirectoryService.getCurrentUser().getDisplayName()
 				+ ". All Rights Reserved. ";
 		state.setAttribute(STATE_MY_COPYRIGHT, mycopyright);
 		state.setAttribute(STATE_SITE_INSTANCE_ID, null);
@@ -12687,14 +12538,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String[] iconSkins = null;
 
 		// get icon information
-		if (ServerConfigurationService.getStrings("iconNames") != null) {
-			iconNames = ServerConfigurationService.getStrings("iconNames");
+		if (serverConfigurationService.getStrings("iconNames") != null) {
+			iconNames = serverConfigurationService.getStrings("iconNames");
 		}
-		if (ServerConfigurationService.getStrings("iconUrls") != null) {
-			iconUrls = ServerConfigurationService.getStrings("iconUrls");
+		if (serverConfigurationService.getStrings("iconUrls") != null) {
+			iconUrls = serverConfigurationService.getStrings("iconUrls");
 		}
-		if (ServerConfigurationService.getStrings("iconSkins") != null) {
-			iconSkins = ServerConfigurationService.getStrings("iconSkins");
+		if (serverConfigurationService.getStrings("iconSkins") != null) {
+			iconSkins = serverConfigurationService.getStrings("iconSkins");
 		}
 
 		if ((iconNames != null) && (iconUrls != null) && (iconSkins != null)
@@ -12757,7 +12608,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String originToolId = findOriginalToolId(state, addToolId);
 			if (originToolId != null)
 			{
-				Tool tool = ToolManager.getTool(originToolId);
+				Tool tool = toolManager.getTool(originToolId);
 				if (tool != null)
 				{
 					insertTool(state, originToolId, tool.getTitle(), tool.getDescription(), Integer.parseInt(params.getString("num_"+ addToolId)));
@@ -12773,7 +12624,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String originToolId = findOriginalToolId(state, removeToolId);
 			if (originToolId != null)
 			{
-				Tool tool = ToolManager.getTool(originToolId);
+				Tool tool = toolManager.getTool(originToolId);
 				if (tool != null)
 				{
 					updateSelectedToolList(state, params, false);
@@ -12877,10 +12728,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 											if (!target.equals(channelReference)) {
 												// the email alias is not used by
 												// current site
-												addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {emailId, ServerConfigurationService.getServerName()}));
+												addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {emailId, serverConfigurationService.getServerName()}));
 											}
 										} else {
-											addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {emailId, ServerConfigurationService.getServerName()}));
+											addAlert(state, rb.getFormattedMessage("java.emailinuse", new Object[] {emailId, serverConfigurationService.getServerName()}));
 										}
 									}
 								} catch (IdUnusedException ee) {
@@ -12971,7 +12822,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			{
 				String ltiToolId = ltiToolEntry.getKey();
 				Map<String, Object> ltiToolAttributes = ltiToolEntry.getValue();
-				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
+				String[] contentToolModel= ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
 				Properties reqForCurrentTool = new Properties();
 				// the input page contains attributes prefixed with lti tool id, need to look for those attribute inut values
 				for (int k=0; k< contentToolModel.length;k++)
@@ -13053,7 +12904,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// tool entries have been selected
 			String newToolId = toolId + toolListedTimes;
 			MyTool newTool = new MyTool();
-			String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + toolId);
+			String titleConfig = serverConfigurationService.getString(CONFIG_TOOL_TITLE + toolId);
 			if (titleConfig != null && titleConfig.length() > 0)
 			{
 				// check whether there is a different title setting
@@ -13563,19 +13414,19 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String templateId = templates.get(type);
 			
 			// get a unique id
-			String id = IdManager.createUuid();
+			String id = idManager.createUuid();
 			
 	
 			// get the site template
 			try {
-				template = SiteService.getSite(templateId);
+				template = siteService.getSite(templateId);
 			} catch (Exception e) {
 				log.error(this + ".addSiteTypeFeatures:" + e.getMessage() + templateId, e);
 			}
 			if (template != null) {
 				// create a new site based on the template
 				try {
-					edit = SiteService.addSite(id, template);
+					edit = siteService.addSite(id, template);
 					// set site type
 					edit.setType(SiteTypeUtil.getTargetSiteType(template.getType()));
 				} catch (Exception e) {
@@ -13594,14 +13445,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					edit.getPropertiesEdit().addProperty(TEMPLATE_USED, templateId);
 					
 					try {
-						SiteService.save(edit);
+						siteService.save(edit);
 					} catch (Exception e) {
 						log.error(this + ".addSiteTypeFeatures:" + " commitEdit site id=" + id, e);
 					}
 	
 					// now that the site and realm exist, we can set the email alias
 					// set the site alias as:
-					User currentUser = UserDirectoryService.getCurrentUser();
+					User currentUser = userDirectoryService.getCurrentUser();
 					List<String> pList = new ArrayList<String>();
 					pList.add(currentUser != null ? currentUser.getEid():"");
 					String alias = siteTypeProvider.getSiteAlias(type, pList);
@@ -13616,7 +13467,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						log.error(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
 					} catch (PermissionException ee) {
 						addAlert(state, rb.getString("java.addalias"));
-						log.error(this + ".addSiteTypeFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
+						log.error(this + ".addSiteTypeFeatures:" + sessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
 					}
 				}
 			}
@@ -13682,7 +13533,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				.get("org.sakaiproject.mailarchive.api.MailArchiveService");
 
 		if (m != null) {
-			return "/mailarchive"+Entity.SEPARATOR+"channel"+Entity.SEPARATOR+siteId+Entity.SEPARATOR+SiteService.MAIN_CONTAINER;
+			return "/mailarchive"+Entity.SEPARATOR+"channel"+Entity.SEPARATOR+siteId+Entity.SEPARATOR+siteService.MAIN_CONTAINER;
 		} else {
 			return "";
 		}
@@ -13697,7 +13548,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Map<String, Optional<List<String>>> rv = new HashMap<>();
 
 		// offer to all EntityProducers
-		for (EntityProducer ep : EntityManager.getEntityProducers()) {
+		for (EntityProducer ep : entityManager.getEntityProducers()) {
 			if (ep instanceof EntityTransferrer) {
 				EntityTransferrer et = (EntityTransferrer) ep;
 				String[] tools = et.myToolIds();
@@ -13707,7 +13558,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		}
 
-		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)) {
+		if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)) {
 			rv.put(SiteManageConstants.SITE_INFO_TOOL_ID, Optional.empty());
 		}
 
@@ -13761,7 +13612,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			toolIdList.add(NEWS_TOOL_ID);
 		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
 			toolIdList.add(LESSONS_TOOL_ID);
-		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
+		if (serverConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			toolIdList.add(SiteManageConstants.SITE_INFO_TOOL_ID);
 		}
 		
@@ -13774,18 +13625,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			boolean upcomingOnly, boolean useFilteringIfEnabled) {
 		List<AcademicSession> terms;
 		if (upcomingOnly) {
-			terms = cms != null?cms.getCurrentAcademicSessions():null;
+			terms = courseManagementService != null? courseManagementService.getCurrentAcademicSessions():null;
 		} else { // get all
-			terms = cms != null?cms.getAcademicSessions():null;
+			terms = courseManagementService != null? courseManagementService.getAcademicSessions():null;
 		}
 		if (terms != null && terms.size() > 0) {
 			
 			// SAK-23256
 			if( useFilteringIfEnabled )
 			{
-				if( !SecurityService.isSuperUser() )
+				if( !securityService.isSuperUser() )
 				{
-					if( ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS,  false ) )
+					if( serverConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS,  false ) )
 					{
 						terms = filterTermDropDowns();
 					}
@@ -13814,9 +13665,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	public List<AcademicSession> filterTermDropDowns()
 	{
 		List<AcademicSession> academicSessions = new ArrayList<AcademicSession>();
-		User user = UserDirectoryService.getCurrentUser();
+		User user = userDirectoryService.getCurrentUser();
 		
-		if( cms != null && user != null && groupProvider != null)
+		if( courseManagementService != null && user != null && groupProvider != null)
 		{
 			Map<String, String> sectionsToRoles = groupProvider.getGroupRolesForUser(user.getEid());
 			final Set<String> rolesAllowed = getRolesAllowedToAttachSection();
@@ -13825,10 +13676,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			for (String sectionEid : filteredSectionsToRoles.keySet())
 			{
-				Section section = cms.getSection(sectionEid);
+				Section section = courseManagementService.getSection(sectionEid);
 				if (section != null)
 				{
-					CourseOffering courseOffering = cms.getCourseOffering(section.getCourseOfferingEid());
+					CourseOffering courseOffering = courseManagementService.getCourseOffering(section.getCourseOfferingEid());
 					if (courseOffering != null)
 					{
 						academicSessions.add(courseOffering.getAcademicSession());
@@ -13909,13 +13760,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	private void getCourseOfferingAndSectionMap(String academicSessionEid, HashMap courseOfferingHash, HashMap sectionHash, String sectionEid, Section section) {
 		try {
-			section = cms.getSection(sectionEid);
+			section = courseManagementService.getSection(sectionEid);
 		} catch (IdNotFoundException e) {
 			log.warn("getCourseOfferingAndSectionMap: cannot find section " + sectionEid);
 		}
 		if (section != null) {
 			String courseOfferingEid = section.getCourseOfferingEid();
-			CourseOffering courseOffering = cms
+			CourseOffering courseOffering = courseManagementService
 					.getCourseOffering(courseOfferingEid);
 			String sessionEid = courseOffering.getAcademicSession()
 					.getEid();
@@ -14027,7 +13878,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				l.add(coo);
 
 				// 2. check if course offering is cross-listed
-				Set set = cms.getEquivalentCourseOfferings(o.getEid());
+				Set set = courseManagementService.getEquivalentCourseOfferings(o.getEid());
 				if (set != null)
 				{
 					for (Iterator k = set.iterator(); k.hasNext();) {
@@ -14069,8 +13920,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private Collection sortCourseOfferings(Collection<CourseOffering> offerings) {
 		// Get the keys from sakai.properties
-		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_COURSE_OFFERING);
-		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_COURSE_OFFERING);
+		String[] keys = serverConfigurationService.getStrings(SORT_KEY_COURSE_OFFERING);
+		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_COURSE_OFFERING);
 
 		return sortCmObject(offerings, keys, orders);
 	} // sortCourseOffering
@@ -14086,8 +13937,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private Collection sortCourseSets(Collection<CourseSet> courses) {
 		// Get the keys from sakai.properties
-		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_COURSE_SET);
-		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_COURSE_SET);
+		String[] keys = serverConfigurationService.getStrings(SORT_KEY_COURSE_SET);
+		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_COURSE_SET);
 
 		return sortCmObject(courses, keys, orders);
 	} // sortCourseOffering
@@ -14103,8 +13954,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private Collection sortSections(Collection<Section> sections) {
 		// Get the keys from sakai.properties
-		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_SECTION);
-		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_SECTION);
+		String[] keys = serverConfigurationService.getStrings(SORT_KEY_SECTION);
+		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_SECTION);
 
 		return sortCmObject(sections, keys, orders);
 	} // sortCourseOffering
@@ -14120,8 +13971,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private Collection sortAcademicSessions(Collection<AcademicSession> sessions) {
 		// Get the keys from sakai.properties
-		String[] keys = ServerConfigurationService.getStrings(SORT_KEY_SESSION);
-		String[] orders = ServerConfigurationService.getStrings(SORT_ORDER_SESSION);
+		String[] keys = serverConfigurationService.getStrings(SORT_KEY_SESSION);
+		String[] orders = serverConfigurationService.getStrings(SORT_ORDER_SESSION);
 
 		return sortCmObject(sessions, keys, orders);
 	} // sortCourseOffering
@@ -14211,7 +14062,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				}
 			}
 			this.authorizer = authorizers;
-			this.categoryDescription = cms
+			this.categoryDescription = courseManagementService
 					.getSectionCategoryDescription(section.getCategory());
 			if ("01.lct".equals(section.getCategory())) {
 				this.isLecture = true;
@@ -14363,7 +14214,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return
 	 */
 	private String getCampusDirectory() {
-		return ServerConfigurationService.getString(
+		return serverConfigurationService.getString(
 				"site-manage.campusUserDirectory", null);
 	} // getCampusDirectory
 
@@ -14533,7 +14384,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			{
 				try
 				{
-					Section s = cms.getSection(providerSectionId);
+					Section s = courseManagementService.getSection(providerSectionId);
 					if (s != null)
 					{
 						// only update the description if its not already present
@@ -14560,7 +14411,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private boolean courseManagementIsImplemented() {
 		boolean returnValue = true;
-		String isImplemented = ServerConfigurationService.getString(
+		String isImplemented = serverConfigurationService.getString(
 				"site-manage.courseManagementSystemImplemented", "true");
 		if (("false").equals(isImplemented))
 			returnValue = false;
@@ -14571,10 +14422,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		if (offeringEid == null || offeringEid.trim().length() == 0)
 			return null;
 
-		if (cms != null) {
+		if (courseManagementService != null) {
 			try
 			{
-				Set sections = cms.getSections(offeringEid);
+				Set sections = courseManagementService.getSections(offeringEid);
 				if (sections != null)
 				{
 					Collection c = sortSections(new ArrayList(sections));
@@ -14595,8 +14446,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				|| termID == null || termID.trim().length() == 0)
 			return null;
 
-		if (cms != null) {
-			Set offerings = cms.getCourseOfferingsInCourseSet(subjectEid);// ,
+		if (courseManagementService != null) {
+			Set offerings = courseManagementService.getCourseOfferingsInCourseSet(subjectEid);// ,
 			// termID);
 			ArrayList returnList = new ArrayList();
 			if (offerings != null)
@@ -14657,7 +14508,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				try
 				{
 					// recursively add child categories
-					rv = addCategories(rv, cms.getChildCourseSets(cs.getEid()));
+					rv = addCategories(rv, courseManagementService.getChildCourseSets(cs.getEid()));
 				}
 				catch (IdNotFoundException e)
 				{
@@ -14670,7 +14521,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 	private void prepFindPage(SessionState state) {
 		// check the configuration setting for choosing next screen
-		Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
+		Boolean skipCourseSectionSelection = serverConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
 		if (!skipCourseSectionSelection.booleanValue())
 		{
 			// go to the course/section selection page
@@ -14695,7 +14546,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					{
 						try
 						{
-							Section sect = cms.getSection(string);
+							Section sect = courseManagementService.getSection(string);
 							if (sect != null)
 							{
 								SectionObject so = new SectionObject(sect);
@@ -14731,11 +14582,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		if (soList == null || soList.isEmpty())
 			return;
-		String s = ServerConfigurationService.getString("officialAccountName");
+		String s = serverConfigurationService.getString("officialAccountName");
 		
 		if (uniqueName == null) 
 		{
-			addAlert(state, rb.getFormattedMessage("java.author", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+			addAlert(state, rb.getFormattedMessage("java.author", new Object[]{serverConfigurationService.getString("officialAccountName")}));
 			return;
 		} 
 		
@@ -14824,7 +14675,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					// uniqname
 					if (uniqname == null) 
 					{
-						addAlert(state, rb.getFormattedMessage("java.author", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+						addAlert(state, rb.getFormattedMessage("java.author", new Object[]{serverConfigurationService.getString("officialAccountName")}));
 					} 
 					else 
 					{
@@ -14835,12 +14686,12 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 							String instructorId = (String) iInstructors.next();
 							try
 							{
-								UserDirectoryService.getUserByEid(instructorId);
+								userDirectoryService.getUserByEid(instructorId);
 							}
 							catch (UserNotDefinedException e) 
 							{
-								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
-								log.warn(this + ".doFind_course:" + rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{serverConfigurationService.getString("officialAccountName")}));
+								log.warn(this + ".doFind_course:" + rb.getFormattedMessage("java.validAuthor", new Object[]{serverConfigurationService.getString("officialAccountName")}));
 							}
 						}
 						if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -15008,7 +14859,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				String sectionEid = (String) sectionList.get(i);
 				try
 				{
-					Section s = cms.getSection(sectionEid);
+					Section s = courseManagementService.getSection(sectionEid);
 					if (s != null)
 					{
 						SectionObject so = new SectionObject(s);
@@ -15047,14 +14898,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 	throws ToolException
 	{
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		SessionState state = getState(req);
  
 		if (SITE_MODE_HELPER_DONE.equals(state.getAttribute(STATE_SITE_MODE)))
 		{
-			String url = (String) SessionManager.getCurrentToolSession().getAttribute(Tool.HELPER_DONE_URL);
+			String url = (String) sessionManager.getCurrentToolSession().getAttribute(Tool.HELPER_DONE_URL);
 
-			SessionManager.getCurrentToolSession().removeAttribute(Tool.HELPER_DONE_URL);
+			sessionManager.getCurrentToolSession().removeAttribute(Tool.HELPER_DONE_URL);
 
 			// TODO: Implement cleanup.
 			cleanState(state);
@@ -15090,8 +14940,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	
 	
 	private String getSiteBaseUrl() {
-		return ServerConfigurationService.getPortalUrl() + "/" + 
-			ServerConfigurationService.getString("portal.handler.default", "site") + 
+		return serverConfigurationService.getPortalUrl() + "/" + 
+			serverConfigurationService.getString("portal.handler.default", "site") + 
 			"/";
 	}
 	
@@ -15156,7 +15006,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}
 
 	public boolean displaySiteAlias() {
-		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", false)) {
+		if (serverConfigurationService.getBoolean("wsetup.disable.siteAlias", false)) {
 			return false;
 		}
 		return true;
@@ -15249,7 +15099,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// get the template site id
 		String templateSiteId = params.getString("templateSiteId");
 		try {
-			Site templateSite = SiteService.getSite(templateSiteId);
+			Site templateSite = siteService.getSite(templateSiteId);
 			state.setAttribute(STATE_TEMPLATE_SITE, templateSite);
 			state.setAttribute(STATE_SITE_TYPE, templateSite.getType());
 			
@@ -15262,7 +15112,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			siteInfo.term = StringUtils.trimToNull(params.getString("selectTermTemplate"));
 			siteInfo.iconUrl = templateSite.getIconUrl();
 			
-			Boolean copyTemplateDescription = ServerConfigurationService.getBoolean(SAK_PROP_COPY_TEMPLATE_DESCRIPTION, Boolean.TRUE);
+			Boolean copyTemplateDescription = serverConfigurationService.getBoolean(SAK_PROP_COPY_TEMPLATE_DESCRIPTION, Boolean.TRUE);
 			if(copyTemplateDescription.booleanValue()){
 				siteInfo.description = templateSite.getDescription();
 			}
@@ -15292,7 +15142,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param termFieldName
 	 */
 	private void redirectCourseCreation(ParameterParser params, SessionState state, String termFieldName) {
-		User user = UserDirectoryService.getCurrentUser();
+		User user = userDirectoryService.getCurrentUser();
 		String currentUserId = user.getEid();
 
 		String userId = params.getString("userId");
@@ -15312,7 +15162,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// check whether the academicsession might be null
 		if (academicSessionEid != null)
 		{
-			AcademicSession t = cms.getAcademicSession(academicSessionEid);
+			AcademicSession t = courseManagementService.getAcademicSession(academicSessionEid);
 			state.setAttribute(STATE_TERM_SELECTED, t);
 			if (t != null) {
 				List sections = prepareCourseAndSectionListing(userId, t
@@ -15327,14 +15177,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				} else {
 					state.removeAttribute(STATE_TERM_COURSE_LIST);
 					
-					Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
+					Boolean skipCourseSectionSelection = serverConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
 					if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
 					{
 						state.setAttribute(STATE_TEMPLATE_INDEX, "53");
 					}
 					else
 					{
-						if (ServerConfigurationService.getBoolean(SAK_PROP_FILTER_TERMS, Boolean.FALSE))
+						if (serverConfigurationService.getBoolean(SAK_PROP_FILTER_TERMS, Boolean.FALSE))
 						{
 							// Filter terms is intended to prevent users from hitting case 37 (manual creation).
 							// This will handle element inspecting the academic session dropdown
@@ -15352,7 +15202,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		}
 
-		state.setAttribute(VM_CONT_NO_ROSTER_ENABLED, ServerConfigurationService.getBoolean(SAK_PROP_CONT_NO_ROSTER_ENABLED, false));
+		state.setAttribute(VM_CONT_NO_ROSTER_ENABLED, serverConfigurationService.getBoolean(SAK_PROP_CONT_NO_ROSTER_ENABLED, false));
 	}
 	
 	public void doEdit_site_info(RunData data)
@@ -15398,8 +15248,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private Locale getLocaleFromString(String localeString)
 	{
-	    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
-	    return scs.getLocaleFromString(localeString);
+	    return serverConfigurationService.getLocaleFromString(localeString);
 	}
 	
 	/**
@@ -15414,21 +15263,18 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		if (id != null) {
 			try {
-				SiteService.unjoin(id);
+				siteService.unjoin(id);
 				String userHomeURL = devHelperService.getUserHomeLocationURL(devHelperService.getCurrentUserReference());
-				addAlert(state, rb.getFormattedMessage("site.unjoin", new Object[] {userHomeURL}));
+				addAlert(state, rb.getFormattedMessage("site.unjoin", userHomeURL));
 			} catch (IdUnusedException e) {
 				// Something strange happened, log and notify the user
 				log.debug("Unexpected error: ", e);
-				addAlert(state, rb.getFormattedMessage("unexpectedError", new Object[] {ServerConfigurationService.getString("mail.support")}));
+				addAlert(state, rb.getFormattedMessage("unexpectedError", serverConfigurationService.getString("mail.support")));
 			} catch (PermissionException e) {
 				// This could occur if the user's role is the maintain role for the site, and unjoining would leave the site without
 				// a user with the maintain role
 				log.warn(e.getMessage());
 				addAlert(state, rb.getString("site.unjoin.permissionException"));
-			} catch (InUseException e) {
-				log.debug("InUseException: ", e);
-				addAlert(state, rb.getString("site.unjoin.inUseException"));
 			}
 		}
 	} // doUnjoin
@@ -15441,8 +15287,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	{
 		// Initialize list of supported locales, if necessary
 		if (prefLocales.size() == 0) {
-			org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
-			Locale[] localeArray = scs.getSakaiLocales();
+			Locale[] localeArray = serverConfigurationService.getSakaiLocales();
 			// Add to prefLocales list
 			for (int i = 0; i < localeArray.length; i++) {
 				prefLocales.add(localeArray[i]);
@@ -15460,7 +15305,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	private long getSiteSpecificQuota(String siteId) {
 		long quota = 0;
 		try {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			if (site != null) {
 				quota = getSiteSpecificQuota(site);
 			}
@@ -15482,9 +15327,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		long quota = 0;
 		try
 		{
-			String collId = m_contentHostingService
+			String collId = contentHostingService
 					.getSiteCollection(site.getId());
-			ContentCollection site_collection = m_contentHostingService.getCollection(collId);
+			ContentCollection site_collection = contentHostingService.getCollection(collId);
 			long siteSpecific = site_collection.getProperties().getLongProperty(
 					ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
 			quota = siteSpecific;
@@ -15524,70 +15369,60 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return size;
 	}
 
-	public class JoinableGroup{
+	@Data
+	@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+	public class JoinableGroup {
+
+		@EqualsAndHashCode.Include
+		private String id;
 		private String reference;
 		private String title;
 		private String joinableSet;
+		private String description;
 		private int size;
 		private int max;
-		private String members;
+		private String memberDisplayNames;
 		private boolean preview;
+		private boolean locked;
 
-		public JoinableGroup(String reference, String title, String joinableSet, int size, int max, String members, boolean preview){
-			this.reference = reference;
-			this.title = title;
-			this.joinableSet = joinableSet;
-			this.size = size;
-			this.max = max;
-			this.members = members;
-			this.preview = preview;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-		public void setTitle(String title) {
-			this.title = title;
-		}
-		public String getJoinableSet() {
-			return joinableSet;
-		}
-		public void setJoinableSet(String joinableSet) {
-			this.joinableSet = joinableSet;
-		}
-		public int getSize() {
-			return size;
-		}
-		public void setSize(int size) {
-			this.size = size;
-		}
-		public int getMax() {
-			return max;
-		}
-		public void setMax(int max) {
-			this.max = max;
-		}
-		public String getMembers() {
-			return members;
-		}
-		public void setMembers(String members) {
-			this.members = members;
+		public JoinableGroup(Group group) {
+			Objects.requireNonNull(group, "Group can't be null");
+			this.id = group.getId();
+			this.reference = group.getReference();
+			this.title = group.getTitle();
+			this.description = group.getDescription();
+			this.joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+			this.max = NumberUtils.toInt(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX));
+			this.preview = BooleanUtils.toBoolean(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW));
+			this.locked = group.getRealmLock().equals(AuthzGroup.RealmLockMode.ALL) || group.getRealmLock().equals(AuthzGroup.RealmLockMode.MODIFY);
+			this.size = group.getMembers().size();
+			this.memberDisplayNames = this.size > 0 ? initMemberDisplayNames(group) : "";
 		}
 
-		public boolean isPreview() {
-			return preview;
+		private String initMemberDisplayNames(Group group) {
+			Set<String> groupMemeberIds = group.getMembers().stream().map(Member::getUserId).collect(Collectors.toSet());
+			Site site = group.getContainingSite();
+
+			if(!siteService.allowViewRoster(site.getId())
+					&& (securityService.unlock("roster.viewHidden", site.getReference()) || securityService.unlock("roster.viewHidden", this.reference))) {
+				// filter hidden users as the user doesn't have permission to view them
+				Set<String> privateUserIds = privacyManager.findHidden(site.getReference(), groupMemeberIds);
+				groupMemeberIds.removeAll(privateUserIds);
+			}
+
+			return groupMemeberIds.stream().map(id -> {
+				try {
+					return userDirectoryService.getUser(id).getDisplayName();
+				} catch (UserNotDefinedException unde) {
+					log.debug("UserDirectoryService could not find user with id={}: {}", id, unde.toString());
+					this.size--;
+					return "";
+				}
+			}).collect(Collectors.joining(", "));
 		}
 
-		public void setPreview(boolean preview) {
-			this.preview = preview;
-		}
-
-		public String getReference() {
-			return reference;
-		}
-
-		public void setReference(String reference) {
-			this.reference = reference;
+		public boolean isFull() {
+			return this.size >= this.max;
 		}
 
 	}
@@ -15606,7 +15441,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		FileItem fi = data.getParameters().getFileItem ("importFile");
 		
 		//get uploaded file into a location we can process
-		String archiveUnzipBase = ServerConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
+		String archiveUnzipBase = serverConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
 	
 		//convert inputstream into actual file so we can unzip it
 		String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
@@ -15755,7 +15590,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 */
 	private boolean hasContent(String toolId, String siteId) {
 
-		for (EntityProducer ep : EntityManager.getEntityProducers()) {
+		for (EntityProducer ep : entityManager.getEntityProducers()) {
 			if (ep instanceof EntityTransferrer) {
 				EntityTransferrer et = (EntityTransferrer) ep;
 
@@ -15779,7 +15614,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param true if the stripped title passes all validation; false otherwise
 	 */
 	private boolean isSiteTitleValid(String titleOrig, String titleStripped, SessionState state) {
-		SiteTitleValidationStatus status = SiteService.validateSiteTitle(titleOrig, titleStripped);
+		SiteTitleValidationStatus status = siteService.validateSiteTitle(titleOrig, titleStripped);
 
 		if (null != status) switch(status)
 		{
@@ -15818,7 +15653,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	private List layoutsList()
 	{
 		List rv = new Vector();
-		String[] layoutNames = SiteService.getLayoutNames();
+		String[] layoutNames = siteService.getLayoutNames();
 		for (int i = 0; i < layoutNames.length; i++)
 		{
 			rv.add(layoutNames[i]);
@@ -16117,7 +15952,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				ResourcePropertiesEdit rp = site.getPropertiesEdit();
 
 				rp.addProperty(Site.PROP_CUSTOM_OVERVIEW, Boolean.TRUE.toString());
-				SiteService.save(site);
+				siteService.save(site);
 			}
 			catch (PermissionException | IdUnusedException e)
 			{
@@ -16210,7 +16045,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// get the helpers
 		Set categories = new HashSet();
 		categories.add("widget");
-		Set widgets = ToolManager.findTools(categories, null);
+		Set widgets = toolManager.findTools(categories, null);
 
 		// make a list for sorting
 		List features = new Vector();
