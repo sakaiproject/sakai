@@ -69,8 +69,8 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@Resource
 	private UserDirectoryService userDirectoryService;
 
-	@GetMapping(value = "/users/current/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<AnnouncementRestBean> getUserAnnouncements() throws UserNotDefinedException {
+	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
 
         Session session = checkSakaiSession();
         return announcementService.getViewableAnnouncementsForCurrentUser(10).entrySet()
@@ -81,7 +81,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                     Site site = siteService.getSite(e.getKey());
                     return e.getValue().stream().map(am -> {
                         Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                        return new AnnouncementRestBean(site, am, optionalUrl.get());
+                        return new AnnouncementRestBean(site, am, optionalUrl.get(), announcementService.getAnnouncementRange(am));
                     }).collect(Collectors.toList());
                 } catch (Exception ex) {
                     return null;
@@ -104,7 +104,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
                 .stream()
                 .map(am -> {
                     Optional<String> optionalUrl = entityManager.getUrl(am.getReference(), Entity.UrlType.PORTAL);
-                    return new AnnouncementRestBean(site, am, optionalUrl.get());
+                    return new AnnouncementRestBean(site, am, optionalUrl.get(), announcementService.getAnnouncementRange(am));
                 }).collect(Collectors.toList());
         } catch (IdUnusedException idue) {
             log.error("No announcements for id {}", siteId);

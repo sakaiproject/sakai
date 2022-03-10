@@ -92,6 +92,7 @@ import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.util.BaseMessage;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -121,6 +122,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
+	protected static ResourceLoader announcementResourceLoader = new ResourceLoader("announcement");
 	
 	// XML DocumentBuilder and Transformer for RSS Feed
 	private DocumentBuilder docBuilder = null;

@@ -14,11 +14,17 @@
 package org.sakaiproject.webapi.beans;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
+
+import org.springframework.hateoas.Link;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,9 +41,11 @@ public class AnnouncementRestBean {
     private String access;
     private boolean hasAttachment;
     private long date;
+    private Long release;
+    private Long retract;
+    private List<Link> links;
 
-    public AnnouncementRestBean(Site site, AnnouncementMessage am, String url) {
-
+    public AnnouncementRestBean(Site site, AnnouncementMessage am, String url, String access) {
         id = am.getId();
         siteId = site.getId();
         siteTitle = site.getTitle();
