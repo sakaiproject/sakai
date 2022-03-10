@@ -127,8 +127,11 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     if(xhr && xhr.status){
       switch(xhr.status){
         case 400: messages.push("ts.add.err.duration");
+                  break;
         case 401: messages.push("ts.add.err.permission");
+                  break;
         case 403: messages.push("ts.add.err.userId");
+                  break;
         case 404: messages.push("ts.add.err.assignmentId");
       }
     }
@@ -153,7 +156,9 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     if(xhr && xhr.status){
       switch(xhr.status){
         case 400: messages.push("ts.add.err.assignmentId");
+                  break;
         case 401: messages.push("ts.add.err.permission");
+                  break;
         case 403: messages.push("ts.rem.err.userId");
       }
     }
