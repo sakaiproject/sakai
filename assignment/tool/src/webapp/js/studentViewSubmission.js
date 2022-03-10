@@ -50,7 +50,7 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "tsComment" : document.getElementById("comment").value,
         "tsDuration" : document.getElementById("duration").value,
     };
-    if(!document.getElementById("comment").value){ messages.push("ts.add.err.regComment"); }
+    if(!document.getElementById("comment").value){ messages.push("ts.add.err.comment"); }
     if(!document.getElementById("duration").value){ messages.push("ts.add.err.duration"); }
     button.classList.add("spinButton");
     button.disabled = true;
@@ -125,17 +125,11 @@ ASN.tsHandleAjaxRemoveSuccess = function (data) {
 ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
     if(xhr && xhr.status){
-      if(xhr.status == 400){
-        messages.push("ts.add.err.duration");
-      }
-      if(xhr.status == 401){
-        messages.push("ts.add.err.permission");
-      }
-      if(xhr.status == 403){
-        messages.push("ts.add.err.userId");
-      }
-      if(xhr.status == 404){
-        messages.push("ts.add.err.assignmentId");
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.duration");
+        case 401: messages.push("ts.add.err.permission");
+        case 403: messages.push("ts.add.err.userId");
+        case 404: messages.push("ts.add.err.assignmentId");
       }
     }
 
@@ -150,20 +144,17 @@ ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     for (const [index, key] of Object.entries(messages)) {
       messageArray.push(window.i18nWlogTab[key]);
     }
-    alertTsheetAddRecord.innerHTML= messageArray.join('<br>');
+    const node = document.createElement("br");
+    alertTsheetAddRecord.appendChild(node);
 };
 
 ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
     if(xhr && xhr.status){
-      if(xhr.status == 400){
-        messages.push("ts.add.err.assignmentId");
-      }
-      if(xhr.status == 401){
-        messages.push("ts.add.err.permission");
-      }
-      if(xhr.status == 403){
-        messages.push("ts.rem.err.userId");
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.assignmentId");
+        case 401: messages.push("ts.add.err.permission");
+        case 403: messages.push("ts.rem.err.userId");
       }
     }
 
@@ -178,7 +169,8 @@ ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     for (const [index, key] of Object.entries(messages)) {
       messageArray.push(window.i18nWlogTab[key]);
     }
-    alertTsheetDelRecord.innerHTML= messageArray.join('<br>');
+    const node = document.createElement("br");
+    alertTsheetDelRecord.appendChild(node);
 };
 
 ASN.checkTimesheetRecord = function () {
