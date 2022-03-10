@@ -150,7 +150,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                 igniteConfiguration.setFailureHandler(failureHandler);
             }
 
-            igniteConfiguration.setSystemWorkerBlockedTimeout(60000);
+            igniteConfiguration.setSystemWorkerBlockedTimeout(20000);
             igniteConfiguration.setSegmentationPolicy(SegmentationPolicy.NOOP);
 
             // local node network configuration
