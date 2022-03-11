@@ -530,7 +530,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$!service.getSubmissionStatus($!submissionId)
+								$!service.getSubmissionStatus($!submissionId, false)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>

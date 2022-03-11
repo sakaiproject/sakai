@@ -494,7 +494,7 @@
 									#if ($submission)
 										#set ($submissionId = $submission.Id)
 									#end
-									<span class="highlight">$!service.getSubmissionStatus($!submissionId)</span>
+									<span class="highlight">$!service.getSubmissionStatus($!submissionId, false)</span>
 								#end
 							</td>
 							<td headers="openDate" class="hidden-xs">
