@@ -28,6 +28,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.User;
 
 /**
  * @author Adrian Fish (adrian.r.fish@gmail.com)
@@ -58,6 +59,8 @@ public interface SakaiProxy {
     public void setCurrentToolSession(ToolSession toolSession);
 
     public String getDisplayNameForTheUser(String userId);
+
+    public User getUser(String userId);
 
     public boolean isCurrentUserAdmin();
 

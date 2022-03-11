@@ -209,6 +209,18 @@ public class SearchSecurityFilter implements SearchItemFilter
 			return ""; //$NON-NLS-1$
 		}
 
+		public String getCreatorDisplayName() {
+			return "";
+		}
+
+		public String getCreatorId() {
+			return "";
+		}
+
+		public String getCreatorUserName() {
+			return "";
+		}
+
 		public boolean isCensored() {
 			return true;
 		}

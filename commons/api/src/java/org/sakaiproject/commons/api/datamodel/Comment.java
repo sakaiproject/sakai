@@ -37,33 +37,18 @@ import org.w3c.dom.Element;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter @Setter
 public class Comment implements Entity {
 
-    @Getter @Setter
     private String id = "";
-
-    @Getter
     private String content = "";
-
-    @Getter
     private long createdDate = -1L;
-
-    @Getter @Setter
     private long modifiedDate = -1L;
-
-    @Getter @Setter
     private String creatorId;
-
-    @Getter @Setter
     private String creatorDisplayName;
-
-    @Getter @Setter
+    private String creatorUserName;
     private String postId;
-
-    @Getter @Setter
     private Post post;
-
-    @Getter @Setter
     private String url;
 
     public Comment() {
