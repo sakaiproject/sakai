@@ -37,24 +37,8 @@ ASN_SVS.undoCancel = function()
 };
 
 ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
+    var messages = [];
     const endpoint = "/direct/assignment/addTimeSheet.json";
-    const messages = [];
-
-    const tsComment = document.getElementById("comment").value;
-    if (tsComment == null || tsComment.trim() === '') {
-        messages.push("ts.add.err.comment");
-    }
-
-    const tsDuration = document.getElementById("duration").value;
-    if (tsDuration == null || tsDuration.trim() === '') {
-        messages.push("ts.add.err.duration");
-    }
-
-    if (messages.length !== 0) {
-        onError(null, messages);
-        return;
-    }
-
     const params = {
         "tsAssignmentId" : document.getElementById("assignmentId").value,
         "tsStartTime" : document.getElementById("startTime").value,
@@ -63,27 +47,35 @@ ASN_TS_API.addTimeSheet = function (button, onSuccess, onError) {
         "new_ts_record_year" : document.getElementById("new_ts_record_year").value,
         "new_ts_record_hour" : document.getElementById("new_ts_record_hour").value,
         "new_ts_record_minute" : document.getElementById("new_ts_record_minute").value,
-        tsComment,
-        tsDuration
+        "tsComment" : document.getElementById("comment").value,
+        "tsDuration" : document.getElementById("duration").value,
     };
-
+    if(!document.getElementById("comment").value){ messages.push("ts.add.err.comment"); }
+    if(!document.getElementById("duration").value){ messages.push("ts.add.err.duration"); }
     button.classList.add("spinButton");
     button.disabled = true;
-
-    ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    if(messages.length === 0){
+        ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    } else {
+        onError(null, messages);
+    }
 };
 
 ASN_TS_API.removeTimeSheet = function (button, onSuccess, onError) {
+    var messages = [];
     const endpoint = "/direct/assignment/removeTimeSheet.json";
     const params = {
         "selectedTimeSheets" : [...document.getElementsByName("selectedTimesheet")].filter((el) => el.checked).map((el) => el.value),
         "tsAssignmentId" : document.getElementById("assignmentId").value,
     };
-
+    if(!params.selectedTimeSheets || params.selectedTimeSheets.length === 0){messages.push("ts.rem.err.empty"); }
     button.classList.add("spinButton");
     button.disabled = true;
-
-    ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    if(messages.length === 0){
+        ASN_TS_API._POST(endpoint, params, onSuccess, onError);
+    } else {
+        onError(null, messages);
+    }
 };
 
 ASN_TS_API._GET = function (url, data, onSuccess, onError, onComplete) {
@@ -123,68 +115,67 @@ ASN.switchTimesheetTab = function (source) {
 };
 
 ASN.tsHandleAjaxAddSuccess = function (data) {
-    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
-    if (data.error && data.error.message) {
-        const button = document.getElementById("btnTimesheetAdd");
-        button.classList.remove("spinButton");
-        button.disabled = false;
-        alertTsheetAddRecord.innerHTML = window.i18nWlogTab[data.error.message];
-        if(alertTsheetAddRecord.classList.contains('hidden')) {
-            alertTsheetAddRecord.classList.toggle('hidden');
-        }
-    } else {
-        if(!alertTsheetAddRecord.classList.contains('hidden')) {
-            alertTsheetAddRecord.classList.toggle('hidden');
-        }
-        ASN.submitForm('addSubmissionForm', 'view', null, null);
-    }
+    ASN.submitForm( 'addSubmissionForm', 'view', null, null );
 };
 
 ASN.tsHandleAjaxRemoveSuccess = function (data) {
-    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
-    if (data.error && data.error.message) {
-        const button = document.getElementById("btnTimesheetDelete");
-        button.classList.remove("spinButton");
-        button.disabled = false;
-        alertTsheetDelRecord.innerHTML = window.i18nWlogTab[data.error.message];
-        if(alertTsheetDelRecord.classList.contains('hidden')) {
-            alertTsheetDelRecord.classList.toggle('hidden');
-        }
-    } else {
-        if(!alertTsheetDelRecord.classList.contains('hidden')) {
-            alertTsheetDelRecord.classList.toggle('hidden');
-        }
-        ASN.submitForm('addSubmissionForm', 'view', null, null);
-    }
+    ASN.submitForm( 'addSubmissionForm', 'view', null, null );
 };
 
 ASN.tsAddHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+    if(xhr && xhr.status){
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.duration");
+                  break;
+        case 401: messages.push("ts.add.err.permission");
+                  break;
+        case 403: messages.push("ts.add.err.userId");
+                  break;
+        case 404: messages.push("ts.add.err.assignmentId");
+      }
+    }
 
     const button = document.getElementById("btnTimesheetAdd");
-    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
     button.classList.remove("spinButton");
     button.disabled = false;
-    if(alertTsheetAddRecord.classList.contains('hidden')) {
-        alertTsheetAddRecord.classList.toggle('hidden');
+
+    const alertTsheetAddRecord = document.getElementById("alertTsheetAddRecord");
+    alertTsheetAddRecord.classList.remove("hidden");
+    // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
+    let messageArray = [];
+    for (const [index, key] of Object.entries(messages)) {
+      messageArray.push(window.i18nWlogTab[key]);
     }
-    const messageArray = [];
-    alertTsheetAddRecord.innerHTML
-      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
+    const node = document.createElement("br");
+    alertTsheetAddRecord.appendChild(node);
 };
 
 ASN.tsRemoveHandleAjaxError = function (xhr, messagesParam) {
     const messages = typeof(messagesParam) === 'string' ? [] : messagesParam;
+    if(xhr && xhr.status){
+      switch(xhr.status){
+        case 400: messages.push("ts.add.err.assignmentId");
+                  break;
+        case 401: messages.push("ts.add.err.permission");
+                  break;
+        case 403: messages.push("ts.rem.err.userId");
+      }
+    }
 
-    var button = document.getElementById("btnTimesheetDelete");
-    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
+    const button = document.getElementById("btnTimesheetDelete");
     button.classList.remove("spinButton");
     button.disabled = false;
-    if(alertTsheetDelRecord.classList.contains('hidden')) {
-        alertTsheetDelRecord.classList.toggle('hidden');
+
+    const alertTsheetDelRecord = document.getElementById("alertTsheetDelRecord");
+    alertTsheetDelRecord.classList.remove("hidden");
+    // Object.keys(window.i18nWlogTab).find((key) => key.includes('ts.add.err.permission'))
+    let messageArray = [];
+    for (const [index, key] of Object.entries(messages)) {
+      messageArray.push(window.i18nWlogTab[key]);
     }
-    alertTsheetDelRecord.innerHTML
-      = Object.entries(messages).reduce((acc, entry) => { acc.push(i18nWlogTab[entry[1]]); return acc; }, []).join("<br>");
+    const node = document.createElement("br");
+    alertTsheetDelRecord.appendChild(node);
 };
 
 ASN.checkTimesheetRecord = function () {
