@@ -221,7 +221,7 @@
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>fullcalendar</artifactId>
-			<version>5.9.0</version>
+			<version>5.10.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!--Used in Tests&Quizzes, Private Messages, search, pagination and sort options for tables -->
