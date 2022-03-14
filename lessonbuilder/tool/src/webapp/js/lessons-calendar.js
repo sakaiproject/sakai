@@ -9,11 +9,18 @@ $(function(){
                 initialView: 'dayGridMonth',
                 displayEventTime: false,
                 allDaySlot: false,
+                themeSystem: 'bootstrap5',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
+                buttonIcons: {
+                    /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
+                    prev: ' fa fa-chevron-left',
+                    next: ' fa fa-chevron-right',
+                },
+
                 eventSources: [{
                     events: function(event, successCallback, failureCallback) {
                         var start_date = moment(event.start).format('YYYY-MM-DD');
