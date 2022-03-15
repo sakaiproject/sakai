@@ -823,7 +823,7 @@ public class ContentHosting extends AbstractWebService {
 
 				} catch (IdUnusedException e) { 
 					// Resource doesn't exist in destination so let's copy it
-					contentHostingService.copyIntoFolder(sourceResource.getId(), destResourceDirectoryPath);
+					contentHostingService.copyIntoFolder(sourceResource.getId(), destResourceDirectoryPath, false);
 				}
 			}
 		

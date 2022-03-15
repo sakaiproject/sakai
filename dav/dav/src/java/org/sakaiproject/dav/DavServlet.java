@@ -3806,7 +3806,7 @@ public class DavServlet extends HttpServlet
 	    // this isn't perfect. It only protects the top two levels of directory
 	    if (!(doProtected && member_id.toLowerCase().indexOf("/protected") >= 0 &&
 		  (!contentHostingService.allowAddCollection(adjustId(member_id)))))
-		contentHostingService.copyIntoFolder(member_id, new_id);
+		contentHostingService.copyIntoFolder(member_id, new_id, false);
 	}
 
     }

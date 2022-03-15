@@ -1558,7 +1558,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			try
 			{
-				String id = contentHostingService.copyIntoFolder(itemId, collectionId);
+				String id = contentHostingService.copyIntoFolder(itemId, collectionId, false);
 				String mode = (String) state.getAttribute(STATE_MODE);
 			}
 			catch (PermissionException e)
@@ -1673,7 +1673,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				String[] args = { p.getProperty(ResourceProperties.PROP_DISPLAY_NAME) };
 				displayName = rb.getFormattedMessage("copy.name", (Object[]) args);
 
-				String newItemId = contentHostingService.copyIntoFolder(itemId, collectionId);
+				String newItemId = contentHostingService.copyIntoFolder(itemId, collectionId, false);
 
 				ContentResourceEdit copy = contentHostingService.editResource(newItemId);
 				ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
@@ -8628,7 +8628,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 					else
 					{
-						newId = contentService.copyIntoFolder(entityId, collectionId);
+						newId = contentService.copyIntoFolder(entityId, collectionId, false);
 					}
 					
 					ref = entityManager.newReference(contentService.getReference(newId));

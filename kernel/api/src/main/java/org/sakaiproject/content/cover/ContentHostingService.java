@@ -663,7 +663,7 @@ public class ContentHostingService
 		return service.copy(param0, param1);
 	}
 
-	public static String copyIntoFolder(java.lang.String param0, java.lang.String param1)
+	public static String copyIntoFolder(java.lang.String param0, java.lang.String param1, boolean param2)
 			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException,
 			org.sakaiproject.exception.IdLengthException, org.sakaiproject.exception.IdUniquenessException,
 			org.sakaiproject.exception.TypeException, org.sakaiproject.exception.InUseException,
@@ -673,7 +673,7 @@ public class ContentHostingService
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return null;
 
-		return service.copyIntoFolder(param0, param1);
+		return service.copyIntoFolder(param0, param1, param2);
 	}
 
 	public static void moveIntoFolder(java.lang.String param0, java.lang.String param1)

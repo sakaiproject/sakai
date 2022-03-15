@@ -44,14 +44,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
@@ -199,7 +197,6 @@ import org.zwobble.mammoth.DocumentConverter;
 import org.zwobble.mammoth.Result;
 
 import fr.opensagres.odfdom.converter.xhtml.XHTMLConverter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -5022,6 +5019,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 *        The id of the resource.
 	 * @param folder_id
 	 *        The id of the folder in which the copy should be created.
+	 * @param merge
+	 *        Indicates if we want to merge existing collection with the previous existing with the same name or not.
 	 * @return The full id of the new copy of the resource.
 	 * @exception PermissionException
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
@@ -5040,7 +5039,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	public String copyIntoFolder(String id, String folder_id) throws PermissionException, IdUnusedException, TypeException,
+	public String copyIntoFolder(String id, String folder_id, boolean merge) throws PermissionException, IdUnusedException, TypeException,
 	InUseException, IdLengthException, IdUniquenessException, OverQuotaException, InconsistentException, IdUsedException,
 	ServerOverloadException
 	{
@@ -5095,13 +5094,61 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		if (isCollection)
 		{
-                        new_id = deepcopyCollection(thisCollection, new_id);
+			new_id = deepcopyCollection(thisCollection, new_id, merge);
 		}
 		else
 		{
-		        new_id = copyResource(thisResource, new_id);
+			new_id = merge ? copyMergingResources(thisResource, new_id) : copyResource(thisResource, new_id);
 		}
 		return new_id;
+	}
+
+	/**
+	 * Method to copy the attachments into destination attachment's folder to have access, for example, to
+	 * resources inserted into CKEditor
+	 * @param fromSiteId site from we want to import
+	 * @param toSiteId site from is going to be imported
+	 * @param toSiteTitle human readable title of the site
+	 */
+	@Override
+	public void copyAttachments(String fromSiteId, String toSiteId, String toSiteTitle) {
+		String toFolder = ContentHostingService.ATTACHMENTS_COLLECTION + toSiteId + "/";
+		String fromFolder = ContentHostingService.ATTACHMENTS_COLLECTION + fromSiteId + "/" + ContentHostingService.CKEDITOR_ATTACHMENTS_FOLDER + "/";
+		try {
+			checkCollection(fromFolder);
+			try {
+				checkCollection(toFolder);
+			} catch (IdUnusedException e) {
+				//If previous check throws this exception, we have to create the dir
+				log.info("The toSite has no folder.");
+				try {
+					ContentCollectionEdit newCollection = addCollection(toFolder);
+					newCollection.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, toSiteTitle);
+					commitCollection(newCollection);
+				} catch (IdInvalidException e1) {
+					log.error("No valid id for collection to site {}", toSiteId, e1);
+				}
+			}
+			copyIntoFolder(fromFolder, toFolder, true);
+		} catch (IdUnusedException e) {
+			log.info("The from site has not attachments to import.", e);
+		} catch (PermissionException e) {
+			log.warn("Permission exception trying to import attachments.", e);
+		} catch (TypeException e) {
+			log.warn("Type exception importing attachements from site: {} to site: {}", fromSiteId, toSiteId, e);
+		} catch (InUseException e) {
+			log.warn("Importing resources failed, resource was busy", e);
+		} catch (OverQuotaException e) {
+			log.warn("Attachments Quota was excedeed trying to import from site: {} to site: {}", fromSiteId, toSiteId, e);
+		} catch (ServerOverloadException e) {
+			log.warn("Importing attachements failed due to server overload.", e);
+		} catch (InconsistentException e) {
+			log.warn("Importing attachements failed due to consistency problem.", e);
+		} catch (IdLengthException e) {
+			log.warn("The attachment resource id was not fine.", e);
+		} catch (IdUniquenessException | IdUsedException e) {
+			log.info("The attachments already exists in site {}", toSiteId, e);
+		}
 	}
 
 	/**
@@ -5620,7 +5667,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	public String copyResource(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
 	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
-	    return copyResource(resource, new_id, false);
+	    return copyResource(resource, new_id, false, false);
+	}
+
+	public String copyMergingResources(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
+	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
+	{
+	    return copyResource(resource, new_id, false, true);
 	}
 
 	/**
@@ -5630,6 +5683,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @param new_id
 	 * @param referenceCopy if true, then do not copy the actual content (only make a reference copy which points to it),
 	 *                      if false, then copy like normal (duplicate the content)
+	 * @param merge if true, the resource won't be renamed if duplicated
      * @return The full id of the new copy of the resource.
      * @exception PermissionException
      *            if the user does not have permissions to read a containing collection, or to remove this resource.
@@ -5646,7 +5700,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
      * @exception ServerOverloadException
      *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	protected String copyResource(ContentResource resource, String new_id, boolean referenceCopy) throws PermissionException, IdUnusedException,
+	protected String copyResource(ContentResource resource, String new_id, boolean referenceCopy, boolean merge) throws PermissionException, IdUnusedException,
     TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
     {
 		if (log.isDebugEnabled())
@@ -5737,22 +5791,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			}
 			catch (IdUsedException e)
 			{
-				try
-				{
-					getResource(new_id);
+				if (merge) {
+					log.warn("Resource {} already exists.", new_id);
+					still_trying = false;
+				} else {
+					try {
+						getResource(new_id);
+					} catch (Exception ee) {
+						throw e;
+					}
+					if (attempt >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) {
+						throw e;
+					}
+					attempt++;
+					new_id = folderId + basename + "-" + attempt + extension;
+					new_displayName = displayName + " (" + attempt + ")";
+					// Could come up with a naming convention to add versions here
 				}
-				catch (Exception ee)
-				{
-					throw e;
-				}
-				if (attempt >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS)
-				{
-					throw e;
-				}
-				attempt++;
-				new_id = folderId + basename + "-" + attempt + extension;
-				new_displayName = displayName + " (" + attempt + ")";
-				// Could come up with a naming convention to add versions here
 			}
 		}
 		return new_id;
@@ -5833,6 +5888,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 *        The collection to be copied
 	 * @param new_folder_id
 	 *        The desired id of the new collection.
+	 * @param merge
+	 *        If true, no renamed collection will be created if currently exists one with the same name, collection's content would be merge into the existing collection
 	 * @return The full id of the copied collection (which may be a slight variation on the desired id to ensure uniqueness).
 	 * @exception PermissionException
 	 *            if the user does not have permissions to perform the operations
@@ -5847,7 +5904,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @exception ServerOverloadException
 	 *            if the server is configured to save content bodies in the server's filesystem and an error occurs trying to access the filesystem.
 	 */
-	protected String deepcopyCollection(ContentCollection thisCollection, String new_folder_id) throws PermissionException,
+	protected String deepcopyCollection(ContentCollection thisCollection, String new_folder_id, boolean merge) throws PermissionException,
 	IdUnusedException, TypeException, InUseException, IdLengthException, IdUniquenessException, OverQuotaException,
 	IdUsedException, ServerOverloadException
 	{
@@ -5892,7 +5949,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				}
 				catch (Exception ee)
 				{
-					throw new IdUniquenessException(new_folder_id);
+					if (!merge) {
+						throw new IdUniquenessException(new_folder_id);
+					} else {
+						log.warn("Collection with id {} already exists.", new_folder_id);
+					}
 				}
 			}
 			String containerId = isolateContainingId(new_folder_id);
@@ -5900,7 +5961,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			SortedSet<String> siblings = new TreeSet<String>();
 			siblings.addAll(containingCollection.getMembers());
 
-			while (still_trying)
+			while (!merge && still_trying)
 			{
 				attempt++;
 				if (attempt >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS)
@@ -5935,13 +5996,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			if (log.isDebugEnabled()) log.debug("deepCopyCollection size=" + members.size());
 
 			Iterator<String> memberIt = members.iterator();
-			while (memberIt.hasNext())
-			{
+			while (memberIt.hasNext()) {
 				String member_id = (String) memberIt.next();
-                		if (isAvailable(member_id)){
-                    			copyIntoFolder(member_id, new_folder_id);
-			    	}
-            }
+				if (isAvailable(member_id)){
+					copyIntoFolder(member_id, new_folder_id, merge);
+				}
+			}
 
 		}
 		catch (InconsistentException e)
@@ -14489,16 +14549,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			log.warn("Failed to remove collection {}.", folderId, e);
 		}
     }
-
-	@Override
-	public String getInstructorUploadFolderName() {
-		return m_serverConfigurationService.getString("content.direct.upload.instructors", DEFAULT_INSTRUCTOR_FOLDER);
-	}
-
-	@Override
-	public String getStudentUploadFolderName() {
-		return m_serverConfigurationService.getString("content.direct.upload.students", DEFAULT_STUDENT_FOLDER);
-	}
 
 	private String getDisplayName(User userIn) {
 		User user = (userIn== null)?userDirectoryService.getCurrentUser():userIn ;

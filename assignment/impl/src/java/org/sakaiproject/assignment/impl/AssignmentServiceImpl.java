@@ -1020,7 +1020,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 ResourceProperties p = contentHostingService.getProperties(tempRefId);
                                 String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
                                 // add another attachment instance
-                                String newItemId = contentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
+                                String newItemId = contentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId, false);
                                 ContentResourceEdit copy = contentHostingService.editResource(newItemId);
                                 // with the same display name
                                 ResourcePropertiesEdit pedit = copy.getPropertiesEdit();

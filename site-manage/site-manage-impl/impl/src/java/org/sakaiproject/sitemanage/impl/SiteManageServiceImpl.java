@@ -69,7 +69,6 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
@@ -440,6 +439,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         siteIds.add(fromSiteId);
                         resourcesImported = true;
+                        contentHostingService.copyAttachments(fromSiteId, site.getId(), site.getTitle());
                     }
                 }
             }

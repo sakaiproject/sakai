@@ -256,6 +256,9 @@ public interface ContentHostingService extends EntityProducer
     /** Enable content compression into zip file (affects resources) */
     public static final String RESOURCES_ZIP_ENABLE_COMPRESS = "content.zip.compress.enabled";
 
+    /** Folder name for CKEditor attachments */
+    public static final String CKEDITOR_ATTACHMENTS_FOLDER = "ckeditor-attachments";
+
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
 
 	public static final String DOC_MIMETYPE = "application/msword";
@@ -280,12 +283,6 @@ public interface ContentHostingService extends EntityProducer
     public static final String CONVERSION_NOT_SUPPORTED = "CONVERSION_NOT_SUPPORTED";
 
 	public static final String SAK_PROP_MAX_UPLOAD_FILE_SIZE = "content.upload.max";
-
-	/**
-	 * The default names for the direct-upload folders.
-	 */
-	public static final String DEFAULT_INSTRUCTOR_FOLDER = "instructor-uploads";
-	public static final String DEFAULT_STUDENT_FOLDER = "student-uploads";
 
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
@@ -1317,6 +1314,8 @@ public interface ContentHostingService extends EntityProducer
 	 *        The id of the resource.
 	 * @param folder_id
 	 *        The id of the folder in which the copy should be created.
+	 * @param merge
+	 *        Indicates if we want to merge existing collection with the previous existing with the same name or not.
 	 * @return The full id of the new copy of the resource.
 	 * @exception PermissionException
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
@@ -1337,8 +1336,17 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	public String copyIntoFolder(String id, String folder_id) throws PermissionException, IdUnusedException, TypeException,
+	public String copyIntoFolder(String id, String folder_id, boolean merge) throws PermissionException, IdUnusedException, TypeException,
 			InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException, IdUniquenessException;
+
+	/**
+	* Method to copy the attachments into destination attachment's folder to have access, for example, to
+	* resources inserted into CKEditor
+	* @param fromSiteId site from we want to import
+	* @param toSiteId site from is going to be imported
+	* @param toSiteTitle human readable title of the site
+	*/
+	public void copyAttachments(String fromSiteId, String toSiteId, String toSiteTitle);
 
 	/**
 	 * Move a resource or collection to a (different) folder. This may be accomplished by renaming the resource or by recursively renaming the collection and all enclosed members (no matter how deep) to effectively change their locations. Alternatively,
@@ -2145,22 +2153,4 @@ public interface ContentHostingService extends EntityProducer
 	public String expandMacros(String url);
 
 	public Map<String,String> getHtmlForRef(String ref);
-
-	/**
-	 * Get the name of the "instructor" upload folder name for direct-upload.
-	 * This is the folder for users that have addCollection permission in the
-	 * site.
-	 *
-	 * @return String - The name of the folder.
-	 */
-	public String getInstructorUploadFolderName();
-
-	/**
-	 * Get the name of the "student" upload folder name for direct-upload.
-	 * This is the folder for users that do not have addCollection permission
-	 * in the site.
-	 *
-	 * @return String - The name of the folder.
-	 */
-	public String getStudentUploadFolderName();
 }
