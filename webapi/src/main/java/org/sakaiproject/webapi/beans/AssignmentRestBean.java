@@ -13,13 +13,14 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
+import java.util.Objects;
+
 import org.sakaiproject.assignment.api.model.Assignment;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NonNull;
 
-@Getter
-@Setter
+@Data
 public class AssignmentRestBean {
 
     private String id;
@@ -33,7 +34,8 @@ public class AssignmentRestBean {
     private int newSubmissions;
     private boolean hasAttachment;
 
-    public AssignmentRestBean(Assignment assignment) {
+    public AssignmentRestBean(@NonNull Assignment assignment) {
+        Objects.requireNonNull(assignment);
         id = assignment.getId();
         title = assignment.getTitle();
         hasAttachment = assignment.getAttachments().size() > 0;

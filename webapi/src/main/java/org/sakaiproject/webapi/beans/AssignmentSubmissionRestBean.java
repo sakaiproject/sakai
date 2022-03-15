@@ -16,11 +16,11 @@ package org.sakaiproject.webapi.beans;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NonNull;
 
-@Getter
-@Setter
+@Data
+
 public class AssignmentSubmissionRestBean {
 
     private String id;
@@ -33,7 +33,7 @@ public class AssignmentSubmissionRestBean {
     private boolean hasAttachment;
     private Long submittedDate;
 
-    public AssignmentSubmissionRestBean(AssignmentSubmission assignmentSubmission) {
+    public AssignmentSubmissionRestBean(@NonNull AssignmentSubmission assignmentSubmission) {
         Assignment assignment = assignmentSubmission.getAssignment();
         id = assignmentSubmission.getId();
         title = assignment.getTitle();
