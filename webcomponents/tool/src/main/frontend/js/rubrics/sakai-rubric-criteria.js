@@ -176,10 +176,13 @@ export class SakaiRubricCriteria extends RubricsElement {
     `;
   }
 
-  onFocus(e){
+  onFocus(e) {
+
     e.target.closest('.criterion-row').classList.add("focused");
   }
-  focusOut(e){
+
+  focusOut(e) {
+
     e.target.closest('.criterion-row').classList.remove("focused");
   }
 

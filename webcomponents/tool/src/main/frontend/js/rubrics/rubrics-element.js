@@ -39,7 +39,7 @@ class RubricsElement extends SakaiElement {
     let highest = Number.NEGATIVE_INFINITY;
     let tmp;
 
-    for (let i=myArray.length-1; i>=0; i--) {
+    for (let i = myArray.length - 1; i >= 0; i--) {
       tmp = myArray[i].points;
       if (tmp < lowest) lowest = tmp;
       if (tmp > highest) highest = tmp;

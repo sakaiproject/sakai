@@ -13,7 +13,7 @@ export const reactionsMixin = Base => class extends Base {
     return html`
       ${Object.entries(myReactions).map(pair => html`
         ${pair[0] !== "GOOD_QUESTION" && pair[0] !== "GOOD_ANSWER"  && pair[0] !== "GOOD_COMMENT" ? html`
-        <div class="${pair[1] ? "reaction-on": ""}">
+        <div class="${pair[1] ? "reaction-on" : ""}">
           <div>
             <a href="javascript:;"
                 @click=${this.toggleReaction}
