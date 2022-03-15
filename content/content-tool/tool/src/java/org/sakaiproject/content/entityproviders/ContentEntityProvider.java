@@ -289,7 +289,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	 */
 	@EntityCustomAction(action = "direct-upload", viewKey = EntityView.VIEW_NEW)
 	public String uploadFileToSite(EntityView view,  Map<String, Object> params) {
-		if (!serverConfigurationService.getBoolean("content.direct.upload.enabled", Boolean.TRUE)) {
+		if (!serverConfigurationService.getBoolean("content.direct.upload.enabled", Boolean.FALSE)) {
 			throw new SecurityException("The direct-upload service is not enabled for your instance.");
 		}
 		User currentUser = userDirectoryService.getCurrentUser();
