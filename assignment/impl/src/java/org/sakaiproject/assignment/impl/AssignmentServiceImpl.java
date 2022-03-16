@@ -83,6 +83,8 @@ import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnGroup;
 import org.sakaiproject.assignment.api.MultiGroupRecord.AsnUser;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment.Access;
+import org.sakaiproject.assignment.api.model.Assignment.GradeType;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
@@ -251,8 +253,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private boolean allowSubmitByInstructor;
     private boolean exposeContentReviewErrorsToUI;
     private boolean createGroupsOnImport;
-
-    private static ResourceLoader rb = new ResourceLoader("assignment");
 
     public void init() {
         allowSubmitByInstructor = serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", true);
