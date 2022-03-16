@@ -161,29 +161,9 @@ public final class AssignmentConstants {
     public static final String ASSN_SUBMISSION_TYPE_UNKNOWN_PROP = "submission.type.unknown";
     public static final String ASSN_SUBMISSION_TYPE_VIDEO_PROP = "video";
 
-    /**
-     * Ungraded grade type string
-     */
-    public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
-
     /** Grade type not set */
     // public static final int GRADE_TYPE_NOT_SET = -1; change to 0
-    /**
-     * Letter grade type string
-     */
-    public static final String LETTER_GRADE_TYPE_STRING = "Letter Grade";
-    /**
-     * Score based grade type string
-     */
-    public static final String SCORE_GRADE_TYPE_STRING = "Points";
-    /**
-     * Pass/fail grade type string
-     */
-    public static final String PASS_FAIL_GRADE_TYPE_STRING = "Pass/Fail";
-    /**
-     * Grade type that only requires a check string
-     */
-    public static final String CHECK_GRADE_TYPE_STRING = "Checkmark";
+
     /**
      * Assignment type not yet set
      */
