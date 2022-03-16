@@ -4,6 +4,7 @@ import rollupPostcss from "rollup-plugin-postcss";
 import rollupResolve from "@rollup/plugin-node-resolve";
 import rollupReplace from '@rollup/plugin-replace';
 import { fromRollup } from '@web/dev-server-rollup';
+import { storybookPlugin } from "@web/dev-server-storybook";
 
 const postcss = fromRollup(rollupPostcss);
 const replace = fromRollup(rollupReplace);
@@ -20,16 +21,16 @@ export default {
   //     jail: './js/sakai-ui',
   // },
   nodeResolve: {
-    moduleDirectories: ["node_modules", "./assets"],
+    moduleDirectories: ["js/sakai-ui/node_modules", "./assets"],
   },
   preserveSymlinks: true,
   coverage: true,
-  debug: true,
+  // debug: true,
   // in a monorepo you need to set set the root dir to resolve modules
   rootDir: ".",
 //   manual: true,
 //   open: true,
-  watch: true,
+  // watch: true,
   // files: '../sakai-ui/**/*.test.js',
   // Couldn't get the SCSS files to work with testing. Don't need SCSS in components at the moment, so no issue
   // Might be issue if we move to Shadown DOM
@@ -68,6 +69,9 @@ export default {
                 }
             }
         }
-    })
+    }),
+    storybookPlugin({
+      type: "web-components",
+      configDir: "js/sakai-ui/.storybook" })
   ],
 };

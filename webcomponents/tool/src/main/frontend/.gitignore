@@ -7,3 +7,5 @@
 !.eslintrc.js
 !test/**
 coverage
+dist
+js/dist

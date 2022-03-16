@@ -1,11 +1,9 @@
 {
-    "name": "sui-table",
+    "name": "sui",
     "version": "1.0.0",
-    "description": "Sakai UI Table",
+    "description": "Sakai UI",
     "main": "index.js",
     "scripts": {
-      "sui:test:storybook": "web-dev-server --config ../.storybook/server.config.mjs",
-      "test": "web-test-runner test/**/*.test.js --node-resolve "
     },
     "author": "",
     "license": "ECL-2.0",

@@ -181,7 +181,7 @@
                                 <VITE_BUILD>${buildNumber}</VITE_BUILD>
                                 <NODE_ENV>production</NODE_ENV>
                         </environmentVariables>
-                            <arguments>run -dd build-sakai-ui</arguments>
+                            <arguments>run -dd wc:build:vite</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -191,7 +191,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                run -dd empathise -- --query=version=${buildNumber}
+                                run nothing -- --query=version=${buildNumber}
                             </arguments>
                         </configuration>
                     </execution>
