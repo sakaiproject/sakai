@@ -72,7 +72,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@GetMapping(value = "/users/{userId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getUserAnnouncements(@PathVariable String userId) throws UserNotDefinedException {
 
-        Session session = checkSakaiSession();
+        checkSakaiSession();
         return announcementService.getViewableAnnouncementsForCurrentUser(10).entrySet()
             .stream()
             .map(e -> {
@@ -95,7 +95,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 	@GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<AnnouncementRestBean> getSiteAnnouncements(@PathVariable String siteId) throws UserNotDefinedException {
 
-		Session session = checkSakaiSession();
+		checkSakaiSession();
 
         try {
             Site site = siteService.getSite(siteId);
@@ -112,6 +112,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
             log.warn("The current user does not have permission to get announcements for this site {}", siteId);
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
 	}
 }

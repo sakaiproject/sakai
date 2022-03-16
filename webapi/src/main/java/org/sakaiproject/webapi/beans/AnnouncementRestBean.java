@@ -23,9 +23,6 @@ import org.sakaiproject.site.api.Site;
 
 import org.springframework.hateoas.Link;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,7 +40,7 @@ public class AnnouncementRestBean {
     private long date;
     private Long release;
     private Long retract;
-    private List<Link> links;
+    private Link link;
 
     public AnnouncementRestBean(Site site, AnnouncementMessage am, String url, String access) {
         id = am.getId();
@@ -55,6 +52,7 @@ public class AnnouncementRestBean {
         author = header.getFrom().getDisplayName();
         date = header.getInstant().toEpochMilli();
         hasAttachment = !header.getAttachments().isEmpty();
+        link = Link.of(url);
         ResourceProperties resourceProperties = am.getProperties();
         try {
             release = resourceProperties.getInstantProperty(AnnouncementService.RELEASE_DATE).toEpochMilli();
@@ -63,15 +61,5 @@ public class AnnouncementRestBean {
         try {
             retract = resourceProperties.getInstantProperty(AnnouncementService.RETRACT_DATE).toEpochMilli();
         } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) { /*No action needed*/ }
-        links = new ArrayList<Link>();
-        links.add(Link.of(url));
-        links.add(getActionLink(url, "doReviseannouncement"));
-        links.add(getActionLink(url, "doDelete_announcement_link"));
-        links.add(getActionLink(url, "doDuplicateAnnouncement"));
-    }
-
-    private Link getActionLink(String reference, String actionName) {
-
-        return Link.of(reference.replaceFirst("doShowmetadata", actionName), actionName);
     }
 }
