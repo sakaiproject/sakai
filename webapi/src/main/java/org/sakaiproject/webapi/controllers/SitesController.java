@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -150,7 +151,14 @@ public class SitesController extends AbstractSakaiApiController {
         return data;
     }
 
-    private List<Map<String, Object>> getSitesWithPages(List<String> siteIds) throws UserNotDefinedException {
+    @GetMapping(value = "/sites/gateway", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Map<String, Object>> getGatewaySiteWithPages() {
+        List<String> gatewaySiteList = new ArrayList<>();
+        gatewaySiteList.add(serverConfigurationService.getGatewaySiteId());
+        return getSitesWithPages(gatewaySiteList);
+    }
+
+    private List<Map<String, Object>> getSitesWithPages(List<String> siteIds) {
         return siteIds.stream().map(siteId -> {
             Map<String, Object> siteMap = new HashMap<>();
             try {
