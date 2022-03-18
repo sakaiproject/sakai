@@ -153,7 +153,7 @@ public class SitesController extends AbstractSakaiApiController {
 
     @GetMapping(value = "/sites/gateway", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Map<String, Object>> getGatewaySiteWithPages() {
-        List<String> gatewaySiteList = new ArrayList<String>();
+        List<String> gatewaySiteList = new ArrayList<>();
         gatewaySiteList.add(serverConfigurationService.getGatewaySiteId());
         return getSitesWithPages(gatewaySiteList);
     }
