@@ -47,6 +47,7 @@ public class Post implements Entity {
     private String content = "";
     private long createdDate = -1L;
     private String creatorDisplayName = null;
+    private String creatorUserName;
     private String creatorId = null;
     private String id = "";
     private long modifiedDate = -1L;
