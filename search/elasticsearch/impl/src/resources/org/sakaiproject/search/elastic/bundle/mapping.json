@@ -16,7 +16,7 @@
             "store": "true"
         },
         "creatorId": {
-            "type": "text",
+            "type": "keyword",
             "store": "true"
         },
         "title": {
