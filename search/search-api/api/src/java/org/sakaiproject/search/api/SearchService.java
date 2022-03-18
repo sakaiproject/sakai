@@ -68,9 +68,24 @@ public interface SearchService extends Diagnosable
 	 * The search fields being stored in the index
 	 */
 	/**
-	 * Search Index Field the site id of the entity ( where is was produced)
+	 * Search Index Field for the site id of the entity ( where is was produced)
 	 */
 	public static final String FIELD_SITEID = "siteid";
+
+	/**
+	 * Search index field for the entity creator's display name (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_DISPLAY_NAME = "creatorDisplayName";
+
+	/**
+	 * Search index field for the entity creator's user id  (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_ID = "creatorId";
+
+	/**
+	 * Search index field for the entity creator's username  (where is was produced)
+	 */
+	public static final String FIELD_CREATOR_USER_NAME = "creatorUserName";
 
 	/**
 	 * Search Index Field the url to the entity
