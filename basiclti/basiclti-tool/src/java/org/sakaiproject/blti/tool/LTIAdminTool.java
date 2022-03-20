@@ -1460,7 +1460,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
 		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
 			reqProps.remove(LTIService.LTI_SECRET);
-		} else if (StringUtils.isBlank(newSecret)) {
+			newSecret = null;
+		} else if (newSecret != null && newSecret.length() > 0) {
 			newSecret = SakaiBLTIUtil.encryptSecret(newSecret);
 			reqProps.put(LTIService.LTI_SECRET, newSecret);
 		}		
