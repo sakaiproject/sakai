@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -57,7 +58,7 @@ public class ZeroUngradedItemsPanel extends BasePanel {
 
 				for (final Assignment assignment : assignments) {
 					final long assignmentId = assignment.getId().longValue();
-					ZeroUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, ZERO_GRADE);
+					ZeroUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, FormatHelper.formatGradeForDisplay(ZERO_GRADE));
 				}
 
 				ZeroUngradedItemsPanel.this.window.close(target);
