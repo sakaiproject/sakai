@@ -1436,6 +1436,14 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
  */
 !function(a){function f(a,b){if(!(a.originalEvent.touches.length>1)){a.preventDefault();var c=a.originalEvent.changedTouches[0],d=document.createEvent("MouseEvents");d.initMouseEvent(b,!0,!0,window,1,c.screenX,c.screenY,c.clientX,c.clientY,!1,!1,!1,!1,0,null),a.target.dispatchEvent(d)}}if(a.support.touch="ontouchend"in document,a.support.touch){var e,b=a.ui.mouse.prototype,c=b._mouseInit,d=b._mouseDestroy;b._touchStart=function(a){var b=this;!e&&b._mouseCapture(a.originalEvent.changedTouches[0])&&(e=!0,b._touchMoved=!1,f(a,"mouseover"),f(a,"mousemove"),f(a,"mousedown"))},b._touchMove=function(a){e&&(this._touchMoved=!0,f(a,"mousemove"))},b._touchEnd=function(a){e&&(f(a,"mouseup"),f(a,"mouseout"),this._touchMoved||f(a,"click"),e=!1)},b._mouseInit=function(){var b=this;b.element.bind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),c.call(b)},b._mouseDestroy=function(){var b=this;b.element.unbind({touchstart:a.proxy(b,"_touchStart"),touchmove:a.proxy(b,"_touchMove"),touchend:a.proxy(b,"_touchEnd")}),d.call(b)}}}(jQuery);
 
+$.datepicker._updateDatepicker_original = $.datepicker._updateDatepicker;
+$.datepicker._updateDatepicker = function(inst) {
+	$.datepicker._updateDatepicker_original(inst);
+	var afterShow = this._get(inst, 'afterShow');
+	if (afterShow) afterShow.apply((inst.input ? inst.input[0] : null));  // trigger custom callback
+};
+
+
 $.datepicker._getPreferredSakaiDatetime = function () {
 
     const p = typeof portal !== "undefined" ? portal : parent.portal;  // we might be inside an iframe (ie. Lessons)
@@ -1549,7 +1557,8 @@ $.datepicker._gotoToday = function (id) {
 		// This is the instance of the dateTimePicker
 		var localDTPicker;
 
-		cfg.showOn = (options.icon === 0) ? "focus" : "both";
+		cfg.showOn = (options.icon === 0) ? "focus" : "button";
+                cfg.constrainInput = true;
 		//Use an image instead of font-awesome
 		//cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
 		//cfg.buttonImageOnly = true;
@@ -1570,8 +1579,34 @@ $.datepicker._gotoToday = function (id) {
 		cfg.changeMonth = true;
 		cfg.changeYear = true;
 
+		cfg.afterShow = function() {
+                                setTimeout( function() {
+                                        $('.ui-datepicker-month').focus();
+                                        $('#ui-datepicker-div').attr('firstLoad', true);
+                                }, 100);
+                };
+
+
 		// add blur event to allow edit input field
-		cfg.beforeShow = function(input, inst) {
+		// Moved to init to handle updates without date-picker popup
+                //cfg.beforeShow = function(input, inst) {
+                //	setBlur(input);
+                //};
+                // on select, runs our custom method for setting dates
+                cfg.onSelect = function(dtObj, dpInst) {
+                        setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+                        if (options.onDateTimeSelected) {
+                                options.onDateTimeSelected(moment($(this).datepicker("getDate")).valueOf());
+                        }
+                };
+
+                // When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
+                cfg.onClose = function(dtObj, dpInst) {
+                        if (dtObj == '' && options.allowEmptyDate){
+                                setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+                        }
+                };
+                var setBlur = function(input) {
 			$(input).unbind('blur');
 			$(input).on('blur', function(){
 				var momentDateFormat = $(this).datepicker("option","dateFormat").replace('yy','yyyy').toUpperCase();
@@ -1592,22 +1627,17 @@ $.datepicker._gotoToday = function (id) {
 						$(input).val(stringDay);
 					}
 				}
+				// Set hidden field to null if allowed
+                                if (options.allowEmptyDate && $(input).val() == "") {
+                                        setHiddenFields("", options, input);
+                                }
 			});
-		};
-		// on select, runs our custom method for setting dates
-		cfg.onSelect = function(dtObj, dpInst) {
-			setHiddenFields($(this).datepicker("getDate"), options, dpInst);
-      if (options.onDateTimeSelected) {
-        options.onDateTimeSelected(moment($(this).datepicker("getDate")).valueOf());
-      }
-		};
+                }
 
-		// When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
-		cfg.onClose = function(dtObj, dpInst) {
-			if (dtObj == '' && options.allowEmptyDate){
-				setHiddenFields($(this).datepicker("getDate"), options, dpInst);
-			}
-		};
+                if (options.ashidden !== undefined) {
+                        setBlur(options.input);
+                }
+
 
 		/**
 		 * takes a date string and parses it using the moment.js library
@@ -1697,7 +1727,7 @@ $.datepicker._gotoToday = function (id) {
 				jQuery.each(o.ashidden, function(i, h) {
 					var oldValue = jQuery('#' + h).val();
 					var newValue = '';
-					if(d != null){
+					if(d != null && d != ""){
 						switch(i) {
 							case "month":
 							  newValue = d.getMonth() + 1;
@@ -1721,6 +1751,13 @@ $.datepicker._gotoToday = function (id) {
 							  newValue = moment(d).format();
 							  break;
 						}
+                                        } else if (d == "") {
+                                             newValue = null;
+                                        }
+                                        // If oldvalue is empty, we need to update the hidden field twice, to unlock the submit
+                                        // button in datemanager
+                                        if (oldValue == '' && newValue != '') {
+                                             jQuery('#' + h).change();
 					}
 					jQuery('#' + h).val(newValue);
 					// If new value is different from the previous one, launch change event on hidden input
