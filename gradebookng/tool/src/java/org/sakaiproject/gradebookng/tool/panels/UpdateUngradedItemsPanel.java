@@ -111,7 +111,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue,
+					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, override.getGrade(),
 							group);
 
 					if (success) {
