@@ -1012,8 +1012,9 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			}
 		}
 
-		if (update)
+		if (update && !signupUsers.contains(signupUser)) {
 			signupUsers.add(signupUser);
+		}
 	}
 
 	/**
