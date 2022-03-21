@@ -2280,7 +2280,7 @@ public class GradebookNgBusinessService {
 	 * @param grade
 	 * @return
 	 */
-	public boolean updateUngradedItems(final long assignmentId, final double grade) {
+	public boolean updateUngradedItems(final long assignmentId, final String grade) {
 		return updateUngradedItems(assignmentId, grade, null);
 	}
 
@@ -2292,7 +2292,7 @@ public class GradebookNgBusinessService {
 	 * @param group
 	 * @return
 	 */
-	public boolean updateUngradedItems(final long assignmentId, final double grade, final GbGroup group) {
+	public boolean updateUngradedItems(final long assignmentId, final String grade, final GbGroup group) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 		final Assignment assignment = getAssignment(assignmentId);
@@ -2325,7 +2325,7 @@ public class GradebookNgBusinessService {
 
 		// Apply the new grade to the GradeDefinitions to be updated
 		for (GradeDefinition def : defs) {
-			def.setGrade(Double.toString(grade));
+			def.setGrade(grade);
 			log.debug("Setting default grade. Values of assignmentId: {}, studentUuid: {}, grade: {}", assignmentId, def.getStudentUid(), grade);
 		}
 
