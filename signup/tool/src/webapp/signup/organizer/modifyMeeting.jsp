@@ -338,6 +338,48 @@
 						</div>
 					</h:panelGroup>
 
+					<%-- Display site/groups --%>
+					<div class="form-group row ">
+						<h:outputLabel value ="#{msgs.event_publish_to}" styleClass="col-md-2"/>
+
+						<div class="col-md-10" >
+							<h:panelGroup>
+								<h:selectBooleanCheckbox id="siteSelection" value="#{EditMeetingSignupMBean.currentSite.selected}" disabled="true"/>
+								<h:outputLabel for="siteSelection" value="#{EditMeetingSignupMBean.currentSite.signupSite.title} #{msgs.event_current_site}"/>
+							</h:panelGroup>
+							<h:dataTable id="currentSiteGroups" value="#{EditMeetingSignupMBean.currentSite.signupGroupWrappers}" var="currentGroup" styleClass="meetingTypeTable">
+								<h:column>
+									<h:panelGroup>
+										<h:selectBooleanCheckbox id="groupSelection" value="#{currentGroup.selected}" disabled="true"/>
+										<h:outputLabel for="groupSelection" value="#{currentGroup.signupGroup.title}" styleClass="longtext"/>
+									</h:panelGroup>
+								</h:column>
+							</h:dataTable>
+
+							<h:panelGroup rendered="#{not empty EditMeetingSignupMBean.otherSites}">
+								<h:outputLabel value="#{msgs.event_other_sites}"/>
+								<h:outputText value="<div id='otherSites'>" escape="false"/>
+								<h:dataTable id="userSites" value="#{EditMeetingSignupMBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
+									<h:column>
+										<h:panelGroup>
+											<h:selectBooleanCheckbox id="otherSitesSelection" value="#{site.selected}" disabled="true"/>
+											<h:outputLabel for="otherSitesSelection" value="#{site.signupSite.title}" styleClass="editText" escape="false"/>
+										</h:panelGroup>
+										<h:dataTable id="userGroups" value="#{site.signupGroupWrappers}" var="group" styleClass="meetingTypeTable">
+											<h:column>
+												<h:panelGroup>
+													<h:selectBooleanCheckbox id="otherGroupsSelection" value="#{group.selected}" disabled="true"/>
+													<h:outputLabel for="otherGroupsSelection" value="#{group.signupGroup.title}" styleClass="longtext"/>
+												</h:panelGroup>
+											</h:column>
+										</h:dataTable>
+									</h:column>
+								</h:dataTable>
+								<h:outputText value="</div>" escape="false" />
+							</h:panelGroup>
+						</div>
+					</div>
+
 					<%-- Handle meeting types --%>
 					<h:panelGroup styleClass="form-group row "  layout="block">
 						<h:outputLabel value ="#{msgs.event_type_title}"  styleClass="col-lg-2 form-required"/>
