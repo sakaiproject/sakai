@@ -711,10 +711,13 @@ $(function() {
 			<input type="submit" name="eventSubmit_doEditfrequency" value="$tlang.getString("new.setfreq")" />
 		</p>
 
-		<p class="shorttext">
-			<input type="checkbox" name="createTask" id="createTask" value="createTask" checked/>
-			<label for="createTask">$tlang.getString("new.createtask")</label>
-		</p>
+		#if ($isDashboardEnabled)
+			<p class="shorttext">
+				<input type="checkbox" name="createTask" id="createTask" value="createTask" checked/>
+				<label for="createTask">$tlang.getString("new.createtask")</label>
+			</p>
+		#end
+
 		<p class="shorttext">
 			<label for="eventType">
 				$tlang.getString("new.itemtype")

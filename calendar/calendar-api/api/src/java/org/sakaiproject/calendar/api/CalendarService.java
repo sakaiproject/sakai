@@ -432,6 +432,13 @@ public interface CalendarService
 	 * @return
 	 */
 	public boolean isCalendarToolInitialized(String siteId);
+
+	/**
+	 * Checks if Dashboard tool is enabled in the current site
+	 * @param siteId of the site we want to check
+	 * @return true if Dashboard tool is in the site, false in other case
+	 */
+	public boolean isDashboardEnabled(String siteId);
 }	// CalendarService
 
 

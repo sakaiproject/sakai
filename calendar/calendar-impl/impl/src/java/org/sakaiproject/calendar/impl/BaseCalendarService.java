@@ -5928,6 +5928,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		ToolConfiguration toolConfig = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
 		return m_serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
-	
+
+	@Override
+	public boolean isDashboardEnabled(String siteId) {
+		try {
+			return m_siteService.getSite(siteId).getToolForCommonId("sakai.dashboard") != null;
+		} catch (IdUnusedException e) {
+			log.warn("No site found checking if Dashboard was in site {}", siteId, e);
+		}
+		return false;
+	}
 } // BaseCalendarService
 

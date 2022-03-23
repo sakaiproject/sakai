@@ -339,6 +339,14 @@ public class CalendarService
 		return service.allowSubscribeThisCalendar(param0);
 	}
 
+	public static boolean isDashboardEnabled(java.lang.String param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.isDashboardEnabled(param0);
+	}
 }
 
 

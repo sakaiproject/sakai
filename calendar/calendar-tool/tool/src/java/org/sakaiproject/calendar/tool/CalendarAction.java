@@ -2772,6 +2772,8 @@ extends VelocityPortletStateAction
 		
 		// output the real time
 		context.put("realDate", TimeService.newTime());
+
+		context.put("isDashboardEnabled", CalendarService.isDashboardEnabled(calendarObj.getContext()));
 		
 	} // buildReviseContext
 	
@@ -3183,6 +3185,7 @@ extends VelocityPortletStateAction
 		context.put("savedData",state.getNewData());
 		context.put("helper",new Helper());
 		context.put("realDate", TimeService.newTime());
+		context.put("isDashboardEnabled", CalendarService.isDashboardEnabled(calendarObj.getContext()));
 
 		buildMenu(portlet, context, runData, state);
 	} // buildNewContext
