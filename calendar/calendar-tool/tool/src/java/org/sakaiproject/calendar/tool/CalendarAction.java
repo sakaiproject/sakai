@@ -35,14 +35,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -52,7 +50,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
@@ -81,7 +78,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentTypeImageService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
@@ -98,9 +94,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tasks.api.Priorities;
-import org.sakaiproject.tasks.api.Task;
-import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
@@ -182,8 +175,6 @@ extends VelocityPortletStateAction
 	private static final String FORM_ALIAS			= "alias";
 	private static final String FORM_ICAL_ENABLE = "icalEnable";
 	private static final String ICAL_EXTENSION = ".ics";
-	
-	private static final String CREATE_TASK = "createTask";
 
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
@@ -213,8 +204,6 @@ extends VelocityPortletStateAction
 	private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
 
 	private AliasService aliasService;
-	
-	private TaskService taskService;
    
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
@@ -227,7 +216,6 @@ extends VelocityPortletStateAction
 		super();
 		aliasService = ComponentManager.get(AliasService.class);
 		externalCalendarSubscriptionService = ComponentManager.get(ExternalCalendarSubscriptionService.class);
-		taskService = ComponentManager.get(TaskService.class);
 	}
 	
 	/**
@@ -4285,10 +4273,6 @@ extends VelocityPortletStateAction
 					state.setReturnState(returnState);
 				}
 				state.setState("delete");
-
-				// Delete task
-				String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + eventId;
-				taskService.removeTaskByReference(reference);
 			}
 			catch (IdUnusedException err)
 			{
@@ -4735,9 +4719,6 @@ extends VelocityPortletStateAction
 		type = runData.getParameters().getString("eventType");
 		String location = "";
 		location = runData.getParameters().getString("location");
-		String taskCreation = "";
-		taskCreation = runData.getParameters().getString("createTask");
-		boolean createTask = CREATE_TASK.equals(taskCreation);
 		
 		String calId = state.getPrimaryCalendarReference();
 		try {
@@ -4913,36 +4894,6 @@ extends VelocityPortletStateAction
 				// clean state
 				sstate.removeAttribute(STATE_SCHEDULE_TO);
 				sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-				
-				// Create task
-				String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + edit.getId();
-				if (createTask) {
-					Task task = new Task();
-					task.setSiteId(calendarObj.getContext());
-					task.setReference(reference);
-					task.setSystem(true);
-					task.setDescription(title);
-					Date dueDate = new Date(event_startTime.getTime());
-					task.setDue(dueDate == null ? null : dueDate.toInstant());
-					Set<String> users = new HashSet();
-					if (CalendarEvent.EventAccess.SITE.equals(access)) {
-						Site site = SiteService.getSite(calendarObj.getContext());
-						users = site.getUsersIsAllowed("section.role.student");
-					} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
-						for (Iterator groupsIter = groups.iterator(); groupsIter.hasNext();) {
-							Group groupTask = (Group) groupsIter.next();
-							Set<Member> members = groupTask.getMembers();
-							for (Iterator membersIter = members.iterator(); membersIter.hasNext();) {
-								Member member = (Member) membersIter.next();
-								users.add(member.getUserId());
-							}
-						}
-					}
-					if (users.size() == 0) {
-						users.add(UserDirectoryService.getCurrentUser().getId());
-					}
-					taskService.createTask(task, users, Priorities.HIGH);
-				}
 			} catch (IdUnusedException e) {
 				addAlert(sstate, rb.getString("java.alert.noexist"));
 				log.debug(".doAdd(): " + e);
@@ -5077,9 +5028,6 @@ extends VelocityPortletStateAction
 				type = runData.getParameters().getString("eventType");
 				String location = "";
 				location = runData.getParameters().getString("location");
-				String taskCreation = "";
-				taskCreation = runData.getParameters().getString("createTask");
-				boolean createTask = CREATE_TASK.equals(taskCreation);
 				
 				String calId = state.getPrimaryCalendarReference();
 				try
@@ -5235,7 +5183,7 @@ extends VelocityPortletStateAction
 							range = TimeService.newTimeRange(timeObj, endTime, true, includeEndTime);
 						}
 						List attachments = state.getAttachments();
-						Collection groups = new Vector();
+						
 																if (edit != null)
 						{
 							edit.setRange(range);
@@ -5283,6 +5231,7 @@ extends VelocityPortletStateAction
 									Site site = SiteService.getSite(calendarObj.getContext());
 									
 									// make a collection of Group objects from the collection of group ref strings
+									Collection groups = new Vector();
 									for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 									{
 										String groupRef = (String) iGroups.next();
@@ -5331,43 +5280,6 @@ extends VelocityPortletStateAction
 						// clean state
 						sstate.removeAttribute(STATE_SCHEDULE_TO);
 						sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
-						
-						// Create task
-						String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + edit.getId();
-						Optional<Task> optTask = taskService.getTask(reference);
-						if (optTask.isPresent()) {
-							Task task = optTask.get(); 
-							task.setDescription(title);
-							Date dueDate = new Date(timeObj.getTime());
-							task.setDue(dueDate == null ? null : dueDate.toInstant());
-							taskService.saveTask(task);
-						} else if (createTask) {
-							Task task = new Task();
-							task.setSiteId(calendarObj.getContext());
-							task.setReference(reference);
-							task.setSystem(true);
-							task.setDescription(title);
-							Date dueDate = new Date(timeObj.getTime());
-							task.setDue(dueDate == null ? null : dueDate.toInstant());
-							Set<String> users = new HashSet();
-							if ("site".equals(scheduleTo)) {
-								Site site = SiteService.getSite(calendarObj.getContext());
-								users = site.getUsersIsAllowed("section.role.student");
-							} else if ("groups".equals(scheduleTo)){
-								for (Iterator groupsIter = groups.iterator(); groupsIter.hasNext();) {
-									Group groupTask = (Group) groupsIter.next();
-									Set<Member> members = groupTask.getMembers();
-									for (Iterator membersIter = members.iterator(); membersIter.hasNext();) {
-										Member member = (Member) membersIter.next();
-										users.add(member.getUserId());
-									}
-								}
-							}
-							if (users.size() == 0) {
-								users.add(UserDirectoryService.getCurrentUser().getId());
-							}
-							taskService.createTask(task, users, Priorities.HIGH);
-						}
 					}
 					catch (IdUnusedException  e)
 					{

@@ -712,10 +712,6 @@ $(function() {
 		</p>
 
 		<p class="shorttext">
-			<input type="checkbox" name="createTask" id="createTask" value="createTask" checked/>
-			<label for="createTask">$tlang.getString("new.createtask")</label>
-		</p>
-		<p class="shorttext">
 			<label for="eventType">
 				$tlang.getString("new.itemtype")
 			</label>

@@ -133,9 +133,6 @@ public interface CalendarService
 	
 	/** The Reference type for a subscripted event. */
 	public static final String REF_TYPE_EVENT_SUBSCRIPTION = "eventsubscripted";
-	
-	/** The Reference type for an event referenced from the dashboard. */
-	public static final String REF_TYPE_DASHBOARD = "dashboard";
 
 	/** Recurring event modification intention: no intention. */
 	public static final int MOD_NA = 0;
