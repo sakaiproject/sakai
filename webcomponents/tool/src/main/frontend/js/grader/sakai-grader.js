@@ -279,7 +279,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             ${this.submission.submittedAttachments.length > 0 ? html`
               <div class="attachments-header">${this.assignmentsI18n["gen.stuatt"]}:</div>
               ${this.submission.submittedAttachments.map(r => html`
-                <div class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></div>
+                <div class="attachment-option">
+                  <div class="download-item">
+                    <a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a>
+                  </div>
+                  <button class="btn btn-primary">
+                    <a href="javascript;" data-url="${r.url}" @click=${this.downloadAttachment} class="download-button">
+                      <i class="fa fa-download fa-lg" aria-hidden="true" title="Download"></i>
+                    </a>
+                  </button>
+                </div>
               `)}` : ""}
           </div>
         </div> <!-- /submitted-block -->
@@ -694,20 +703,30 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submittedTextMode = true;
   }
 
+  selectAttachment(e) {
+    this.selectedAttachment = this.submission.submittedAttachments.find(sa => sa.url === e.target.dataset.url);
+  }
+
   previewAttachment(e) {
 
     e.preventDefault();
     this.submittedTextMode = false;
     this.previewMode = true;
-    this.selectedAttachment = this.submission.submittedAttachments.find(sa => sa.url === e.target.dataset.url);
+    this.selectAttachment(e);
     const preview = this.submission.previewableAttachments[this.selectedAttachment.ref];
-    if (preview) {
+    if(preview) {
       this.selectedPreview = preview;
     } else {
       this.selectedPreview = this.selectedAttachment;
-      // If there's no preview, download the attachment.
-      location.href = this.selectedPreview.url;
     }
+
+  }
+
+  downloadAttachment(e) {
+    e.preventDefault();
+    this.previewMode = false;
+    this.selectAttachment(e);
+    location.href = this.selectedAttachment.url;
   }
 
   addRubricParam(e, type) {

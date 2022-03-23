@@ -317,6 +317,24 @@ sakai-grader {
     margin-left: 7px;
   }
 
+  .attachment-option {
+    display:flex;
+    margin-top:3%;
+  }
+
+  .download-button {
+    text-decoration:none!important;
+    color:black!important;
+  }
+
+  .download-item {
+    margin-left: 7px;
+    display:flex;
+    width:90%;
+    justify-content:flex-start;
+    align-items:center;
+  }
+
   .grade-block {
 
     padding-top: 15px;
