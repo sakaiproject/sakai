@@ -499,6 +499,7 @@ a.hideDivision {
 .answerkeyFeedbackCommentLabel {
     font-weight: bold;
     color: var(--errorBanner-color);
+    margin-right: 5px;
 } 
 
 .saCharCount {
