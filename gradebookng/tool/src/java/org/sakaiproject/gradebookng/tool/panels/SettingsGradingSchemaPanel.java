@@ -138,7 +138,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
 		for (final GradeMappingDefinition gradeMapping : this.gradeMappings) {
-			gradeMappingMap.put(gradeMapping.getId(), new ResourceModel("settingspage.gradingschema.gradetypes." + gradeMapping.getName()).getObject());
+			String value = new ResourceModel("settingspage.gradingschema.gradetypes." + gradeMapping.getName()).getObject();
+			if (!value.contains("missing key")) {
+				gradeMappingMap.put(gradeMapping.getId(), value);
+			} else {
+				gradeMappingMap.put(gradeMapping.getId(), gradeMapping.getName());
+			}
 		}
 
 		final WebMarkupContainer settingsGradingSchemaPanel = new WebMarkupContainer("settingsGradingSchemaPanel");
