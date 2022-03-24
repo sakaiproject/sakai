@@ -209,7 +209,7 @@ function toPoint(id)
                   <p class="input-group-addon">
                     <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
                     <h:outputText value="#{deliveryMessages.pt}" />
-                    <h:message for="adjustedScore" style="color:red" />
+                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
                     <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
                   </p>
                 </h:panelGroup>
