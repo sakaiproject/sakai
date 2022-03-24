@@ -2911,11 +2911,11 @@ public class DeliveryActionListener
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
 		  
-		  keysString = keysString.concat(answer + ",");
+		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
 	  }
 	  if (keysString.length() > 2) {
-		  keysString = keysString.substring(0, keysString.length()-1); // truncating the comma on the end
+		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
 	  return keysString;
   }
