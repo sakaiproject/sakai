@@ -116,6 +116,19 @@ DTMN.attachDatePicker = function(selector, updates, notModified)
 				iso8601: 'hidden_datepicker_' + DTMN.nextIndex,
 			}
 		};
+		// Allow null dates where appropriate
+                if (dataTool === 'gradebookItems' ||
+                    dataTool === 'resources' ||
+                    dataTool === 'forums' ||
+                    (dataTool === 'assessments'&& (dataField === 'accept_until' || dataField === 'due_date'))) {
+                            datepickerOpts.allowEmptyDate = true;
+                }
+
+                // If it's already null, lets not force a date
+                if ($hidden.val() === '') {
+                        datepickerOpts.allowEmptyDate = true;
+                }
+
 		if ($hidden.val() !== '') datepickerOpts.val = $hidden.val();
 		localDatePicker(datepickerOpts);
 

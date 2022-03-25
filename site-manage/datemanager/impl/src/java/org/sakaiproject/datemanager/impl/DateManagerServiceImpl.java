@@ -288,7 +288,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(assignment, openDate, dueDate, acceptUntil);
+				DateManagerUpdate update = new DateManagerUpdate(assignment, openDate, dueDate, acceptUntil, null, null);
 
 				if (!update.openDate.isBefore(update.dueDate)) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.due.date"), "assignments", toolTitle, idx));
@@ -410,11 +410,28 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				/* VALIDATE IF USER CAN UPDATE THE ASSESSMENT */
 
-				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("open_date")).toInstant();
-				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("due_date")).toInstant();
-				Instant acceptUntil = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("accept_until")).toInstant();
-				Instant feedbackStart = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("feedback_start")).toInstant();
-				Instant feedbackEnd = userTimeService.parseISODateInUserTimezone((String)jsonAssessment.get("feedback_end")).toInstant();
+				String openDateRaw = (String) jsonAssessment.get("open_date");
+				String dueDateRaw = (String) jsonAssessment.get("due_date");
+				String acceptUntilRaw = (String) jsonAssessment.get("accept_until");
+				String feedbackStartRaw = (String) jsonAssessment.get("feedback_start");
+				String feedbackEndRaw = (String) jsonAssessment.get("feedback_end");
+
+				Instant openDate = null;
+				Instant dueDate = null;
+				Instant acceptUntil = null;
+				Instant feedbackStart = null;
+				Instant feedbackEnd = null;
+
+				if (openDateRaw != null && !openDateRaw.isEmpty())
+					openDate = userTimeService.parseISODateInUserTimezone(openDateRaw).toInstant();
+				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
+				if (acceptUntilRaw != null && !acceptUntilRaw.isEmpty())
+					acceptUntil = userTimeService.parseISODateInUserTimezone(acceptUntilRaw).toInstant();
+				if (feedbackStartRaw != null && !feedbackStartRaw.isEmpty())
+					feedbackStart = userTimeService.parseISODateInUserTimezone(feedbackStartRaw).toInstant();
+				if (feedbackEndRaw != null && !feedbackEndRaw.isEmpty())
+					feedbackEnd = userTimeService.parseISODateInUserTimezone(feedbackEndRaw).toInstant();
 				boolean isDraft = Boolean.parseBoolean(jsonAssessment.get("is_draft").toString());
 
 				Object assessment;
@@ -437,11 +454,26 @@ public class DateManagerServiceImpl implements DateManagerService {
 				if (openDate == null) {
 					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "assessments", toolTitle, idx));
 				}
-				if (dueDate == null) {
-					errored = errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "assessments", toolTitle, idx));
-				}
-				if (acceptUntil == null && lateHandling) {
-					errored = errors.add(new DateManagerError("accept_until", rb.getString("error.accept.until.not.found"), "assessments", toolTitle, idx));
+				if (acceptUntil != null) {
+					if (dueDate == null) {
+						errors.add(
+								new DateManagerError(
+										"accept_until",
+										"You need to set a valid Due Date if the assessment has a Late Acceptance Date.",
+										"assessments",
+										toolTitle,
+										idx));
+						errored = true;
+					} else if (acceptUntil.isAfter(dueDate)) {
+						errors.add(
+								new DateManagerError(
+										"accept_until",
+										"The Late Submission Date cannot be earlier than the Available Date or the Due Date.",
+										"assessments",
+										toolTitle,
+										idx));
+						errored = true;
+					}
 				}
 
 				Integer feedbackMode = isDraft ? ((AssessmentFacade) assessment).getAssessmentFeedback().getFeedbackDelivery()
@@ -512,11 +544,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
 				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
 				control.setStartDate(Date.from(update.openDate));
-				if (update.dueDate != null) {
-					control.setDueDate(Date.from(update.dueDate));
-				}
-				if (lateHandling && update.acceptUntilDate != null) {
-					control.setRetractDate(Date.from(update.acceptUntilDate));
+				Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
+				control.setDueDate(dueDateTemp);
+				if (lateHandling) {
+					Date lateDateTemp =
+							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
+					control.setRetractDate(lateDateTemp);
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
@@ -532,11 +565,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 				AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
 				boolean lateHandling = control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION;
 				control.setStartDate(Date.from(update.openDate));
-				if (update.dueDate != null) {
-					control.setDueDate(Date.from(update.dueDate));
-				}
-				if (lateHandling && update.acceptUntilDate != null) {
-					control.setRetractDate(Date.from(update.acceptUntilDate));
+				Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
+				control.setDueDate(dueDateTemp);
+				if (lateHandling) {
+					Date lateDateTemp =
+							update.acceptUntilDate != null ? Date.from(update.acceptUntilDate) : null;
+					control.setRetractDate(lateDateTemp);
 				}
 				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 					control.setFeedbackDate(Date.from(update.feedbackStartDate));
@@ -603,12 +637,19 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonItem.get("due_date")).toInstant();
+				/*Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonItem.get("due_date")).toInstant();
 
 				if (dueDate == null) {
 					errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "gradebookItems", toolTitle, idx));
 					continue;
-				}
+				}*/
+				String dueDateRaw = (String) jsonItem.get("due_date");
+				Instant dueDate = null;
+				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+					dueDate =
+							userTimeService
+									.parseISODateInUserTimezone((String) jsonItem.get("due_date"))
+									.toInstant();
 
 				org.sakaiproject.service.gradebook.shared.Assignment gbitem = gradebookService.getAssignment(getCurrentSiteId(), itemId);
 				if (gbitem == null) {
@@ -616,7 +657,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(gbitem, null, dueDate, null);
+				DateManagerUpdate update = new DateManagerUpdate(gbitem, null, dueDate, null, null, null);
 				updates.add(update);
 
 			} catch (Exception ex) {
@@ -637,7 +678,8 @@ public class DateManagerServiceImpl implements DateManagerService {
 	public void updateGradebookItems(DateManagerValidation gradebookItemsValidate) throws Exception {
 		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) gradebookItemsValidate.getUpdates()) {
 			org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = (org.sakaiproject.service.gradebook.shared.Assignment) update.object;
-			assignmentDefinition.setDueDate(Date.from(update.dueDate));
+			Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
+			assignmentDefinition.setDueDate(dueDateTemp);
 			gradebookService.updateAssignment(getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);
 		}
 	}
@@ -720,7 +762,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(meeting, openDate, dueDate, null);
+				DateManagerUpdate update = new DateManagerUpdate(meeting, openDate, dueDate, null, null, null);
 				update.setSignupBegins(signupBegins);
 				update.setSignupDeadline(signupDeadline);
 				if (!update.openDate.isBefore(update.dueDate)) {
@@ -817,7 +859,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("open_date")).toInstant();
+				/*Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("open_date")).toInstant();
 				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
@@ -828,7 +870,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (errored) {
 					continue;
-				}
+				}*/
+				String openDateRaw = (String) jsonResource.get("open_date");
+				String dueDateRaw = (String) jsonResource.get("due_date");
+
+				Instant openDate = null;
+				Instant dueDate = null;
+
+				if (openDateRaw != null && !openDateRaw.isEmpty())
+					openDate = userTimeService.parseISODateInUserTimezone(openDateRaw).toInstant();
+				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
+
 
 				log.debug("Open {} ; Due {}", jsonResource.get("open_date_label"), jsonResource.get("due_date_label"));
 				if(StringUtils.isBlank((String)jsonResource.get("open_date_label"))) {
@@ -853,7 +906,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (!contentHostingService.allowUpdateResource(resourceId)) {
 						errors.add(new DateManagerError("resource", rb.getString("error.update.permission.denied"), "resources", toolTitle, idx));
 					}
-					updates.add(new DateManagerUpdate(resource, openDate, dueDate, null));
+					updates.add(new DateManagerUpdate(resource, openDate, dueDate, null, null, null));
 				} else {
 					folder = contentHostingService.editCollection(resourceId);
 					if (folder == null) {
@@ -864,7 +917,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (!contentHostingService.allowUpdateCollection(resourceId)) {
 						errors.add(new DateManagerError("resource", rb.getString("error.update.permission.denied"), "resources", toolTitle, idx));
 					}
-					updates.add(new DateManagerUpdate(folder, openDate, dueDate, null));
+					updates.add(new DateManagerUpdate(folder, openDate, dueDate, null, null, null));
 				}
 
 			} catch(Exception e) {
@@ -896,15 +949,29 @@ public class DateManagerServiceImpl implements DateManagerService {
 				ContentCollectionEdit cce = (ContentCollectionEdit) update.object;
 				if(update.dueDate != null) {
 					cce.setRetractInstant(Instant.from(update.dueDate));
+				} else {
+					cce.setRetractDate(null);
 				}
-				cce.setReleaseInstant(Instant.from(update.openDate));
+				if (update.openDate != null) {
+					cce.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				} else {
+					cce.setReleaseDate(null);
+				}
+
 				contentHostingService.commitCollection(cce);
 			} else {
 				ContentResourceEdit cre = (ContentResourceEdit) update.object;
 				if(update.dueDate != null) {
 					cre.setRetractInstant(Instant.from(update.dueDate));
+				} else {
+					cre.setRetractDate(null);
 				}
-				cre.setReleaseInstant(Instant.from(update.openDate));
+				if (update.openDate != null) {
+					cre.setReleaseDate(timeService.newTime(Date.from(update.openDate).getTime()));
+				} else {
+					cre.setReleaseDate(null);
+				}
+
 				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
 			}
 		}
@@ -995,7 +1062,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 						continue;
 					}
 
-					updates.add(new DateManagerUpdate(calendarEvent, openDate, dueDate, null));
+					updates.add(new DateManagerUpdate(calendarEvent, openDate, dueDate, null, null, null));
 				}
 
 			} catch (Exception ex) {
@@ -1114,7 +1181,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("open_date")).toInstant();
+				/*Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("open_date")).toInstant();
 				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("due_date")).toInstant();
 				boolean errored = false;
 				if (openDate == null) {
@@ -1125,7 +1192,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (errored) {
 					continue;
-				}
+				}*/
+				String openDateRaw = (String) jsonForum.get("open_date");
+				String dueDateRaw = (String) jsonForum.get("due_date");
+
+				Instant openDate = null;
+				Instant dueDate = null;
+
+				if (openDateRaw != null && !openDateRaw.isEmpty())
+					openDate = userTimeService.parseISODateInUserTimezone(openDateRaw).toInstant();
+				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
 
 				String entityType = (String)jsonForum.get("extraInfo");
 				DateManagerUpdate update;
@@ -1140,7 +1217,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (!canUpdate) {
 						errors.add(new DateManagerError("forum", rb.getString("error.update.permission.denied"), "forums", toolTitle, idx));
 					}*/
-					update = new DateManagerUpdate(forum, openDate, dueDate, null);
+					update = new DateManagerUpdate(forum, openDate, dueDate, null, null, null);
 				} else {
 					Topic topic = forumManager.getTopicById(true, forumId);
 					if (topic == null) {
@@ -1152,10 +1229,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 					if (!canUpdate) {
 						errors.add(new DateManagerError("forum", rb.getString("error.update.permission.denied"), "forums", toolTitle, idx));
 					}*/
-					update = new DateManagerUpdate(topic, openDate, dueDate, null);
+					update = new DateManagerUpdate(topic, openDate, dueDate, null, null, null);
 				}
 
-				if (!update.openDate.isBefore(update.dueDate)) {
+				if (update.openDate != null
+						&& update.dueDate != null
+						&& !update.openDate.isBefore(update.dueDate)) {
 					errors.add(new DateManagerError("open_date", rb.getString("error.open.date.before.close.date"), "forums", toolTitle, idx));
 					continue;
 				}
@@ -1181,15 +1260,19 @@ public class DateManagerServiceImpl implements DateManagerService {
 			if (update.object instanceof BaseForum) {
 				DiscussionForum forum = (DiscussionForum) update.object;
 				if(forum.getAvailabilityRestricted()) {
-					forum.setOpenDate(Date.from(update.openDate));
-					forum.setCloseDate(Date.from(update.dueDate));
+					Date openDateTemp = update.openDate != null ? Date.from(update.openDate) : null;
+					Date closeDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
+					forum.setOpenDate(openDateTemp);
+					forum.setCloseDate(closeDateTemp);
 				}
 				forumManager.saveDiscussionForum(forum);
 			} else {
 				DiscussionTopic topic = (DiscussionTopic) update.object;
 				if(topic.getAvailabilityRestricted()) {
-					topic.setOpenDate(Date.from(update.openDate));
-					topic.setCloseDate(Date.from(update.dueDate));
+					Date openDateTemp = update.openDate != null ? Date.from(update.openDate) : null;
+					Date closeDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
+					topic.setOpenDate(openDateTemp);
+					topic.setCloseDate(closeDateTemp);
 				}
 				forumManager.saveDiscussionForumTopic(topic);
 			}
@@ -1293,7 +1376,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				updates.add(new DateManagerUpdate(announcement, openDate, dueDate, null));
+				updates.add(new DateManagerUpdate(announcement, openDate, dueDate, null, null, null));
 			} catch(Exception e) {
 				errors.add(new DateManagerError("open_date", rb.getString("error.uncaught"), "announcements", toolTitle, idx));
 				log.error("Error trying to validate Announcements {}", e);
@@ -1409,7 +1492,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				DateManagerUpdate update = new DateManagerUpdate(page, openDate, null, null);
+				DateManagerUpdate update = new DateManagerUpdate(page, openDate, null, null, null, null);
 				updates.add(update);
 			} catch(Exception e) {
 				errors.add(new DateManagerError("open_date", rb.getString("error.uncaught"), "lessons", toolTitle, idx));
