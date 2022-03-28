@@ -13,6 +13,7 @@
   a {
     width: $top-header-icon-size;
     height: $top-header-icon-size;
+    text-decoration: none;
     &:hover, &:focus {
       color: var(--topNav-text-color);
       background: rgba(0,0,0,.2);
