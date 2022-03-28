@@ -54,7 +54,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 
 	@Override
 	public boolean isUserAbleToViewSiteStatsAll(String siteId) {
-		return hasPermission(siteService.siteReference(siteId), PERMISSION_SITESTATS_ALL);
+		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ALL);
 	}
 
 	@Override
