@@ -76,12 +76,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
@@ -391,10 +393,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 		JSONArray jsonAssessments = new JSONArray();
 		List<AssessmentData> assessments = assessmentServiceQueries.getAllActiveAssessmentsByAgent(getCurrentSiteId());
 		List<PublishedAssessmentFacade> pubAssessments = pubAssessmentServiceQueries.getBasicInfoOfAllPublishedAssessments2(PublishedAssessmentFacadeQueries.TITLE, true, getCurrentSiteId());
+		ExtendedTimeFacade extendedTimeFacade =
+				PersistenceService.getInstance().getExtendedTimeFacade();
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_ASSESSMENTS);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ASSESSMENTS).getTitle();
 		for (AssessmentData assessment : assessments) {
 			AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
+			List<ExtendedTime> extendedTimes =
+					extendedTimeFacade.getEntriesForAss(control.getAssessmentBase());
 			boolean lateHandling = (control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 			JSONObject assobj = new JSONObject();
 			assobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, assessment.getAssessmentBaseId());
@@ -407,6 +413,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			assobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			assobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, rb.getString("itemtype.draft"));
+			assobj.put(DateManagerConstants.JSON_EXCEPTIONS_PARAM_NAME, extendedTimes.size() > 0 ? true : false);
 			if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 				assobj.put(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, formatToUserDateFormat(control.getFeedbackDate()));
 				assobj.put(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, formatToUserDateFormat(control.getFeedbackEndDate()));
@@ -421,6 +428,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		for (PublishedAssessmentFacade paf : pubAssessments) {
 			PublishedAssessmentFacade assessment = pubAssessmentServiceQueries.getSettingsOfPublishedAssessment(paf.getPublishedAssessmentId());
 			AssessmentAccessControlIfc control = assessment.getAssessmentAccessControl();
+			List<ExtendedTime> extendedTimes = extendedTimeFacade.getEntriesForPub(assessment.getData());
 			boolean lateHandling = (control.getLateHandling() != null && control.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 			JSONObject assobj = new JSONObject();
 			assobj.put(DateManagerConstants.JSON_ID_PARAM_NAME, assessment.getPublishedAssessmentId());
@@ -433,6 +441,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			assobj.put(DateManagerConstants.JSON_TOOLTITLE_PARAM_NAME, toolTitle);
 			assobj.put(DateManagerConstants.JSON_URL_PARAM_NAME, url);
 			assobj.put(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME, "false");
+			assobj.put(DateManagerConstants.JSON_EXCEPTIONS_PARAM_NAME, extendedTimes.size() > 0 ? true : false);
 			if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(assessment.getAssessmentFeedback().getFeedbackDelivery())) {
 				assobj.put(DateManagerConstants.JSON_FEEDBACKSTART_PARAM_NAME, formatToUserDateFormat(control.getFeedbackDate()));
 				assobj.put(DateManagerConstants.JSON_FEEDBACKEND_PARAM_NAME, formatToUserDateFormat(control.getFeedbackEndDate()));
@@ -560,6 +569,27 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				if (lateHandling && dueDate != null && acceptUntil != null && update.dueDate.isAfter(update.acceptUntilDate)) {
 					errors.add(new DateManagerError(DateManagerConstants.JSON_DUEDATE_PARAM_NAME, rb.getString("error.due.date.before.accept.until"), "assessments", toolTitle, idx));
+					continue;
+				}
+
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && acceptUntil != null && feedbackStart != null && feedbackStart.isBefore(acceptUntil)) {
+					errors.add(
+							new DateManagerError(
+									"feedback_start",
+									rb.getString("error.feedback.start.accept.until.invalid"),
+									"assessments",
+									toolTitle,
+									idx));
+					continue;
+				}
+				if (AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackMode) && dueDate != null && feedbackStart != null && feedbackStart.isBefore(dueDate)) {
+					errors.add(
+							new DateManagerError(
+									"feedback_start",
+									rb.getString("error.feedback.start.due.invalid"),
+									"assessments",
+									toolTitle,
+									idx));
 					continue;
 				}
 

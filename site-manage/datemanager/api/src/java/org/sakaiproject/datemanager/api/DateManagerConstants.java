@@ -48,6 +48,7 @@ public class DateManagerConstants {
 	public static final String JSON_TITLE_PARAM_NAME = "title";
 	public static final String JSON_TOOLTITLE_PARAM_NAME = "tool_title";
 	public static final String JSON_URL_PARAM_NAME = "url";
+	public static final String JSON_EXCEPTIONS_PARAM_NAME = "exceptions";
 
 	public static final String DATEPICKER_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 	public static final int LIST_VIEW_YEAR_RANGE = 18;
