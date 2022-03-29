@@ -15,24 +15,6 @@ and NPM onto your machine from (here)[https://nodejs.org/en/download/]. Then:
     cd SAKAI_SRC/webcomponents/tool/src/main/frontend
     npm run storybook
 
-## Testing
-
-You should test your components. When you create a new component in the js tree, create a test in
-the test tree. Take a look at the others in there to get an idea. Tests run in headless Chrome,
-using the Karma test runner and Jasmine as the actual test framework. You can use fetch-mock to
-mock your i18n strings, and also to mock any data your component fetches. To make your testing a
-little quicker when not using maven to build the entire project, de-noding the bare paths using
-Empathise happens in a separate package script:
-
-    cd SAKAI_SRC/webcomponents/tool/src/main/frontend
-    npm run test-setup
-
-Now you can rerun your tests a lot quicker with just:
-
-    npm run test
-
-The tool's maven build does that for you, runs test-setup then test.
-
 # Creating a new component
 
 *All paths will be from SAKAI\_SRC/webcomponents/tool/src/main/frontend, for brevity.*
@@ -45,3 +27,5 @@ The tool's maven build does that for you, runs test-setup then test.
 
 Try and write your component and test in parallel. That way you make it more likely you'll cover a
 good proportion of your component's functionality.
+
+[Tutorial: Build a webcomponent in Sakai](docs/tutorial.md)
