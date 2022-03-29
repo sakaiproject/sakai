@@ -2,7 +2,7 @@ import {
   html,
   LitElement,
   // unsafeCSS,
-} from "../assets/lit-element/lit-element.js?version=__buildNumber__";
+} from "@assets/lit-element/lit-element.js";
 // import styles from "./sui-button.scss";
 import "../sui-icon/sui-icon";
 export class SakaiUIButton extends LitElement {

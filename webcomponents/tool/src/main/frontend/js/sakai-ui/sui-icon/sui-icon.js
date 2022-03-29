@@ -2,11 +2,11 @@ import {
   html,
   LitElement,
   // unsafeCSS,
-} from '../assets/lit-element/lit-element.js?version=__buildNumber__';
+} from "@assets/lit-element/lit-element.js";
 import {
   icon,
   library,
-} from "../assets/@fortawesome/fontawesome-svg-core/index.es.js?version=__buildNumber__";
+} from "@assets/@fortawesome/fontawesome-svg-core/index.es.js";
 import {
   faCompressArrowsAlt,
   faEyeSlash,
@@ -62,7 +62,7 @@ import {
   faClone,
   faFilter,
   faPlay,
-} from "../assets/@fortawesome/free-solid-svg-icons/index.es.js?version=__buildNumber__";
+} from "@assets/@fortawesome/free-solid-svg-icons/index.es.js";
 
 // import styles from "./sui-icon.scss";
 export class SakaiUIIcon extends LitElement {

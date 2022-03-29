@@ -2,8 +2,8 @@ import {
   html,
   LitElement,
   // unsafeCSS,
-} from "../../assets/lit-element/lit-element.js?version=__buildNumber__";
-import { TabulatorFull as Tabulator } from "../../assets/tabulator-tables/dist/js/tabulator_esm.min.js?version=__buildNumber__";
+} from "@assets/lit-element/lit-element.js";
+import { TabulatorFull as Tabulator } from "@assets/tabulator-tables/dist/js/tabulator_esm.min.js";
 // import styles from "./sui-table.scss";
 import "../../sui-icon/sui-icon.js";
 

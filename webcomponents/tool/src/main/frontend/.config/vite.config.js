@@ -33,7 +33,7 @@ export default defineConfig({
     target: "es2020",
     outDir: ".",
     rollupOptions: {
-      external: [/assets/, /node_modules/],
+      external: [/assets/],
       plugins: [
         // alias({
         //   entries: [

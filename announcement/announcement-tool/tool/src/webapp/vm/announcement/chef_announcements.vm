@@ -424,6 +424,7 @@
 					</div>
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
+					##TODO TRINITY get permissions context wired up and passed over
 					<sui-table
 						debug
 						id="announcementsList"

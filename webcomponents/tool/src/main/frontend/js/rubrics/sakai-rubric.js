@@ -74,7 +74,7 @@ export class SakaiRubric extends RubricsElement {
           </a>
 
           ${this.rubric.metadata.locked ?
-            html`<span tabindex="0" role="display" title="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock"></span>`
+            html`<span tabindex="0" role="img" title="${this.rubric.title} ${tr("is_locked")}" aria-label="${this.rubric.title} ${tr("is_locked")}" class="locked fa fa-lock"></span>`
             :
             html`<sakai-rubric-edit @show-tooltip="${this.showToolTip}" @update-rubric-title="${this.updateRubricTitle}" rubric="${JSON.stringify(this.rubric)}" token="${this.token}"></sakai-rubric-edit>`
           }

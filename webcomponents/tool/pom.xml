@@ -86,6 +86,7 @@
                                 <exclude>.gitignore</exclude>
                                 <exclude>.jshintrc</exclude>
                                 <exclude>.eslintrc.js</exclude>
+                                <exclude>jsconfig.json</exclude>
                             </excludes>
                         </fileset>
                         <fileset>
@@ -112,7 +113,7 @@
                     </packagingExcludes>
                     <webResources>
                         <resource>
-                            <directory>src/main/frontend</directory>
+                            <directory>src/main/frontend/target</directory>
                             <excludes>
                                 <exclude>js/**</exclude>
                                 <exclude>.config/**</exclude>
@@ -152,23 +153,15 @@
                         <configuration>
                             <arguments>
                                 ci --unsafe-perm --save-dev
+                                <!-- I don't think these are needed anymore
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3
                                 raw-loader@3
                                 style-loader@1
                                 webpack@4
-                                webpack-cli@3
+                                webpack-cli@3 -->
                             </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>eslint</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run eslint</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -178,21 +171,10 @@
                         </goals>
                         <configuration>
                             <environmentVariables>
-                                <VITE_BUILD>${buildNumber}</VITE_BUILD>
-                                <NODE_ENV>production</NODE_ENV>
+                                <CDN>${buildNumber}</CDN>
+                                <VITE_BUILD>production</VITE_BUILD>
                         </environmentVariables>
-                            <arguments>run -dd wc:build:vite</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm empathise</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                run nothing -- --query=version=${buildNumber}
-                            </arguments>
+                            <arguments>run wc:build:maven</arguments>
                         </configuration>
                     </execution>
                 </executions>
