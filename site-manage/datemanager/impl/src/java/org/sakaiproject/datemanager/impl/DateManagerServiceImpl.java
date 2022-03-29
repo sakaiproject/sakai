@@ -456,22 +456,10 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				if (acceptUntil != null) {
 					if (dueDate == null) {
-						errors.add(
-								new DateManagerError(
-										"accept_until",
-										"You need to set a valid Due Date if the assessment has a Late Acceptance Date.",
-										"assessments",
-										toolTitle,
-										idx));
+						errors.add(new DateManagerError("due_date",rb.getString("error.due.date.not.found.accept.until"),"assessments", toolTitle, idx));
 						errored = true;
-					} else if (acceptUntil.isAfter(dueDate)) {
-						errors.add(
-								new DateManagerError(
-										"accept_until",
-										"The Late Submission Date cannot be earlier than the Available Date or the Due Date.",
-										"assessments",
-										toolTitle,
-										idx));
+					} else if (acceptUntil.isBefore(dueDate)) {
+						errors.add(new DateManagerError("accept_until",rb.getString("error.accept.until.before.due.date.open.date"),"assessments", toolTitle, idx));
 						errored = true;
 					}
 				}
