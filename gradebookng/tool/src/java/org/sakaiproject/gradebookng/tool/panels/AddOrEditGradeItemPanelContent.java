@@ -68,6 +68,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private CheckBox counted;
 	private CheckBox released;
+        private CheckBox createTask;
 
 	private boolean categoriesEnabled;
 
@@ -306,10 +307,10 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		
 		// create task
 		final WebMarkupContainer taskWrap = new WebMarkupContainer("taskWrap");
-		final CheckBox createTask = new CheckBox("createTask", new PropertyModel<Boolean>(assignmentModel, "createTask"));
-		createTask.setOutputMarkupId(true);
-		createTask.setModelObject(true);
-		add(createTask);
+		this.createTask = new CheckBox("createTask", new PropertyModel<Boolean>(assignmentModel, "createTask"));
+		this.createTask.setOutputMarkupId(true);
+		add(this.createTask);
+                
 		final WebMarkupContainer createTaskLabel = new WebMarkupContainer("createTaskLabel");
 		add(createTaskLabel);
 		taskWrap.add(createTask);
@@ -342,14 +343,18 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 					if (category == null) {
 						AddOrEditGradeItemPanelContent.this.counted.setEnabled(false);
 						AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);
+                                                AddOrEditGradeItemPanelContent.this.released.setModelObject(false);
+                                                AddOrEditGradeItemPanelContent.this.createTask.setModelObject(false);
 					} else {
 						AddOrEditGradeItemPanelContent.this.counted.setEnabled(true);
 						AddOrEditGradeItemPanelContent.this.counted.setModelObject(true);
 						AddOrEditGradeItemPanelContent.this.released.setModelObject(true);
+                                                AddOrEditGradeItemPanelContent.this.createTask.setModelObject(true);
 					}
 
 					target.add(AddOrEditGradeItemPanelContent.this.counted);
 					target.add(AddOrEditGradeItemPanelContent.this.released);
+                                        target.add(AddOrEditGradeItemPanelContent.this.createTask);
 				}
 			}
 		});

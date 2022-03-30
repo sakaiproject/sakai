@@ -112,6 +112,7 @@ public class GbGradebookData {
 		private String dueDate;
 
 		private boolean isReleased;
+                private boolean createTask;
 		private boolean isIncludedInCourseGrade;
 		private boolean isExtraCredit;
 		private boolean isExternallyMaintained;
@@ -543,6 +544,7 @@ public class GbGradebookData {
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
 
 					a1.isReleased(),
+                                        a1.isCreateTask(),
 					counted,
 					a1.isExtraCredit(),
 					a1.isExternallyMaintained(),

@@ -89,6 +89,7 @@ public class GradebookAssignment extends GradableObject {
 	@Getter @Setter private String externalAppName;
 	@Getter @Setter private String externalData;
 	@Setter @Getter private Boolean released;
+        @Setter @Getter private Boolean createTask;
 	@Getter @Setter private Category category;
 	@Getter @Setter private Double averageTotal;
 	@Setter private Boolean ungraded;
@@ -419,6 +420,18 @@ public class GradebookAssignment extends GradableObject {
 	public Boolean isReleased() {
 		return this.released != null ? this.released : false;
 	}
+        
+        public void setCreateTask(Boolean createTask) {
+            this.createTask = createTask;
+        }
+        
+        /**
+         * 
+         * @return selective createTask true or false
+         */
+        public Boolean isCreateTask() {
+            return this.createTask != null ? this.createTask : false;
+        }
 
 	/**
 	 * Calculate the mean score for students with entered grades.
