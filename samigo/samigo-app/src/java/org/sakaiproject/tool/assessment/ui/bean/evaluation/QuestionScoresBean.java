@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -137,7 +138,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows;
+  private int maxDisplayedRows = PagerRenderer.MAX_PAGE_SIZE;
   @Getter @Setter
   private int dataRows;
   @Getter @Setter

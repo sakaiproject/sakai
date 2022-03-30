@@ -35,7 +35,7 @@ import org.sakaiproject.jsf2.util.RendererUtil;
 public class PagerRenderer extends Renderer {
 
     private static final String BUNDLE_NAME = "pager";
-    private static final int MAX_PAGE_SIZE = 200;
+    public static final int MAX_PAGE_SIZE = 200;
 
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         if (!component.isRendered()) return;
