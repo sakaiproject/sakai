@@ -40,7 +40,6 @@
         <ref bean="sitesAdministratorGuide"/>
         <ref bean="sitestatsAdminAdministratorGuide"/>
         <ref bean="usersAdministratorGuide"/>
-        <ref bean="userMembershipAdministratorGuide"/>
         <ref bean="worksiteSetupAdministratorGuide"/>
         <ref bean="quotaIncreasesAdministratorGuide"/>
       </list>
@@ -1540,90 +1539,6 @@
       <value>/sakai_screensteps_usersAdministratorGuide/howdoIremoveauseraccount.html</value>
     </property>
   </bean>
-  <bean id="userMembershipAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>User Membership</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatisUserMembership"/>
-        <ref bean="howdoIsearchforanaccountinUserMembership"/>
-        <ref bean="howdoIfiltersearchresultsinUserMembership"/>
-        <ref bean="howdoIexportsearchresultsfromUserMembership"/>
-        <ref bean="howdoImakeauserinactiveinmultiplesites"/>
-        <ref bean="howdoImakeauseractiveinmultiplesites"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatisUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisUserMembership</value>
-    </property>
-    <property name="name">
-      <value>What is User Membership?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/whatisUserMembership.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.membership</value>
-    </property>
-  </bean>
-  <bean id="howdoIsearchforanaccountinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIsearchforanaccountinUserMembership</value>
-    </property>
-    <property name="name">
-      <value>How do I search for an account in User Membership?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIsearchforanaccountinUserMembership.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIfiltersearchresultsinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIfiltersearchresultsinUserMembership</value>
-    </property>
-    <property name="name">
-      <value>How do I filter search results in User Membership?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIfiltersearchresultsinUserMembership.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIexportsearchresultsfromUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIexportsearchresultsfromUserMembership</value>
-    </property>
-    <property name="name">
-      <value>How do I export search results from User Membership?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoIexportsearchresultsfromUserMembership.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImakeauserinactiveinmultiplesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImakeauserinactiveinmultiplesites</value>
-    </property>
-    <property name="name">
-      <value>How do I make a user inactive in multiple sites?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoImakeauserinactiveinmultiplesites.html</value>
-    </property>
-  </bean>
-  <bean id="howdoImakeauseractiveinmultiplesites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoImakeauseractiveinmultiplesites</value>
-    </property>
-    <property name="name">
-      <value>How do I make a user active in multiple sites?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_userMembershipAdministratorGuide/howdoImakeauseractiveinmultiplesites.html</value>
-    </property>
-  </bean>
   <bean id="worksiteSetupAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Worksite Setup</value>
@@ -1771,6 +1686,7 @@
         <ref bean="chatUserGuide"/>
         <ref bean="commonsUserGuide"/>
         <ref bean="contactUsUserGuide"/>
+        <ref bean="conversationsUserGuide"/>
         <ref bean="courseandProjectSitesUserGuide"/>
         <ref bean="dashboardUserGuide"/>
         <ref bean="discussionsUserGuide"/>
@@ -2054,7 +1970,7 @@
       <value>howdoImergeannouncements</value>
     </property>
     <property name="name">
-      <value>How do I merge announcements?</value>
+      <value>How do I merge announcements? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_announcementsUserGuide/howdoImergeannouncements.html</value>
@@ -2065,7 +1981,7 @@
       <value>howdoIreorderannouncements</value>
     </property>
     <property name="name">
-      <value>How do I reorder announcements?</value>
+      <value>How do I reorder announcements? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_announcementsUserGuide/howdoIreorderannouncements.html</value>
@@ -2545,7 +2461,7 @@
       <value>whatistheChatRoomtool</value>
     </property>
     <property name="name">
-      <value>What is the Chat Room tool?</value>
+      <value>What is the Chat Room tool? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_chatUserGuide/whatistheChatRoomtool.html</value>
@@ -2559,7 +2475,7 @@
       <value>howdoIaddachatroom</value>
     </property>
     <property name="name">
-      <value>How do I add a chat room?</value>
+      <value>How do I add a chat room? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_chatUserGuide/howdoIaddachatroom.html</value>
@@ -2570,7 +2486,7 @@
       <value>howdoIdeleteachatroom</value>
     </property>
     <property name="name">
-      <value>How do I delete a chat room?</value>
+      <value>How do I delete a chat room? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_chatUserGuide/howdoIdeleteachatroom.html</value>
@@ -2581,7 +2497,7 @@
       <value>howdoIclearthechathistory</value>
     </property>
     <property name="name">
-      <value>How do I clear the chat history? </value>
+      <value>How do I clear the chat history?  </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_chatUserGuide/howdoIclearthechathistory.html</value>
@@ -2592,7 +2508,7 @@
       <value>howdoIchangetheChatRoomtoolpermissions</value>
     </property>
     <property name="name">
-      <value>How do I change the Chat Room tool permissions?</value>
+      <value>How do I change the Chat Room tool permissions? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_chatUserGuide/howdoIchangetheChatRoomtoolpermissions.html</value>
@@ -2645,7 +2561,7 @@
       <value>howdoIsetpermissionsinCommons</value>
     </property>
     <property name="name">
-      <value>How do I set permissions in Commons?</value>
+      <value>How do I set permissions in Commons? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_commonsUserGuide/howdoIsetpermissionsinCommons.html</value>
@@ -2656,7 +2572,7 @@
       <value>howdoIcreateapostinCommons</value>
     </property>
     <property name="name">
-      <value>How do I create a post in Commons?</value>
+      <value>How do I create a post in Commons? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_commonsUserGuide/howdoIcreateapostinCommons.html</value>
@@ -2711,7 +2627,7 @@
       <value>howdoIdeleteacommentreplyinCommons</value>
     </property>
     <property name="name">
-      <value>How do I delete a comment/reply in Commons?</value>
+      <value>How do I delete a comment/reply in Commons? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_commonsUserGuide/howdoIdeleteacommentreplyinCommons.html</value>
@@ -2753,6 +2669,270 @@
       <value>/sakai_screensteps_contactUsUserGuide/howdoIusetheContactUstool.html</value>
     </property>
   </bean>
+  <bean id="conversationsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Conversations</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatistheConversationstool"/>
+        <ref bean="howdoIpostaquestioninConversations"/>
+        <ref bean="howdoImodifyapostinConversations"/>
+        <ref bean="howdoIansweraquestioninConversations"/>
+        <ref bean="howdoIaddemojisinConversations"/>
+        <ref bean="howdoIremoveemojisinConversations"/>
+        <ref bean="whatareConversationssettings"/>
+        <ref bean="howdoIsetupcommunityguidelinesforConversations"/>
+        <ref bean="howdoIcreatemathematicalequationswithLaTeXinConversations"/>
+        <ref bean="howdoIpinatopicinConversations"/>
+        <ref bean="howdoesbookmarkingworkinConversations"/>
+        <ref bean="howdoItemporarilydisablestudentsfromviewingConversations"/>
+        <ref bean="howmayIcustomizemypresenceinConversations"/>
+        <ref bean="howdoIcreatetagsformycourseinConversations"/>
+        <ref bean="howdoImanagetagsformycourseinConversations"/>
+        <ref bean="howdoIaddatagtoorremoveatagfromaConversationspost"/>
+        <ref bean="howdoIfilterposts"/>
+        <ref bean="howdoIsavepoststodraft"/>
+        <ref bean="howdoesanonymouspostingworkinConversations"/>
+        <ref bean="howdoImodifyrolespermissionsinConversations"/>
+        <ref bean="howdoImaketopicsavailableonlytospecificGroupswithinmycourse"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatistheConversationstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheConversationstool</value>
+    </property>
+    <property name="name">
+      <value>What is the Conversations tool? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/whatistheConversationstool.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.conversations</value>
+    </property>
+  </bean>
+  <bean id="howdoIpostaquestioninConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIpostaquestioninConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I post a question in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIpostaquestioninConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImodifyapostinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImodifyapostinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I modify a post in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoImodifyapostinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIansweraquestioninConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIansweraquestioninConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I answer a question in Conversations? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIansweraquestioninConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddemojisinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddemojisinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I add emojis in Conversations? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIaddemojisinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIremoveemojisinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIremoveemojisinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I remove emojis in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIremoveemojisinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="whatareConversationssettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatareConversationssettings</value>
+    </property>
+    <property name="name">
+      <value>What are Conversations settings?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/whatareConversationssettings.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetupcommunityguidelinesforConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupcommunityguidelinesforConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I set up community guidelines for Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIsetupcommunityguidelinesforConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreatemathematicalequationswithLaTeXinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreatemathematicalequationswithLaTeXinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I create mathematical equations with LaTeX in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIcreatemathematicalequationswithLaTeXinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIpinatopicinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIpinatopicinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I pin a topic in Conversations? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIpinatopicinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoesbookmarkingworkinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoesbookmarkingworkinConversations</value>
+    </property>
+    <property name="name">
+      <value>How does bookmarking work in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoesbookmarkingworkinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoItemporarilydisablestudentsfromviewingConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoItemporarilydisablestudentsfromviewingConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I temporarily disable students from viewing Conversations? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoItemporarilydisablestudentsfromviewingConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howmayIcustomizemypresenceinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howmayIcustomizemypresenceinConversations</value>
+    </property>
+    <property name="name">
+      <value>How may I customize my presence in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howmayIcustomizemypresenceinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIcreatetagsformycourseinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcreatetagsformycourseinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I create tags for my course in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIcreatetagsformycourseinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImanagetagsformycourseinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImanagetagsformycourseinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I manage tags for my course in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoImanagetagsformycourseinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddatagtoorremoveatagfromaConversationspost" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddatagtoorremoveatagfromaConversationspost</value>
+    </property>
+    <property name="name">
+      <value>How do I add a tag to or remove a tag from a Conversations post?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIaddatagtoorremoveatagfromaConversationspost.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIfilterposts" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIfilterposts</value>
+    </property>
+    <property name="name">
+      <value>How do I filter posts?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIfilterposts.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsavepoststodraft" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsavepoststodraft</value>
+    </property>
+    <property name="name">
+      <value>How do I save posts to draft?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoIsavepoststodraft.html</value>
+    </property>
+  </bean>
+  <bean id="howdoesanonymouspostingworkinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoesanonymouspostingworkinConversations</value>
+    </property>
+    <property name="name">
+      <value>How does anonymous posting work in Conversations?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoesanonymouspostingworkinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImodifyrolespermissionsinConversations" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImodifyrolespermissionsinConversations</value>
+    </property>
+    <property name="name">
+      <value>How do I modify roles permissions in Conversations? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoImodifyrolespermissionsinConversations.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImaketopicsavailableonlytospecificGroupswithinmycourse" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImaketopicsavailableonlytospecificGroupswithinmycourse</value>
+    </property>
+    <property name="name">
+      <value>How do I make topics available only to specific Groups within my course?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_conversationsUserGuide/howdoImaketopicsavailableonlytospecificGroupswithinmycourse.html</value>
+    </property>
+  </bean>
   <bean id="courseandProjectSitesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Course and Project Sites</value>
@@ -2767,6 +2947,7 @@
         <ref bean="howdoIresetatool"/>
         <ref bean="whatdoesUnpublishedSitemean"/>
         <ref bean="howdoIcreateanewcourseorprojectsite"/>
+        <ref bean="howcanIremindstudentsabouttaskstheymustcomplete"/>
       </list>
     </property>
   </bean>
@@ -2861,6 +3042,17 @@
       <value>/sakai_screensteps_courseandProjectSitesUserGuide/howdoIcreateanewcourseorprojectsite.html</value>
     </property>
   </bean>
+  <bean id="howcanIremindstudentsabouttaskstheymustcomplete" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howcanIremindstudentsabouttaskstheymustcomplete</value>
+    </property>
+    <property name="name">
+      <value>How can I remind students about tasks they must complete?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_courseandProjectSitesUserGuide/howcanIremindstudentsabouttaskstheymustcomplete.html</value>
+    </property>
+  </bean>
   <bean id="dashboardUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Dashboard</value>
@@ -2872,6 +3064,7 @@
         <ref bean="whatinformationisdisplayedontheSiteDashboard"/>
         <ref bean="howdoIedittheSiteDashboard"/>
         <ref bean="howdoIedittheHomeDashboard"/>
+        <ref bean="howdoIusetheTaskswidget"/>
       </list>
     </property>
   </bean>
@@ -2933,6 +3126,17 @@
       <value>/sakai_screensteps_dashboardUserGuide/howdoIedittheHomeDashboard.html</value>
     </property>
   </bean>
+  <bean id="howdoIusetheTaskswidget" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIusetheTaskswidget</value>
+    </property>
+    <property name="name">
+      <value>How do I use the Tasks widget?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_dashboardUserGuide/howdoIusetheTaskswidget.html</value>
+    </property>
+  </bean>
   <bean id="discussionsUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Discussions</value>
@@ -2968,7 +3172,7 @@
       <value>/sakai_screensteps_discussionsUserGuide/whatistheDiscussionstool.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.forums</value>
+      <value>sakai.discussions</value>
     </property>
   </bean>
   <bean id="howdoIcreateanewdiscussion" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3864,6 +4068,7 @@
         <ref bean="howdoIaddanexternaltoolonaLessonspage"/>
         <ref bean="howdoIenableLessonssubpagenavigationintheToolMenu"/>
         <ref bean="howdoIassignanownertoaLessonspage"/>
+        <ref bean="howdoIcustomizethelookandfeelofpagesinLessons"/>
         <ref bean="howdoIuploadcontentinazipfileonaLessonspage"/>
       </list>
     </property>
@@ -4041,7 +4246,7 @@
       <value>howdoIreorderitemsonaLessonspage</value>
     </property>
     <property name="name">
-      <value>How do I reorder items on a Lessons page?</value>
+      <value>How do I reorder items on a Lessons page? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_lessonsUserGuide/howdoIreorderitemsonaLessonspage.html</value>
@@ -4333,6 +4538,17 @@
       <value>/sakai_screensteps_lessonsUserGuide/howdoIassignanownertoaLessonspage.html</value>
     </property>
   </bean>
+  <bean id="howdoIcustomizethelookandfeelofpagesinLessons" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIcustomizethelookandfeelofpagesinLessons</value>
+    </property>
+    <property name="name">
+      <value>How do I customize the look and feel of pages in Lessons?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_lessonsUserGuide/howdoIcustomizethelookandfeelofpagesinLessons.html</value>
+    </property>
+  </bean>
   <bean id="howdoIuploadcontentinazipfileonaLessonspage" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
       <value>howdoIuploadcontentinazipfileonaLessonspage</value>
@@ -4497,7 +4713,7 @@
       <value>howdoIaddaNewstool</value>
     </property>
     <property name="name">
-      <value>How do I add a News tool?</value>
+      <value>How do I add a News tool?  </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_newsUserGuide/howdoIaddaNewstool.html</value>
@@ -4519,7 +4735,7 @@
       <value>howdoIedittheNewstool</value>
     </property>
     <property name="name">
-      <value>How do I edit the News tool?</value>
+      <value>How do I edit the News tool? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_newsUserGuide/howdoIedittheNewstool.html</value>
@@ -4530,7 +4746,7 @@
       <value>howdoIdeleteaNewstool</value>
     </property>
     <property name="name">
-      <value>How do I delete a News tool?</value>
+      <value>How do I delete a News tool? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_newsUserGuide/howdoIdeleteaNewstool.html</value>
@@ -4832,7 +5048,7 @@
       <value>whatisthePostEmtool</value>
     </property>
     <property name="name">
-      <value>What is the PostEm tool? </value>
+      <value>What is the PostEm tool?  </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_postEmUserGuide/whatisthePostEmtool.html</value>
@@ -6713,7 +6929,7 @@
       <value>howdoIaddmysyllabusasafileattachment</value>
     </property>
     <property name="name">
-      <value>How do I add my syllabus as a file attachment?</value>
+      <value>How do I add my syllabus as a file attachment? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_syllabusUserGuide/howdoIaddmysyllabusasafileattachment.html</value>
@@ -6779,7 +6995,7 @@
       <value>howdoIpointmysyllabustoawebpage</value>
     </property>
     <property name="name">
-      <value>How do I point my syllabus to a webpage?</value>
+      <value>How do I point my syllabus to a webpage? </value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_syllabusUserGuide/howdoIpointmysyllabustoawebpage.html</value>
@@ -6896,6 +7112,7 @@
         <ref bean="whatinformationisinaTestsQuizzesemailnotification"/>
         <ref bean="howdostudentsviewassessmentietestorquizfeedback"/>
         <ref bean="howcananinstructorretrieveassessmentsthatweresavedbutnotsubmitted"/>
+        <ref bean="howdoIgivestudentsachoiceofquestionstoanswerinanassessment"/>
       </list>
     </property>
   </bean>
@@ -7450,6 +7667,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/howcananinstructorretrieveassessmentsthatweresavedbutnotsubmitted.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIgivestudentsachoiceofquestionstoanswerinanassessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIgivestudentsachoiceofquestionstoanswerinanassessment</value>
+    </property>
+    <property name="name">
+      <value>How do I give students a choice of questions to answer in an assessment?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsandQuizzesUserGuide/howdoIgivestudentsachoiceofquestionstoanswerinanassessment.html</value>
     </property>
   </bean>
   <bean id="webContentUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
