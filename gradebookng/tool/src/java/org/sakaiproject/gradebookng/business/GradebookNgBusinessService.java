@@ -1989,17 +1989,15 @@ public class GradebookNgBusinessService {
 			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
 			
 			// Create the task
-			if (assignment.isCreateTask()) {
-				String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
-				Task task = new Task();
-				task.setSiteId(getCurrentSiteId());
-				task.setReference(reference);
-				task.setSystem(true);
-				task.setDescription(assignment.getName());
-				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-				Set<String> users = new HashSet<>(this.getGradeableUsers());
-				taskService.createTask(task, users, Priorities.HIGH);
-			}			
+			String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
+			Task task = new Task();
+			task.setSiteId(getCurrentSiteId());
+			task.setReference(reference);
+			task.setSystem(true);
+			task.setDescription(assignment.getName());
+			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+			Set<String> users = new HashSet<>(this.getGradeableUsers());
+			taskService.createTask(task, users, Priorities.HIGH);
 			
 			return assignmentId;
 
@@ -2254,16 +2252,14 @@ public class GradebookNgBusinessService {
 			taskService.saveTask(task);
 		} else {
 			// Create the task
-			if (assignment.isCreateTask()) {
-				Task task = new Task();
-				task.setSiteId(getCurrentSiteId());
-				task.setReference(reference);
-				task.setSystem(true);
-				task.setDescription(assignment.getName());
-				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-				Set<String> users = new HashSet<>(this.getGradeableUsers());
-				taskService.createTask(task, users, Priorities.HIGH);
-			}
+			Task task = new Task();
+			task.setSiteId(getCurrentSiteId());
+			task.setReference(reference);
+			task.setSystem(true);
+			task.setDescription(assignment.getName());
+			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+			Set<String> users = new HashSet<>(this.getGradeableUsers());
+			taskService.createTask(task, users, Priorities.HIGH);
 		}
         
 		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
