@@ -2252,8 +2252,7 @@ public class GradebookNgBusinessService {
 			task.setDescription(assignment.getName());
 			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
 			taskService.saveTask(task);
-		} else {
-                    if(assignment.isReleased()) {
+		} else if(assignment.isReleased()) {
 			// Create the task
 			Task task = new Task();
 			task.setSiteId(getCurrentSiteId());
@@ -2263,7 +2262,6 @@ public class GradebookNgBusinessService {
 			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
 			Set<String> users = new HashSet<>(this.getGradeableUsers());
 			taskService.createTask(task, users, Priorities.HIGH);
-                    }
 		}
         
 		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
