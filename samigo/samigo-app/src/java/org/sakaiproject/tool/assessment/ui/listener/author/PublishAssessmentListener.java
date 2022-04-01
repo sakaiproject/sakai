@@ -291,25 +291,23 @@ public class PublishAssessmentListener
 
       // Create task
       AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-      if (assessmentBean.isCreateTask()) {
-        String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + pub.getPublishedAssessmentId();
-        Task task = new Task();
-        task.setSiteId(AgentFacade.getCurrentSiteId());
-        task.setReference(reference);
-        task.setSystem(true);
-        task.setDescription(pub.getTitle());
-        task.setDue((pub.getDueDate() == null ? null : pub.getDueDate().toInstant()));
-        SelectItem[] usersMap = assessmentSettings.getUsersInSite();
-        Set<String> users = new HashSet<>();
-        for(SelectItem item : usersMap) {
-          String userId = (String)item.getValue(); 
-          if (StringUtils.isNotBlank(userId)) {
-            users.add(userId);
-          }
+      String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + pub.getPublishedAssessmentId();
+      Task task = new Task();
+      task.setSiteId(AgentFacade.getCurrentSiteId());
+      task.setReference(reference);
+      task.setSystem(true);
+      task.setDescription(pub.getTitle());
+      task.setDue((pub.getDueDate() == null ? null : pub.getDueDate().toInstant()));
+      SelectItem[] usersMap = assessmentSettings.getUsersInSite();
+      Set<String> users = new HashSet<>();
+      for(SelectItem item : usersMap) {
+        String userId = (String)item.getValue(); 
+        if (StringUtils.isNotBlank(userId)) {
+          users.add(userId);
         }
-        taskService.createTask(task, users, Priorities.HIGH);
       }
-
+      taskService.createTask(task, users, Priorities.HIGH);
+        
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later

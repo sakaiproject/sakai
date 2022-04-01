@@ -145,24 +145,22 @@ public class RepublishAssessmentListener implements ActionListener {
 			task.setDue((assessment.getDueDate() == null) ? null : assessment.getDueDate().toInstant());
 			taskService.saveTask(task);
 		} else {
-			// Create task if needed
-			if (assessmentBean.isCreateTask()) {
-				Task task = new Task();
-				task.setSiteId(AgentFacade.getCurrentSiteId());
-				task.setReference(reference);
-				task.setSystem(true);
-				task.setDescription(assessment.getTitle());
-				task.setDue((assessment.getDueDate() == null ? null : assessment.getDueDate().toInstant()));
-				SelectItem[] usersMap = publishedAssessmentSettings.getUsersInSite();
-				Set<String> users = new HashSet<>();
-				for(SelectItem item : usersMap) {
-					String userId = (String)item.getValue(); 
-					if (StringUtils.isNotBlank(userId)) {
-						users.add(userId);
-					}
-				}
-				taskService.createTask(task, users, Priorities.HIGH);
+			// Create a task in the students' dashboard
+			Task task = new Task();
+			task.setSiteId(AgentFacade.getCurrentSiteId());
+			task.setReference(reference);
+			task.setSystem(true);
+			task.setDescription(assessment.getTitle());
+			task.setDue((assessment.getDueDate() == null ? null : assessment.getDueDate().toInstant()));
+			SelectItem[] usersMap = publishedAssessmentSettings.getUsersInSite();
+			Set<String> users = new HashSet<>();
+			for(SelectItem item : usersMap) {
+                            String userId = (String)item.getValue(); 
+                            if (StringUtils.isNotBlank(userId)) {
+				users.add(userId);
+                            }
 			}
+			taskService.createTask(task, users, Priorities.HIGH);
 		}
 		
 		author.setOutcome("author");

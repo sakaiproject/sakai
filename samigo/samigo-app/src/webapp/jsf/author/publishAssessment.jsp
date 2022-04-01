@@ -49,20 +49,6 @@
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true"  styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <!-- CREATE TASK -->
-  <h:panelGroup>
-    <div class="row">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.create_task}" for="createTaskAssess"/>
-      <div class="col-md-10">
-        <t:selectOneRadio id="createTaskAssess" value="#{assessmentBean.createTask}" layout="pageDirection">
-          <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.create_task_on_widget}"/>
-          <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.not_create_task_on_widget}"/>
-        </t:selectOneRadio>
-      </div>
-    </div>
-  </h:panelGroup>
-  
-  
   <!-- NOTIFICATION -->
   <h:panelGroup>
     <div class="row" style="margin-top:15px; margin-bottom:15px;">
