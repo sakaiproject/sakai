@@ -260,16 +260,15 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			realm = authzGroupService.getAuthzGroup(realmId);
 		} catch (GroupNotDefinedException e) {
 			log.error(e.getMessage(), e);
-		}
-		/** handle users */
-		if (realm == null)
 			throw new IllegalStateException("AuthzGroup realm == null!");
+		}
+
 		Set users = realm.getMembers();
 		List userIds = getRealmIdList(users);
 		List<User> userList = userDirectoryService.getUsers(userIds);
 		Map<String, User> userMMap = getuserMap(userList);
 		if (users == null)
-			throw new RuntimeException("Could not obtain members from realm!");
+			throw new IllegalStateException("Could not obtain members from realm!");
 
 		for (Iterator userIterator = users.iterator(); userIterator.hasNext();) {
 			Member member = (Member) userIterator.next();
@@ -279,10 +278,6 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 
 			if (realm.getMember(userId) != null && realm.getMember(userId).isActive() && userMMap.containsKey(member.getUserId())) {
 				user = getUserFromList(member.getUserId(), userList);
-			}
-			if (user == null) {
-				// user does not exits
-				continue;
 			}
 			if (user != null && !"admin".equals(userId)) {
 				MembershipItem memberItem = MembershipItem.makeMembershipItem(user.getSortName(),
@@ -374,10 +369,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 					i.remove();
 				}
 			} else {
-				if (!item.isViewable()
-						&& !prtMsgManager.isInstructor(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId)) {
-					if(!prtMsgManager.isSectionTA(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId) || !viewableUsersForTA.contains(item.getUser().getId()))
-						i.remove();
+				if (!item.isViewable() && !prtMsgManager.isInstructor(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId) && (!prtMsgManager.isSectionTA(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId) || !viewableUsersForTA.contains(item.getUser().getId()))) {
+					i.remove();
 				}
 			}
 		}

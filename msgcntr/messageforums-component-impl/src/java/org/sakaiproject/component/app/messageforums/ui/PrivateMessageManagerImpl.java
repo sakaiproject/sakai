@@ -153,6 +153,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
   private static final String PVT_DRAFTS = "pvt_drafts";
   private static final String PVT_SCHEDULER = "pvt_scheduler";
+  
+  public static final String PVTMSG_MODE_RECEIVED = "pvt_received";
+  public static final String PVTMSG_MODE_SENT = "pvt_sent";
+  public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
+  public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
+  public static final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
  
   /** String ids for email footer messsage */
   private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
@@ -600,12 +606,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     return forumManager.getTopicByUuid(topicUuid);
   }
   
-  public static final String PVTMSG_MODE_RECEIVED = "pvt_received";
-  public static final String PVTMSG_MODE_SENT = "pvt_sent";
-  public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
-  public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
-  public static final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
-
   public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
   {
     List recipients= message.getRecipients();
