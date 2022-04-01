@@ -1988,17 +1988,19 @@ public class GradebookNgBusinessService {
 
 			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
 			
-			// Create the task
-			String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
-			Task task = new Task();
-			task.setSiteId(getCurrentSiteId());
-			task.setReference(reference);
-			task.setSystem(true);
-			task.setDescription(assignment.getName());
-			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-			Set<String> users = new HashSet<>(this.getGradeableUsers());
-			taskService.createTask(task, users, Priorities.HIGH);
-			
+			// Create the task if it is released
+                        if(assignment.isReleased()) {
+                            String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
+                            Task task = new Task();
+                            task.setSiteId(getCurrentSiteId());
+                            task.setReference(reference);
+                            task.setSystem(true);
+                            task.setDescription(assignment.getName());
+                            task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+                            Set<String> users = new HashSet<>(this.getGradeableUsers());
+                            taskService.createTask(task, users, Priorities.HIGH);
+                        }
+                        
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -2250,7 +2252,7 @@ public class GradebookNgBusinessService {
 			task.setDescription(assignment.getName());
 			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
 			taskService.saveTask(task);
-		} else {
+		} else if(assignment.isReleased()) {
 			// Create the task
 			Task task = new Task();
 			task.setSiteId(getCurrentSiteId());
