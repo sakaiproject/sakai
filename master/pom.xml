@@ -35,7 +35,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>7.16.3</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>7.17.1</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
@@ -46,7 +46,7 @@
     <sakai.ignite.version>2.12.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.12.5</sakai.jackson.version>
+    <sakai.jackson.version>2.13.2</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
     <sakai.woodstox.version>6.2.6</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
@@ -62,7 +62,7 @@
     <sakai.openpdf.version>1.3.26</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.9</sakai.spring.version>
+    <sakai.spring.version>5.3.18</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.3</sakai.spring.data.rest.version>
@@ -696,7 +696,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${sakai.jackson.version}</version>
+        <version>2.13.2.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
