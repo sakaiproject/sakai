@@ -152,6 +152,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   private static final String PVT_SENT = "pvt_sent";             // Enviados ( 0 mensajes )--> Sent ( 0 message )
   private static final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
   private static final String PVT_DRAFTS = "pvt_drafts";
+  private static final String PVT_SCHEDULER = "pvt_scheduler";
  
   /** String ids for email footer messsage */
   private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
@@ -296,17 +297,21 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
       PrivateTopic draftTopic = forumManager.createPrivateForumTopic(PVT_DRAFTS, true,false,
           userId, pf.getId());
-    
+      PrivateTopic schedulerTopic = forumManager.createPrivateForumTopic(PVT_SCHEDULER, true,false,
+              userId, pf.getId());
+
       /** save individual topics - required to add to forum's topic set */
       forumManager.savePrivateForumTopic(receivedTopic, userId, siteId);
       forumManager.savePrivateForumTopic(sentTopic, userId, siteId);
       forumManager.savePrivateForumTopic(deletedTopic, userId, siteId);
       forumManager.savePrivateForumTopic(draftTopic);
+      forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
       
       pf.addTopic(receivedTopic);
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
       pf.addTopic(draftTopic);
+      pf.addTopic(schedulerTopic);
       pf.setArea(area);  
       
       PrivateForum oldForum;
@@ -322,7 +327,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     			if (currentTopic != null)
     			{
     				if (!currentTopic.getTitle().equals(PVT_RECEIVED) && !currentTopic.getTitle().equals(PVT_SENT) && !currentTopic.getTitle().equals(PVT_DELETED) 
-    						&& !currentTopic.getTitle().equals(PVT_DRAFTS) && area.getContextId().equals(currentTopic.getContextId()))
+    			    		&& !currentTopic.getTitle().equals(PVT_DRAFTS) && !currentTopic.getTitle().equals(PVT_SCHEDULER) && area.getContextId().equals(currentTopic.getContextId()))
     				{
     					currentTopic.setPrivateForum(pf);
     		      forumManager.savePrivateForumTopic(currentTopic, userId, siteId);
@@ -343,7 +348,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       forumManager.savePrivateForum(pf, userId);            
       
     }    
-    else{      
+    else{
+		if(pf.getTopics().stream().noneMatch(t -> PVT_SCHEDULER.equals(((Topic)t).getTitle()))) {
+			PrivateTopic schedulerTopic = forumManager.createPrivateForumTopic(PVT_SCHEDULER, true,false,
+	    			userId, pf.getId());
+			forumManager.savePrivateForumTopic(schedulerTopic, userId, siteId);
+			pf.addTopic(schedulerTopic);
+		}
        getHibernateTemplate().initialize(pf.getTopicsSet());
     }
    
@@ -593,6 +604,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public static final String PVTMSG_MODE_SENT = "pvt_sent";
   public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
   public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
+  public static final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
 
   public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
   {
@@ -758,6 +770,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   public List getDraftedMessages(String orderField, String order)
   {
     return getMessagesByType(typeManager.getDraftPrivateMessageType(),
+        orderField, order);
+  }
+
+  public List getSchedulertedMessages(String orderField, String order)
+  {
+    return getMessagesByType(typeManager.getSchedulerPrivateMessageType(),
         orderField, order);
   }
     
@@ -1823,10 +1841,29 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else
       return false;
   }
+  @Override
+  public boolean isInstructor(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isInstructor(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, "site.upd", contextId);
+    else
+      return false;
+  }
 
   private boolean isSectionTA(User user) {
       if (user != null)
           return securityService.unlock(user, "section.role.ta", getContextSiteId());
+        else
+          return false;
+  }
+  @Override
+  public boolean isSectionTA(User user, String contextId) {
+      if (user != null)
+          return securityService.unlock(user, "section.role.ta", contextId);
         else
           return false;
   }
@@ -1869,6 +1906,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
 
   @Override
+  public boolean isAllowToFieldGroups(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldGroups(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS, contextId);
+    else
+      return false;
+  }
+
+  @Override
   public boolean isAllowToFieldAllParticipants() {
 	  log.debug("isAllowToFieldAllParticipants()");
 	  return isAllowToFieldAllParticipants(userDirectoryService.getCurrentUser());
@@ -1883,6 +1933,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     }
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS, getContextSiteId());
+    else
+      return false;
+  }
+
+  @Override
+  public boolean isAllowToFieldAllParticipants(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldAllParticipants(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS, contextId);
     else
       return false;
   }
@@ -1907,6 +1970,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   }
 
   @Override
+  public boolean isAllowToFieldRoles(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldRoles(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES, contextId);
+    else
+      return false;
+  }
+
+  @Override
   public boolean isAllowToViewHiddenGroups() {
 	  log.debug("isAllowToViewHiddenGroups()");
 	  return isAllowToViewHiddenGroups(userDirectoryService.getCurrentUser());
@@ -1924,6 +2000,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else
       return false;
   } 
+
+  @Override
+  public boolean isAllowToViewHiddenGroups(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToViewHiddenGroups(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS, contextId);
+    else
+      return false;
+  }
   
   @Override
   public boolean isAllowToFieldUsers() {
@@ -1940,6 +2029,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     }
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS, getContextSiteId());
+    else
+      return false;
+  }
+
+  @Override
+  public boolean isAllowToFieldUsers(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldUsers(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS, contextId);
     else
       return false;
   }
@@ -1962,6 +2064,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else
       return false;
   }
+
+  @Override
+  public boolean isAllowToFieldMyGroups(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldMyGroups(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS, contextId);
+    else
+      return false;
+  }
   
   @Override
   public boolean isAllowToFieldMyGroupMembers() {
@@ -1981,6 +2096,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else
       return false;
   }
+
+  @Override
+  public boolean isAllowToFieldMyGroupMembers(User user, String contextId)
+  {
+    if (log.isDebugEnabled())
+    {
+      log.debug("isAllowToFieldMyGroupMembers(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS, contextId);
+    else
+      return false;
+  }
   
   @Override 
   public boolean isAllowToFieldMyGroupRoles() {
@@ -1993,6 +2121,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  log.debug("isAllowToFieldMyGroupRoles(User {})",user);
 	  if (user != null)
 		  return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES, getContextSiteId());
+	  else
+		  return false;
+  }
+
+  @Override
+  public boolean isAllowToFieldMyGroupRoles(User user, String contextId)
+  {
+	  log.debug("isAllowToFieldMyGroupRoles(User {})",user);
+	  if (user != null)
+		  return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPROLES, contextId);
 	  else
 		  return false;
   }
@@ -2043,6 +2181,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     else if (PVTMSG_MODE_DRAFT.equals(topicTitle))
     {
       topicTypeUuid=typeManager.getDraftPrivateMessageType();
+    }
+    else if (PVTMSG_MODE_SCHEDULER.equals(topicTitle))
+    {
+      topicTypeUuid=typeManager.getSchedulerPrivateMessageType();
     }
     else
     {
@@ -2104,7 +2246,7 @@ return topicTypeUuid;
 	  return getEventMessage(object, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
 	}
   
-  private String getEventMessage(Object object, String toolId, String userId, String contextId) {
+  public String getEventMessage(Object object, String toolId, String userId, String contextId) {
   	String eventMessagePrefix = "";
   	
   		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
@@ -2339,7 +2481,7 @@ return topicTypeUuid;
 	  }
   }
   
-  private LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb, PrivateMessage rrepMsg) {
+  public LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb, PrivateMessage rrepMsg) {
 	  LRS_Actor student = learningResourceStoreService.getActor(rrepMsg.getCreatedBy());
 	  String url = serverConfigurationService.getPortalUrl();
 	  LRS_Verb verb = new LRS_Verb(sakaiVerb);
@@ -2360,4 +2502,36 @@ return topicTypeUuid;
 	  return draftRecipients.stream().filter(dr -> dr.getType() != MembershipItem.TYPE_NOT_SPECIFIED).collect(Collectors.toList());
   }
 
+  public void sendProgamMessage(PrivateMessage message, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean asEmail) {
+	    if (message == null || draftRecipients == null || draftRecipients.size() == 0)
+	    {
+	      throw new IllegalArgumentException("Null Argument");
+	    }
+
+	    String contextId="";
+	    boolean isMailArchive = false;
+	    try {
+	        contextId = getContextId();
+	    } catch (Exception e) {
+		    contextId = ((PrivateMessageRecipientImpl)message.getRecipients().get(0)).getContextId();
+		    isMailArchive = true;
+		}
+	    String currentUserAsString = currentUserAsString(message, isMailArchive);
+
+	    List recipientList = new UniqueArrayList();
+
+        PrivateMessageRecipient receiver = new PrivateMessageRecipientImpl(currentUserAsString, typeManager.getSchedulerPrivateMessageType(),
+            contextId, Boolean.TRUE, false);
+
+        recipientList.add(receiver);
+        message.setRecipients(recipientList);
+        message.setDraft(true);
+        Message savedMessage = saveMessage(message, isMailArchive, contextId, currentUserAsString);
+
+        List<DraftRecipient> allDraftRecipients = getDraftRecipients(savedMessage.getId(), draftRecipients, draftBccRecipients);
+        messageManager.deleteDraftRecipientsByMessageId(savedMessage.getId());
+        messageManager.saveDraftRecipients(savedMessage.getId(), allDraftRecipients);
+
+        message.setId(savedMessage.getId());
+  }
 }

@@ -55,7 +55,9 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Date threadLastUpdated;
   private Long lastTreadPostId;
   private Integer numReaders;
-  
+  private Boolean scheduler;
+  private Date scheduledDate;
+
 	public static Comparator ATTACHMENT_COMPARATOR;
 	public static Comparator SUBJECT_COMPARATOR;
 	public static Comparator DATE_COMPARATOR;
@@ -479,6 +481,23 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
 	}
 
+	public Boolean getScheduler()
+	{
+		return scheduler;
+	}
+
+	public void setScheduler(Boolean scheduler)
+	{
+		this.scheduler = scheduler;
+	}
+
+	public Date getScheduledDate() {
+		return scheduledDate;
+	}
+
+	public void setScheduledDate(Date scheduledDate) {
+		this.scheduledDate = scheduledDate;
+	}
 
 }
 

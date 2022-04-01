@@ -114,7 +114,10 @@ public interface Message extends MutableEntity {
      */
     public Integer getNumReaders();
     
-    
+    public Boolean getScheduler();
+    public void setScheduler(Boolean scheduler);
+    public Date getScheduledDate();
+    public void setScheduledDate(Date scheduledDate);
     
     
 

@@ -43,6 +43,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.scheduler.PrivateMessageSchedulerService;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -51,6 +52,7 @@ import org.sakaiproject.api.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -97,7 +99,9 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -164,6 +168,8 @@ public class PrivateMessagesTool {
   
   public static final String RECIPIENTS_UNDISCLOSED = "pvt_bccUndisclosed";
   
+  private static final String DATE_PGR_MSG_ERROR = "pvt_date_pgr_msg_error";
+
   /** Used to determine if this is combined tool or not */
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
   private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
@@ -266,6 +272,7 @@ public class PrivateMessagesTool {
   public static final String PVTMSG_MODE_SENT = "pvt_sent";
   public static final String PVTMSG_MODE_DELETE = "pvt_deleted";
   public static final String PVTMSG_MODE_DRAFT = "pvt_drafts";
+  public static final String PVTMSG_MODE_SCHEDULER = "pvt_scheduler";
   public static final String PVTMSG_MODE_CASE = "Personal Folders";
   
   public static final String RECIPIANTS_ENTIRE_CLASS= "All Participants";
@@ -418,11 +425,22 @@ public class PrivateMessagesTool {
 
   private final DraftRecipientsDelegate drDelegate;
   
+  @Getter @Setter
+  public String schedulerSendDateString;
+
+  @Getter
+  public Date openDate;
+  @Getter @Setter
+  private boolean booleanSchedulerSend = false;
+
+  private PrivateMessageSchedulerService PrivateMessageSchedulerService;
+
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
 	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
 	  drDelegate = new DraftRecipientsDelegate();
+	  PrivateMessageSchedulerService = ComponentManager.get(PrivateMessageSchedulerService.class);
   }
 
   public void initializePrivateMessageArea() {
@@ -1190,11 +1208,39 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  setBooleanEmailOut(draft.getExternalEmail());
 	  }
 
+	  if(draft.getScheduler() != null && draft.getScheduler()) {
+		  setSchedulerSendDateString(draft.getScheduledDate().toString());
+		  setBooleanSchedulerSend(draft.getScheduler());
+	  }
+
 	  //go to compose page
 	  setFromMainOrHp();
 	  fromMain = (StringUtils.isEmpty(msgNavMode)) || ("privateMessages".equals(msgNavMode));
 	  log.debug("processPvtMsgDraft()");
 	  return PVTMSG_COMPOSE;
+  }
+
+  private void setComposeLists(PrivateMessage currentMessage){
+	  //by default add user who sent original message
+	  for (MembershipItem membershipItem : totalComposeToList) {
+		  if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
+			  selectedComposeToList.add(membershipItem.getId());
+		  }
+	  }
+	  String[] splitRecipents = currentMessage.getRecipientsAsText().split(";");
+	  String[] splitRecipentsBcc = currentMessage.getRecipientsAsTextBcc().split(";");
+	  for (MembershipItem membershipItem : totalComposeToList) {
+		  for (String recipient: splitRecipents) {
+			  if (membershipItem.getName().equals(recipient) && !selectedComposeToList.stream().anyMatch(s -> s.equals(recipient))) {
+				  selectedComposeToList.add(membershipItem.getId());
+			  }
+		  }
+		  for (String recipientBcc: splitRecipentsBcc) {
+			  if (membershipItem.getName().equals(recipientBcc) && !selectedComposeBccList.stream().anyMatch(s -> s.equals(recipientBcc))) {
+				  selectedComposeBccList.add(membershipItem.getId());
+			  }
+		  }
+	  }
   }
 
   /**
@@ -1611,7 +1657,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgDeleteConfirmYes()");
     if(getDetailMsg() != null)
     {      
-      prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext(msgNavMode));      
+      prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext(msgNavMode));
+      PrivateMessageSchedulerService.removeScheduledReminder(getDetailMsg().getMsg().getId());
     }
     return DISPLAY_MESSAGES_PG ;
   }
@@ -1669,6 +1716,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.getAllAttachments().clear();
     //reset label
     this.setSelectedLabel("pvt_priority_normal");
+    this.setBooleanSchedulerSend(false);
+    this.setOpenDate("");
+    this.setSchedulerSendDateString("");
   }
   
   public String processPvtMsgPreview(){
@@ -1698,6 +1748,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  PrivateMessageDecoratedBean pmDb = new PrivateMessageDecoratedBean(msg);
 	  pmDb.setIsPreview(true);
 	  this.setDetailMsg(pmDb);
+	  this.schedulerSendDateString = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
 	  
 	  return SELECTED_MESSAGE_PG;
   }
@@ -1735,6 +1786,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
       return null ;
     }
+    if(booleanSchedulerSend) {
+	    setOpenDate(schedulerSendDateString);
+	    if(openDate == null || !openDate.after(Date.from(Instant.now()))) {
+		    setErrorMessage(getResourceBundleString(DATE_PGR_MSG_ERROR));
+	        return null;
+	    }
+    }
     
     PrivateMessage pMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
@@ -1744,9 +1802,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     
     pMsg.setExternalEmail(booleanEmailOut);
+    pMsg.setScheduler(booleanSchedulerSend);
     Map<User, Boolean> recipients = getRecipients();
     
-    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail()); 
+    if(booleanSchedulerSend) {
+	    pMsg.setScheduledDate(openDate);
+	    schedulerMessage(pMsg, isSendEmail());
+	    return processPvtMsgComposeCancel();
+    } else {
+	    PrivateMessageSchedulerService.removeScheduledReminder(pMsg.getId());
+	    prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail());
+    }
     // if you are sending a reply 
     Message replying = pMsg.getInReplyTo();
     if (replying!=null) {
@@ -1853,6 +1919,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_BODY_DRAFT));
       return null ;
     }
+    if(booleanSchedulerSend) {
+		setOpenDate(schedulerSendDateString);
+		if(booleanSchedulerSend && (openDate == null || !openDate.after(Date.from(Instant.now())))) {
+			setErrorMessage(getResourceBundleString(DATE_PGR_MSG_ERROR));
+		    return null;
+		}
+    }
+
     PrivateMessage dMsg = null;
     if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
     	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
@@ -1862,6 +1936,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     dMsg.setExternalEmail(booleanEmailOut);
+    dMsg.setScheduler(booleanSchedulerSend);
+    if(booleanSchedulerSend)
+	    dMsg.setScheduledDate(openDate);
 
     List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
     List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
@@ -2310,6 +2387,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  pmDb.setIsPreviewReply(true);
 		  pmDb.setPreviewReplyTmpMsg(getDetailMsg());
 		  this.setDetailMsg(pmDb);
+		  this.schedulerSendDateString = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
 
 		  return SELECTED_MESSAGE_PG;
 	  }
@@ -2339,11 +2417,31 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if(rrepMsg == null){
     	return null;
     }else{
+	    if(booleanSchedulerSend) {
+		    setOpenDate(schedulerSendDateString);
+		    if(booleanSchedulerSend && (openDate == null || !openDate.after(Date.from(Instant.now())))) {
+			    setErrorMessage(getResourceBundleString(DATE_PGR_MSG_ERROR));
+			    return null;
+		    }
+	    }
+	    rrepMsg.setScheduler(booleanSchedulerSend);
 
-    	Map<User, Boolean> recipients = getRecipients();
+	    Map<User, Boolean> recipients = getRecipients();
 
-    	prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
-    	
+	    if(booleanSchedulerSend && !rrepMsg.getDraft()) {
+		    rrepMsg.setScheduledDate(openDate);
+		    schedulerMessage(rrepMsg, isSendEmail());
+		    resetComposeContents();
+		    return DISPLAY_MESSAGES_PG;
+	    }else if(rrepMsg.getDraft()) {
+		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+
+		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+        } else {
+            prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+        }
+
     	if(!rrepMsg.getDraft()){
     		prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
     		incrementSynopticToolInfo(recipients.keySet(), false);
@@ -2522,6 +2620,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		 pmDb.setIsPreviewForward(true);
 		 pmDb.setPreviewReplyTmpMsg(getDetailMsg());
 		 this.setDetailMsg(pmDb);
+		 this.schedulerSendDateString = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
 
 		 return SELECTED_MESSAGE_PG;
 	 }
@@ -2706,9 +2805,29 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     
     private void processPvtMsgForwardSendHelper(PrivateMessage rrepMsg){
-    	Map<User, Boolean> recipients = getRecipients();
-    	
-    	prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+	    if (booleanSchedulerSend) {
+		    setOpenDate(schedulerSendDateString);
+		    if (booleanSchedulerSend && (openDate == null || !openDate.after(Date.from(Instant.now())))) {
+			    setErrorMessage(getResourceBundleString(DATE_PGR_MSG_ERROR));
+			    return;
+		    }
+	    }
+	    rrepMsg.setScheduler(booleanSchedulerSend);
+
+	    Map<User, Boolean> recipients = getRecipients();
+
+	    if (booleanSchedulerSend && !rrepMsg.getDraft()) {
+		    rrepMsg.setScheduledDate(openDate);
+		    schedulerMessage(rrepMsg, isSendEmail());
+		    resetComposeContents();
+	    } else if(rrepMsg.getDraft()) {
+		    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+		    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+
+		    prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+	    } else {
+	        prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
+        }
 
     	if(!rrepMsg.getDraft()){
     		//update Synoptic tool info
@@ -2740,6 +2859,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		 pmDb.setIsPreviewReplyAll(true);
 		 pmDb.setPreviewReplyTmpMsg(getDetailMsg());
 		 this.setDetailMsg(pmDb);
+		 this.schedulerSendDateString = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
 
 		 return SELECTED_MESSAGE_PG;
 	 }
@@ -2792,7 +2912,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   private PrivateMessage processPvtMsgReplyAllSendHelper(boolean preview, Boolean isDraft){
 
 	  PrivateMessage currentMessage = getDetailMsg().getMsg() ;
-
+	  setComposeLists(currentMessage);
 	  String msgauther=currentMessage.getAuthor();//string   "Test"      
 
 	  //Select Forward Recipients
@@ -2812,6 +2932,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			  setErrorMessage(getResourceBundleString(MISSING_BODY));
 		  }
 		  return null;
+	  }
+	  if(!isDraft){
+		  if(selectedComposeToList.isEmpty() && selectedComposeBccList.isEmpty()){
+			  setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
+			  return null ;
+		  }
 	  }
 
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
@@ -2973,7 +3099,27 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		  }
 	  }
 	  if(!preview){
-	          prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
+		  if(booleanSchedulerSend) {
+	        setOpenDate(schedulerSendDateString);
+	        if(booleanSchedulerSend && (openDate == null || !openDate.after(Date.from(Instant.now())))) {
+	            setErrorMessage(getResourceBundleString(DATE_PGR_MSG_ERROR));
+	            return null;
+	        }
+		  }
+		    rrepMsg.setScheduler(booleanSchedulerSend);
+
+	        if(booleanSchedulerSend && !rrepMsg.getDraft()) {
+	            rrepMsg.setScheduledDate(openDate);
+	            schedulerMessage(rrepMsg, isSendEmail());
+	            resetComposeContents();
+	        }else if(rrepMsg.getDraft()) {
+                List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+                List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+
+                prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), isSendEmail(), draftRecipients, draftBccRecipients);
+	        } else {
+	            prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
+	        }
 
 		  if(!rrepMsg.getDraft()){
 			  prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
@@ -3080,7 +3226,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
       if (element != null) 
       {
     	deleted = true;
-        prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
+        prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;
+	    PrivateMessageSchedulerService.removeScheduledReminder(element.getId());
       }      
       
       if (PVTMSG_MODE_DELETE.equals(msgNavMode))
@@ -3552,7 +3699,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       	return null ;
     } else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase().trim())|| 
-    		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()))
+            (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SCHEDULER.toLowerCase()).equals(createFolder.toLowerCase().trim()))
     {
     	setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
     	return null;
@@ -3598,7 +3745,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       return REVISE_FOLDER_PG;
     }
     else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(newTopicTitle.toLowerCase().trim())|| 
-   		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()))
+            (PVTMSG_MODE_DELETE.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_SCHEDULER.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()))
     {
    	  setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
    	  return REVISE_FOLDER_PG;
@@ -3645,6 +3792,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List allPvtMsgs= prtMsgManager.getMessagesByType(typeUuid,PrivateMessageManager.SORT_COLUMN_DATE, PrivateMessageManager.SORT_DESC);
     for (PrivateMessage element : (List<PrivateMessage>) allPvtMsgs) {
       prtMsgManager.deletePrivateMessage(element, typeUuid);
+      PrivateMessageSchedulerService.removeScheduledReminder(element.getId());
     }
     return processPvtMsgReturnToMainOrHp();
   }
@@ -3675,7 +3823,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       return null ;
     } 
     else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase().trim())|| 
-   		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()))
+            (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SCHEDULER.toLowerCase()).equals(createFolder.toLowerCase().trim()))
     {
       setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
    	  return null;
@@ -4110,6 +4258,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
             return typeManager.getDeletedPrivateMessageType();
         case PVTMSG_MODE_DRAFT:
             return typeManager.getDraftPrivateMessageType();
+        case PVTMSG_MODE_SCHEDULER:
+            return typeManager.getSchedulerPrivateMessageType();
         default:
             return typeManager.getCustomTopicType(navMode);
     }
@@ -4676,4 +4826,27 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		replyToAllBody = StringUtils.trimToEmpty(value);
 	}
 
+	private void schedulerMessage(PrivateMessage pMsg, boolean asEmail) {
+	    List<MembershipItem> draftRecipients = drDelegate.getDraftRecipients(getSelectedComposeToList(), courseMemberMap);
+	    List<MembershipItem> draftBccRecipients = drDelegate.getDraftRecipients(getSelectedComposeBccList(), courseMemberMap);
+		prtMsgManager.sendProgamMessage(pMsg, draftRecipients, draftBccRecipients, asEmail);
+		PrivateMessageSchedulerService.scheduleDueDateReminder(pMsg.getId());
+	}
+
+	public void setOpenDate(String openDateStr){
+		SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		datetimeFormat.setTimeZone(userTimeService.getLocalTimeZone());
+		  if (StringUtils.isNotBlank(openDateStr)) {
+			  try {
+				  String hiddenOpenDate = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601") != null ? (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601") : openDateStr;
+				  Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
+				  this.openDate = openDate;
+			}catch (ParseException e) {
+				log.error("Couldn't convert open date", e);
+				this.openDate = null;
+			}
+		  }else{
+			  this.openDate = null;
+		  }
+	  }
 }
