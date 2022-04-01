@@ -48,7 +48,7 @@
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
     <sakai.jackson.version>2.13.2</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
-    <sakai.woodstox.version>6.2.7</sakai.woodstox.version>
+    <sakai.woodstox.version>6.2.8</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
@@ -81,7 +81,7 @@
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.13</joda.time.version>
+    <joda.time.version>2.10.14</joda.time.version>
     <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.6.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
