@@ -44,6 +44,7 @@ import org.apache.commons.math3.util.Precision;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
@@ -140,7 +141,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows;
+  private int maxDisplayedRows = PagerRenderer.MAX_PAGE_SIZE;
   @Getter @Setter
   private int dataRows;
   @Getter @Setter

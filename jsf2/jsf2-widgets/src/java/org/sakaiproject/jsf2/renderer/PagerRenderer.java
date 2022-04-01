@@ -35,6 +35,7 @@ import org.sakaiproject.jsf2.util.RendererUtil;
 public class PagerRenderer extends Renderer {
 
     private static final String BUNDLE_NAME = "pager";
+    public static final int MAX_PAGE_SIZE = 200;
 
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         if (!component.isRendered()) return;
@@ -45,7 +46,7 @@ public class PagerRenderer extends Renderer {
         String clientId = component.getClientId(context);
         //String formId = getFormId(context, component);
 
-        int pageSize = getInt(context, component, "pageSize", 0);
+        int pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
         int totalItems = getInt(context, component, "totalItems", 0);
         int firstItem = getInt(context, component, "firstItem", 0);
         int lastItem = getInt(context, component, "lastItem", -1);
@@ -54,7 +55,7 @@ public class PagerRenderer extends Renderer {
         // in case we are rendering before decode()ing we need to adjust the states
         adjustState(context, component, firstItem, lastItem, pageSize, totalItems, firstItem, lastItem, pageSize);
 
-        pageSize = getInt(context, component, "pageSize", 0);
+        pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
         totalItems = getInt(context, component, "totalItems", 0);
         firstItem = getInt(context, component, "firstItem", 0);
         lastItem = getInt(context, component, "lastItem", -1);
@@ -94,7 +95,7 @@ public class PagerRenderer extends Renderer {
         // get stuff for page size selection and display
 
         String textPageSize = getString(context, component, "textPageSize", "Show {0}");
-        String pageSizesStr = getString(context, component, "pageSizes", "5,10,20,50,100");
+        String pageSizesStr = getString(context, component, "pageSizes", "5,10,20,50,100,200");
         String[] pageSizes = pageSizesStr.split(",");
         String idSelect = clientId+"_pageSize";
 
@@ -111,7 +112,7 @@ public class PagerRenderer extends Renderer {
         // prepare the dropdown for selecting the
         // TODO: Probably need to cache this for performance
         String onchangeHandler = "javascript:this.form.submit(); return false;";
-        String selectedValue = String.valueOf(pageSize);
+        String selectedValue = pageSize <= 0 || pageSize > MAX_PAGE_SIZE ? String.valueOf(MAX_PAGE_SIZE) : String.valueOf(pageSize);
         String[] optionTexts = new String[pageSizes.length];
         String[] optionValues = new String[pageSizes.length];
         for (int i=0; i<pageSizes.length; i++) {
@@ -186,6 +187,7 @@ public class PagerRenderer extends Renderer {
     private static void writeSelect(ResponseWriter out, boolean render, String selectId, String[] optionTexts, String[] optionValues, String selectedValue, String onchangeHandler) throws IOException {
         if (!render) return;
 
+        out.startElement("fieldset", null);
         out.startElement("select", null);
         out.writeAttribute("name", selectId, null);
         out.writeAttribute("id", selectId, null);
@@ -202,6 +204,7 @@ public class PagerRenderer extends Renderer {
             out.write("\n");
         }
         out.endElement("select");
+        out.endElement("fieldset");
         out.write("\n");
     }
 
@@ -218,7 +221,7 @@ public class PagerRenderer extends Renderer {
 
         int firstItem = getInt(context, component, "firstItem", 0);
         int lastItem = getInt(context, component, "lastItem", 0);
-        int pageSize = getInt(context, component, "pageSize", 0);
+        int pageSize = getInt(context, component, "pageSize", MAX_PAGE_SIZE);
         int totalItems = getInt(context, component, "totalItems", 0);
         if (log.isDebugEnabled()) log.debug("decode: firstItem=" + firstItem + ", pageSize=" + pageSize + ", value=" + getString(context, component, "value", null));
 
