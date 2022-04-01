@@ -170,10 +170,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 		List<MembershipItem> members = convertMemberMapToList(courseMemberMap);
 		SelectedLists selectedLists = populateDraftRecipients(pvtMsg.getId(), messageManager, members, members);
 
-		Map<User, Boolean> composeToSet = getRecipientsHelper(selectedLists.to, allCourseUsers, Boolean.FALSE, pvtMsg,
-				courseMemberMap);
-		Map<User, Boolean> composeBccSet = getRecipientsHelper(selectedLists.bcc, allCourseUsers, Boolean.TRUE, pvtMsg,
-				courseMemberMap);
+		Map<User, Boolean> composeToSet = getRecipientsHelper(selectedLists.to, allCourseUsers, Boolean.FALSE, courseMemberMap);
+		Map<User, Boolean> composeBccSet = getRecipientsHelper(selectedLists.bcc, allCourseUsers, Boolean.TRUE, courseMemberMap);
 
 		returnSet = new HashMap<>();
 
@@ -192,8 +190,7 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 		return returnSet;
 	}
 
-	private Map<User, Boolean> getRecipientsHelper(List selectedList, List allCourseUsers, boolean bcc,
-			PrivateMessage pvtMsg, Map courseMemberMap) {
+	private Map<User, Boolean> getRecipientsHelper(List selectedList, List allCourseUsers, boolean bcc, Map courseMemberMap) {
 
 		Map<User, Boolean> returnSet = new HashMap<>();
 
@@ -264,7 +261,6 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 		} catch (GroupNotDefinedException e) {
 			log.error(e.getMessage(), e);
 		}
-
 		/** handle users */
 		if (realm == null)
 			throw new IllegalStateException("AuthzGroup realm == null!");
@@ -279,13 +275,10 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			Member member = (Member) userIterator.next();
 			String userId = member.getUserId();
 			Role userRole = member.getRole();
-
 			User user = null;
 
-			if (realm.getMember(userId) != null && realm.getMember(userId).isActive()) {
-				if (userMMap.containsKey(member.getUserId())) {
-					user = getUserFromList(member.getUserId(), userList);
-				}
+			if (realm.getMember(userId) != null && realm.getMember(userId).isActive() && userMMap.containsKey(member.getUserId())) {
+				user = getUserFromList(member.getUserId(), userList);
 			}
 			if (user == null) {
 				// user does not exits
@@ -383,13 +376,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			} else {
 				if (!item.isViewable()
 						&& !prtMsgManager.isInstructor(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId)) {
-					if (prtMsgManager.isSectionTA(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId)
-							&& viewableUsersForTA.contains(item.getUser().getId())) {
-						// if this user is a member of this TA's section, they
-						// are viewable
-					} else {
+					if(!prtMsgManager.isSectionTA(userDirectoryService.getUser(pvtMsg.getAuthorId()), contextId) || !viewableUsersForTA.contains(item.getUser().getId()))
 						i.remove();
-					}
 				}
 			}
 		}
@@ -418,13 +406,11 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			return returnMap;
 		}
 
-		if (prtMsgManager.isAllowToFieldAllParticipants(user, siteReference)) {
+		if (prtMsgManager.isAllowToFieldAllParticipants(user, siteReference) && includeAllParticipantsMember) {
 			// add all participants
-			if (includeAllParticipantsMember) {
-				MembershipItem memberAll = MembershipItem.makeMembershipItem(rl.getString("all_participants_desc"),
-						MembershipItem.TYPE_ALL_PARTICIPANTS);
-				returnMap.put(memberAll.getId(), memberAll);
-			}
+			MembershipItem memberAll = MembershipItem.makeMembershipItem(rl.getString("all_participants_desc"),
+					MembershipItem.TYPE_ALL_PARTICIPANTS);
+			returnMap.put(memberAll.getId(), memberAll);
 		}
 
 		if (prtMsgManager.isAllowToFieldGroups(user, siteReference)) {
@@ -442,20 +428,18 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			}
 		}
 
-		if (prtMsgManager.isAllowToFieldRoles(user, siteReference)) {
-			if (includeRoles && realm != null) {
-				Set<Role> roles = realm.getRoles();
-				for (Role role : roles) {
-					String roleId = role.getId();
-					if (StringUtils.isNotBlank(roleId)) {
-						roleId = roleId.substring(0, 1).toUpperCase() + roleId.substring(1);
-					}
-
-					MembershipItem member = MembershipItem.makeMembershipItem(
-							rl.getFormattedMessage("participants_role_desc", roleId), MembershipItem.TYPE_ROLE, null,
-							role, null);
-					returnMap.put(member.getId(), member);
+		if (prtMsgManager.isAllowToFieldRoles(user, siteReference) && (includeRoles && realm != null)) {
+			Set<Role> roles = realm.getRoles();
+			for (Role role : roles) {
+				String roleId = role.getId();
+				if (StringUtils.isNotBlank(roleId)) {
+					roleId = roleId.substring(0, 1).toUpperCase() + roleId.substring(1);
 				}
+
+				MembershipItem member = MembershipItem.makeMembershipItem(
+						rl.getFormattedMessage("participants_role_desc", roleId), MembershipItem.TYPE_ROLE, null,
+						role, null);
+				returnMap.put(member.getId(), member);
 			}
 		}
 
@@ -674,7 +658,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 	}
 
 	public static final class SelectedLists {
-		public final List<String> to, bcc;
+		public final List<String> to;
+		public final List<String> bcc;
 
 		public SelectedLists(List<String> toList, List<String> bccList) {
 			to = toList;
