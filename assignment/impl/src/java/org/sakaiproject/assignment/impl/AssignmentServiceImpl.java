@@ -1483,9 +1483,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!assignment.getHideDueDate()) {
             task.setDue(assignment.getDueDate());
         }
-        taskService.createTask(task, allowAddSubmissionUsers(reference)
-                .stream().map(User::getId).collect(Collectors.toSet()),
-                Priorities.HIGH);
+
+        if (!assignment.getDraft()) {
+            taskService.createTask(task, allowAddSubmissionUsers(reference)
+                    .stream().map(User::getId).collect(Collectors.toSet()),
+                    Priorities.HIGH);
+        }
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }
