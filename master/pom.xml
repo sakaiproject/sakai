@@ -942,10 +942,11 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!-- Do not allow transitive dependencies to bring in log4j-1.2 -->
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
+        <version>this-is-an-impossible-version</version>
         <scope>provided</scope>
       </dependency>
       <!-- JCL (commons-logging) is declared here as provided, it is important to
@@ -1222,12 +1223,6 @@
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
-      <dependency>
-        <groupId>org.codehaus.castor</groupId>
-        <artifactId>castor</artifactId>
-        <version>1.1.2.1</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
