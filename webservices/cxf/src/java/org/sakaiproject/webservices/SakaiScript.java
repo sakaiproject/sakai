@@ -5206,4 +5206,41 @@ public class SakaiScript extends AbstractWebService {
         return "success";
 
     }
+
+    @WebMethod
+    @Path("/archiveSite")
+    @Produces("text/plain")
+    @GET
+    public String archiveSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid){
+
+        Session session = establishSession(sessionid);
+
+        // Require user to be an admin
+        if (!securityService.isSuperUser(session.getUserId())) {
+            log.warn("WS archiveSite(): Permission denied. Must be super user to create a site archive");
+            throw new RuntimeException("WS archiveSite(): Permission denied. Must be super user to create a site archive");
+        }
+
+        try {
+            Site archiveTarget = siteService.getSite(siteid);
+        } catch (IdUnusedException e) {
+            log.warn("Unable to archive site {}: invalid site id", siteid);
+	    return "failed: siteid " + siteid + " not found";
+        }
+
+	log.info("Archiving site {}", siteid);
+
+        try {
+            String msg = archiveService.archiveAndZip(siteid);
+            log.info("Successfully archived site {} - {}", siteid, msg);
+        } catch (Exception e) {
+            log.error("archiveSite(): Failed to archive site: " + siteid + " - " + e.getMessage(), e);
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+
+        return "success";
+    }
+
 }
