@@ -1,4 +1,4 @@
-<nav id="skipNav" class="Mrphs-skipNav d-none" aria-label="${rloader.sit_skipnavigation}">
+<nav id="skipNav" class="sakai-jumpLinks visually-hidden-focusable overflow-hidden bg-primary" aria-label="${rloader.sit_skipnavigation}">
     <ul class="Mrphs-skipNav__menu">
 
         #if ($siteNavHasAccessibilityURL)

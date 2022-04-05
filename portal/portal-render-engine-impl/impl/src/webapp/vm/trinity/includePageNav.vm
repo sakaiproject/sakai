@@ -1,8 +1,8 @@
 <!-- START VM includePageNav.vm -->
 
 #macro(toolLink $url $current $tab $popup $subsite)
-	<li class="list-group-item #if ($current)is-current#{end}">
-		<a class="Mrphs-toolsNav__menuitem--link #if (${page.hidden} || ${page.locked})is-invisible#{end}"
+	<li class="list-group-item #if ($current)is-current active#{end}">
+		<a class="Mrphs-toolsNav__menuitem--link #if (${page.hidden} || ${page.locked})is-invisible#{end} #if ($current)list-group-item-action#{end}""
 			#if ($tab || $popup)
 				href="javascript:;"
 				#if ($tab)
@@ -45,9 +45,10 @@
 		</a>
 	</li>
 #end
-
-<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools mt-3" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
-
+#* Trinity chopping block
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools sakai-navSidebar mt-3" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
+*#
+<aside id="sakai-navSidebar" class="sakai-navSidebar offcanvas offcanvas-start bg-light border-end" tabindex="-1" data-bs-backdrop="false" aria-labelledby="">
     #if ($sitePages.siteHTMLInclude)
 
         <div id="siteHTMLInclude" class="Mrphs-siteHTMLInclude">
@@ -60,12 +61,35 @@
 	#if(${sitePages.pageNavIconUrl} != "")
         <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
 	#end
-
+#* Trinity chopping block
 	<div id="toolSubsitesContainer">
-		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
-			<h2 class="skip fs-5 text" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
+*#
+		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav">
+			<h2 class="skip visually-hidden" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
 
-			<ul class="list-group">
+    #if (${userIsLoggedIn})
+      <h2 class="mb-2 pt-3 ps-3 fs-5">Your Pinned Sites</h2>
+
+      #foreach ( $site in $tabsSites.tabsSites )
+        <ul class="mb-0 list-unstyled">
+          #if (${site.isMyWorkspace})
+            <li class="my-2">
+              <a class="" href="${site.siteUrl}" title="${rloader.sit_mywor}">${rloader.sit_mywor}</a>
+            </li>           
+          #end
+
+          ## Only show other sites if they're the current site, a favorite of the current user, or if there *is* no current user and we're showing Gateway sites.
+          #if (!${site.isMyWorkspace} && (${site.favorite} == "true" || ${site.isCurrentSite} || !${userIsLoggedIn}))
+            <li class="my-2 #if (${site.isCurrentSite}) is-selected #end">
+              <a class="" href="${site.siteUrl}" title="${site.fullTitle}">
+                <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitleTrunc}#end</span>
+              </a>
+            </li>
+          #end ## END of IF (${site.isMyWorkspace})
+      #end
+    #end
+
+			<ul class="nav flex-column">
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
 	
@@ -99,7 +123,7 @@
 		## Start rendering the categories and tools in that category. 
 	
 		#foreach($key in $categoryList )
-			<li class="list-group-item"><a href="#"class="Mrphs-toolsNav__category" >$key</a><ul class="Mrphs-toolsNav__subnav">
+			<li class="nav-item"><a href="#"class="Mrphs-toolsNav__category" >$key</a><ul class="Mrphs-toolsNav__subnav">
 			#foreach( $page in $sitePages.pageNavTools )
 				#if (${page.pageProps.get("sitePage.pageCategory")}==$key)
 					#if (${page.current})
@@ -123,7 +147,7 @@
 	
 				#if ( $subSites && $showSubsitesAsFlyout )
 	
-					<li class="Mrphs-toolsNav__menuitem--subsite">
+					<li class="Mrphs-toolsNav__menuitem--subsite nav-item">
 						<a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
 							<div class="Mrphs-toolsNav__menuitem--icon icon-sakai--subsites-list"> </div>
 							<div class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</div>
@@ -155,16 +179,16 @@
 						>
 							<div  class="Mrphs-toolsNav__menuitem--icon ${sitePages.helpMenuClass}"> </div>
 							<div class="Mrphs-toolsNav__menuitem--title">${rloader.sit_help}</div>
-							<span class="skip">${rloader.site_newwindow}</span>
+							<span class="skip visually-hidden">${rloader.site_newwindow}</span>
 						</a>
 					</li>
 	
 				#end ## END of IF (${sitePages.pageNavShowHelp})
 	
-				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools list-group-item #if ($toolsCollapsed) min #else max #end">
-					<button type="button" aria-pressed="#if(${toolsCollapsed})true#else#**#false#end" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link  #if ($toolsCollapsed) min #else max #end">
+				<li id="toolsNav-toggle-li" class="Mrphs-toolsNav__menuitem Mrphs-collapseTools list-group-item #if ($toolsCollapsed) min #else max #end d-none">
+					<button type="button" aria-pressed="#if(${toolsCollapsed})true#else#**#false#end" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn  #if ($toolsCollapsed) min #else max #end">
 						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
-						<span class="sr-only">${rloader.sit_toggle_nav}</span>
+						<span class="">${rloader.sit_toggle_nav}</span>
 					</button>
 				</li>
 			</ul>
@@ -172,7 +196,7 @@
 	
 		#if ( $subSites )
 	
-			<nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
+			<nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden d-none"#end>
 					<ul>
 	
 						#foreach ( $site in $subSites )
@@ -183,7 +207,9 @@
 			</nav>
 	
 		#end ## END of IF ( $subSites )
+#* Trinity chopping block
 	</div>
+*#
 
 	#if (${sitePages.additionalLessonsPages})
 		<script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
@@ -192,6 +218,6 @@
 			sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
 		</script>
 	#end
-</div>
+</aside>
 
 <!-- END VM includePageNav.vm -->

@@ -1,5 +1,10 @@
-<nav class="Mrphs-siteHierarchy" aria-label="${rloader.sit_toolsubnavigation}">
-    <ul class="Mrphs-hierarchy--sites breadcrumb my-3">
+<nav class="sakai-pageNav" aria-label="${rloader.sit_toolsubnavigation}" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' class='bi bi-chevron-right' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E&#34;);">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item" title="${rloader.sit_mywor}">
+          <a class="text-decoration-none" href="/portal">
+              <small>${rloader.sit_mywor}</small>
+          </a>
+      </li>
 
     #set ($tabCountBread = 0)
     #if ( $portalBreadCrumbs or $portalPwd ) 
@@ -51,13 +56,8 @@
     #foreach( $page in $sitePages.pageNavTools )
         #if ( $index == 0 )
             <li class="Mrphs-hierarchy--siteName breadcrumb-item" title="${siteTitle}">
-                <a href="${page.pageResetUrl}">
-                    #if (${isUserSite})
-                        <i class='fa fa-home' aria-hidden="true"></i>
-                    #end
-                    <span class="Mrphs-hierarchy--siteName-label">
-                        ${siteTitleTruncated}
-                    </span>
+                <a class="text-decoration-none" href="${page.pageResetUrl}">
+                    <small>${siteTitleTruncated}</small>
                 </a>
             </li>
         #end
@@ -103,18 +103,17 @@
     #foreach( $page in $sitePages.pageNavTools )
         #if (${page.current})
             <li class="breadcrumb-item">
-                <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
-                    <span class="Mrphs-breadcrumb--reset-icon fa fa-share d-none" aria-hidden="true"></span>
-                    <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
-                    <span class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</span>
+                <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName text-decoration-none">
+                    <small class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</small>
                 </a>
             </li>
-
+#* Trinity chopping block
                 #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
                     <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
                         <span class="fa fa-pencil"></span>$rloader.sit_manover
                     </a>
                 #end
+*#
         #end
     #end
     </ul>

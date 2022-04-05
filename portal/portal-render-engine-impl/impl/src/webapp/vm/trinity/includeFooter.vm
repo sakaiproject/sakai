@@ -1,18 +1,19 @@
+#* Trinity chopping block
 <div class="Mrphs-container Mrphs-container--footer">
-
+*#
     #if (!$pagepopup)
 
-        <footer id="footer" role="contentinfo" class="Mrphs-footer d-flex justify-content-between align-items-center flex-wrap">
+        <footer id="footer" role="contentinfo" class="Mrphs-footer sakai-footer d-flex justify-content-between align-items-center flex-wrap mt-auto pt-3">
 
-            <ul id="footer-links" class="Mrphs-footer--nav list-group list-group-horizontal ">
+            <ul id="footer-links" class="Mrphs-footer--nav nav">
 
             #foreach ( $bn in $bottomNav )
 
-                <li class="list-group-item"><span>${bn}</span></li>
+                <li class="nav-item">${bn}</li>
 
             #end ## END of FOREACH ( $bn in $bottomNav )
 
-                <li class="list-group-item Mrphs-footer--details">
+                <li class="nav-item Mrphs-footer--details">
                     <a id="Mrphs-footer--details__info" class="fa fa-info-circle" href="#" aria-label="${rloader.footer_details_panel_label}" aria-describedby="Mrphs-footer--details__panel-description" data-toggle="popover" title="${bottomNavService} ${bottomNavSakaiVersion}" data-placement="top"><span class="sr-only">${rloader.footer_details_panel_label}</span></a>
                     <div id="Mrphs-footer--details__panelTemplate" class="is-hidden d-none">    ## This div will be used as a template by Bootstrap's Popover from the previous line
                         <div class="Mrphs-footer--details__panel">
@@ -43,7 +44,7 @@
             </ul>
 
             <div class="Mrphs-footer--project">
-                <p class="Mrphs-footer--copyright">${bottomNavCopyright}</p>
+                <p class="Mrphs-footer--copyright mb-0">${bottomNavCopyright}</p>
                 <ul id="Mrphs-footer--poweredBy" class="d-none">
 
                     #foreach ( $pb in $bottomNavPoweredBy )
@@ -71,5 +72,6 @@
         <!-- dont compact -->
 
     #end ## END of IF (!$pagepopup)
-
+#* Trinity chopping block
 </div>
+*#

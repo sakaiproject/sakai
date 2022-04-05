@@ -1,0 +1,599 @@
+<ul class="sakai-systemIndicators nav flex-nowrap align-items-center">
+  <li class="d-none d-md-inline">
+    <a class="sak-sysInd-help nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-contextualHelpPanel" role="button" aria-controls="sakai-contextualHelpPanel">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" role="img" aria-label="View contextual help for this page" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Help">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+      </svg>
+    </a>
+  </li>
+
+#if (${usePortalSearch})
+  <li class="d-none d-md-inline">
+    <a class="sak-sysInd-search nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-searchPanel" role="button" aria-controls="sakai-searchPanel">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" role="img" aria-label="Search Sakai" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Search">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+    </a>
+  </li>
+#end
+
+#if ($quickLinks)
+  <li class="d-none d-md-inline">
+    <a class="sak-sysInd-quicklinks nav-link text-white position-relative" data-bs-toggle="offcanvas" href="#sakai-quickLinksPanel" role="button" aria-controls="sakai-quickLinksPanel">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16" role="img" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${rloader.sit_quick_links}">
+        <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+        <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+      </svg>
+    </a>
+  </li>
+#end
+
+#if (${useBullhornAlerts})
+  <li class="d-none d-md-inline">
+    <a class="sak-sysInd-notifications nav-link text-white position-relative" data-bs-toggle="offcanvas" href="#sakai-notificationsPanel" role="button" aria-controls="sakai-notificationsPanel">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16" role="img" aria-label="View notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications">
+        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+      </svg>
+      <span class="sakai-newNotificationsIndicator p-1 bg-danger rounded-circle">
+        <span class="visually-hidden">There are new notifications available</span>
+      </span>
+    </a>
+  </li>
+  <li>
+    <a class="sak-sysInd-account nav-link text-white" data-bs-toggle="offcanvas" href="#sakai-accountPanel" role="button" aria-controls="sakai-accountPanel" title="Account">
+      <img class="sakai-accountProfileImage rounded-circle" width="50" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
+    </a>
+  </li>
+</ul>
+#end
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sakai-contextualHelpPanel" aria-labelledby="sakai-contextualHelpPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-contextualHelpPanelLabel">Help: Tool Name</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this help panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <h3>Introduction</h3>
+    <div>
+      This panel will display contextual information about the current tool. 
+    </div>
+    <h3 class="mt-3">Steps to use this tool:</h3>
+    <div class="border d-flex justify-content-center align-items-center w-100 my-3 p-5">An image could display here</div>
+    <ol>
+      <li>This is the first step</li>
+      <li>Then you would do this</li>
+      <li>And then finally you would do this</li>
+    </ol>
+    <p class="text-end"><a href="https://sakai.screenstepslive.com/s/sakai_help/m/101295/l/1339923-what-is-the-assignments-tool" target="_blank">Learn more...</a></p>
+  </div>
+</div>
+
+#if (${usePortalSearch})
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sakai-searchPanel" aria-labelledby="sakai-searchPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-searchPanelLabel">Search Sakai</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this search panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <label class="visually-hidden" for="sakai-searchField">Enter search term to search Sakai</label>
+    <div class="input-group position-relative">
+      <input type="text" id="sakai-searchField" class="sakaiSearch form-control">
+      <i class="bi bi-search position-absolute start-0 top-50 translate-middle ms-3"></i>
+      <button type="button" class="btn btn-primary">Search Sakai</button>
+    </div>
+  </div>
+</div>
+#end
+
+#if ($quickLinks)
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sakai-quickLinksPanel" aria-labelledby="sakai-quickLinksPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-quickLinksPanelLabel">${rloader.sit_quick_links}</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this quick links panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <p>${quickLinksInfo}</p>
+    <ul class="sakai-quickLinksList nav flex-column">
+
+    #foreach($quickLink in $quickLinks)
+      <li class="nav-item">
+        <a class="sakai-quickLink nav-link" href="${quickLink.url}" title="$quickLink.title" target="_blank" rel="noreferrer">
+          #if(${quickLink.iconType} == "image")
+            <span class="sakai-quickLinkIcon" style="background-image:url(${quickLink.imageURI})"></span>
+          #elseif (${quickLink.iconType} == "icon")
+            <span class="sakai-quickLinkIcon ${quickLink.iconClass}"></span>
+          #end
+          <span>${quickLink.name}</span>
+        </a>
+      </li>
+    #end
+
+    </ul>
+  </div>
+</div>
+#end
+
+#if (${useBullhornAlerts})
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sakai-notificationsPanel" aria-labelledby="sakai-notificationsPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-notificationsPanelLabel">Notifications</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this notifications panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="accordion" id="sakai-notificationsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsAssignments">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Assignments (2)
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled">
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Assignment 2 is now available</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Assignment 1 has been graded and returned</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsDiscussions">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Discussions (8)
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled">
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone commented on your post "Lesson 2..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your post "Introductions"</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your post "Lesson 6..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your commment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 1..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+#end
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sakai-accountPanel" aria-labelledby="sakai-accountPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title visually-hidden" id="sakai-accountPanelLabel">Account Menu</h2>
+    <span>&nbsp;</span>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
+  </div>
+
+  <div class="offcanvas-body position-relative">
+    <div class="text-center border-bottom mb-3 pb-2">
+      <img class="sakai-accountProfileImage rounded-circle" width="100" src="/direct/profile/${loginUserId}/image/thumb" alt="Profile image">
+      <h3 class="m-0">${loginUserDispName}</h3>
+      <h4 class="fw-normal text-muted">${loginUserDispId}</h4>
+      <ul class="nav flex-column">
+        #foreach ( $site in $tabsSites.tabsSites )
+          #if (${site.isMyWorkspace})
+        <li class="nav-item"><a href="${tabsSites.prefsToolUrl}" class="nav-link">Manage Preferences</a></li>
+        <li class="nav-item"><a href="${tabsSites.mrphs_profileToolUrl}" class="nav-link">View Profile</a></li>
+          #end
+        #end
+        <li class="nav-item py-2 d-none"><button type="button" class="btn btn-primary">Log Out</button></li>
+        <li class="nav-item py-2"><a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="btn btn-primary" data-warning="${logoutWarningMessage}"><span class="Mrphs-login-Message">${loginMessage}</span></a></li>
+      </ul>
+    </div>
+
+    <div class="accordion" id="sakai-accountPanelWidgets">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
+            My Tasks
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
+          <div class="accordion-body p-2">
+            <ul class="list-group">
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Assignment 5 due</h3>
+                  <h4 class="fs-6 fw-normal text-muted">CALCULUS 101 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Midterm exam open</h3>
+                  <h4 class="fs-6 fw-normal text-muted">ENGR 2001 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+              <li class="sakai-task list-group-item d-flex justify-content-between">
+                <div class="sakai-taskDetails">
+                  <h3 class="fs-5">Discussion post due</h3>
+                  <h4 class="fs-6 fw-normal text-muted">NURSING 380 001 SP22</h4>
+                </div>
+                <button type="button" class="btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                  </svg>
+                  <span class="visually-hidden">View this task in the course site</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
+            My Calendar
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
+          <div class="accordion-body p-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h3 class="m-0">March 2022</h3>
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-square me-2" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-right-square" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 5.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                </svg>
+              </div>
+            </div>
+            <table class="w-100 text-center">
+              <thead>
+                <tr>
+                  <th>S</th>
+                  <th>M</th>
+                  <th>T</th>
+                  <th>W</th>
+                  <th>T</th>
+                  <th>F</th>
+                  <th>S</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>7</td>
+                  <td>8</td>
+                  <td>9</td>
+                  <td>10</td>
+                  <td>11</td>
+                  <td>12</td>
+                </tr>
+                <tr>
+                  <td>13</td>
+                  <td>14</td>
+                  <td>15</td>
+                  <td>16</td>
+                  <td>17</td>
+                  <td>18</td>
+                  <td>19</td>
+                </tr>
+                <tr>
+                  <td>20</td>
+                  <td>21</td>
+                  <td>22</td>
+                  <td>23</td>
+                  <td>24</td>
+                  <td>25</td>
+                  <td>26</td>
+                </tr>
+                <tr>
+                  <td>27</td>
+                  <td>28</td>
+                  <td>29</td>
+                  <td>30</td>
+                  <td>31</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-accountPanelWidgets-headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseThree" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseThree">
+            My Grades
+          </button>
+        </h2>
+        <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
+          <div class="accordion-body p-2">
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">CALCULUS 101 001 SP22</h3>
+                <span>96 / 100</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">ENGR 2001 005 SP22</h3>
+                <span>-- / 100</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">GREEK 103 002 SP22</h3>
+                <span>73 / 100</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-2">
+                <h3 class="fs-6 fw-normal m-0">NURSING 380 001 SP22</h3>
+                <span>81 / 100</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav id="mastLogin" class="Mrphs-loginNav d-none" aria-label="${rloader.sit_subnavigation}">
+
+        #if (${userIsLoggedIn})
+
+            #if (${usePortalSearch})
+            <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
+            #end
+
+            #if ($viewAsStudentLink)
+                #parse("/vm/trinity/snippets/roleSwitch-snippet.vm")
+            #end ## END of IF ($viewAsStudentLink)
+
+            #if (${useBullhornAlerts})
+            <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
+                <a id="Mrphs-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true" aria-expanded="false">
+                    <span class="icon-sakai--alerts"></span>
+                </a>
+            </div>
+            #end
+        #end
+
+        #if ($quickLinks)
+            <ul id="quickLinks" class="Mrphs-quickLinksNav">
+                <li class="Mrphs-quickLinksNav__popup">
+                    <a href="javascript:void(0);" class="js-toggle-quick-links-nav" title="${rloader.sit_quick_links_title}" aria-haspopup="true">
+                        <i class="fa fa-th fa-external-link-square" aria-hidden="true"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
+                    </a>
+
+                    <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
+                        <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
+                            <span class="Mrphs-quickLinks-header--info">${quickLinksInfo}</span>
+                            <a id="quickLinks-close" href="javascript:void(0);">
+                                <span class="fa fa-times" aria-hidden="true"></span>
+                            </a>
+                        </li>
+                        <div id="selectQuickLink">
+                            <div class="tab-box">
+                                #foreach($quickLink in $quickLinks)
+                                    <li class="Mrphs-quickLinksNav__submenuitem">
+                                        <a href="${quickLink.url}" title="$quickLink.title" target="_blank">
+                                            #if(${quickLink.iconType} == "image")
+                                                <span id="quicklink-icon" style="background-image:url(${quickLink.imageURI})"></span>
+                                            #elseif (${quickLink.iconType} == "icon")
+                                                <span id="quicklink-icon" class="${quickLink.iconClass}"></span>
+                                            #end
+                                            <span class="Mrphs-quickLinks__submenuitem--title">${quickLink.name}</span>
+                                        </a>
+                                    </li>
+                                #end
+                            </div>
+                        </div>
+                    </ul>
+                </li>
+            </ul>
+        #end
+
+        #if (${userIsLoggedIn})
+            <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
+                <a href="javascript:void(0);" id="viewAllSites" title="${rloader.sit_allsites}" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
+                </a>
+            </div>
+        #end
+
+        <ul id="loginLinks" class="Mrphs-userNav">
+
+                #foreach ( $site in $tabsSites.tabsSites )
+
+                    #if (${site.isMyWorkspace})
+
+                        <li class="Mrphs-userNav__popup js-toggle-user-nav">
+
+                                #if (${displayUserloginInfo})
+
+                                    #if (${tabsSites.mrphs_profileToolUrl})
+
+                                        ## https://www.w3.org/WAI/tutorials/menus/flyout/
+                                        ## https://www.smashingmagazine.com/2017/11/building-accessible-menu-systems/
+                                        ## https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/mouse-and-keyboard-events/links/link-behavior/
+                                        <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <a href="javascript:void(0);"
+						title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
+						aria-haspopup="true" aria-expanded="false" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                                <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                <span class="textlink">${loginUserFirstName}</span>
+                                            </a>
+                                        </div>
+
+                                    #else
+
+                                        <a id="loginUser" href="javascript:void(0);"
+					title="${loginUserFirstName} ${rloader.sit_profile_drop_down}"
+					aria-haspopup="true" aria-expanded="false"
+					class="Mrphs-userNav__drop-btn no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserFirstName}</span>
+                                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
+                                        </a>
+
+                                    #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
+
+                                #end ## END of IF (${displayUserloginInfo})
+
+                            <ul class="Mrphs-userNav__subnav is-hidden">
+
+                                <li class="Mrphs-userNav__submenuitem Mrphs-userData">
+                                    <div class="Mrphs-userNav__submenuitem--profile-and-image">
+                                        #if (${tabsSites.mrphs_profileToolUrl})
+                                            <div class="has-avatar">
+                                                <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-haspopup="dialog">
+                                                    <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                    <span class="sr-only">${rloader.pic_changer_title}</span>
+                                                </a>
+                                            </div>
+                                            <div class="Mrphs-userNav__submenuitem--profile">
+                                                <a href="${tabsSites.mrphs_profileToolUrl}">
+                                                    <span>${rloader.sit_profile}</span>
+                                                </a>
+                                            </div>
+                                        #end
+                                    </div>
+                                    <div class="Mrphs-userNav__submenuitem--fullname-and-id">
+                                        <div class="Mrphs-userNav__submenuitem--fullname">
+                                            ${loginUserDispName}
+                                        </div>
+                                        <div class="Mrphs-userNav__submenuitem--displayid">
+                                            ${loginUserDispId}
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                    <a href="javascript:;" id="Mrphs-userNav__submenuitem--connections" aria-haspopup="dialog">
+                                        <span>${rloader.sit_connections}</span>
+                                    </a>
+                                </li>
+
+                                    #if (${tabsSites.calendarToolUrl})
+            
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a href="${tabsSites.calendarToolUrl}" class="Mrphs-userNav__submenuitem--calendar">
+                                                <span>${rloader.sit_calendar}</span>
+                                            </a>
+                                        </li>
+            
+                                    #end ## END of IF (${tabsSites.calendarToolUrl})
+
+                                    #if (${tabsSites.prefsToolUrl})
+
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>${rloader.sit_preferences}</span>
+                                            </a>
+                                        </li>
+
+                                    #end ## END of IF (${tabsSites.prefsToolUrl})
+
+                                    #if (${tabsSites.tutorial})
+
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a id="tutorialLink" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial" aria-haspopup="dialog">
+                                                <span>${rloader.sit_tutorial}</span>
+                                            </a>
+                                        </li>
+
+                                    #end ## END of IF (${tabsSites.tutorial})
+
+                                    #if (${sakaiThemesEnabled} && ${themeSwitcher})
+
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userNav__submenuitem-toggle">
+                                            <label for="sakai-darkThemeSwitcher" class="sakaiThemeSwitch">${rloader.sit_themeSwitcher}</label>
+                                            <button role="switch" aria-checked="false"
+                                                id="sakai-darkThemeSwitcher" class="Mrphs-userNav__submenuitem--themeSwitcher switch">
+                                                <span>${rloader.sit_themeSwitcherOff}</span>
+                                                <span>${rloader.sit_themeSwitcherOn}</span>
+                                            </button>
+                                        </li>
+
+                                    #end ## END of IF (${sakaiThemesEnabled} && ${themeSwitcher})
+
+                            #end ## END of IF (${site.isMyWorkspace})
+
+                        #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
+                            <li class="Mrphs-userNav__logout Mrphs-userNav__submenuitem-indented">
+                                #parse("/vm/trinity/snippets/loginImage-snippet.vm")
+                            </li>
+
+                        </ul>
+
+            </li>
+
+        </ul> <!-- end of nav#loginLinks-->
+
+        ## parse("/vm/trinity/snippets/loginImage-snippet.vm")
+    </nav>
