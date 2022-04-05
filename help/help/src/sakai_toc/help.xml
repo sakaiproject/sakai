@@ -1642,7 +1642,7 @@
     <property name="resources">
       <list>
         <ref bean="howdoIincreaseasitesResourcesquota"/>
-        <ref bean="howdoIincreaseapersonsorsitesFileDropquota"/>
+        <ref bean="howdoIincreaseapersonsorsitesDropBoxquota"/>
       </list>
     </property>
   </bean>
@@ -1660,15 +1660,15 @@
       <value>sakai.quotaIncreases</value>
     </property>
   </bean>
-  <bean id="howdoIincreaseapersonsorsitesFileDropquota" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIincreaseapersonsorsitesDropBoxquota" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIincreaseapersonsorsitesFileDropquota</value>
+      <value>howdoIincreaseapersonsorsitesDropBoxquota</value>
     </property>
     <property name="name">
-      <value>How do I increase a person's or site's File Drop quota?</value>
+      <value>How do I increase a person's or site's Drop Box quota?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_quotaIncreasesAdministratorGuide/howdoIincreaseapersonsorsitesFileDropquota.html</value>
+      <value>/sakai_screensteps_quotaIncreasesAdministratorGuide/howdoIincreaseapersonsorsitesDropBoxquota.html</value>
     </property>
   </bean>
   <bean id="userGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
