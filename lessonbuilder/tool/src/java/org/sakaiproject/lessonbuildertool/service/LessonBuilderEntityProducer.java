@@ -1080,10 +1080,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		               for (Object checklistObj : checklistArr) {
 			               JSONObject checklistObjJson = (JSONObject) checklistObj;
 				       String link = checklistObjJson.get("link").toString();
-				       if ("-1".equals(link))
+				       if ("-1".equals(link)) {
 					   checklistObjJson.put("link", new Integer(-1));
-				       else
+				       } else {
 					   checklistObjJson.put("link", itemMap.get(checklistObjJson.get("link")));
+				       }
 		               }
 	               }
 	               attributeObj.put("checklistItems", checklistArr); // Update the JSON object for the JSON attribute with the modified checklist
