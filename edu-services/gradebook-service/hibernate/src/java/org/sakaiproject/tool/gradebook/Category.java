@@ -439,7 +439,7 @@ public class Category implements Serializable {
 	}
 
 	public Boolean isEqualWeightAssignments() {
-		return this.equalWeightAssignments;
+		return this.equalWeightAssignments != null ? this.equalWeightAssignments : false;
 	}
 
 	public void setEqualWeightAssignments(final Boolean equalWeightAssignments) {
