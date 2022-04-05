@@ -60,9 +60,11 @@ public class UserSortNameComparator implements Comparator<User> {
         // Replace spaces to handle sorting scenarios where surname has space
         String prop1 = StringUtils.replace(u1.getSortName(), " ", "+");
         String prop2 = StringUtils.replace(u2.getSortName(), " ", "+");
+
+        // Secondary sort if full name is identical
         if (StringUtils.equals(prop1, prop2)) {
-            prop1 = u1.getEid();
-            prop2 = u2.getEid();
+            prop1 = u1.getDisplayId();
+            prop2 = u2.getDisplayId();
         }
 
         return new NullSafeComparator<>(collator, nullsLow).compare(prop1, prop2);
