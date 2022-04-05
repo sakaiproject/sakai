@@ -22,6 +22,7 @@ import java.util.Comparator;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.user.api.User;
 import org.springframework.util.comparator.NullSafeComparator;
 
@@ -56,14 +57,14 @@ public class UserSortNameComparator implements Comparator<User> {
         if (u1 == null) return (nullsLow ? -1 : 1);
         if (u2 == null) return (nullsLow ? 1 : -1);
 
-        // Replace all spaces in the name with highest unicode character
-        String nameA = u1.getSortName().replaceAll("\\s+", "+");
-        String nameB = u2.getSortName().replaceAll("\\s+", "+");
-
-        int comparison = new NullSafeComparator<>(collator, nullsLow).compare(nameA, nameB);
-        if (comparison == 0) {
-            return new NullSafeComparator<>(collator, nullsLow).compare(u1.getEid(), u2.getEid());
+        // Replace spaces to handle sorting scenarios where surname has space
+        String prop1 = StringUtils.replace(u1.getSortName(), " ", "+");
+        String prop2 = StringUtils.replace(u2.getSortName(), " ", "+");
+        if (StringUtils.equals(prop1, prop2)) {
+            prop1 = u1.getEid();
+            prop2 = u2.getEid();
         }
-        return comparison;
+
+        return new NullSafeComparator<>(collator, nullsLow).compare(prop1, prop2);
     }
 }
