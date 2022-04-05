@@ -78,6 +78,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
+import org.sakaiproject.gradebookng.business.model.GbUserBase;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -624,9 +626,10 @@ public class ImportGradesHelper {
 
 				if (cell != null) {
 					// Only process the grade item if the user is valid (present in the site/gradebook)
-					if (row.getUser().isValid()) {
+					GbUserBase user = row.getUser();
+					if (user instanceof GbUser && ((GbUser) user).isValid()) {
 						final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-						processedGradeItemDetail.setUser(row.getUser());
+						processedGradeItemDetail.setUser((GbUser) user);
 						processedGradeItemDetail.setGrade(cell.getScore());
 						processedGradeItemDetail.setComment(cell.getComment());
 						processedGradeItemDetails.add(processedGradeItemDetail);
@@ -694,12 +697,11 @@ public class ImportGradesHelper {
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
 		// for comments we always check unless external as we might have a NEW item but with no data which means SKIP
-		SortedSet<GbUser> usersInGradebook = importedGradeWrapper.getUserIdentifier().getReport().getIdentifiedUsers();
 		if ((column.isGradeItem() && status == null) || (column.isComment() && status != Status.EXTERNAL)) {
 			for (final ImportedRow row : importedGradeWrapper.getRows()) {
 
 				// if the user is not a member of the site/gradebook, we don't need to consider the data for the column's status
-				if (!usersInGradebook.contains(row.getUser())) {
+				if (row.getUser() instanceof GbUnidentifiedUser) {
 					continue;
 				}
 
