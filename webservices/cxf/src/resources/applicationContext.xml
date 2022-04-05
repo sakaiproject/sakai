@@ -234,6 +234,7 @@
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="questionPoolServiceImpl" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
+        <property name="archiveService" ref="org.sakaiproject.archive.api.ArchiveService"/>
         <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
         <property name="logConfigurationManager" ref="org.sakaiproject.log.api.LogConfigurationManager"/>

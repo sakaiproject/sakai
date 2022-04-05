@@ -24,6 +24,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -97,6 +98,7 @@ public class AbstractWebService {
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
+    protected ArchiveService archiveService;
     protected FormattedText formattedText;
     protected SqlService sqlService;
 
@@ -304,4 +306,8 @@ public class AbstractWebService {
         this.sqlService = sqlService;
     }
 
+    @WebMethod(exclude = true)
+    public void setArchiveService(ArchiveService archiveService) {
+        this.archiveService = archiveService;
+    }
 }
