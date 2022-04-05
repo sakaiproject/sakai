@@ -58,18 +58,45 @@
 		<div>$tlang.getString("stulistassig.selanass")</div>
 	#end
 
+	##TODO TRINITY get permissions context wired up and passed over
 	<sui-table
 		debug
-		table-actions='[
-		{"type": "sui-button", "icon": "plus-circle", "class": "btn-primary", "title": "$tlang.getString("gen.new") $tlang.getString("meta.title")", "onclick": "location=\"#toolLink("$action" "doNewannouncement")\""}
-		]'
-		row-actions='[
-			{"title": "Edit", "icon": "pencil", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doReviseannouncement", "input": "url", "output": "href"}},
-			{"title": "Duplicate", "icon": "clone", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doReviseannouncement", "input": "url", "output": "href"}},
-			{"title": "View", "icon": "play", "class": "btn-link", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doShowmetadata", "input": "url", "output": "href"}},
-			{"title": "Delete", "icon": "trash", "class": "btn-link link-danger", "formatter": { "type": "replace", "find": "sakai_action=[a-zA-Z]+$","replace": "sakai_action=doDelete_announcement_link", "input": "url", "output": "href"}}
-		]'
 		id="assignmentsList"
+		table-actions='[
+			{
+				"type": "sui-button",
+				"icon": "plus-circle",
+				"class": "nav-link active",
+				"title": "$tlang.getString("gen.new") $tlang.getString("gen.assig")",
+				"href": "#toolLink("$action" "doNewannouncement")"
+			}
+		]'
+		links='[
+							{
+								"title": "Edit",
+								"icon": "pencil",
+								"class": "nav-link",
+								"rel": "doReviseassignment"
+							},
+							{
+								"title": "Duplicate",
+								"icon": "clone",
+								"class": "nav-link",
+								"rel": "doDuplicateAssignment"
+							},
+							{
+								"title": "View",
+								"icon": "play",
+								"class": "nav-link",
+								"rel": "self"
+							},
+							{
+								"title": "Delete",
+								"icon": "trash",
+								"class": "nav-link link-danger",
+								"rel": "doDelete_assignment_link"
+							}
+						]'
 		columns='[
 		{"field": "assignment.title", "title": "$tlang.getString("gen.asstit")"},
 		{"field": "assignment.access", "title": "$tlang.getString("accessSectionHeader")"},
@@ -80,8 +107,7 @@
 		{"field": "assignment.gradeScale", "title": "$tlang.getString("gen.sca")"}
 		]'
 		site-id="$contextString"
-		data-url="/direct/assignment/siteWithStats/${contextString}.json"
-		data-key="assignment_collection"
+		data-url="/api/assignment/${contextString}.json"
 	></sui-table>
 
 	<div class="sakai-table-toolBar">

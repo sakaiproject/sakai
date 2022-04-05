@@ -425,6 +425,7 @@
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 					##TODO TRINITY get permissions context wired up and passed over
+					## TODO TRINITY wire up site context
 					<sui-table
 						debug
 						id="announcementsList"
@@ -437,7 +438,6 @@
 								"icon": "plus-circle",
 								"class": "nav-link active",
 								"title": "$tlang.getString("gen.new") $tlang.getString("meta.title")",
-								"qonclick": "location=\"#toolLink("$action" "doNewannouncement")\"",
 								"href": "#toolLink("$action" "doNewannouncement")"
 							}
 						]'

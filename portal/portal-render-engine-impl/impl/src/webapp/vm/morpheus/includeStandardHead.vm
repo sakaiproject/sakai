@@ -89,7 +89,6 @@
         <script>
             moment.locale(window.portal.locale);
         </script>
-        <script type="module" src="/webcomponents/sui.es.js$!{portalCDNQuery}"></script>
 
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>

@@ -7,6 +7,13 @@
   - [rollup](https://rollupjs.org/guide/en)
 - [bootstrap](https://getbootstrap.com)
 
+## NPM Scripts Examples
+
+```
+cd webcomponents
+TARGET=/home/mg/dev/profmikegreene/docker-sakai-builder/work/tomcat/deploy/webapps/webcomponents npm run --prefix=tool/src/main/frontend wc:copy-target
+```
+
 ### sui-table
 
 - [tabulator](http://tabulator.info/)
