@@ -58,6 +58,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.util.*;
+import org.w3c.dom.NamedNodeMap;
+
 
 /**
  * <p>
@@ -266,6 +269,8 @@ public class Xml
 	 */
 	public static void writeDocument(Document doc, String fileName)
 	{
+		sanitizeNode(doc.getDocumentElement());
+
 		OutputStream out = null;
 		try
 		{
@@ -288,6 +293,7 @@ public class Xml
 		catch (Exception any)
 		{
 			log.warn("writeDocument: " + any.toString());
+			any.printStackTrace();
 		}
 		finally {
 			if (out != null) {
@@ -299,6 +305,73 @@ public class Xml
 			}
 		}
 	}
+
+	private static char REPLACEMENT_CHAR = ' ';
+
+	private static String stripControlChars(String s) {
+		if (s == null) {
+			return s;
+		}
+
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			int ch = (int)s.charAt(i);
+
+			// 9 = tab, 10 = LF, 13 = CR
+			if (ch < 32) {
+				if (ch != 9 && ch != 10 && ch != 13) {
+					log.debug(String.format("Replacing 0x%02x with 0x%02x", ch, (int)REPLACEMENT_CHAR));
+					ch = (int)REPLACEMENT_CHAR;
+				}
+			}
+
+			result.append((char)ch);
+		}
+
+		return result.toString();
+	}
+
+	private static void sanitizeNode(Node doc) {
+		LinkedList<Node> queue = new LinkedList<>();
+
+		queue.addLast(doc);
+
+		while (!queue.isEmpty()) {
+			Node n = queue.pollFirst();
+
+			switch (n.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				NamedNodeMap attributes = n.getAttributes();
+
+				if (attributes != null) {
+					for (int i = 0; i < attributes.getLength(); i++) {
+						Node attributeNode = attributes.item(i);
+
+						String attributeValue = attributeNode.getTextContent();
+						String fixedValue = stripControlChars(attributeValue);
+
+						attributeNode.setTextContent(fixedValue);
+					}
+				}
+
+				NodeList children = n.getChildNodes();
+
+				for (int i = 0; i < children.getLength(); i++) {
+					queue.addLast(children.item(i));
+				}
+
+				break;
+			case Node.TEXT_NODE:
+				String value = n.getTextContent();
+				String fixedValue = stripControlChars(value);
+
+				n.setTextContent(fixedValue);
+
+				break;
+			}
+		}
+	}
+
 
 	/**
 	 * Write a DOM Document to an output stream.
@@ -334,7 +407,7 @@ public class Xml
 		}
 		catch (Exception any)
 		{
-			log.warn("writeDocumentToString: " + any.toString());
+			log.warn("Unable to write document to string", any);
 			return null;
 		}
 	}

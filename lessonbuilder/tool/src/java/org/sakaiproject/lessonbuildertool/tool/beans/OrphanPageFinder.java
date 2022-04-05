@@ -87,6 +87,9 @@ public class OrphanPageFinder {
 
 		// Get a list of the top-level lessons pages
 		List<SimplePageItem> topLevelPages =  simplePageToolDao.findItemsInSite(siteId);
+		if (topLevelPages == null) {
+			topLevelPages = new ArrayList<>();
+		}
 		Set<Long> topLevelPageIds = new HashSet<Long>();
 		for (SimplePageItem i : topLevelPages)
 			topLevelPageIds.add(Long.valueOf(i.getSakaiId()));

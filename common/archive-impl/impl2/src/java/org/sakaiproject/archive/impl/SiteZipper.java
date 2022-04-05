@@ -133,6 +133,10 @@ public class SiteZipper {
             fOut = new FileOutputStream(zipFile);
             bOut = new BufferedOutputStream(fOut);
             zOut = new ZipArchiveOutputStream(bOut);
+
+            // Store without compression. Most larger files are likely already compressed.
+            zOut.setLevel(ZipArchiveOutputStream.STORED);
+
             addFileToZip(zOut, archivePath, ""); //add the directory which will then add all files recursively
 
             //create a sha1 hash of the zip
@@ -148,6 +152,9 @@ public class SiteZipper {
             fOut.close();
             zip.close();
         }
+
+		// Touch a state file indicating ready for import
+		FileUtils.writeStringToFile(new File(m_storagePath + siteId + "-" + timestamp + ".ready"), "");
 		
 		return true;
 	}

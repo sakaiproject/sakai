@@ -136,7 +136,7 @@
         <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
-        </dependency> 
+        </dependency>
         <!--  external dependencies -->
         <dependency>
             <groupId>commons-codec</groupId>

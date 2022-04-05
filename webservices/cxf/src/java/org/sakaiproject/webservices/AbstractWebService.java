@@ -121,7 +121,7 @@ public class AbstractWebService {
         sessionManager.setCurrentSession(s);
         return s;
     }
- 
+
     /**
      * Get the IP related to this request
      *
@@ -142,12 +142,12 @@ public class AbstractWebService {
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setAssignmentService(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
@@ -157,7 +157,7 @@ public class AbstractWebService {
     public void setGradingService(GradingService gradingService) {
         this.gradingService = gradingService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setLogConfigurationManager(LogConfigurationManager logConfigurationManager) {
         this.logConfigurationManager = logConfigurationManager;
@@ -172,7 +172,7 @@ public class AbstractWebService {
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
@@ -192,37 +192,37 @@ public class AbstractWebService {
     public void setContentHostingService(ContentHostingService contentHostingService) {
         this.contentHostingService = contentHostingService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setUsageSessionService(UsageSessionService usageSessionService) {
         this.usageSessionService = usageSessionService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {
         this.authzGroupService = authzGroupService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setToolManager(ToolManager toolManager) {
         this.toolManager = toolManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setDiscussionForumManager(DiscussionForumManager discussionForumManager) {
         this.discussionForumManager = discussionForumManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setMessageForumsForumManager(MessageForumsForumManager messageForumsForumManager) {
         this.messageForumsForumManager = messageForumsForumManager;
@@ -237,12 +237,12 @@ public class AbstractWebService {
     public void setMessageForumsMessageManager(MessageForumsMessageManager messageForumsMessageManager) {
         this.messageForumsMessageManager = messageForumsMessageManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setMessageForumsTypeManager(MessageForumsTypeManager messageForumsTypeManager) {
         this.messageForumsTypeManager = messageForumsTypeManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setAreaManager(AreaManager areaManager) {
         this.areaManager = areaManager;
@@ -252,17 +252,17 @@ public class AbstractWebService {
     public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
         this.threadLocalManager = threadLocalManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setSchedulerManager(SchedulerManager schedulerManager) {
         this.schedulerManager = schedulerManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setShortenedUrlService(ShortenedUrlService shortenedUrlService) {
         this.shortenedUrlService = shortenedUrlService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setSamLiteService(SamLiteService samLiteService) {
         this.samLiteService = samLiteService;
@@ -272,7 +272,7 @@ public class AbstractWebService {
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
     }
-    
+
     @WebMethod(exclude = true)
     public void setActivityService(ActivityService activityService) {
         this.activityService = activityService;
@@ -282,7 +282,7 @@ public class AbstractWebService {
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
-    
+
     @WebMethod(exclude = true)
     public void setQuestionPoolServiceImpl(QuestionPoolServiceAPI questionPoolServiceImpl) {
         this.questionPoolServiceImpl = questionPoolServiceImpl;
@@ -292,7 +292,7 @@ public class AbstractWebService {
     public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI lessonBuilderAccessAPI) {
         this.lessonBuilderAccessAPI = lessonBuilderAccessAPI;
     }
-    
+
     @WebMethod(exclude = true)
     public void setFormattedText(FormattedText formattedText) {
         this.formattedText = formattedText;

@@ -182,16 +182,16 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private RubricsService rubricsService;
-	
+
 	@Setter
 	private FormattedText formattedText;
 
 	@Setter
 	private UserTimeService userTimeService;
-	
+
 	@Setter
 	private TaskService taskService;
-	
+
 
 	public static final String GB_PREF_KEY = "GBNG-";
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -293,7 +293,7 @@ public class GradebookNgBusinessService {
 					List<String> viewableStudents = new ArrayList();
 
 					Map<String, Set<Member>> groupMembers = getGroupMembers(givenSiteId);
-					
+
 					//iterate through sections available to the TA and build a list of the student members of each section
 					if(courseSections != null && !courseSections.isEmpty() && groupMembers!=null){
 						for(CourseSection section:courseSections){
@@ -585,7 +585,7 @@ public class GradebookNgBusinessService {
 					.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
 
 			//FIXME: this is a hack to implement the old style realms checks. The above method only checks the gb_permission_t table and not realms
-			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist 
+			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist
 			//and they don't filter to category level so allow all.
 			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
 			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId()).isEmpty()){
@@ -1120,11 +1120,11 @@ public class GradebookNgBusinessService {
 		if (!serverPropertyOn) {
 			return new ArrayList<>();
 		}
-		
+
 		List<GbGradeComparisonItem> data;
-		
+
 		String userEid = getCurrentUser().getEid();
-		
+
 		boolean isComparingAndDisplayingFullName = settings
 						.getComparingDisplayStudentNames() &&
 				settings
@@ -1152,14 +1152,14 @@ public class GradebookNgBusinessService {
 							el.setStudentDisplayName(studentDisplayName);
 						}
 						el.setIsCurrentUser(userEid.equals(el.getEid()));
-						
+
 						el.setGrade(FormatHelper.formatGrade(el.getGrade()) + (
 							GradeType.PERCENTAGE.equals(gradingType) ? "%" : ""
 						));
 						return el;
 					})
 					.collect(Collectors.toList());
-			
+
 			if(settings.getComparingRandomizeDisplayedData()){
 				Collections.shuffle(data);
 			}
@@ -1234,7 +1234,7 @@ public class GradebookNgBusinessService {
 				Set<Enrollment> enrollments = courseManagementService.getEnrollments(enrollmentSet.getEid());
 				enrollments.forEach(e -> collect.accept(e.getUserId()));
 			}
-			
+
 			if (memberships != null) {
 				memberships.forEach(m -> collect.accept(m.getUserId()));
 			}
@@ -1827,7 +1827,7 @@ public class GradebookNgBusinessService {
 			}
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
-			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			//need to check realms to see if user has privilege to grade any groups. This is already done in
 			if (CollectionUtils.isEmpty(viewableGroupIds)) {
 				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
 				if (CollectionUtils.isNotEmpty(realmsPerms)) {
@@ -1903,7 +1903,7 @@ public class GradebookNgBusinessService {
 					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
-			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			//need to check realms to see if user has privilege to grade any groups. This is already done in
 			if(CollectionUtils.isEmpty(viewableGroupIds)){
 				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(),siteId);
 				if(CollectionUtils.isNotEmpty(realmsPerms)){
@@ -2017,7 +2017,7 @@ public class GradebookNgBusinessService {
 					Integer.MAX_VALUE);
 
 			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
-			
+
             if (assignment.getReleased()) {
                 String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
                 Task task = new Task();
@@ -2029,7 +2029,7 @@ public class GradebookNgBusinessService {
                 Set<String> users = new HashSet<>(this.getGradeableUsers());
                 taskService.createTask(task, users, Priorities.HIGH);
             }
-                        
+
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -2273,7 +2273,7 @@ public class GradebookNgBusinessService {
 		final Assignment original = this.getAssignment(assignment.getId());
 
 		gradingService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
-		
+
 		// Update task
 		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + original.getId();
 		Optional<Task> optTask = taskService.getTask(reference);
@@ -2293,7 +2293,7 @@ public class GradebookNgBusinessService {
 			Set<String> users = new HashSet<>(this.getGradeableUsers());
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
-        
+
 		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
 
 		if (original.getCategoryId() != null && assignment.getCategoryId() != null
@@ -2664,7 +2664,7 @@ public class GradebookNgBusinessService {
 	public void removeAssignment(final Long assignmentId) {
 
 		// Delete task
-		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId; 
+		String reference =  GradingConstants.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
 		taskService.removeTaskByReference(reference);
 		rubricsService.deleteRubricAssociationsByItemIdPrefix(assignmentId.toString(), RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		this.gradingService.removeAssignment(assignmentId);
@@ -2723,7 +2723,7 @@ public class GradebookNgBusinessService {
 		if(siteId==null) {
 			siteId = getCurrentSiteId();
 		}
-		
+
 		final Gradebook gradebook = getGradebook(siteId);
 
 		List<PermissionDefinition> permissions = this.gradingPermissionService
@@ -2920,7 +2920,7 @@ public class GradebookNgBusinessService {
 
 		final Map<String, Set<Member>> rval = new HashMap<>();
 
-				
+
 		for (final GbGroup gbGroup : viewableGroups) {
 			final String groupReference = gbGroup.getReference();
 			final Group group = site.getGroup(groupReference);
@@ -2931,7 +2931,7 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-	
+
 	/**
 	 * Have categories been enabled for the gradebook?
 	 *
@@ -3048,19 +3048,19 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Check if current user has "gradebook.editAssignments" permission 
+	 * Check if current user has "gradebook.editAssignments" permission
 	 *
 	 * @return true if yes, false if no.
 	 */
 	public boolean isUserAbleToEditAssessments(){
 		String siteRef;
-		
+
 		try {
 			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
 		} catch (final IdUnusedException e) {
 			throw new GbException(e);
 		}
-		
+
 		return this.securityService.unlock("gradebook.editAssignments", siteRef);
 	}
 
