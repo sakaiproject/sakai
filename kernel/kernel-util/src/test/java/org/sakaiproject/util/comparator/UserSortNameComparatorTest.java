@@ -111,12 +111,12 @@ public class UserSortNameComparatorTest {
         when(userE.getSortName()).thenReturn("Zong, Chen Guanting");
         User userF = Mockito.mock(User.class);
         when(userF.getSortName()).thenReturn("Zong Bi, A");
+        assertEquals(-1, comparator.compare(userE, userF));
 
         User userG = Mockito.mock(User.class);
         when(userG.getSortName()).thenReturn("Fredriksson, Maximilian Isak");
         User userH = Mockito.mock(User.class);
         when(userH.getSortName()).thenReturn("Fredriksson, Max Teo");
-
         assertEquals(1, comparator.compare(userG, userH));
     }
 
