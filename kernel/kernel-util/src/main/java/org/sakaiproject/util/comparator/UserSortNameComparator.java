@@ -57,8 +57,8 @@ public class UserSortNameComparator implements Comparator<User> {
         if (u2 == null) return (nullsLow ? 1 : -1);
 
         // Replace all spaces in the name with highest unicode character
-        String nameA = u1.getSortName().replaceAll("\\s+", "<' '<'\uffff'");
-        String nameB = u2.getSortName().replaceAll("\\s+", "<' '<'\uffff'");
+        String nameA = u1.getSortName().replaceAll("\\s+", "\uFFFF");
+        String nameB = u2.getSortName().replaceAll("\\s+", "\uFFFF");
 
         int comparison = new NullSafeComparator<>(collator, nullsLow).compare(nameA, nameB);
         if (comparison == 0) {
