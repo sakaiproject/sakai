@@ -99,7 +99,37 @@ public class UserSortNameComparatorTest {
         when(userA.getSortName()).thenReturn("Martinez Torcal, Apple");
         User userB = Mockito.mock(User.class);
         when(userB.getSortName()).thenReturn("Martin Troncoso, X");
-
         assertEquals(1, comparator.compare(userA, userB));
+
+        User userC = Mockito.mock(User.class);
+        when(userC.getSortName()).thenReturn("Will, Xavier Raoul Beñat Edorta");
+        User userD = Mockito.mock(User.class);
+        when(userD.getSortName()).thenReturn("Williams, Abigail");
+        assertEquals(-1, comparator.compare(userC, userD));
+
+        User userE = Mockito.mock(User.class);
+        when(userE.getSortName()).thenReturn("Zong, Chen Guanting");
+        User userF = Mockito.mock(User.class);
+        when(userF.getSortName()).thenReturn("Zong Bi, A");
+
+        User userG = Mockito.mock(User.class);
+        when(userG.getSortName()).thenReturn("Fredriksson, Maximilian Isak");
+        User userH = Mockito.mock(User.class);
+        when(userH.getSortName()).thenReturn("Fredriksson, Max Teo");
+
+        assertEquals(1, comparator.compare(userG, userH));
+    }
+
+    // We expect the eid to be used as a secondary comparison when names are identical
+    @Test
+    public void identicalNameCompare() {
+        UserSortNameComparator comparator = new UserSortNameComparator();
+        User userA = Mockito.mock(User.class);
+        when(userA.getSortName()).thenReturn("Smith, John");
+        when(userA.getEid()).thenReturn(("jsmith"));
+        User userB = Mockito.mock(User.class);
+        when(userB.getSortName()).thenReturn("Smith, John");
+        when(userB.getEid()).thenReturn(("smithj"));
+        assertEquals(-1, comparator.compare(userA, userB));
     }
 }

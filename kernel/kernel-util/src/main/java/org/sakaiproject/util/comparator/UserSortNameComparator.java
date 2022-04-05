@@ -56,6 +56,14 @@ public class UserSortNameComparator implements Comparator<User> {
         if (u1 == null) return (nullsLow ? -1 : 1);
         if (u2 == null) return (nullsLow ? 1 : -1);
 
-        return new NullSafeComparator<>(collator, nullsLow).compare(u1.getSortName(), u2.getSortName());
+        // Replace all spaces in the name with highest unicode character
+        String nameA = u1.getSortName().replaceAll("\\s+", "<' '<'\uffff'");
+        String nameB = u2.getSortName().replaceAll("\\s+", "<' '<'\uffff'");
+
+        int comparison = new NullSafeComparator<>(collator, nullsLow).compare(nameA, nameB);
+        if (comparison == 0) {
+            return new NullSafeComparator<>(collator, nullsLow).compare(u1.getEid(), u2.getEid());
+        }
+        return comparison;
     }
 }
