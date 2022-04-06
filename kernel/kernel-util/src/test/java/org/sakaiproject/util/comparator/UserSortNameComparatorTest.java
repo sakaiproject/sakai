@@ -130,6 +130,11 @@ public class UserSortNameComparatorTest {
         User userB = Mockito.mock(User.class);
         when(userB.getSortName()).thenReturn("Smith, John");
         when(userB.getDisplayId()).thenReturn(("smithj"));
+        User userC = Mockito.mock(User.class);
+        when(userC.getSortName()).thenReturn("Smith, John");
+        when(userC.getDisplayId()).thenReturn(("smithj1"));
         assertEquals(-1, comparator.compare(userA, userB));
+        assertEquals(-1, comparator.compare(userA, userC));
+        assertEquals(-1, comparator.compare(userB, userC));
     }
 }
