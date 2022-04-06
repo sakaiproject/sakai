@@ -79,7 +79,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
-import org.sakaiproject.gradebookng.business.model.GbUserBase;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -626,10 +625,9 @@ public class ImportGradesHelper {
 
 				if (cell != null) {
 					// Only process the grade item if the user is valid (present in the site/gradebook)
-					GbUserBase user = row.getUser();
-					if (user instanceof GbUser && ((GbUser) user).isValid()) {
+					if (row.getUser().isValid()) {
 						final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-						processedGradeItemDetail.setUser((GbUser) user);
+						processedGradeItemDetail.setUser((GbUser) row.getUser());
 						processedGradeItemDetail.setGrade(cell.getScore());
 						processedGradeItemDetail.setComment(cell.getComment());
 						processedGradeItemDetails.add(processedGradeItemDetail);

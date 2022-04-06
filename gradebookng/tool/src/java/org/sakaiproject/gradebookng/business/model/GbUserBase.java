@@ -8,4 +8,5 @@ public interface GbUserBase
 {
 	public String getDisplayId();
 	public String getDisplayName();
+	public boolean isValid();
 }

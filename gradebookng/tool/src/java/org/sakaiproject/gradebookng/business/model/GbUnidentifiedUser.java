@@ -25,6 +25,15 @@ public class GbUnidentifiedUser implements GbUserBase, Serializable, Comparable<
 		this.displayName = displayName;
 	}
 
+	/**
+	 * Unidentified users are always considered invalid (they have no UUID).
+	 * @return false
+	 */
+	public boolean isValid()
+	{
+		return false;
+	}
+
 	@Override
 	public int compareTo( GbUnidentifiedUser other )
 	{
