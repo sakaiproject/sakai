@@ -17,16 +17,21 @@
 package org.sakaiproject.util;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.core.io.Resource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Hook some Sakai-specific operations into the normal ApplicationContext
@@ -34,6 +39,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
  * PostProcessor objects (e.g., SakaiProperties) a chance to do their work,
  * and load a few central components before the rest.
  */
+@Slf4j
 public class SakaiApplicationContext extends GenericApplicationContext {
 	private String[] initialSingletonNames;
 	private String[] configLocations;
@@ -63,10 +69,25 @@ public class SakaiApplicationContext extends GenericApplicationContext {
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		if (configLocations != null) {
+			log.debug("Loading components (currently " + beanFactory.getBeanDefinitionCount() + ") from: ["
+					+ String.join(", ", configLocations) + "]");
 			beanDefinitionReader.loadBeanDefinitions(configLocations);
+			log.debug("Finished loading components (currently " + beanFactory.getBeanDefinitionCount() + ")");
 		}
 	}
 	
+	public void loadStartupBeans(Resource... resources) {
+		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
+				(BeanDefinitionRegistry) getBeanFactory());
+
+		String locations = Stream.of(resources).map(r -> r.toString()).collect(Collectors.joining(", "));
+		log.debug("Loading component resources (currently " + getBeanFactory().getBeanDefinitionCount() + ") from: [" + locations + "]");
+
+		beanDefinitionReader.loadBeanDefinitions(resources);
+
+		log.debug("Finished loading components (currently " + getBeanFactory().getBeanDefinitionCount() + ")");
+	}
+
 	/**
 	 * Before post-processing, load beans which have declared that they want to add post-processors
 	 * dynamically.

@@ -22,26 +22,32 @@
 package org.sakaiproject.component.impl;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ConfigurableApplicationContext;
+import java.util.stream.Stream;
 
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.api.ComponentManagerEventListener;
+import org.sakaiproject.component.api.ComponentManagerNotifier;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
 import org.sakaiproject.util.ComponentsLoader;
 import org.sakaiproject.util.SakaiApplicationContext;
 import org.sakaiproject.util.SakaiComponentEvent;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -85,6 +91,12 @@ public class SpringCompMgr implements ComponentManager {
 	/** The Spring Application Context. */
 	protected SakaiApplicationContext m_ac = null;
 
+	/**
+	 * The minimal, base configuration from the kernel; just enough to get
+	 * sakai.properties and overrides going.
+	 */
+	protected final Resource baseConfiguration = new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
+
 	/** The already created components given to manage (their interface names). */
 	protected Set m_loadedComponents = new HashSet();
 
@@ -94,7 +106,50 @@ public class SpringCompMgr implements ComponentManager {
 	/** Records that close has been called. */
 	protected boolean m_hasBeenClosed = false;
 
+	/**
+	 * Used to defer refresh to ease cyclic dependencies at startup. Should be
+	 * considered legacy.
+	 */
 	protected boolean lateRefresh = false;
+
+	/** Track whether we consider this instance ready for use. */
+	protected boolean started = false;
+
+	/** Path on disk to "sakai.home" */
+	protected String sakaiHomePath;
+
+	/**
+	 * The main configuration extension mechanism; equivalent to
+	 * sakai.home/sakai-configuration.xml, except that it need not be on disk or in
+	 * a special location. This will be read before a file in sakai.home, and
+	 * usually only used for test setup.
+	 */
+	protected Resource configuration;
+
+	/**
+	 * Components to load on initialization. This would typically be components.xml,
+	 * read from the kernel classpath, but can be used to supply a different set of
+	 * startup components.
+	 */
+	protected Resource initialComponents;
+
+	/**
+	 * A Resource wrapping a sakai-configuration.xml found on disk in sakai.home.
+	 */
+	protected Resource homeConfiguration;
+
+	/**
+	 * The application context that created this component manager. We create a
+	 * specialized context and establish it as the parent of a spawning context.
+	 * This allows both overrides and convenient resolution up to the Sakai context.
+	 */
+	protected GenericApplicationContext spawningContext;
+
+	/**
+	 * A notifier bound to this component manager for handy event messaging to a
+	 * listener. Defaults to null object, but can be supplied to the constructor.
+	 */
+	protected ComponentManagerNotifier notifier = ComponentManagerNotifier.build(this, null);
 
 	/**
 	 * Initialize.
@@ -113,52 +168,184 @@ public class SpringCompMgr implements ComponentManager {
 	}
 
 	/**
-	 * Initialize the component manager.
+	 * Build and initialize a ComponentManager.
+	 *
+	 * This is a transition toward inverting the dependencies between Spring and the
+	 * ComponentManager, and likewise, the various services and the
+	 * ComponentManager. The intent is that the ComponentManager can become a
+	 * regular bean with typical lifecycle, and cover usage can be eliminated in
+	 * favor of commodity injection.
 	 * 
-	 * @param lateRefresh If <code>true</code> then don't refresh the application context
-	 * but leave it up to the caller, this is useful when running tests as it means you 
-	 * can change the application context before everything gets setup. In production 
-	 * systems it should be <code>false</code>.
+	 * The general SakaiContextLoaderListener and SakaiKernelTestBase still use the
+	 * "legacy mode", where initialization is through the cover, but these should be
+	 * transitioned over time as confidence builds.
+	 *
+	 * @param context       The spawning Spring context; will become a child of the
+	 *                      new Sakai context
+	 * @param configuration A Resource to load immediately after the default
+	 *                      sakai-configuration.xml; can be a file or classpath
+	 *                      entry
+	 * @param components    A Resource to a components file (e.g., components.xml
+	 *                      from the kernel)
+	 * @param listener      An optional listener for lifecycle events; used to break
+	 *                      some cyclic dependencies against the cover and allow us
+	 *                      to initialize/refresh upon construction
+	 * @return An initialized ComponentManager with the supplied config and
+	 *         components ready.
+	 */
+	public SpringCompMgr(GenericApplicationContext context, Resource configuration, Resource components,
+			ComponentManagerEventListener listener) {
+		this.spawningContext = context;
+		this.configuration = configuration;
+		this.initialComponents = components;
+		this.notifier = ComponentManagerNotifier.build(this, listener);
+		init();
+	}
+
+	/**
+	 * Initialize the component manager.
+	 *
+	 * The pattern of getInstance() on the cover to ensure a singleton and deferred
+	 * init should be considered legacy. As confidence is built in the "modern mode"
+	 * of initialization, this signature will probably be removed.
+	 *
+	 * @param lateRefresh If <code>true</code> then don't refresh the application
+	 *                    context but leave it up to the caller, this is useful when
+	 *                    running tests as it means you can change the application
+	 *                    context before everything gets setup. In production
+	 *                    systems it should be <code>false</code>.
 	 */
 	public void init(boolean lateRefresh) {
 		if (m_ac != null)
 			return;
 
 		this.lateRefresh = lateRefresh;
+		init();
+	}
 
-		// Make sure a "sakai.home" system property is set.
+	/**
+	 * Initialize the component manager.
+	 *
+	 * This is the "modern mode" of initialization, where there is a Spring context
+	 * starting the process rather than the first call to the static cover. It
+	 * allows passing in Resource objects so component paths need not be looped over
+	 * and added individually from the outside.
+	 *
+	 * It also breaks the former dependency on "sakai.home" and "sakai.test" as the
+	 * only way to configure the component manager. A further improvement might
+	 * allow a container to initialize a set of components and pass them at
+	 * construction. That would pave the way for more annotation-based configuration
+	 * and cut down on the file operations and XML parsing at startup.
+	 */
+	private void init() {
+		if (m_ac != null)
+			return;
+
+		notifier.created();
 		ensureSakaiHome();
 		checkSecurityPath();
+		validateResources();
 
+		setupContext();
+		loadInitialComponents();
+		loadWebAndOverrideComponents();
+
+		finishInit();
+		notifier.ready();
+	}
+
+	/**
+	 * Ensure that any resources that we require are present.
+	 */
+	private void validateResources() {
+		Optional<Resource> resource = requiredResources().filter(r -> !r.exists()).findAny();
+		if (resource.isPresent()) {
+			throw new IllegalArgumentException(
+					"Could not start ComponentManager. Resource not found: " + resource.get());
+		}
+	}
+
+	/**
+	 * Create and do basic configuration on the application context. For legacy
+	 * mode, we set a list of locations to scan later. For modern mode, we will load
+	 * the initial components directly.
+	 */
+	private void setupContext() {
 		m_ac = new SakaiApplicationContext();
+		// This step is critical while there are dependency cycles; The refresh breaks
+		// on some Hibernate / JPA stuff if we don't start SakaiProperties and Logging.
 		m_ac.setInitialSingletonNames(CONFIGURATION_COMPONENTS);
 
-		List<String> configLocationList = new ArrayList<String>();
-		configLocationList.add(DEFAULT_CONFIGURATION_FILE);
-		String localConfigLocation = System.getProperty("sakai.home")
-				+ CONFIGURATION_FILE_NAME;
-		File configFile = new File(localConfigLocation);
-		if (configFile.exists()) {
-			configLocationList.add("file:" + localConfigLocation);
+		if (useLegacyInit()) {
+			m_ac.setConfigLocations(resourceUrls());
+		} else {
+			spawningContext.setParent(m_ac);
+			addChildAc();
 		}
-		m_ac.setConfigLocations(configLocationList.toArray(new String[0]));
+	}
 
-		// load component packages
+	/**
+	 * Load any supplied resources. In legacy mode, we just set the locations on the
+	 * context to be picked up later.
+	 */
+	private void loadInitialComponents() {
+		if (useLegacyInit()) {
+			log.debug("Deferring component load to late refresh (via configLocations)");
+		} else {
+			log.debug("Loading startup bean definitions supplied to ComponentManager.");
+			m_ac.loadStartupBeans(resources().toArray(Resource[]::new));
+		}
+	}
+
+	/**
+	 * At some point, we may have the opportunity to change the packaging of
+	 * components and where the responsibility for finding them is. For now, we
+	 * still read the /components/ directory within Tomcat and sakai.home.
+	 */
+	private void loadWebAndOverrideComponents() {
 		loadComponents();
+	}
 
-		// if configured (with the system property CLOSE_ON_SHUTDOWN set),
-		// create a shutdown task to close when the JVM closes
-		// (otherwise we will close in removeChildAc() when the last child is gone)
-		if (System.getProperty(CLOSE_ON_SHUTDOWN) != null) {
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				public void run() {
-					close();
-				}
-			});
+	/**
+	 * Finish up the initialization and publish any context events.
+	 */
+	private void finishInit() {
+		if (useLegacyInit()) {
+			setupShutdown();
+			legacyStartup();
+		} else {
+			start();
 		}
+	}
 
+	/**
+	 * Refresh and start the context.
+	 *
+	 * Note that this is not used in legacy mode because the refresh is deferred
+	 * and external.
+	 */
+	public void start() {
+		log.info("Refreshing and starting Component Manager Application Context");
+		m_ac.refresh();
+		log.debug("Starting Component Manager Application Context");
+		m_ac.start();
+		m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STARTED));
+		dumpConfig();
+		started = true;
+	}
+
+	/**
+	 * We use the fact of whether a context was supplied as a simple indication of
+	 * "legacy" vs "modern" mode. This conditions a number of the general steps below.
+	 */
+	private boolean useLegacyInit() {
+		return spawningContext == null;
+	}
+
+	@Deprecated
+	private void legacyStartup() {
 		// skip during tests
-		if (!lateRefresh) {
+		if (!lateRefresh && !started) {
 			try {
 				// get the singletons loaded
 				m_ac.refresh();
@@ -173,37 +360,64 @@ public class SpringCompMgr implements ComponentManager {
 					log.error(e.getMessage(), e);
 				}
 			}
+			dumpConfig();
+			started = true;
+		}
+	}
 
-			// dump the configuration values out
-			try {
-			    final ServerConfigurationService scs = (ServerConfigurationService) this.get(ServerConfigurationService.class);
-			    if (scs != null) {
-		            ConfigData cd = scs.getConfigData();
-		            log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
-		            if (scs.getBoolean("config.dump.to.log", false)) {
-		                // output the config logs now and then output then again in 120 seconds
-		                log.info("Configuration values:\n" + cd.toString());
-		                Timer timer = new Timer(true);
-		                timer.schedule(new TimerTask() {
-		                    @Override
-		                    public void run() {
-		                        log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
-		                    }
-		                }, 120*1000);
-		                timer.schedule(new TimerTask() {
-		                    @Override
-		                    public void run() {
-		                        log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
-		                    }
-		                }, 300*1000);
-		            }
-			    } else {
-			        // probably testing so just say we cannot dump the config
-		            log.warn("Configuration: Unable to get and dump out the registered server config values because no ServerConfigurationService is available - this is OK if this is part of a test, this is very bad otherwise");
-			    }
-			} catch (Exception e) {
-			    log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): "+e, e);
+	/**
+	 * Register a hook to close when the JVM shuts down.
+	 *
+	 * @deprecated The relationship is now generally inverted, where Spring spawns
+	 *             the ComponentManager, and should be responsible for issuing the
+	 *             close, rather than catching runtime events on our own.
+	 */
+	@Deprecated
+	private void setupShutdown() {
+		// if configured (with the system property CLOSE_ON_SHUTDOWN set),
+		// create a shutdown task to close when the JVM closes
+		// (otherwise we will close in removeChildAc() when the last child is gone)
+		if (System.getProperty(CLOSE_ON_SHUTDOWN) != null) {
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					close();
+				}
+			});
+		}
+	}
+
+	/** Log information about the configuration/settings loaded. */
+	private void dumpConfig() {
+		try {
+			final ServerConfigurationService scs = (ServerConfigurationService) this
+					.get(ServerConfigurationService.class);
+			if (scs != null) {
+				ConfigData cd = scs.getConfigData();
+				log.info("Configuration loaded " + cd.getTotalConfigItems() + " values, "
+						+ cd.getRegisteredConfigItems() + " registered");
+				if (scs.getBoolean("config.dump.to.log", false)) {
+					// output the config logs now and then output then again in 120 seconds
+					log.info("Configuration values:\n" + cd.toString());
+					Timer timer = new Timer(true);
+					timer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
+						}
+					}, 120 * 1000);
+					timer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
+						}
+					}, 300 * 1000);
+				}
+			} else {
+				// probably testing so just say we cannot dump the config
+				log.warn("Configuration: Unable to get and dump out the registered server config values because no ServerConfigurationService is available - this is OK if this is part of a test, this is very bad otherwise");
 			}
+		} catch (Exception e) {
+			log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): " + e, e);
 		}
 	}
 
@@ -300,6 +514,7 @@ public class SpringCompMgr implements ComponentManager {
 	 * {@inheritDoc}
 	 */
 	public void close() {
+		log.info("Shutting down Component Manager");
 		m_hasBeenClosed = true;
 		if (!lateRefresh) {
 			m_ac.stop();
@@ -308,6 +523,9 @@ public class SpringCompMgr implements ComponentManager {
 			m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STOPPING));
 		}
 		m_ac.close();
+		if (spawningContext != null) {
+			removeChildAc();
+		}
 	}
 
 	/**
@@ -422,9 +640,10 @@ public class SpringCompMgr implements ComponentManager {
 		return m_hasBeenClosed;
 	}
 
+	/** Make sure a "sakai.home" system property is set. */
 	private void ensureSakaiHome() {
 		// find a path to sakai files on the app server - if not set, set it
-		String sakaiHomePath = System.getProperty("sakai.home");
+		sakaiHomePath = System.getProperty("sakai.home");
 		if (sakaiHomePath == null) {
 			String catalina = getCatalina();
 			if (catalina != null) {
@@ -454,6 +673,12 @@ public class SpringCompMgr implements ComponentManager {
 			}
 		}
 
+		// It's fine if there is nothing here; just null it out if so.
+		homeConfiguration = new FileSystemResource(sakaiHomePath + CONFIGURATION_FILE_NAME);
+		if (!homeConfiguration.exists()) {
+			homeConfiguration = null;
+		}
+
 		// make sure it's set properly
 		System.setProperty("sakai.home", sakaiHomePath);
 	}
@@ -466,6 +691,52 @@ public class SpringCompMgr implements ComponentManager {
 			if (!securityPath.endsWith(File.separator))
 				securityPath = securityPath + File.separatorChar;
 			System.setProperty("sakai.security", securityPath);
+		}
+	}
+
+	/**
+	 * Gather up the resources to load on the first pass, filtered to those
+	 * existing.
+	 *
+	 * When using the modern mode, everything to start is passed in with the
+	 * exception of scanning sakai.home for sakai-configuration.xml.
+	 *
+	 * When in legacy mode, the core components are loaded externally (usually by
+	 * the cover initialization), and an override configuration cannot be passed,
+	 * but must reside in sakai.home.
+	 */
+	private Stream<Resource> resources() {
+		return possibleResources().filter(r -> r != null && r.exists());
+	}
+
+	private Stream<Resource> possibleResources() {
+		return useLegacyInit() ? Stream.of(baseConfiguration, homeConfiguration)
+				: Stream.of(baseConfiguration, configuration, homeConfiguration, initialComponents);
+	}
+
+	/**
+	 * The list of resources that are required.
+	 *
+	 * In legacy mode, this is only the base config, which is fixed to read from the
+	 * classpath.
+	 *
+	 * In modern mode, the initial components are also required (i.e., kernel
+	 * components.xml).
+	 */
+	private Stream<Resource> requiredResources() {
+		return useLegacyInit() ? Stream.of(baseConfiguration) : Stream.of(baseConfiguration, initialComponents);
+	}
+
+	private String[] resourceUrls() {
+		return resources().filter(r -> r != null).map(r -> resourceToUrl(r)).toArray(String[]::new);
+	}
+
+	private String resourceToUrl(Resource resource) {
+		try {
+			return resource.getURL().toString();
+		} catch (IOException e) {
+			throw new IllegalArgumentException(
+					"ComponentManager could not load; could not convert Resource to URL: " + resource.toString());
 		}
 	}
 }
