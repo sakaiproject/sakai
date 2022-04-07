@@ -685,7 +685,7 @@ $(document).ready(function(){
 					#else
 						<div class="col-sm-5">
 					#end
-						<label class="itemSummaryHeader itemSummaryWrap"">$tlang.getString("gen.totaltimespent")</label>
+						<label class="itemSummaryHeader itemSummaryWrap">$tlang.getString("gen.totaltimespent")</label>
 					</div>
 					<div class="col-sm-3">
 						<div class="itemSummaryValue">
