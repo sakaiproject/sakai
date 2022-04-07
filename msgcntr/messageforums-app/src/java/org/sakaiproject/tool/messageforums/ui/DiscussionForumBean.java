@@ -540,7 +540,7 @@ public class DiscussionForumBean
 	}
 
 	public void setOpenDate(String openDateStr){
-		if (StringUtils.isNotBlank(openDateStr) && StringUtils.isNotBlank(openDateISO)) {
+		if (StringUtils.isNoneBlank(openDateStr, openDateISO)) {
 			try{
 				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				forum.setOpenDate(openDate);
@@ -561,7 +561,7 @@ public class DiscussionForumBean
 	}
 
 	public void setCloseDate(String closeDateStr){
-		if (StringUtils.isNotBlank(closeDateStr) && StringUtils.isNotBlank(closeDateISO)) {
+		if (StringUtils.isNoneBlank(closeDateStr, closeDateISO)) {
 			try{
 				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
 				forum.setCloseDate(closeDate);
