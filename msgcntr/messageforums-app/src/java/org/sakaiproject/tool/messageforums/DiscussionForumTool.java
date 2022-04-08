@@ -1483,15 +1483,19 @@ public class DiscussionForumTool {
     String gradeAssign = selectedForum.getGradeAssign();
     if (!draft) {
       GradebookService gradebookService = getGradebookService();
-      String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
-      Date dueDate = (assignment != null ? assignment.getDueDate() : null);
-      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
-      Optional<Task> optTask = taskService.getTask(reference);
-      if (optTask.isPresent()) {
-        this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
-      } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
-        this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
+      // If no Gradebook tool is added before to the site, when an instructor tries to create a new Forum in Discussion Tool,
+      // it avoids throwing a Null Pointer Exception.
+      if(gradebookService != null) {
+        String gradebookUid = toolManager.getCurrentPlacement().getContext();
+        Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+        Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+        String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+        Optional<Task> optTask = taskService.getTask(reference);
+        if (optTask.isPresent()) {
+          this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
+        } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+          this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
+        }
       }
     }
     
