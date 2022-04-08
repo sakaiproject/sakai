@@ -479,24 +479,6 @@ ASN.toggleElements = function( elements, disabled )
     }
 };
 
-ASN.enableLinks = function()
-{
-    var links = [
-        document.getElementById( "downloadAll" ),
-        document.getElementById( "uploadAll" ),
-        document.getElementById( "releaseGrades" ),
-        document.getElementById( "helpItems" )
-    ];
-
-    for( i = 0; i < links.length; i++ )
-    {
-        if( links[i] !== null )
-        {
-            links[i].className = "";
-        }
-    }
-};
-
 ASN.checkEnableRemove = function()
 {
     var selected = false;

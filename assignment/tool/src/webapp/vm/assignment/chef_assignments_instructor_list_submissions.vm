@@ -117,12 +117,12 @@ function printView(url) {
 			#else
 				<div class="listNav">
 						## download all
-							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="button" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="assignment-item" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
-							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="button" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="assignment-item" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 							<a href="#"
-								class="button"
+								class="assignment-item" 
  								id="releaseGrades"
 							#if ($withGrade)
 								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
@@ -139,7 +139,7 @@ function printView(url) {
 								#end
 							#end
 						#end
-				</div>	
+				</div>
 				#set ($gradeType = $typeOfGrade)
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -819,7 +819,6 @@ function printView(url) {
 			}
 		});
 
-		ASN.enableLinks();
 
 		var assignmentId ="$assignment.Id";
 		var rubricsToken = "$!rbcs-token";
