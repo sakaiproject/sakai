@@ -42,7 +42,7 @@ public class ImportedRow implements Serializable {
 	private String studentName;
 
 	@Getter
-	private GbUser user;
+	private GbUserBase user;
 
 	@Getter
 	@Setter
@@ -52,7 +52,7 @@ public class ImportedRow implements Serializable {
 		this.cellMap = new HashMap<>();
 	}
 
-	public void setUser(GbUser gbUser) {
+	public void setUser(GbUserBase gbUser) {
 		user = gbUser;
 	}
 }

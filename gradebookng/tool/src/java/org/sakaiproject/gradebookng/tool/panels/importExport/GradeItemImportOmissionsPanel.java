@@ -32,6 +32,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
+import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 
@@ -121,7 +122,7 @@ public class GradeItemImportOmissionsPanel extends Panel
 
         // Sort the omission lists alphabetically
         List<GbUser> missingUsersSorted = new ArrayList<>( report.getMissingUsers() );
-        List<GbUser> unknownUsersSorted = new ArrayList<>( report.getUnknownUsers() );
+        List<GbUnidentifiedUser> unknownUsersSorted = new ArrayList<>( report.getUnknownUsers() );
         Collections.sort( missingUsersSorted );
         Collections.sort( unknownUsersSorted );
 
@@ -137,12 +138,12 @@ public class GradeItemImportOmissionsPanel extends Panel
         };
 
         // Create and populate the list of unknown users
-        final ListView<GbUser> unknownUsers = new ListView<GbUser>( "unknownUsers", unknownUsersSorted )
+        final ListView<GbUnidentifiedUser> unknownUsers = new ListView<GbUnidentifiedUser>( "unknownUsers", unknownUsersSorted )
         {
             @Override
-            protected void populateItem( final ListItem<GbUser> item )
+            protected void populateItem( final ListItem<GbUnidentifiedUser> item )
             {
-                final GbUser user = item.getModelObject();
+                final GbUnidentifiedUser user = item.getModelObject();
                 String userDisplay = user.getDisplayId();
                 String displayName = user.getDisplayName().trim();
                 if( StringUtils.isNotBlank( displayName ))
