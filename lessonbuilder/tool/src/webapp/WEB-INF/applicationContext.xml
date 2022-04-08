@@ -208,10 +208,6 @@ simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
 simplePageBean.addCalendar,
 simplePageBean.addForumSummary,
-simplePageBean.createTask,
-simplePageBean.questionCreateTask,
-simplePageBean.commentsCreateTask,
-simplePageBean.studentContentsCreateTask
 </value>
 </property>
    </bean>
