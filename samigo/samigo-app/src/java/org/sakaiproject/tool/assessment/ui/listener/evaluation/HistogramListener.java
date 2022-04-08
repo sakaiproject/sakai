@@ -1556,137 +1556,141 @@ public class HistogramListener
 
   private void getTFMCScores(Map publishedAnswerHash, List scores, HistogramQuestionScoresBean qbean, List answers) {
 		Map texts = new HashMap();
-		Iterator iter = answers.iterator();
 		Map results = new HashMap();
 		Map sequenceMap = new HashMap();
+
+		if (answers != null) {
+			Iterator iter = answers.iterator();
 		
-		// create the lookup maps
-		while (iter.hasNext()) {
-			AnswerIfc answer = (AnswerIfc) iter.next();
-			texts.put(answer.getId(), answer);
-			results.put(answer.getId(), Integer.valueOf(0));
-			sequenceMap.put(answer.getSequence(), answer.getId());
-		}
-
-		// find the number of responses (ItemGradingData) for each answer
-		iter = scores.iterator();
-		while (iter.hasNext()) {
-			ItemGradingData data = (ItemGradingData) iter.next();
-			
-			AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data
-					.getPublishedAnswerId());
-
-			if (answer != null) {
-				// found a response
-				Integer num = null;
-				// num is a counter
-				try {
-					// we found a response, now get existing count from the
-					// hashmap
-					num = (Integer) results.get(answer.getId());
-
-				} catch (Exception e) {
-					log.warn("No results for " + answer.getId());
-					log.error(e.getMessage(), e);
+			// create the lookup maps
+			while (iter.hasNext()) {
+				AnswerIfc answer = (AnswerIfc) iter.next();
+				texts.put(answer.getId(), answer);
+				results.put(answer.getId(), Integer.valueOf(0));
+				sequenceMap.put(answer.getSequence(), answer.getId());
+			}
+	
+			// find the number of responses (ItemGradingData) for each answer
+			iter = scores.iterator();
+			while (iter.hasNext()) {
+				ItemGradingData data = (ItemGradingData) iter.next();
+				
+				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data
+						.getPublishedAnswerId());
+	
+				if (answer != null) {
+					// found a response
+					Integer num = null;
+					// num is a counter
+					try {
+						// we found a response, now get existing count from the
+						// hashmap
+						num = (Integer) results.get(answer.getId());
+	
+					} catch (Exception e) {
+						log.warn("No results for " + answer.getId());
+						log.error(e.getMessage(), e);
+					}
+					if (num == null)
+						num = Integer.valueOf(0);
+	
+					// we found a response, and got the existing num , now update
+					// one
+					// check here for the other bug about non-autograded items
+					// having 1 even with no responses
+					results.put(answer.getId(), Integer.valueOf(num.intValue() + 1));
+					
+					
+					// this should work because for tf/mc(single)
+					// questions, there should be at most 
+					// one submitted answer per student/assessment
+					if (answer.getIsCorrect() != null
+							&& answer.getIsCorrect().booleanValue()) {
+						qbean.addStudentWithAllCorrect(data.getAgentId()); 
+					}
+					qbean.addStudentResponded(data.getAgentId()); 
+	
 				}
-				if (num == null)
-					num = Integer.valueOf(0);
-
-				// we found a response, and got the existing num , now update
-				// one
-				// check here for the other bug about non-autograded items
-				// having 1 even with no responses
-				results.put(answer.getId(), Integer.valueOf(num.intValue() + 1));
+			}
+			
+			HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
+			int[] numarray = new int[results.keySet().size()];
+			List sequenceList = new ArrayList();
+			
+			// get an arraylist of answer sequences
+			iter = answers.iterator();
+			while (iter.hasNext()) {
+				AnswerIfc answer = (AnswerIfc) iter.next();
+				sequenceList.add(answer.getSequence());
+			}
+	
+			// sort the sequences
+			Collections.sort(sequenceList);
+			iter = sequenceList.iterator();
+			// iter = results.keySet().iterator();
+			int i = 0;
+			int correctresponses = 0;
+	
+			// find answers sorted by sequence
+			while (iter.hasNext()) {
+				Long sequenceId = (Long) iter.next();
+				Long answerId = (Long) sequenceMap.get(sequenceId);
+				AnswerIfc answer = (AnswerIfc) texts.get(answerId);
 				
-				
-				// this should work because for tf/mc(single)
-				// questions, there should be at most 
-				// one submitted answer per student/assessment
+				int num = ((Integer) results.get(answerId)).intValue();
+				// set i to be the sequence, so that the answer choices will be in
+				// the right order on Statistics page , see Bug SAM-440
+				i = answer.getSequence().intValue() - 1;
+	
+				numarray[i] = num;
+				bars[i] = new HistogramBarBean();
+				if (qbean.getQuestionType().equals("4")) { // true-false
+					String origText = answer.getText();
+					String text = "";
+					if ("true".equals(origText)) {
+						text = rb.getString("true_msg");
+					} else {
+						text = rb.getString("false_msg");
+					}
+					bars[i].setLabel(text);
+				} else {
+					bars[i].setLabel(answer.getText());
+				}
+				bars[i].setIsCorrect(answer.getIsCorrect());
+				if ((num > 1) || (num == 0)) {
+					bars[i].setNumStudentsText(num + " "
+							+ rb.getString("responses"));
+				} else {
+					bars[i]
+							.setNumStudentsText(num + " "
+									+ rb.getString("response"));
+	
+				}
+				bars[i].setNumStudents(num);
 				if (answer.getIsCorrect() != null
 						&& answer.getIsCorrect().booleanValue()) {
-					qbean.addStudentWithAllCorrect(data.getAgentId());
+					correctresponses += num;
 				}
-				qbean.addStudentResponded(data.getAgentId());
-
+				// i++;
 			}
-		}
-		
-		HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
-		int[] numarray = new int[results.keySet().size()];
-		List sequenceList = new ArrayList();
-		
-		// get an arraylist of answer sequences
-		iter = answers.iterator();
-		while (iter.hasNext()) {
-			AnswerIfc answer = (AnswerIfc) iter.next();
-			sequenceList.add(answer.getSequence());
-		}
-
-		// sort the sequences
-		Collections.sort(sequenceList);
-		iter = sequenceList.iterator();
-		// iter = results.keySet().iterator();
-		int i = 0;
-		int correctresponses = 0;
-		int barsFilteredSize = 0;
-
-		// find answers sorted by sequence
-		while (iter.hasNext()) {
-			Long sequenceId = (Long) iter.next();
-			Long answerId = (Long) sequenceMap.get(sequenceId);
-			AnswerIfc answer = (AnswerIfc) texts.get(answerId);
-
-			if (answer.getText() == null || "".equals(answer.getText())) continue;
-			barsFilteredSize++;
-			
-			int num = ((Integer) results.get(answerId)).intValue();
-			// set i to be the sequence, so that the answer choices will be in
-			// the right order on Statistics page , see Bug SAM-440
-			i = answer.getSequence().intValue() - 1;
-
-			numarray[i] = num;
-			bars[i] = new HistogramBarBean();
-			if (qbean.getQuestionType().equals("4")) { // true-false
-				String origText = answer.getText();
-				String text = "";
-				if ("true".equals(origText)) {
-					text = rb.getString("true_msg");
-				} else {
-					text = rb.getString("false_msg");
+			// NEW
+			int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
+			// int[] heights = calColumnHeight(numarray);
+			for (i = 0; i < bars.length; i++) {
+				try {
+					bars[i].setColumnHeight(Integer.toString(heights[i]));
 				}
-				bars[i].setLabel(text);
-			} else {
-				bars[i].setLabel(answer.getText());
+				catch (NullPointerException npe) {
+					log.warn("bars[" + i + "] is null. " + npe);
+				}
 			}
-			bars[i].setIsCorrect(answer.getIsCorrect());
-			bars[i].setNumStudentsText(String.valueOf(num));
-			bars[i].setNumStudents(num);
-			if (answer.getIsCorrect() != null
-					&& answer.getIsCorrect().booleanValue()) {
-				correctresponses += num;
-			}
-			// i++;
+			qbean.setHistogramBars(bars);
+			if (qbean.getNumResponses() > 0)
+				qbean
+						.setPercentCorrect(Integer
+								.toString((int) (((double) correctresponses / (double) qbean.getNumResponses()) * 100)));
+		
 		}
-		// NEW
-		int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
-		// int[] heights = calColumnHeight(numarray);
-		HistogramBarBean[] barsFiltered = new HistogramBarBean[barsFilteredSize];
-		int barsFilteredIndex = 0;
-		for (i = 0; i < barsFilteredSize; i++) {
-			try {
-				barsFiltered[barsFilteredIndex] = bars[i];
-				barsFiltered[barsFilteredIndex].setColumnHeight(Integer.toString(heights[i]));
-				barsFilteredIndex++;
-			}
-			catch (NullPointerException npe) {
-				log.warn("bars[" + i + "] is null. " + npe);
-			}
-		}
-		qbean.setHistogramBars(barsFiltered);
-		if (qbean.getNumResponses() > 0)
-			qbean
-					.setPercentCorrect(Integer
-							.toString((int) (((double) correctresponses / (double) qbean.getNumResponses()) * 100)));
 	}
 
 	private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ItemDataIfc item) {
