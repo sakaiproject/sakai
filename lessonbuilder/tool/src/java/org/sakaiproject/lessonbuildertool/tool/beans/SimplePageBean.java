@@ -297,10 +297,6 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
-	@Getter @Setter private boolean createTask;
-	@Getter @Setter private boolean questionCreateTask;
-	@Getter @Setter private boolean commentsCreateTask;
-	@Getter @Setter private boolean studentContentsCreateTask;
 	
     // for BLTI, values window, inline, and null for in a new page with navigation
     // but sameWindow should also be set properly, based on the format
@@ -4614,11 +4610,8 @@ public class SimplePageBean {
 		
 		// Create or update a task
 		String reference = "/lessonbuilder/page/" + page.getPageId();
-		if (this.createTask) {
-			createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
-		} else {
-			updateTask(reference, page.getTitle(), null);
-		}
+                // Dashboard task widget: When a page item is added create a task item for the site members.
+		createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
 
 		if (pageItem.getPageId() == 0) {
 			return "reload";
@@ -7449,11 +7442,8 @@ public class SimplePageBean {
 			// Create or update a task
 			String reference = "/lessonbuilder/item/" + comment.getId();
 			String title = getPage(comment.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.comments-task-title");
-			if (this.commentsCreateTask) {
-				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-			} else {
-				updateTask(reference, title, null);
-			}
+                        // Dashboard task widget: When a comment item is added create a task item for the site members.
+			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
  			// for forced comments, the UI won't ever do this, but if
  			// it does, update will fail with permissions
@@ -7869,11 +7859,8 @@ public class SimplePageBean {
 		// Create or update a task
 		String reference = "/lessonbuilder/item/" + item.getId();
 		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
-		if (this.questionCreateTask) {
-			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-		} else {
-			updateTask(reference, title, null);
-		}
+                // Dashboard task widget: When a question item is added create a task item for the site members.
+		createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
@@ -8197,11 +8184,8 @@ public class SimplePageBean {
 			// Create or update a task
 			String reference = "/lessonbuilder/item/" + itemId;
 			String title = getPage(page.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.student-contents-task-title");
-			if (this.studentContentsCreateTask) {
-				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-			} else {
-				updateTask(reference, title, null);
-			}
+			// Dashboard task widget: When a student content item is added create a task item for the site members.
+                        createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
 			update(page);
 			
