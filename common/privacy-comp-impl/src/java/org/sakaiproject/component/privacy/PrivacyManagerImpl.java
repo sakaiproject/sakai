@@ -165,7 +165,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 	}
 
 	@Transactional(readOnly = true)
-	public Set findHidden(String contextId, Set userIds)
+	public Set<String> findHidden(String contextId, Set<String> userIds)
 	{
 		if (contextId == null || userIds == null)
 		{
@@ -223,7 +223,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			}
 		}
 		
-		Set returnSet = new HashSet();
+		Set<String> returnSet = new HashSet<>();
 		for(int i=0; i<userIdList.size(); i++)
 		{
 			String id = (String) userIdList.get(i);

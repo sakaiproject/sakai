@@ -303,18 +303,6 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		}
 		add(this.counted);
-		
-		// create task
-		final WebMarkupContainer taskWrap = new WebMarkupContainer("taskWrap");
-		final CheckBox createTask = new CheckBox("createTask", new PropertyModel<Boolean>(assignmentModel, "createTask"));
-		createTask.setOutputMarkupId(true);
-		createTask.setModelObject(true);
-		add(createTask);
-		final WebMarkupContainer createTaskLabel = new WebMarkupContainer("createTaskLabel");
-		add(createTaskLabel);
-		taskWrap.add(createTask);
-		taskWrap.add(createTaskLabel);
-		add(taskWrap);
 
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox

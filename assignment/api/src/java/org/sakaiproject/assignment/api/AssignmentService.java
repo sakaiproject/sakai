@@ -487,7 +487,7 @@ public interface AssignmentService extends EntityProducer {
      * @param submissionId
      * @return
      */
-    public String getSubmissionStatus(String submissionId);
+    public String getSubmissionStatus(String submissionId, boolean returnFormattedDate);
 
     /**
      * @param submissionId

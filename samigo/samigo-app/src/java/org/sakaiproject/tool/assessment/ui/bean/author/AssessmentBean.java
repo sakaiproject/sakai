@@ -75,7 +75,6 @@ public class AssessmentBean  implements Serializable {
   private boolean hasGradingData = false;
   private boolean hasSubmission = false;
   private Boolean showPrintAssessment = null;
-  @Getter @Setter private boolean createTask = true;
 
   /*
    * Creates a new AssessmentBean object.

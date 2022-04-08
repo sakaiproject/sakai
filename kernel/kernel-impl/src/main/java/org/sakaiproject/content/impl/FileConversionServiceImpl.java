@@ -166,8 +166,7 @@ public class FileConversionServiceImpl implements FileConversionService {
 
                                 log.debug("Deleting item with ref {}. It's been successfully converted.", ref);
 
-                                // We just want to hard delete it here. No need to requery.
-                                transactionTemplate.executeWithoutResult(status -> repository.delete(item));
+                                transactionTemplate.executeWithoutResult(status -> repository.deleteById(item.getId()));
                             } catch (Exception e) {
                                 transactionTemplate.executeWithoutResult(status -> {
                                     repository.findById(item.getId()).ifPresent(failedItem -> {

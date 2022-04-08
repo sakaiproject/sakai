@@ -381,8 +381,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 				props.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				if (StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName())) {
 					// Properties for student folder only
-					props.addProperty(ResourceProperties.PROP_CREATOR, developerHelperService.getCurrentUserId());
-					props.addProperty(ResourceProperties.PROP_MODIFIED_BY, developerHelperService.getCurrentUserId());
+					props.addProperty(ResourceProperties.PROP_CREATOR, developerHelperService.ADMIN_USER_ID);
+					props.addProperty(ResourceProperties.PROP_MODIFIED_BY, developerHelperService.ADMIN_USER_ID);
 					props.addProperty(ResourceProperties.PROP_DO_NOT_DUPLICATE, Boolean.TRUE.toString());
 				}
 				contentHostingService.commitCollection(uploadsFolder);

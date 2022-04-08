@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -62,6 +64,7 @@ import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
@@ -99,6 +102,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 	private final PreferencesService preferencesService = ComponentManager.get( PreferencesService.class );
 	private final UserDirectoryService userDirectoryService = ComponentManager.get( UserDirectoryService.class );
+        private final TaskService taskService = ComponentManager.get( TaskService.class );
 
 	/**
 	 * ACTION.
@@ -143,6 +147,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery, invalidFINMap, invalidSALengthList);
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
+                        
+                        String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + delivery.getSiteId() + "/" + publishedAssessment.getPublishedAssessmentId();
+                        List<String> userIds = Arrays.asList(adata.getAgentId());
+                        taskService.completeUserTaskByReference(reference, userIds);
+                        
             if (adata.getForGrade()) {
                 Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_GRADED, adata.getPublishedAssessmentTitle(), null, true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForGradedAssessment(adata, publishedAssessment));
                 eventTrackingService.post(event);

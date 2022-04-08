@@ -1431,24 +1431,26 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         log.warn("Exception while removing lock for assignment {}, {}", assignment.getId(), e.toString());
                     }
                 }
-                if (assignment.getIsGroup()) { // lock mode ALL for group assignments
-                    for (String groupRef : assignment.getGroups()) {
-                        try {
-                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
-                            authzGroupService.save(group);
-                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
-                            log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
+                if (!assignment.getDraft()) { // don't add locks for draft assignments
+                    if (assignment.getIsGroup()) { // lock mode ALL for group assignments
+                        for (String groupRef : assignment.getGroups()) {
+                            try {
+                                AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                                group.setLockForReference(reference, AuthzGroup.RealmLockMode.ALL);
+                                authzGroupService.save(group);
+                            } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                                log.warn("Exception while adding lock ALL for assignment {}, {}", assignment.getId(), e.toString());
+                            }
                         }
-                    }
-                } else { // lock mode DELETE for assignments released to groups
-                    for (String groupRef : assignment.getGroups()) {
-                        try {
-                            AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
-                            group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
-                            authzGroupService.save(group);
-                        } catch (GroupNotDefinedException | AuthzPermissionException e) {
-                            log.warn("Exception while adding lock DELETE for assignment {}, {}", assignment.getId(), e.toString());
+                    } else { // lock mode DELETE for assignments released to groups
+                        for (String groupRef : assignment.getGroups()) {
+                            try {
+                                AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+                                group.setLockForReference(reference, AuthzGroup.RealmLockMode.DELETE);
+                                authzGroupService.save(group);
+                            } catch (GroupNotDefinedException | AuthzPermissionException e) {
+                                log.warn("Exception while adding lock DELETE for assignment {}, {}", assignment.getId(), e.toString());
+                            }
                         }
                     }
                 }
@@ -1481,9 +1483,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!assignment.getHideDueDate()) {
             task.setDue(assignment.getDueDate());
         }
-        taskService.createTask(task, allowAddSubmissionUsers(reference)
-                .stream().map(User::getId).collect(Collectors.toSet()),
-                Priorities.HIGH);
+
+        if (!assignment.getDraft()) {
+            taskService.createTask(task, allowAddSubmissionUsers(reference)
+                    .stream().map(User::getId).collect(Collectors.toSet()),
+                    Priorities.HIGH);
+        }
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
@@ -1510,7 +1515,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // TODO these permissions checks should coincide with the changes that are being made for the submission
         if (!(allowUpdateSubmission(reference) || allowGradeSubmission(assignmentReference))) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference);
         }
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
 
@@ -1806,7 +1811,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getSubmissionStatus(String submissionId) {
+    public String getSubmissionStatus(String submissionId, boolean returnFormattedDate) {
         AssignmentSubmission submission = null;
         SubmissionStatus submissionStatus;
         String submitTime = "";
@@ -1821,7 +1826,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 canGrade = allowGradeSubmission(assignmentReference);
 
                 if (submission.getDateSubmitted() != null) {
-                    submitTime = userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null);
+                    submitTime = returnFormattedDate ?
+                            userTimeService.dateTimeFormat(submission.getDateSubmitted(), null, null) :
+                            submission.getDateSubmitted().toString();
                 }
             }
         } catch (PermissionException e) {
@@ -2350,8 +2357,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
 
                 // check for allow resubmission or not
-                //if an Extension exists for the user, we switch out the assignment's overall Close date for the extension deadline. We do this if the grade has been actually released, or if the submission object has not actually been submitted yet. Additionally, we make sure that a Resubmission date is not set [make sure it's null], so that this date-switching happens ONLY under Extension-related circumstances.
-                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getSubmitted()))){
+                // If an Extension exists for the user, we switch out the assignment's overall
+                // Close date for the extension deadline. We do this if the grade has been actually
+                // released, or if the submission object has not actually been submitted yet.
+                // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
+                // so that this date-switching happens ONLY under Extension-related circumstances.
+                if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
+                        && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getUserSubmission()))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
                 }
@@ -4161,6 +4173,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         // group assignment
                         if (oAssignment.getTypeOfAccess() == GROUP) {
                             nAssignment.setTypeOfAccess(GROUP);
+                            nAssignment.setDraft(true); // for group assignments always set to draft
                             Site oSite = siteService.getSite(oAssignment.getContext());
                             Site nSite = siteService.getSite(nAssignment.getContext());
 

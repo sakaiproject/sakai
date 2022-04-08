@@ -59,41 +59,43 @@ function printView(url) {
 			#if(!$disableGrade)
 				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<div class="form-group">
-						<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
-					##for non-point-based grading, choose the default grade from drop-down
-						<div>
+					<fieldset>
+						<legend class="textPanelFooter">$!form_label</legend>
+							##for non-point-based grading, choose the default grade from drop-down
+						<div class="form-group">
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")
+								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
 							</label>
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notSubmit" value="true"/>$tlang.getString("defaultGrade.notSubmit")<br/>
+								<input type="checkbox" checked="checked" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
 							</label>
 						</div>
-					</div>
-					#if ($!gradeType != 3)
-						<select id="defaultGrade_1" name="defaultGrade" size="1" >
-							<option value="">$tlang.getString("non.submission.grade.select")</option>
-							#if ($!gradeType == 1)
-								<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
-							#elseif ($!gradeType == 2)
-								#foreach ($i in $letterGradeOptions)
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
-								#end
-							#elseif ($!gradeType == 4)
-								#foreach ($i in ["Pass", "Fail"])
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-								#end
-							#elseif ($!gradeType == 5)
-								<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+						<div class="flex-wrap">
+							#if ($!gradeType != 3)
+								<select id="defaultGrade_1" name="defaultGrade" size="1" >
+									<option value="">$tlang.getString("non.submission.grade.select")</option>
+									#if ($!gradeType == 1)
+										<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
+									#elseif ($!gradeType == 2)
+										#foreach ($i in $letterGradeOptions)
+											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
+										#end
+									#elseif ($!gradeType == 4)
+										#foreach ($i in ["Pass", "Fail"])
+											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+										#end
+									#elseif ($!gradeType == 5)
+										<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+									#end
+								</select>
+							#else
+							## instructor needs to type in default points in point-based-grading
+							<input type="number" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" min="0" step="0.01" placeholder="$tlang.getString('gen.gra')" />
 							#end
-						</select>
-					#else
-						## instructor needs to type in default points in point-based-grading
-						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
-					#end
-					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						</div>
+					</fieldset>
 				</form>
 			#end
 			</div>
@@ -148,6 +150,7 @@ function printView(url) {
 
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
+			<div class="form-group">
 			<div id="sendFeedbackPanel">
 				<p class="discTria">
 					<a href="javascript:void(0)" onclick="ASN.toggleSendFeedbackPanel();">
@@ -262,7 +265,7 @@ function printView(url) {
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $!service.getUsersLocalDateTimeString($assignment.PeerAssessmentPeriodDate))</div>
 			#end
-
+			</div>
 			<div class="sakai-table-toolBar">
 				<div class="sakai-table-filterContainer">
 					#if (!$assignment.IsGroup)
@@ -530,7 +533,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$!service.getSubmissionStatus($!submissionId)
+								$!service.getSubmissionStatus($!submissionId, false)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>

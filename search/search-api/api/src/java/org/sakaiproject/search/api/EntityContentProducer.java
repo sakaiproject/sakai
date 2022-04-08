@@ -151,6 +151,36 @@ public interface EntityContentProducer
 	}
 
 	/**
+	 * Get the display name of the resource creator
+	 *
+	 * @param reference
+	 * @return the display name or "" if this provider does not support it
+	 */
+	default String getCreatorDisplayName(String reference) {
+		return "";
+	}
+
+	/**
+	 * Get the user id of the resource creator
+	 *
+	 * @param reference
+	 * @return the user id or "" if this provider does not support it
+	 */
+	default String getCreatorId(String reference) {
+		return "";
+	}
+
+	/**
+	 * Get the user name of the resource creator
+	 *
+	 * @param reference
+	 * @return the user name or "" if this provider does not support it
+	 */
+	default String getCreatorUserName(String reference) {
+		return "";
+	}
+
+	/**
 	 * Get the site content as an iterator
 	 * @param context
 	 * @return an iterator over all content associted with the given site ID, or an empty iterator if this provider

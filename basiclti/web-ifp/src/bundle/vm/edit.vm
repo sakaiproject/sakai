@@ -33,5 +33,10 @@
 			#end
 		</p>
 	</form>
-<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function() {
+   fontawesome_icon_picker('#fa_icon');
+   $("#launch-input").hide();
+});
+</script>
 </div>

@@ -763,6 +763,9 @@ body.is-logged-out{
 	padding-left: $top-header-item-spacing;
 	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
     white-space: nowrap;
+    a {
+        text-decoration: none;
+    }
 }
 
 ##{$namespace}bullhorn {

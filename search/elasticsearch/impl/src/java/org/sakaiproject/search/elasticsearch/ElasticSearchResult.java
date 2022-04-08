@@ -194,6 +194,22 @@ public class ElasticSearchResult implements SearchResult {
     }
 
     @Override
+    public String getCreatorDisplayName() {
+        return getFieldFromSearchHit(SearchService.FIELD_CREATOR_DISPLAY_NAME);
+    }
+
+    @Override
+    public String getCreatorId() {
+        return getFieldFromSearchHit(SearchService.FIELD_CREATOR_ID);
+    }
+
+    @Override
+    public String getCreatorUserName() {
+        return getFieldFromSearchHit(SearchService.FIELD_CREATOR_USER_NAME);
+    }
+
+
+    @Override
     public void toXMLString(StringBuilder sb) {
         sb.append("<result");
         sb.append(" index=\"").append(getIndex()).append("\" ");

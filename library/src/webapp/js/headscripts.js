@@ -815,7 +815,7 @@ function includeWebjarLibrary(library) {
 			}
 			break;
 		case 'fullcalendar':
-			libraryVersion = "5.9.0";
+			libraryVersion = "5.10.2";
 			jsReferences.push('/main.min.js');
 			jsReferences.push('/locales-all.min.js');
 			cssReferences.push('/main.min.css');

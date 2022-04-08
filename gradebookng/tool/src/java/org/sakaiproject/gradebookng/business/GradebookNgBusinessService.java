@@ -1988,19 +1988,19 @@ public class GradebookNgBusinessService {
 
 			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
 			
-			// Create the task
-			if (assignment.isCreateTask()) {
-				String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
-				Task task = new Task();
-				task.setSiteId(getCurrentSiteId());
-				task.setReference(reference);
-				task.setSystem(true);
-				task.setDescription(assignment.getName());
-				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-				Set<String> users = new HashSet<>(this.getGradeableUsers());
-				taskService.createTask(task, users, Priorities.HIGH);
-			}			
-			
+			// Create the task if it is released
+                        if(assignment.isReleased()) {
+                            String reference =  GradebookService.REFERENCE_ROOT + Entity.SEPARATOR + "a" + Entity.SEPARATOR + getCurrentSiteId() + Entity.SEPARATOR + assignmentId;
+                            Task task = new Task();
+                            task.setSiteId(getCurrentSiteId());
+                            task.setReference(reference);
+                            task.setSystem(true);
+                            task.setDescription(assignment.getName());
+                            task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+                            Set<String> users = new HashSet<>(this.getGradeableUsers());
+                            taskService.createTask(task, users, Priorities.HIGH);
+                        }
+                        
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -2252,18 +2252,16 @@ public class GradebookNgBusinessService {
 			task.setDescription(assignment.getName());
 			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
 			taskService.saveTask(task);
-		} else {
+		} else if(assignment.isReleased()) {
 			// Create the task
-			if (assignment.isCreateTask()) {
-				Task task = new Task();
-				task.setSiteId(getCurrentSiteId());
-				task.setReference(reference);
-				task.setSystem(true);
-				task.setDescription(assignment.getName());
-				task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
-				Set<String> users = new HashSet<>(this.getGradeableUsers());
-				taskService.createTask(task, users, Priorities.HIGH);
-			}
+			Task task = new Task();
+			task.setSiteId(getCurrentSiteId());
+			task.setReference(reference);
+			task.setSystem(true);
+			task.setDescription(assignment.getName());
+			task.setDue((assignment.getDueDate() == null) ? null : assignment.getDueDate().toInstant());
+			Set<String> users = new HashSet<>(this.getGradeableUsers());
+			taskService.createTask(task, users, Priorities.HIGH);
 		}
         
 		EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
@@ -2282,7 +2280,7 @@ public class GradebookNgBusinessService {
 	 * @param grade
 	 * @return
 	 */
-	public boolean updateUngradedItems(final long assignmentId, final double grade) {
+	public boolean updateUngradedItems(final long assignmentId, final String grade) {
 		return updateUngradedItems(assignmentId, grade, null);
 	}
 
@@ -2294,7 +2292,7 @@ public class GradebookNgBusinessService {
 	 * @param group
 	 * @return
 	 */
-	public boolean updateUngradedItems(final long assignmentId, final double grade, final GbGroup group) {
+	public boolean updateUngradedItems(final long assignmentId, final String grade, final GbGroup group) {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 		final Assignment assignment = getAssignment(assignmentId);
@@ -2327,7 +2325,7 @@ public class GradebookNgBusinessService {
 
 		// Apply the new grade to the GradeDefinitions to be updated
 		for (GradeDefinition def : defs) {
-			def.setGrade(Double.toString(grade));
+			def.setGrade(grade);
 			log.debug("Setting default grade. Values of assignmentId: {}, studentUuid: {}, grade: {}", assignmentId, def.getStudentUid(), grade);
 		}
 
@@ -2658,7 +2656,10 @@ public class GradebookNgBusinessService {
 		try {
 			final Set<String> userUuids = this.siteService.getSite(siteId).getUsersIsAllowed(GbRole.TA.getValue());
 			for (final String userUuid : userUuids) {
-				rval.add(getUser(userUuid));
+				GbUser user = getUser(userUuid);
+				if (user != null) {
+					rval.add(getUser(userUuid));
+				}
 			}
 		} catch (final IdUnusedException e) {
 			log.warn("IdUnusedException trying to getTeachingAssistants", e);

@@ -159,7 +159,7 @@
 											#if ($submission)
 												#set($submissionId = $submission.Id)
 											#end
-											$!service.getSubmissionStatus($!submissionId)
+											$!service.getSubmissionStatus($!submissionId, false)
 											&nbsp;
 										</td>
 										#if ($!isTimesheet)

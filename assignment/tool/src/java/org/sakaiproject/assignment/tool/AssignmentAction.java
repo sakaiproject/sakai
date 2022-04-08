@@ -32,6 +32,7 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSI
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_ATTACHMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_COMMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_FEEDBACK_TEXT;
+import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_PRIVATE_NOTES;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_GRADE;
 import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSION_SUBMISSION_ID;
 import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
@@ -1107,6 +1108,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private String prevUngradedWithSubmissionRef = "";
 
     // Content providers names
+    private static final String CONTENT_PROVIDER_TURNITIN = "Turnitin";
     private static final String CONTENT_PROVIDER_URKUND = "Urkund";
 
     private AnnouncementService announcementService;
@@ -1663,16 +1665,20 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
 
                 if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment)) {
-                		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
+                    state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
                     context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
 
                     String reviewServiceName = contentReviewService.getServiceName();
                     switch(reviewServiceName) {
                         case CONTENT_PROVIDER_URKUND:
                             long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
-                            String plagiarismFileSize = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
-                            state.setAttribute("plagiarismFileSize", plagiarismFileSize); 
-                            context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                            String plagiarismProviderInfo = rb.getFormattedMessage("gen.onlythefoll." + reviewServiceName.toLowerCase(), new Object[]{maxFileSizeBytes/MEGABYTE});
+                            state.setAttribute("plagiarismProviderInfo", plagiarismProviderInfo); 
+                            context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
+                            break;
+                        case CONTENT_PROVIDER_TURNITIN:
+                            state.setAttribute("plagiarismProviderInfo", rb.getString("gen.onlythefoll." + reviewServiceName.toLowerCase())); 
+                            context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                             break;
                         default:
                     }
@@ -2367,7 +2373,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignment.getContentReview()) {
                 context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                 context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
                 context.put("name_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -2469,7 +2475,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignment.getContentReview()) {
                 context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                 context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
-                context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
                 context.put("name_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -3102,13 +3108,17 @@ public class AssignmentAction extends PagedResourceActionII {
         if (!contentReviewService.allowAllContent()) {
             String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
             String reviewServiceName = contentReviewService.getServiceName();
-            Object[] params = new Object[2];
+            Object[] params = new Object[3];
             params[0] = fileTypesMessage;
             params[1] = "";
+            params[2] = "";
             switch(reviewServiceName) {
                 case CONTENT_PROVIDER_URKUND:
                     long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
-                    params[1] = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                    params[1] = rb.getFormattedMessage("gen.onlythefoll." + reviewServiceName.toLowerCase(), new Object[]{maxFileSizeBytes/MEGABYTE});
+                    break;
+                case CONTENT_PROVIDER_TURNITIN:
+                    params[2] = rb.getString("content_review.note." + reviewServiceName.toLowerCase());
                     break;
                 default:
             }
@@ -3758,7 +3768,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("users", users);
 
             context.put("submitterNames", getSubmitterFormattedNames(s, "build_instructor_grade_submission_context"));
-            context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
+            context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId(), true));
             s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getSubmitter()));
 
             s.getSubmitters().stream().findAny().ifPresent(spent -> context.put("submitterTimeSpent", spent.getTimeSpent()));
@@ -3853,6 +3863,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("name_grade", GRADE_SUBMISSION_GRADE);
         context.put("name_allowResubmitNumber", AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
         context.put("NamePropContentReviewOptoutUrl", ContentReviewConstants.URKUND_OPTOUT_URL);
+        context.put("name_private_notes", GRADE_SUBMISSION_PRIVATE_NOTES);
 
         // values
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
@@ -3862,6 +3873,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
+        context.put("value_private_notes", state.getAttribute(GRADE_SUBMISSION_PRIVATE_NOTES));
 
         // is this a non-electronic submission type of assignment
         context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
@@ -5783,44 +5795,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     public void doConfirm_submission(RunData data) {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-        
-        ParameterParser params = data.getParameters();
-        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-        state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
-        Assignment a = getAssignment(aReference, "doPreview_submission", state);
-
-        String[] groupChoice = params.getStrings("selectedGroups");
-        if (groupChoice != null && ArrayUtils.isNotEmpty(groupChoice)) {
-            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
-        }
-
-        saveSubmitInputs(state, params);
-
-        // retrieve the submission text (as formatted text)
-        String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
-        if (text == null) {
-            text = state.getAttribute(VIEW_SUBMISSION_TEXT) != null ? (String) state.getAttribute(VIEW_SUBMISSION_TEXT) : (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
-        }
-        state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
-        state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-
-        // assign the EULA attribute
-        String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
-        if(StringUtils.isEmpty(eulaAgreementYes)) {
-            eulaAgreementYes = "false";
-        }
-        state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
-
-        String timeSpent = params.getCleanString(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
-        if(timeSpent == null) {
-        	timeSpent = (String)state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
-        }
-        state.setAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT, timeSpent);
-
-        state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
-        // get attachment input and generate alert message according to assignment submission type
-        checkSubmissionTextAttachmentInput(data, state, a, text, false);
-
+        doSave_submission(data);
         if (state.getAttribute(STATE_MESSAGE) == null) {
             state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
         }
@@ -10378,6 +10353,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, s.getFeedbackComment());
+                state.setAttribute(GRADE_SUBMISSION_PRIVATE_NOTES, s.getPrivateNotes());
 
                 List<Reference> v = entityManager.newReferenceList();
                 s.getFeedbackAttachments().forEach(f -> v.add(entityManager.newReference(f)));
@@ -10593,7 +10569,7 @@ public class AssignmentAction extends PagedResourceActionII {
         AssignmentSubmission s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state);
         // whether the user can access the Submission object
         if (s != null) {
-            String status = assignmentService.getSubmissionStatus(s.getId());
+            String status = assignmentService.getSubmissionStatus(s.getId(), true);
 
             // show submission view unless group submission with group error
             Assignment a = s.getAssignment();
@@ -11291,6 +11267,13 @@ public class AssignmentAction extends PagedResourceActionII {
             hasChange = submission != null && valueDiffFromStateAttribute(state, feedbackComment, submission.getFeedbackComment());
             if (feedbackComment != null) {
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
+            }
+
+            String privateNotes = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_PRIVATE_NOTES), true);
+            // private notes value changed?
+            hasChange = submission != null && valueDiffFromStateAttribute(state, privateNotes, submission.getPrivateNotes());
+            if (feedbackComment != null) {
+                state.setAttribute(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
             }
 
             String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
@@ -14542,7 +14525,22 @@ public class AssignmentAction extends PagedResourceActionII {
                             Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
                             if (a.getContentReview()) {
                                 if (!contentReviewService.isAcceptableContent(attachment)) {
-                                    addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));
+                                    List<String> parameters = new ArrayList<>();
+                                    parameters.add(contentReviewService.getServiceName());
+                                    parameters.add(getContentReviewAcceptedFileTypesMessage());
+
+                                    // Specific message for different providers
+                                    String reviewServiceName = contentReviewService.getServiceName();
+                                    switch(reviewServiceName) {
+                                        case CONTENT_PROVIDER_TURNITIN:
+                                            parameters.add(rb.getString("review.file.not.accepted." + reviewServiceName.toLowerCase()));
+                                            break;
+                                        default:
+                                            parameters.add(StringUtils.EMPTY);
+                                            break;
+                                    }
+
+                                    addAlert(state, rb.getFormattedMessage("review.file.not.accepted", parameters.stream().toArray(Object[]::new)));
                                     blockedByCRS = true;
                                     // TODO: delete the file? Could we have done this check without creating it in the first place?
                                 }
@@ -15269,8 +15267,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     // comparing submission status
                     AssignmentSubmission as1 = findAssignmentSubmission((Assignment) o1);
                     AssignmentSubmission as2 = findAssignmentSubmission((Assignment) o2);
-                    String s1 = assignmentService.getSubmissionStatus(as1.getId());
-                    String s2 = assignmentService.getSubmissionStatus(as2.getId());
+                    String s1 = assignmentService.getSubmissionStatus(as1.getId(), false);
+                    String s2 = assignmentService.getSubmissionStatus(as2.getId(), false);
                     result = as1 == null ? 1 : as2 == null ? -1 : compareString(s1, s2);
                 }
             } else if (m_criteria.equals(SORTED_BY_NUM_SUBMISSIONS)) {
@@ -15471,7 +15469,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (s1 == null) {
                         status1 = rb.getString("listsub.nosub");
                     } else {
-                        status1 = assignmentService.getSubmissionStatus(s1.getId());
+                        status1 = assignmentService.getSubmissionStatus(s1.getId(), false);
                     }
                 }
 
@@ -15482,7 +15480,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (s2 == null) {
                         status2 = rb.getString("listsub.nosub");
                     } else {
-                        status2 = assignmentService.getSubmissionStatus(s2.getId());
+                        status2 = assignmentService.getSubmissionStatus(s2.getId(), false);
                     }
                 }
 
@@ -15604,8 +15602,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             } else if (m_criteria.equals(SORTED_SUBMISSION_BY_STATUS)) {
                 // sort by submission status
-                String s1 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o1).getId());
-                String s2 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o2).getId());
+                String s1 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o1).getId(), false);
+                String s2 = assignmentService.getSubmissionStatus(((AssignmentSubmission) o2).getId(), false);
                 result = compareString(s1, s2);
             } else if (m_criteria.equals(SORTED_SUBMISSION_BY_GRADE)) {
                 // sort by submission grade

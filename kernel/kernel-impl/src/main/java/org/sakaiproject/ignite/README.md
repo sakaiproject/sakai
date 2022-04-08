@@ -74,6 +74,10 @@ properties that can be used to configure ignite.
   This would only need to be changed if there is a slow node in the cluster.
 
   _1024_
+* `ignite.tcpSlowClientMessageQueueLimit` sets message queue limit for outgoing messages for a remote client.
+  This helps in detecting a slow node sooner and works in conjuction with ignite.tcpMessageQueueLimit.
+
+  _512_ or (half of ignite.tcpMessageQueueLimit)
 
 ## Cache Data Regions
 Sakai configures 2 data regions one for use with spring and the other as a hibernate

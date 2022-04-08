@@ -35,7 +35,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.elasticsearch.version>7.17.0</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>7.17.1</sakai.elasticsearch.version>
     <sakai.hibernate.version>5.3.20.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>4.0.3</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
@@ -43,11 +43,12 @@
     <sakai.httpmime.version>4.5.13</sakai.httpmime.version>
     <sakai.httpclient5.version>5.1.3</sakai.httpclient5.version>
     <sakai.httpcore5.version>5.1.3</sakai.httpcore5.version>
-    <sakai.ignite.version>2.10.0</sakai.ignite.version>
+    <sakai.ignite.version>2.12.0</sakai.ignite.version>
+    <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.13.1</sakai.jackson.version>
+    <sakai.jackson.version>2.13.2</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
-    <sakai.woodstox.version>6.2.7</sakai.woodstox.version>
+    <sakai.woodstox.version>6.2.8</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
@@ -61,7 +62,7 @@
     <sakai.openpdf.version>1.3.26</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
     <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
-    <sakai.spring.version>5.3.14</sakai.spring.version>
+    <sakai.spring.version>5.3.18</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.3</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.3</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>3.5.3</sakai.spring.data.rest.version>
@@ -69,18 +70,18 @@
     <sakai.spring.hateoas.version>1.3.3</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>1.28.1</sakai.tika.version>
-    <sakai.tomcat.version>9.0.58</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.62</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.12.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
-    <sakai.log4j.version>2.17.1</sakai.log4j.version>
-    <sakai.slf4j.version>1.7.35</sakai.slf4j.version>
-    <sakai.poi.version>5.2.0</sakai.poi.version>
+    <sakai.log4j.version>2.17.2</sakai.log4j.version>
+    <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
+    <sakai.poi.version>5.2.2</sakai.poi.version>
     <sakai.mockito.version>3.11.2</sakai.mockito.version>
     <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10.13</joda.time.version>
+    <joda.time.version>2.10.14</joda.time.version>
     <sakai.weld.shaded.version>3.1.8.Final</sakai.weld.shaded.version>
     <jayway.jsonpath.version>2.6.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
@@ -440,6 +441,30 @@
         <groupId>org.apache.ignite</groupId>
         <artifactId>ignite-spring</artifactId>
         <version>${sakai.ignite.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+        </exclusions>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-spring-cache-ext</artifactId>
+        <version>${sakai.ignite.spring.ext.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-spring-data-commons</artifactId>
+        <version>1.1.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ignite</groupId>
+        <artifactId>ignite-spring-data-2.2-ext</artifactId>
+        <version>${sakai.ignite.spring.ext.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -649,7 +674,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${sakai.jackson.version}</version>
+        <version>2.13.2.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -917,10 +942,11 @@
         <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
+      <!-- Do not allow transitive dependencies to bring in log4j-1.2 -->
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
+        <version>this-is-an-impossible-version</version>
         <scope>provided</scope>
       </dependency>
       <!-- JCL (commons-logging) is declared here as provided, it is important to
@@ -1083,7 +1109,7 @@
       <dependency>
         <groupId>org.jdom</groupId>
         <artifactId>jdom2</artifactId>
-        <version>2.0.6</version>
+        <version>2.0.6.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1197,12 +1223,6 @@
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
-      <dependency>
-        <groupId>org.codehaus.castor</groupId>
-        <artifactId>castor</artifactId>
-        <version>1.1.2.1</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>

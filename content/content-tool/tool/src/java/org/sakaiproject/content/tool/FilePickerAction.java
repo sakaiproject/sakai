@@ -355,8 +355,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 				context.put("onedriveUserAccount", ou.getOneDriveName());
 			}
 		}
-		context.put("googledriveOn", googledriveOn);
-		if(googledriveOn) {
+		boolean isGoogleDriveOn = this.isGoogleDriveOn();
+		context.put("googledriveOn", isGoogleDriveOn);
+		if (isGoogleDriveOn) {
 			GoogleDriveUser ou = googledriveService.getGoogleDriveUser(userDirectoryService.getCurrentUser().getId());
 			if(ou != null) {
 				context.put("googledriveUserAccount", ou.getGoogleDriveName());
@@ -1252,7 +1253,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(oi != null) {
 				doAttachOneDrive(oi, state, onedriveItemClone);
 			}
-		} else if (googledriveOn && StringUtils.isNotBlank(googledriveItemId)) {
+		} else if (this.isGoogleDriveOn() && StringUtils.isNotBlank(googledriveItemId)) {
 			boolean googledriveItemClone = params.getBoolean("googledriveItemClone");
 			String googledriveJson = params.getString("googledriveJson");
 			GoogleDriveItem oi = googledriveService.getDriveItem(userDirectoryService.getCurrentUser().getId(), googledriveItemId);
@@ -2223,7 +2224,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			return;
 		}
-		else if (googledriveOn && MODE_GOOGLEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
+		else if (this.isGoogleDriveOn() && MODE_GOOGLEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
 		{
 			try {
 				cleanup(state);
@@ -3761,5 +3762,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		return current;
 	}
+
+    // This method checks if Google Drive is enabled for the instance and it's enabled for the user's tenant.
+    private boolean isGoogleDriveOn() {
+        // The Google drive integration could be multitenant, check if it's enabled for the user tenant.
+        boolean isGoogleDriveEnabledForUser = googledriveService.isGoogleDriveEnabledForUser();
+        // Overwrite the value considering the user's google tenant.
+        return googledriveOn && isGoogleDriveEnabledForUser;
+    }
 
 }	// class FilePickerAction 

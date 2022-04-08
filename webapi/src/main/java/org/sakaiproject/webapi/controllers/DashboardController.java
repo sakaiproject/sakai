@@ -95,6 +95,7 @@ public class DashboardController extends AbstractSakaiApiController {
     private List<String> homeWidgets = new ArrayList<>();
 
     private List<String> defaultHomeLayout = new ArrayList<>();
+    private int maxNumberMotd = 1;
 
     /** This will be the map of the default widget layouts, one entry for each template */
     private Map<String, List<String>> defaultWidgetLayouts = new HashMap<>();
@@ -134,6 +135,8 @@ public class DashboardController extends AbstractSakaiApiController {
             courseWidgetLayout3 = new String[] { "calendar", "announcements", "grades", "forums" };
         }
         defaultWidgetLayouts.put("3", Arrays.asList(courseWidgetLayout3));
+
+        maxNumberMotd = serverConfigurationService.getInt("dashboard.home.motd.display", 1);
     }
 
 	@GetMapping(value = "/users/{userId}/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -157,13 +160,15 @@ public class DashboardController extends AbstractSakaiApiController {
         try {
             List<AnnouncementMessage> motdMessages = announcementService.getMessages(
                 announcementService.getSummarizableReference(null, announcementService.MOTD_TOOL_ID),
-                new ViewableFilter(null, null, 1, announcementService),
+                new ViewableFilter(null, null, maxNumberMotd, announcementService),
                 false,
                 false);
 
-            if (motdMessages.size() > 0) {
-                bean.setMotd(motdMessages.get(motdMessages.size() - 1).getBody());
+            StringBuffer sb = new StringBuffer();
+            for (AnnouncementMessage motdMessage : motdMessages) {
+                sb.append(motdMessage.getBody());
             }
+            bean.setMotd(sb.toString());
         } catch (IdUnusedException idue) {
             log.debug("No MOTD set.");
         } catch (Exception e) {

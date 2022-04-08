@@ -45,7 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -53,13 +52,10 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
@@ -91,8 +87,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
@@ -1190,58 +1184,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
-    public HttpAccess getHttpAccess(){
-        return null;
-    }
-
-    @Override
-    public Collection<String> getEntityAuthzGroups(Reference reference, String userId) {
-        return null;
-    }
-
-    @Override
-    public String getEntityUrl(Reference reference) {
-        return getEntity(reference).getUrl();
-    }
-
-    @Override
-    public Entity getEntity(Reference reference) {
-        return null;
-    }
-
-    @Override
-    public ResourceProperties getEntityResourceProperties(Reference ref) {
-       return null;
-    }
-   
-    @Override
-    public String getEntityDescription(Reference ref) {
-       return null;
-    }
-   
-    @Override
     public boolean parseEntityReference(String reference, Reference ref) {
-        return true;
-    }
-
-    @Override
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
-       return null;
-    }
-
-    @Override
-    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
-        return null;
-    }
-
-    @Override
-    public boolean willArchiveMerge() {
-        return true;
-    }
-
-    @Override
-    public String getLabel() {
-        return "rubric";
+        return reference.startsWith(REFERENCE_ROOT);
     }
 
     protected Collection<EntityModel<ToolItemRubricAssociation>> getRubricAssociationByRubric(String rubricId, String toSite) {

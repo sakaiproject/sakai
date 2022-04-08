@@ -333,9 +333,7 @@
 							<th>$tlang.getString("sinfo.list.sections.title")</th>
 							<th>$tlang.getString("sinfo.list.groups.memb")</th>
 							<th>$tlang.getString("group.description")</th>
-							#if ($!unjoinableGroups.contains($g.Id))
 							<th>$tlang.getString("sinfo.list.joinable.unjoin")</th>
-							#end
 						</tr>
 					</thead>
 					<tbody>
@@ -357,15 +355,32 @@
 								<span>$formattedText.escapeHtml($g.Description)</span>
 							</td>
 							#end
-							#if ($!unjoinableGroups.contains($g.Id))
+
 							<td>
-								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-									<input type="hidden" name="group-ref" value="$g.reference" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								</form>
-							</td>
+
+							#set($ujgMember = false)
+							#set($ujgLocked = false)
+							#foreach($ujg in $!unjoinableGroups)
+								#if($ujg.Id == $g.Id)
+									#set($ujgMember = true)
+									#if ($ujg.Locked)
+										#set($ujgLocked = true)
+									#end
+								#end
 							#end
+							#if ($ujgMember)
+								#if ($ujgLocked)
+									<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+									<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
+								#else
+									<form name="unjoinableSectionForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+										<input type="hidden" name="group-ref" value="$g.reference" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+										<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+									</form>
+								#end
+							#end
+							</td>
 						</tr>
 					#end
 					</tbody>
@@ -397,13 +412,15 @@
 							<td>
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 							</td>
-							#if ($!viewRoster || $viewMembershipGroups.contains($g.Id))
+							#if ($!viewRoster || !$viewMembershipGroups.isEmpty())
 							<td>
+								#if ($viewMembershipGroups.contains($g.Id))
 								<input type="button"
 										class="group-membership-button"
 										data-group-id="$g.Id"
 										value="$tlang.getString("sinfo.list.groups.memb.view")"
 										title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" />
+								#end
 							</td>
 							#end
 							<td>
@@ -413,13 +430,28 @@
 							</td>
 
 							<td>
-							#if ($!unjoinableGroups.contains($g.Id))
-								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-									<input type="hidden" name="group-ref" value="$g.reference" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								</form>
-							#end
+								#set($ujgMember = false)
+								#set($ujgLocked = false)
+								#foreach($ujg in $!unjoinableGroups)
+									#if($ujg.Id == $g.Id)
+										#set($ujgMember = true)
+										#if ($ujg.Locked)
+											#set($ujgLocked = true)
+										#end
+									#end
+								#end
+								#if($ujgMember)
+									#if ($ujgLocked)
+										<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+										<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
+									#else
+										<form name="unjoinableGroupForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+											<input type="hidden" name="group-ref" value="$g.reference" />
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+											<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $formattedText.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+										</form>
+									#end
+								#end
 							</td>
 						</tr>
 					#end
@@ -456,7 +488,6 @@
 					</thead>
 					<tbody>
 					#foreach ($g in $!joinableGroups)
-						#set ($full = $g.size >= $g.max)
 						<tr>
 							<td>
 								<span>$formattedText.escapeHtml($g.title)</span>
@@ -469,17 +500,20 @@
 							</td>
 							<td>
 								#if ($g.preview)
-								<span>$formattedText.escapeHtml($g.members)</span>
+								<span>$formattedText.escapeHtml($g.memberDisplayNames)</span>
 								#else
 								<span>$tlang.getString("sinfo.list.joinable.na")</span>
 								#end
 							</td>
 
 							<td>
-								#if ($full)
+								#if ($g.locked)
+								<span class="fa fa-fw fa-lock" aria-hidden="true"></span>
+								<span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>
+								#elseif ($g.full)
 								<span>$tlang.getString("sinfo.list.joinable.full")</span>
 								#else
-								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
+								<form name="joinableForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
 									<input type="hidden" name="joinable-group-ref" value="$g.reference" />
 									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 									<input type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" onclick="SPNR.disableControlsAndSpin( this, null );" />

@@ -222,6 +222,13 @@ mapping@org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder=        
                 "index": "not_analyzed",                               \
                 "store": "yes"                                         \
             },                                                         \
+            "creatordisplayname": {                                    \
+                "type": "text",                                        \
+                "store": "true",                                       \
+                "term_vector" : "with_positions_offsets",              \
+                "search_analyzer": "str_search_analyzer",              \
+                "analyzer": "str_index_analyzer"                       \
+            },                                                         \
             "title": {                                                 \
                 "type": "string",                                      \
                 "store": "yes",                                        \
