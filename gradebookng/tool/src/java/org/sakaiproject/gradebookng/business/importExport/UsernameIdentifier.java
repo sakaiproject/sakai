@@ -23,7 +23,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.gradebookng.business.model.GbUnidentifiedUser;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.GbUserBase;
 import org.sakaiproject.gradebookng.business.model.ImportedRow;
 
 /**
@@ -51,7 +53,7 @@ public class UsernameIdentifier implements Serializable
      * @param row - the row data 
      * @return the user
      */
-    private GbUser getUser(ImportedRow row)
+    private GbUserBase getUser(ImportedRow row)
     {
         String userEID = row.getStudentEid();
         GbUser user = userEidMap.get(userEID);
@@ -59,15 +61,15 @@ public class UsernameIdentifier implements Serializable
         {
             report.addIdentifiedUser(user);
             log.debug("User {} identified as UUID: {}", userEID, user.getUserUuid());
+            return user;
         }
         else
         {
-            user = GbUser.forDisplayOnly(userEID, row.getStudentName());
-            report.addUnknownUser(user);
+            GbUnidentifiedUser unidentifiedUser = new GbUnidentifiedUser(userEID, row.getStudentName());
+            report.addUnknownUser(unidentifiedUser);
             log.debug("User {} is unknown to this gradebook", userEID);
+            return unidentifiedUser;
         }
-
-        return user;
     }
 
     /**
@@ -81,7 +83,7 @@ public class UsernameIdentifier implements Serializable
     {
         for (ImportedRow row : rows)
         {
-            GbUser user = getUser(row);
+            GbUserBase user = getUser(row);
             if (user != null)
             {
                 row.setUser(user);
