@@ -55,7 +55,7 @@
                         #if (${tool.hasRenderResult})
 
 
-                            <div class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav" aria-label="${rloader.sit_toolnavigation} - ${tool.toolRenderResult.getTitle()}">
+                            <div class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
 
