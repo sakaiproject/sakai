@@ -11,7 +11,7 @@
     "sui:test:mocha": "web-test-runner --config=\".config/web-test-runner.config.mjs\"",
     "eslint": "eslint -c .config/.eslintrc.js js/**/*.js",
     "wc:build": "CDN=$(git rev-parse --short=8  HEAD) npm-run-all wc:clean wc:copy-src wc:build:vite wc:copy-target",
-    "wc:dev": "npm-run-all wc:clean wc:copy-src wc:build:vite wc:copy-target",
+    "wc:dev": "VITE_BUILD=development CDN=$(git rev-parse --short=8  HEAD) npm-run-all wc:clean wc:copy-src wc:build:vite wc:copy-target",
     "wc:build:vite": "vite build --config .config/vite.config.wc.js",
     "wc:build:maven": "npm-run-all wc:clean wc:copy-src wc:build:vite",
     "wc:serve:vite": "vite --config .config/vite.config.wc.js",

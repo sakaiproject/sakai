@@ -1,4 +1,4 @@
-import { css, html, LitElement } from "./assets/lit-element/lit-element.js";
+import { css, html, LitElement } from "@assets/lit-element/lit-element.js";
 
 export class SakaiButton extends LitElement {
 

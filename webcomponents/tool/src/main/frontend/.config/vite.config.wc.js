@@ -88,21 +88,28 @@ export default defineConfig({
     target: "es2020",
     manifest: true,
     outDir: target,
-    // minify: false,
+    minify: (VITE_BUILD === 'production') ? true : false,
     rollupOptions: {
       // TODO how to make it so we don't define these manually
       input: [
         "./js/sakai-ui/sui-button/sui-button.js",
         "./js/sakai-ui/sui-icon/sui-icon.js",
         "./js/sakai-ui/sui-table/sui-table.js",
+        "./js/sakai-search.js",
+        "./js/sakai-permissions.js",
+        "./js/sakai-maximise-button.js",
+        "./js/rubrics/sakai-rubric-student-button.js",
+        "./js/rubrics/sakai-rubrics-language.js",
+
         "./js/sakai.js",
       ],
       output: {
         // entryFileNames: name === 'sakai.es' ? '[name].js' : '[name].[hash].js',
         entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'sakai') {
+          if (chunkInfo.name.includes('sakai')
+          || chunkInfo.name.includes('sakai-element')) {
             // return `sakai.es.js`;
-            return `sakai.${CDN}.js`;
+            return `${chunkInfo.name}.${CDN}.js`;
           }
           return `[name].[hash].js`;
           // return `[name].js?version=${CDN}`;

@@ -1,12 +1,13 @@
 {
-    "extends": ["stylelint-config-standard", "stylelint-config-twbs-bootstrap/scss", "stylelint-config-prettier"],
+    "extends": ["stylelint-config-standard", "stylelint-config-twbs-bootstrap/scss"],
 
     "plugins": [
         "stylelint-scss"
     ],
     "rules": {
         "no-empty-source": null,
-        "selector-class-pattern": ".*"
+        "selector-class-pattern": ".*",
+        "number-leading-zero": "always"
     },
     "morpheus-rules": {
         "at-rule-no-unknown": null,

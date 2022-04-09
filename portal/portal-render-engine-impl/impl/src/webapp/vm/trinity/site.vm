@@ -152,9 +152,9 @@
         <script src="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
         ## TODO TRINITY-43 update these webcomponents to work in trinity
-        <script type="module" src="/webcomponents/sakai-permissions.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/webcomponents/sakai-search.js$!{portalCDNQuery}"></script>
-        <script type="module" src="/webcomponents/sakai-maximise-button.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-permissions.$!{portalCDNQueryShort}.js"></script>
+        <script type="module" src="/webcomponents/sakai-search.$!{portalCDNQueryShort}.js"></script>
+        <script type="module" src="/webcomponents/sakai-maximise-button.$!{portalCDNQueryShort}.js"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>

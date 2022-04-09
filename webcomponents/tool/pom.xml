@@ -12,7 +12,10 @@
     <groupId>org.sakaiproject</groupId>
     <artifactId>webcomponents</artifactId>
     <packaging>war</packaging>
-
+    <properties>
+		<!-- This is used in re-write rules as well -->
+		<scmFailureString>Sakai</scmFailureString>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -61,7 +64,7 @@
                 </executions>
                 <configuration>
                     <shortRevisionLength>8</shortRevisionLength>
-                    <revisionOnScmFailure>Sakai</revisionOnScmFailure>
+                    <revisionOnScmFailure>${scmFailureString}</revisionOnScmFailure>
                 </configuration>
             </plugin>
             <plugin>

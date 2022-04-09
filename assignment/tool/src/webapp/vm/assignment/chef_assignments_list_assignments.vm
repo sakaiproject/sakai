@@ -59,6 +59,8 @@
 	#end
 
 	##TODO TRINITY get permissions context wired up and passed over
+	##TODO TRINITY investigate performance issues
+	##TODO TRINITY wire up submissions
 	<sui-table
 		debug
 		id="assignmentsList"
@@ -71,43 +73,27 @@
 				"href": "#toolLink("$action" "doNewannouncement")"
 			}
 		]'
+		permissions='[{}]'
 		links='[
-							{
-								"title": "Edit",
-								"icon": "pencil",
-								"class": "nav-link",
-								"rel": "doReviseassignment"
-							},
-							{
-								"title": "Duplicate",
-								"icon": "clone",
-								"class": "nav-link",
-								"rel": "doDuplicateAssignment"
-							},
-							{
-								"title": "View",
-								"icon": "play",
-								"class": "nav-link",
-								"rel": "self"
-							},
-							{
-								"title": "Delete",
-								"icon": "trash",
-								"class": "nav-link link-danger",
-								"rel": "doDelete_assignment_link"
-							}
-						]'
+					{
+						"title": "View",
+						"icon": "play",
+						"class": "nav-link",
+						"rel": "self"
+					}
+
+				]'
 		columns='[
-		{"field": "assignment.title", "title": "$tlang.getString("gen.asstit")"},
-		{"field": "assignment.access", "title": "$tlang.getString("accessSectionHeader")"},
-		{"field": "assignment.status", "title": "$tlang.getString("gen.status")"},
-		{"field": "assignment.openTimeString", "title": "$tlang.getString("newassig.opedat")"},
-		{"field": "assignment.dueTimeString", "title": "$tlang.getString("gen.duedat")"},
+		{"field": "title", "title": "$tlang.getString("gen.asstit")"},
+		{"field": "access", "title": "$tlang.getString("accessSectionHeader")"},
+		{"field": "status", "title": "$tlang.getString("gen.status")"},
+		{"field": "release", "title": "$tlang.getString("newassig.opedat")"},
+		{"field": "retract", "title": "$tlang.getString("gen.duedat")"},
 		{"field": ["stats.submissionsTotal", "stats.submissionsUngraded"], "formatter": "addLabel", "formatterParams": {"label":["","$tlang.getString("gen.new")"]}, "title": "$tlang.getString("gen.subm2")"},
-		{"field": "assignment.gradeScale", "title": "$tlang.getString("gen.sca")"}
+		{"field": "scale", "title": "$tlang.getString("gen.sca")"}
 		]'
 		site-id="$contextString"
-		data-url="/api/assignment/${contextString}.json"
+		data-url="/api/sites/${contextString}/assignments"
 	></sui-table>
 
 	<div class="sakai-table-toolBar">

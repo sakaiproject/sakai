@@ -117,8 +117,8 @@ sui-table {
     margin-top: -8px;
   }
 
-/* !important to override poorly written selector in dependency */
-/* stylelint-disable declaration-no-important */
+  /* !important to override poorly written selector in dependency */
+  /* stylelint-disable declaration-no-important */
   .tabulator-selectable:hover {
     cursor: auto !important;
   }
@@ -128,9 +128,9 @@ sui-table {
   }
 
   .tabulator-row .tabulator-cell:first-child {
-    cursor:  pointer !important;
+    cursor: pointer !important;
   }
-/* stylelint-enable declaration-no-important */
+  /* stylelint-enable declaration-no-important */
 }
 
 //

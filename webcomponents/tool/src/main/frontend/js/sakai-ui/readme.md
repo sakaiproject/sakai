@@ -9,9 +9,19 @@
 
 ## NPM Scripts Examples
 
+Using sakai-docker
+
+copy to tomcat
+
 ```
 cd webcomponents
 TARGET=/home/mg/dev/profmikegreene/docker-sakai-builder/work/tomcat/deploy/webapps/webcomponents npm run --prefix=tool/src/main/frontend wc:copy-target
+```
+
+a development build
+
+```
+TARGET=/home/mg/dev/profmikegreene/docker-sakai-builder/work/tomcat/deploy/webapps/webcomponents VITE_BUILD=dev npm run --prefix=tool/src/main/frontend wc:build
 ```
 
 ### sui-table

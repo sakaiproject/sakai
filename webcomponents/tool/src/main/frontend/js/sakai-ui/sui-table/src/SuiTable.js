@@ -7,6 +7,7 @@ import { TabulatorFull as Tabulator } from "@assets/tabulator-tables/dist/js/tab
 // import styles from "./sui-table.scss";
 import "../../sui-icon/sui-icon.js";
 
+// TODO implement the link action with the new api and permissions scheme
 // TODO update all sui-icon and sui-button implementation to use this
 // TODO discuss whether to make the action bar a component
 // TODO research whether to convert most props to single config object
@@ -53,6 +54,7 @@ export class SuiTable extends LitElement {
       tableActions: { attribute: "table-actions", type: Array },
       links: { type: Array },
       debug: { type: Boolean },
+      permissions: { type: Array },
     };
   }
 
@@ -121,13 +123,20 @@ export class SuiTable extends LitElement {
     this.debug
       ? console.log(`sui-table ${this.title} start updated`, changedProps)
       : null;
-
+    //TODO how to check that the table exists??
     if (changedProps.has("filterVisibility")) {
-      const updatedColumns = this._table.getColumnLayout();
-      updatedColumns.forEach((column) => {
-        column.headerFilter = this.filterVisibility;
-      });
-      this._table.setColumnLayout(updatedColumns);
+      // this._table.on("tableBuilt", () => {
+      //   this.debug
+      //     ? console.log(
+      //         `sui-table ${this.title} tableBuilt`
+      //       )
+      //     : null;
+      //     const updatedColumns = this._table.getColumnLayout();
+      //     updatedColumns.forEach((column) => {
+      //       column.headerFilter = this.filterVisibility;
+      //     });
+      //     this._table.setColumnLayout(updatedColumns);
+      //   });
     }
 
     if (changedProps.has("rows")) {
@@ -169,7 +178,10 @@ export class SuiTable extends LitElement {
         return columnIterable;
       });
       tabulatorColumns[0].formatter = "html";
-      tabulatorColumns[0].minWidth = this.links.length * 100 + 64; //number of row actions + 4em;
+      if (this.links) {
+
+        tabulatorColumns[0].minWidth = this.links.length * 100 + 64; //number of row actions + 4em;
+      }
 
       this.debug
         ? console.log(`sui-table ${this.title} columns`, tabulatorColumns)
@@ -227,20 +239,25 @@ export class SuiTable extends LitElement {
       });
       this._table.on("rowMouseOver", (e, row) => {
         // Display the row actions for this item
-        row
+        if (this.links){
+
+          row
           .getElement()
           .querySelector(
             `div[tabulator-field=${this.columns[0].field}] .links-list`
-          )
-          .classList.remove("d-none");
+            )
+            .classList.remove("d-none");
+          }
       });
       this._table.on("rowMouseOut", (e, row) => {
+        if (this.links){
         row
           .getElement()
           .querySelector(
             `div[tabulator-field=${this.columns[0].field}] .links-list`
           )
           .classList.add("d-none");
+        }
       });
       this._table.on("rowSelected", (data) => {
         this.debug
@@ -299,14 +316,16 @@ export class SuiTable extends LitElement {
             : null;
         }
         result.forEach((element) => {
-          const actionSnippet = this.links
+          if (this.links){
+
+            const actionSnippet = this.links
             .map((action) => {
               return `
             <li class="nav-item">
               <a
-            title="${action.title ? action.title : ""}"
-            aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
-            icon="${action.icon ? action.icon : ""}"
+              title="${action.title ? action.title : ""}"
+              aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
+              icon="${action.icon ? action.icon : ""}"
             class="${
               action.class
                 ? `link link-${action.title} pt-0 ${action.class}`
@@ -314,25 +333,26 @@ export class SuiTable extends LitElement {
             }"
             // TODO dry this up
             href="${
-              element.links.filter((link) => link.rel === action.rel).length ===
+              this.links.filter((link) => link.rel === action.rel).length ===
               1
-                ? element.links.filter((link) => link.rel === action.rel)[0]
-                    .href
-                : "#"
+              ? this.links.filter((link) => link.rel === action.rel)[0]
+              .href
+              : "#"
             }"
             onclick="${action.onclick ? action.onclick : ""}"
             >${action.icon ? `<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}${action.title ? action.title : ""}</a>
             </li>`;
-            })
+          })
             .join("");
-
-          element[
-            this.columns[0].field
-          ] = `<div class="links d-flex justify-content-between"><div class="item-text text-truncate">${
-            element[this.columns[0].field]
-          }</div><ul class="links-list nav flex-nowrap d-none ">${actionSnippet}</ul></div>`;
+            
+            element[
+              this.columns[0].field
+            ] = `<div class="links d-flex justify-content-between"><div class="item-text text-truncate">${
+              element[this.columns[0].field]
+            }</div><ul class="links-list nav flex-nowrap d-none ">${actionSnippet}</ul></div>`;
+          }
+          });
         });
-      });
     this.debug
       ? console.log(`sui-table ${this.title} end fetchRows`, result)
       : null;
