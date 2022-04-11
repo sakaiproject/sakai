@@ -49,6 +49,19 @@
     </bean>
 
     <!--
+    Eternal expiry policy for cache objects that need to exist for
+    the entire time Sakai is running. For example, LTI13Servlet's
+    Sakai Access Token
+    -->
+    <bean id="org.sakaiproject.ignite.cache.eternalExpiryPolicy"
+          class="javax.cache.expiry.CreatedExpiryPolicy"
+          factory-method="factoryOf">
+        <constructor-arg>
+            <bean class="javax.cache.expiry.Duration" />
+        </constructor-arg>
+    </bean>
+
+    <!--
     Default memory region and is assigned to the spring region.
     Caches will be bound to this memory region by default unless another region is set in the cache's configuration.
     -->
@@ -232,6 +245,9 @@
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.hbm.privacy.PrivacyRecord"/>
                 </bean>
+                <bean parent="org.sakaiproject.ignite.cache.eternal">
+                    <property name="name" value="org.sakaiproject.lti13.LTI13Servlet_cache"/>
+                </bean>
             </list>
         </constructor-arg>
     </bean>
@@ -376,6 +392,21 @@
         <property name="readFromBackup" value="true"/>
         <property name="statisticsEnabled" value="true"/>
         <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.expiryPolicy"/>
+        <property name="eagerTtl" value="true"/>
+    </bean>
+
+    <!-- For use with eternal spring cache -->
+    <bean id="org.sakaiproject.ignite.cache.eternal"
+          class="org.apache.ignite.configuration.CacheConfiguration"
+          abstract="true">
+        <property name="atomicityMode" value="ATOMIC"/>
+        <property name="cacheMode" value="REPLICATED"/>
+        <property name="writeSynchronizationMode" value="FULL_ASYNC"/>
+        <property name="dataRegionName" value="spring_region"/>
+        <property name="onheapCacheEnabled" value="false"/>
+        <property name="readFromBackup" value="true"/>
+        <property name="statisticsEnabled" value="true"/>
+        <property name="expiryPolicyFactory" ref="org.sakaiproject.ignite.cache.eternalExpiryPolicy"/>
         <property name="eagerTtl" value="true"/>
     </bean>
 
