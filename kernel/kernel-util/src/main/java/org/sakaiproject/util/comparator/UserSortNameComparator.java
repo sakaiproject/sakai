@@ -23,6 +23,7 @@ import java.util.Comparator;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.user.api.User;
 import org.springframework.util.comparator.NullSafeComparator;
 
@@ -37,14 +38,7 @@ public class UserSortNameComparator implements Comparator<User> {
 
     public UserSortNameComparator() {
         collator = Collator.getInstance();
-        try {
-            String oldRules = ((RuleBasedCollator) collator).getRules();
-            String newRules = oldRules.replaceAll("<'\u005f'", "<' '<'\u005f'");
-            collator = new RuleBasedCollator(newRules);
-        } catch (ParseException e) {
-            log.warn("Can't create custom collator instead using the default collator, {}", e.toString());
-        }
-        collator.setStrength(Collator.SECONDARY); // ignore case
+        collator.setStrength(Collator.SECONDARY); // ignore case but do differentiate on accents
     }
 
     public UserSortNameComparator(boolean nullsLow) {
@@ -57,6 +51,19 @@ public class UserSortNameComparator implements Comparator<User> {
         if (u1 == null) return (nullsLow ? -1 : 1);
         if (u2 == null) return (nullsLow ? 1 : -1);
 
-        return new NullSafeComparator<>(collator, nullsLow).compare(u1.getSortName(), u2.getSortName());
+        Comparator c = new NullSafeComparator<>(collator, nullsLow);
+
+        // Replace spaces to handle sorting scenarios where surname has space
+        String prop1 = StringUtils.replace(u1.getSortName(), " ", "+");
+        String prop2 = StringUtils.replace(u2.getSortName(), " ", "+");
+
+        // Secondary comparison on display name if full name is identical
+        // E.g., John Smith (smithj1) and John Smith (smithj2)
+        if (c.compare(prop1, prop2) == 0) {
+            prop1 = u1.getDisplayId();
+            prop2 = u2.getDisplayId();
+        }
+
+        return c.compare(prop1, prop2);
     }
 }
