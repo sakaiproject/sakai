@@ -1,7 +1,11 @@
 <script id="pasystemBannerAlertsTemplate" type="text/template">
   <div class="pasystem-banner-alert pasystem-banner-${type}" id="${id}">
     <span class="pasystem-banner-alert-message">${message}</span>
-    {if dismissible}<a class="pasystem-banner-alert-close" href="javascript:void(0)"></a>{/if}
+    {if dismissible}
+      <a class="pasystem-banner-alert-close" href="javascript:void(0)">
+        <span class="sr-only">{{{t this "Close"}}}</span>
+      </a>
+    {/if}
   </div>
 </script>
 <script id="pasystemBannerAlertsToggleTemplate" type="text/template">
