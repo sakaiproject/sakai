@@ -158,8 +158,6 @@ public class ConversationsController extends AbstractSakaiApiController {
 
 		checkSakaiSession();
 
-        System.out.println(topicBean.groups);
-
         topicBean.id = topicId;
         topicBean.siteId = siteId;
         return entityModelForTopicBean(conversationsService.saveTopic(topicBean));

@@ -442,7 +442,7 @@ export class SakaiConversations extends SakaiElement {
                 ${this.renderSettingsMenu()}
               </div>
             </options-menu>
-          `: html`
+          ` : html`
           <div class="conv-settings-link">
             <a href="javascript:;" @click=${() => { this.showingSettings = true; this.state = STATE_SETTINGS; }}>
               <sakai-icon type="cog" size="small"></sakai-icon>

@@ -72,9 +72,9 @@ export class Submission {
       if (this.resubmitsAllowed === -1 || this.resubmitsAllowed > 0) {
         this.resubmitDate = moment(parseInt(init.properties.allow_resubmit_closeTime, 10)).valueOf();
       }
-      this.extensionAllowed = init.properties["allow_extension_closeTime"] != null;
+      this.extensionAllowed = init.properties.allow_extension_closeTime != null;
       if (this.extensionAllowed) {
-        this.extensionDate = moment(parseInt(init.properties["allow_extension_closeTime"], 10)).valueOf();
+        this.extensionDate = moment(parseInt(init.properties.allow_extension_closeTime, 10)).valueOf();
       }
 
       // We need this for setting the default resubmission date
@@ -94,14 +94,14 @@ export class Submission {
       this.resubmitDate = moment(this.assignmentCloseTime).valueOf();
     }
   }
-  
+
   set extensionAllowed(value) {
-  
+
     this._extensionAllowed = value;
     this.extensionDate = moment(this.assignmentCloseTime).valueOf();
   }
 
   get resubmitsAllowed() { return this._resubmitsAllowed; }
-  
-  get extensionAllowed() { return this._extensionAllowed; } 
+
+  get extensionAllowed() { return this._extensionAllowed; }
 }

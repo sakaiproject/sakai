@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://opensource.org/licenses/ecl2
+ *			   http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,8 +133,8 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 			throw new IllegalArgumentException("Session not found");
 		}
 		List<String> retval = new ArrayList<String> ();
-                String userWarning = (String) s.getAttribute("userWarning");
-                if (StringUtils.isNotEmpty(userWarning)) {
+		String userWarning = (String) s.getAttribute("userWarning");
+		if (StringUtils.isNotEmpty(userWarning)) {
 			retval.add(userWarning);
 		}
 		PortalNotifications noti = new PortalNotifications ();
@@ -149,14 +149,14 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		ResourceLoader rl = new ResourceLoader("bullhorns");
 		List<BullhornAlert> alerts = messagingService.getAlerts(getCheckedCurrentUser());
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("i18n", rl);
+		Map<String, Object> data = new HashMap<>();
+		data.put("i18n", rl);
 
 		if (alerts.size() > 0) {
 			data.put("alerts", alerts);
-        }
+		}
 
-        return new ActionReturn(data);
+		return new ActionReturn(data);
 	}
 
 	@EntityCustomAction(action = "clearBullhornAlert", viewKey = EntityView.VIEW_LIST)
@@ -195,71 +195,20 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		if (StringUtils.isBlank(currentUserId)) {
 			throw new SecurityException("You must be logged in to use this service");
 		} else {
-            return currentUserId;
-        }
-    }
+			return currentUserId;
+		}
+	}
 
-	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action="formatted", viewKey=EntityView.VIEW_SHOW)
 	public ActionReturn getFormattedProfile(EntityReference ref, Map<String, Object> params) {
 
 		String currentUserId = getCheckedCurrentUser();
 
-		ResourceLoader rl = Resource.getResourceLoader("org.sakaiproject.portal.api.PortalService", "profile-popup");
+		StringBuilder sb = new StringBuilder();
 
-		UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(ref.getId());
+		String markup = "<sakai-profile user-id=\"" + ref.getId() + "\" />";
 
-		String connectionUserId = userProfile.getUserUuid();
-
-		VelocityContext context = new VelocityContext();
-		context.put("i18n", rl);
-		context.put("profileUrl", profileLinkLogic.getInternalDirectUrlToUserProfile(connectionUserId));
-
-		SocialNetworkingInfo socialInfo = userProfile.getSocialInfo();
-		String facebookUrl = "";
-		String twitterUrl = "";
-		if(socialInfo != null) {
-			if(socialInfo.getFacebookUrl() != null) {
-				facebookUrl = socialInfo.getFacebookUrl();
-			}
-			if(socialInfo.getTwitterUrl() != null) {
-				twitterUrl = socialInfo.getTwitterUrl();
-			}
-		}
-		context.put("facebookUrl", facebookUrl);
-		context.put("twitterUrl", twitterUrl);
-
-		String email = userProfile.getEmail();
-		if (StringUtils.isEmpty(email)) email = "";
-		context.put("email", email);
-
-		context.put("currentUserId", currentUserId);
-		context.put("connectionUserId", connectionUserId);
-
-        boolean connectionsEnabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
-            ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
-
-        if (connectionsEnabled && !currentUserId.equals(connectionUserId)) {
-            int connectionStatus = profileConnectionsLogic.getConnectionStatus(currentUserId, connectionUserId);
-
-            if (connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) {
-                context.put("connected" , true);
-            } else if (connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
-                context.put("requested" , true);
-            } else if (connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
-                context.put("incoming" , true);
-            } else {
-                context.put("unconnected" , true);
-            }
-        }
-
-		StringWriter writer = new StringWriter();
-
-		try {
-			formattedProfileTemplate.merge(context, writer);
-			return new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, writer.toString());
-		} catch (IOException ioe) {
-			throw new EntityException("Failed to format profile.", ref.getReference());
-		}
+		return new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, markup);
 	}
 
 	@EntityCustomAction(action="connectionsearch",viewKey=EntityView.VIEW_LIST)
@@ -334,7 +283,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		}
 	}
 
-    private BasicConnection connectionFromUser(User u) {
+	private BasicConnection connectionFromUser(User u) {
 
 		BasicConnection bc = new BasicConnection();
 		bc.setUuid(u.getId());
@@ -344,5 +293,5 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		bc.setType(u.getType());
 		bc.setSocialNetworkingInfo(profileLogic.getSocialNetworkingInfo(u.getId()));
 		return bc;
-    }
+	}
 }

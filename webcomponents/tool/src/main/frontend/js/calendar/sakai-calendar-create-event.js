@@ -76,7 +76,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         </select>
         <span>Hours</span>
         <select @change=${(e) => this.hoursDuration = e.target.value}>
-        ${Array(12).fill().map((_, i) => html`<option value=${i*5}>${i*5}</option>`)}
+        ${Array(12).fill().map((_, i) => html`<option value=${i * 5}>${i * 5}</option>`)}
         </select>
         <span>Minutes</span>
       </div>
@@ -97,7 +97,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         <div class="frequency-options" id="daily-options">
           <span>${this.i18n["new.every"]} </span>
           <select>
-            ${Array(30).fill().map((_, i) => html`<option value=${i+1}>${i+1}</option>`)}
+            ${Array(30).fill().map((_, i) => html`<option value=${i + 1}>${i + 1}</option>`)}
           </select>
           <span> ${this.i18n["set.days"]}</span>
         </div>
@@ -106,7 +106,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         <div class="frequency-options" id="weekly-options">
           <span>${this.i18n["new.every"]} </span>
           <select>
-            ${Array(51).fill().map((_, i) => html`<option value=${i+1}>${i+1}</option>`)}
+            ${Array(51).fill().map((_, i) => html`<option value=${i + 1}>${i + 1}</option>`)}
           </select>
           <span> ${this.i18n["set.weeks"]}</span>
         </div>
@@ -115,7 +115,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         <div class="frequency-options" id="monthly-options">
           <span>${this.i18n["new.every"]} </span>
           <select>
-            ${Array(11).fill().map((_, i) => html`<option value=${i+1}>${i+1}</option>`)}
+            ${Array(11).fill().map((_, i) => html`<option value=${i + 1}>${i + 1}</option>`)}
           </select>
           <span> ${this.i18n["set.months"]}</span>
         </div>
@@ -124,7 +124,7 @@ class SakaiCalendarCreateEvent extends SakaiDialogContent {
         <div class="frequency-options" id="yearly-options">
           <span>${this.i18n["new.every"]} </span>
           <select>
-            ${Array(30).fill().map((_, i) => html`<option value=${i+1}>${i+1}</option>`)}
+            ${Array(30).fill().map((_, i) => html`<option value=${i + 1}>${i + 1}</option>`)}
           </select>
           <span> ${this.i18n["set.years"]}</span>
         </div>
