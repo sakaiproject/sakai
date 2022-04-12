@@ -53,7 +53,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.22</sakai.lombok.version>
-    <sakai.lucene.version>8.10.1</sakai.lucene.version>
+    <sakai.lucene.version>8.11.1</sakai.lucene.version>
     <sakai.netty.version>4.1.68.Final</sakai.netty.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
