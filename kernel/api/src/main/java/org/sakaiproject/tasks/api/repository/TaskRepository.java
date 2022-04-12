@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tasks.api.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.tasks.api.Task;
@@ -29,4 +30,5 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 public interface TaskRepository extends SpringCrudRepository<Task, Long> {
 
     Optional<Task> findByReference(String reference);
+    List<Task> findByGroupsContaining(String groupId);
 }
