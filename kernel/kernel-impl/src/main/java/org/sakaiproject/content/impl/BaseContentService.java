@@ -217,7 +217,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * (c/f http://www.boutell.com/newfaq/misc/urllength.html) */
 	protected static final long MAX_URL_LENGTH = 8192;
 
-	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|group-user/|~)(.+?)/");
+	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
 	/** sakai.properties setting to enable secure inline html (true by default) */
 	protected static final String SECURE_INLINE_HTML = "content.html.forcedownload";
@@ -10604,7 +10604,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			{
 				String root = contextMatcher.group(1);
 				context = contextMatcher.group(2);
-				if(!root.equals("group/") && !root.equals("group-user/"))
+				if(! root.equals("group/"))
 				{
 					context = "~" + context;
 				}
