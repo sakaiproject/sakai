@@ -1673,11 +1673,11 @@ public class AssignmentAction extends PagedResourceActionII {
                         case CONTENT_PROVIDER_URKUND:
                             long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
                             String plagiarismProviderInfo = rb.getFormattedMessage("gen.onlythefoll." + reviewServiceName.toLowerCase(), new Object[]{maxFileSizeBytes/MEGABYTE});
-                            state.setAttribute("plagiarismProviderInfo", plagiarismProviderInfo); 
+                            state.setAttribute("plagiarismProviderInfo", plagiarismProviderInfo);
                             context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                             break;
                         case CONTENT_PROVIDER_TURNITIN:
-                            state.setAttribute("plagiarismProviderInfo", rb.getString("gen.onlythefoll." + reviewServiceName.toLowerCase())); 
+                            state.setAttribute("plagiarismProviderInfo", rb.getString("gen.onlythefoll." + reviewServiceName.toLowerCase()));
                             context.put("plagiarismProviderInfo", state.getAttribute("plagiarismProviderInfo"));
                             break;
                         default:
@@ -1822,13 +1822,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
             context.put("isAnyRegTimeSheet", isAnyRegTimeSheet);
             state.setAttribute("isAnyRegTimeSheet", isAnyRegTimeSheet);
+            // put the resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
             context.put("isTimesheet", assignmentService.isTimeSheetEnabled((String) state.getAttribute(STATE_CONTEXT_STRING)));
-
-            // put the resubmit and extension information into context
-            boolean isDateExtended = putResubmissionAndExtensionOptionsIntoContext(context, state);
-            if (assignment.getCloseDate().isBefore(Instant.now()) && !isDateExtended) {
-                addAlert(state, rb.getString("stuviewsubm.theclodat"));
-            }
 
             rangeAndGroups.buildStudentViewSubmissionContext(state, context, user.getId(), assignment, this);
 
@@ -2185,18 +2182,18 @@ public class AssignmentAction extends PagedResourceActionII {
             // get current site
             Site site = siteService.getSite(contextString);
             context.put("site_title", site.getTitle());
-        } catch (Exception ignore) {
-            log.warn(this + ":buildStudentViewSubmission " + ignore.getMessage() + " siteId= " + contextString);
+        } catch (Exception e) {
+            log.warn("Could not find site with id={}, {}", contextString, e.toString());
         }
 
         // get assignment and submission information
-        String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-        Assignment currentAssignment = getAssignment(currentAssignmentReference, "build_student_view_submission_confirmation_context", state);
-        if (currentAssignment != null) {
-            context.put("assignment", currentAssignment);
+        String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        Assignment assignment = getAssignment(assignmentReference, "build_student_view_submission_confirmation_context", state);
+        if (assignment != null) {
+            context.put("assignment", assignment);
 
             // differenciate submission type
-            Assignment.SubmissionType submissionType = currentAssignment.getTypeOfSubmission();
+            Assignment.SubmissionType submissionType = assignment.getTypeOfSubmission();
             if (submissionType == Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION || submissionType == Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION) {
                 context.put("attachmentSubmissionOnly", Boolean.TRUE);
             } else {
@@ -2208,21 +2205,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("textSubmissionOnly", Boolean.FALSE);
             }
 
-            AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context", state);
-            if (s != null) {
-                context.put("submission", s);
-
-                context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(s));
-
-                context.put("submit_text", StringUtils.trimToNull(s.getSubmittedText()));
+            AssignmentSubmission submission = getSubmission(assignmentReference, submitter, "build_student_view_submission_confirmation_context", state);
+            if (submission != null) {
+                context.put("submission", submission);
+                context.put("submissionAttachmentReferences", getVisibleAttachmentIdsToReferences(submission));
+                context.put("submit_text", StringUtils.trimToNull(submission.getSubmittedText()));
                 context.put("email_confirmation", serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true));
 
-                if (currentAssignment.getIsGroup()) {
-					final Map<String, User> users = assignmentToolUtils.getSubmitters(s)
-									.collect(Collectors.toMap(User::getId, Function.identity()));
-					context.put("submitterNames", getSubmitterFormattedNames(s, "build_student_view_submission_confirmation_context"));
+                if (assignment.getIsGroup()) {
+					context.put("submitterNames", getSubmitterFormattedNames(submission, "build_student_view_submission_confirmation_context"));
                 }
-                putSubmissionLogMessagesInContext(context, s);
+
+                putSubmissionLogMessagesInContext(context, submission);
             }
         }
 
@@ -2278,8 +2272,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
-            // put resubmit and extension information into context
-            putResubmissionAndExtensionOptionsIntoContext(context, state);
+            // put resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
@@ -2358,6 +2353,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
+            // put the resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+
             if (state.getAttribute(SAVED_FEEDBACK) != null) {
                 context.put("savedFeedback", Boolean.TRUE);
                 state.removeAttribute(SAVED_FEEDBACK);
@@ -2379,12 +2377,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("value_plagiarism_eula_agreement", state.getAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
                 context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
                 context.put("name_check_plagiarism_eula_agreement", AssignmentConstants.SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
-            }
-
-            // put the resubmit and extension information into context
-            boolean isDateExtended = putResubmissionAndExtensionOptionsIntoContext(context, state);
-            if (assignment.getCloseDate().isBefore(Instant.now()) && !isDateExtended) {
-                addAlert(state, rb.getString("stuviewsubm.theclodat"));
             }
         }
 
@@ -2457,8 +2449,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
-            // put the resubmit and extension information into context
-            putResubmissionAndExtensionOptionsIntoContext(context, state);
+            // put the resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             if (state.getAttribute(SAVED_FEEDBACK) != null) {
                 context.put("savedFeedback", Boolean.TRUE);
@@ -3217,8 +3210,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
-        // put resubmission and extension options into context
-        putResubmissionAndExtensionOptionsIntoContext(context, state);
+        // put resubmission option into context
+        assignment_resubmission_option_into_context(context, state);
+        assignment_extension_option_into_context(context, state);
 
         // get all available assignments from Gradebook tool except for those created fromcategoryTable
         boolean gradebookExists = isGradebookDefined();
@@ -3815,10 +3809,11 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
             }
 
-            // put the re-submission and extension info into context
+            // put the re-submission info into context
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            assignment_resubmission_option_into_context(context, state);
             putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-            putResubmissionAndExtensionOptionsIntoContext(context, state);
+            assignment_extension_option_into_context(context, state);
             if (s.getDateSubmitted() != null){ //if there is a submission date, we assume the student submitted; then, extension options should not be available.
                 context.put("displayExtensionOptions", false);
             } else {
@@ -4709,12 +4704,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 rangeAndGroups.buildInstructorGradeAssignmentContext(state, context, assignment);
             }
 
-            // put the re-submission and extension info into context
+            // put the re-submission info into context
             assignment_resubmission_option_into_state(assignment, null, state);
             putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
+            assignment_resubmission_option_into_context(context, state);
             assignment_extension_option_into_state(assignment, null, state);
             putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-            putResubmissionAndExtensionOptionsIntoContext(context, state);
+            assignment_extension_option_into_context(context, state);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -4882,8 +4878,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // In case we need to launch an external tool to test it - doView_external_tool_launch
             state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, assignmentId);
 
-            // put the resubmit and extension information into context
-            putResubmissionAndExtensionOptionsIntoContext(context, state);
+            // put the resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+            assignment_extension_option_into_context(context, state);
 
             // put external tool information into context
             putExternalToolIntoContext(context, assignment, state);
@@ -6774,6 +6771,9 @@ public class AssignmentAction extends PagedResourceActionII {
             if (state.getAttribute(STATE_MESSAGE) == null) {
                 state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
             }
+        } else {
+            addAlert(state, rb.getString("stuviewsubm.theclodat"));
+            state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
         }
     } // post_save_submission
 
@@ -14187,6 +14187,16 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
+    private void assignment_extension_option_into_context(Context context, SessionState state){
+        String allowExtensionTimeString = null;
+        if (state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null){
+            allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
+            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
+            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
+        }
+        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
+    }
+
     private void assignment_extension_option_into_state(Assignment a, AssignmentSubmission s, SessionState state){
         String allowExtensionTimeString = null;
         if (s != null) {    // if submission is present, get the resubmission values from submission object first
@@ -14205,17 +14215,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    private boolean putResubmissionAndExtensionOptionsIntoContext(Context context, SessionState state) {
-        boolean isDateExtended = false;
-        String allowExtensionTimeString = null;
-        if (state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null){
-            allowExtensionTimeString = (String) state.getAttribute(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME);
-            Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(allowExtensionTimeString));
-            isDateExtended = extensionCloseTime.isAfter(Instant.now());
-            context.put("extensionCloseTime", assignmentService.getUsersLocalDateTimeString(extensionCloseTime));
-        }
-        putTimePropertiesInContext(context, state, "Extension", ALLOW_EXTENSION_CLOSEMONTH, ALLOW_EXTENSION_CLOSEDAY, ALLOW_EXTENSION_CLOSEYEAR, ALLOW_EXTENSION_CLOSEHOUR, ALLOW_EXTENSION_CLOSEMIN);
-
+    private void assignment_resubmission_option_into_context(Context context, SessionState state) {
         context.put("name_allowResubmitNumber", AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
 
         String allowResubmitNumber = state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null ? (String) state.getAttribute(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : null;
@@ -14235,7 +14235,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             // put into context
             if (resubmitCloseTime != null) {
-                isDateExtended = isDateExtended || resubmitCloseTime.isAfter(Instant.now());
                 context.put("resubmitCloseTime", assignmentService.getUsersLocalDateTimeString(resubmitCloseTime));
             }
         }
@@ -14243,7 +14242,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
         context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
 
-        return isDateExtended;
     }
 
     private void assignment_resubmission_option_into_state(Assignment a, AssignmentSubmission s, SessionState state) {
@@ -16058,7 +16056,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         }
         if(assigmentRateSpent > 0) {
-            return assignmentService.intToTime(assigmentRateSpent/nSubmision);	
+            return assignmentService.intToTime(assigmentRateSpent/nSubmision);
         }
         return assignmentService.intToTime(assigmentRateSpent);
     }
