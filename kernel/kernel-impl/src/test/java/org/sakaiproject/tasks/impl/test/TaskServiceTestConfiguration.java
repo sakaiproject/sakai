@@ -18,15 +18,18 @@ package org.sakaiproject.tasks.impl.test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Properties;
-
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.SessionFactory;
 import org.hsqldb.jdbcDriver;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTask;
@@ -38,6 +41,7 @@ import org.sakaiproject.tasks.impl.repository.UserTaskRepositoryImpl;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -104,6 +108,30 @@ public class TaskServiceTestConfiguration {
         db.setUsername(environment.getProperty(org.hibernate.cfg.Environment.USER, "sa"));
         db.setPassword(environment.getProperty(org.hibernate.cfg.Environment.PASS, ""));
         return db;
+    }
+
+    @Bean
+    public AuthzGroupService authzGroupService() {
+
+        return mock(AuthzGroupService.class);
+    }
+
+    @Bean
+    public EntityManager entityManager() {
+
+        return mock(EntityManager.class);
+    }
+
+    @Bean
+    public EventTrackingService eventTrackingService() {
+
+        return mock(EventTrackingService.class);
+    }
+
+    @Bean
+    public SiteService siteService() {
+
+        return mock(SiteService.class);
     }
 
     @Bean
