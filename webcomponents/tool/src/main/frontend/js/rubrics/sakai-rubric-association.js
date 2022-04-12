@@ -197,7 +197,7 @@ class SakaiRubricAssociation extends RubricsElement {
     this.rubrics = data._embedded.rubrics;
 
     if (data.page.size <= this.rubrics.length) {
-      this.getRubrics({"size": this.rubrics.length+25});
+      this.getRubrics({"size": this.rubrics.length + 25});
       return;
     }
 

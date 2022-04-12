@@ -143,7 +143,7 @@ export class SakaiHomeDashboard extends LitElement {
         <div id="courses-and-widgets">
           ${this.showSites ? html`
           <div id="courses"><sakai-course-list></div>
-          `: ""}
+          ` : ""}
           <div id="widgets">
             <sakai-widget-panel
               id="widget-grid"

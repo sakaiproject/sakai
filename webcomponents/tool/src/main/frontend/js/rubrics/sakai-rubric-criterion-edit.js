@@ -70,7 +70,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     `;
   }
 
-  onFocus(e){
+  onFocus(e) {
+
     e.target.closest('.criterion-row').classList.add("focused");
   }
 
@@ -94,7 +95,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
       const popover = $(`#edit_criterion_${this.criterion.id}`);
       popover[0].style.top = `${e.target.offsetTop + 20  }px`;
-      popover[0].style.left = `${e.target.offsetLeft - popover.width()/2  }px`;
+      popover[0].style.left = `${e.target.offsetLeft - popover.width() / 2  }px`;
       popover.show();
 
       // and highlight the title

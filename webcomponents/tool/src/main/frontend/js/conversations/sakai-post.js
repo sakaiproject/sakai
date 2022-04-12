@@ -236,7 +236,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
 
     this.post.comments = this.post.comments || [];
     this.post.comments.push(comment);
-    this.post.numberOfComments +=1;
+    this.post.numberOfComments += 1;
     this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
     this.showingComments = true;
   }
@@ -358,7 +358,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     const commentId = e.detail.comment.id;
     const index = this.post.comments.findIndex(c => c.id === commentId);
     this.post.comments.splice(index, 1);
-    this.post.numberOfComments -=1;
+    this.post.numberOfComments -= 1;
     this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
     this.requestUpdate();
   }

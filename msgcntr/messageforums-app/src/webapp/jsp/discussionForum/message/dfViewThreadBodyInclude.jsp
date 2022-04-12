@@ -28,7 +28,7 @@
 	<f:verbatim><div class="hierItemBlock" ></f:verbatim>
 			<%-- author image --%>
 			<h:panelGroup rendered="#{!message.deleted && ForumTool.showProfileInfo && !message.useAnonymousId}" styleClass="authorImage">
-				<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}" >
+				<h:outputLink value="#{ForumTool.serverUrl}/direct/portal/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}" >
 					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" />
 				</h:outputLink>
 				<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" rendered="#{!ForumTool.showProfileLink}" />

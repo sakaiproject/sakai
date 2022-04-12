@@ -86,7 +86,7 @@ export class SakaiRubricsList extends RubricsElement {
           return rubric;
         });
 
-        if (data.page.size <= this.rubrics.length){
+        if (data.page.size <= this.rubrics.length) {
           this.getRubrics(token, { "size": this.rubrics.length + 25 });
         }
       });

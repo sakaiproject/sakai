@@ -70,13 +70,16 @@ export class SakaiItemDelete extends RubricsElement {
     `;
   }
 
-  onFocus(e){
-    const criterionRow= e.target.closest('.criterion-row');
-    if(criterionRow!=undefined) criterionRow.classList.add("focused");
+  onFocus(e) {
+
+    const criterionRow = e.target.closest('.criterion-row');
+    if (criterionRow != undefined) criterionRow.classList.add("focused");
   }
-  focusOut(e){
-    const criterionRow= e.target.closest('.criterion-row');
-    if(criterionRow!=undefined) criterionRow.classList.remove("focused");
+
+  focusOut(e) {
+
+    const criterionRow = e.target.closest('.criterion-row');
+    if (criterionRow != undefined) criterionRow.classList.remove("focused");
   }
 
   closeOpen() {
@@ -99,7 +102,7 @@ export class SakaiItemDelete extends RubricsElement {
       const target = this.querySelector(".fa-times");
 
       popover[0].style.left = `${target.offsetLeft - 280  }px`;
-      popover[0].style.top = `${target.offsetTop - this.offsetHeight*2 - 10  }px`;
+      popover[0].style.top = `${target.offsetTop - this.offsetHeight * 2 - 10  }px`;
 
       $('.btn-danger').focus();
 
@@ -197,7 +200,7 @@ export class SakaiItemDelete extends RubricsElement {
   }
 
   openEditWithKeyboard(e) {
-    if(e.keyCode == 32) {
+    if (e.keyCode == 32) {
       this.deleteItem(e);
     }
   }

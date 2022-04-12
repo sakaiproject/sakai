@@ -23,6 +23,7 @@ module.exports = {
     "comma-spacing": "warn",
     "dot-notation": "warn",
     "indent": ["warn", 2, { "SwitchCase": 1, "MemberExpression": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
+    "keyword-spacing": "error",
     "linebreak-style": ["warn", "unix"],
     "no-array-constructor": "error",
     "no-caller": "error",
@@ -85,6 +86,8 @@ module.exports = {
     "prefer-template": "error",
     "require-atomic-updates": "error",
     "semi": ["warn", "always"],
+    "space-infix-ops": "error",
+    "space-before-blocks": "error",
     "strict": "error",
     "yoda": ["error", "never", { onlyEquality: true }],
   }
