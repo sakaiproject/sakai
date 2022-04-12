@@ -1,6 +1,5 @@
 import { html, css } from "../assets/lit-element/lit-element.js";
 import {ifDefined} from '../assets/lit-html/directives/if-defined.js';
-import  "./sakai-calendar-create-event.js";
 import  "./sakai-calendar-display-event.js";
 import { LionCalendar } from "../assets/@lion/calendar/src/LionCalendar.js";
 import moment from "../assets/moment/dist/moment.js";

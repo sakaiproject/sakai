@@ -24,7 +24,6 @@
     "@popperjs/core": "2.9.3",
     "@webcomponents/webcomponentsjs": "2.6.0",
     "cropperjs": "1.5.12",
-    "flatpickr": "4.6.9",
     "lit-element": "2.5.1",
     "moment": "2.29.1",
     "sortablejs": "1.14.0"

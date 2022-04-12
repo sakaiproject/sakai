@@ -454,8 +454,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               </select>
               <span>${this.assignmentsI18n["allow.resubmit.closeTime"]}:</span>
               <sakai-date-picker
-                epoch-millis="${this.submission.resubmitDate}"
-                @datetime-selected=${this.resubmitDateSelected}>
+                  epoch-millis="${this.submission.resubmitDate}"
+                  @datetime-selected=${this.resubmitDateSelected}
+                  label="${this.assignmentsI18n["allow.resubmit.closeTime"]}">
               </sakai-date-picker>
             </div>
           ` : ""}
@@ -467,8 +468,12 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 ${this.allowExtension ? html`
                     <div >${this.assignmentsI18n.allowExtensionCaptionGrader}</div>
                     <div id="allowExtensionTime" >
-                    <label >${this.assignmentsI18n["gen.acesubunt"]}</label>
-                    <sakai-date-picker epoch-millis="${this.submission.extensionDate}" @datetime-selected="${this.extensionDateSelected}" ></sakai-date-picker>
+                    <label>${this.assignmentsI18n["gen.acesubunt"]}</label>
+                    <sakai-date-picker
+                        epoch-millis="${this.submission.extensionDate}"
+                        @datetime-selected="${this.extensionDateSelected}"
+                        label="${this.assignmentsI18n["gen.acesubunt"]}">
+                    </sakai-date-picker>
                     </div>  
                 ` : ""}
                 </div>

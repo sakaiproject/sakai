@@ -310,11 +310,6 @@
 			<!-- Might be able to pass icon list to newer versions -->
 			<version>1.4.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>flatpickr</artifactId>
-			<version>4.6.9</version>
-		</dependency>
 		<!--Used in the Commons-->
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
