@@ -2350,7 +2350,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 // Additionally, we make sure that a Resubmission date is not set [make sure it's null],
                 // so that this date-switching happens ONLY under Extension-related circumstances.
                 if (submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME) != null
-                        && (BooleanUtils.toBoolean(submission.getGradeReleased()) || !BooleanUtils.toBoolean(submission.getUserSubmission()))) {
+                        && (submission.getReturned() || !submission.getUserSubmission())) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = !currentTime.isAfter(extensionCloseTime);
                 }
