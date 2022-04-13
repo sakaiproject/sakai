@@ -40,6 +40,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.i18nPromise.then(t => this.i18n = t);
 
     this.loadTranslations("assignment").then(t => this.assignmentsI18n = t);
+    if (typeof MathJax !== "undefined") {
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }
   }
 
   static get properties() {
