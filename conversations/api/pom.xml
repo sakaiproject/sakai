@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.sakaiproject.conversations</groupId>
     <artifactId>sakai-conversations-base</artifactId>
-    <version>22.0</version>
+    <version>22-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

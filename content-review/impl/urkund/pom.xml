@@ -10,7 +10,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>22.0</version>
+		<version>22-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>

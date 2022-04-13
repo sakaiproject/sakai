@@ -4,7 +4,7 @@
   <parent>
     <artifactId>login</artifactId>
     <groupId>org.sakaiproject.login</groupId>
-    <version>22.0</version>
+    <version>22-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>authn</name>
