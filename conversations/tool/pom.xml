@@ -4,7 +4,7 @@
 	<parent>
     <groupId>org.sakaiproject.conversations</groupId>
     <artifactId>sakai-conversations-base</artifactId>
-    <version>22-SNAPSHOT</version>
+    <version>22.0</version>
   </parent>
 
 	<artifactId>sakai-conversations-tool</artifactId>

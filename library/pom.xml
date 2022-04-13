@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>22-SNAPSHOT</version>
+		<version>22.0</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>

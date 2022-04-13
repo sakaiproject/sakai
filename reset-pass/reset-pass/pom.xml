@@ -5,7 +5,7 @@
     <parent>
         <artifactId>reset-pass</artifactId>
         <groupId>org.sakaiproject.reset-pass</groupId>
-        <version>22-SNAPSHOT</version>
+        <version>22.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Reset pass</name>

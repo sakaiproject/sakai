@@ -21,7 +21,7 @@ limitations under the License.
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>22-SNAPSHOT</version>
+    <version>22.0</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>

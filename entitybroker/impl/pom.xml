@@ -9,7 +9,7 @@
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>22-SNAPSHOT</version><!--entitybroker.version-->
+        <version>22.0</version><!--entitybroker.version-->
     </parent>
     <dependencies>
 <!-- internal dependencies -->

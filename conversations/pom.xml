@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>22-SNAPSHOT</version>
+    <version>22.0</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
   <groupId>org.sakaiproject.conversations</groupId>
   <artifactId>sakai-conversations-base</artifactId>
-  <version>22-SNAPSHOT</version>
+  <version>22.0</version>
   <packaging>pom</packaging>
 
   <modules>
