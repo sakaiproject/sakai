@@ -50,9 +50,7 @@
 								<td headers="title" scope="row">
 											<strong>
 												$formattedText.escapeHtml($!assignment.title)
-												#if ($assignment.getContentReview())
-													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
-												#end
+												#assignmentIcons($assignment)
 											</strong>
 								</td>
 								#if ($!allowRecoverAssignment)

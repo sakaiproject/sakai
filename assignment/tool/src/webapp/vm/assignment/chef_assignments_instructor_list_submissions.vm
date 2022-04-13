@@ -661,8 +661,8 @@ function printView(url) {
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-					#assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($assignment.Title)
+					#assignmentIcons($assignment)
 			</td>
 		</tr>
 		<tr>

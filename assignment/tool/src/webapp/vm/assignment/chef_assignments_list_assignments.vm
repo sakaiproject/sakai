@@ -91,10 +91,6 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach hidden-xs" scope="col"> 
-						&nbsp;
-						<span class="sr-only">$tlang.getString("gen.att")</span>
-					</th>				
 					<th id="title" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
@@ -243,17 +239,9 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
-							<td headers="attachments" class="attach hidden-xs">
-								#if (!$assignment.getAttachments().isEmpty())
-									<i class="icon-sakai--clip"></i>
-								#else
-									&nbsp;
-								#end
-							</td>						
 							<td headers="title" scope="row">
 								#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
 									<strong>
-										#assignmentTitleIcon($assignment)
 										## normal instructor view
 										#if ($assignment.Draft && $!allowUpdateAssignment )
 											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -266,9 +254,7 @@
 											$formattedText.escapeHtml($!assignment.Title)
 										</a>
 
-										#if ($assignment.getContentReview())
-											<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
-										#end
+										#assignmentIcons($assignment)
 
 										#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 										<sakai-rubric-student-button
@@ -319,7 +305,6 @@
 												#end
 											#end
 											## if not submitted or returned and still allowed to submit within the due time
-											#assignmentTitleIcon($assignment)
 											#if ($service.canSubmit($assignment))
 												## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -327,6 +312,7 @@
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
+											#assignmentIcons($assignment)
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -336,8 +322,8 @@
 												</sakai-rubric-student-button>
 											#end
 										#else
-											#assignmentTitleIcon($assignment)
 											$formattedText.escapeHtml($assignment.Title)
+											#assignmentIcons($assignment)
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -391,22 +377,25 @@
                                                         <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<strong>#assignmentTitleIcon($assignment)
+														<strong>
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+															#assignmentIcons($assignment)
 														</strong>
 													#end
 												#else
-													<strong>#assignmentTitleIcon($assignment)
+													<strong>
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+														#assignmentIcons($assignment)
 													</strong>
 												#end
 											#else
-												<strong>#assignmentTitleIcon($assignment)
+												<strong>
 													#if ($assignment.HonorPledge && $service.canSubmit($assignment))
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
                                                     	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#end
+													#assignmentIcons($assignment)
 												</strong>
 											#end
 											#set($submissionId="undefined")
@@ -589,8 +578,6 @@
 							<!-- only show to "students" -->
 							<!-- peer assessment overview row -->
 							<tr>
-								<!-- attachments col -->
-								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
 									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
@@ -685,8 +672,6 @@
 								#foreach ($review in $reviews)
 									#set ($reviewCount = $reviewCount + 1)
 									<tr>
-										<!-- attachments col -->
-										<td></td>
 										<!-- title col -->
 										<td>
 											<span class="indnt2">

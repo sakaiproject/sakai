@@ -75,7 +75,7 @@
                 $tlang.getString("gen.title")
             </th>
             <td valign="top">
-                #assignmentTitleIcon($assignment) $formattedText.escapeHtml($assignment.title)
+                $formattedText.escapeHtml($assignment.title) #assignmentIcons($assignment)
             </td>
         </tr>
         #if ($!assignment.IsGroup)
