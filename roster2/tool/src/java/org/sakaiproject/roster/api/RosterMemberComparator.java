@@ -34,15 +34,10 @@
 
 package org.sakaiproject.roster.api;
 
-import java.util.Comparator;
-
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
-import javax.annotation.Resource;
+import java.util.Comparator;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
