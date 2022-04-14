@@ -52,7 +52,7 @@ export class Submission {
       this.ltiSubmissionLaunch = init.ltiSubmissionLaunch;
 
       if (init.submitters) {
-        this.firstSubmitterName = init.submitters[0].sortName;
+        this.firstSubmitterName = `${init.submitters[0].sortName}${init.submitters[0].displayId !== null ? ` (${init.submitters[0].displayId})` : ''}`;
         this.firstSubmitterId = init.submitters[0].id;
       }
       this.late = init.late;

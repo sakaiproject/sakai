@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.assignment.entityproviders;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -1458,6 +1457,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String id;
         private String displayName;
         private String sortName;
+        private String displayId;
 
         public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
 
@@ -1468,6 +1468,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 User user = userDirectoryService.getUser(this.id);
                 this.displayName = user.getDisplayName();
                 this.sortName = user.getSortName();
+                this.displayId = user.getDisplayId();
             } else {
                 this.displayName = ass.getSubmission().getId() + " " + rb.getString("grading.anonymous.title");
                 this.sortName = this.displayName;
