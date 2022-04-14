@@ -2103,7 +2103,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (currentAssignment.getIsGroup()) {
 					final Map<String, User> users = assignmentToolUtils.getSubmitters(s)
 									.collect(Collectors.toMap(User::getId, Function.identity()));
-					context.put("submitterNames", getSubmitterFormattedNames(s, "build_student_view_submission_confirmation_context"));
+					context.put("submitterNames", getSubmitterFormattedNames(s, false));
                 }
                 putSubmissionLogMessagesInContext(context, s);
             }
@@ -2116,10 +2116,15 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_student_view_submission_confirmation_context
 
     //Get all submitter names from submission, comma separated and processed in formattedText
-	private String getSubmitterFormattedNames(AssignmentSubmission s, String method) {
+	private String getSubmitterFormattedNames(AssignmentSubmission s, boolean includeDisplayID) {
 		final Map<String, User> users = assignmentToolUtils.getSubmitters(s)
 						.collect(Collectors.toMap(User::getId, Function.identity()));
-		final String submitterNames = users.values().stream().map(u -> u.getDisplayName()).collect(Collectors.joining(", "));
+		final String submitterNames;
+		if (includeDisplayID) {
+			submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
+		} else {
+			submitterNames = users.values().stream().map(u -> u.getDisplayName()).collect(Collectors.joining(", "));
+		}
 		return formattedText.escapeHtml(submitterNames);
 	}
 
@@ -2549,7 +2554,7 @@ public class AssignmentAction extends PagedResourceActionII {
             securityService.popAdvisor(asgnAdvisor);
         }
         
-        context.put("submitterNames", getSubmitterFormattedNames(submission, "build_instructor_grade_submission_context"));
+        context.put("submitterNames", getSubmitterFormattedNames(submission, false));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_GRADE;
@@ -3568,7 +3573,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             context.put("users", users);
 
-            context.put("submitterNames", getSubmitterFormattedNames(s, "build_instructor_grade_submission_context"));
+            context.put("submitterNames", getSubmitterFormattedNames(s, true));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
             s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getSubmitter()));
 
@@ -4304,7 +4309,7 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
 
-            context.put("submitterNames", getSubmitterFormattedNames(submission, "build_instructor_preview_grade_submission_context"));
+            context.put("submitterNames", getSubmitterFormattedNames(submission, false));
 
             setScoringAgentProperties(context, assignment, submission, false);
 
@@ -10025,7 +10030,7 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentSubmission s = getSubmission(submissionId, "putSubmissionInfoIntoState", state);
             if (s != null) {
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getSubmittedText());
-                state.setAttribute(GRADE_SUBMISSION_SUBMITTERS_NAMES, getSubmitterFormattedNames(s, "putSubmissionInfoIntoState"));
+                state.setAttribute(GRADE_SUBMISSION_SUBMITTERS_NAMES, getSubmitterFormattedNames(s, false));
 
                 if ((s.getFeedbackText() == null) || (s.getFeedbackText().length() == 0)) {
                     state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getSubmittedText());
