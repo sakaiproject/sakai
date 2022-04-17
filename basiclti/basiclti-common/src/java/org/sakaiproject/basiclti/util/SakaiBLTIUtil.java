@@ -1834,6 +1834,8 @@ public class SakaiBLTIUtil {
 
 			lj.tool_platform = new ToolPlatform();
 			lj.tool_platform.name = "Sakai";
+			lj.tool_platform.guid = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, "guid-missing-42");
+
 			lj.tool_platform.version = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION);
 			lj.tool_platform.product_family_code = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE);
 			lj.tool_platform.url = ltiProps.getProperty(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL);
