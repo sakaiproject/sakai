@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 public class ToolPlatform {
 
+	@JsonProperty("guid")
+	public String guid;
 	@JsonProperty("name")
 	public String name;
 	@JsonProperty("contact_email")
