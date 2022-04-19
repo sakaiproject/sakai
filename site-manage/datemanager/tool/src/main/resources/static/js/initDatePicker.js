@@ -117,11 +117,9 @@ DTMN.attachDatePicker = function(selector, updates, notModified)
 			}
 		};
 		// Allow null dates where appropriate
-                if (dataTool === 'gradebookItems' ||
-                    dataTool === 'resources' ||
-                    dataTool === 'forums' ||
-                    (dataTool === 'assessments'&& (dataField === 'accept_until' || dataField === 'due_date'))) {
-                            datepickerOpts.allowEmptyDate = true;
+                if (dataTool === 'gradebookItems' || dataTool === 'resources' || dataTool === 'forums' ||
+                    (dataTool === 'assessments' && (dataField === 'accept_until' || dataField === 'due_date'))) {
+                        datepickerOpts.allowEmptyDate = true;
                 }
 
                 // If it's already null, lets not force a date
