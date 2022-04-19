@@ -46,7 +46,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   getTaskAssignedTo() {
     let result = this.task.taskAssignedTo;
     if (result != null) {
-      result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);	
+      result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);
     }
     return result;
   }
@@ -101,7 +101,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.reset();
     this.close();
   }
- 
+
   resetDate() {
 
     this.task.due = Date.now();
@@ -150,7 +150,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           completeEl.checked = true;
         } else {
           completeEl.checked = false;
-        }  
+        }
       }
     });
   }
@@ -164,31 +164,39 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   connectedCallback() {
+
     super.connectedCallback();
     this.deliverTasks = false;
     this.siteIdBackup = this.siteId;
     // Check user role - Only instructors can deliver tasks to students
     if (this.siteId && this.userId) {
-        const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
-        fetch(url).then((r) => {
-            if (r.ok) {
-                return r;
-            }
-            throw new Error(`Failed to get user role from ${url}`);
-        }).then((data) => {
-            this.deliverTasks = data;
-            // Retrieve group list from site
-            if (this.deliverTasks && this.siteId) {
-                fetch(`/api/tasks/site/groups/${this.siteId}`).then((r) => {
-                    if (r.ok) {
-                        return r.json();
-                    }
-                    throw new Error(`Failed to get site group list from ${url}`);
-                }).then((groups) => {
-                    this.optionsGroup = groups;
-                }).catch ((error) => console.error(error));
-            }
-        }).catch ((error) => console.error(error));
+      const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
+      fetch(url)
+      .then(r => {
+
+        if (r.ok) {
+          return r;
+        }
+        throw new Error(`Failed to get user role from ${url}`);
+      })
+      .then(data => {
+
+        this.deliverTasks = data;
+        // Retrieve group list from site
+        if (this.deliverTasks && this.siteId) {
+          fetch(`/api/tasks/site/groups/${this.siteId}`)
+            .then((r) => {
+
+              if (r.ok) {
+                return r.json();
+              }
+              throw new Error(`Failed to get site group list from ${url}`);
+            })
+            .then(groups => this.optionsGroup = groups)
+            .catch (error => console.error(error));
+        }
+      })
+      .catch (error => console.error(error));
     }
   }
 
@@ -230,7 +238,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   existGroups() {
     let result = false;
     if (Array.isArray(this.optionsGroup) && this.optionsGroup.length > 0) { result = true; }
-    return result; 
+    return result;
   }
 
   content() {
@@ -308,8 +316,8 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           <label for="description">${this.i18n.deliver_task}</label>
         </div>
         <div id="create-task-block">
-           <div>
-               <input type="radio"
+          <div>
+            <input type="radio"
                  id="task-current-user"
                  name="deliver-task"
                  aria-label="${this.i18n.deliver_my_dashboard}"
@@ -317,33 +325,33 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
                  value="user"
                  @click=${() => this.assignationType = 'user'}
                  ?checked=${this.assignationType === 'user'} >
-               <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
-           </div>
-           <div>
-               <input type="radio"
-                 id="task-students"
-                 name="deliver-task"
-                 aria-label="${this.i18n.deliver_site}"
-                 title="${this.i18n.deliver_site}"
-                 value="site"
-                 @click=${() => this.assignationType = 'site'}
-                 ?checked=${this.assignationType === 'site'}>
-               <label for="task-students">${this.i18n.deliver_site}</label>
-           </div>
-           <div style="display:${this.existGroups() ? 'inline' : 'none'}">
-			   <input type="radio"
-                 id="task-groups"
-                 name="deliver-task"
-                 aria-label="${this.i18n.deliver_group}"
-                 title="${this.i18n.deliver_group}"
-                 value="group"
-                 @click=${() => this.assignationType = 'group'}
-                 ?checked=${this.assignationType === 'group'}>
-               <label for="task-groups">${this.i18n.deliver_group}</label>
-           </div>
-           <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">
-           ${this.groupComboList()}
-           </div>
+             <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
+          </div>
+          <div>
+            <input type="radio"
+                id="task-students"
+                name="deliver-task"
+                aria-label="${this.i18n.deliver_site}"
+                title="${this.i18n.deliver_site}"
+                value="site"
+                @click=${() => this.assignationType = 'site'}
+                ?checked=${this.assignationType === 'site'}>
+            <label for="task-students">${this.i18n.deliver_site}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'inline' : 'none'}">
+            <input type="radio"
+                id="task-groups"
+                name="deliver-task"
+                aria-label="${this.i18n.deliver_group}"
+                title="${this.i18n.deliver_group}"
+                value="group"
+                @click=${() => this.assignationType = 'group'}
+                ?checked=${this.assignationType === 'group'}>
+            <label for="task-groups">${this.i18n.deliver_group}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">
+            ${this.groupComboList()}
+          </div>
         </div>
       ` : ""}
       ${this.error ? html`<div id="error">${this.i18n.save_failed}</div>` : ""}
