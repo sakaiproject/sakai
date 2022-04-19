@@ -16,6 +16,7 @@ public class OAUTH2ObjectTest {
 		at.access_token = "42";
 		at.expires_in = new Long(3600);
 		at.token_type = AccessToken.BEARER;
+		at.scope = "yada scope";
 
 		String atsp = JacksonUtil.prettyPrint(at);
 		boolean good = atsp.contains("3600");
