@@ -36,7 +36,7 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.elasticsearch.version>7.17.1</sakai.elasticsearch.version>
-    <sakai.hibernate.version>5.3.26.Final</sakai.hibernate.version>
+    <sakai.hibernate.version>5.4.33.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>5.0.1</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.13</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.15</sakai.httpcore.version>
