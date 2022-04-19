@@ -625,12 +625,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				/*Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonItem.get("due_date")).toInstant();
-
-				if (dueDate == null) {
-					errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "gradebookItems", toolTitle, idx));
-					continue;
-				}*/
 				String dueDateRaw = (String) jsonItem.get("due_date");
 				Instant dueDate = null;
 				if (dueDateRaw != null && !dueDateRaw.isEmpty())
@@ -847,18 +841,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				/*Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("open_date")).toInstant();
-				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonResource.get("due_date")).toInstant();
-				boolean errored = false;
-				if (openDate == null) {
-					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "resources", toolTitle, idx));
-				}
-				if (dueDate == null) {
-					errored = errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "resources", toolTitle, idx));
-				}
-				if (errored) {
-					continue;
-				}*/
 				String openDateRaw = (String) jsonResource.get("open_date");
 				String dueDateRaw = (String) jsonResource.get("due_date");
 
@@ -1169,18 +1151,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 					continue;
 				}
 
-				/*Instant openDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("open_date")).toInstant();
-				Instant dueDate = userTimeService.parseISODateInUserTimezone((String)jsonForum.get("due_date")).toInstant();
-				boolean errored = false;
-				if (openDate == null) {
-					errored = errors.add(new DateManagerError("open_date", rb.getString("error.open.date.not.found"), "forums", toolTitle, idx));
-				}
-				if (dueDate == null) {
-					errored = errors.add(new DateManagerError("due_date", rb.getString("error.due.date.not.found"), "forums", toolTitle, idx));
-				}
-				if (errored) {
-					continue;
-				}*/
 				String openDateRaw = (String) jsonForum.get("open_date");
 				String dueDateRaw = (String) jsonForum.get("due_date");
 
@@ -1201,10 +1171,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 						continue;
 					}
 
-					/*boolean canUpdate = contentHostingService.allowUpdateResource(resourceId);
-					if (!canUpdate) {
-						errors.add(new DateManagerError("forum", rb.getString("error.update.permission.denied"), "forums", toolTitle, idx));
-					}*/
 					update = new DateManagerUpdate(forum, openDate, dueDate, null, null, null);
 				} else {
 					Topic topic = forumManager.getTopicById(true, forumId);
@@ -1213,10 +1179,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 						continue;
 					}
 
-					/*boolean canUpdate = contentHostingService.allowUpdateCollection(resourceId);
-					if (!canUpdate) {
-						errors.add(new DateManagerError("forum", rb.getString("error.update.permission.denied"), "forums", toolTitle, idx));
-					}*/
 					update = new DateManagerUpdate(topic, openDate, dueDate, null, null, null);
 				}
 
@@ -1316,10 +1278,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		List<Object> updates = new ArrayList<>();
 
 		String anncRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
-		/*boolean canUpdate = messageService.allowEditChanel(anncRef);
-		if (!canUpdate) {
-			errors.add(new DateManagerError("announcement", rb.getString("error.update.permission.denied"), "announcements", toolTitle, 0));
-		}*/
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_ANNOUNCEMENTS).getTitle();
 		AnnouncementMessageEdit announcement = null;
 		for (int i = 0; i < announcements.size(); i++) {
@@ -1450,10 +1408,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 		DateManagerValidation lessonsValidate = new DateManagerValidation();
 		List<DateManagerError> errors = new ArrayList<>();
 		List<Object> updates = new ArrayList<>();
-
-		/*if(!securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteService.siteReference(siteId));
-			errors.add(new DateManagerError("page", rb.getString("error.update.permission.denied"), "lessons", toolTitle, 0));
-		}*/
 
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
 		for (int i = 0; i < lessons.size(); i++) {
