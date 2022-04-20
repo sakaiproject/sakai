@@ -151,8 +151,8 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						#assignmentTitleIcon($assignment)
 						$formattedText.escapeHtml($assignment.Title)
+						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
 						#if ($deleted)
