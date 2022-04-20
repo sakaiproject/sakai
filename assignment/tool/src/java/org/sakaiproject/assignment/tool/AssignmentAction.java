@@ -4370,6 +4370,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String submissionId = state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID).toString();
         List<SubmitterSubmission> subs = (List<SubmitterSubmission>) state.getAttribute(STATE_PAGEING_TOTAL_ITEMS);
+        if (!subs.isEmpty() && !(subs.get(0) instanceof SubmitterSubmission)) {
+            return 1;
+        }
         int subIndex = 0;
 
         for (int i = 0; i < subs.size(); ++i) {
