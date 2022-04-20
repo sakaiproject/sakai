@@ -41,7 +41,7 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Str
     public Integer deleteByPost_Id(String postId) {
 
         return sessionFactory.getCurrentSession()
-            .createQuery("delete from Comment where post.id = :postId")
+            .createQuery("delete from ConversationsComment where post.id = :postId")
             .setString("postId", postId).executeUpdate();
     }
 
@@ -49,7 +49,7 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Str
     public Integer lockByPost_Id(String postId, Boolean locked) {
 
         return sessionFactory.getCurrentSession()
-            .createQuery("update Comment set locked = :locked where post.id = :postId")
+            .createQuery("update ConversationsComment set locked = :locked where post.id = :postId")
             .setBoolean("locked", locked).setString("postId", postId).executeUpdate();
     }
 
@@ -57,20 +57,15 @@ public class CommentRepositoryImpl extends SpringCrudRepositoryImpl<Comment, Str
     public Integer lockBySiteId(String siteId, Boolean locked) {
 
         return sessionFactory.getCurrentSession()
-            .createQuery("update Comment set locked = :locked where siteId = :siteId")
+            .createQuery("update ConversationsComment set locked = :locked where siteId = :siteId")
             .setBoolean("locked", locked).setString("siteId", siteId).executeUpdate();
     }
 
     @Transactional
     public Integer deleteByPost_Topic_Id(String topicId) {
 
-        /*
         return sessionFactory.getCurrentSession()
-            .createQuery("delete from Comment where post.topic.id = :topicId")
-            .setString("topicId", topicId).executeUpdate();
-            */
-        return sessionFactory.getCurrentSession()
-            .createQuery("delete from Comment c join c.post p where p.topic = :topicId")
+            .createQuery("delete from ConversationsComment c join c.post p where p.topic = :topicId")
             .setString("topicId", topicId).executeUpdate();
     }
 }
