@@ -5038,4 +5038,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return timeSheetService.intToTime(time);
     }
 
+    @Override
+    public String getContentReviewServiceName() {
+        return this.contentReviewService.getServiceName();
+    }
 }
