@@ -49,10 +49,11 @@
 							<tr>
 								<td headers="title" scope="row">
 											<strong>
-												$formattedText.escapeHtml($!assignment.title)
-												#if ($assignment.getContentReview())
-													<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+												#if ($assignment.draft)
+													<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
+												$formattedText.escapeHtml($!assignment.title)
+												#assignmentIcons($assignment)
 											</strong>
 								</td>
 								#if ($!allowRecoverAssignment)

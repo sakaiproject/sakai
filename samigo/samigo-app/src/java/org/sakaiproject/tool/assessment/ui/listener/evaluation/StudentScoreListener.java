@@ -115,6 +115,7 @@ import lombok.extern.slf4j.Slf4j;
       bean.setAssessmentGradingId(ContextUtil.lookupParam("gradingData"));
       bean.setItemId(ContextUtil.lookupParam("itemId"));
       bean.setEmail(agent.getEmail());
+      bean.setDisplayId(agent.getDisplayIdString());
       
       DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
