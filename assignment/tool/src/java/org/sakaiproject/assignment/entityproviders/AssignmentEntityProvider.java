@@ -710,11 +710,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return new ActionReturn(data);
     }
     
-    private Map<String, String> addOriginalityProperties(AssignmentSubmission as){
+    private Map<String, String> addOriginalityProperties(AssignmentSubmission as) {
+
         Map<String, String> existing = as.getProperties();
         existing.put("originalityServiceName", this.assignmentService.getContentReviewServiceName());
         int reviewCounting = 1;
-        for(ContentReviewResult c: this.assignmentService.getSortedContentReviewResults(as)){   //real part; will work on a Turnitin-enabled server
+        for (ContentReviewResult c: this.assignmentService.getSortedContentReviewResults(as)) {   //real part; will work on a Turnitin-enabled server
             existing.put("originalityLink" + Integer.toString(reviewCounting), c.getReviewReport());
             existing.put("originalityIcon" + Integer.toString(reviewCounting), c.getReviewIconCssClass());
             existing.put("originalityScore" + Integer.toString(reviewCounting), Integer.toString(c.getReviewScore()));
