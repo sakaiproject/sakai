@@ -383,7 +383,7 @@
                     #if ($reference)
                         #set ($props = false)
                         #set ($props = $reference.Properties)
-                        #if ($!props && $!props.PropertyNames.hasNext())
+                        #if ($!props && !$!props.isEmpty())
                             <li>
                                 #if ($props.getBooleanProperty($props.NamePropIsCollection))
                                     <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
