@@ -44,6 +44,8 @@ jobs:
           cp sakai/master.properties sakai/sakai.properties
           sed -i 's:<Context>:<Context><JarScanner><JarScanFilter defaultPluggabilityScan="false" /></JarScanner>:g' conf/context.xml
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
+          mkdir -p conf/Catalina/localhost
+          echo "<Context override=\"true\" docBase=\"$TOMCAT_DIR/logs\" path=\"/logs\" />" > conf/Catalina/localhost/logs.xml
           mysql -u root -proot -e "create database sakai"; 
           echo "url@javax.sql.BaseDataSource=jdbc:mysql://127.0.0.1:3306/sakai?useUnicode=true&characterEncoding=UTF-8&log=true&profileSQL=true" >> sakai/local.properties
           echo "vendor@org.sakaiproject.db.api.SqlService=mysql" >> sakai/local.properties
