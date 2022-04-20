@@ -7,7 +7,7 @@
           class="org.sakaiproject.util.ResourceLoader">
     </bean>
 
-	<bean id="gradingHibernateMappings"
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading"
 		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="annotatedClasses">
 			<list>

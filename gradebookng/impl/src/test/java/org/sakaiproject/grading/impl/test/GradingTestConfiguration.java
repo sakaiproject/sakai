@@ -39,10 +39,9 @@ import lombok.Getter;
 @ImportResource("classpath:/WEB-INF/components.xml")
 @PropertySource("classpath:/hibernate.properties")
 public class GradingTestConfiguration extends SakaiTestConfiguration {
-//public class GradingTestConfiguration {
 
     @Autowired
-    @Qualifier("gradingHibernateMappings")
+    @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading")
     @Getter
     private AdditionalHibernateMappings additionalHibernateMappings;
 
