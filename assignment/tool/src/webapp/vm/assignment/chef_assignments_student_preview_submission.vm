@@ -16,8 +16,8 @@
                 $tlang.getString("gen.title")
             </th>
             <td>
-                #assignmentTitleIcon($assignment)
 				$formattedText.escapeHtml($assignment.Title)
+                #assignmentIcons($assignment)
             </td>
         </tr>
         <tr>

@@ -40,8 +40,8 @@
 		         style="width:70%;line-height:1.4em">
 				 		
 				<h3>
-                    #assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($!assignment.title)
+					#assignmentIcons($assignment)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;
 					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
