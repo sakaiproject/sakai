@@ -1439,7 +1439,7 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 $.datepicker._updateDatepicker_original = $.datepicker._updateDatepicker;
 $.datepicker._updateDatepicker = function(inst) {
 	$.datepicker._updateDatepicker_original(inst);
-	var afterShow = this._get(inst, 'afterShow');
+	const afterShow = this._get(inst, 'afterShow');
 	if (afterShow) afterShow.apply((inst.input ? inst.input[0] : null));  // trigger custom callback
 };
 
@@ -1587,11 +1587,7 @@ $.datepicker._gotoToday = function (id) {
                 };
 
 
-		// add blur event to allow edit input field
-		// Moved to init to handle updates without date-picker popup
-                //cfg.beforeShow = function(input, inst) {
-                //	setBlur(input);
-                //};
+
                 // on select, runs our custom method for setting dates
                 cfg.onSelect = function(dtObj, dpInst) {
                         setHiddenFields($(this).datepicker("getDate"), options, dpInst);
@@ -1602,13 +1598,14 @@ $.datepicker._gotoToday = function (id) {
 
                 // When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
                 cfg.onClose = function(dtObj, dpInst) {
-                        if (dtObj == '' && options.allowEmptyDate){
+                        if (dtObj === '' && options.allowEmptyDate){
                                 setHiddenFields($(this).datepicker("getDate"), options, dpInst);
                         }
                 };
                 var setBlur = function(input) {
-			$(input).unbind('blur');
-			$(input).on('blur', function(){
+                        let inp = $(input);
+			inp.unbind('blur');
+			inp.on('blur', function(){
 				var momentDateFormat = $(this).datepicker("option","dateFormat").replace('yy','yyyy').toUpperCase();
 				var momentTimeFormat = $(this).datepicker("option","timeFormat").replace('tt','a');
 				var mc = moment($(input).val(),momentDateFormat+' '+momentTimeFormat);
@@ -1622,19 +1619,19 @@ $.datepicker._gotoToday = function (id) {
 					var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
 					var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
 					if(cfg.showTimepicker){
-						$(input).val(stringDay + ' ' + stringTime);
+						inp.val(stringDay + ' ' + stringTime);
 					} else {
-						$(input).val(stringDay);
+						inp.val(stringDay);
 					}
 				}
 				// Set hidden field to null if allowed
-                                if (options.allowEmptyDate && $(input).val() == "") {
+                                if (options.allowEmptyDate && inp.val() == "") {
                                         setHiddenFields("", options, input);
                                 }
 			});
                 }
 
-                if (options.ashidden !== undefined) {
+                if (options.ashidden) {
                         setBlur(options.input);
                 }
 
@@ -1727,7 +1724,7 @@ $.datepicker._gotoToday = function (id) {
 				jQuery.each(o.ashidden, function(i, h) {
 					var oldValue = jQuery('#' + h).val();
 					var newValue = '';
-					if(d != null && d != ""){
+					if(d){
 						switch(i) {
 							case "month":
 							  newValue = d.getMonth() + 1;
@@ -1751,12 +1748,12 @@ $.datepicker._gotoToday = function (id) {
 							  newValue = moment(d).format();
 							  break;
 						}
-                                        } else if (d == "") {
+                                        } else if (d === "") {
                                              newValue = null;
                                         }
                                         // If oldvalue is empty, we need to update the hidden field twice, to unlock the submit
                                         // button in datemanager
-                                        if (oldValue == '' && newValue != '') {
+                                        if (oldValue === '' && newValue != '') {
                                              jQuery('#' + h).change();
 					}
 					jQuery('#' + h).val(newValue);
