@@ -33,7 +33,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+@Entity(name = "ConversationsComment")
 @Table(name = "CONV_COMMENTS", indexes = { @Index(columnList = "POST_ID"),
                                         @Index(columnList = "SITE_ID") })
 @Getter
