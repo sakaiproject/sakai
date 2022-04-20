@@ -62,6 +62,7 @@ jobs:
         run: |
           curl -sL -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared.deb
+          sudo sysctl -w net.core.rmem_max=2500000
           cloudflared tunnel --url http://localhost:8443 &
       - name: Cypress Checkout
         uses: actions/checkout@v2
