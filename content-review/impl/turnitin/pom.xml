@@ -88,10 +88,10 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>

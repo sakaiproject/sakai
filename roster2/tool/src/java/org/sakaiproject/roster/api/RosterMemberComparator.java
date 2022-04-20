@@ -34,12 +34,10 @@
 
 package org.sakaiproject.roster.api;
 
-import java.util.Comparator;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
-
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
+
+import java.util.Comparator;
 
 /**
  * <code>Comparator</code> for <code>RosterMember</code>s.
@@ -50,32 +48,25 @@ import lombok.extern.slf4j.Slf4j;
 public class RosterMemberComparator implements Comparator<RosterMember> {
 
     private final boolean firstNameLastName;
-    private RuleBasedCollator collator;
+    private UserSortNameComparator sortNameComparator = new UserSortNameComparator();
+    private UserSortNameComparator displayNameComparator = new UserSortNameComparator(true, true);
 
     public RosterMemberComparator(boolean firstNameLastName) {
-
         this.firstNameLastName = firstNameLastName;
-
-        try {
-            RuleBasedCollator collator_ini = (RuleBasedCollator) Collator.getInstance();
-            collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-        } catch (ParseException pe) {
-            log.error("ERROR: Failed to setup collator", pe);
-        }
     }
 	
     /**
      * Compares two <code>RosterMember</code> objects according to the sorting
      * order configured in this instance of <code>RosterMemberComparator</code>.
      *
-     * @see java.text.Collator#compare(java.lang.String, java.lang.String)
+     * @see UserSortNameComparator
      */
     public int compare(RosterMember member1, RosterMember member2) {
 
         if (firstNameLastName) {
-            return this.collator.compare (member1.getDisplayName(),member2.getDisplayName());
+            return displayNameComparator.compare(member1.getUser(), member2.getUser());
         } else {
-            return this.collator.compare (member1.getSortName(),member2.getSortName());
+            return sortNameComparator.compare(member1.getUser(), member2.getUser());
         }
     }
 }

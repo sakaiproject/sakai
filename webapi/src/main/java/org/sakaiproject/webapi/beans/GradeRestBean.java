@@ -13,7 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.beans;
 
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.grading.api.GradeDefinition;
 
 import lombok.Getter;
 import lombok.Setter;

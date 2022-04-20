@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
  * Helper class to handle the formatting of the course grade display string
@@ -73,7 +73,7 @@ public class CourseGradeFormatter {
 	 *
 	 * @return the formatted display string
 	 */
-	public String format(final CourseGrade courseGrade) {
+	public String format(final CourseGradeTransferBean courseGrade) {
 
 		String rval = null;
 
@@ -92,7 +92,7 @@ public class CourseGradeFormatter {
 			}
 			// student, check if course grade released, and permission check
 		} else {
-			if (this.gradebook.isCourseGradeDisplayed()) {
+			if (this.gradebook.getCourseGradeDisplayed()) {
 				if (!this.isCourseGradeVisible) {
 					rval = MessageHelper.getString("label.coursegrade.nopermission");
 				} else {
@@ -117,7 +117,7 @@ public class CourseGradeFormatter {
 	 *
 	 * @return formatted string ready for display
 	 */
-	private String build(final CourseGrade courseGrade) {
+	private String build(final CourseGradeTransferBean courseGrade) {
 		final List<String> parts = new ArrayList<>();
 
 		// letter grade
@@ -129,7 +129,7 @@ public class CourseGradeFormatter {
 		}
 
 		if (StringUtils.isNotBlank(letterGrade)
-				&& (this.gradebook.isCourseLetterGradeDisplayed() || shouldDisplayFullCourseGrade())) {
+				&& (this.gradebook.getCourseLetterGradeDisplayed() || shouldDisplayFullCourseGrade())) {
 			parts.add(letterGrade);
 		}
 
@@ -138,7 +138,7 @@ public class CourseGradeFormatter {
 		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
 
 		if (StringUtils.isNotBlank(calculatedGrade)
-				&& (this.gradebook.isCourseAverageDisplayed() || shouldDisplayFullCourseGrade())) {
+				&& (this.gradebook.getCourseAverageDisplayed() || shouldDisplayFullCourseGrade())) {
 			if (parts.isEmpty()) {
 				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
 						new Object[] { calculatedGrade }).getString());
@@ -152,8 +152,8 @@ public class CourseGradeFormatter {
 		if (this.showPoints) {
 
 			// don't display points for weighted category type
-			final GbCategoryType categoryType = GbCategoryType.valueOf(this.gradebook.getCategory_type());
-			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
+			final GradingCategoryType categoryType = this.gradebook.getCategoryType();
+			if (categoryType != GradingCategoryType.WEIGHTED_CATEGORY) {
 
 				Double pointsEarned = courseGrade.getPointsEarned();
 				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
@@ -166,7 +166,7 @@ public class CourseGradeFormatter {
 
 				// if instructor, show the points if requested
 				// otherwise check the settings
-				if (shouldDisplayFullCourseGrade() || this.gradebook.isCoursePointsDisplayed()) {
+				if (shouldDisplayFullCourseGrade() || this.gradebook.getCoursePointsDisplayed()) {
 					if (pointsEarned != null && totalPointsPossible != null) {
 						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned);
 						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible);

@@ -37,20 +37,13 @@
 		</dependencies>
 	</dependencyManagement>
 	<modules>
+		<module>api</module>
 		<module>bundle</module>
+		<module>impl</module>
 		<module>tool</module>
 	</modules>
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>true</downloadJavadocs>
-				</configuration>
-			</plugin>
-		</plugins>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
 	</build>
 </project>

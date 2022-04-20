@@ -65,9 +65,8 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
@@ -363,10 +362,10 @@ public class PublishAssessmentListener
     }
 
     //#b - check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     if (integrated){
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-           getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+           getBean("org.sakaiproject.grading.api.GradingService");
     }
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{

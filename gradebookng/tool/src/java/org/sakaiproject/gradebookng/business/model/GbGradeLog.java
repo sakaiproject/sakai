@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.sakaiproject.service.gradebook.shared.GradingEventStatus;
-import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.grading.api.GradingEventStatus;
+import org.sakaiproject.grading.api.model.GradingEvent;
 
 import lombok.Getter;
 

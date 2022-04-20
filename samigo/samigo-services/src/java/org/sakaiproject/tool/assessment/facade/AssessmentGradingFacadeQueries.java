@@ -75,7 +75,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -3001,15 +3000,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        GradebookExternalAssessmentService g = null;
+        org.sakaiproject.grading.api.GradingService g = null;
         boolean updateGrades = false;
         Map<Long, String> toGradebookPublishedAssessmentSiteIdMap = null;
         GradebookServiceHelper gbsHelper = null;
         if (IntegrationContextFactory.getInstance() != null) {
             boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
             if (integrated) {
-                g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance()
-                        .getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+                g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance()
+                        .getBean("org.sakaiproject.grading.api.GradingService");
             }
             toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
             gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();

@@ -82,8 +82,8 @@
                     $tlang.getString('assignment.title')
                 </th>
                 <td>
-                    #assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($!assignment.Title)
+                    #assignmentIcons($assignment)
                 </td>
             </tr>
             ## submission id

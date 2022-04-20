@@ -96,7 +96,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -7889,6 +7889,7 @@ public class SimplePageBean {
 		Double gradebookPoints = null;
 		if (question.getGradebookPoints() != null)
 		    gradebookPoints = (double)question.getGradebookPoints();
+		boolean questionGraded = "true".equals(question.getAttribute("questionGraded"));
 
 		boolean correct;
 		if(response.isOverridden()) {
@@ -7900,8 +7901,14 @@ public class SimplePageBean {
 			if(answer != null && answer.isCorrect()) {
 				correct = true;
 			}else if(answer != null && !answer.isCorrect()){
-				correct = false;
-				gradebookPoints = 0.0;
+				boolean noCorrectAnswers = !simplePageToolDao.hasCorrectAnswer(question);
+				if (noCorrectAnswers) {
+					correct = !questionGraded; // if not graded, it is a poll and any answer is "correct", otherwise requires manual grading so default to false
+					gradebookPoints = null;
+				} else { // autograded
+					correct = false;
+					gradebookPoints = 0.0;
+				}
 			}else {
 				// The answer no longer exists, so we'll just leave everything the way it was last time it was graded.
 				correct = response.isCorrect();
@@ -7913,23 +7920,30 @@ public class SimplePageBean {
 			String theirResponse = response.getShortanswer().trim().toLowerCase();
 			
 			int totalTokens = correctAnswerTokenizer.countTokens();
-			boolean foundAnswer = false;
-			for(int i = 0; i < totalTokens; i++) {
-				String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
-				
-				if(theirResponse.equals(token)) {
-					foundAnswer = true;
-					break;
-				}
-			}
-			if(totalTokens == 0 && !theirResponse.isEmpty()) {
-				foundAnswer = true;
-			}
-			if(foundAnswer) {
-				correct = true;
-			}else {
+
+			if (totalTokens > 0) {  // correct answers exist
 				correct = false;
-				gradebookPoints = 0.0;
+				for(int i = 0; i < totalTokens; i++) {
+					String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
+
+					if(theirResponse.equals(token)) {
+						correct = true;
+						break;
+					}
+				}
+				if (questionGraded) {
+					if (!correct) {
+						gradebookPoints = 0.0;
+					}
+				} else {
+					gradebookPoints = null;
+				}
+			} else if (questionGraded) {  // no correct answers, manually graded
+				correct = false;
+				gradebookPoints = null;
+			} else {  // no correct answers, ungraded
+				correct = !theirResponse.isEmpty(); // any non-empty answer is considered "correct" for this question type
+				gradebookPoints = null;
 			}
 		}else {
 			log.warn("Invalid question type for question {}", question.getId());
@@ -7937,12 +7951,13 @@ public class SimplePageBean {
 		}
 		
 		response.setCorrect(correct);
-		if ("true".equals(question.getAttribute("questionGraded")))
+		if (gradebookPoints != null && questionGraded) {
 		    response.setPoints(gradebookPoints);
 		
-		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
-			gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
-			       response.getUserId(), String.valueOf(gradebookPoints));
+			if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
+					   response.getUserId(), String.valueOf(gradebookPoints));
+			}
 		}
 
 		return correct;

@@ -533,7 +533,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$!service.getSubmissionStatus($!submissionId, false)
+								$!service.getSubmissionStatus($!submissionId, true)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>
@@ -661,8 +661,8 @@ function printView(url) {
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-					#assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($assignment.Title)
+					#assignmentIcons($assignment)
 			</td>
 		</tr>
 		<tr>

@@ -68,7 +68,7 @@ $(document).ready(function(){
 			<h3>
 				$formattedText.escapeHtml($assignment.Title)
 				<span class="highlight">
-					 - $!service.getSubmissionStatus($submission.Id, false)
+					 - $!service.getSubmissionStatus($submission.Id, true)
 				</span>
 			</h3>
 			#end
@@ -151,8 +151,8 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						#assignmentTitleIcon($assignment)
 						$formattedText.escapeHtml($assignment.Title)
+						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
 						#if ($deleted)
@@ -219,7 +219,7 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								$!service.getSubmissionStatus($submission.Id, false)
+								$!service.getSubmissionStatus($submission.Id, true)
 							#else
 								$tlang.getString("gen.notsta")
 							#end

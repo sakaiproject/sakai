@@ -50,11 +50,11 @@ import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,7 +78,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 		// settings for stats display
 		final GradebookInformation settings = getSettings();
-		this.assignmentStatsEnabled = settings.isAssignmentStatsDisplayed();
+		this.assignmentStatsEnabled = settings.getAssignmentStatsDisplayed();
 
 	}
 
@@ -96,7 +96,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final GradingType gradingType = (GradingType) data.get("gradingType");
+		final GradeType gradeType = (GradeType) data.get("gradeType");
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
@@ -189,7 +189,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 				// popover flags
 				final CategoryFlags cf = getCategoryFlags(categoryName, categoriesMap);
 				final WebMarkupContainer flags = new WebMarkupContainer("flags");
-				flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+				flags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
 				flags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
 				categoryRow.add(flags.setVisible(cf.hasFlags()));
 
@@ -306,9 +306,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 										this.
 										serverConfigService.
 										getBoolean("gradebookng.allowStudentsToCompareGradesWithClassmates", false) &&
-										getSettings().isAllowStudentsToCompareGrades() &&
+										getSettings().getAllowStudentsToCompareGrades() &&
 										// Inlcuding all assigments that doesn't count if this property is set
-										(getSettings().isComparingIncludeAllGrades() || assignment.isCounted())
+										(getSettings().getComparingIncludeAllGrades() || assignment.getCounted())
 										&&
 										// Only show this to students because this panel is also accesible for instructors
 										GradeSummaryTablePanel.this.getUserRole() == GbRole.STUDENT;
@@ -318,19 +318,19 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.isExtraCredit()));
-						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.isCounted()));
-						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.isReleased()));
+						flags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracredit"), assignment.getExtraCredit()));
+						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.getCounted()));
+						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.getReleased()));
 						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
 						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
-						flags.add(newPopoverFlag("isExternal", extAppName, assignment.isExternallyMaintained())
+						flags.add(newPopoverFlag("isExternal", extAppName, assignment.getExternallyMaintained())
 								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
 						flags.setVisible(
-								assignment.isExtraCredit() ||
-								!assignment.isCounted() ||
-								!assignment.isReleased() ||
+								assignment.getExtraCredit() ||
+								!assignment.getCounted() ||
+								!assignment.getReleased() ||
 								excused ||
-								assignment.isExternallyMaintained()
+								assignment.getExternallyMaintained()
 						);
 						assignmentItem.add(flags);
 
@@ -344,7 +344,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 						assignmentItem.add(dueDate);
 
 						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
-						if (GradingType.PERCENTAGE.equals(gradingType)) {
+						if (GradeType.PERCENTAGE == gradeType) {
 							gradeScore.add(new Label("grade",
 									new StringResourceModel("label.percentage.valued", null,
 											new Object[] { FormatHelper.formatGrade(rawGrade) })) {
@@ -381,7 +381,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView);
 
-							if (assignment.isExternallyMaintained()) {
+							if (assignment.getExternallyMaintained()) {
 								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
@@ -443,7 +443,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						final CategoryFlags cf = getCategoryFlags(assignment.getCategoryName(), categoriesMap);
 						final WebMarkupContainer cflags = new WebMarkupContainer("cflags");
-						cflags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+						cflags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
 						cflags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
 						catCon.add(cflags.setVisible(cf.hasFlags()));
 
@@ -464,7 +464,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
 			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId());
-			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
+			if (assignment.getExternallyMaintained() && gradeDefinition.getGrade() == null) {
 				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}
 		}

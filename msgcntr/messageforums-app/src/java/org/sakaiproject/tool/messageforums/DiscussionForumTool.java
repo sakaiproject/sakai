@@ -119,9 +119,10 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -498,39 +499,8 @@ public class DiscussionForumTool {
     showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
-  // Is Gradebook defined for the site?
-  protected boolean isGradebookDefined()
-  {
-	  boolean rv = false;
-	  try
-	  {
-		  Object og = ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-		  if (!(og instanceof GradebookService)) {
-			log.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
-			return false;
-		  }
-			
-		  GradebookService g = (GradebookService) og;
-		  String gradebookUid = toolManager.getCurrentPlacement().getContext();
-		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
-		  {
-			  rv = true;
-		  }
-	  }
-	  catch (Exception e)
-	  {
-		  log.info(this + "isGradebookDefined " + e.getMessage());
-	  }
-
-	  return rv;
-
-  } // isGradebookDefined()
-
-  protected GradebookService getGradebookService() {
-	if (isGradebookDefined()) {
-		return (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-	}
-	return null;
+  protected GradingService getGradingService() {
+    return (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
   }
 
   /**
@@ -691,16 +661,14 @@ public class DiscussionForumTool {
         assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
 
         //Code to get the gradebook service from ComponentManager
-        GradebookService gradebookService = getGradebookService();
+        GradingService gradingService = getGradingService();
 
-        if (getGradebookExist()) {
-          for (Assignment thisAssign : gradebookService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
-            if (!thisAssign.isExternallyMaintained()) {
-              try {
-                assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
-              } catch (Exception e) {
-                log.error("DiscussionForumTool - processDfMsgGrd:" + e);
-              }
+        for (Assignment thisAssign : gradingService.getAssignments(toolManager.getCurrentPlacement().getContext())) {
+          if (!thisAssign.getExternallyMaintained()) {
+            try {
+              assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
+            } catch (Exception e) {
+              log.error("DiscussionForumTool - processDfMsgGrd:" + e);
             }
           }
         }
@@ -1482,20 +1450,16 @@ public class DiscussionForumTool {
     // Update or create task if needed
     String gradeAssign = selectedForum.getGradeAssign();
     if (!draft) {
-      GradebookService gradebookService = getGradebookService();
-      // If no Gradebook tool is added before to the site, when an instructor tries to create a new Forum in Discussion Tool,
-      // it avoids throwing a Null Pointer Exception.
-      if(gradebookService != null) {
-        String gradebookUid = toolManager.getCurrentPlacement().getContext();
-        Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
-        Date dueDate = (assignment != null ? assignment.getDueDate() : null);
-        String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
-        Optional<Task> optTask = taskService.getTask(reference);
-        if (optTask.isPresent()) {
-          this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
-        } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
-          this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
-        }
+      GradingService gradingService = getGradingService();
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+      Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+      Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+      Optional<Task> optTask = taskService.getTask(reference);
+      if (optTask.isPresent()) {
+        this.updateTask(optTask.get(), this.selectedForum.getForum().getTitle(), dueDate);
+      } else if (this.selectedForum.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign) ) {
+        this.createTask(reference, this.selectedForum.getForum().getTitle(), dueDate);
       }
     }
     
@@ -1991,9 +1955,9 @@ public class DiscussionForumTool {
         // Update or create task if needed
         String gradeAssign = selectedTopic.getGradeAssign();
         if (!draft) {
-          GradebookService gradebookService = getGradebookService();
+          GradingService gradingService = getGradingService();
           String gradebookUid = toolManager.getCurrentPlacement().getContext();
-          Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradeAssign);
           Date dueDate = (assignment != null ? assignment.getDueDate() : null);
           String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + topic.getBaseForum().getId() + TOPIC_REF + topic.getId();
           Optional<Task> optTask = taskService.getTask(reference);
@@ -4289,17 +4253,17 @@ public class DiscussionForumTool {
   }
 
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
-	  GradebookService gradebookService = getGradebookService();
-	  if (gradebookService == null) return;
+	  GradingService gradingService = getGradingService();
+	  if (gradingService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
+	  Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
+	  String function = gradingService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
-	  } else if (function.equalsIgnoreCase(GradebookService.gradePermission)) {
+	  } else if (function.equalsIgnoreCase(GradingService.gradePermission)) {
 		  allowedToGradeItem = true;
 		  selGBItemRestricted = false;
 	  } else {
@@ -4308,12 +4272,12 @@ public class DiscussionForumTool {
 	  }
 	  
 	  // get the grade entry type for the gradebook
-	  int gradeEntryType = gradebookService.getGradeEntryType(gradebookUid);
-	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+	  GradeType gradeEntryType = gradingService.getGradeEntryType(gradebookUid);
+	  if (gradeEntryType == GradeType.LETTER) {
 	      gradeByLetter = true;
 	      gradeByPoints = false;
 	      gradeByPercent = false;
-	  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+	  } else if (gradeEntryType == GradeType.PERCENTAGE) {
 	      gradeByLetter = false;
 	      gradeByPoints = false;
 	      gradeByPercent = true;
@@ -4329,7 +4293,7 @@ public class DiscussionForumTool {
 			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assignment.getPoints());
 		  }
 		  
-		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
+		  GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebookUid, assignment.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
 		      String decSeparator = formattedText.getDecimalSeparator();
@@ -5834,18 +5798,18 @@ public class DiscussionForumTool {
   
    private boolean validateGradeInput()
    {
-       GradebookService gradebookService = getGradebookService();
-       if (gradebookService == null) {
+       GradingService gradingService = getGradingService();
+       if (gradingService == null) {
            return false;
        }
 
        String gradebookUid = getSiteId();
-       boolean gradeValid = gradebookService.isGradeValid(gradebookUid, gradePoint);
+       boolean gradeValid = gradingService.isGradeValid(gradebookUid, gradePoint);
 
        if (!gradeValid) {
            // see if we can figure out why
            String errorMessageRef = GRADE_INVALID_GENERIC;
-           if (gradebookService.getGradeEntryType(gradebookUid) != GradebookService.GRADE_TYPE_LETTER) {
+           if (gradingService.getGradeEntryType(gradebookUid) != GradeType.LETTER) {
                if(!isNumber(gradePoint))
                {
                    errorMessageRef = GRADE_GREATER_ZERO;
@@ -5877,8 +5841,8 @@ public class DiscussionForumTool {
   
   public String processDfGradeSubmit() 
   {
-	GradebookService gradebookService = getGradebookService();
-	if (gradebookService == null) {
+	GradingService gradingService = getGradingService();
+	if (gradingService == null) {
 //		Maybe print an error message if it's possible to get into this state
 //		setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 		return null;
@@ -5942,8 +5906,8 @@ public class DiscussionForumTool {
         	studentUid = userDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
-        gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
+        Long gbItemId = gradingService.getAssignmentByNameOrId(gradebookUuid, selectedAssign).getId();
+        gradingService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
 
@@ -6891,32 +6855,6 @@ public class DiscussionForumTool {
 	    	return rb.getFormattedMessage(key, args);
 	    }
 
-		public boolean getGradebookExist() 
-		{
-			if (!gradebookExistChecked)
-			{
-		 	    try 
-			    { 
-				
-				GradebookService gradebookService = getGradebookService();
-				if (gradebookService == null) return false;
-		 	    	gradebookExist = gradebookService.isGradebookDefined(toolManager.getCurrentPlacement().getContext());
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-			    }
-		 	    catch(Exception e)
-		 	    {
-		 	    	gradebookExist = false;
-		 	    	gradebookExistChecked = true;
-		 	    	return gradebookExist;
-		 	    }
-			}
-		 	else
-		 	{
-		 		return gradebookExist;
-		 	}
-		}
-
 	public String getUserNameOrEid()
 	{
 	  try
@@ -7800,12 +7738,8 @@ public class DiscussionForumTool {
 		}
 	}
 
-//	// get/add the gradebook assignment associated with the topic
-	if (isGradebookDefined())
-	{
-		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
-		newTopic.setDefaultAssignName(fromAssignmentTitle);
-	}
+  String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+  newTopic.setDefaultAssignName(fromAssignmentTitle);
 	
 	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
@@ -7912,11 +7846,8 @@ public class DiscussionForumTool {
 			}
 		}
 
-		if (isGradebookDefined())
-		{
-			String fromAssignmentTitle = oldForum.getDefaultAssignName();
-			forum.setDefaultAssignName(fromAssignmentTitle);
-		}
+    String fromAssignmentTitle = oldForum.getDefaultAssignName();
+    forum.setDefaultAssignName(fromAssignmentTitle);
 
 		if(oldForum.getAvailabilityRestricted()){
 			forum.setAvailabilityRestricted(true);

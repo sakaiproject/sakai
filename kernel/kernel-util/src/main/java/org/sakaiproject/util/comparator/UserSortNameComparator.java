@@ -34,6 +34,7 @@ public class UserSortNameComparator implements Comparator<User> {
 
     private Collator collator;
     private boolean nullsLow = false;
+    private boolean useDisplayName = false;
 
     public UserSortNameComparator() {
         collator = Collator.getInstance();
@@ -45,6 +46,12 @@ public class UserSortNameComparator implements Comparator<User> {
         this.nullsLow = nullsLow;
     }
 
+    public UserSortNameComparator(boolean nullsLow, boolean useDisplayName) {
+        this();
+        this.nullsLow = nullsLow;
+        this.useDisplayName = useDisplayName;
+    }
+
     public int compare(User u1, User u2) {
         if (u1 == u2) return 0;
         if (u1 == null) return (nullsLow ? -1 : 1);
@@ -52,9 +59,17 @@ public class UserSortNameComparator implements Comparator<User> {
 
         Comparator c = new NullSafeComparator<>(collator, nullsLow);
 
+        String prop1 = u1.getSortName();
+        String prop2 = u2.getSortName();
+
+        if (useDisplayName) {
+            prop1 = u1.getDisplayName();
+            prop2 = u2.getDisplayName();
+        }
+
         // Replace spaces to handle sorting scenarios where surname has space
-        String prop1 = StringUtils.replace(u1.getSortName(), " ", "+");
-        String prop2 = StringUtils.replace(u2.getSortName(), " ", "+");
+        prop1 = StringUtils.replace(prop1, " ", "+");
+        prop2 = StringUtils.replace(prop2, " ", "+");
 
         // Secondary comparison on display name if full name is identical
         // E.g., John Smith (smithj1) and John Smith (smithj2)
