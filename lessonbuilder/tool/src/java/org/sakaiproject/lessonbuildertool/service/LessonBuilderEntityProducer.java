@@ -114,7 +114,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;

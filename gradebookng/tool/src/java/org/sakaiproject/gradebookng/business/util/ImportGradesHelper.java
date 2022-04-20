@@ -66,7 +66,7 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVParser;

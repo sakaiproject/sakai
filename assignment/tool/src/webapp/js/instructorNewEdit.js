@@ -210,21 +210,6 @@ ASN_INE.disablePeerAssessment = function(disable)
 	}
 };
 
-ASN_INE.handleGradebookRadioClick = function(radio, addToGbRadioId)
-{
-	var catSelect = document.getElementById("category");
-	var itemSelect = document.getElementById("gradebookItemSelect");
-	var isAdd = radio.id === addToGbRadioId;
-	if (catSelect !== null)
-	{
-		catSelect.disabled = !isAdd;
-	}
-	if (itemSelect !== null)
-	{
-		itemSelect.disabled = isAdd;
-	}
-};
-
 ASN_INE.handleAssignToChangeForPeerAssessment = function()
 {
 	var peerCheck = document.getElementById("usePeerAssessment");
@@ -360,3 +345,24 @@ ASN_INE_API._GET = function(url, data, onSuccess, onError, onComplete)
 		complete: onComplete || $.noop
 	});
 };
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  const gradebookList = document.getElementById("gradebookList");
+  const categoryList = document.getElementById("categoryList");
+
+  const associate = document.getElementById("associate-gradebook-item");
+  associate && associate.addEventListener("change", e => {
+
+    gradebookList && (gradebookList.style.display = e.target.checked ? "block" : "none");
+    categoryList && (categoryList.style.display = e.target.checked ? "none" : "block");
+  });
+
+  const create = document.getElementById("create-gradebook-item");
+	categoryList && (categoryList.style.display = create.hasAttribute("checked") ? "block" : "none");
+  create && create.addEventListener("click", e => {
+
+    categoryList && (categoryList.style.display = e.target.checked ? "block" : "none");
+    gradebookList && (gradebookList.style.display = e.target.checked ? "none" : "block");
+  });
+});

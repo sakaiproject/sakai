@@ -99,11 +99,10 @@ import org.tsugi.lti13.objects.LTIPlatformMessage;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CommentDefinition;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -1992,8 +1991,8 @@ public class LTI13Servlet extends HttpServlet {
 		response.setContentType(Result.CONTENT_TYPE_CONTAINER);
 
 		// Look up the assignment so we can find the max points
-		GradebookService g = (GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradingService g = (GradingService) ComponentManager
+				.get("org.sakaiproject.grading.api.GradingService");
 		Session sess = SessionManager.getCurrentSession();
 
 		// Indicate "who" is reading this grade - needs to be a real user account
@@ -2053,7 +2052,7 @@ public class LTI13Servlet extends HttpServlet {
 					if (commentDef != null) {
 						result.comment = commentDef.getCommentText();
 					}
-				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+				} catch(AssessmentNotFoundException e) {
 					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}
@@ -2062,7 +2061,7 @@ public class LTI13Servlet extends HttpServlet {
 				result.resultScore = null;
 				try {
 					actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
-				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+				} catch(AssessmentNotFoundException e) {
 					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}

@@ -36,10 +36,9 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.event.api.ActivityService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.log.api.LogConfigurationManager;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
@@ -71,7 +70,7 @@ public class AbstractWebService {
     protected AuthzGroupService authzGroupService;
     protected CalendarService calendarService;
     protected EventTrackingService eventTrackingService;
-    protected GradebookService gradebookService;
+    protected GradingService gradingService;
     protected LogConfigurationManager logConfigurationManager;
     protected SecurityService securityService;
     protected ServerConfigurationService serverConfigurationService;
@@ -94,7 +93,6 @@ public class AbstractWebService {
     protected ShortenedUrlService shortenedUrlService;
     protected SamLiteService samLiteService;
     protected IdManager idManager;
-    protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
@@ -152,8 +150,8 @@ public class AbstractWebService {
     }
 
     @WebMethod(exclude = true)
-    public void setGradebookService(GradebookService gradebookService) {
-        this.gradebookService = gradebookService;
+    public void setGradingService(GradingService gradingService) {
+        this.gradingService = gradingService;
     }
     
     @WebMethod(exclude = true)
@@ -271,11 +269,6 @@ public class AbstractWebService {
         this.idManager = idManager;
     }
     
-    @WebMethod(exclude = true)
-    public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService service) {
-        this.gradebookExternalAssessmentService = service;
-    }
-
     @WebMethod(exclude = true)
     public void setActivityService(ActivityService activityService) {
         this.activityService = activityService;

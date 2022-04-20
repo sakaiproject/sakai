@@ -60,7 +60,7 @@ import org.json.simple.JSONArray;
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;

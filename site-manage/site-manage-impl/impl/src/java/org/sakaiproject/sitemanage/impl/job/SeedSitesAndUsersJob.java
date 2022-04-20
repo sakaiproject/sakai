@@ -50,9 +50,9 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -103,7 +103,7 @@ public class SeedSitesAndUsersJob implements Job {
 	@Setter
 	private SqlService sqlService;
 	@Setter
-	private GradebookService gradebookService;
+	private GradingService gradingService;
 
 	private int numberOfSites = 5;
 	private int numberOfStudents = 100;
@@ -210,9 +210,9 @@ public class SeedSitesAndUsersJob implements Job {
 				try {
 					ass.setName(name);
 					ass.setPoints(20D);
-					Long aid = gradebookService.addAssignment(siteId, ass);
+					Long aid = gradingService.addAssignment(siteId, ass);
 					for (Member m : site.getMembers()) {
-						gradebookService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
+						gradingService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
 					}
 					if (i % 10 == 0) {
 						log.info("Created {} gradebook items", i);

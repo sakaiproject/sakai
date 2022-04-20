@@ -80,7 +80,7 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -119,7 +119,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AuthzGroupService authzGroupService;
     @Autowired private EntityManager entityManager;
     @Autowired private FormattedText formattedText;
-    @Autowired private GradebookService gradebookService;
+    @Autowired private GradingService gradingService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
@@ -1268,9 +1268,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             Event event = createMockEvent(context, gradebookId, itemId, submitterId, "25", instructorId);
 
-            org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = mock(org.sakaiproject.service.gradebook.shared.Assignment.class);
+            org.sakaiproject.grading.api.Assignment gradebookAssignment = mock(org.sakaiproject.grading.api.Assignment.class);
             when(gradebookAssignment.getName()).thenReturn(itemId.toString());
-            when(gradebookService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
+            when(gradingService.getAssignmentByNameOrId(context, itemId.toString())).thenReturn(gradebookAssignment);
             User mockUser = mock(User.class);
             when(mockUser.getId()).thenReturn(submitterId);
             when(userDirectoryService.getUser(submitterId)).thenReturn(mockUser);

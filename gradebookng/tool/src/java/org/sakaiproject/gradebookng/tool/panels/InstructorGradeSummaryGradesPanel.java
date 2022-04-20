@@ -28,24 +28,24 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.service.gradebook.shared.SortType;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 public class InstructorGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	GbCategoryType configuredCategoryType;
+	GradingCategoryType configuredCategoryType;
 
 	boolean isGroupedByCategory = false;
 	boolean categoriesEnabled = false;
@@ -65,9 +65,9 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
 
-		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
-		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
-		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
+		this.configuredCategoryType = gradebook.getCategoryType();
+		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
+		this.categoriesEnabled = this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 				gradebook,
 				userRole,
 				isCourseGradeVisible,
-				gradebook.isCoursePointsDisplayed(),
+				gradebook.getCoursePointsDisplayed(),
 				true,
 				this.businessService.getShowCalculatedGrade());
 
@@ -136,7 +136,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", false);
-		tableModel.put("gradingType", GradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("gradingType", gradebook.getGradeType());
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
@@ -148,7 +148,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		}));
 
 		// course grade, via the formatter
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(userId);
 
 		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
@@ -177,7 +177,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean showDisplayCourseGradeToStudent(Gradebook gradebook,GbRole userRole, boolean isCourseGradeVisible) {
-		return !gradebook.isCourseGradeDisplayed()
+		return !gradebook.getCourseGradeDisplayed()
 						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible)
 						&& serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 	}
@@ -202,6 +202,6 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return (this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY) ? true : false;
+		return (this.configuredCategoryType == GradingCategoryType.WEIGHTED_CATEGORY) ? true : false;
 	}
 }

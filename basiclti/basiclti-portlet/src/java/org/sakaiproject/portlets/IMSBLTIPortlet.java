@@ -67,10 +67,9 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portlet.util.PortletHelper;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -876,10 +875,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	{
 		try
 		{
-			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			GradingService g = (GradingService)  ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
 			String gradebookUid = getContext();
-			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
+			if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
 
 			// add assignment to gradebook
 			Assignment asn = new Assignment();
@@ -897,7 +896,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
 		catch (Exception e)
 		{
-			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+			log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 			setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
 			log.warn("{}:addGradeItem {}", this, e.getMessage());
 		}
@@ -908,29 +907,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	protected List<String> getGradeBookAssignments()
 	{
 		List<String> retval = new ArrayList<String>();
-		try
-		{
-			GradebookService g = (GradebookService)  ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
+        GradingService g = (GradingService)  ComponentManager
+            .get("org.sakaiproject.grading.api.GradingService");
 
-			String gradebookUid = getContext();
-			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-			List gradebookAssignments = g.getAssignments(gradebookUid);
+        String gradebookUid = getContext();
+        if ( ! ((g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
+        List gradebookAssignments = g.getAssignments(gradebookUid);
 
-			// filtering out anything externally provided
-			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
-			{
-				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if ( gAssignment.isExternallyMaintained() ) continue;
-				retval.add(gAssignment.getName());
-			}
-			return retval;
-		}
-		catch (GradebookNotFoundException e)
-		{
-			log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
-			return null;
-		}
+        // filtering out anything externally provided
+        for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+        {
+            org.sakaiproject.grading.api.Assignment gAssignment = (org.sakaiproject.grading.api.Assignment) i.next();
+            if ( gAssignment.getExternallyMaintained() ) continue;
+            retval.add(gAssignment.getName());
+        }
+        return retval;
 	}
 
 }

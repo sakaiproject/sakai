@@ -55,12 +55,8 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
-			<artifactId>gradebook-service-hibernate</artifactId>
+			<groupId>org.sakaiproject.grading</groupId>
+			<artifactId>sakai-grading-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.course-management</groupId>
@@ -162,6 +158,9 @@
 		</dependency>
 	</dependencies>
 	<build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
 		<resources>
 			<!-- include everything except the Java source -->
 			<resource>

@@ -33,16 +33,16 @@ import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingExternalIdException;
+import org.sakaiproject.grading.api.GradebookHelper;
+import org.sakaiproject.grading.api.GradingCategoryType;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradebookHelper;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
-import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * The panel for the add and edit grade item window
@@ -88,7 +88,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
 			final Gradebook gradebook = this.businessService.getGradebook();
-			assignment.setCounted(GradebookService.CATEGORY_TYPE_NO_CATEGORY == gradebook.getCategory_type());
+			assignment.setCounted(GradingCategoryType.NO_CATEGORY == gradebook.getCategoryType());
 		}
 
 		// form model
@@ -195,7 +195,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				if (mismatched != null) {
 					validated = false;
 					error(MessageFormat.format(getString("error.addeditgradeitem.categorypoints"), mismatched.getPoints()));
-					if (assignment.isExternallyMaintained()) {
+					if (assignment.getExternallyMaintained()) {
 						error(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
 					}
 					target.addChildren(form, FeedbackPanel.class);
