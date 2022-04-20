@@ -1634,7 +1634,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public List<Assignment> getAssignmentsForContext(String context) {
+    public Collection<Assignment> getAssignmentsForContext(String context) {
         log.debug("GET ASSIGNMENTS : CONTEXT : {}", context);
         List<Assignment> assignments = new ArrayList<>();
         if (StringUtils.isBlank(context)) return assignments;

@@ -415,9 +415,6 @@ public class AssignmentToolUtils {
             String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
             String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
-            System.out.println(aReference);
-            System.out.println(associateGradebookAssignment);
-
             String op = gradeOption.equals("remove") ? "remove" : "update";
             alerts.addAll(integrateGradebook(options, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, op, -1));
         }

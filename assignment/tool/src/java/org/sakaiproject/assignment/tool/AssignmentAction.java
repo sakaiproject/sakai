@@ -5323,7 +5323,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 "&estimate=true";
         context.put("accessPointUrl", accessPointUrl);
 
-        List<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
+        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
 
         boolean hasAtLeastOneAnonAssigment = false;
         for (Assignment assignment : assignments) {

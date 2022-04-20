@@ -413,7 +413,7 @@ public interface AssignmentService extends EntityProducer {
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return List All the Assignments will be listed
      */
-    public List<Assignment> getAssignmentsForContext(String context);
+    public Collection<Assignment> getAssignmentsForContext(String context);
 
     /**
      * Access all the Assignments that are deleted
