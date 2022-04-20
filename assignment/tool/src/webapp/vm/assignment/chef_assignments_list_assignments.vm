@@ -485,7 +485,7 @@
 									#if ($submission)
 										#set ($submissionId = $submission.Id)
 									#end
-									$!service.getSubmissionStatus($!submissionId, false)
+									$!service.getSubmissionStatus($!submissionId, true)
 									#if ($assignment.DueDate && $submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
 										<span class="highlight">$tlang.getString("gen.late2")</span>
 									#end
