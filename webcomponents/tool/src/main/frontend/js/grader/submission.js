@@ -1,4 +1,4 @@
-export class Submission {
+class Submission {
 
   constructor(init, groups, i18n) {
 
@@ -76,7 +76,7 @@ export class Submission {
       if (this.extensionAllowed) {
         this.extensionDate = moment(parseInt(init.properties.allow_extension_closeTime, 10)).valueOf();
       }
-      this.originalityServiceName = init.properties["originalityServiceName"];
+      this.originalityServiceName = init.properties.originalityServiceName;
       this.originalitySupplies = [];
       for (let index = 1; init.properties[`originalityLink${index}`] != null; index++) {
         this.originalityShowing = true;
@@ -86,7 +86,7 @@ export class Submission {
         originalityDataNow.push(init.properties[`originalityIcon${index}`]);
         originalityDataNow.push(init.properties[`originalityScore${index}`]);
         if (init.properties[`originalityInline${index}`] === 'true') {
-          originalityDataNow.push(i18n["submission_inline"]);
+          originalityDataNow.push(i18n.submission_inline);
         } else {
           originalityDataNow.push(init.properties[`originalityName${index}`]);
         }
@@ -124,3 +124,16 @@ export class Submission {
 
   get extensionAllowed() { return this._extensionAllowed; }
 }
+
+Submission.originalityConstants = {
+  originalityKey: 0,
+  originalityLink: 1,
+  originalityIcon: 2,
+  originalityScore: 3,
+  originalityName: 4,
+  originalityInline: 5,
+  originalityStatus: 6,
+  originalityError: 7
+};
+
+export { Submission };
