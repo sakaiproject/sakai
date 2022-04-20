@@ -19,15 +19,16 @@
     #propertyDetails($props)
 #end
 
-#macro( assignmentTitleIcon $assignment )
+#macro( assignmentIcons $assignment )
     #if ($!assignment.IsGroup)
         <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
     #end
-#end
-
-#macro( sectionIcon $group )
-    #if ($!group.getProperties().get("sections_category"))
-        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.section.info')"></i>
+    #if (!$assignment.getAttachments().isEmpty())
+        <i class="icon-sakai--clip" aria-hidden="true"></i>
+        <span class="sr-only">$tlang.getString("gen.has.att")</span>
+    #end
+    #if ($assignment.getContentReview())
+        <img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
     #end
 #end
 
