@@ -22,6 +22,7 @@ import java.util.Set;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 public class Participant {
 	protected String NULL_STRING = "";
@@ -166,6 +167,30 @@ public class Participant {
 		} catch (UserNotDefinedException e) {
 			return uniqname;
 		}
+	}
+
+	public int compareTo(Participant participantB) {
+		UserSortNameComparator comparator = new UserSortNameComparator();
+		User userA = null;
+		User userB = null;
+
+		try {
+			userA = UserDirectoryService.getUser(uniqname);
+			userB = UserDirectoryService.getUser(participantB.getUniqname());
+			return comparator.compare(userA, userB);
+		} catch (UserNotDefinedException e) {
+			if (userA == null && userB == null) {
+				return 0;
+			}
+			else if (userA == null) {
+				return -1;
+			}
+			else if (userB == null) {
+				return 1;
+			}
+		}
+
+		return 0;
 	}
 
 } // Participant
