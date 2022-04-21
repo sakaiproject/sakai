@@ -242,6 +242,7 @@ public class TaskServiceImpl implements TaskService, Observer {
                     BeanUtils.copyProperties(ut.getTask(), bean);
                     bean.setUserTaskId(ut.getId());
                     bean.setTaskId(ut.getTask().getId());
+                    bean.setDue(ut.getTask().getDue());
                     return bean;
                 }).collect(Collectors.toList());
     }
@@ -258,6 +259,7 @@ public class TaskServiceImpl implements TaskService, Observer {
                     BeanUtils.copyProperties(ut.getTask(), bean);
                     bean.setUserTaskId(ut.getId());
                     bean.setTaskId(ut.getTask().getId());
+                    bean.setDue(ut.getTask().getDue());
                     return bean;
                 }).collect(Collectors.toList());
     }

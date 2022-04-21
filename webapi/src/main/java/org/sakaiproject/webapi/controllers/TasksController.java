@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sakaiproject.authz.api.SecurityService;
 
 /**
  */
@@ -83,6 +84,9 @@ public class TasksController extends AbstractSakaiApiController {
 
     @Resource
     private UserDirectoryService userDirectoryService;
+    
+    @Resource
+    private SecurityService securityService;
 
     @GetMapping(value = "/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserTaskAdapterBean> getTasks() throws UserNotDefinedException {
@@ -127,17 +131,18 @@ public class TasksController extends AbstractSakaiApiController {
             }).collect(Collectors.toList());
     }
     
-    @GetMapping(value = "/tasks/role/{siteId}/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> getCurrentUserRoleOnSite(@PathVariable String siteId, @PathVariable String userId) {
+    @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater")
+    public boolean isInstructorUser(@PathVariable String siteId) {
         checkSakaiSession();
 
-        String roleId = "access";
         try {
-            roleId = siteService.getSite(siteId).getMember(userId).getRole().getId();
+            Site site = siteService.getSite(siteId);
+            // Returns a boolean value which depends if an user is an instructor or not
+            return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
         } catch (Exception e) {
-            log.warn("Error retrieving role on site {} for user {} : {}", siteId, userId, e.toString());
+            log.warn("Error retrieving role on site {} for user {} : {}", siteId, e.toString());
         }
-        return Collections.singletonMap("role", roleId);
+        return false;
     }
 
     @GetMapping(value = "/tasks/site/groups/{siteId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -167,6 +172,7 @@ public class TasksController extends AbstractSakaiApiController {
         Task task = new Task();
         BeanUtils.copyProperties(taskTransfer, task);
         task.setReference("/user/" + taskTransfer.getUserId() + "/" + time);
+        task.setDue(taskTransfer.getDue());
         task.setSystem(false);
         String assignationType = taskTransfer.getAssignationType();
         if (AssignationType.site.name().equals(assignationType)) {
