@@ -4524,7 +4524,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (closeTimeString != null) {
                 // close time for resubmit
                 Instant time = Instant.ofEpochMilli(Long.parseLong(closeTimeString));
-                context.put("allowResubmitCloseTime", time.toString());
+                context.put("allowResubmitCloseTime", time);
             }
         }
 
