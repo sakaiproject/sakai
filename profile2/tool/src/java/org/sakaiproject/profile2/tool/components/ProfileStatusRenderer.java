@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.components;
 
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
@@ -45,7 +46,7 @@ public class ProfileStatusRenderer extends Panel {
 	private String msgClass;
 	private String dateClass;
 	
-	private boolean hasStatusSet = false;
+	@Setter private boolean hasStatusSet = false;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
 	private ProfilePrivacyLogic privacyLogic;

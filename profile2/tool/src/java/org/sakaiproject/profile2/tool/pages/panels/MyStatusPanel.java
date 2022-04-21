@@ -17,15 +17,13 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -72,7 +70,9 @@ public class MyStatusPanel extends Panel {
 	protected ProfileWallLogic wallLogic;
 	
     //get default text that fills the textField
+	String clearStatus = new ResourceModel("accessibility.profile.status.clear", "Say something").getObject().toString();
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
+	String accessibilityStatus = new ResourceModel("accessibility.profile.status.input", "Enter your current status").getObject().toString();
 
 	public MyStatusPanel(String id, UserProfile userProfile) {
 		super(id);
@@ -106,31 +106,30 @@ public class MyStatusPanel extends Panel {
 		add(status);
 		
 		 //clear link
-		final AjaxFallbackLink clearLink = new AjaxFallbackLink("clearLink") {
-			private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
+		Button clearBtn = new Button("clearBtn");
+		clearBtn.add(new AjaxEventBehavior("click") {
+			@Override
+			protected void onEvent(AjaxRequestTarget target) {
 				//clear status, hide and repaint
-				if(statusLogic.clearUserStatus(userId)) {
-					status.setVisible(false); //hide status
-					this.setVisible(false); //hide clear link
-					target.add(status);
-					target.add(this);
+				boolean isCleared = statusLogic.clearUserStatus(userId);
+				status.setHasStatusSet(!isCleared);
+				if(isCleared) {
+						status.setVisible(false); //hide status
+						clearBtn.setVisible(false); //hide clear link
+						target.add(status);
+						target.add(clearBtn);
 				}
 			}
-			
-			@Override
-			public boolean isVisible(){
-			   return status.isVisible(); //if there is text to show
-			}
-		};
-		clearLink.setOutputMarkupPlaceholderTag(true);
-		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
+		});
+		clearBtn.setOutputMarkupId(true);
+		clearBtn.setOutputMarkupPlaceholderTag(true);
+		clearBtn.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
+		clearBtn.add(new AttributeModifier("title", clearStatus));
+		clearBtn.add(new AttributeModifier("aria-label", clearStatus));
 	
-		add(clearLink);
-        
-        
-		
+		add(clearBtn);
+
 		WebMarkupContainer statusFormContainer = new WebMarkupContainer("statusFormContainer") {
 			@Override
 			public boolean isVisible(){
@@ -150,15 +149,11 @@ public class MyStatusPanel extends Panel {
 		final TextField statusField = new TextField("message", new PropertyModel(stringModel, "string"));
 		statusField.setMarkupId("messageinput");
 		statusField.setOutputMarkupId(true);
-        statusField.setOutputMarkupPlaceholderTag(true);
-        statusField.add(new StatusFieldCounterBehaviour());
-        form.add(statusField);
-        
-        //link the status textfield field with the focus/blur function via this dynamic js 
-        //also link with counter
-        //add(new StatusFieldCounterBehaviour());
-        
-        
+		statusField.add(new AttributeModifier("placeholder", defaultStatus));
+		statusField.add(new AttributeModifier("title", accessibilityStatus));
+		statusField.add(new AttributeModifier("aria-label", accessibilityStatus));
+		form.add(statusField);
+
         //submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 
@@ -201,19 +196,12 @@ public class MyStatusPanel extends Panel {
 					newStatus.setVisible(true);
 					
 					//also show the clear link
-					clearLink.setVisible(true);
+					clearBtn.setVisible(true);
 					
 					if(target != null) {
 						target.add(newStatus);
-						target.add(clearLink);
+						target.add(clearBtn);
 						status=newStatus; //update reference
-						
-						//reset the field
-						target.appendJavaScript("autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');");
-						
-						//reset the counter
-						target.appendJavaScript("countChars('#" + statusField.getMarkupId() + "');");
-
 					}
 					
 				} else {
@@ -239,17 +227,4 @@ public class MyStatusPanel extends Panel {
 		add(statusFormContainer);
 		
 	}
-	
-	public class StatusFieldCounterBehaviour extends Behavior {
-	 		
-	    public void renderHead(Component component, IHeaderResponse response) {
-	    	response.render(StringHeaderItem.forString("<script type=\"text/javascript\">" +
-					"$(document).ready( function(){" +
-					"autoFill('#" + component.getMarkupId() + "', '" + defaultStatus + "');" +
-					"countChars('#" + component.getMarkupId() + "');" +
-					"});" +
-				"</script>"));
-	    }
-	}
-	
 }
