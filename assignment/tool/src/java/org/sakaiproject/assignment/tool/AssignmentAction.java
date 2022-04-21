@@ -7197,6 +7197,13 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+
+        // Currently, gradebook can only handle score types. Force GRADEBOOK_INTEGRATION_NO if the
+        // grade type is anything other
+        if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE) {
+            grading = GRADEBOOK_INTEGRATION_NO;
+        }
+
         state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, grading);
 
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, Boolean.valueOf(params.getString(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)));
@@ -8202,6 +8209,10 @@ public class AssignmentAction extends PagedResourceActionII {
             String addtoGradebook = GRADEBOOK_INTEGRATION_NO;
             if (((Boolean) state.getAttribute(NEW_ASSIGNMENT_GRADE_ASSIGNMENT))) {
                 addtoGradebook = StringUtils.isNotBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) ? (String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) : GRADEBOOK_INTEGRATION_NO;
+            }
+
+            if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE) {
+                addtoGradebook = GRADEBOOK_INTEGRATION_NO;
             }
 
             long category = state.getAttribute(NEW_ASSIGNMENT_CATEGORY) != null ? (Long) state.getAttribute(NEW_ASSIGNMENT_CATEGORY) : -1;

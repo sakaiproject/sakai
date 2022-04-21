@@ -77,7 +77,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	boolean isEqualWeight = false;
 	boolean expanded = false;
 
-	Radio<Integer> categoriesAndWeighting;
+	Radio<GradingCategoryType> categoriesAndWeighting;
 
 	Map<Long, Boolean> categoryDropKeepAvailability = new HashMap<>();
 
@@ -178,14 +178,12 @@ public class SettingsCategoryPanel extends BasePanel {
 		add(settingsCategoriesPanel);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
-		//final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
-	    //			new PropertyModel<Integer>(this.model, "gradebookInformation.categoryType"));
 		final RadioGroup<GradingCategoryType> categoryType = new RadioGroup<>("categoryType",
 				new PropertyModel<GradingCategoryType>(this.model, "gradebookInformation.categoryType"));
 		final Radio<GradingCategoryType> none = new Radio<>("none", new Model<>(GradingCategoryType.NO_CATEGORY));
 		final Radio<GradingCategoryType> categoriesOnly = new Radio<>("categoriesOnly", new Model<>(GradingCategoryType.ONLY_CATEGORY));
 		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting",
-				new Model<>(GradingCategoryType.WEIGHTED_CATEGORY.getValue()));
+				new Model<>(GradingCategoryType.WEIGHTED_CATEGORY));
 
 		// on load, if course grade displayed and points selected, disable categories and weighting
 		updateCategoriesAndWeightingRadioState();
@@ -880,7 +878,7 @@ public class SettingsCategoryPanel extends BasePanel {
 	}
 
 	// to enable inter panel comms
-	Radio<Integer> getCategoriesAndWeightingRadio() {
+	Radio<GradingCategoryType> getCategoriesAndWeightingRadio() {
 		return this.categoriesAndWeighting;
 	}
 
