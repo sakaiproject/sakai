@@ -10,6 +10,7 @@ const postcss = fromRollup(rollupPostcss);
 const replace = fromRollup(rollupReplace);
 const resolve = fromRollup(rollupResolve);
 
+// TODO TRINITY-43 review config before publishing
 import { importMapsPlugin } from '@web/dev-server-import-maps';
 // const packages = fs
 //   .readdirSync('sakai-ui')

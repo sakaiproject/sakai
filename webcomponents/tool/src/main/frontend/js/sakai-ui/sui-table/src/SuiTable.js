@@ -1,3 +1,5 @@
+// TODO Review commented lines
+// TODO Review need for shadown DOM
 import {
   html,
   LitElement,
@@ -320,6 +322,7 @@ export class SuiTable extends LitElement {
 
             const actionSnippet = this.links
             .map((action) => {
+              // TODO review and dry this up
               return `
             <li class="nav-item">
               <a
@@ -331,7 +334,6 @@ export class SuiTable extends LitElement {
                 ? `link link-${action.title} pt-0 ${action.class}`
                 : `link link-${action.title}`
             }"
-            // TODO dry this up
             href="${
               this.links.filter((link) => link.rel === action.rel).length ===
               1
@@ -381,7 +383,6 @@ export class SuiTable extends LitElement {
     //TODO i18n strings
     this._tableActions.push(html`
       <sui-button
-      //todo i18n strings
         title="${
           this.linksVisbility ? "Hide Bulk Actions" : "Show Bulk Actions"
         }"
@@ -401,7 +402,6 @@ export class SuiTable extends LitElement {
       <li class="nav-item">
 
       <sui-button
-      //todo i18n strings
         title="${this.filterVisibility ? "Hide Filters" : "Show Filters"}"
         aria-label="Toggle display of Filters"
         icon="filter"

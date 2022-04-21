@@ -85,8 +85,7 @@ $success: #7952b3;
 // Libraries
 // Tabulator Configuration for sui-table
 /* stylelint-disable scss/dollar-variable-pattern */
-$cellPadding: 8px;
-@import "tabulator-tables/src/scss/themes/bootstrap/tabulator_bootstrap4";
+@import "tabulator-tables/src/scss/themes/bootstrap/tabulator_bootstrap5";
 
 /* stylelint-enable scss/dollar-variable-pattern */
 
@@ -129,6 +128,12 @@ sui-table {
 
   .tabulator-row .tabulator-cell:first-child {
     cursor: pointer !important;
+  }
+  .tabulator.table .tabulator-row:hover {
+    background-color: $table-hover-bg;
+  }
+  .tabulator.table .tabulator-row:hover .tabulator-cell {
+    background-color: transparent;
   }
   /* stylelint-enable declaration-no-important */
 }

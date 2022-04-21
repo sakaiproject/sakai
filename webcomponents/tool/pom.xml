@@ -156,7 +156,7 @@
                         <configuration>
                             <arguments>
                                 ci --unsafe-perm --save-dev
-                                <!-- I don't think these are needed anymore
+                                <!-- TODO TRINITY-43 remove if not needed
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3

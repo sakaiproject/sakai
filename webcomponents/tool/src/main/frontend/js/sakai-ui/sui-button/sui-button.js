@@ -1,3 +1,5 @@
+// TODO Review commented lines
+// TODO Review need for shadown DOM
 import {
   html,
   LitElement,

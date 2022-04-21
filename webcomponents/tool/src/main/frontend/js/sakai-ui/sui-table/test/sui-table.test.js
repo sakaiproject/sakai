@@ -1,3 +1,4 @@
+// TODO Review commented lines
 /* eslint-disable no-undef */
 import { html, fixture, expect } from '@open-wc/testing';
 import '../sui-table.js';

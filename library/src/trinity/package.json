@@ -23,7 +23,7 @@
     "bootstrap": "^5.1.2",
     "bootstrap-icons": "^1.4.0",
     "jquery": "^3.6.0",
-    "tabulator-tables": "^5.0.10"
+    "tabulator-tables": "^5.2.0"
   },
   "devDependencies": {
     "@adrianfish/empathise": "^0.1.9",

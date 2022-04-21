@@ -41,7 +41,7 @@
     "lit-html": "1.4.1",
     "moment": "2.29.1",
     "sortablejs": "1.14.0",
-    "tabulator-tables": "^5.0.10"
+    "tabulator-tables": "^5.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
