@@ -4751,6 +4751,20 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(STATE_DOWNLOAD_URL);
         }
 
+        // show "feedback saved" success messages if appropriate
+        if (state.getAttribute(SAVED_FEEDBACK) != null) {
+            context.put("savedFeedback", Boolean.TRUE);
+            state.removeAttribute(SAVED_FEEDBACK);
+        }
+        if (state.getAttribute(OW_FEEDBACK) != null) {
+            context.put("overwriteFeedback", Boolean.TRUE);
+            state.removeAttribute(OW_FEEDBACK);
+        }
+        if (state.getAttribute(RETURNED_FEEDBACK) != null) {
+            context.put("returnedFeedback", Boolean.TRUE);
+            state.removeAttribute(RETURNED_FEEDBACK);
+        }
+
         String template = (String) getContext(data).get("template");
 
         return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
