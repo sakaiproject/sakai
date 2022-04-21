@@ -132,7 +132,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 
 				// if we have disabled this, enable categories and weighting
 				// if its enabled then catgories and weighting may or may not be enabled depending on other rules
-				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 
@@ -310,7 +310,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 
 				// if points selected, disable categories and weighting
-				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				final Radio<GradingCategoryType> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
 				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
 			}
