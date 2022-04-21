@@ -4,9 +4,7 @@
     <h3>$tlang.getString("gen.pre")
         $tlang.getString("gen.instrcomment")
         $tlang.getString("gen.to")
-        $tlang.getString("gen.openquote")
-        $formattedText.escapeHtml($assignment.Title)
-        $tlang.getString("gen.closequote")
+        $tlang.getString("gen.openquote")$formattedText.escapeHtml($assignment.Title)$tlang.getString("gen.closequote")
     </h3>
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
@@ -175,7 +173,7 @@
             </p>
             #if ($!allowResubmitCloseTime)
                 <p>
-                    $tlang.getString("gen.acesubunt"): $!allowResubmitCloseTime
+                    $tlang.getString("gen.acesubunt"): $!service.getUsersLocalDateTimeString($!allowResubmitCloseTime)
                 </p>
             #end
         #end
