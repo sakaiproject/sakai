@@ -63,8 +63,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   save() {
     this.task.description = this.shadowRoot.getElementById("description").value;
-    const dueDate = new Date(this.shadowRoot.getElementById("due").value);
-    this.task.due = dueDate.getTime();
     this.task.notes = this.getEditor().getContent();
     this.task.assignationType = this.assignationType;
     this.task.siteId = this.siteId;
@@ -171,14 +169,14 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.siteIdBackup = this.siteId;
     // Check user role - Only instructors can deliver tasks to students
     if (this.siteId && this.userId) {
-        const url = `/api/tasks/role/${this.siteId}/${this.userId}`;
+        const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
         fetch(url).then((r) => {
             if (r.ok) {
-                return r.json();
+                return r;
             }
             throw new Error(`Failed to get user role from ${url}`);
         }).then((data) => {
-            this.deliverTasks = (data.role === 'maintain');
+            this.deliverTasks = data;
             // Retrieve group list from site
             if (this.deliverTasks && this.siteId) {
                 fetch(`/api/tasks/site/groups/${this.siteId}`).then((r) => {
