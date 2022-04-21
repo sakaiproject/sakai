@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Transient;
 
 import org.sakaiproject.grading.api.GradeType;
@@ -104,6 +105,7 @@ public class GradebookAssignment extends GradableObject implements PersistableEn
     private String externalAppName;
 
     @Column(name = "EXTERNAL_DATA")
+    @Lob
     private String externalData;
 
     @Column(name = "RELEASED")

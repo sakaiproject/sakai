@@ -35,11 +35,11 @@ public class Permission implements PersistableEntity<Long>, Serializable {
 
     @Id
     @GeneratedValue
-    @Column(name = "ID")
+    @Column(name = "GB_PERMISSION_ID")
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "GRADEBOOK_ID", nullable = false)
     private Long gradebookId;

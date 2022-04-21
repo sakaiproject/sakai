@@ -24,6 +24,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -48,7 +49,7 @@ import lombok.ToString;
     @Index(name = "GB_GRADABLE_OBJ_ASN_IDX", columnList = "OBJECT_TYPE_ID, GRADEBOOK_ID, NAME, REMOVED"),
     @Index(name = "GB_GRADABLE_OBJ_CT_IDX", columnList = "CATEGORY_ID")
 })
-@DiscriminatorColumn(name = "OBJECT_TYPE_ID")
+@DiscriminatorColumn(name = "OBJECT_TYPE_ID", discriminatorType = DiscriminatorType.INTEGER)
 @DiscriminatorValue("0")
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -62,8 +63,8 @@ public abstract class GradableObject implements Serializable {
     @ToString.Include
     protected Long id;
 
-    @Column(name = "VERSION")
-    protected Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    protected Integer version = 0;
 
     @ManyToOne
     @JoinColumn(name = "GRADEBOOK_ID", nullable = false)
