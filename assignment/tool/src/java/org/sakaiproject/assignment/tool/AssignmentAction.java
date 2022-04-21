@@ -11034,7 +11034,7 @@ public class AssignmentAction extends PagedResourceActionII {
             return false;
         }
 
-		boolean preExistingAlerts = state.getAttribute(STATE_MESSAGE) != null;
+	boolean preExistingAlerts = state.getAttribute(STATE_MESSAGE) != null;
 
         ParameterParser params = data.getParameters();
         String submissionId = params.getString("submissionId");
