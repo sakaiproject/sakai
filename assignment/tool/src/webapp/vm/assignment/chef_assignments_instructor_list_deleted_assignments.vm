@@ -80,12 +80,18 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#btnRestore").click(function(event) {
-			if( !confirm('$tlang.getString("restoreConfirmation")') )
+			if( !confirm('$tlang.getString("restoreConfirmation")') ) {
 				event.preventDefault();
+			} else {
+				SPNR.disableControlsAndSpin(this, null);
+			}
 		});
 		$("#btnHardRemove").click(function(event) {
-			if( !confirm('$tlang.getString("hardRemoveConfirmation")') )
+			if( !confirm('$tlang.getString("hardRemoveConfirmation")') ) {
 				event.preventDefault();
+			} else {
+				SPNR.disableControlsAndSpin(this, null);
+			}
 		});
 	});
 </script>
