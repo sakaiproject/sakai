@@ -46,7 +46,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   getTaskAssignedTo() {
     let result = this.task.taskAssignedTo;
     if (result != null) {
-      result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);	
+      result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);
     }
     return result;
   }
@@ -102,7 +102,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.reset();
     this.close();
   }
- 
+
   resetDate() {
 
     this.task.due = Date.now();
@@ -151,7 +151,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           completeEl.checked = true;
         } else {
           completeEl.checked = false;
-        }  
+        }
       }
     });
   }
@@ -165,6 +165,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   connectedCallback() {
+
     super.connectedCallback();
     this.deliverTasks = false;
     this.siteIdBackup = this.siteId;
@@ -237,7 +238,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   existGroups() {
     let result = false;
     if (Array.isArray(this.optionsGroup) && this.optionsGroup.length > 0) { result = true; }
-    return result; 
+    return result;
   }
 
   content() {
@@ -297,7 +298,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input
               type="checkbox"
               id="complete"
-              aria-label="${this.i18n.complete_tooltip}"
               title="${this.i18n.complete_tooltip}"
               @click=${this.complete}
               ?checked=${this.task.complete}>
