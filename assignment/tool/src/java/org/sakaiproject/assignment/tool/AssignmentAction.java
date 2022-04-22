@@ -5509,6 +5509,9 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("enableFlatDownload", serverConfigurationService.getBoolean("assignment.download.flat", false));
         context.put("contextString", state.getAttribute(STATE_CONTEXT_STRING));
 
+        String maxFileSizeMB = serverConfigurationService.getString("content.upload.max", "1");
+        context.put("uploadallInstruction5", rb.getFormattedMessage("uploadall.instruction5", maxFileSizeMB));
+
         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
         Assignment a = getAssignment(assignmentRef, "build_instructor_download_upload_all", state);
         if (a != null) {
