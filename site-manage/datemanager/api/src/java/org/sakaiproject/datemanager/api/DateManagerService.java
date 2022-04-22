@@ -19,6 +19,9 @@ import org.json.simple.JSONArray;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 
 public interface DateManagerService {
+
+	public final String STATE_SITE_ID = "site.instance.id";
+
 	// Global methods
 	public String getCurrentUserId();
 	public String getCurrentSiteId();
