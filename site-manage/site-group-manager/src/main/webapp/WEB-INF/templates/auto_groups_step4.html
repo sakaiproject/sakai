@@ -17,24 +17,24 @@
       <div class="col-sm-8">
         <form id="autogroups-wizard-step4-form" class="autogroups-wizard-form" th:action="@{/autogroups/confirmAutoGroups}" th:object="${autoGroupsForm}" method="post">
           <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
-          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
-          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">
-          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption">
-          <input type="hidden" th:field="*{splitOptions}" name="splitOptions">
-          <input type="hidden" th:field="*{structureConfigurationOption}" name="structureConfigurationOption">
-          <input type="hidden" th:field="*{groupTitleByGroup}" name="sgroupTitleByGroup">
-          <input type="hidden" th:field="*{groupNumberByGroup}" name="groupNumberByGroup">
-          <input type="hidden" th:field="*{groupTitleByUser}" name="sgroupTitleByUser">
-          <input type="hidden" th:field="*{groupNumberByUser}" name="groupNumberByUser">
-          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
-          <input type="hidden" th:value="${serializedAutoGroupsMap}" name="serializedAutoGroupsMap">
+          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList"/>
+          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList"/>
+          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption"/>
+          <input type="hidden" th:field="*{splitOptions}" name="splitOptions"/>
+          <input type="hidden" th:field="*{structureConfigurationOption}" name="structureConfigurationOption"/>
+          <input type="hidden" th:field="*{groupTitleByGroup}" name="sgroupTitleByGroup"/>
+          <input type="hidden" th:field="*{groupNumberByGroup}" name="groupNumberByGroup"/>
+          <input type="hidden" th:field="*{groupTitleByUser}" name="sgroupTitleByUser"/>
+          <input type="hidden" th:field="*{groupNumberByUser}" name="groupNumberByUser"/>
+          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers"/>
+          <input type="hidden" th:value="${serializedAutoGroupsMap}" name="serializedAutoGroupsMap"/>
           <div class="form-row">
-            <label for="allowViewMembership"><input id="allowViewMembership" type="checkbox" name="allowViewMembership" th:field="*{allowViewMembership}"><span th:text="#{autogroups.step4.allow.membership}">Allow members to see who else is in their Group.</span></label>
+            <label for="allowViewMembership"><input id="allowViewMembership" type="checkbox" name="allowViewMembership" th:field="*{allowViewMembership}"/><span th:text="#{autogroups.step4.allow.membership}">Allow members to see who else is in their Group.</span></label>
           </div>
           <div class="act">
-            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button-top" th:value="#{autogroups.button.create}" onclick="SPNR.disableControlsAndSpin( this, null );">
-            <a accesskey="b" id="autogroups-back-button-top" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
-            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button-top" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>&nbsp;
+            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button-top" th:value="#{autogroups.button.create}" />
+            <button type="button" accesskey="b" id="autogroups-back-button-top" class="btn btn-default" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button-top" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</button>
            </div>
            <div th:each="autoGroup : ${autoGroupsMap.entrySet()}">
              <h3 th:text="#{autogroups.step4.group.label(${autoGroup.key}, ${autoGroup.value.size()})}">Group title (X Members)</h3>
@@ -59,9 +59,9 @@
               </table>
           </div>
           <div class="act">
-            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button" th:value="#{autogroups.button.create}" onclick="SPNR.disableControlsAndSpin( this, null );">
-            <a accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
-            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+            <input accesskey="c" type="submit" class="active" id="autogroups-creategroups-button" th:value="#{autogroups.button.create}" />
+            <button type="button" accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</button>
           </div>
         </form>
       </div>

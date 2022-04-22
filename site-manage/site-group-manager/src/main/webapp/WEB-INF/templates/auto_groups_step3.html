@@ -31,17 +31,17 @@
       <div class="col-sm-8">
         <form id="autogroups-wizard-step3-form" class="autogroups-wizard-form" th:action="@{/autogroups/submitStep3}" th:object="${autoGroupsForm}" method="post">
           <input type="hidden" name="wizardAction" id="wizardAction" value=""/>
-          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList">
-          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList">
-          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption">
-          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers">
+          <input type="hidden" th:field="*{selectedRoleList}" name="selectedRoleList"/>
+          <input type="hidden" th:field="*{selectedSectionList}" name="selectedSectionList"/>
+          <input type="hidden" th:field="*{sectionsOption}" name="sectionsOption"/>
+          <input type="hidden" th:field="*{useManuallyAddedUsers}" name="useManuallyAddedUsers"/>
           <div class="radio">
-            <label for="pureConfiguration"><input id="mixtureConfiguration" type="radio" name="structureConfigurationOption" checked value="0" th:field="*{structureConfigurationOption}"><span th:text="#{autogroups.step3.option.mixture}">Create groups containing a random mixture of users with the role XX, YY and ZZ </label>
+            <label for="pureConfiguration"><input id="pureConfiguration" type="radio" name="structureConfigurationOption" checked="checked" value="0" th:field="*{structureConfigurationOption}"/><span th:text="#{autogroups.step3.option.mixture}">Create groups containing a random mixture of users with the role XX, YY and ZZ</span></label>
           </div>
           <div id="mixtureStructureOptions" class="col-sm-offset-1" th:style="${autoGroupsForm.structureConfigurationOption == 1 ? 'display:none': 'display:block'}">
             <div id="splitByGroups" th:class="${autoGroupsForm.splitOptions == 0 ? 'optGroupSelect optGroupSelectSelected' : 'optGroupSelect'}">
               <div class="radio">
-                <label for="splitByGroup"><input id="splitByGroup" type="radio" name="splitOptions" checked value="0" th:field="*{splitOptions}"><span th:text="#{autogroups.step3.split.by.groups}">Split by number of groups needed</label>
+                <label for="splitByGroup"><input id="splitByGroup" type="radio" name="splitOptions" checked="checked" value="0" th:field="*{splitOptions}"/><span th:text="#{autogroups.step3.split.by.groups}">Split by number of groups needed</span></label>
               </div>
               <div id="splitByGroupsOptions" th:style="${autoGroupsForm.splitOptions == 0 ? 'display:block' : 'display:none'}">
                 <div th:if="${autoGroupsForm.splitOptions == 0 && splitOptionsError != null}" class="sak-banner-error" th:text="${splitOptionsError}">Error message.</div>
@@ -79,8 +79,8 @@
           </div>
           <div class="act">
             <input accesskey="c" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}">
-            <a accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</a>&nbsp;
-            <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+            <button type="button" accesskey="b" id="autogroups-back-button" class="btn btn-default" th:text="#{autogroups.button.back}">Back</button>
+            <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</button>
           </div>
         </form>
       </div>

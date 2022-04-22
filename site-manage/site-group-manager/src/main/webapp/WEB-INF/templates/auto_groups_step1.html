@@ -36,8 +36,8 @@
             </tbody>
             </table>
             <div class="act">
-              <input accesskey="x" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" onclick="SPNR.disableControlsAndSpin( this, null );">
-              <a th:href="@{/}" accesskey="x" id="autogroups-cancel-button" class="btn btn-default" th:text="#{autogroups.button.cancel}">Cancel</a>
+              <input accesskey="x" type="submit" class="active" id="autogroups-continue-button" th:value="#{autogroups.button.continue}" />
+              <button type="button" th:data-url="@{/}" accesskey="x" id="autogroups-cancel-button" th:text="#{autogroups.button.cancel}">Cancel</button>
             </div>
           </form>
       </div>
