@@ -298,7 +298,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input
               type="checkbox"
               id="complete"
-              aria-label="${this.i18n.complete_tooltip}"
               title="${this.i18n.complete_tooltip}"
               @click=${this.complete}
               ?checked=${this.task.complete}>
@@ -320,7 +319,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input type="radio"
                  id="task-current-user"
                  name="deliver-task"
-                 aria-label="${this.i18n.deliver_my_dashboard}"
                  title="${this.i18n.deliver_my_dashboard}"
                  value="user"
                  @click=${() => this.assignationType = 'user'}
@@ -331,7 +329,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input type="radio"
                 id="task-students"
                 name="deliver-task"
-                aria-label="${this.i18n.deliver_site}"
                 title="${this.i18n.deliver_site}"
                 value="site"
                 @click=${() => this.assignationType = 'site'}
@@ -342,7 +339,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input type="radio"
                 id="task-groups"
                 name="deliver-task"
-                aria-label="${this.i18n.deliver_group}"
                 title="${this.i18n.deliver_group}"
                 value="group"
                 @click=${() => this.assignationType = 'group'}
