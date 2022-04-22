@@ -735,7 +735,7 @@ $(document).ready(function(){
 							#foreach ($attachment in $attachments) 
 								#set ($props = false)
 								#set ($props = $attachment.Properties) 
-								#if ($!props)
+								#if ($!props && !$!props.isEmpty())
 									<tr>
 										<td>
 											#if ($props.getBooleanProperty($props.NamePropIsCollection))
