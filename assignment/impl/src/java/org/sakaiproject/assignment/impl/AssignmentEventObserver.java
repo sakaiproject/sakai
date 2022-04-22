@@ -76,7 +76,7 @@ public class AssignmentEventObserver implements Observer {
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
                                     org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignmentByNameOrId(event.getContext(), itemId);
-                                    assignment = Optional.ofNullable(assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName()));
+                                    assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
                                     if (assignment.isPresent()) {
                                         final Assignment a = assignment.get();
                                         final User user = userDirectoryService.getUser(studentId);
@@ -116,7 +116,7 @@ public class AssignmentEventObserver implements Observer {
                                             log.warn("Submission not found for assignment {} and student {}, ", itemId, studentId);
                                         }
                                     } else {
-                                        log.warn("No matching assignment found with gradebook item id, {}", itemId);
+                                        log.debug("No matching assignment found with gradebook item id, {}", itemId);
                                     }
                                 } catch (IdUnusedException | PermissionException e) {
                                     if (!assignment.isPresent()) {
