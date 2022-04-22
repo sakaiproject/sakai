@@ -83,6 +83,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 @Slf4j
@@ -116,12 +117,22 @@ public class DateManagerServiceImpl implements DateManagerService {
 		setPubAssessmentServiceQueries(assessmentPersistenceService.getPublishedAssessmentFacadeQueries());
 	}
 
+	private String getCurrentToolSessionAttribute(String name) {
+		ToolSession session = sessionManager.getCurrentToolSession();
+		return session != null ? session.getAttribute(name).toString() : "";
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getCurrentSiteId() {
-		return toolManager.getCurrentPlacement().getContext();
+		String siteID = getCurrentToolSessionAttribute(STATE_SITE_ID);
+		if (StringUtils.isEmpty(siteID)) {
+			siteID = toolManager.getCurrentPlacement().getContext();
+		}
+
+		return siteID;
 	}
 
 	/**
