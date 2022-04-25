@@ -127,7 +127,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
                 throw new IllegalStateException("Template is null");
             }
             InternetAddress[] to = { new InternetAddress(toAddress) };
-            emailService.sendMail(new InternetAddress(fromAddress), to, template.getRenderedSubject(), template.getRenderedMessage(), null, null, null);
+            emailService.sendMail(new InternetAddress(fromAddress), to, template.getRenderedSubject(), template.getRenderedMessage(), to, null, null);
         }
         catch (Exception e) {
             log.error("Unable to send email notification for AutoSubmit failures.", e);
