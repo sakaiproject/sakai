@@ -373,7 +373,7 @@ public class GradeSheetExporter {
                             cell.setCellStyle(style);
                         } else {
                             cell = sheetRow.createCell(column++, CellType.STRING);
-                            cell.setCellValue(submissionInfo != null ? submissionInfo.grade.toString() : rb.getString("listsub.nosub"));
+                            cell.setCellValue(submissionInfo != null && submissionInfo.grade != null ? submissionInfo.grade.toString() : rb.getString("listsub.nosub"));
                         }
 
                         // Scale
