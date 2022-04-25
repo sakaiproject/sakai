@@ -22,12 +22,12 @@ package org.sakaiproject.tool.messageforums.ui;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +68,8 @@ public class DiscussionForumBean
   
   private SimpleDateFormat datetimeFormat;
   private UserTimeService userTimeService;
+  private String openDateISO = "";
+  private String closeDateISO = "";
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);    
@@ -532,16 +534,14 @@ public class DiscussionForumBean
 		if(forum == null || forum.getOpenDate() == null){
 			return "";
 		}else{
-			StringBuilder dateTimeOpenDate = new StringBuilder( datetimeFormat.format( forum.getOpenDate() ) );			
-			return dateTimeOpenDate.toString();
+			return userTimeService.dateTimeFormat(forum.getOpenDate().toInstant(), FormatStyle.SHORT, null);
 		}
-	}	  
+	}
 
 	public void setOpenDate(String openDateStr){
-		if (StringUtils.isNotBlank(openDateStr)) {
+		if (StringUtils.isNoneBlank(openDateStr, openDateISO)) {
 			try{
-				String hiddenOpenDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
-				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
+				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				forum.setOpenDate(openDate);
 			}catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
@@ -555,17 +555,15 @@ public class DiscussionForumBean
 		if(forum == null || forum.getCloseDate() == null){
 			return "";
 		}else{
-			StringBuilder dateTimeCloseDate = new StringBuilder( datetimeFormat.format( forum.getCloseDate() ) );
-			return dateTimeCloseDate.toString();
+			return userTimeService.dateTimeFormat(forum.getCloseDate().toInstant(), FormatStyle.SHORT, null);
 		}
-	}	  
+	}
 
 	public void setCloseDate(String closeDateStr){
-		if (StringUtils.isNotBlank(closeDateStr)) {
+		if (StringUtils.isNoneBlank(closeDateStr, closeDateISO)) {
 			try{
-				String hiddenCloseDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("closeDateISO8601");
-				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
-				forum.setCloseDate(CloseDate);
+				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
+				forum.setCloseDate(closeDate);
 			}catch (ParseException e) {
 				log.error("Couldn't convert Close date", e);
 			}
@@ -573,7 +571,7 @@ public class DiscussionForumBean
 			forum.setCloseDate(null);
 		}
 	}
-	
+
 	public String getFormattedCloseDate(){
 		if(forum == null || forum.getCloseDate() == null){
 			return "";
@@ -596,5 +594,15 @@ public class DiscussionForumBean
 
 	public String getHasRubric(){
 		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, forum.getDefaultAssignName()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+	}
+
+	public void setOpenDateISO(String openDateISO) {
+		this.openDateISO = openDateISO;
+		setOpenDate(this.openDateISO);
+	}
+
+	public void setCloseDateISO(String closeDateISO) {
+		this.closeDateISO = closeDateISO;
+		setCloseDate(this.closeDateISO);
 	}
 }

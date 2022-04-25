@@ -16,7 +16,6 @@
 	<script src="/messageforums-tool/js/forum.js"></script>
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
-	<script src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 	<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
@@ -34,16 +33,15 @@
   		}
 	</script> 
 	<script>
+	$(document).ready(function() {
+		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
+		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {
+			setDatesEnabled(radioButtonRestrictedAvailability);
+		}
+	});
+
 	function setDatesEnabled(radioButton){
 		$(".calWidget").fadeToggle('slow');
-	}
-
-	function openDateCal(){
-			NewCal('revise:openDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
-	}
-
-	function closeDateCal(){
-			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
 
 	function updateGradeAssignment(){
@@ -273,36 +271,51 @@
                </h:selectOneRadio>
                </h:panelGroup>
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
-               	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-
-	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
-
-              	</h:panelGroup>
-               <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
-              		<h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
-	               <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}"/>
-
-              	</h:panelGroup>
-           <%-- </h:panelGrid> --%>
+                   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
+                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}" onchange="storeOpenDateISO(event)"/>
+                   <h:inputText id="openDateISO" styleClass="openDateISO hidden" value="#{ForumTool.selectedForum.openDateISO}"></h:inputText>
+               </h:panelGroup>
+               <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
+                   <h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
+                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
+                   <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
+               </h:panelGroup>
 			</h:panelGroup>
 
- 		<script>
- 		      localDatePicker({
- 		      	input:'.openDate', 
- 		      	allowEmptyDate:true, 
- 		      	ashidden: { iso8601: 'openDateISO8601' },
- 		      	getval:'.openDate',
- 		      	useTime:1 
- 		      });
+			<script>
+				function storeOpenDateISO(e) {
+					e.preventDefault();
+					document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
+				}
 
- 		      localDatePicker({
- 		      	input:'.closeDate', 
- 		      	allowEmptyDate:true, 
- 		      	ashidden: { iso8601: 'closeDateISO8601' },
- 		      	getval:'.closeDate',
- 		      	useTime:1 
- 		      });
- 		</script>
+				function storeCloseDateISO(e) {
+					e.preventDefault();
+					document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
+				}
+
+				$(document).ready(function() {
+					if (document.getElementById("openDateISO8601").value != null) {
+						document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
+						document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
+					}
+				});
+
+				localDatePicker({
+					input: '.openDate',
+					allowEmptyDate: true,
+					ashidden: { iso8601: 'openDateISO8601' },
+					value: '.openDate',
+					useTime: 1
+				});
+
+				localDatePicker({
+					input: '.closeDate',
+					allowEmptyDate: true,
+					ashidden: { iso8601: 'closeDateISO8601' },
+					value: '.closeDate',
+					useTime: 1
+				});
+			</script>
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
 			
