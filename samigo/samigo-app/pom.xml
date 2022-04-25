@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.opensearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <artifactId>opensearch</artifactId>
             <scope>provided</scope>
             <version>${sakai.opensearch.version}</version>
         </dependency>
