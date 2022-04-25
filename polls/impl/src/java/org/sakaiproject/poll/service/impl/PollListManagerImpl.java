@@ -225,6 +225,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return false;
     }
 
+    public List<Poll> findAllPolls() {
+
+        Search search = new Search();
+
+        List<Poll> polls = dao.findBySearch(Poll.class, search);
+        return polls;
+    }
+
     public List<Poll> findAllPolls(String siteId) {
         
         Search search = new Search();
