@@ -104,9 +104,9 @@
         <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
+      <groupId>org.opensearch</groupId>
       <artifactId>elasticsearch</artifactId>
-      <version>${sakai.elasticsearch.version}</version>
+      <version>${sakai.opensearch.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

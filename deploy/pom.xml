@@ -207,7 +207,7 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- lucene jars required by elasticsearch and help -->
+        <!-- lucene jars required by opensearch and help -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
@@ -273,40 +273,35 @@
             <artifactId>lucene-spatial3d</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- elasticsearch libs -->
+        <!-- opensearch libs -->
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-core</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-core</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-cli</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-cli</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-secure-sm</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-secure-sm</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-x-content</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-x-content</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-geo</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-lz4</artifactId>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-geo</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -315,22 +310,22 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-high-level-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-client</artifactId>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.codelibs.elasticsearch.module</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>analysis-common</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -340,22 +335,22 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>parent-join-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>aggs-matrix-stats-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>rank-eval-client</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.plugin</groupId>
+            <groupId>org.opensearch.plugin</groupId>
             <artifactId>lang-mustache-client</artifactId>
             <scope>compile</scope>
         </dependency>

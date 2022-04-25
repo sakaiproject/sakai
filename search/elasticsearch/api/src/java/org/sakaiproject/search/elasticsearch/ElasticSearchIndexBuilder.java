@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.search.SearchHit;
+import org.opensearch.action.search.SearchResponse;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.search.SearchHit;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
