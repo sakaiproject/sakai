@@ -61,8 +61,8 @@
         </tbody>
       </table>
       <div class="act">
-        <input accesskey="s" disabled="disabled" id="delete-groups-submit-button" type="submit" class="active" th:value="#{index.button.removechecked}">
-        <a accesskey="x" href="#" id="delete-groups-cancel-button" class="btn btn-default" th:text="#{index.button.cancel}">Cancel</a>
+        <input accesskey="s" disabled="disabled" id="delete-groups-submit-button" type="submit" class="active" th:value="#{index.button.removechecked}"/>
+        <button type="button" accesskey="x" id="delete-groups-cancel-button" th:text="#{index.button.cancel}">Cancel</button>
       </div>
       <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="confirmation-modal">
         <div class="modal-dialog modal-md">
@@ -77,7 +77,7 @@
             </div>
             <div class="modal-footer act">
               <button type="button" class="active" id="modal-btn-confirm" th:text="#{index.modal.button.delete}" onclick="SPNR.disableControlsAndSpin( this, null );">Delete these groups</button>
-              <button type="button" class="btn btn-default" id="modal-btn-cancel" th:text="#{index.button.cancel}">Cancel</button>
+              <button type="button" id="modal-btn-cancel" th:text="#{index.button.cancel}">Cancel</button>
             </div>
           </div>
         </div>

@@ -34,14 +34,15 @@
         </div>
         <div class="col-sm-6">
           <label for="groupUploadFile" th:text="#{import.chooseone}">Or choose a file</label>
-          <input class="form-control" id="groupUploadFile" name="groupUploadFile" type="file">
+          <input class="form-control" id="groupUploadFile" name="groupUploadFile" type="file"/>
         </div>
       </div>
       <div class="act">
-        <input accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.submit}">
-        <a th:href="@{/}" accesskey="x" id="bulk-creation-cancel-button" class="btn btn-default" th:text="#{import.button.cancel}">Cancel</a>
+        <input accesskey="s" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.submit}"/>
+        <button type="button" th:data-url="@{/}" accesskey="x" id="bulk-creation-cancel-button" th:text="#{import.button.cancel}">Cancel</button>
       </div>
     </form>
   </div>
+  <script th:replace="fragments/javascript :: importJs" />
 </body>
 </html>

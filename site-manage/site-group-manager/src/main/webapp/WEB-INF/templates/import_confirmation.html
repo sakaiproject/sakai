@@ -29,11 +29,12 @@
     <form id="bulkcreation-confirmation-form" action="#" th:action="@{/confirmImport}" method="post">
       <input type="hidden" th:value="${importedGroupMap}" name="importedGroupMap" id="importedGroupMap"/>
         <div class="act">
-          <input th:if="${!membershipErrors}" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.create.bulk}">
-          <a th:href="@{/import}" accesskey="b" href="#" id="bulk-creation-back-button" class="btn btn-default" th:text="#{import.button.back}">back</a>&nbsp;
-          <a th:href="@{/}" accesskey="x" id="bulk-creation-cancel-button" class="btn btn-default" th:text="#{import.button.cancel}">Cancel</a>
+          <input th:if="${!membershipErrors}" accesskey="s" id="bulk-creation-submit-button" type="submit" class="active" th:value="#{import.button.create.bulk}"/>
+          <button type="button" th:data-url="@{/import}" accesskey="b" id="bulk-creation-back-button" th:text="#{import.button.back}">Back</button>
+          <button type="button" th:data-url="@{/}" accesskey="x" id="bulk-creation-cancel-button" th:text="#{import.button.cancel}">Cancel</button>
         </div>
       </form>
   </div>
+  <script th:replace="fragments/javascript :: importConfirmJs" />
 </body>
 </html>

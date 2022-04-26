@@ -15,6 +15,39 @@
   };
   /*]]>*/
 </script>
+<script th:fragment="importJs" th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Button spinners
+        const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
+        bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
+            SPNR.disableControlsAndSpin(bulkCreateButton, null);
+        });
+        const bulkCreateCancelButton = document.getElementById("bulk-creation-cancel-button");
+        bulkCreateCancelButton && bulkCreateCancelButton.addEventListener("click", e => {
+            SPNR.disableControlsAndSpin(bulkCreateCancelButton, null);
+            window.location.href = bulkCreateCancelButton.getAttribute('data-url');
+        });
+    });
+    /*]]>*/
+</script>
+<script th:fragment="importConfirmJs" th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Button spinners
+        const bulkCreateButton = document.getElementById("bulk-creation-submit-button");
+        bulkCreateButton && bulkCreateButton.addEventListener("click", e => {
+            SPNR.disableControlsAndSpin(bulkCreateButton, null);
+        });
+        document.querySelectorAll("#bulk-creation-back-button, #bulk-creation-cancel-button").forEach(el => {
+            el.addEventListener("click", () => {
+                SPNR.disableControlsAndSpin(el, null);
+                window.location.href = el.getAttribute('data-url');
+            });
+        });
+    });
+    /*]]>*/
+</script>
 <script th:fragment="indexJs" th:inline="javascript">
   /*<![CDATA[*/
 
@@ -33,6 +66,7 @@
   gmCancelButton && gmCancelButton.addEventListener("click", e => {
 
     e.preventDefault;
+    SPNR.disableControlsAndSpin(gmCancelButton, null);
     window.location = window.location.href.replace("/sakai-site-group-manager.helper", "");
   });
 
@@ -99,6 +133,18 @@
             submit.disabled = !groupTitle.value || groupNumber.value <= 0 || groupMaxMembers.value <= 0;
         });
       });
+    });
+
+    // Button spinners
+    document.querySelectorAll("#create-joinableset-submit-button, #save-joinableset-submit-button").forEach(el => {
+        el.addEventListener("click", () => {
+            SPNR.disableControlsAndSpin(el, null);
+        });
+    });
+    const joinableSetCancelButton = document.getElementById("create-joinableset-cancel-button");
+    joinableSetCancelButton && joinableSetCancelButton.addEventListener("click", e => {
+        SPNR.disableControlsAndSpin(joinableSetCancelButton, null);
+        window.location.href = joinableSetCancelButton.getAttribute('data-url');
     });
   });
 
@@ -193,6 +239,18 @@
       allowClear: true
     });
 
+    // Button spinners
+    document.querySelectorAll("#create-group-submit-button, #save-group-submit-button").forEach(el => {
+        el.addEventListener("click", () => {
+            SPNR.disableControlsAndSpin(el, null);
+        });
+    });
+    const cancelGroupButton = document.getElementById("create-group-cancel-button");
+    cancelGroupButton && cancelGroupButton.addEventListener("click", e => {
+        SPNR.disableControlsAndSpin(cancelGroupButton, null);
+        window.location.href = cancelGroupButton.getAttribute('data-url');
+    });
+
   });
   /*]]>*/
 </script>
@@ -204,6 +262,16 @@
 
     document.querySelectorAll(".group-manager-role-checkbox")
       .forEach(box => box.checked = e.target.checked);
+  });
+
+  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+  });
+  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
   });
   /*]]>*/
 </script>
@@ -230,9 +298,20 @@
 
   const backButton = document.getElementById("autogroups-back-button");
   backButton && backButton.addEventListener("click", () => {
-
+    SPNR.disableControlsAndSpin(backButton, null);
     document.getElementById("wizardAction").value = "back";
     document.getElementById("autogroups-wizard-step2-form").submit();
+  });
+
+  // Button spinners
+  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+  });
+  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
   });
   /*]]>*/
 </script>
@@ -274,9 +353,20 @@
 
   const backButton = document.getElementById("autogroups-back-button");
   backButton && backButton.addEventListener("click", () => {
-
+    SPNR.disableControlsAndSpin(backButton, null);
     document.getElementById('wizardAction').value = "back";
     document.getElementById("autogroups-wizard-step3-form").submit();
+  });
+
+  // Button spinners
+  const autoGroupsContinueButton = document.getElementById("autogroups-continue-button");
+  autoGroupsContinueButton && autoGroupsContinueButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsContinueButton, null);
+  });
+  const autoGroupsCancelButton = document.getElementById("autogroups-cancel-button");
+  autoGroupsCancelButton && autoGroupsCancelButton.addEventListener("click", e => {
+    SPNR.disableControlsAndSpin(autoGroupsCancelButton, null);
+    window.location.href = autoGroupsCancelButton.getAttribute('data-url');
   });
   /*]]>*/
 </script>
@@ -286,9 +376,22 @@
   document.querySelectorAll("#autogroups-back-button-top, #autogroups-back-button").forEach(el => {
 
     el.addEventListener("click", () => {
-
+      SPNR.disableControlsAndSpin(el, null);
       document.getElementById("wizardAction").value = "back";
       document.getElementById("autogroups-wizard-step4-form").submit();
+    });
+  });
+
+  // Button spinners
+  document.querySelectorAll("#autogroups-creategroups-button, #autogroups-creategroups-button-top").forEach(el => {
+    el.addEventListener("click", () => {
+      SPNR.disableControlsAndSpin(el, null);
+    });
+  });
+  document.querySelectorAll("#autogroups-cancel-button, #autogroups-cancel-button-top").forEach(el => {
+    el.addEventListener("click", () => {
+      SPNR.disableControlsAndSpin(el, null);
+      window.location.href = el.getAttribute('data-url');
     });
   });
   /*]]>*/
