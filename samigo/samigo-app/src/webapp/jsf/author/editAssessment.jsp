@@ -522,7 +522,7 @@ $(window).load( function() {
 	    <f:param value="#{author.editPoolName}" />
 	</h:outputFormat>
 </h:panelGrid>
-<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="sak-banner-error">
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="sak-banner-warn">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
