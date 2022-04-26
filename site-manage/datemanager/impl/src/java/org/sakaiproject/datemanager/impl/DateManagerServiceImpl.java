@@ -676,7 +676,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 			org.sakaiproject.grading.api.Assignment assignmentDefinition = (org.sakaiproject.grading.api.Assignment) update.object;
 			Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 			assignmentDefinition.setDueDate(dueDateTemp);
-			gradebookService.updateAssignment(getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);
+			gradingService.updateAssignment(getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);
 		}
 	}
 
