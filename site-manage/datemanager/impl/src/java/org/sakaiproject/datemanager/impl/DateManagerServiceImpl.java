@@ -422,16 +422,21 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Instant feedbackStart = null;
 				Instant feedbackEnd = null;
 
-				if (openDateRaw != null && !openDateRaw.isEmpty())
+				if (StringUtils.isNotBlank(openDateRaw)) {
 					openDate = userTimeService.parseISODateInUserTimezone(openDateRaw).toInstant();
-				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+				}
+				if (StringUtils.isNotBlank(dueDateRaw)) {
 					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
-				if (acceptUntilRaw != null && !acceptUntilRaw.isEmpty())
+				}
+				if (StringUtils.isNotBlank(acceptUntilRaw)) {
 					acceptUntil = userTimeService.parseISODateInUserTimezone(acceptUntilRaw).toInstant();
-				if (feedbackStartRaw != null && !feedbackStartRaw.isEmpty())
+				}
+				if (StringUtils.isNotBlank(feedbackStartRaw)) {
 					feedbackStart = userTimeService.parseISODateInUserTimezone(feedbackStartRaw).toInstant();
-				if (feedbackEndRaw != null && !feedbackEndRaw.isEmpty())
+				}
+				if (StringUtils.isNotBlank(feedbackEndRaw)) {
 					feedbackEnd = userTimeService.parseISODateInUserTimezone(feedbackEndRaw).toInstant();
+				}
 				boolean isDraft = Boolean.parseBoolean(jsonAssessment.get("is_draft").toString());
 
 				Object assessment;
