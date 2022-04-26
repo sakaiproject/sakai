@@ -50,7 +50,7 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.xcontent.XContentBuilder;
+import org.opensearch.common.xcontent.XContentBuilder;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;

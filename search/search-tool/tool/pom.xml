@@ -105,7 +105,7 @@
     </dependency>
     <dependency>
       <groupId>org.opensearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <artifactId>opensearch</artifactId>
       <version>${sakai.opensearch.version}</version>
       <scope>test</scope>
     </dependency>

@@ -61,7 +61,7 @@ import org.opensearch.search.SearchHit;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
-import org.opensearch.xcontent.XContentBuilder;
+import org.opensearch.common.xcontent.XContentBuilder;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
