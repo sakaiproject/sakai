@@ -24,7 +24,7 @@
 			e.preventDefault();
 			copyToClipboardNoScroll(this, $(this).attr('href'));
 		});
-		$('#publicInfoTooltip').tooltip();
+		$('#publicInfoPopover').popover();
 	});
 </script>
 
@@ -228,7 +228,9 @@
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
-					<span class="fa fa-info-circle" id="publicInfoTooltip" title='$tlang.getString("ediacc.dismysit.h")'></span>
+					<button id="publicInfoPopover" class="info-icon" data-trigger="hover focus" data-content='$tlang.getString("ediacc.dismysit.h")' aria-label='$tlang.getString("feat.more.info")'>
+						<span class="fa fa-info-circle"></span>
+					</button>
 				</td>
 			</tr>
 
