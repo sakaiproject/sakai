@@ -2029,7 +2029,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (next instanceof Reference) {
                 Reference attachment = (Reference) next;
                 // inline submissions should not show up in the UI's lists of attachments
-                if (!"true".equals(attachment.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+                if (isVisibleAttachment(attachment)) {
                     stripped.add(attachment);
                 }
             }
@@ -2045,11 +2045,15 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         submission.getAttachments().forEach(refId -> {
             Reference reference = entityManager.newReference(refId);
-            if (!"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+            if (isVisibleAttachment(reference)) {
                 submissionAttachmentReferences.put(refId, reference);
             }
         });
         return submissionAttachmentReferences;
+    }
+
+    private boolean isVisibleAttachment(Reference r) {
+        return r.getProperties() != null && !"true".equals(r.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
     }
 
     /**
@@ -15058,17 +15062,23 @@ public class AssignmentAction extends PagedResourceActionII {
         User submittedBy;
         Boolean multiGroup = false;
         AssignmentSubmission submission;
+        Boolean hasVisibleAttachments = false;
 
         SubmitterSubmission(User user, AssignmentSubmission submission) {
-            this.user = user;
-            this.submission = submission;
-            reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            this(user, null, submission);
         }
 
         SubmitterSubmission(Group group, AssignmentSubmission submission) {
+            this(null, group, submission);
+        }
+
+        private SubmitterSubmission(User user, Group group, AssignmentSubmission submission) {
+            this.user = user;
             this.group = group;
             this.submission = submission;
             reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            hasVisibleAttachments = CollectionUtils.emptyIfNull(submission.getAttachments()).stream()
+                    .map(r -> entityManager.newReference(r)).anyMatch(ref -> isVisibleAttachment(ref));
         }
 
         public String getGradeForUser(String id) {

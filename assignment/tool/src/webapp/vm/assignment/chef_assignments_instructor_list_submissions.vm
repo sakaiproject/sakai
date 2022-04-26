@@ -445,8 +445,7 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-								#set ($size = $submission.Attachments.size())
-								#if ($size > 0 && $submission.submitted)
+								#if ($!userSubmission.hasVisibleAttachments && $submission.submitted)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>
