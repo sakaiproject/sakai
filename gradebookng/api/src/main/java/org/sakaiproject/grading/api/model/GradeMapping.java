@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import javax.persistence.Column;
 import javax.persistence.CollectionTable;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -60,7 +61,7 @@ import lombok.ToString;
  */
 @Entity
 @Table(name = "GB_GRADE_MAP_T", indexes = @Index(name = "GB_GRADE_MAP_GB_IDX", columnList = "GRADEBOOK_ID"))
-@DiscriminatorColumn(name = "OBJECT_TYPE_ID")
+@DiscriminatorColumn(name = "OBJECT_TYPE_ID", discriminatorType = DiscriminatorType.INTEGER)
 @DiscriminatorValue("0")
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -73,8 +74,8 @@ public class GradeMapping implements PersistableEntity<Long>, Serializable, Comp
     @ToString.Include
     protected Long id;
 
-    @Column(name = "VERSION")
-    protected Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    protected Integer version = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "GRADEBOOK_ID", nullable = false)

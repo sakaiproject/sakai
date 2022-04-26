@@ -40,7 +40,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "GB_LETTERGRADE_PERCENT_MAPPING", uniqueConstraints = {
-    @UniqueConstraint(name = "uniqueTypeGradebook", columnNames = {"GRADEBOOK_ID", "MAPPING_TYPE"})
+    @UniqueConstraint(name = "uniqueTypeGradebook", columnNames = {"MAPPING_TYPE", "GRADEBOOK_ID"})
 })
 @Getter @Setter
 public class LetterGradePercentMapping implements PersistableEntity<Long>, Serializable {
@@ -50,8 +50,8 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
     @Column(name = "LGP_MAPPING_ID")
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "GRADEBOOK_ID", nullable = true)
     private Long gradebookId;
@@ -60,7 +60,7 @@ public class LetterGradePercentMapping implements PersistableEntity<Long>, Seria
     private Integer mappingType = 1; //value of 1 or 2 - 1 is the default mapping in the system.
 
     @ElementCollection
-    @CollectionTable(name = "GB_LETTERGRADE_MAPPING_T", joinColumns = @JoinColumn(name = "LG_MAPPING_ID"))
+    @CollectionTable(name = "GB_LETTERGRADE_MAPPING", joinColumns = @JoinColumn(name = "LG_MAPPING_ID"))
     @MapKeyColumn(name = "grade")
     @Column(name = "value")
     private Map<String, Double> gradeMap;

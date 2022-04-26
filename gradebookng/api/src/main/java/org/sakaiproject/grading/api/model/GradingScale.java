@@ -27,6 +27,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -44,7 +45,7 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "GB_GRADING_SCALE_T")
-@DiscriminatorColumn(name = "OBJECT_TYPE_ID")
+@DiscriminatorColumn(name = "OBJECT_TYPE_ID", discriminatorType = DiscriminatorType.INTEGER)
 @DiscriminatorValue("0")
 @Getter @Setter
 @ToString(onlyExplicitlyIncluded = true)
@@ -55,8 +56,8 @@ public class GradingScale implements PersistableEntity<Long>, Comparable<Object>
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "SCALE_UID", unique = true, nullable = false)
     @ToString.Include
@@ -76,7 +77,7 @@ public class GradingScale implements PersistableEntity<Long>, Comparable<Object>
     @ElementCollection
     @CollectionTable(name = "GB_GRADING_SCALE_GRADES_T", joinColumns = @JoinColumn(name = "GRADING_SCALE_ID"), indexes = @Index(columnList = "GRADING_SCALE_ID"))
     @OrderColumn(name = "GRADE_IDX")
-    @Column(name = "LETTER_GRADE", nullable = false)
+    @Column(name = "LETTER_GRADE")
     private List<String> grades;
 
     @ElementCollection

@@ -68,8 +68,8 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     @EqualsAndHashCode.Include
     private String uid;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "NAME", nullable = false)
     @ToString.Include

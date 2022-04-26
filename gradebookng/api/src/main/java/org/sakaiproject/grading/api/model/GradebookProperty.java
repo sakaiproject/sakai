@@ -42,8 +42,8 @@ public class GradebookProperty implements PersistableEntity<Long>, Comparable<Ob
     @ToString.Include
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "NAME", unique = true, nullable = false)
     @ToString.Include

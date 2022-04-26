@@ -21,6 +21,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -47,9 +48,9 @@ import lombok.ToString;
 @Entity
 @Table(name = "GB_GRADE_RECORD_T"
     , indexes = @Index(name = "GB_GRADE_RECORD_G_O_IDX", columnList = "GRADABLE_OBJECT_ID")
-    , uniqueConstraints = @UniqueConstraint(name = "GB_GRADE_RECORD_STUDENT_ID_IDX", columnNames = { "GRADABLE_OBJECT_ID", "STUDENT_ID" })
+    , uniqueConstraints = @UniqueConstraint(name = "gradeRecordKey", columnNames = { "GRADABLE_OBJECT_ID", "STUDENT_ID" })
 )
-@DiscriminatorColumn(name = "OBJECT_TYPE_ID")
+@DiscriminatorColumn(name = "OBJECT_TYPE_ID", discriminatorType = DiscriminatorType.INTEGER)
 @DiscriminatorValue("0")
 @ToString(onlyExplicitlyIncluded = true)
 @Getter @Setter
@@ -61,8 +62,8 @@ public abstract class AbstractGradeRecord implements PersistableEntity<Long>, Se
     @ToString.Include
     protected Long id;
 
-    @Column(name = "VERSION")
-    protected Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    protected Integer version = 0;
 
     @Column(name = "STUDENT_ID", nullable = false)
     @ToString.Include

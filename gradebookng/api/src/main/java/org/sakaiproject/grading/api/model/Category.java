@@ -50,8 +50,8 @@ public class Category implements PersistableEntity<Long>, Serializable {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @ManyToOne
     @JoinColumn(name = "GRADEBOOK_ID", nullable = false)
@@ -66,13 +66,29 @@ public class Category implements PersistableEntity<Long>, Serializable {
     @Column(name = "DROP_LOWEST")
     private Integer dropLowest = 0;
 
+    @Column(name = "REMOVED")
+    private Boolean removed = Boolean.FALSE;
+
+    @Column(name = "IS_EXTRA_CREDIT")
+    private Boolean extraCredit = Boolean.FALSE;
+
+    @Column(name = "IS_EQUAL_WEIGHT_ASSNS")
+    private Boolean equalWeightAssignments = Boolean.FALSE;
+
+    @Column(name = "IS_UNWEIGHTED")
+    private Boolean unweighted = Boolean.FALSE;
+
+    @Column(name = "CATEGORY_ORDER")
+    private Integer categoryOrder = 0;
+
+    @Column(name = "ENFORCE_POINT_WEIGHTING")
+    private Boolean enforcePointWeighting = Boolean.FALSE;
+
     @Column(name = "DROP_HIGHEST")
     private Integer dropHighest = 0;
 
     @Column(name = "KEEP_HIGHEST")
     private Integer keepHighest = 0;
-
-    private Boolean removed = Boolean.FALSE;
 
     @Transient
     private Double averageTotalPoints; // average total points possible for this category
@@ -88,16 +104,6 @@ public class Category implements PersistableEntity<Long>, Serializable {
     private List<GradebookAssignment> assignmentList = new ArrayList<>();;
     @Transient
     private int assignmentCount;
-    @Transient
-    private Boolean extraCredit = Boolean.FALSE;
-    @Transient
-    private Boolean unweighted;
-    @Transient
-    private Boolean equalWeightAssignments = Boolean.FALSE;
-    @Transient
-    private Integer categoryOrder;
-    @Transient
-    private Boolean enforcePointWeighting;
 
     public static final Comparator nameComparator;
     public static final Comparator averageScoreComparator;

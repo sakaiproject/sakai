@@ -52,8 +52,8 @@ public class Comment implements PersistableEntity<Long>, Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "VERSION")
-    private Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    private Integer version = 0;
 
     @Column(name = "STUDENT_ID", nullable = false)
     @ToString.Include(name = "studentid")

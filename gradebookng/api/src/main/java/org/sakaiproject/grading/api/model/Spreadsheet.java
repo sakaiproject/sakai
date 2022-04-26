@@ -54,8 +54,8 @@ public class Spreadsheet implements Serializable {
     @EqualsAndHashCode.Include
     protected Gradebook gradebook;
 
-    @Column(name = "VERSION")
-    protected Integer version = 1;
+    @Column(name = "VERSION", nullable = false)
+    protected Integer version = 0;
 
     @Lob
     @Column(name = "CONTENT", length = 16777215, nullable = false)
