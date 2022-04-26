@@ -632,11 +632,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 				String dueDateRaw = (String) jsonItem.get("due_date");
 				Instant dueDate = null;
-				if (dueDateRaw != null && !dueDateRaw.isEmpty())
-					dueDate =
-							userTimeService
-									.parseISODateInUserTimezone((String) jsonItem.get("due_date"))
-									.toInstant();
+				if (StringUtils.isNotBlank(dueDateRaw)) {
+					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
+				}
 
 				org.sakaiproject.service.gradebook.shared.Assignment gbitem = gradebookService.getAssignment(getCurrentSiteId(), itemId);
 				if (gbitem == null) {
