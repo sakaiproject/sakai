@@ -28,7 +28,7 @@ import java.util.List;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public interface CourseSection extends LearningContext {
+public interface CourseSection extends LearningContext, Comparable<CourseSection> {
 	/**
 	 * Gets the Course that this CourseSection belongs to
 	 * 

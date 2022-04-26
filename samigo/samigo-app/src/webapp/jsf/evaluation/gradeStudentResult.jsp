@@ -127,7 +127,7 @@ function toPoint(id)
 
   <h:panelGroup layout="block" styleClass="page-header">
     <h1>
-      <h:outputText value="#{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
+      <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
       <small><h:outputText value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/></small>
     </h1>
   </h:panelGroup>
@@ -209,7 +209,7 @@ function toPoint(id)
                   <p class="input-group-addon">
                     <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
                     <h:outputText value="#{deliveryMessages.pt}" />
-                    <h:message for="adjustedScore" style="color:red" />
+                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
                     <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
                   </p>
                 </h:panelGroup>

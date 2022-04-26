@@ -21,7 +21,7 @@ import java.util.Comparator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade Copied from GradebookService and made
+ * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade Copied from GradingService and made
  * Serializable as we use it in a TreeMap. Also has the fix from SAK-30094. If this changes, be sure to update the other.
  */
 public class LetterGradeComparator implements Comparator<String>, Serializable {

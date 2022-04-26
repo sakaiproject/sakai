@@ -31,20 +31,20 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.service.gradebook.shared.SortType;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryScoreData;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.SortType;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
  * The panel that is rendered for students for both their own grades view, and also when viewing it from the instructor review tab
@@ -53,7 +53,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	GbCategoryType configuredCategoryType;
+	GradingCategoryType configuredCategoryType;
 
 	// used as a visibility flag. if any are released, show the table
 	boolean someAssignmentsReleased = false;
@@ -75,13 +75,13 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
 
-		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
-		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
-		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
-		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
+		this.configuredCategoryType = gradebook.getCategoryType();
+		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
+		this.categoriesEnabled = this.configuredCategoryType != GradingCategoryType.NO_CATEGORY;
+		this.isAssignmentsDisplayed = gradebook.getAssignmentsDisplayed();
 
 		final GradebookInformation settings = getSettings();
-		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
+		this.courseGradeStatsEnabled = settings.getCourseGradeStatsDisplayed();
 
 		setOutputMarkupId(true);
 	}
@@ -98,8 +98,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				GbRole.STUDENT,
-				gradebook.isCourseGradeDisplayed(),
-				gradebook.isCoursePointsDisplayed(),
+				gradebook.getCourseGradeDisplayed(),
+				gradebook.getCoursePointsDisplayed(),
 				true,
 				this.businessService.getShowCalculatedGrade());
 
@@ -121,7 +121,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			for (final Assignment assignment : assignments) {
 				// if an assignment is released, update the flag (but don't set it false again)
 				// then build the category map. we don't do any of this for unreleased gradebook items
-				if (assignment.isReleased()) {
+				if (assignment.getReleased()) {
 					this.someAssignmentsReleased = true;
 					final String categoryName = getCategoryName(assignment);
 
@@ -162,7 +162,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", true);
-		tableModel.put("gradingType", GradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("gradingType", gradebook.getGradeType());
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
@@ -196,7 +196,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		addOrReplace(courseGradePanel);
 
 		// course grade, via the formatter
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(userId);
 
 		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
@@ -247,7 +247,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
+		return this.configuredCategoryType == GradingCategoryType.WEIGHTED_CATEGORY;
 	}
 
 	private void storeAvgAndMarkIfDropped(final CategoryScoreData avg, final Long catId, final Map<Long, Double> categoryAverages,

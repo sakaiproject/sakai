@@ -68,7 +68,7 @@ $(document).ready(function(){
 			<h3>
 				$formattedText.escapeHtml($assignment.Title)
 				<span class="highlight">
-					 - $!service.getSubmissionStatus($submission.Id, false)
+					 - $!service.getSubmissionStatus($submission.Id, true)
 				</span>
 			</h3>
 			#end
@@ -151,8 +151,8 @@ $(document).ready(function(){
 				</div>
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryValue">
-						#assignmentTitleIcon($assignment)
 						$formattedText.escapeHtml($assignment.Title)
+						#assignmentIcons($assignment)
 						#set ($deleted = false)
 						#set ($deleted = $assignment.Deleted)
 						#if ($deleted)
@@ -219,7 +219,7 @@ $(document).ready(function(){
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
 							#if ($!submission)
-								$!service.getSubmissionStatus($submission.Id, false)
+								$!service.getSubmissionStatus($submission.Id, true)
 							#else
 								$tlang.getString("gen.notsta")
 							#end
@@ -685,7 +685,7 @@ $(document).ready(function(){
 					#else
 						<div class="col-sm-5">
 					#end
-						<label class="itemSummaryHeader itemSummaryWrap"">$tlang.getString("gen.totaltimespent")</label>
+						<label class="itemSummaryHeader itemSummaryWrap">$tlang.getString("gen.totaltimespent")</label>
 					</div>
 					<div class="col-sm-3">
 						<div class="itemSummaryValue">
@@ -735,7 +735,7 @@ $(document).ready(function(){
 							#foreach ($attachment in $attachments) 
 								#set ($props = false)
 								#set ($props = $attachment.Properties) 
-								#if ($!props)
+								#if ($!props && !$!props.isEmpty())
 									<tr>
 										<td>
 											#if ($props.getBooleanProperty($props.NamePropIsCollection))

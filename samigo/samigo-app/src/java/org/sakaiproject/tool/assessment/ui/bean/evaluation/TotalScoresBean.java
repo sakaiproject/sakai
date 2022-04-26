@@ -44,6 +44,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.site.api.Site;
@@ -139,7 +140,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows;
+  private int maxDisplayedScoreRows = PagerRenderer.MAX_PAGE_SIZE;
   private int scoreDataRows;
   
   // Searching

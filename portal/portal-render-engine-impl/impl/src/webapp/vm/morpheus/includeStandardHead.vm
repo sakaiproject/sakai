@@ -85,7 +85,10 @@
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-profile.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/sakai-pronunciation-player.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
         <script>
             moment.locale(window.portal.locale);
         </script>

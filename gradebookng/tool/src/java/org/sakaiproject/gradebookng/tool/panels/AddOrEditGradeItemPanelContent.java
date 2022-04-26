@@ -41,16 +41,16 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidationError;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.wicket.component.SakaiDateTimeField;
 
 import lombok.extern.slf4j.Slf4j;
@@ -79,12 +79,12 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
+		final GradeType gradingType = gradebook.getGradeType();
 
 		final Assignment assignment = assignmentModel.getObject();
 
 		this.categoriesEnabled = true;
-		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
+		if (gradebook.getCategoryType() == GradingCategoryType.NO_CATEGORY) {
 			this.categoriesEnabled = false;
 		}
 
@@ -98,12 +98,12 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isEnabled() {
-				return !assignment.isExternallyMaintained();
+				return !assignment.getExternallyMaintained();
 			}
 
 			@Override
 			public boolean isRequired() {
-				return !assignment.isExternallyMaintained();
+				return !assignment.getExternallyMaintained();
 			}
 
 			@Override
@@ -116,7 +116,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (gradingType == GradingType.PERCENTAGE) {
+		if (gradingType == GradeType.PERCENTAGE) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
 		} else {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
@@ -128,12 +128,12 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isEnabled() {
-				return !assignment.isExternallyMaintained();
+				return !assignment.getExternallyMaintained();
 			}
 
 			@Override
 			public boolean isRequired() {
-				return !assignment.isExternallyMaintained();
+				return !assignment.getExternallyMaintained();
 			}
 
 			@Override
@@ -151,7 +151,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				// conditional option to scale
-				if (gradingType == GradingType.POINTS) {
+				if (gradingType == GradeType.POINTS) {
 
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
@@ -189,7 +189,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		final SakaiDateTimeField dueDateField = new SakaiDateTimeField("duedate", new PropertyModel<ZonedDateTime>(this, "dueDate"), ZoneId.systemDefault()) {
 			@Override
 			public boolean isEnabled() {
-				return !assignment.isExternallyMaintained();
+				return !assignment.getExternallyMaintained();
 			}
 		};
 		add(dueDateField.setUseTime(false));
@@ -219,7 +219,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 					@Override
 					public Object getDisplayValue(final Long value) {
 						final CategoryDefinition category = categoryMap.get(value);
-						if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
+						if (GradingCategoryType.WEIGHTED_CATEGORY == gradebook.getCategoryType()) {
 							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"),
 									category.getName(), weight);
@@ -270,7 +270,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		};
 		extraCredit.setOutputMarkupId(true);
-		extraCredit.setEnabled(!assignment.isCategoryExtraCredit());
+		extraCredit.setEnabled(!assignment.getCategoryExtraCredit());
 		add(extraCredit);
 
 		final WebMarkupContainer sakaiRubricAssociation = new WebMarkupContainer("sakai-rubric-association");
@@ -303,18 +303,6 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		}
 		add(this.counted);
-		
-		// create task
-		final WebMarkupContainer taskWrap = new WebMarkupContainer("taskWrap");
-		final CheckBox createTask = new CheckBox("createTask", new PropertyModel<Boolean>(assignmentModel, "createTask"));
-		createTask.setOutputMarkupId(true);
-		createTask.setModelObject(true);
-		add(createTask);
-		final WebMarkupContainer createTaskLabel = new WebMarkupContainer("createTaskLabel");
-		add(createTaskLabel);
-		taskWrap.add(createTask);
-		taskWrap.add(createTaskLabel);
-		add(taskWrap);
 
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox
@@ -354,7 +342,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		});
 
-		if (assignment.isExternallyMaintained()) {
+		if (assignment.getExternallyMaintained()) {
 			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
 		}
 	}

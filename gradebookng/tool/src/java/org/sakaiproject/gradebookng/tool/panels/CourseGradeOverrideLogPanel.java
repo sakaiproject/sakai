@@ -31,7 +31,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
 
 /**
  * Panel for the course grade override log window
@@ -64,7 +64,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
 
 		// get the course grade
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(studentUuid);
 
 		// get the events
 		List<GbGradeLog> gradeLog;

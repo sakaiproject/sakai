@@ -28,6 +28,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 
 /**
  * DTO for a user. Enhance as required.
@@ -36,10 +37,12 @@ import java.util.List;
  *
  */
 @Getter
-public class GbUser implements Serializable, Comparable<GbUser> {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class GbUser implements GbUserBase, Serializable, Comparable<GbUser> {
 
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private final String userUuid;
 
 	/**
@@ -76,21 +79,6 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.sortName = u.getSortName();
 	}
 
-	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber, final String sortName) {
-		this.userUuid = userUUID;
-		this.displayId = displayID;
-		this.displayName = FormatHelper.htmlEscape(displayName);
-		this.firstName = FormatHelper.htmlEscape(firstName);
-		this.lastName = FormatHelper.htmlEscape(lastName);
-		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
-		this.sections = Collections.emptyList();
-		this.sortName = sortName;
-	}
-
-	public static GbUser forDisplayOnly(final String displayID, final String displayName) {
-		return new GbUser("", displayID, displayName, "", "", "", "");
-	}
-
 	public boolean isValid() {
 		return StringUtils.isNotBlank(userUuid);
 	}
@@ -98,10 +86,18 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	@Override
 	public int compareTo(GbUser other)
 	{
-		if (StringUtils.isBlank(sortName) && StringUtils.isBlank(other.getSortName())) {
-			return StringUtils.compareIgnoreCase(displayName, other.getDisplayName());
+		String prop1 = sortName;
+		String prop2 = other.getSortName();
+		if (StringUtils.isBlank(prop1) && StringUtils.isBlank(prop2)) {
+			prop1 = displayName;
+			prop2 = other.getDisplayName();
 		}
-		return StringUtils.compareIgnoreCase(sortName, other.getSortName());
+		if (StringUtils.equalsIgnoreCase(prop1, prop2)) {
+			prop1 = displayId;
+			prop2 = other.getDisplayId();
+		}
+
+		return StringUtils.compareIgnoreCase(prop1, prop2);
 	}
 
 	@Override

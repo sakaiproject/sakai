@@ -221,24 +221,24 @@
 		</div>
 
 		<%--general posting  topic settings --%>
-		<h2><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h2>
+		<h2 id="topic_posting_head"><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h2>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="topicLocked" value="#{ForumTool.selectedTopic.topicLocked}"
 				id="topic_locked">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" id="topic_locked_label" value="#{msgs.cdfm_lock_topic}" />
 		</p>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="Moderated" value="#{ForumTool.selectedTopic.topicModerated}"
 				id="topic_moderated">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" id="topic_moderated_label" value="#{msgs.cdfm_moderate_topic}" />
 		</p>
 		<p class="checkbox">
 			<h:selectBooleanCheckbox
 				title="postFirst" value="#{ForumTool.selectedTopic.topicPostFirst}"
 				id="topic_postFirst">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
+			</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" id="topic_postFirst_label" value="#{msgs.cdfm_postFirst}" />
 		</p>
 		<t:htmlTag value="p" styleClass="checkbox anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 			<h:selectBooleanCheckbox
@@ -247,7 +247,8 @@
 				onclick='togglePostAnonymousOption(this.checked);'
 				disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
 			</h:selectBooleanCheckbox>
-			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;">
+			<h:outputLabel escape="false" for="topic_postAnonymous" value="#{msgs.cdfm_postAnonymous} &nbsp;" id="topic_postAnonymous_label">
+			    <h:outputText value="#{msgs.cdfm_postAnonymous}"/>
 				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
 				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-warn-inline" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 			</h:outputLabel>
@@ -266,7 +267,7 @@
 			</p>
 		</t:htmlTag>
 
-		<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
+		<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" id="forumAvailabilityLabel3" /></h2>
 		<div class="indnt1">
 			<h:panelGroup styleClass="checkbox">
 				<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedTopic.availabilityRestricted}">
@@ -412,8 +413,8 @@
 				<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable"
 							 rendered="#{ForumTool.selectedTopic.topic.id==null}">
 					<h:column>
-						<h:selectBooleanCheckbox value="#{siteGroup.createTopicForGroup}" />
-						<h:outputText value="#{siteGroup.group.title}" />
+						<h:selectBooleanCheckbox value="#{siteGroup.createTopicForGroup}" id="topic_siteGroupCheck" />
+                        <h:outputText value="#{siteGroup.group.title}" id="topic_siteGroupCheck_label" />
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
@@ -484,6 +485,19 @@
 			var menuLinkSpan = menuLink.closest('span');
 			menuLinkSpan.addClass('current');
 			menuLinkSpan.html(menuLink.text());
+			$('#revise\\:topic_locked, #revise\\:topic_moderated, #revise\\:topic_postFirst').each(function() {
+                $(this).attr('aria-labelledby', 'topic_posting_head ' + $(this).attr('id') + '_label');
+            });
+            if($('#revise\\:topic_postAnonymous').length){
+                $('#revise\\:topic_postAnonymous').attr('aria-labelledby', 'topic_posting_head revise:topic_postAnonymous_label');
+            }
+            $('#revise\\:availabilityRestricted\\:0, #revise\\:availabilityRestricted\\:1').each(function() {
+               let label = $('#revise\\:forumAvailabilityLabel3').text() + " " + $(this).next().text();
+               $(this).attr('aria-label', label);
+            });
+            $('input[id*="topic_siteGroupCheck"]').each(function() {
+                 $(this).attr('aria-labelledby', 'revise:createTopicsForGroups:1 ' + $(this).attr('id') + '_label');
+            });
 
 		 });
 	</script>

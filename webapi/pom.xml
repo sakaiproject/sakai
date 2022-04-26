@@ -85,8 +85,8 @@
             <artifactId>sakai-conversations-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
@@ -95,6 +95,10 @@
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.profile2</groupId>
+            <artifactId>profile2-api</artifactId>
         </dependency>
         <!-- Spring dependencies -->
         <dependency>

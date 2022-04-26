@@ -32,19 +32,19 @@ import org.apache.wicket.Component;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.model.CourseGrade;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -166,7 +166,7 @@ public class GbGradebookData {
 		private String title;
 		private String weight;
 		private Double totalPoints;
-		private boolean isExtraCredit;
+		private boolean getExtraCredit;
 		private boolean isEqualWeight;
 		private String color;
 		private boolean hidden;
@@ -280,6 +280,7 @@ public class GbGradebookData {
 				serializeSettings());
 
 		try {
+            // TODO: Can we serialize Booleans without the get prefix?
 			return mapper.writeValueAsString(dataset);
 		} catch (final JsonProcessingException e) {
 			throw new RuntimeException(e);
@@ -385,23 +386,23 @@ public class GbGradebookData {
 	private Map<String, Object> serializeSettings() {
 		final Map<String, Object> result = new HashedMap();
 
-		result.put("isCourseLetterGradeDisplayed", this.settings.isCourseLetterGradeDisplayed());
-		result.put("isCourseAverageDisplayed", this.settings.isCourseAverageDisplayed());
-		result.put("isCoursePointsDisplayed", this.settings.isCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", GradingType.valueOf(this.settings.getGradeType()).equals(GradingType.POINTS));
-		result.put("isPercentageGradeEntry", GradingType.valueOf(this.settings.getGradeType()).equals(GradingType.PERCENTAGE));
-		result.put("isCategoriesEnabled", GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY);
-		result.put("isCategoryTypeWeighted", GbCategoryType.valueOf(this.settings.getCategoryType()) == GbCategoryType.WEIGHTED_CATEGORY);
+		result.put("isCourseLetterGradeDisplayed", this.settings.getCourseLetterGradeDisplayed());
+		result.put("isCourseAverageDisplayed", this.settings.getCourseAverageDisplayed());
+		result.put("isCoursePointsDisplayed", this.settings.getCoursePointsDisplayed());
+		result.put("isPointsGradeEntry", this.settings.getGradeType() == GradeType.POINTS);
+		result.put("isPercentageGradeEntry", this.settings.getGradeType() == GradeType.PERCENTAGE);
+		result.put("isCategoriesEnabled", this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY);
+		result.put("isCategoryTypeWeighted", this.settings.getCategoryType() == GradingCategoryType.WEIGHTED_CATEGORY);
 		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
 		result.put("isStudentOrderedByFirstName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
 		result.put("isGroupedByCategory", this.uiSettings.isGroupedByCategory());
-		result.put("isCourseGradeReleased", this.settings.isCourseGradeDisplayed());
-		result.put("isAllowStudentsToCompareGrades", this.settings.isAllowStudentsToCompareGrades());
-		result.put("isComparingDisplayStudentNames", this.settings.isComparingDisplayStudentNames());
-		result.put("isComparingDisplayStudentSurnames", this.settings.isComparingDisplayStudentSurnames());
-		result.put("isComparingDisplayTeacherComments", this.settings.isComparingDisplayTeacherComments());
-		result.put("isComparingIncludeAllGrades", this.settings.isComparingIncludeAllGrades());
-		result.put("isComparingRandomizeDisplayedData", this.settings.isComparingRandomizeDisplayedData());
+		result.put("isCourseGradeReleased", this.settings.getCourseGradeDisplayed());
+		result.put("getAllowStudentsToCompareGrades", this.settings.getAllowStudentsToCompareGrades());
+		result.put("isComparingDisplayStudentNames", this.settings.getComparingDisplayStudentNames());
+		result.put("isComparingDisplayStudentSurnames", this.settings.getComparingDisplayStudentSurnames());
+		result.put("isComparingDisplayTeacherComments", this.settings.getComparingDisplayTeacherComments());
+		result.put("getComparingIncludeAllGrades", this.settings.getComparingIncludeAllGrades());
+		result.put("isComparingRandomizeDisplayedData", this.settings.getComparingRandomizeDisplayedData());
 		result.put("showPoints", this.uiSettings.getShowPoints());
 		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
@@ -438,16 +439,15 @@ public class GbGradebookData {
 	 * String[0] = A+ (95%) [133/140] -- display string
 	 * String[1] = 95 -- raw percentage for sorting
 	 * String[2] = 1 -- '1' if an override, '0' if calculated
-	 * @param gbCourseGrade the course grade, with an appropriate display string already set
+	 * @param CourseGradeTransferBean the course grade, with an appropriate display string already set
 	 * @param courseGradeMap grading scale map in use
 	 * @return course grade information
 	 */
-	public static String[] getCourseGradeData(GbCourseGrade gbCourseGrade, Map<String, Double> courseGradeMap) {
+	public static String[] getCourseGradeData(CourseGradeTransferBean courseGrade, Map<String, Double> courseGradeMap) {
 		final String[] gradeData = new String[3];
-		gradeData[0] = gbCourseGrade.getDisplayString();
+		gradeData[0] = courseGrade.getDisplayString();
 		gradeData[2] = "0";
 
-		final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 		if (courseGrade == null) {
 			gradeData[1] = "";
 		} else if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
@@ -530,9 +530,9 @@ public class GbGradebookData {
 				categoryWeight = FormatHelper.formatDoubleAsPercentage(a1.getWeight() * 100);
 			}
 
-			boolean counted = a1.isCounted();
+			boolean counted = a1.getCounted();
 			// An assignment is not counted if uncategorised and the categories are enabled
-			if ((GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY) &&
+			if ((this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY) &&
 					a1.getCategoryId() == null) {
 				counted = false;
 			}
@@ -542,11 +542,11 @@ public class GbGradebookData {
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
 
-					a1.isReleased(),
+					a1.getReleased(),
 					counted,
-					a1.isExtraCredit(),
-					a1.isExternallyMaintained(),
-					a1.isExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
+					a1.getExtraCredit(),
+					a1.getExternallyMaintained(),
+					a1.getExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
@@ -555,14 +555,14 @@ public class GbGradebookData {
 					a1.getCategoryName(),
 					userSettings.getCategoryColor(a1.getCategoryName()),
 					nullable(categoryWeight),
-					a1.isCategoryExtraCredit(),
-					a1.isCategoryEqualWeight(),
+					a1.getCategoryExtraCredit(),
+					a1.getCategoryEqualWeight(),
 
 					!this.uiSettings.isAssignmentVisible(a1.getId())));
 
 			// If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
-			if (userSettings.isGroupedByCategory() && (GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY) &&
+			if (userSettings.isGroupedByCategory() && this.settings.getCategoryType() != GradingCategoryType.NO_CATEGORY &&
 					a1.getCategoryId() != null &&
 					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
@@ -571,8 +571,8 @@ public class GbGradebookData {
 								.getString(),
 						nullable(categoryWeight),
 						getCategoryPoints(a1.getCategoryId()),
-						a1.isCategoryExtraCredit(),
-						a1.isCategoryEqualWeight(),
+						a1.getCategoryExtraCredit(),
+						a1.getCategoryEqualWeight(),
 						userSettings.getCategoryColor(a1.getCategoryName()),
 						!this.uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
 						FormatHelper.formatCategoryDropInfo(this.categories.stream()

@@ -763,6 +763,9 @@ body.is-logged-out{
 	padding-left: $top-header-item-spacing;
 	border-left: $top-header-separators-thickness solid var(--topNav-border-color);
     white-space: nowrap;
+    a {
+        text-decoration: none;
+    }
 }
 
 ##{$namespace}bullhorn {
@@ -1324,7 +1327,7 @@ body.is-logged-out #linkNav .#{$namespace}sitesNav__menuitem .#{$namespace}sites
     }
 
     #cropToolbar {
-        margin-top: 10px;
+
         .profile-image-zoom-in {
             &:before {
                 font-family: 'FontAwesome';

@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.jsf2.model.PhaseAware;
+import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -81,7 +82,7 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows;
+  private int maxDisplayedScoreRows = PagerRenderer.MAX_PAGE_SIZE;
   private int scoreDataRows;
   
   // Searching

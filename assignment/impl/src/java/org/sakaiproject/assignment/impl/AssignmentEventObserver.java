@@ -30,8 +30,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.AssessmentNotFoundException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -44,7 +44,7 @@ public class AssignmentEventObserver implements Observer {
 
     @Setter private AssignmentService assignmentService;
     @Setter private EventTrackingService eventTrackingService;
-    @Setter private GradebookService gradebookService;
+    @Setter private GradingService gradingService;
     @Setter private UserDirectoryService userDirectoryService;
 
     public void init() {
@@ -75,8 +75,8 @@ public class AssignmentEventObserver implements Observer {
                                 Optional<AssignmentSubmission> submission = Optional.empty();
                                 // Assignments stores the gradebook item name and not the id :(, so we need to look it up
                                 try {
-                                    org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignmentByNameOrId(event.getContext(), itemId);
-                                    assignment = Optional.ofNullable(assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName()));
+                                    org.sakaiproject.grading.api.Assignment gradebookAssignment = gradingService.getAssignmentByNameOrId(event.getContext(), itemId);
+                                    assignment = assignmentService.getAssignmentForGradebookLink(event.getContext(), gradebookAssignment.getName());
                                     if (assignment.isPresent()) {
                                         final Assignment a = assignment.get();
                                         final User user = userDirectoryService.getUser(studentId);
@@ -116,7 +116,7 @@ public class AssignmentEventObserver implements Observer {
                                             log.warn("Submission not found for assignment {} and student {}, ", itemId, studentId);
                                         }
                                     } else {
-                                        log.warn("No matching assignment found with gradebook item id, {}", itemId);
+                                        log.debug("No matching assignment found with gradebook item id, {}", itemId);
                                     }
                                 } catch (IdUnusedException | PermissionException e) {
                                     if (!assignment.isPresent()) {

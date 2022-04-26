@@ -60,7 +60,7 @@ import org.json.simple.JSONArray;
 import static org.tsugi.basiclti.BasicLTIUtil.getObject;
 import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -1397,6 +1397,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			if (siteLinkTool != null) {
 				context.put(LTIService.LTI_PLACEMENT, plstr);
 			}
+			// Hide content secret unless it is incomplete
+			if (content.get(LTIService.LTI_SECRET) != null) {
+				content.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
+			}	
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
@@ -1452,6 +1456,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String id = reqProps.getProperty(LTIService.LTI_ID);
 		String toolId = reqProps.getProperty(LTIService.LTI_TOOL_ID);
 
+		// Encrypt the lti_content secret(SAK-46566)
+		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+		if (LTIService.SECRET_HIDDEN.equals(newSecret)) {
+			reqProps.remove(LTIService.LTI_SECRET);
+		} else if (StringUtils.isNotBlank(newSecret)) {
+			newSecret = SakaiBLTIUtil.encryptSecret(newSecret);
+			reqProps.put(LTIService.LTI_SECRET, newSecret);
+		}		
 		// Does an insert when id is null and update when is is not null
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps, getSiteId(state));
 

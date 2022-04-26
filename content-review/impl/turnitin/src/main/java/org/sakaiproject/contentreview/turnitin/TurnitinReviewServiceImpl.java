@@ -67,10 +67,8 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -234,10 +232,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	private TurnitinContentValidator turnitinContentValidator;
 
 	@Setter
-	private GradebookService gradebookService;
-
-	@Setter
-	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+	private GradingService gradingService;
 
 	@Setter
 	private SecurityService securityService;
@@ -575,14 +570,13 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 		SecurityAdvisor advisor = pushAdvisor();
 		try {
-			List<Assignment> allGbItems = gradebookService.getAssignments(siteId);
+			List<Assignment> allGbItems = gradingService.getAssignments(siteId);
 			for (Assignment assign : allGbItems) {
 				// Match based on External ID / Assignment title
 				if (taskId.equals(assign.getExternalId()) || assign.getName().equals(taskTitle)) {
 					assignment = assign;
 				}
 			}
-		} catch (GradebookNotFoundException ignore) {
 		} finally {
 			popAdvisor(advisor);
 		}
@@ -602,7 +596,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		boolean isStudent = isUserStudent(data.get("siteId").toString(), sess.getUserId());
 		String siteId = data.get("siteId").toString();
 
-		if (!runOnce && !isStudent && turnitinConn.getUseGradeMark() && gradebookService.isGradebookDefined(siteId)) {
+		if (!runOnce && !isStudent && turnitinConn.getUseGradeMark()) {
 			log.info("Syncing Grades with Turnitin");
 
 			String taskId = data.get("taskId").toString();
@@ -670,8 +664,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 					log.debug("Report list request not successful");
 					log.debug(document.getTextContent());
 				}
-			} catch (GradebookNotFoundException e) {
-				log.warn("Failed to find gradebook for site: "+ e.getMessage());
 			} catch (TransientSubmissionException e) {
 				log.error(e.getMessage());
 			} catch (SubmissionException e) {
@@ -746,17 +738,15 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			if (grade != null) {
 				try {
 					if (data.containsKey("assignment1")) {
-						gradebookExternalAssessmentService.updateExternalAssessmentScore(siteId,
+						gradingService.updateExternalAssessmentScore(siteId,
 								assignment.getExternalId(), tiiExternalId, grade);
 					} else {
-						gradebookService.setAssignmentScoreString(siteId, data.get("taskTitle").toString(),
+						gradingService.setAssignmentScoreString(siteId, data.get("taskTitle").toString(),
 								tiiExternalId, grade, "SYNC");
 					}
 					log.info("UPDATED GRADE (" + grade + ") FOR USER (" + tiiExternalId + ") IN ASSIGNMENT ("
 							+ assignment.getName() + ")");
 					success = true;
-				} catch (GradebookNotFoundException e) {
-					log.error("Error update grade GradebookNotFoundException " + e.toString());
 				} catch (Exception e) {
 					log.error("Error update grade " + e.toString());
 				}

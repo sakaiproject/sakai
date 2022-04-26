@@ -22,13 +22,18 @@
 package org.sakaiproject.tasks.api;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -57,6 +62,11 @@ public class Task implements PersistableEntity<Long> {
     @Column(name = "SITE_ID", length = 99)
     private String siteId;
 
+    @ElementCollection
+    @CollectionTable(name = "TASK_GROUPS", joinColumns = @JoinColumn(name = "TASK_ID"))
+    @Column(name = "GROUP_ID", length = 99)
+    private Set<String> groups = new HashSet<>();
+
     @Column(name = "REFERENCE", length = 255, nullable = false)
     private String reference;
 
@@ -73,4 +83,8 @@ public class Task implements PersistableEntity<Long> {
     @Column(name = "DUE")
     @Type(type = "org.hibernate.type.InstantType")
     private Instant due;
+    
+    @Column(name = "TASK_OWNER", length = 99)
+    private String owner;
+    
 }

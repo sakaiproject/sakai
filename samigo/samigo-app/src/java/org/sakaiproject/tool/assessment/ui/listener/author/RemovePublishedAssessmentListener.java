@@ -35,8 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
@@ -155,11 +153,11 @@ public class RemovePublishedAssessmentListener
   }
   
   private void removeFromGradebook(String assessmentId) {
-	  GradebookExternalAssessmentService g = null;
+	  org.sakaiproject.grading.api.GradingService g = null;
 	  if (integrated)
 	  {
-		  g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-		  getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		  g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+		  getBean("org.sakaiproject.grading.api.GradingService");
 	  }
 	  try {
 		  log.debug("before gbsHelper.removeGradebook()");

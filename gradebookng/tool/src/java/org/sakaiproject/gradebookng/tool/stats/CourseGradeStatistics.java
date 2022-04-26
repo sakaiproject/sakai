@@ -25,7 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CourseGradeStatistics extends BaseStatistics {
 
 	private static final long serialVersionUID = 1L;
-	private final Map<String, CourseGrade> courseGradeMap;
+	private final Map<String, CourseGradeTransferBean> courseGradeMap;
 	private final Map<String, Double> bottomPercents;
 	private final String gradingSchemaName;
 
@@ -45,7 +45,7 @@ public class CourseGradeStatistics extends BaseStatistics {
 
 		// unpack model
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-		this.courseGradeMap = (Map<String, CourseGrade>) modelData.get("courseGradeMap");
+		this.courseGradeMap = (Map<String, CourseGradeTransferBean>) modelData.get("courseGradeMap");
 
 		// these are optional. currently only used for gpa stats
 		this.gradingSchemaName = (String) modelData.get("gradingSchemaName");
@@ -118,7 +118,7 @@ public class CourseGradeStatistics extends BaseStatistics {
 		// get all of the non null mapped grades
 		// mapped grades will be null if the student doesn't have a course grade yet.
 		final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null)
-				.map(CourseGrade::getMappedGrade).collect(Collectors.toList());
+				.map(CourseGradeTransferBean::getMappedGrade).collect(Collectors.toList());
 		double averageGPA = 0.0;
 		for (final String mappedGrade : mappedGrades) {
 			final Double grade = gpaScoresMap.get(mappedGrade);

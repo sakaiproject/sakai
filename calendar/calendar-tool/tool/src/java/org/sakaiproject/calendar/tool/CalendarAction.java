@@ -182,8 +182,6 @@ extends VelocityPortletStateAction
 	private static final String FORM_ALIAS			= "alias";
 	private static final String FORM_ICAL_ENABLE = "icalEnable";
 	private static final String ICAL_EXTENSION = ".ics";
-	
-	private static final String CREATE_TASK = "createTask";
 
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
@@ -4735,9 +4733,6 @@ extends VelocityPortletStateAction
 		type = runData.getParameters().getString("eventType");
 		String location = "";
 		location = runData.getParameters().getString("location");
-		String taskCreation = "";
-		taskCreation = runData.getParameters().getString("createTask");
-		boolean createTask = CREATE_TASK.equals(taskCreation);
 		
 		String calId = state.getPrimaryCalendarReference();
 		try {
@@ -4859,7 +4854,7 @@ extends VelocityPortletStateAction
 				List attachments = state.getAttachments();
 
 				// prepare to create the event
-				Collection groups = new Vector();
+				Collection<Group> groups = new Vector<>();
 				CalendarEvent.EventAccess access = CalendarEvent.EventAccess.GROUPED;
 				if (scheduleTo.equals("site")) access = CalendarEvent.EventAccess.SITE;
 
@@ -4916,33 +4911,31 @@ extends VelocityPortletStateAction
 				
 				// Create task
 				String reference = "/calendar/dashboard/" + calendarObj.getContext() + Entity.SEPARATOR + calendarObj.getId() + Entity.SEPARATOR + edit.getId();
-				if (createTask) {
-					Task task = new Task();
-					task.setSiteId(calendarObj.getContext());
-					task.setReference(reference);
-					task.setSystem(true);
-					task.setDescription(title);
-					Date dueDate = new Date(event_startTime.getTime());
-					task.setDue(dueDate == null ? null : dueDate.toInstant());
-					Set<String> users = new HashSet();
-					if (CalendarEvent.EventAccess.SITE.equals(access)) {
-						Site site = SiteService.getSite(calendarObj.getContext());
-						users = site.getUsersIsAllowed("section.role.student");
-					} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
-						for (Iterator groupsIter = groups.iterator(); groupsIter.hasNext();) {
-							Group groupTask = (Group) groupsIter.next();
-							Set<Member> members = groupTask.getMembers();
-							for (Iterator membersIter = members.iterator(); membersIter.hasNext();) {
-								Member member = (Member) membersIter.next();
-								users.add(member.getUserId());
-							}
-						}
+				Task task = new Task();
+				task.setSiteId(calendarObj.getContext());
+				task.setReference(reference);
+				task.setSystem(true);
+				task.setDescription(title);
+				Date dueDate = new Date(event_startTime.getTime());
+				task.setDue(dueDate == null ? null : dueDate.toInstant());
+				Set<String> users = new HashSet();
+				if (CalendarEvent.EventAccess.SITE.equals(access)) {
+					Site site = SiteService.getSite(calendarObj.getContext());
+					users = site.getUsersIsAllowed("section.role.student");
+				} else if (CalendarEvent.EventAccess.GROUPED.equals(access)){
+					Set<String> groupRefs = new HashSet<>();
+					for (Group group : groups) {
+						groupRefs.add(group.getReference());
+						users.addAll(group.getMembers().stream()
+							.map(m -> m.getUserId()).collect(Collectors.toSet()));
 					}
-					if (users.size() == 0) {
-						users.add(UserDirectoryService.getCurrentUser().getId());
-					}
-					taskService.createTask(task, users, Priorities.HIGH);
+					task.setGroups(groupRefs);
 				}
+				if (users.size() == 0) {
+					users.add(UserDirectoryService.getCurrentUser().getId());
+				}
+				taskService.createTask(task, users, Priorities.HIGH);
+	
 			} catch (IdUnusedException e) {
 				addAlert(sstate, rb.getString("java.alert.noexist"));
 				log.debug(".doAdd(): " + e);
@@ -5077,9 +5070,6 @@ extends VelocityPortletStateAction
 				type = runData.getParameters().getString("eventType");
 				String location = "";
 				location = runData.getParameters().getString("location");
-				String taskCreation = "";
-				taskCreation = runData.getParameters().getString("createTask");
-				boolean createTask = CREATE_TASK.equals(taskCreation);
 				
 				String calId = state.getPrimaryCalendarReference();
 				try
@@ -5341,7 +5331,7 @@ extends VelocityPortletStateAction
 							Date dueDate = new Date(timeObj.getTime());
 							task.setDue(dueDate == null ? null : dueDate.toInstant());
 							taskService.saveTask(task);
-						} else if (createTask) {
+						} else {
 							Task task = new Task();
 							task.setSiteId(calendarObj.getContext());
 							task.setReference(reference);

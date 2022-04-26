@@ -77,6 +77,27 @@ public class LocalSectionModel implements CourseSection, Serializable {
 		this.isLocked = section.isLocked();
 		this.isLockedForDeletion = section.isLockedForDeletion();
 	}
+
+    public int compareTo(CourseSection other) {
+
+        if (other == this) {
+            return 0;
+        }
+        if (this.category != null && other.getCategory() == null) {
+            return -1;
+        } else if (this.category == null && other.getCategory() != null) {
+            return 1;
+        }
+        if (this.category == null && other.getCategory() == null) {
+            return this.title.toLowerCase().compareTo(other.getTitle().toLowerCase());
+        }
+        int categoryComparison = this.category.compareTo(other.getCategory());
+        if (categoryComparison == 0) {
+            return this.title.toLowerCase().compareTo(other.getTitle().toLowerCase());
+        } else {
+            return categoryComparison;
+        }
+    }
     
     public Integer getMaxEnrollments() {
 		return maxEnrollments;

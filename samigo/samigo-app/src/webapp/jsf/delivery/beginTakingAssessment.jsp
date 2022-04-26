@@ -204,6 +204,10 @@
 </h:panelGrid>
 
  </div></div>
+
+ <h:panelGroup layout="block" styleClass="sak-banner-warn">
+	<h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
+ </h:panelGroup>
  
  <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge && delivery.firstTimeTaking}">
 	<h:selectBooleanCheckbox id="honor_pledge" />

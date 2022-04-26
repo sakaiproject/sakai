@@ -96,7 +96,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -297,10 +297,6 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
-	@Getter @Setter private boolean createTask;
-	@Getter @Setter private boolean questionCreateTask;
-	@Getter @Setter private boolean commentsCreateTask;
-	@Getter @Setter private boolean studentContentsCreateTask;
 	
     // for BLTI, values window, inline, and null for in a new page with navigation
     // but sameWindow should also be set properly, based on the format
@@ -4614,11 +4610,8 @@ public class SimplePageBean {
 		
 		// Create or update a task
 		String reference = "/lessonbuilder/page/" + page.getPageId();
-		if (this.createTask) {
-			createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
-		} else {
-			updateTask(reference, page.getTitle(), null);
-		}
+                // Dashboard task widget: When a page item is added create a task item for the site members.
+		createOrUpdateTask(reference, page.getSiteId(), page.getTitle(), null);
 
 		if (pageItem.getPageId() == 0) {
 			return "reload";
@@ -7449,11 +7442,8 @@ public class SimplePageBean {
 			// Create or update a task
 			String reference = "/lessonbuilder/item/" + comment.getId();
 			String title = getPage(comment.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.comments-task-title");
-			if (this.commentsCreateTask) {
-				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-			} else {
-				updateTask(reference, title, null);
-			}
+                        // Dashboard task widget: When a comment item is added create a task item for the site members.
+			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
  			// for forced comments, the UI won't ever do this, but if
  			// it does, update will fail with permissions
@@ -7869,11 +7859,8 @@ public class SimplePageBean {
 		// Create or update a task
 		String reference = "/lessonbuilder/item/" + item.getId();
 		String title = getPage(item.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.question-task-title");
-		if (this.questionCreateTask) {
-			createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-		} else {
-			updateTask(reference, title, null);
-		}
+                // Dashboard task widget: When a question item is added create a task item for the site members.
+		createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
@@ -7902,6 +7889,7 @@ public class SimplePageBean {
 		Double gradebookPoints = null;
 		if (question.getGradebookPoints() != null)
 		    gradebookPoints = (double)question.getGradebookPoints();
+		boolean questionGraded = "true".equals(question.getAttribute("questionGraded"));
 
 		boolean correct;
 		if(response.isOverridden()) {
@@ -7913,8 +7901,14 @@ public class SimplePageBean {
 			if(answer != null && answer.isCorrect()) {
 				correct = true;
 			}else if(answer != null && !answer.isCorrect()){
-				correct = false;
-				gradebookPoints = 0.0;
+				boolean noCorrectAnswers = !simplePageToolDao.hasCorrectAnswer(question);
+				if (noCorrectAnswers) {
+					correct = !questionGraded; // if not graded, it is a poll and any answer is "correct", otherwise requires manual grading so default to false
+					gradebookPoints = null;
+				} else { // autograded
+					correct = false;
+					gradebookPoints = 0.0;
+				}
 			}else {
 				// The answer no longer exists, so we'll just leave everything the way it was last time it was graded.
 				correct = response.isCorrect();
@@ -7926,23 +7920,30 @@ public class SimplePageBean {
 			String theirResponse = response.getShortanswer().trim().toLowerCase();
 			
 			int totalTokens = correctAnswerTokenizer.countTokens();
-			boolean foundAnswer = false;
-			for(int i = 0; i < totalTokens; i++) {
-				String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
-				
-				if(theirResponse.equals(token)) {
-					foundAnswer = true;
-					break;
-				}
-			}
-			if(totalTokens == 0 && !theirResponse.isEmpty()) {
-				foundAnswer = true;
-			}
-			if(foundAnswer) {
-				correct = true;
-			}else {
+
+			if (totalTokens > 0) {  // correct answers exist
 				correct = false;
-				gradebookPoints = 0.0;
+				for(int i = 0; i < totalTokens; i++) {
+					String token = correctAnswerTokenizer.nextToken().replaceAll("\n", "").trim().toLowerCase();
+
+					if(theirResponse.equals(token)) {
+						correct = true;
+						break;
+					}
+				}
+				if (questionGraded) {
+					if (!correct) {
+						gradebookPoints = 0.0;
+					}
+				} else {
+					gradebookPoints = null;
+				}
+			} else if (questionGraded) {  // no correct answers, manually graded
+				correct = false;
+				gradebookPoints = null;
+			} else {  // no correct answers, ungraded
+				correct = !theirResponse.isEmpty(); // any non-empty answer is considered "correct" for this question type
+				gradebookPoints = null;
 			}
 		}else {
 			log.warn("Invalid question type for question {}", question.getId());
@@ -7950,12 +7951,13 @@ public class SimplePageBean {
 		}
 		
 		response.setCorrect(correct);
-		if ("true".equals(question.getAttribute("questionGraded")))
+		if (gradebookPoints != null && questionGraded) {
 		    response.setPoints(gradebookPoints);
 		
-		if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
-			gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
-			       response.getUserId(), String.valueOf(gradebookPoints));
+			if(question.getGradebookId() != null && !question.getGradebookId().equals("")) {
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), question.getGradebookId(),
+					   response.getUserId(), String.valueOf(gradebookPoints));
+			}
 		}
 
 		return correct;
@@ -8197,11 +8199,8 @@ public class SimplePageBean {
 			// Create or update a task
 			String reference = "/lessonbuilder/item/" + itemId;
 			String title = getPage(page.getPageId()).getTitle() + " - " + messageLocator.getMessage("simplepage.student-contents-task-title");
-			if (this.studentContentsCreateTask) {
-				createOrUpdateTask(reference, getCurrentSiteId(), title, null);
-			} else {
-				updateTask(reference, title, null);
-			}
+			// Dashboard task widget: When a student content item is added create a task item for the site members.
+                        createOrUpdateTask(reference, getCurrentSiteId(), title, null);
 			
 			update(page);
 			

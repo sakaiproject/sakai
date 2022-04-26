@@ -31,7 +31,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.grading.api.CategoryDefinition;
 
 /**
  * DTO for storing data in the session so that state is preserved between requests. Things like filters and ordering go in here and are

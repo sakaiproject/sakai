@@ -237,6 +237,18 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 		return new EnumerationIterator(m_props.keys());
 	}
 
+	@Override
+	public int size()
+	{
+		return m_props.size();
+	}
+
+	@Override
+	public boolean isEmpty()
+	{
+		return m_props.isEmpty();
+	}
+
 	/**
 	 * Access a named property as a string (won't find multi-valued ones.)
 	 * 

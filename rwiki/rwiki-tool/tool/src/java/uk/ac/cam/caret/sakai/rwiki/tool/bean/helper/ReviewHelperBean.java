@@ -66,8 +66,12 @@ public class ReviewHelperBean
 	{
 		if (request != null)
 		{
-			interestedRevision = Integer.parseInt(request
+			try {
+				interestedRevision = Integer.parseInt(request
 					.getParameter(HistoryBean.REVISION_PARAM));
+			} catch (NumberFormatException nfe) {
+				interestedRevision = rwikiObject.getRevision().intValue(); 
+			}
 		}
 
 		if (interestedRevision == rwikiObject.getRevision().intValue())

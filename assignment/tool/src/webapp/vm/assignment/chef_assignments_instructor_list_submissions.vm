@@ -59,41 +59,43 @@ function printView(url) {
 			#if(!$disableGrade)
 				<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<div class="form-group">
-						<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
-					##for non-point-based grading, choose the default grade from drop-down
-						<div>
+					<fieldset>
+						<legend class="textPanelFooter">$!form_label</legend>
+							##for non-point-based grading, choose the default grade from drop-down
+						<div class="form-group">
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")
+								<input type="checkbox" checked="checked" name="notGrade" value="true"/> $tlang.getString("defaultGrade.notGrade")&nbsp;
 							</label>
 							<label class="textPanelFooter">
-								<input type="checkbox" checked="checked" name="notSubmit" value="true"/>$tlang.getString("defaultGrade.notSubmit")<br/>
+								<input type="checkbox" checked="checked" name="notSubmit" value="true"/> $tlang.getString("defaultGrade.notSubmit")<br/>
 							</label>
 						</div>
-					</div>
-					#if ($!gradeType != 3)
-						<select id="defaultGrade_1" name="defaultGrade" size="1" >
-							<option value="">$tlang.getString("non.submission.grade.select")</option>
-							#if ($!gradeType == 1)
-								<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
-							#elseif ($!gradeType == 2)
-								#foreach ($i in $letterGradeOptions)
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
-								#end
-							#elseif ($!gradeType == 4)
-								#foreach ($i in ["Pass", "Fail"])
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-								#end
-							#elseif ($!gradeType == 5)
-								<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+						<div class="flex-wrap">
+							#if ($!gradeType != 3)
+								<select id="defaultGrade_1" name="defaultGrade" size="1" >
+									<option value="">$tlang.getString("non.submission.grade.select")</option>
+									#if ($!gradeType == 1)
+										<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
+									#elseif ($!gradeType == 2)
+										#foreach ($i in $letterGradeOptions)
+											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
+										#end
+									#elseif ($!gradeType == 4)
+										#foreach ($i in ["Pass", "Fail"])
+											<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+										#end
+									#elseif ($!gradeType == 5)
+										<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
+									#end
+								</select>
+							#else
+							## instructor needs to type in default points in point-based-grading
+							<input type="number" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" min="0" step="0.01" placeholder="$tlang.getString('gen.gra')" />
 							#end
-						</select>
-					#else
-						## instructor needs to type in default points in point-based-grading
-						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
-					#end
-					<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							<input type="button" accesskey="a" class="active" name="apply" value="$tlang.getString('gen.applygrade')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'defaultGradeForm', null, null, null );" title="$tlang.getString("gen.applygrade")" />
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						</div>
+					</fieldset>
 				</form>
 			#end
 			</div>
@@ -115,12 +117,12 @@ function printView(url) {
 			#else
 				<div class="listNav">
 						## download all
-							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="button" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="#toolLinkParam("$action" "doPrep_download_all" "view=$!view")" class="assignment-item" id="downloadAll" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
-							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="button" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							<a href="#toolLinkParam("$action" "doPrep_upload_all" "view=$view")" class="assignment-item" id="uploadAll" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 							<a href="#"
-								class="button"
+								class="assignment-item" 
  								id="releaseGrades"
 							#if ($withGrade)
 								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
@@ -137,7 +139,7 @@ function printView(url) {
 								#end
 							#end
 						#end
-				</div>	
+				</div>
 				#set ($gradeType = $typeOfGrade)
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -148,6 +150,7 @@ function printView(url) {
 
 			#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
+			<div class="form-group">
 			<div id="sendFeedbackPanel">
 				<p class="discTria">
 					<a href="javascript:void(0)" onclick="ASN.toggleSendFeedbackPanel();">
@@ -158,17 +161,17 @@ function printView(url) {
 				</p>
 				#if ($!savedFeedback)
 					#if ($!overwriteFeedback)
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.savedow")
 						</div>
 					#else
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.saved")
 						</div>
 					#end
 				#end
 				#if ($!returnedFeedback)
-					<div class="success">
+					<div class="sak-banner-success">
 						$!tlang.getString("sendFeedback.returned")
 					</div>
 				#end
@@ -262,7 +265,7 @@ function printView(url) {
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $!service.getUsersLocalDateTimeString($assignment.PeerAssessmentPeriodDate))</div>
 			#end
-
+			</div>
 			<div class="sakai-table-toolBar">
 				<div class="sakai-table-filterContainer">
 					#if (!$assignment.IsGroup)
@@ -442,8 +445,7 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-								#set ($size = $submission.Attachments.size())
-								#if ($size > 0 && $submission.submitted)
+								#if ($!userSubmission.hasVisibleAttachments && $submission.submitted)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>
@@ -530,7 +532,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$!service.getSubmissionStatus($!submissionId, false)
+								$!service.getSubmissionStatus($!submissionId, true)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>
@@ -658,8 +660,8 @@ function printView(url) {
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-					#assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($assignment.Title)
+					#assignmentIcons($assignment)
 			</td>
 		</tr>
 		<tr>
@@ -816,7 +818,6 @@ function printView(url) {
 			}
 		});
 
-		ASN.enableLinks();
 
 		var assignmentId ="$assignment.Id";
 		var rubricsToken = "$!rbcs-token";

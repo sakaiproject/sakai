@@ -165,13 +165,13 @@ class SakaiRubricsManager extends RubricsElement {
     }
 
     // If the user clicks on an arrow, it provides all the classes including the icons, we must cleanup the class list.
-    if (sortInput.includes('name')){
+    if (sortInput.includes('name')) {
       sortInput = sortInput.includes('shared') ? 'shared-name' : 'site-name';
-    } else if (sortInput.includes('title')){
+    } else if (sortInput.includes('title')) {
       sortInput = sortInput.includes('shared') ? 'shared-title' : 'site-title';
-    } else if (sortInput.includes('creator')){
+    } else if (sortInput.includes('creator')) {
       sortInput = sortInput.includes('shared') ? 'shared-creator' : 'site-creator';
-    } else if (sortInput.includes('modified')){
+    } else if (sortInput.includes('modified')) {
       sortInput = sortInput.includes('shared') ? 'shared-modified' : 'site-modified';
     } else {
       return;

@@ -1,27 +1,38 @@
 import { css, html } from "../assets/lit-element/lit-element.js";
 import { loadProperties } from "../sakai-i18n.js";
 import { SakaiDialogContent } from "../sakai-dialog-content.js";
-import "../datepicker/sakai-date-picker.js";
+import "../sakai-date-picker.js";
 import "../sakai-icon.js";
 import "../sakai-editor.js";
-
+/* This was added before the introduction of the sakai-date-picker changes in SAK-46998, remove of the date picker changes work fine.*/
+/*import moment from "../assets/moment/dist/moment.js";*/
 export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   static get properties() {
 
     return {
+      siteId: { attribute: "site-id", type: String },
+      userId: { attribute: "user-id", type: String },
       i18n: Object,
       task: {type: Object},
       description: String,
-      error: { type: Boolean }
+      error: { type: Boolean },
+      deliverTasks: {type: Boolean},
+      assignationType: {type: String},
+      selectedGroups: {type: HTMLCollection},
+      optionsGroup: {type: Array},
+      mode: {type: String},
+      siteIdBackup: {type: String}
     };
   }
 
   constructor() {
-
     super();
-    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: Date.now() };
+    this.deliverTasks = false;
+    this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: "", assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: null };
     this.task = { ...this.defaultTask};
+    this.assignationType = "user";
+    this.mode = "create";
     loadProperties("tasks").then(r => this.i18n = r);
   }
 
@@ -32,11 +43,34 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     `;
   }
 
+  getTaskAssignedTo() {
+    let result = this.task.taskAssignedTo;
+    if (result != null) {
+      result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);
+    }
+    return result;
+  }
+
+  addSelectedGroups() {
+    if (this.selectedGroups != null) {
+      const arr = [];
+      for (let x = 0; x < this.selectedGroups.length; x++) {
+        arr.push(this.selectedGroups[x].value);
+      }
+      this.task.selectedGroups = arr;
+    }
+  }
+
   save() {
-
     this.task.description = this.shadowRoot.getElementById("description").value;
-    this.task.notes = this.getEditorTag().getContent();
-
+    this.task.notes = this.getEditor().getContent();
+    this.task.assignationType = this.assignationType;
+    this.task.siteId = this.siteId;
+    this.task.userId = this.userId;
+    if (this.task.owner === null || this.task.owner === '') {
+      this.task.owner = this.userId;
+    }
+    this.addSelectedGroups();
     const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
     fetch(url, {
       credentials: "include",
@@ -63,6 +97,11 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     .catch(error => console.error(error));
   }
 
+  cancel() {
+    this.reset();
+    this.close();
+  }
+
   resetDate() {
 
     this.task.due = Date.now();
@@ -78,16 +117,18 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this._task = value;
 
     this.error = false;
-
+    if (!this.siteId && value.siteId) {
+      this.siteId = value.siteId;
+    }
     this.requestUpdate("task", old);
     this.updateComplete.then(() => {
 
       const datePicker = this.shadowRoot.getElementById("due");
-
+      const disableFields = (this.task.owner !== this.userId && this.mode === "edit");
       if (value.system) {
-        datePicker.disable();
+        datePicker.disabled = true;
       } else {
-        datePicker.enable();
+        datePicker.disabled = false;
         datePicker.epochMillis = value.due;
       }
       const descriptionEl = this.shadowRoot.getElementById("description");
@@ -96,8 +137,20 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       this.shadowRoot.getElementById("priority").value = value.priority;
       const editor = this.getEditor();
       if (editor) {
-        editor.setData(value.notes);
+        editor.setContent(value.notes);
         editor.isReadOnly = value.system;
+      }
+      if (disableFields) {
+        descriptionEl.disabled = true;
+        datePicker.disabled = true;
+      }
+      const completeEl = this.shadowRoot.getElementById("complete");
+      if (completeEl) {
+        if (value.complete) {
+          completeEl.checked = true;
+        } else {
+          completeEl.checked = false;
+        }
       }
     });
   }
@@ -110,31 +163,99 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     return this.task && this.i18n && super.shouldUpdate(changed);
   }
 
-  getEditorTag() {
-    return this.shadowRoot.querySelector("sakai-editor");
+  connectedCallback() {
+
+    super.connectedCallback();
+    this.deliverTasks = false;
+    this.siteIdBackup = this.siteId;
+    // Check user role - Only instructors can deliver tasks to students
+    if (this.siteId && this.userId) {
+      const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
+      fetch(url)
+      .then(r => {
+
+        if (r.ok) {
+          return r;
+        }
+        throw new Error(`Failed to get user role from ${url}`);
+      })
+      .then(data => {
+
+        this.deliverTasks = data;
+        // Retrieve group list from site
+        if (this.deliverTasks && this.siteId) {
+          fetch(`/api/tasks/site/groups/${this.siteId}`)
+            .then((r) => {
+
+              if (r.ok) {
+                return r.json();
+              }
+              throw new Error(`Failed to get site group list from ${url}`);
+            })
+            .then(groups => this.optionsGroup = groups)
+            .catch (error => console.error(error));
+        }
+      })
+      .catch (error => console.error(error));
+    }
   }
 
   getEditor() {
-    return this.getEditorTag().editor;
+    return this.shadowRoot.querySelector("sakai-editor");
   }
 
   reset() {
+    this.getEditor().clear();
+    const descriptionEl = this.shadowRoot.getElementById("description");
+    const datePicker = this.shadowRoot.getElementById("due");
+    const completeEl = this.shadowRoot.getElementById("complete");
+    datePicker.disabled = false;
+    descriptionEl.disabled = false;
+    if (completeEl) { completeEl.checked = false; }
     this.task = { ...this.defaultTask};
+    this.assignationType = "user";
+    this.mode = "create";
+    this.siteId = this.siteIdBackup;
   }
 
   complete(e) {
-
     this.task.complete = e.target.checked;
-
     if (e.target.checked) {
       this.task.softDeleted = false;
     }
   }
 
+  groupComboList() {
+    return html`
+        <select multiple="multiple" name="${this.i18n.groups}" id="group" style="width:100%;" @change=${(e) => this.selectedGroups = e.target.selectedOptions} .value=${this.selectedGroups} ?disabled=${this.assignationType !== 'group'}>
+            ${this.optionsGroup.map((option) => html`
+                <option value="${Object.keys(option)[0]}" ?selected=${this.selected === Object.keys(option)[0]}>${Object.values(option)[0]}</option>
+            `)}
+        </select>
+    `;
+  }
+
+  existGroups() {
+    let result = false;
+    if (Array.isArray(this.optionsGroup) && this.optionsGroup.length > 0) { result = true; }
+    return result;
+  }
+
   content() {
 
-    return html`
+    /* This was added before the introduction of the sakai-date-picker changes in SAK-46998, remove of the date picker changes work fine.*/
+    /*
+    let dueDate = null;
+    if (this.task.due !== null || this.task.due !== '') {
+      dueDate = moment(new Date(this.task.due)).format('YYYY-MM-DDTHH:mm:ss');
+    }*/
 
+    return html` 
+      ${this.deliverTasks ? html`
+      <div class="label" style="margin-bottom:15px;">
+        <label>${this.getTaskAssignedTo()}</label>
+      </div>
+      ` : ""}
       <div class="label">
         <label for="description">${this.i18n.description}</label>
       </div>
@@ -147,7 +268,11 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <label for="due">${this.i18n.due}</label>
           </div>
           <div class="input">
-            <sakai-date-picker id="due" @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }} epoch-millis=${this.task.due}></sakai-date-picker>
+            <sakai-date-picker id="due"
+                @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }}
+                epoch-millis=${this.task.due}
+                label="${this.i18n.due}">
+            </sakai-date-picker>
           </div>
         </div>
         <div id="spacer"></div>
@@ -173,7 +298,6 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
             <input
               type="checkbox"
               id="complete"
-              aria-label="${this.i18n.complete_tooltip}"
               title="${this.i18n.complete_tooltip}"
               @click=${this.complete}
               ?checked=${this.task.complete}>
@@ -184,8 +308,48 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         <label for="text">${this.i18n.text}</label>
       </div>
       <div class="input">
-        <sakai-editor element-id="task-text-editor" textarea></sakai-editor>
+        <sakai-editor element-id="task-text-editor" .content="${this.task.notes}" textarea></sakai-editor>
       </div>
+      ${this.deliverTasks && this.task.taskId === "" ? html`
+        <div class="label">
+          <label for="description">${this.i18n.deliver_task}</label>
+        </div>
+        <div id="create-task-block">
+          <div>
+            <input type="radio"
+                 id="task-current-user"
+                 name="deliver-task"
+                 title="${this.i18n.deliver_my_dashboard}"
+                 value="user"
+                 @click=${() => this.assignationType = 'user'}
+                 ?checked=${this.assignationType === 'user'} >
+             <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
+          </div>
+          <div>
+            <input type="radio"
+                id="task-students"
+                name="deliver-task"
+                title="${this.i18n.deliver_site}"
+                value="site"
+                @click=${() => this.assignationType = 'site'}
+                ?checked=${this.assignationType === 'site'}>
+            <label for="task-students">${this.i18n.deliver_site}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'inline' : 'none'}">
+            <input type="radio"
+                id="task-groups"
+                name="deliver-task"
+                title="${this.i18n.deliver_group}"
+                value="group"
+                @click=${() => this.assignationType = 'group'}
+                ?checked=${this.assignationType === 'group'}>
+            <label for="task-groups">${this.i18n.deliver_group}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">
+            ${this.groupComboList()}
+          </div>
+        </div>
+      ` : ""}
       ${this.error ? html`<div id="error">${this.i18n.save_failed}</div>` : ""}
     `;
   }

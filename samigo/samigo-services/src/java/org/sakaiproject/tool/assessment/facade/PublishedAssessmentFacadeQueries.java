@@ -47,7 +47,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -654,7 +653,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	}
 
 	/**
-	 * This was created for GradebookExternalAssessmentService.
+	 * This was created for org.sakaiproject.grading.api.GradingService.
 	 * We just want a quick answer whether Samigo is responsible for an id.
 	 */
 	public boolean isPublishedAssessmentIdValid(Long publishedAssessmentId) {
@@ -759,20 +758,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 			boolean integrated = IntegrationContextFactory.getInstance()
 					.isIntegrated();
-			GradebookExternalAssessmentService g = null;
+			org.sakaiproject.grading.api.GradingService g = null;
 			if (integrated) {
-				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
-						"org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+				g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().getBean(
+						"org.sakaiproject.grading.api.GradingService");
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
-			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
-					&& toGradebook != null
-					&& toGradebook
-							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
-									.toString())) {
+			if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
 				try {
 					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
 				} catch (Exception e) {

@@ -160,7 +160,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
 
       this.topic.posts = this.topic.posts || [];
       this.topic.posts.push(post);
-      this.topic.numberOfPosts +=1;
+      this.topic.numberOfPosts += 1;
       this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
       this.postEditorDisplayed = false;
     })
@@ -407,7 +407,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
         </div>
         <div class="author-and-tools">
           <div class="author-block">
-            <div><sakai-user-photo user-id="${this.topic.anonymous && !this.canViewAnonymous? "blank" : this.topic.creator}"></sakai-user-photo></div>
+            <div><sakai-user-photo user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}"></sakai-user-photo></div>
             <div>
               <div class="author-details">
                 <div class="topic-creator-name">${this.topic.creatorDisplayName}</div>

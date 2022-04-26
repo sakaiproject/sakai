@@ -22,8 +22,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -62,8 +62,8 @@ public class GradesController extends AbstractSakaiApiController {
     @Resource
     private EntityManager entityManager;
 
-    @Resource(name = "org_sakaiproject_service_gradebook_GradebookService")
-    private GradebookService gradebookService;
+    @Resource(name = "org.sakaiproject.grading.api.GradingService")
+    private org.sakaiproject.grading.api.GradingService gradingService;
 
     @Resource
     private SiteService siteService;
@@ -79,7 +79,7 @@ public class GradesController extends AbstractSakaiApiController {
                 gbUrl = "/portal/directtool/" + tc.getId();
             }
             final String url = gbUrl;
-            return gradebookService.getAssignments(s.getId()).stream()
+            return gradingService.getAssignments(s.getId()).stream()
                 .map(a -> {
 
                     try {
@@ -90,11 +90,11 @@ public class GradesController extends AbstractSakaiApiController {
 
                         List<String> students = new ArrayList<>(s.getUsers());
                         List<GradeDefinition> grades
-                            = gradebookService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
+                            = gradingService.getGradesForStudentsForItem(s.getId(), a.getId(), students);
 
                         double total = 0;
                         for (GradeDefinition gd : grades) {
-                            if (gd.getGradeEntryType() == GradebookService.GRADE_TYPE_POINTS) {
+                            if (gd.getGradeEntryType() == GradeType.POINTS) {
                                 String grade = gd.getGrade();
                                 if (!StringUtils.isBlank(grade)) {
                                     total += Double.parseDouble(grade);
@@ -106,7 +106,7 @@ public class GradesController extends AbstractSakaiApiController {
                         gtb.setAverageScore(total > 0 && count > 0 ? total / count : 0);
                         gtb.setUngraded(students.size() - count);
 
-                        if (a.isExternallyMaintained()) {
+                        if (a.getExternallyMaintained()) {
                             int submitted = 0, graded = 0;
                             switch (a.getExternalAppName()) {
                                 case "Assignments":

@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -382,10 +381,10 @@ public class ConfirmPublishAssessmentListener
 	}
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookExternalAssessmentService g = null;
+    org.sakaiproject.grading.api.GradingService g = null;
     if (integrated){
-      g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+      g = (org.sakaiproject.grading.api.GradingService) SpringBeanLocator.getInstance().
+            getBean("org.sakaiproject.grading.api.GradingService");
     }
     try{
 	if (assessmentSettings.getToDefaultGradebook() && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){

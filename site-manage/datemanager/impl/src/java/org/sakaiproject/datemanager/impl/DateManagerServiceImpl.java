@@ -57,10 +57,10 @@ import org.sakaiproject.datemanager.api.model.DateManagerUpdate;
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.site.api.Site;
@@ -85,6 +85,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 @Slf4j
@@ -97,7 +98,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Setter private PersistenceService assessmentPersistenceService;
 	@Setter private AssessmentFacadeQueriesAPI assessmentServiceQueries;
 	@Setter private PublishedAssessmentFacadeQueriesAPI pubAssessmentServiceQueries;
-	@Setter private GradebookService gradebookService;
+	@Setter private GradingService gradingService;
 	@Setter private SignupMeetingService signupService;
 	@Setter private ContentHostingService contentHostingService;
 	@Setter private CalendarService calendarService;
@@ -118,12 +119,22 @@ public class DateManagerServiceImpl implements DateManagerService {
 		setPubAssessmentServiceQueries(assessmentPersistenceService.getPublishedAssessmentFacadeQueries());
 	}
 
+	private String getCurrentToolSessionAttribute(String name) {
+		ToolSession session = sessionManager.getCurrentToolSession();
+		return session != null ? session.getAttribute(name).toString() : "";
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getCurrentSiteId() {
-		return toolManager.getCurrentPlacement().getContext();
+		String siteID = getCurrentToolSessionAttribute(STATE_SITE_ID);
+		if (StringUtils.isEmpty(siteID)) {
+			siteID = toolManager.getCurrentPlacement().getContext();
+		}
+
+		return siteID;
 	}
 
 	/**
@@ -584,14 +595,14 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public JSONArray getGradebookItemsForContext(String siteId) {
 		JSONArray jsonAssignments = new JSONArray();
-		if(!gradebookService.currentUserHasEditPerm(getCurrentSiteId())) {
+		if(!gradingService.currentUserHasEditPerm(getCurrentSiteId())) {
 			return jsonAssignments;
 		}
-		Collection<org.sakaiproject.service.gradebook.shared.Assignment> gbitems = gradebookService.getAssignments(siteId);
+		Collection<org.sakaiproject.grading.api.Assignment> gbitems = gradingService.getAssignments(siteId);
 		String url = getUrlForTool(DateManagerConstants.COMMON_ID_GRADEBOOK);
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
-		for(org.sakaiproject.service.gradebook.shared.Assignment gbitem : gbitems) {
-			if(!gbitem.isExternallyMaintained()) {
+		for(org.sakaiproject.grading.api.Assignment gbitem : gbitems) {
+			if(!gbitem.getExternallyMaintained()) {
 				JSONObject gobj = new JSONObject();
 				gobj.put("id", gbitem.getId());
 				gobj.put("title", gbitem.getName());
@@ -615,7 +626,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		List<Object> updates = new ArrayList<>();
 
 		String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_GRADEBOOK).getTitle();
-		if (!gradebookItems.isEmpty() && !gradebookService.currentUserHasEditPerm(getCurrentSiteId())) {
+		if (!gradebookItems.isEmpty() && !gradingService.currentUserHasEditPerm(getCurrentSiteId())) {
 			errors.add(new DateManagerError("gbitem", rb.getString("error.update.permission.denied"), "gradebookItems", toolTitle, 0));
 		}
 
@@ -636,7 +647,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
 				}
 
-				org.sakaiproject.service.gradebook.shared.Assignment gbitem = gradebookService.getAssignment(getCurrentSiteId(), itemId);
+				org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), itemId);
 				if (gbitem == null) {
 					errors.add(new DateManagerError("gbitem", rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.gradebook.item.name")}), "gradebookItems", toolTitle, idx));
 					continue;
@@ -662,7 +673,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public void updateGradebookItems(DateManagerValidation gradebookItemsValidate) throws Exception {
 		for (DateManagerUpdate update : (List<DateManagerUpdate>)(Object) gradebookItemsValidate.getUpdates()) {
-			org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = (org.sakaiproject.service.gradebook.shared.Assignment) update.object;
+			org.sakaiproject.grading.api.Assignment assignmentDefinition = (org.sakaiproject.grading.api.Assignment) update.object;
 			Date dueDateTemp = update.dueDate != null ? Date.from(update.dueDate) : null;
 			assignmentDefinition.setDueDate(dueDateTemp);
 			gradebookService.updateAssignment(getCurrentSiteId(), assignmentDefinition.getId(), assignmentDefinition);

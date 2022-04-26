@@ -2890,7 +2890,7 @@ public class DeliveryActionListener
   
   /**
    * CALCULATED_QUESTION
-   * This returns the comma delimted answer key for display such as "42.1,23.19"
+   * This returns the comma and space delimted answer key for display such as "42.1, 23.19"
    */
   private String commaDelimitedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
 	  long gradingId = determineCalcQGradingId(delivery);
@@ -2911,11 +2911,11 @@ public class DeliveryActionListener
 		  // We need the key formatted in scientificNotation
 		  answer = service.toScientificNotation(answer, decimalPlaces);
 		  
-		  keysString = keysString.concat(answer + ",");
+		  keysString = keysString.concat(answer + ", ");
 		  answerSequence++;
 	  }
 	  if (keysString.length() > 2) {
-		  keysString = keysString.substring(0, keysString.length()-1); // truncating the comma on the end
+		  keysString = keysString.substring(0, keysString.length()-2); // truncating the comma and blank on the end
 	  }
 	  return keysString;
   }

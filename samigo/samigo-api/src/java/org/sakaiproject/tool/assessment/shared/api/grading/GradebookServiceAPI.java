@@ -57,12 +57,6 @@ public interface GradebookServiceAPI
    */
   public void updateExternalAssessment(AssessmentGradingData ag,
                                               String agentIdString);
-  /**
-   *
-   * @param siteId
-   * @return
-   */
-  public boolean gradebookExists(String siteId);
 
   /**
    *

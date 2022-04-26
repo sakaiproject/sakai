@@ -54,12 +54,12 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.model.Rubric;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
+import org.sakaiproject.grading.api.ConflictingExternalIdException;
+import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.model.Gradebook;
 
 /**
  * Confirmation page for what is going to be imported
@@ -397,10 +397,10 @@ public class GradeImportConfirmationStep extends BasePanel {
 				final Assignment assignment = item.getModelObject();
 
 
-				String extraCredit = assignment.isExtraCredit() ? yes : no;
+				String extraCredit = assignment.getExtraCredit() ? yes : no;
 				String dueDate = GradeImportConfirmationStep.this.businessService.formatDate(assignment.getDueDate(), "");
-				String releaseToStudents = assignment.isReleased() ? yes : no;
-				String includeInCourseGrades = assignment.isCounted() ? yes : no;
+				String releaseToStudents = assignment.getReleased() ? yes : no;
+				String includeInCourseGrades = assignment.getCounted() ? yes : no;
 
 				item.add(new Label("title", assignment.getName()));
 				item.add(new Label("points", assignment.getPoints()));
