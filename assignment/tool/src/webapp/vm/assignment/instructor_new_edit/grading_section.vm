@@ -47,9 +47,24 @@ This section contains the options for grading this assignment, including rubrics
 		## enable the maxfield when it is points grade type
 		<div class="form-group form-required">
 			<label for="$name_GradePoints" class="control-label">$tlang.getString("gen.forpoi")</label>
-			<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" />
-		</div>
+			<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" onkeypress="return restrictAlphabets(event)" />
+                        <script type="text/javascript">
 
+                            function restrictAlphabets(e) {
+                                var value = document.getElementById('$name_GradePoints').value;
+                                var characterCode = e.charCode;
+                                if(characterCode == 46 || characterCode == 44) {
+                                    return true;
+                                }
+
+                                if(characterCode != 46 && characterCode > 31 && (characterCode < 48 || characterCode > 57)) {
+                                    return false;
+                                }
+
+                                return true;
+                            }
+                        </script>
+                </div>
 		## Rubrics
 		<div class="form-group">
 			<sakai-rubric-association
