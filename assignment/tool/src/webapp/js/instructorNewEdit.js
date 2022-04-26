@@ -20,6 +20,14 @@ ASN_INE.noMembersInCommonMsg = function(display)
 	ASN_INE.hide(msgError);
 };
 
+// Determines if the group asn option is allowed to be enabled
+ASN_INE.canEnableGroupAsnOption = function()
+{
+	const groupsExist = document.getElementById("msgNoGroupsPresent") === null && document.getElementById("msgSelectedGroupsGoneNoGroups") === null;
+	const isNewAsn = document.getElementById("newAssignmentForm").elements["assignmentId"].value === "";
+	return groupsExist && isNewAsn;
+};
+
 /**
  * Validates the state of the group selection, disabling the submit buttons if the Assign To
  * section indicates groups are in use but no groups have been selected
@@ -85,16 +93,20 @@ ASN_INE.setGroupAssignmentRadioEnabled = function(enabled)
 	var groupAssignRadio = document.getElementById("groupAssignment");
 	if (groupAssignRadio !== null)
 	{
-		groupAssignRadio.disabled = !enabled;
 		var label = document.getElementById("groupAssignmentCheckboxLabel");
 		var peerInUseMsg = document.getElementById("msgNoGroupAssignmentPeerInUse");
 		if (enabled)
 		{
-			label.classList.remove("disabled");
+			if (ASN_INE.canEnableGroupAsnOption())
+			{
+				groupAssignRadio.disabled = false;
+				label.classList.remove("disabled");
+			}
 			peerInUseMsg.style.display = "none";
 		}
 		else
 		{
+			groupAssignRadio.disabled = true;
 			label.classList.add("disabled");
 			peerInUseMsg.style.display = "inline";
 		}
@@ -132,6 +144,10 @@ ASN_INE.handleGradeScaleChange = function(select, textfieldId)
 	}
 	else // we're switching to points, peer assessment may already be enabled
 	{
+		if (pointsField !== null && !/\d/.test(pointsField.value))
+		{
+			pointsField.value = ""; // clear any rogue value without digits (ie. "Ungraded")
+		}
 		if (pointsField !== null && pointsField.value.length < 1)
 		{
 			pointsField.focus();
@@ -152,7 +168,7 @@ ASN_INE.evaluateAssignToOptionsForPeerAssessment = function()
 	}
 
 	ASN_INE.setGroupAssignmentRadioEnabled(!gradeAsn.checked || !peerCheck.checked);
-}
+};
 
 ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)
 {
@@ -167,7 +183,7 @@ ASN_INE.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWit
 	}
 	var panel = document.getElementById("assignmentGradingGradebookOptionsPanel");
 	panel.style.display = checkbox.checked ? "block" : "none";
-}
+};
 
 // evaluate the state of the peer assessment option based on the current group
 // assignment setting.
