@@ -88,10 +88,9 @@
 				<%-- mark as read link --%>
 					<h:outputLink value="javascript:void(0);"
 						title="#{msgs.cdfm_mark_as_read}" 
-						rendered="#{!message.read}"
+						rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsRead}"
 						styleClass="markAsReadIcon button"
 						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
-						<h:graphicImage value="/images/trans.gif"/>
 						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
 					</h:outputLink>
 				<%-- Reply link --%>
