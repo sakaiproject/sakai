@@ -850,11 +850,12 @@ public class DateManagerServiceImpl implements DateManagerService {
 				Instant openDate = null;
 				Instant dueDate = null;
 
-				if (openDateRaw != null && !openDateRaw.isEmpty())
+				if (StringUtils.isNotBlank(openDateRaw)) {
 					openDate = userTimeService.parseISODateInUserTimezone(openDateRaw).toInstant();
-				if (dueDateRaw != null && !dueDateRaw.isEmpty())
+				}
+				if (StringUtils.isNotBlank(dueDateRaw)) {
 					dueDate = userTimeService.parseISODateInUserTimezone(dueDateRaw).toInstant();
-
+				}
 
 				log.debug("Open {} ; Due {}", jsonResource.get("open_date_label"), jsonResource.get("due_date_label"));
 				if(StringUtils.isBlank((String)jsonResource.get("open_date_label"))) {
