@@ -27,6 +27,9 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean;
@@ -150,6 +153,15 @@ public class ActionSelectListener implements ActionListener {
 			author.setFromPage("author");
 			author.setEditPublishedAssessmentID( publishedID );
 			author.setJustPublishedAnAssessment(true);
+
+			PublishedAssessmentService pas = new PublishedAssessmentService();
+			PublishedAssessmentFacade paf = pas.getPublishedAssessmentQuick(publishedID);
+			if (PublishedAssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(paf.getStatus())) {
+				// quiz has already been retracted, no need to present the confirmation page again,
+				// just run the EditAssessmentListener as if the user had clicked Edit on the confirmation page
+				EditAssessmentListener editAssessmentListener = new EditAssessmentListener();
+				editAssessmentListener.processAction(null);
+			}
 		}
 		else if ("preview_published".equals(action)) {
 			delivery.setActionString("previewAssessment");
