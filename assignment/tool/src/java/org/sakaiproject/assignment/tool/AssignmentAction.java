@@ -665,6 +665,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW = "new_assignment_content_launch_new_window";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
+    private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING = "new_assignment_grade_type_switching";
+    private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM = "new_assignment_grade_type_switch_confirm";
     private static final String NEW_ASSIGNMENT_GRADE_POINTS = "new_assignment_grade_points";
     private static final String NEW_ASSIGNMENT_DESCRIPTION = "new_assignment_instructions";
     private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
@@ -7220,6 +7222,24 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, gradeType.ordinal());
         }
 
+        // check if grade type is switching and prompt for confirmation if graded submissions exist
+        if (StringUtils.isNotBlank(assignmentRef)) {
+            Assignment asn = getAssignment(assignmentRef, "setNewAssignmentParameters", state);
+            if (asn != null && gradeType != GRADE_TYPE_NONE && asn.getTypeOfGrade() != gradeType) {
+                state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING, Boolean.TRUE);
+                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(asn);
+                if (submissions.stream().anyMatch(s -> s.getGraded())) {
+                    if (state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM) == null && validify) {
+                        state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM, Boolean.TRUE);
+                        addAlert(state, rb.getString("grading.type.change.confirm"));
+                    }
+                    else {
+                        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM); // user has confirmed or we aren't validating
+                    }
+                }
+            }
+        }
+
         String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
 
         // Currently, gradebook can only handle score types. Force GRADEBOOK_INTEGRATION_NO if the
@@ -8133,10 +8153,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String assignmentId = params.getString("assignmentId");
 
-        // whether this is an editing which changes non-point graded assignment to point graded assignment?
-        boolean bool_change_from_non_point = false;
         // whether there is a change in the assignment resubmission choice
         boolean bool_change_resubmit_option = false;
+
+        boolean switchingGradeType = state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING) != null;
 
         // if there is a message at this point usually means there was some type of error
         if (StringUtils.isNotBlank((String) state.getAttribute(STATE_MESSAGE))) {
@@ -8166,11 +8186,6 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getFormattedMessage("theisno"));
         } else {
             Map<String, String> p = a.getProperties();
-
-            if ((a.getTypeOfGrade() != SCORE_GRADE_TYPE) && ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE) == SCORE_GRADE_TYPE.ordinal())) {
-                // changing from non-point grade type to point grade type?
-                bool_change_from_non_point = true;
-            }
 
             if (propertyValueChanged(state, p, AssignmentConstants.ALLOW_RESUBMIT_NUMBER) || propertyValueChanged(state, p, AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME)) {
                 bool_change_resubmit_option = true;
@@ -8377,18 +8392,18 @@ public class AssignmentAction extends PagedResourceActionII {
                         excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue, contentId, contentLaunchNewWindow, checkIsEstimate, checkEstimateRequired, timeEstimate);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
+                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params, gradeType));
 
                 if (post) {
                     // we need to update the submission
-                    if (bool_change_from_non_point || bool_change_resubmit_option) {
+                    if (switchingGradeType || bool_change_resubmit_option) {
                         Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(a);
                         if (submissions != null) {
                             // assignment already exist and with submissions
                             for (AssignmentSubmission s : submissions) {
                                 if (s != null) {
                                     Map<String, String> sProperties = s.getProperties();
-                                    if (bool_change_from_non_point) {
+                                    if (switchingGradeType) {
                                         // set the grade to be empty for now
                                         s.setGrade("");
                                         s.setGraded(false);
@@ -8660,7 +8675,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param params
      * @return
      */
-    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params){
+    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params, Assignment.GradeType gradeType){
 
         HashMap<String,String> parametersHash = new HashMap<>();
         //Get the parameters
@@ -8671,6 +8686,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 parametersHash.put(name,params.getString(name));
             }
         }
+
+        // if the grading type is not points (score) remove the rubric association regardless of the posted rubric params
+        if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE && "1".equals(parametersHash.get("rbcs-associate"))) {
+            parametersHash.put("rbcs-associate", "0");
+        }
+
         return parametersHash;
     }
 
@@ -12054,6 +12075,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_DUEYEAR);
         state.removeAttribute(NEW_ASSIGNMENT_DUEHOUR);
         state.removeAttribute(NEW_ASSIGNMENT_DUEMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE);
 
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLEMONTH);
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLEDAY);
@@ -12080,6 +12102,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_SECTION);
         state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
+        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
         state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
