@@ -21,9 +21,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -36,7 +36,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 @Slf4j
-public class AutoSubmitAssessmentsJob implements Job {
+public class AutoSubmitAssessmentsJob implements StatefulJob {
 
 	@Setter private AuthzGroupService authzGroupService;
 	@Setter private EventTrackingService eventTrackingService;
