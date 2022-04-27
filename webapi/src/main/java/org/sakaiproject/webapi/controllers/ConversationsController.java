@@ -226,7 +226,6 @@ public class ConversationsController extends AbstractSakaiApiController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-
     private EntityModel entityModelForTopicBean(TopicTransferBean topicBean) {
 
         List<Link> links = new ArrayList<>();

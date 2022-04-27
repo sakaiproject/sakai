@@ -50,27 +50,27 @@ This section contains the options for grading this assignment, including rubrics
 			<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" />
 		</div>
 
-		## Rubrics
-		<div class="form-group">
-			<sakai-rubric-association
-				token="$!rbcs-token"
-				dont-associate-label="$tlang.getString("dont.associate.label")"
-				dont-associate-value="0"
-				associate-label="$tlang.getString("associate.label")"
-				associate-value="1"
-				#if("$!rubric_association" != "")
-				association='$rubric_association'
-				#else
-				#if("$!assignment.Id" != "")
-				entity-id="$assignment.Id"
-				#end
-				tool-id="sakai.assignment"
-				#end
-				fine-tune-points="$tlang.getString("option.pointsoverride")"
-				hide-student-preview="$tlang.getString("option.studentpreview")"
-			>
-			</sakai-rubric-association>
-		</div>
+        ## Rubrics
+        <div class="form-group">
+            <sakai-rubric-association
+                site-id="$siteId"
+                dont-associate-label="$tlang.getString("dont.associate.label")"
+                dont-associate-value="0"
+                associate-label="$tlang.getString("associate.label")"
+                associate-value="1"
+                #if("$!rubric_association" != "")
+                    association='$rubric_association'
+                #else
+                    #if("$!assignment.Id" != "")
+                        entity-id="$assignment.Id"
+                    #end
+                    tool-id="sakai.assignment"
+                #end
+                fine-tune-points="$tlang.getString("option.pointsoverride")"
+                hide-student-preview="$tlang.getString("option.studentpreview")"
+            >
+            </sakai-rubric-association>
+        </div>
 
 		<div class="form-group">
 			<div>

@@ -23,7 +23,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -50,7 +52,8 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.wicket.component.SakaiDateTimeField;
 
 import lombok.extern.slf4j.Slf4j;
@@ -275,16 +278,26 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		final WebMarkupContainer sakaiRubricAssociation = new WebMarkupContainer("sakai-rubric-association");
 		sakaiRubricAssociation.add(AttributeModifier.append("dont-associate-label", new ResourceModel("rubrics.dont_associate_label")));
+		sakaiRubricAssociation.add(AttributeModifier.append("site-id", getCurrentSiteId()));
 		sakaiRubricAssociation.add(AttributeModifier.append("dont-associate-value", "0"));
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-label", new ResourceModel("rubrics.associate_label")));
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-value", "1"));
 		sakaiRubricAssociation.add(AttributeModifier.append("fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
 		sakaiRubricAssociation.add(AttributeModifier.append("hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-		sakaiRubricAssociation.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
 		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
+		}
+
+		try {
+			Optional<AssociationTransferBean> optAssociation
+				= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+			if (optAssociation.isPresent()) {
+				sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
+			}
+		} catch (Exception e) {
+			log.warn("Failed to get rubric association for gradebook assignment {}", assignment.getId());
 		}
 		add(sakaiRubricAssociation);
 

@@ -169,7 +169,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-service-api</artifactId>
+            <artifactId>rubrics-api</artifactId>
         </dependency>
     </dependencies>
     

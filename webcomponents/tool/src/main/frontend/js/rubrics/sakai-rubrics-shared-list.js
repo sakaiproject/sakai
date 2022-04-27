@@ -12,30 +12,23 @@ const rubricModified = 'modified';
 export class SakaiRubricsSharedList extends RubricsElement {
 
   constructor() {
+
     super();
-    this.enablePdfExport = false;
+
+    this.getSharedRubrics();
   }
 
   static get properties() {
 
     return {
-      token: { type: String },
-      rubrics: { type: Array },
-      enablePdfExport: { type: Boolean }
+      siteId: { attribute: "site-id", type: String },
+      rubrics: { attribute: false, type: Array },
+      enablePdfExport: { type: Boolean },
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if (name === "token") {
-      this.getSharedRubrics(newValue);
-    }
-  }
-
-  shouldUpdate(changedProperties) {
-    return changedProperties.has("rubrics");
+  shouldUpdate() {
+    return this.rubrics;
   }
 
   render() {
@@ -44,7 +37,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
       <div role="tablist">
       ${repeat(this.rubrics, r => r.id, r => html`
         <div class="rubric-item" id="rubric_item_${r.id}">
-          <sakai-rubric-readonly token="${this.token}" rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric-readonly>
+          <sakai-rubric-readonly rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubric-readonly>
         </div>
       `)}
       </div>
@@ -52,39 +45,32 @@ export class SakaiRubricsSharedList extends RubricsElement {
   }
 
   refresh() {
-    this.getSharedRubrics(this.token);
+    this.getSharedRubrics();
   }
 
-  getSharedRubrics(token) {
+  getSharedRubrics() {
 
-    const params = {"projection": "inlineRubric"};
+    const url = "/api/rubrics/shared";
+    fetch(url, { credentials: "include" })
+    .then(r => {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics/search/shared-only", token, { params })
-    .then( (data) => {
-      this.rubrics = data._embedded.rubrics;
-
-      // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
-      this.rubrics = this.rubrics.map( (rubric) => {
-        const metadata = rubric.metadata;
-        const creatorId = metadata.creatorId;
-        const siteId = metadata.ownerId;
-        SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
-        SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
-        rubric.metadata = metadata;
-        return rubric;
-      });
-
-    });
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting shared rubrics");
+    })
+    .then(rubrics => this.rubrics = rubrics)
+    .catch (error => console.error(error));
   }
 
   copyToSite(e) {
 
-    const options = { extraHeaders: { "x-copy-source": e.detail, "lang": this.locale  } };
-    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, options)
+    SakaiRubricsHelpers.post(`/api/sites/${this.siteId}/rubrics/${e.detail}/copyToSite`, {})
       .then(() => this.dispatchEvent(new CustomEvent("copy-share-site")));
   }
 
   sortRubrics(rubricType, ascending) {
+
     switch (rubricType) {
       case rubricName:
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
@@ -101,7 +87,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
     }
     this.requestUpdate('rubrics');
   }
-
 }
 
-customElements.define("sakai-rubrics-shared-list", SakaiRubricsSharedList);
+const tagName = "sakai-rubrics-shared-list";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricsSharedList);

@@ -40,7 +40,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
@@ -239,7 +239,7 @@ public class MsgcntrTestConfiguration {
         return mock(PreferencesService.class);
     }
 
-    @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+    @Bean(name = "org.sakaiproject.rubrics.api.RubricsService")
     public RubricsService rubricsService() {
         return mock(RubricsService.class);
     }

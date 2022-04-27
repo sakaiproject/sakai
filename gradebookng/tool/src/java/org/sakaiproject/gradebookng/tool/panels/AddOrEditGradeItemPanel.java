@@ -42,7 +42,7 @@ import org.sakaiproject.grading.api.GradebookHelper;
 import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 
 /**
  * The panel for the add and edit grade item window

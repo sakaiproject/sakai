@@ -1937,7 +1937,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.rubrics</groupId>
-        <artifactId>rubrics-service-api</artifactId>
+        <artifactId>rubrics-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>

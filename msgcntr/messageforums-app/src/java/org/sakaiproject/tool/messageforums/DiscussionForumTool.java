@@ -151,8 +151,8 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -429,7 +429,7 @@ public class DiscussionForumTool {
   private ToolManager toolManager;
   @ManagedProperty(value="#{Components[\"org.sakaiproject.thread_local.api.ThreadLocalManager\"]}")
   private ThreadLocalManager threadLocalManager;
-  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.logic.RubricsService\"]}")
+  @ManagedProperty(value="#{Components[\"org.sakaiproject.rubrics.api.RubricsService\"]}")
   private RubricsService rubricsService;
   @ManagedProperty(value = "#{Components[\"org.sakaiproject.time.api.UserTimeService\"]}")
   private UserTimeService userTimeService;
@@ -7509,7 +7509,7 @@ public class DiscussionForumTool {
 		return "";
 	}
 
-	private String getSiteId() {
+	public String getSiteId() {
 		return toolManager.getCurrentPlacement().getContext();
 	}
 
@@ -9137,11 +9137,6 @@ public class DiscussionForumTool {
 			}
 		});
 		return list;
-	}
-
-	public String getRbcsToken() {
-		log.debug("getRbcsToken()");
-		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
 	}
 
 	public boolean hasAssociatedRubric(){

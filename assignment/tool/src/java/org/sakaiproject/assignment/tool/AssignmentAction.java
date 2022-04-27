@@ -214,8 +214,9 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
@@ -1092,7 +1093,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
-    private static final String RUBRIC_TOKEN = "rbcs-token";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
@@ -1518,8 +1518,6 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS) != null) {
             context.put("assignmentscheck", state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS));
         }
-
-        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_ASSIGNMENT));
 
         return template;
 
@@ -2748,7 +2746,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("assignments", assignments.iterator());
 
         // allow add assignment?
-        Map<String, List<PeerAssessmentItem>> peerAssessmentItemsMap = new HashMap<String, List<PeerAssessmentItem>>();
+        Map<String, List<PeerAssessmentItem>> peerAssessmentItemsMap = new HashMap<>();
         boolean allowAddAssignment = assignmentService.allowAddAssignment(contextString);
         if (!allowAddAssignment) {
             //this is the same requirement for displaying the assignment link for students
@@ -2782,6 +2780,22 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute("rateStudent", rateStudent);
 
         context.put("peerAssessmentItemsMap", peerAssessmentItemsMap);
+
+        Map<String, Long> rubricMap = new HashMap<>();
+        assignments.forEach(a -> {
+
+            try {
+                Optional<AssociationTransferBean> optAssociation
+                    = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), a.getContext());
+                if (optAssociation.isPresent()) {
+                    rubricMap.put(a.getId(), optAssociation.get().rubricId);
+                }
+            } catch (Exception e) {
+                log.error("Failed to load rubric map", e);
+            }
+        });
+
+        context.put("rubricMap", rubricMap);
 
         // allow get assignment
         context.put("allowGetAssignment", assignmentService.allowGetAssignment(contextString));
@@ -2916,13 +2930,15 @@ public class AssignmentAction extends PagedResourceActionII {
         // Anon grading enabled/disabled
         context.put("enableAnonGrading", serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_ENABLE_ANON_GRADING, false));
         boolean forceAnonGrading = false;
+        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         try {
-            Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+            Site site = siteService.getSite(siteId);
             forceAnonGrading = site.getProperties().getBooleanProperty(AssignmentConstants.SAK_PROP_FORCE_ANON_GRADING);
         } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException | SakaiException se) {
             log.debug("Failed to find if anonymous grading is forced.");
         }
         context.put("forceAnonGrading", forceAnonGrading);
+        context.put("siteId", siteId);
 
         // is the assignment an new assignment
         String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
@@ -2931,6 +2947,18 @@ public class AssignmentAction extends PagedResourceActionII {
             if (a != null) {
                 context.put("assignmentId", assignmentId);
                 context.put("assignment", a);
+                if (state.getAttribute(RUBRIC_ASSOCIATION) == null) {
+                    try {
+                        Optional<AssociationTransferBean> optAssociation
+                            = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), siteId);
+                        if (optAssociation.isPresent()) {
+                            state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(optAssociation.get()));
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to get rubric association for assignment {}", assignmentId);
+                    }
+                }
+
                 rangeAndGroups.buildInstructorNewEditAssignmentContextGroupCheck(context, a);
 
                 // controls to disable which groups can be changed
@@ -4713,6 +4741,16 @@ public class AssignmentAction extends PagedResourceActionII {
             addProviders(context, state);
             addActivity(context, assignment);
             context.put("taggable", Boolean.TRUE);
+        }
+
+        try {
+            Optional<AssociationTransferBean> optAssociation
+                = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), assignment.getContext());
+            if (optAssociation.isPresent()) {
+                context.put("rubricId", optAssociation.get().rubricId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to get association", e);
         }
 
         context.put("submissionTypeTable", submissionTypeTable());
@@ -8675,9 +8713,9 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param params
      * @return
      */
-    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params, Assignment.GradeType gradeType){
+    private Map<String,String> getRubricConfigurationParameters(ParameterParser params, Assignment.GradeType gradeType){
 
-        HashMap<String,String> parametersHash = new HashMap<>();
+        Map<String,String> parametersHash = new HashMap<>();
         //Get the parameters
         Iterator it2 = params.getNames();
         while (it2.hasNext()) {

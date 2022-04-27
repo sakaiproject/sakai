@@ -48,9 +48,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -210,8 +210,6 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
     	questionbean.setOtherMaxDisplayedScoreRows(0);
     	questionbean.setAudioMaxDisplayedScoreRows(5);
     }
-
-    submissionbean.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
 
     if (!totalScores(pubAssessment, bean, false))
     {
