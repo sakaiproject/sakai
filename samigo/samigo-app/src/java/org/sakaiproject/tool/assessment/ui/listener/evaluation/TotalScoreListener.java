@@ -564,12 +564,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     GradingService delegate = new GradingService();
     List allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
-      PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
-      EvaluationModelIfc model = p.getEvaluationModel();
-      // If the assessment is set to anonymous grading, we don't want to get assessmentGrading records which has not
-      // submitted by students but has been updated by grader (ie, forGrade != true, lastGradedBy and lastGradedDate is not null) 
-      boolean getSubmittedOnly = model.getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
-      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), getSubmittedOnly);
+      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), false);
       bean.setAssessmentGradingList(allscores);
     }
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
