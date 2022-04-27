@@ -198,7 +198,7 @@
 					<%-- Rubrics marker --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" >
 					  <sakai-rubric-student-preview-button
-						  token="<h:outputText value="#{ForumTool.rbcsToken}" />"
+						  site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						  display="icon"
 						  tool-id="sakai.gradebookng"
 						  entity-id="<h:outputText value="#{ForumTool.selectedTopic.gradeAssign}" />">

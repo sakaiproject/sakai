@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>rubrics</artifactId>
+        <artifactId>rubrics-base</artifactId>
         <groupId>org.sakaiproject.rubrics</groupId>
         <version>22-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -10,7 +10,7 @@
 
     <name>Sakai Rubrics - Implementation</name>
     <groupId>org.sakaiproject.rubrics</groupId>
-    <artifactId>rubrics-service-impl</artifactId>
+    <artifactId>rubrics-impl</artifactId>
 
     <packaging>sakai-component</packaging>
     <properties>
@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-service-api</artifactId>
+            <artifactId>rubrics-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -51,11 +51,35 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
-              <artifactId>sakai-kernel-util</artifactId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-private</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-test</artifactId>
+        </dependency>
+          <dependency>
+          <groupId>org.mockito</groupId>
+          <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.plugin</groupId>
@@ -81,6 +105,14 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
       </dependencies>
 
     <build>
@@ -95,6 +127,16 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <testResources>
+          <testResource>
+            <directory>${basedir}/src/main/webapp</directory>
+          </testResource>
+          <testResource>
+            <directory>${basedir}/src/test/resources</directory>
+          </testResource>
+        </testResources>
+
     </build>
 
 </project>

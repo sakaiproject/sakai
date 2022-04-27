@@ -19,12 +19,11 @@ export class SakaiRubricReadonly extends RubricsElement {
     return {
       rubric: { type: Object },
       enablePdfExport: { type: Boolean },
-      token: { type: String }
     };
   }
 
-  shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric");
+  shouldUpdate() {
+    return this.rubric;
   }
 
   render() {
@@ -38,9 +37,9 @@ export class SakaiRubricReadonly extends RubricsElement {
           </span>
         </div>
 
-        <div class="hidden-xs"><sakai-rubric-site-title site-id="${this.rubric.metadata.ownerId}"></sakai-rubric-site-title></div>
-        <div class="hidden-xs"><sakai-rubric-creator-name creator-id="${this.rubric.metadata.creatorId}"></sakai-rubric-creator-name></div>
-        <div class="hidden-xs"><sakai-rubric-modified-date modified="${this.rubric.metadata.modified}"></sakai-rubric-modified-date></div>
+        <div class="hidden-xs">${this.rubric.siteTitle}</div>
+        <div class="hidden-xs">${this.rubric.creatorDisplayName}</div>
+        <div class="hidden-xs">${this.rubric.formattedModifiedDate}</div>
 
         <div class="actions">
           <div class="action-container">
@@ -61,7 +60,7 @@ export class SakaiRubricReadonly extends RubricsElement {
 
       <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_shared_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
-          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
+          <sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criteria)}" .weighted=${this.rubric.weighted}></sakai-rubric-criteria-readonly>
         </div>
       </div>
     `;

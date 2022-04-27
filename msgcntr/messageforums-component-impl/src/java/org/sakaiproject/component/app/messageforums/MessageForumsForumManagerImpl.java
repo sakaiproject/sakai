@@ -69,7 +69,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparato
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;

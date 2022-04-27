@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>rubrics</artifactId>
+        <artifactId>rubrics-base</artifactId>
         <groupId>org.sakaiproject.rubrics</groupId>
         <version>22-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -10,7 +10,7 @@
 
     <name>Sakai Rubrics - API</name>
     <groupId>org.sakaiproject.rubrics</groupId>
-    <artifactId>rubrics-service-api</artifactId>
+    <artifactId>rubrics-api</artifactId>
 
     <packaging>jar</packaging>
     <properties>
@@ -32,38 +32,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>${sakai.spring.data.rest.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock-junit4</artifactId>
-            <version>2.5.1</version>
-            <scope>test</scope>
-            <!-- This is so that we only get one copy of junit. -->
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit-dep</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>

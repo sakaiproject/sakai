@@ -55,7 +55,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;

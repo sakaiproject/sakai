@@ -212,22 +212,22 @@
                     <property name="name" value="org.sakaiproject.content.api.persistence.FileConversionQueueItem"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Rubric"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.Rubric"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Criterion"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.Criterion"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Rating"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.Rating"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.Evaluation"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.Evaluation"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.ReturnedEvaluation"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.ReturnedEvaluation"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
-                    <property name="name" value="org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation"/>
+                    <property name="name" value="org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation"/>
                 </bean>
                 <bean parent="org.sakaiproject.ignite.cache.atomic">
                     <property name="name" value="org.sakaiproject.hbm.privacy.PrivacyRecord"/>

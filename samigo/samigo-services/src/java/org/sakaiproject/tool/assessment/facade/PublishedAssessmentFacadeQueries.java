@@ -46,9 +46,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -1077,7 +1077,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
-				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
 				rubricsService.softDeleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
@@ -2792,7 +2792,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
     	assessment.setLastModifiedDate(new Date());
     	assessment.setStatus(AssessmentIfc.ACTIVE_STATUS);
 
-    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+    	RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.api.RubricsService");
     	rubricsService.restoreRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedAssessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 
     	int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();

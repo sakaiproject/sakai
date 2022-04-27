@@ -344,8 +344,7 @@
 			</h:panelGroup>
 		</h:panelGrid>
 		<sakai-rubric-association style="margin-left:20px;display:none"
-
-			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+            site-id='<h:outputText value="#{ForumTool.siteId}" />'
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'

@@ -9,7 +9,6 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     super();
 
-    this.token = "";
     this.criterion = {};
     this.criterionClone = {};
   }
@@ -17,7 +16,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
+      siteId: { attribute: "site-id", type: String },
+      rubricId: { attribute: "rubric-id", type: String },
       criterion: { type: Object, notify: true }
     };
   }
@@ -137,32 +137,37 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
 
     e.stopPropagation();
 
-    const edited = {
-      title: document.getElementById(`criterion-title-field-${this.criterion.id}`).value,
-      description: document.getElementById(`criterion-description-field-${this.criterion.id}`).value
-    };
+    const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
+    const description = document.getElementById(`criterion-description-field-${this.criterion.id}`).value;
 
-    $.ajax({
-      url: `/rubrics-service/rest/criterions/${this.criterion.id}`,
-      headers: {"authorization": this.token},
+    const body = JSON.stringify([
+      { "op": "replace", "path": "/title", "value": title },
+      { "op": "replace", "path": "/description", "value": description },
+    ]);
+
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${this.criterion.id}`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json-patch+json" },
       method: "PATCH",
-      contentType: "application/json",
-      data: JSON.stringify(edited)
+      body
     })
-      .done(data => this.updateUi(data))
-      .fail((jqXHR, error, message) => { console.log(error); console.log(message); });
+    .then(r => {
+
+      if (r.ok) {
+        this.hideToolTip();
+        this.dispatchEvent(new CustomEvent('criterion-edited', { detail: { id: this.criterion.id, title, description } }));
+        this.dispatchEvent(new SharingChangeEvent());
+      }
+
+      throw new Error("Network error while updating criterion");
+    })
+    .catch (error => console.error(error));
 
     // hide the popover
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {detail: this.criterion}));
     $(`#edit_criterion_${this.criterion.id}`).hide();
-  }
-
-  updateUi(data) {
-
-    this.hideToolTip();
-    this.dispatchEvent(new CustomEvent('criterion-edited', {detail: {id: data.id, title: data.title, description: data.description}}));
-    this.dispatchEvent(new SharingChangeEvent());
   }
 
   openEditWithKeyboard(e) {

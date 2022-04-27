@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-service-api</artifactId>
+            <artifactId>rubrics-api</artifactId>
         </dependency>
         <!-- ScoringService integration -->
         <dependency>
@@ -143,7 +143,15 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

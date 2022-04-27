@@ -192,7 +192,7 @@
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-                <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService"/>
+                <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
                </bean>
         </property>
         

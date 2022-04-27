@@ -440,9 +440,9 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
 	/**
-	 ** Get user's preferred locale (or null if not set)
-	 ** if userId is blank return Locale.getDefault
-	 ***/
+	 * Get user's preferred locale (or null if not set)
+	 * if userId is blank return Locale.getDefault
+	 **/
 	public Locale getLocale(String userId)
 	{
 		Locale loc = null;

@@ -4,7 +4,7 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
   lightbox: null,
   windowRef: window != window.top ? window.top : window,
 
-  initLightbox(token, i18n) {
+  initLightbox(i18n, siteId) {
 
     const rubrics = window.top.rubrics;
 
@@ -30,7 +30,7 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
       <div class="rubrics-lightbox" tabindex="0" style="display:none">
         <div class="container">
           <a href="#" aria-label="${i18n.close_dialog}">&times;</a>
-          <sakai-rubric-student token="${token}"></sakai-rubric-student>
+          <sakai-rubric-student site-id="${siteId}"></sakai-rubric-student>
         </div>
       </div>
     `);

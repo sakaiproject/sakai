@@ -54,7 +54,7 @@ This section contains the options for grading this assignment, including rubrics
 			## Rubrics
 			<div class="form-group">
 				<sakai-rubric-association
-					token="$!rbcs-token"
+                    site-id="$siteId"
 					dont-associate-label="$tlang.getString("dont.associate.label")"
 					dont-associate-value="0"
 					associate-label="$tlang.getString("associate.label")"

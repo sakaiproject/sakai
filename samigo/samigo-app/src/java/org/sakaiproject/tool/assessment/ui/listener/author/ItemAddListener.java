@@ -53,8 +53,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;

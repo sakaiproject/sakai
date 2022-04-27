@@ -18,8 +18,8 @@
 		<property name="sectionManager" ref="org.sakaiproject.section.api.SectionManager"/>
 		<property name="groupProvider" ref="org.sakaiproject.authz.api.GroupProvider"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+		<property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService" />

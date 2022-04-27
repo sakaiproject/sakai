@@ -27,7 +27,6 @@ export class SakaiRubricEdit extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
       rubric: { type: Object }
     };
   }

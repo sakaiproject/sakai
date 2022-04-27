@@ -35,8 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 

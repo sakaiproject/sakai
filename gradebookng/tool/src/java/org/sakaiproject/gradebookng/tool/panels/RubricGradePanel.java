@@ -35,7 +35,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 
 public class RubricGradePanel extends BasePanel {
 
@@ -71,11 +71,11 @@ public class RubricGradePanel extends BasePanel {
 
         final WebMarkupContainer sakaiRubricGrading = new WebMarkupContainer("sakai-rubric-grading");
         sakaiRubricGrading.add(AttributeModifier.append("id", assignmentId));
+        sakaiRubricGrading.add(AttributeModifier.append("site-id", getCurrentSiteId()));
         sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
-        sakaiRubricGrading.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
         form.add(sakaiRubricGrading);
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {

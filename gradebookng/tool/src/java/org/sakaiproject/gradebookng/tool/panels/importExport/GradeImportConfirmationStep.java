@@ -52,14 +52,14 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 
 /**
  * Confirmation page for what is going to be imported
@@ -420,9 +420,9 @@ public class GradeImportConfirmationStep extends BasePanel {
 					String rubricId = optPgi.get().getRubricParameters().get(RubricsConstants.RBCS_LIST);
 					if (rubricId != null) {
 						try {
-							Optional<Rubric> optRubric = rubricsService.getRubric(Long.parseLong(rubricId));
+							Optional<RubricTransferBean> optRubric = rubricsService.getRubric(Long.parseLong(rubricId));
 							if (optRubric.isPresent()) {
-								rubricTitle = optRubric.get().getTitle();
+								rubricTitle = optRubric.get().title;
 							}
 						} catch (Exception e) {
 							log.error("Failed to get rubric for id {}", rubricId, e);

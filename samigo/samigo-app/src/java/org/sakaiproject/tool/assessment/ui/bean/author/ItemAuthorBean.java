@@ -77,7 +77,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;

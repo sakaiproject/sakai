@@ -33,7 +33,6 @@ import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -43,6 +42,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 
 /**
  * The panel for the add and edit grade item window

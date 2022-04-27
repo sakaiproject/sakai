@@ -321,7 +321,6 @@ function toPoint(id)
           <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              token='<h:outputText value="#{submissionStatus.rbcsToken}"/>'
               tool-id="sakai.samigo"
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'

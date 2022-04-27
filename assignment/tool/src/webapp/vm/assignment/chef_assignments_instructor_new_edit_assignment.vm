@@ -1698,7 +1698,6 @@ function showExternalIframe(title, doreload) {
 			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-		<input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

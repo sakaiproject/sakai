@@ -197,7 +197,6 @@
 
             <% if (hasAssociatedRubric) { %>
                 <sakai-rubric-grading
-                    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
                     tool-id="sakai.gradebookng"
                     entity-id='<%= entityId %>'
                     evaluated-item-id='<%= rbcsEvaluationId %>'

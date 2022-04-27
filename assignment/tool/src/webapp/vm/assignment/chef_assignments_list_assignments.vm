@@ -256,12 +256,11 @@
 
 										#assignmentIcons($assignment)
 
-										#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+										#if ($rubricMap.get($assignment.getId()))
 										<sakai-rubric-student-button
-											token="$!rbcs-token"
-											tool-id="sakai.assignment"
-											evaluated-item-id="$submission.Id"
-											entity-id="$assignment.Id"
+                                            force-preview
+                                            rubric-id="$rubricMap.get($assignment.getId())"
+                                            site-id="$assignment.getContext()"
 											instructor="true">
 										</sakai-rubric-student-button>
 										#end
@@ -313,9 +312,10 @@
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
 											#assignmentIcons($assignment)
-											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+										    #if ($rubricMap.get($assignment.getId()))
 												<sakai-rubric-student-button
-													token="$!rbcs-token"
+                                                    site-id="$assignment.getContext()"
+                                                    rubric-id="$rubricMap.get($assignment.getId())"
 													tool-id="sakai.assignment"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
@@ -324,9 +324,10 @@
 										#else
 											$formattedText.escapeHtml($assignment.Title)
 											#assignmentIcons($assignment)
-											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+										    #if ($rubricMap.get($assignment.getId()))
 												<sakai-rubric-student-button
-													token="$!rbcs-token"
+                                                    site-id="$assignment.getContext()"
+                                                    rubric-id="$rubricMap.get($assignment.getId())"
 													tool-id="sakai.assignment"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
@@ -403,7 +404,7 @@
 												#set($submissionId=$submission.Id)
 											#end
 											<sakai-rubric-student-button
-												token="$!rbcs-token"
+                                                site-id="$assignment.getContext()"
 												tool-id="sakai.assignment"
 												evaluated-item-id="$submissionId"
 												entity-id="$assignment.Id">

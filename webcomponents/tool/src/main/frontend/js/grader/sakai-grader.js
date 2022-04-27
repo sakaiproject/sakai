@@ -342,7 +342,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <sakai-rubric-grading-button
               id="grader-rubric-link"
               title="${this.assignmentsI18n.grading_rubric}"
-              token="${this.token}"
+              site-id="${portal.siteId}"
               tool-id="${this.toolId}"
               entity-id="${this.entityId}"
               evaluated-item-id="${this.submission.id}"
@@ -350,7 +350,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               @click=${this.toggleRubric}></sakai-rubric-grading-button>
             <div id="rubric-panel" title="${this.i18n.rubric}" style="display: none;">
               <sakai-rubric-grading
-                token="${this.token}"
+                site-id="${portal.siteId}"
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.submission.id}"

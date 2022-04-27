@@ -21,7 +21,7 @@ export class SakaiRubricGrading extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
+      siteId: { attribute: "site-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       entityId: { attribute: "entity-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
@@ -36,21 +36,6 @@ export class SakaiRubricGrading extends RubricsElement {
       rubric: { type: Object },
       enablePdfExport: {attribute: "enable-pdf-export", type: Object}
     };
-  }
-
-  set token(newValue) {
-
-    if (!newValue.startsWith("Bearer")) {
-      this._token = `Bearer ${  newValue}`;
-    } else {
-      this._token = newValue;
-    }
-
-    this.getAssociation();
-  }
-
-  get token() {
-    return this._token;
   }
 
   set entityId(value) {
@@ -89,12 +74,12 @@ export class SakaiRubricGrading extends RubricsElement {
           <span>${this.rubric.title}</span>
           ${this.enablePdfExport ? html`
             <sakai-rubric-pdf
-                rubricTitle="${this.rubric.title}"
-                rubricId="${this.rubric.id}"
-                token="${this.token}"
-                toolId="${this.toolId}"
-                entityId="${this.entityId}"
-                evaluatedItemId="${this.evaluatedItemId}"
+                rubric-title="${this.rubric.title}"
+                site-id="${this.siteId}"
+                rubric-id="${this.rubric.id}"
+                tool-id="${this.toolId}"
+                entity-id="${this.entityId}"
+                evaluated-item-id="${this.evaluatedItemId}"
             />
           ` : ""}
         </h3>
@@ -209,40 +194,7 @@ export class SakaiRubricGrading extends RubricsElement {
 
     console.debug("release");
 
-    // If there are no criteria, this evaluation has been cancelled.
-    if (this.criteria.length == 0) return;
-
-    this.dispatchRatingChanged(this.criteria, 2).then(evaluation => {
-
-      // We've saved the new returned evaluation. We now need to save the returned, backup copy.
-
-      this.getReturnedEvaluation(evaluation.id).then(retEval => {
-
-        retEval.overallComment = evaluation.overallComment;
-        retEval.criterionOutcomes = evaluation.criterionOutcomes;
-        retEval.criterionOutcomes.forEach(co => { delete co.id; delete co._links; });
-
-        const url = `/rubrics-service/rest/returned-evaluations${retEval?.id ? `/${retEval.id}` : ""}`;
-        fetch(url, {
-          body: JSON.stringify(retEval),
-          credentials: "same-origin",
-          headers: {
-            "Authorization": this.token,
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          method: retEval?.id ? "PUT" : "POST",
-        })
-        .then(r => {
-
-          if (!r.ok) {
-            throw new Error("Server error while saving returned evaluation");
-          }
-        })
-        .catch(error => console.error(error));
-      })
-      .catch(error => console.error(error));
-    });
+    this.dispatchRatingChanged(this.criteria, 2);
   }
 
   save() {
@@ -338,12 +290,13 @@ export class SakaiRubricGrading extends RubricsElement {
 
     const evaluation = {
       evaluatorId: getUserId(),
+      id: this.evaluation.id,
       evaluatedItemId: this.evaluatedItemId,
       evaluatedItemOwnerId: this.evaluatedItemOwnerId,
       evaluatedItemOwnerType: this.group ? "GROUP" : "USER",
       overallComment: "",
       criterionOutcomes: crit,
-      toolItemRubricAssociation: this.association._links.self.href,
+      associationId: this.association.id,
       status,
     };
 
@@ -351,24 +304,20 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluation.metadata = this.evaluation.metadata;
     }
 
-    return this.saveEvaluation(evaluation, status);
+    return this.saveEvaluation(evaluation);
   }
 
   saveEvaluation(evaluation) {
 
     console.debug("saveEvaluation");
 
-    let url = "/rubrics-service/rest/evaluations";
-    if (this.evaluation && this.evaluation.id) url += `/${this.evaluation.id}`;
+    let url = `/api/sites/${this.siteId}/rubric-evaluations`;
+    if (this.evaluation?.id) url += `/${this.evaluation.id}`;
     return fetch(url, {
       body: JSON.stringify(evaluation),
-      credentials: "same-origin",
-      headers: {
-        "Authorization": this.token,
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      method: this.evaluation && this.evaluation.id ? "PATCH" : "POST"
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      method: this.evaluation?.id ? "PUT" : "POST",
     })
     .then(r => {
 
@@ -392,11 +341,10 @@ export class SakaiRubricGrading extends RubricsElement {
 
     if (!this?.evaluation?.id) return;
 
-    const url = `/rubrics-service/rest/evaluations/${this.evaluation.id}`;
+    const url = `/api/sites/${this.siteId}/rubric-evaluations/${this.evaluation.id}`;
     fetch(url, {
-      credentials: "same-origin",
-      headers: { "Authorization": this.token, },
-      method: "DELETE"
+      credentials: "include",
+      method: "DELETE",
     })
     .then(r => {
 
@@ -522,100 +470,91 @@ export class SakaiRubricGrading extends RubricsElement {
 
     if (this.evaluation.status !== "DRAFT") return;
 
-    // Get the evaluation from session storage. This should be the last non draft evaluation that
-    // the server originally sent before the user started setting ratings. Save it baack to the
-    // server.
-    this.getReturnedEvaluation(this.evaluation.id).then(retEval => {
+    const url = `/api/sites/${this.siteId}/rubric-evaluations/${this.evaluation.id}/cancel`;
 
-      if (retEval?.id) {
-        this.evaluation.criterionOutcomes = retEval.criterionOutcomes;
-        this.evaluation.overallComment = retEval.overallComment;
-        this.evaluation.status = 2;
+    fetch(url, { credentials: "include" })
+    .then(r => {
 
-        // Save cached evaluation and reset the criteria ready for rendering
-        this.saveEvaluation(this.evaluation).then(() => {
-
-          // Unset any ratings
-          this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
-          // And set the original ones
-          this.decorateCriteria();
-          this.updateTotalPoints();
-        });
-      } else {
-        this.deleteEvaluation();
+      if (r.ok) {
+        return r.json();
       }
-    }).catch(error => console.error(error));
+
+      throw new Error("Failed to cancel rubric evaluation");
+    })
+    .then(restored => {
+
+      this.evaluation = restored;
+      // Unset any ratings
+      this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
+      // And set the original ones
+      this.decorateCriteria();
+      this.updateTotalPoints();
+    })
+    .catch(error => console.error(error));
   }
 
   getAssociation() {
 
     console.debug("getAssociation");
 
-    if (!this.toolId || !this.entityId || !this.token || !this.evaluatedItemId) {
+    if (!this.toolId || !this.entityId || !this.evaluatedItemId) {
       return;
     }
 
-    const url = `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`;
-    fetch(url, {
-      credentials: "same-origin",
-      headers: { "Authorization": this.token, "Accept": "application/json" },
-    })
+    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
+    fetch(url, { credentials: "include" })
     .then(r => {
 
       if (r.ok) {
         return r.json();
       }
 
-      throw new Error(`Failed to retrieve association from ${url}. Status: ${r.status}`);
+      throw new Error("Network error while getting association");
     })
-    .then(data => {
+    .then(association => {
 
-      this.association = data._embedded['rubric-associations'][0];
-      this.rubricId = data._embedded['rubric-associations'][0].rubricId;
+      this.association = association;
+      this.rubricId = association.rubricId;
       this.getRubric(this.rubricId);
     })
-    .catch(error => console.error(error));
+    .catch (error => console.error(error));
   }
 
   getRubric(rubricId) {
 
     console.debug("getRubric");
 
-    const url = `/rubrics-service/rest/rubrics/${rubricId}?projection=inlineRubric`;
-    fetch(url, {
-      credentials: "same-origin",
-      headers: { "Authorization": this.token, "Accept": "application/json" },
-    })
+    const rubricUrl = `/api/sites/${this.siteId}/rubrics/${rubricId}`;
+    fetch(rubricUrl, { credentials: "include" })
     .then(r => {
 
       if (r.ok) {
         return r.json();
       }
 
-      throw new Error(`Failed to retrieve rubric from ${url}. Status: ${r.status}`);
+      throw new Error("Network error while getting rubric");
     })
     .then(rubric => {
 
-      const evaluationUrl = `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
-      fetch(evaluationUrl, {
-        credentials: "same-origin",
-        headers: { "Authorization": this.token },
-      })
+      const url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+      fetch(url, { credentials: "include" })
       .then(r => {
 
         if (r.ok) {
           return r.json();
         }
 
-        throw new Error(`Failed to retrieve evaluation from ${evaluationUrl}. Status: ${r.status}`);
+        if (r.status !== 404) {
+          throw new Error("Network error while getting evaluation");
+        }
       })
-      .then(data => {
+      .then(evaluation => {
 
-        this.evaluation = data._embedded.evaluations[0] || { criterionOutcomes: [] };
+        this.evaluation = evaluation || { criterionOutcomes: [] };
 
         this.rubric = rubric;
 
-        this.criteria = this.rubric.criterions;
+        this.criteria = this.rubric.criteria;
         this.criteria.forEach(c => {
 
           c.pointoverride = "";
@@ -632,28 +571,6 @@ export class SakaiRubricGrading extends RubricsElement {
       .catch(error => console.error(error));
     })
     .catch(error => console.error(error));
-  }
-
-  getReturnedEvaluation(originalEvaluationId) {
-
-    console.debug("getReturnedEvaluation");
-
-    const returnedUrl = `/rubrics-service/rest/returned-evaluations/search/by-original-evaluation-id?id=${originalEvaluationId}`;
-    return fetch(returnedUrl, {
-      credentials: "same-origin",
-      headers: { "Authorization": this.token, "Accept": "application/json" },
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      } else if (r.status === 404) {
-        console.info(this.i18nLoaded.grading_404_info);
-        return Promise.resolve({ originalEvaluationId });
-      }
-
-      throw new Error("Server error while retrieving returned evaluation");
-    });
   }
 
   getToolDraftMessageKey() {
