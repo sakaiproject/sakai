@@ -35,8 +35,7 @@
 			  </div>
           </h:panelGroup>
           <h:panelGroup styleClass="itemNav specialLink">
-			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser} " />
-            <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser}" style="padding-right: 5px;"/>
             <h:commandLink action="#{mfStatisticsBean.processExportDataTableByUser}" value="#{msgs.stat_explort_table}" title="#{msgs.stat_explort_table}" />
             <h:outputText value="#{msgs.cdfm_toolbar_separator} " />
 			<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}" title="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>
