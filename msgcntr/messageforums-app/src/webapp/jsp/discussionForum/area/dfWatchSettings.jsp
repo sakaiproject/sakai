@@ -28,15 +28,15 @@
           </script>
 				<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 <!--jsp/discussionForum/area/dfWatchSettings.jsp-->
-				<div class="page-header">
-					<h1 id="notifications_options_head"><h:outputText value="#{msgs.watch_forums_options}" /></h1>
-				</div>
-				<div>
-					<h:outputText escape="false" value="#{msgs.watch_forums_options_instruction}" />
-					<h:outputText  styleClass="sak-banner-info" escape="false" value="#{msgs.watch_forums_options_instruction_note}" />
-                    <f:verbatim><br/></f:verbatim>
+		<div class="page-header">
+		    <h1 id="notifications_options_head"><h:outputText value="#{msgs.watch_forums_options}" /></h1>
+		</div>
+		<div>
+		      <h:outputText escape="false" value="#{msgs.watch_forums_options_instruction}" />
+		      <h:outputText  styleClass="sak-banner-info" escape="false" value="#{msgs.watch_forums_options_instruction_note}" />
+                      <f:verbatim><br/></f:verbatim>
                 </div>
-				<h:panelGroup>
+		<h:panelGroup>
                       <h:outputText style="display:block" id="notify_for_all_postings_head" escape="false" value="#{msgs.notify_for_all_postings_head}" />
                       <ul style="list-style: none;">
                           <li>
