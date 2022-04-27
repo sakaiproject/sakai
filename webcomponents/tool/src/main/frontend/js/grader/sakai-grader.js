@@ -553,11 +553,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancelRubric() {
 
-    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    const rubricGradingElem = document.getElementsByTagName("sakai-rubric-grading");
+    if (rubricGradingElem.length <= 0) {
+      return;
+    }
+    const rubricGrading = rubricGradingElem.item(0);
     rubricGrading && rubricGrading.cancel();
-
-    this.rubricShowing = true;
-    this.doneWithRubricDialog();
+    this.rubricShowing && this.doneWithRubricDialog();
   }
 
   replaceWithEditor(id) {
@@ -905,6 +907,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancel() {
 
+    if (!this.canNavigate()) {
+      return;
+    }
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions.splice(i, 1, originalSubmission);
