@@ -58,6 +58,19 @@
   				    <h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
 	          	</h:commandLink>
 			</h:column>
+			<h:column rendered="#{!mfStatisticsBean.pureAnon}">
+				<f:facet name="header">
+					<h:commandLink action="#{mfStatisticsBean.toggleIdSort}" title="#{msgs.stat_eid}">
+						<h:outputText value="#{msgs.stat_eid}" />
+						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.idSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_eid}"/>
+						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.idSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_eid}"/>
+					</h:commandLink>
+				</f:facet>
+				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true">
+					<f:param value="#{stat.siteUserId}" name="siteUserId"/>
+					<h:outputText value="#{stat.siteUserDisplayId}" />
+				</h:commandLink>
+			</h:column>
   			<h:column>
   				<f:facet name="header">
   					<h:commandLink action="#{mfStatisticsBean.toggleAuthoredSort}" title="#{msgs.stat_authored}">
