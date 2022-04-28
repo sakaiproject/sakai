@@ -38,15 +38,16 @@
 				styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" 
-					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
-						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
-			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
-			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
-                        <h:outputText value=" #{message.message.created}">
-  				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
-            			</h:outputText>
-				</h:panelGroup>
+                    <h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}">
+						<sakai-avatar form="square" size="22" userid="<h:outputText value='#{ForumTool.selectedMessage.message.authorId}'/>" username="<h:outputText value='#{ForumTool.selectedMessage.message.author}'/>"></sakai-avatar>
+					</h:panelGroup>
+					<h:outputText value="#{message.message.title}" styleClass="title" />		          	
+					<h:outputText value=" - #{message.anonAwareAuthor}"/>
+					<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
+					<h:outputText value=" #{message.message.created}">
+							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
+					</h:outputText>
+			</h:panelGroup>
 						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />		
 			</h:column>
 		</h:dataTable>
@@ -58,8 +59,9 @@
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 						<h:panelGroup styleClass="heading">
-						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" 
-						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
+                    <h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}">
+						<sakai-avatar form="square" size="22" userid="<h:outputText value='#{message.message.authorId}'/>" username="<h:outputText value='#{message.message.author}'/>"></sakai-avatar>
+					</h:panelGroup>
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
 			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
 			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />

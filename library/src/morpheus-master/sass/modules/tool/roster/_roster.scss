@@ -75,6 +75,10 @@
         }
     } // sakai-table-toolBar
 
+    .roster-picture-cell {
+        text-align: center;
+    }
+
     .roster-filter-totals {
         text-align: center;
         padding: $standard-spacing 0 $standard-spacing 0;
@@ -103,7 +107,7 @@
         grid-gap: 5px;
         .roster-member-card {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 1fr 3fr;
             grid-gap: 5px;
             border: 1px solid #ccc;
             @include border-radius(5px);
@@ -113,21 +117,12 @@
             width: 340px;
             padding: 5px;
 
-            .roster-picture-card {
-                margin-right: 10px;
-                min-width: 76px;
-                max-width: 76px;
-                .roster-picture {
-                    width: 100%;
-                    border: 1px solid #BBB;
-                }
-            }
-
             .roster-info-card {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 grid-gap: 3px;
                 align-content: start;
+                margin-left: 4px;
                 .roster-card-value {
                     word-wrap: break-word;
                     font-weight: bold;
@@ -214,16 +209,6 @@
 
         .roster-hide-pictures {
             display: none;
-        }
-
-        .roster-picture {
-            width: 30px;
-            height: 24px;
-            padding: 0;
-        }
-
-        .roster-picture-cell {
-            text-align: center;
         }
 
         .roster-hide-pictures {

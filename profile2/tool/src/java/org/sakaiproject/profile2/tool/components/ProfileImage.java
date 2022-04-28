@@ -44,7 +44,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class ProfileImage extends WebComponent {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private int size = ProfileConstants.PROFILE_IMAGE_MAIN; //default
 
 	public ProfileImage(String id, IModel<String> model) {
@@ -53,33 +53,13 @@ public class ProfileImage extends WebComponent {
 	
 	protected void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
-		checkComponentTag(tag, "img");
-		
+
 		String userUuid = this.getDefaultModelObjectAsString();
-		
-		//determine size
-		String sizePart = "";
-		switch (this.size) {
-			case ProfileConstants.PROFILE_IMAGE_MAIN: {
-				break;
-			}
-			case ProfileConstants.PROFILE_IMAGE_THUMBNAIL: {
-				sizePart = "/thumb";
-				break;
-			}
-			case ProfileConstants.PROFILE_IMAGE_AVATAR: {
-				sizePart = "/avatar";
-				break;
-			}
-		}
-		
-		//Force a reload
-		String url = "/direct/profile/"+userUuid + "/image" + sizePart + "?v=" + RandomStringUtils.randomAlphabetic(10);
-		
-		tag.put("src", url);
-		tag.put("alt", "User profile image");
+
+		tag.put("userid", userUuid);
+		tag.put("form", "square");
 	}
-	
+
 	/**
 	 * Use to specify ProfileConstants.PROFILE_IMAGE_THUMBNAIL or ProfileConstants.PROFILE_IMAGE_AVATAR
 	 * Leave as is to use the main size image
@@ -89,6 +69,4 @@ public class ProfileImage extends WebComponent {
 	public void setSize(int size) {
 		this.size = size;
 	}
-	
-	
 }

@@ -73,6 +73,7 @@ function sakaiThemeSwitcher(){
     function toggleDarkTheme() {
         // toggle the dark theme switch to the opposite state
         darkThemeSwitcher && darkThemeSwitcher.getAttribute("aria-checked") === "false" ? enableDarkTheme() : enableLightTheme();
+        document.body.dispatchEvent(new Event("theme-changed"));
     }
 
     function enableDarkTheme() {

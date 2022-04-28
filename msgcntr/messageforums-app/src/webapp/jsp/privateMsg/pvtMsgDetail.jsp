@@ -133,9 +133,11 @@
                     <f:subview id="authorImage" rendered="#{PrivateMessagesTool.showProfileInfoMsg}">
                         <h:panelGroup styleClass="authorImage">
                             <h:outputLink value="#{PrivateMessagesTool.serverUrl}/direct/portal/#{PrivateMessagesTool.detailMsg.msg.authorId}/formatted" styleClass="authorProfile" rendered="#{PrivateMessagesTool.showProfileLink}">
-                                <h:graphicImage value="#{PrivateMessagesTool.serverUrl}/direct/profile/#{PrivateMessagesTool.detailMsg.msg.authorId}/image/thumb" alt="#{message.message.author}" />
+                                <sakai-avatar form="square" size="145" userid="<h:outputText value='#{PrivateMessagesTool.detailMsg.msg.authorId}'/>" username="<h:outputText value='#{message.message.author}'/>"></sakai-avatar>
                             </h:outputLink>
-                            <h:graphicImage value="#{PrivateMessagesTool.serverUrl}/direct/profile/#{PrivateMessagesTool.detailMsg.msg.authorId}/image/thumb" alt="#{message.message.author}" rendered="#{!PrivateMessagesTool.showProfileLink}"/>
+                            <h:panelGroup rendered="#{!PrivateMessagesTool.showProfileLink}">
+                                <sakai-avatar form="square" size="145" userid="<h:outputText value='#{PrivateMessagesTool.detailMsg.msg.authorId}'/>" username="<h:outputText value='#{message.message.author}'/>"></sakai-avatar>
+                            </h:panelGroup>
                         </h:panelGroup>
                     </f:subview>
                 </div>

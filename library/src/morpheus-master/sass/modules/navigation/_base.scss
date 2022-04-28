@@ -463,15 +463,6 @@ body.is-logged-out{
 		@include display-flex;
 		@include align-items( center );
 
-		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
-			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
-		{
-				box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.2);
-		}
-		&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture {
-			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.6);
-		}
-
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username,
 			&.has-avatar:hover .has-avatar .#{$namespace}userNav__submenuitem--userid
 		&.has-avatar:active .#{$namespace}userNav__submenuitem--username,
@@ -536,52 +527,6 @@ body.is-logged-out{
 		.#{$namespace}userNav__submenuitem--profilelink{
 			padding: 0 !important;
 		}
-		.#{$namespace}userNav__submenuitem--profilepicture,
-		.#{$namespace}userNav__submenuitem--profilepicture-static{
-			width: 2.3em;
-			height: 2.3em;
-			display:inline-block;
-			background-size: auto 100%;
-			background-position: 50%;
-			border-radius:50%;
-			border: $top-header-profile-border-thickness solid var(--top-header-profile-border-color-top);
-			border-right-color: var(--top-header-profile-border-color-right);
-			border-bottom-color: var(--top-header-profile-border-color-bottom);
-			border-left-color: var(--top-header-profile-border-color-left);
-			border-radius: 50%;
-			box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner);
-			position: relative;
-		}
-		.#{$namespace}userNav__submenuitem--profilepicture{
-			&:hover, &:active
-			{
-					box-shadow:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.2);
-			}
-			&:active {
-				background:inset 0 0 0 2px var(--top-header-profile-border-color-inner), 0 0 0 2px rgba(0,0,0,.4);
-			}
-			@media #{$phone}
-			{
-				margin-right: 0;
-			}
-		}
-		.#{$namespace}userNav__submenuitem--profilelink:focus > .#{$namespace}userNav__pic-changer,
-			.#{$namespace}userNav__pic-changer:hover{
-				overflow: hidden;
-				&:after {
-					content: 'Change';
-					background: var(--sakai-background-color-3);
-					color: var(--sakai-text-color-inverted);
-					position: absolute;
-					bottom: 0px;
-					font-size: 10px;
-					width: 100%;
-					text-align: center;
-					padding: 0 0 4px;
-					box-shadow: -1px 0 3px var(--sakai-background-color-3);
-				}
-			}
-		
 		.#{$namespace}userNav__submenuitem--username span.textlink, .#{$namespace}userNav__submenuitem--userid span.textlink {
 			@media #{$phone}{
 				display: none;

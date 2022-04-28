@@ -244,7 +244,7 @@ var chatscript = {
 				messageItem.attr("data-message-id", messageId);
 				messageItem.attr("data-owner-id", ownerId);
 				messageItem.attr("data-millis", messageDate);
-				messageItem.find(".chatUserAvatar").css("background-image", "url(/direct/profile/" + ownerId + "/image)");
+				messageItem.find(".chatUserAvatar > sakai-avatar").attr("userid", ownerId);
 				messageItem.find(".chatMessage").attr("data-message-id", messageId);
 				messageItem.find(".chatName").attr("id", ownerId);
 				messageItem.find(".chatName").text(ownerDisplayName);

@@ -132,7 +132,7 @@
     if (social) {
       return `
         ${header}
-          <div class="portal-bullhorn-photo" style="background-image:url(/direct/profile/${alert.fromUser}/image/thumb)"></div>
+          <sakai-avatar size="32" userid="${alert.fromUser}"></sakai-avatar>
           <div class="portal-bullhorn-message">
             <div>
               <a href="${alert.url}" class="portal-bullhorn-connectionmanager-pending">${message}</a>

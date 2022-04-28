@@ -7,6 +7,7 @@
     <li id="chatListItem" class="hide">
         <c:out value="
             <span class=\"chatUserAvatar\">
+                <sakai-avatar size=\"42\"></sakai-avatar>
                 <span class=\"chatUserOnline\"></span>
             </span>
             <span class=\"chatNameDate\">
@@ -38,9 +39,12 @@
                 <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' data-millis='${message.timeInMillis}'>" escapeXml="false" />
             </c:otherwise>
         </c:choose>        
-            <c:out value="<span class='chatUserAvatar' style=\"background-image: url(/direct/profile/${message.chatMessage.owner}/image)\">" escapeXml="false"/>
-            <c:out value="<span class='chatUserOnline'></span>" escapeXml="false" />
-            <c:out value="</span>" escapeXml="false" />
+            <c:out value="
+                <span class='chatUserAvatar'>
+                    <sakai-avatar size=\"42\" userid=\"${message.chatMessage.owner}\"></sakai-avatar>
+                    <span class='chatUserOnline'></span>
+                </span>
+            " escapeXml="false" />
 
             <c:out value="<span class='chatNameDate'><span class='chatName'>${fn:escapeXml(message.owner)}</span>" escapeXml="false" />
             <c:set var="chatDate" value="" />

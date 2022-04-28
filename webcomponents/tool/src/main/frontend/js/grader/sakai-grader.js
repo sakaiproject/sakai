@@ -185,7 +185,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           </select>
           ${this.showPhoto() ? html`
             <span class="profile-image">
-              <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}"/>
+              <sakai-avatar size="26" form="square" userid="${this.submission.firstSubmitterId}" official siteid=${portal.siteId}" username="${this.submission.firstSubmitterName}" />
             </span>
           ` : ""}
           <a href="javascript:;" @click=${this.next}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
@@ -260,8 +260,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <div style="display: flex;">
             ${this.showPhoto() ? html`
               <div class="profile-image" style="flex: 1;">
-                <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}"
-                      alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}" />
+                <sakai-avatar size="64" form="square" userid="${this.submission.firstSubmitterId}" official siteid=${portal.siteId}" username="${this.submission.firstSubmitterName}" />
               </div>
             ` : ""}
             <div class="submitted-time" style="flex: 4;">

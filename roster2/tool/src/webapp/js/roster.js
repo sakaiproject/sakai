@@ -6,20 +6,8 @@ roster.setupPrintButton = function () {
 
   $('.roster-print-button').click(function (e) {
 
-    var button = $(this);
-
-    button.prop('disabled', true);
-
     e.preventDefault();
-    roster.renderMembership({renderAll: true, callback: function () {
-
-        $('#roster-members-content').waitForImages(function () {
-
-          button.prop('disabled', false);
-          window.print();
-        });
-      }
-    });
+    window.print();
   });
 };
 
@@ -394,12 +382,6 @@ roster.renderMembership = function (options) {
 
       members.forEach(function (m) {
 
-        m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
-        if (roster.officialPictureMode) {
-          m.profileImageUrl += "/official";
-        }
-        m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
-
         var groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
         m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
@@ -581,7 +563,9 @@ roster.renderMembers = function (members, target, enrollmentsMode, renderAll, op
           viewProfile: roster.currentUserPermissions.viewProfile,
           viewGroup : roster.currentUserPermissions.viewGroup,
           viewPicture: true,
+          siteId: roster.siteId,
           currentUserId: roster.userId,
+          officialPictureMode: roster.officialPictureMode,
           viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
           enrollmentsMode: enrollmentsMode,
           viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,

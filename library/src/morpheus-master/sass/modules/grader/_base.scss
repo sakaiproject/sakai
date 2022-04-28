@@ -58,9 +58,8 @@ sakai-grader {
       .grader-navigator a { text-decoration: none; font-weight: bold; }
       .profile-image {
         margin-right: 6px;
-        img {
-          height: 26px;
-        }
+        display: inline-block;
+        vertical-align: middle;
       }
     }
   }
@@ -159,7 +158,6 @@ sakai-grader {
 
     .profile-image {
       margin-right: 6px;
-      img { width: 64px; }
     }
 
     .active-indicator {

@@ -3,9 +3,9 @@
     {{#if ../viewPicture}}
         <td class="roster-picture-cell">
         {{#if ../viewProfile}}
-            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
+            <a href="javascript:;" class="profile component-wrapping-link-inline" data-user-id="{{userId}}">
         {{/if}}
-            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
+                <sakai-avatar size="28" form="square" userid="{{userId}}" siteid="{{../siteId}}" official="true" username="{{displayName}}"></sakai-avatar>
         {{#if ../viewProfile}}
             </a>
         {{/if}}

@@ -516,22 +516,7 @@ form{margin-bottom:0;}
 	padding-right: .25em;
 	padding-bottom: .3em;
 }
-.authorImage img{
-	max-width: 8em;
-	max-height: 5em;
-}
-.singleMessage .authorImage img{
-	max-width: 5em;
-	max-height: 4em;
-}
-img.authorImage {
-	display: inline-block;
-	float: none;
-	max-width: 3.5em;
-	max-height: 2.5em;
-	width: auto !important;
-	vertical-align: bottom !important;
-}
+
 .anonymousAuthor {
 	font-family: Consolas,monaco,"Lucida Console","Lucida Sans Typewriter","Bitstream Vera Sans Mono","Andale Mono",AndaleMono,monospace;
 	font-size: 1.2em;

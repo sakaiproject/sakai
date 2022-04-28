@@ -178,21 +178,18 @@ function loadPicEditor(event) {
 
     function refreshProfileImageTagsAndHideDialog() {
 
-        const d = new Date();
-
-        const picProfile = $PBJQ('#myPhoto');
-        if (picProfile) {
-            picProfile.attr("src", `/direct/profile/${portal.user.id}/image?${d.getTime()}`);
-        }
-
-        const style = `background-image: url(/direct/profile/${portal.user.id}/image/thumb?${d.getTime()})`;
-
-        let picLink = $PBJQ('.Mrphs-userNav__drop-btn > .Mrphs-userNav__submenuitem--profilepicture');
-        picLink.attr('style', style);
+        var picLink = $PBJQ('#loginUser > .Mrphs-userNav__submenuitem--profilepicture');
+        var parent = picLink.parent();
+        picLink.detach();
+        parent.prepend(picLink);
 
         picLink = $PBJQ('.Mrphs-userNav__submenuitem--profilelink > .Mrphs-userNav__submenuitem--profilepicture');
-        picLink.attr('style', style);
+        parent = picLink.parent();
+        picLink.detach();
+        parent.prepend(picLink);
 
+        //A cachebusting avatar component will listen to the avatar-changed event
+        document.body.dispatchEvent(new Event("avatar-changed"));
         $PBJQ('#profileImageUpload').modal('hide');
     }
 
@@ -267,7 +264,7 @@ function loadPicEditor(event) {
     });
 
     return false;
-};
+}
 
 var header = $PBJQ(".Mrphs-topHeader");
 var currentHeaderWidth = -1;

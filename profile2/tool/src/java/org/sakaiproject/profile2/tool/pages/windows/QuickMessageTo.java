@@ -51,7 +51,7 @@ public class QuickMessageTo extends Panel {
 
         //window setup
 		window.setTitle(new ResourceModel("title.message.compose")); 
-		//window.setInitialHeight(150);
+		
 		//window.setInitialWidth(500);
 		window.setResizable(false);
 		

@@ -29,7 +29,7 @@
 			<%-- author image --%>
 			<h:panelGroup rendered="#{!message.deleted && ForumTool.showProfileInfo && !message.useAnonymousId}" styleClass="authorImage">
 				<h:outputLink value="#{ForumTool.serverUrl}/direct/portal/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}" >
-					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" />
+					<sakai-avatar form="square" size="70" userid="<h:outputText value='#{message.message.authorId}'/>" username="<h:outputText value='#{message.message.author}'/>"></sakai-avatar>
 				</h:outputLink>
 				<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" rendered="#{!ForumTool.showProfileLink}" />
 			</h:panelGroup>

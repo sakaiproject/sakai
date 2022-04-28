@@ -517,6 +517,15 @@ label.panelGridLabel{
 		vertical-align: baseline;
 	}
 }
+.component-wrapping-link {
+	display: block;
+	width: fit-content;
+}
+
+.component-wrapping-link-inline {
+	display: inline-block;
+	width: fit-content;
+}
 
 /*** Drop files bar for Resources & Dropbox ***/
 .dropzone {
