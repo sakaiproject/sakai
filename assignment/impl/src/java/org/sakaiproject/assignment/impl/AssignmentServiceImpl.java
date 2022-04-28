@@ -4658,7 +4658,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private void notificationToStudent(AssignmentSubmission submission, Assignment assignment) {
         if (serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true)) {
             String siteId = assignment.getContext();
-            Set<String> siteUsers = null;
+            Set<String> siteUsers = Collections.emptySet();
             try {
                 siteUsers = siteService.getSite(siteId).getUsers();
             } catch (IdUnusedException e) {
