@@ -4668,8 +4668,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     .stream()
                     .map(AssignmentSubmissionSubmitter::getSubmitter)
                     .filter(siteUsers::contains) // this filters active users
-                    .collect(Collectors.toSet())
-                    .stream()
                     .map(id -> {
                         try {
                             return userDirectoryService.getUser(id);
