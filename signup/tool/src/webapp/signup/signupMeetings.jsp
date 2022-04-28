@@ -352,7 +352,7 @@
 						<t:column>
 							<f:facet name="header">
 								<t:commandSortHeader columnName="#{SignupMeetingsBean.signupSorter.participantsColumn}" immediate="true" arrow="true">
-									<h:outputText value="#{msgs.tab_event_signed}" escape="false"/>
+									<h:outputText value="#{msgs.tab_event_particpants}" escape="false"/>
 								</t:commandSortHeader>
 							</f:facet>
 							<h:outputText value="#{wrapper.meeting.participantsNum}"/>

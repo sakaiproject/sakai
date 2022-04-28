@@ -630,7 +630,7 @@
 									<h:panelGrid columns="1" styleClass="organizerAction" columnClasses="noWrapCol">
 
 										<h:panelGroup id="folderAttendees" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
-							   				<h:outputLink title="#{msgs.event_tool_tips_lockAttendees}" onclick="showAttendeesList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
+							   				<h:outputLink title="#{msgs.event_tool_tips_waiting}" onclick="showAttendeesList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
 						   						<h:outputText value="#{OrganizerSignupMBean.getTimeslotNum(msgs.tab_event_timeslot_attendees, timeSlotWrapper.positionInTSlist, 1)}" escape="false" />	
 						   					</h:outputLink>
 						   				</h:panelGroup>
@@ -807,7 +807,7 @@
 										<h:panelGrid columns="1" rendered="#{!timeSlotWrapper.timeSlot.unlimitedAttendee}" styleClass="organizerAction">
 
 												<h:panelGroup id="folderWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
-									   				<h:outputLink title="#{msgs.event_tool_tips_lockAttendees}" onclick="showWaitingList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
+									   				<h:outputLink title="#{msgs.event_tool_tips_waiting}" onclick="showWaitingList('#{timeSlotWrapper.positionInTSlist}'); return false;" >
 								   						<h:outputText value="#{OrganizerSignupMBean.getTimeslotNum(msgs.tab_event_timeslot_waiting_list, timeSlotWrapper.positionInTSlist, 2)}" escape="false" />	
 								   					</h:outputLink>
 								   				</h:panelGroup>
