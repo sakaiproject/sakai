@@ -1,0 +1,33 @@
+{
+  "name": "vuecomponents",
+  "version": "1.0.0",
+  "description": "Sakai Vue Components",
+  "author": "",
+  "scripts": {
+    "build": "vue-cli-service build --target wc --name sakai --dest ./target/js './src/components/*'",
+    "build-dev": "node build-dev.mjs",
+    "test": "vue-cli-service test:unit --passWithNoTests"
+  },
+  "main": "js/sakai-element.js",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "node-fetch-polyfill": "^2.0.6",
+    "vue": "^2.6.14",
+    "vue-loader": "^17.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@vue/cli-plugin-unit-jest": "~4.5.13",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/test-utils": "^1.3.0",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^3.6.0",
+    "fetch-mock": "^9.10.7",
+    "postcss-loader": "^3.0.0",
+    "raw-loader": "^4.0.1",
+    "style-loader": "^1.2.1",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "keywords": [],
+  "license": "ECL-2.0"
+}
