@@ -33,7 +33,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "CONV_TOPIC_REACTIONS",
     uniqueConstraints = { @UniqueConstraint(name = "UniqueTopicReactions", columnNames = { "TOPIC_ID", "USER_ID", "REACTION" }) },
-    indexes = { @Index(columnList = "TOPIC_ID, USER_ID"), @Index(columnList = "TOPIC_ID") })
+    indexes = { @Index(name = "conv_topic_reactions_topic_user_idx", columnList = "TOPIC_ID, USER_ID"),
+                @Index(name = "conv_topic_reactions_topic_idx",columnList = "TOPIC_ID") })
 @Getter
 @Setter
 public class TopicReaction implements PersistableEntity<Long> {
@@ -43,7 +44,7 @@ public class TopicReaction implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "TOPIC_ID", nullable = false)
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
     private String topicId;
 
     @Column(name = "USER_ID", length = 99, nullable = false)

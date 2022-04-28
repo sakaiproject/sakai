@@ -26,7 +26,7 @@ import java.time.Instant;
 import lombok.Getter;
 
 @Entity
-@Table(name = "CONV_USER_STATISTICS", indexes = @Index(columnList = "USER_ID"))
+@Table(name = "CONV_USER_STATISTICS", indexes = @Index(name = "conv_user_stats_user_idx", columnList = "USER_ID"))
 @Getter
 public class UserStatistics {
 
@@ -37,7 +37,7 @@ public class UserStatistics {
     @Column(name = "USER_ID", length = 99, nullable = false)
     private String userId;
 
-    @Column(name = "TOPIC_ID")
+    @Column(name = "TOPIC_ID", length = 36)
     private String topicId;
 
     @Column(name = "NUMBER_OF_POSTS")

@@ -28,7 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "CONV_TAGS", indexes = { @Index(columnList = "SITE_ID") })
+@Table(name = "CONV_TAGS", indexes = { @Index(name = "conv_tags_site_idx", columnList = "SITE_ID") })
 @Getter
 @Setter
 public class Tag implements PersistableEntity<Long> {

@@ -31,9 +31,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "CONV_COMMENTS", indexes = { @Index(columnList = "POST_ID"),
-                                        @Index(columnList = "SITE_ID"),
-                                        @Index(columnList = "TOPIC_ID") })
+@Table(name = "CONV_COMMENTS", indexes = { @Index(name = "conv_comments_post_idx", columnList = "POST_ID"),
+                                        @Index(name = "conv_comments_site_idx", columnList = "SITE_ID"),
+                                        @Index(name = "conv_comments_topic_idx", columnList = "TOPIC_ID") })
 @Getter
 @Setter
 public class ConversationsComment implements PersistableEntity<String> {
@@ -47,7 +47,7 @@ public class ConversationsComment implements PersistableEntity<String> {
     @Column(name = "SITE_ID", length = 99, nullable = false)
     private String siteId;
 
-    @Column(name = "POST_ID", nullable = false)
+    @Column(name = "POST_ID", length = 36, nullable = false)
     private String postId;
 
     @Column(name = "TOPIC_ID", length = 36, nullable = false)
