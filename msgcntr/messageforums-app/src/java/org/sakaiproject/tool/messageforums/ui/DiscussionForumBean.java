@@ -540,15 +540,13 @@ public class DiscussionForumBean
 	}
 
 	public void setOpenDate(String openDateStr){
-		if (StringUtils.isNoneBlank(openDateStr, openDateISO)) {
+		if (StringUtils.equals(openDateStr, openDateISO)) {
 			try{
 				Date openDate = (Date) datetimeFormat.parse(openDateISO);
 				forum.setOpenDate(openDate);
 			}catch (ParseException e) {
 				log.error("Couldn't convert open date", e);
 			}
-		}else{
-			forum.setOpenDate(null);
 		}
 	}
 
@@ -561,15 +559,13 @@ public class DiscussionForumBean
 	}
 
 	public void setCloseDate(String closeDateStr){
-		if (StringUtils.isNoneBlank(closeDateStr, closeDateISO)) {
+		if (StringUtils.equals(closeDateStr, closeDateISO)) {
 			try{
 				Date closeDate = (Date) datetimeFormat.parse(closeDateISO);
 				forum.setCloseDate(closeDate);
 			}catch (ParseException e) {
 				log.error("Couldn't convert Close date", e);
 			}
-		}else{
-			forum.setCloseDate(null);
 		}
 	}
 
