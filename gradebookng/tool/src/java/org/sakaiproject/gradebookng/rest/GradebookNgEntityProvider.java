@@ -57,12 +57,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * This entity provider is to support some of the Javascript front end pieces. It never was built to support third party access, and never
@@ -107,6 +107,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private FormattedText formattedText;
 
 	@Override
 	public String[] getHandledOutputFormats() {
@@ -234,7 +237,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkValidSite(siteId);
 		checkInstructorOrTA(siteId);
 
-		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
+		return formattedText.escapeHtml(businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid));
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
