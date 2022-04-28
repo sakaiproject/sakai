@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+<emailTemplate>
+    <subject>[${localSakaiName}] ${bundle["noti.instructorreply.subject"]?replace("{0}", siteTitle)}</subject>
+  <message>
+${bundle["noti.instructorreply.message"]?replace("{0}", topicTitle)} at:
+${postUrl}
+  </message>
+  <messagehtml>
+&lt;br /&gt;
+&lt;br /&gt;
+${bundle["noti.instructorreply.message"]?replace("{0}", topicTitle)} &lt;a href="${postUrl}"&gt;${bundle["noti.here"]}&lt;/a&gt;
+  </messagehtml>
+  <version>1</version>
+  <owner>admin</owner>
+  <key>sakai.conversations.instructorreply</key>
+  <locale></locale>
+  <localeLangTag></localeLangTag>
+</emailTemplate>
+</emailTemplates>

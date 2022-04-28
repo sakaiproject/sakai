@@ -44,10 +44,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "CONV_TOPICS", indexes = { @Index(columnList = "SITE_ID") })
+@Table(name = "CONV_TOPICS", indexes = {
+                        @Index(columnList = "SITE_ID"),
+                        @Index(columnList = "SITE_ID, CREATOR")
+                    }
+)
 @Getter
 @Setter
-public class Topic implements PersistableEntity<String> {
+public class ConversationsTopic implements PersistableEntity<String> {
 
     @Id
     @Column(name = "TOPIC_ID", length = 36, nullable = false)
@@ -99,6 +103,9 @@ public class Topic implements PersistableEntity<String> {
     @Column(name = "LOCKED")
     private Boolean locked = Boolean.FALSE;
 
+    @Column(name = "MUST_POST_BEFORE_VIEWING")
+    private Boolean mustPostBeforeViewing = Boolean.FALSE;
+
     @Column(name = "ANONYMOUS")
     private Boolean anonymous = Boolean.FALSE;
 
@@ -113,6 +120,18 @@ public class Topic implements PersistableEntity<String> {
     @Column(name = "VISIBILITY", length = 32)
     @Enumerated(EnumType.STRING)
     private TopicVisibility visibility = TopicVisibility.SITE;
+
+    @Column(name = "SHOW_DATE")
+    private Instant showDate;
+
+    @Column(name = "HIDE_DATE")
+    private Instant hideDate;
+
+    @Column(name = "LOCK_DATE")
+    private Instant lockDate;
+
+    @Column(name = "DUE_DATE")
+    private Instant dueDate;
 
     @Embedded
     private Metadata metadata;

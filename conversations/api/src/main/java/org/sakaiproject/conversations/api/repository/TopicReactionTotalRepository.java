@@ -24,7 +24,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface TopicReactionTotalRepository extends SpringCrudRepository<TopicReactionTotal, Long> {
 
-    List<TopicReactionTotal> findByTopic_Id(String topicId);
-    Optional<TopicReactionTotal> findByTopic_IdAndReaction(String topicId, Reaction reaction);
-    Integer deleteByTopic_Id(String topicId);
+    List<TopicReactionTotal> findByTopicId(String topicId);
+    Optional<TopicReactionTotal> findByTopicIdAndReaction(String topicId, Reaction reaction);
+    Integer deleteByTopicId(String topicId);
 }

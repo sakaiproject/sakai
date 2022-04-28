@@ -15,6 +15,7 @@ class SakaiSearch extends SakaiElement {
       "announcement": "icon-sakai--sakai-announcements",
       "assignments": "icon-sakai--sakai-assignment-grades",
       "chat": "icon-sakai--sakai-chat",
+      "conversations": "icon-sakai--sakai-conversations",
       "forums": "icon-sakai--sakai-forums",
       "lessons": "icon-sakai--sakai-lessonbuildertool",
       "commons": "icon-sakai--sakai-commons",
@@ -22,11 +23,11 @@ class SakaiSearch extends SakaiElement {
       "wiki": "icon-sakai--sakai-rwiki",
     };
 
-    this.searchTerms = sessionStorage.getItem("searchterms") || "";
-    this.results = JSON.parse(sessionStorage.getItem("searchresults") || "[]");
+    if (!this.tool) {
+      this.searchTerms = sessionStorage.getItem("searchterms") || "";
+      this.results = JSON.parse(sessionStorage.getItem("searchresults") || "[]");
+    }
     this.currentPageIndex = parseInt(sessionStorage.getItem("currentpageindex") || "0");
-
-    this.showField = this.searchTerms.length > 3 && this.results.length > 0;
 
     this.loadTranslations("search").then(t => {
 
@@ -35,6 +36,7 @@ class SakaiSearch extends SakaiElement {
         "announcement": this.i18n.toolname_announcement,
         "assignments": this.i18n.toolname_assignment,
         "chat": this.i18n.toolname_chat,
+        "conversations": this.i18n.toolname_conversations,
         "forums": this.i18n.toolname_forum,
         "lessons": this.i18n.toolname_lesson,
         "commons": this.i18n.toolname_commons,
@@ -47,8 +49,9 @@ class SakaiSearch extends SakaiElement {
   static get properties() {
 
     return {
+      siteId: { attribute: "site-id", type: String },
+      tool: { type: String },
       pageSize: { attribute: "page-size", type: Number },
-      showField: { attribute: false, type: Boolean },
       results: { attribute: false, type: Array },
       pages: { attribute: false, type: Number },
       i18n: { attribute: false, type: Object },
@@ -63,6 +66,23 @@ class SakaiSearch extends SakaiElement {
 
   get pageSize() { return this._pageSize; }
 
+  handleKeydownOnResult(e) {
+
+    if (e.code === "Escape") {
+      e.preventDefault();
+      this.closeResults();
+    }
+  }
+
+  closeResults() {
+
+    this.results = [];
+    this.dispatchEvent(new CustomEvent("hiding-search-results"));
+    const input = this.querySelector("input");
+    input.focus();
+    input.classList.remove("flat-bottom");
+  }
+
   shouldUpdate() {
     return this.i18n;
   }
@@ -71,38 +91,45 @@ class SakaiSearch extends SakaiElement {
 
     return html`
       <div class="sakai-search-input" role="search">
-        ${this.showField ? html`
         <input type="text"
+            autocomplete="off"
+            style="font-family: FontAwesome, sans-serif"
             id="sakai-search-input"
             role="searchbox"
             tabindex="0"
-            @input=${this.search}
-            @keyup=${this.search}
-            .value=${this.searchTerms}
+            @keydown=${this.search}
+            @click=${this.handleSearchClick}
+            .value="&#xf002; ${this.searchTerms}"
             aria-label="${this.i18n.search_placeholder}" />
-        ` : ""}
-        <a href="javascript:;" @click=${this.toggleField} title="${this.i18n.search_tooltip}">
-          <span class="icon-sakai--sakai-search"></span>
-        </a>
       </div>
-      ${this.noResults && this.showField ? html`
+      ${this.noResults ? html`
         <div class="sakai-search-results" tabindex="1">
           <div class="search-result-container"><div class="search-result">No results</div></div>
         </div>
       ` : ""}
-      ${this.results.length > 0 && this.showField ? html`
+      ${this.results.length > 0 ? html`
         <div class="sakai-search-results">
+          <div style="float: right;">
+            <button class="btn-transparent" @click=${this.closeResults}>
+              <sakai-icon type="close"></sakai-icon>
+            </button>
+          </div>
           ${this.currentPageOfResults.map(r => html`
           <div class="search-result-container">
-            <a href="${r.url}">
+            <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
+              ${!this.tool ? html`
               <div>
                 <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
                 <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
                 <span>${this.i18n.from_site}</span>
                 <span class="search-result-site-title">${r.siteTitle}</span>
               </div>
-              <div>
-                <span class="search-result-title-label">${this.i18n.search_result_title}</span><span class="search-result-title">${r.title}</span>
+              ` : ""}
+              <div class="search-result-title-block">
+                ${!this.tool ? html`
+                <span class="search-result-title-label">${this.i18n.search_result_title}</span>
+                ` : ""}
+                <span class="search-result-title">${r.title}</span>
               </div>
               <div class="search-result">${unsafeHTML(r.searchResult)}</div>
             </a>
@@ -114,34 +141,44 @@ class SakaiSearch extends SakaiElement {
     `;
   }
 
-  toggleField() {
-
-    this.showField = !this.showField;
-    if (!this.showField) {
-      this.clear();
-    }
-
-    this.requestUpdate();
-
-    this.updateComplete.then(() => { if (this.showField) this.querySelector("#sakai-search-input").focus(); });
-  }
-
   clear() {
 
-    sessionStorage.removeItem("searchterms");
-    sessionStorage.removeItem("searchresults");
+    if (!this.tool) {
+      sessionStorage.removeItem("searchterms");
+      sessionStorage.removeItem("searchresults");
+    }
     this.results = [];
     this.searchTerms = "";
     this.requestUpdate();
     this.noResults = false;
   }
 
+  handleSearchClick(e) {
+
+    if (e.target.selectionStart <= 2) {
+      e.preventDefault();
+      e.target.setSelectionRange(2, 2);
+      return false;
+    }
+  }
+
   search(e) {
 
     const keycode = e.keyCode ? e.keyCode : e.which;
-    if (keycode == "13" && e.target.value.length > 2) {
-      sessionStorage.setItem("searchterms", e.target.value);
-      fetch(`/direct/search/search.json?searchTerms=${e.target.value}`, {cache: "no-cache", credentials: "same-origin"})
+
+    if ((keycode === 8 || keycode === 37) && e.target.selectionStart <= 2) {
+      e.preventDefault();
+      return false;
+    }
+
+    this.closeResults();
+
+    if (keycode == "13" && e.target.value.length > 4) {
+      const terms = e.target.value.substring(2);
+      if (!this.tool) {
+        sessionStorage.setItem("searchterms", terms);
+      }
+      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, {cache: "no-cache", credentials: "same-origin"})
         .then(r => {
 
           if (r.ok) {
@@ -150,11 +187,19 @@ class SakaiSearch extends SakaiElement {
           throw new Error("Failed to get search results.");
         }).then(data => {
 
+          this.dispatchEvent(new CustomEvent("showing-search-results"));
+
           this.results = data;
+
+          if (this.results.length > 0) {
+            this.querySelector("input").classList.add("flat-bottom");
+          }
           this.noResults = this.results.length === 0;
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
           this.updateComplete.then(() => {
+
+            this.querySelector(".sakai-search-results").style.width = "400px";
 
             const firstResult = document.querySelector(".search-result-container a");
             firstResult && firstResult.focus();
@@ -182,7 +227,9 @@ class SakaiSearch extends SakaiElement {
               });
             });
           });
-          sessionStorage.setItem("searchresults", JSON.stringify(this.results));
+          if (!this.tool) {
+            sessionStorage.setItem("searchresults", JSON.stringify(this.results));
+          }
           this.requestUpdate();
         })
         .catch(error => console.error(error));
