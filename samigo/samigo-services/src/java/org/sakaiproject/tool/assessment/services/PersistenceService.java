@@ -47,6 +47,7 @@ public class PersistenceService{
 	private PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries;
 	private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
 	private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
+	private AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries;
 	private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
 	private PagingUtilQueriesAPI pagingUtilQueries;
 	private AuthzQueriesFacadeAPI authzQueriesFacade;
@@ -162,7 +163,14 @@ public class PersistenceService{
 	public void setAssessmentGradingFacadeQueries(AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries){
 	    this.assessmentGradingFacadeQueries = assessmentGradingFacadeQueries;
 	}
-	
+
+	public AutoSubmitFacadeQueriesAPI getAutoSubmitFacadeQueries(){
+	    return autoSubmitFacadeQueries;
+	}
+
+	public void setAutoSubmitFacadeQueries(AutoSubmitFacadeQueriesAPI autoSubmitFacadeQueries){
+	    this.autoSubmitFacadeQueries = autoSubmitFacadeQueries;
+	}
         public AuthorizationFacadeQueriesAPI getAuthorizationFacadeQueries(){
 	  return authorizationFacadeQueries;
         }

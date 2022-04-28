@@ -49,6 +49,7 @@
      <property name="publishedSectionFacadeQueries"><ref bean="PublishedSectionFacadeQueries" /></property>
      <property name="publishedItemFacadeQueries"><ref bean="PublishedItemFacadeQueries" /></property>
      <property name="assessmentGradingFacadeQueries"><ref bean="AssessmentGradingFacadeQueries" /></property>
+     <property name="autoSubmitFacadeQueries"><ref bean="AutoSubmitFacadeQueries" /></property>
      <property name="authorizationFacadeQueries"><ref bean="AuthorizationFacadeQueries" /></property>
      <property name="pagingUtilQueries"><ref bean="PagingUtilQueries" /></property>
      <property name="authzQueriesFacade"><ref bean="AuthzQueriesFacade" /></property>
@@ -241,6 +242,21 @@
       <property name="transactionAttributes">
         <props>
           <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+    </bean>
+
+    <bean id="AutoSubmitFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.AutoSubmitFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+	</bean>
+      </property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRES_NEW</prop> <!-- ensures every method invocation runs in its own transaction -->
         </props>
       </property>
     </bean>
