@@ -18,7 +18,12 @@ package org.sakaiproject.conversations.impl.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.Session;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.model.PostReactionTotal;
@@ -29,29 +34,42 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class PostReactionTotalRepositoryImpl extends SpringCrudRepositoryImpl<PostReactionTotal, Long>  implements PostReactionTotalRepository {
 
-    @Transactional
-    public List<PostReactionTotal> findByPost_Id(String postId) {
+    @Transactional(readOnly = true)
+    public List<PostReactionTotal> findByPostId(String postId) {
 
-        return (List<PostReactionTotal>) sessionFactory.getCurrentSession().createCriteria(PostReactionTotal.class)
-            .add(Restrictions.eq("post.id", postId))
-            .list();
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<PostReactionTotal> query = cb.createQuery(PostReactionTotal.class);
+        Root<PostReactionTotal> total = query.from(PostReactionTotal.class);
+        query.where(cb.equal(total.get("postId"), postId));
+
+        return session.createQuery(query).list();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PostReactionTotal> findByPostIdAndReaction(String postId, Reaction reaction) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<PostReactionTotal> query = cb.createQuery(PostReactionTotal.class);
+        Root<PostReactionTotal> total = query.from(PostReactionTotal.class);
+        query.where(cb.and(cb.equal(total.get("reaction"), reaction), cb.equal(total.get("postId"), postId)));
+
+        return session.createQuery(query).uniqueResultOptional();
     }
 
     @Transactional
-    public Optional<PostReactionTotal> findByPost_IdAndReaction(String postId, Reaction reaction) {
+    public Integer deleteByPostId(String postId) {
 
-        return Optional.ofNullable((PostReactionTotal) sessionFactory.getCurrentSession().createCriteria(PostReactionTotal.class)
-            .add(Restrictions.eq("post.id", postId))
-            .add(Restrictions.eq("reaction", reaction))
-            .uniqueResult());
-    }
+        Session session = sessionFactory.getCurrentSession();
 
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<PostReactionTotal> delete = cb.createCriteriaDelete(PostReactionTotal.class);
+        Root<PostReactionTotal> total = delete.from(PostReactionTotal.class);
+        delete.where(cb.equal(total.get("postId"), postId));
 
-    @Transactional
-    public Integer deleteByPost_Id(String postId) {
-
-        return sessionFactory.getCurrentSession()
-            .createQuery("delete from PostReactionTotal where post.id = :postId")
-            .setString("postId", postId).executeUpdate();
+        return session.createQuery(delete).executeUpdate();
     }
 }

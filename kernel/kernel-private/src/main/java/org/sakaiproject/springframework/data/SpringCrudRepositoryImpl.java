@@ -103,7 +103,7 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
     public boolean existsById(ID id) {
 
         Assert.notNull(id, "The id cannot be null");
-        return findById(id) != null;
+        return findById(id).isPresent();
     }
 
     @Override

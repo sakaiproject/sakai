@@ -26,6 +26,8 @@ import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import static org.sakaiproject.messaging.api.MessageMedium.*;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -42,6 +44,7 @@ public class UserMessagingServiceImpl implements UserMessagingService {
     @Resource private PreferencesService preferencesService;
     @Resource private UserDirectoryService userDirectoryService;
     @Resource private ServerConfigurationService serverConfigurationService;
+    @Resource private ToolManager toolManager;
 
     private ExecutorService executor;
 
@@ -148,6 +151,9 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
     public void message(Set<User> users, Message message, List<MessageMedium> media, Map<String, Object> replacements, int priority) {
 
+        Placement placement = toolManager.getCurrentPlacement();
+        String context = placement != null ? placement.getContext() : null;
+
         executor.execute(() -> {
 
             String tool = message.getTool();
@@ -158,7 +164,11 @@ public class UserMessagingServiceImpl implements UserMessagingService {
                 Locale locale = preferencesService.getLocale(user.getId());
                 Preferences prefs = preferencesService.getPreferences(user.getId());
                 ResourceProperties toolProps = prefs.getToolNotificationProperties(tool);
-                String noti = toolProps.getProperty("2");
+                String noti = toolProps.getProperty("2") == null ? String.valueOf(NotificationService.PREF_IMMEDIATE) : toolProps.getProperty("2");
+
+                String siteId = context != null ? context : message.getSiteId();
+                
+                String siteOverride = siteId != null ? toolProps.getProperty(message.getSiteId()) : null;
 
                 media.forEach(m -> {
 
@@ -168,8 +178,16 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
                     switch (m) {
                         case EMAIL:
-                            if (NotificationService.NOTI_REQUIRED == priority || noti.equals(String.valueOf(NotificationService.PREF_IMMEDIATE))) {
+                            if (NotificationService.NOTI_REQUIRED == priority) {
                                 new EmailSender(user, template.getRenderedSubject(), template.getRenderedHtmlMessage()).send();
+                            } else {
+                                if (siteOverride != null) {
+                                    if (siteOverride.equals(String.valueOf(NotificationService.PREF_IMMEDIATE))) {
+                                        new EmailSender(user, template.getRenderedSubject(), template.getRenderedHtmlMessage()).send();
+                                    }
+                                } else if (noti.equals(String.valueOf(NotificationService.PREF_IMMEDIATE))) {
+                                    new EmailSender(user, template.getRenderedSubject(), template.getRenderedHtmlMessage()).send();
+                                }
                             }
                             break;
                         case DIGEST:

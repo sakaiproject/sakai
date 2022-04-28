@@ -35,6 +35,15 @@
     margin-bottom: 8px;
   }
 
+  .add-topic-date-checkbox {
+    display: flex;
+    margin-top: 10px;
+  }
+
+  .add-topic-date-checkbox > div > div:first-child > span:first-child {
+    font-weight: bold;
+  }
+
   .add-topic-block {
     margin-bottom: 12px;
   }
@@ -43,6 +52,19 @@
     display: grid;
     grid-template-columns: 186px 186px;
     gap: 30px;
+
+    sakai-icon {
+      margin-right: 10px;
+      pointer-events: none;
+    }
+
+    .active {
+      background-color: var(--sites-nav-menu-item-selected-background);
+    }
+  }
+
+  #topic-type-toggle-block > div > * {
+    pointer-events: none;
   }
 
   sakai-combobox {
@@ -65,11 +87,6 @@
     line-height: 24px;
     text-decoration-line: underline;
     color: #176EA3;
-  }
-
-  #topic-type-toggle-block sakai-icon {
-    margin-right: 10px;
-    pointer-events: none;
   }
 
   .topic-type-toggle {
@@ -109,13 +126,8 @@
     color: red;
   }
 
-  #topic-visibility-wrapper input {
+  .add-topic-block input {
     margin-right: 10px;
-  }
-
-  #topic-options-wrapper {
-    display: flex;
-    flex-wrap: wrap;
   }
 
   #topic-options-wrapper input {
@@ -148,20 +160,53 @@
     margin-right: 5px;
   }
 
-  .topic-options-label-block {
-    display: inline-block;
-    margin-left: 10px;
-  }
-
   .topic-option-label {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 14px;
+    font-weight: bold;
     color: #262626;
-    margin-bottom: 8px;
   }
 
   .topic-option-label-text {
-    font-size: 14px;
+    font-size: 13px;
+    color: #262626;
+  }
+
+  .availability-wrapper {
+    display: flex;
+    align-items: center;
+    input {
+      margin-right: 10px;
+    }
+
+    div:nth-child(2) {
+      flex: 0;
+      font-size: 14px;
+      font-weight: bold;
+      white-space: nowrap;
+      margin-right: 8px;
+      color: #262626;
+    }
+
+    div:nth-child(3) {
+      font-size: 13px;
+      font-weight: 400;
+      color: #262626;
+      margin-left: 8px;
+    }
+  }
+
+  #add-topic-availability-block {
+    margin-left: 20px;
+
+    & > div {
+      display: flex;
+
+      div:nth-child(2) {
+        div:first-child {
+          font-weight: bold;
+        }
+      }
+    }
   }
 
   .selected-tag {

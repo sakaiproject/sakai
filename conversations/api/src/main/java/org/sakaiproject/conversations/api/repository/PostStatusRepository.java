@@ -27,5 +27,6 @@ public interface PostStatusRepository extends SpringCrudRepository<PostStatus, L
     List<PostStatus> findByTopicIdAndUserId(String topicId, String userId);
     List<PostStatus> findByTopicIdAndUserIdAndViewed(String topicId, String userId, Boolean viewed);
     Optional<PostStatus> findByPostIdAndUserId(String postId, String userId);
+    List<PostStatus> findByPostIdAndUserIdNot(String postId, String userId);
     Integer deleteByPostId(String postId);
 }

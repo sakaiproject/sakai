@@ -53,7 +53,10 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
-            <version>22-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.conversations</groupId>
+            <artifactId>sakai-conversations-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

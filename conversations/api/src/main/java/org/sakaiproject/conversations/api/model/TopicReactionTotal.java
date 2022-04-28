@@ -17,12 +17,9 @@ package org.sakaiproject.conversations.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -45,9 +42,8 @@ public class TopicReactionTotal implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TOPIC_ID", nullable = false)
-    private Topic topic;
+    @Column(name = "TOPIC_ID", nullable = false)
+    private String topicId;
 
     @Column(name = "REACTION", nullable = false)
     private Reaction reaction;

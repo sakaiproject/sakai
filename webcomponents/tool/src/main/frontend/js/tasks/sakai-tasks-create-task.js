@@ -308,42 +308,39 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           <label for="description">${this.i18n.deliver_task}</label>
         </div>
         <div id="create-task-block">
-           <div>
-               <input type="radio"
-                 id="task-current-user"
-                 name="deliver-task"
-                 aria-label="${this.i18n.deliver_my_dashboard}"
-                 title="${this.i18n.deliver_my_dashboard}"
-                 value="user"
-                 @click=${() => this.assignationType = 'user'}
-                 ?checked=${this.assignationType === 'user'} >
-               <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
-           </div>
-           <div>
-               <input type="radio"
-                 id="task-students"
-                 name="deliver-task"
-                 aria-label="${this.i18n.deliver_site}"
-                 title="${this.i18n.deliver_site}"
-                 value="site"
-                 @click=${() => this.assignationType = 'site'}
-                 ?checked=${this.assignationType === 'site'}>
-               <label for="task-students">${this.i18n.deliver_site}</label>
-           </div>
-           <div style="display:${this.existGroups() ? 'inline' : 'none'}">
-			   <input type="radio"
-                 id="task-groups"
-                 name="deliver-task"
-                 aria-label="${this.i18n.deliver_group}"
-                 title="${this.i18n.deliver_group}"
-                 value="group"
-                 @click=${() => this.assignationType = 'group'}
-                 ?checked=${this.assignationType === 'group'}>
-               <label for="task-groups">${this.i18n.deliver_group}</label>
-           </div>
-           <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">
-           ${this.groupComboList()}
-           </div>
+          <div>
+            <input type="radio"
+                id="task-current-user"
+                name="deliver-task"
+                title="${this.i18n.deliver_my_dashboard}"
+                value="user"
+                @click=${() => this.assignationType = 'user'}
+                ?checked=${this.assignationType === 'user'} >
+            <label for="task-current-user">${this.i18n.deliver_my_dashboard}</label>
+          </div>
+          <div>
+            <input type="radio"
+                id="task-students"
+                name="deliver-task"
+                title="${this.i18n.deliver_site}"
+                value="site"
+                @click=${() => this.assignationType = 'site'}
+                ?checked=${this.assignationType === 'site'}>
+            <label for="task-students">${this.i18n.deliver_site}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'inline' : 'none'}">
+            <input type="radio"
+               id="task-groups"
+               name="deliver-task"
+               title="${this.i18n.deliver_group}"
+               value="group"
+               @click=${() => this.assignationType = 'group'}
+               ?checked=${this.assignationType === 'group'}>
+            <label for="task-groups">${this.i18n.deliver_group}</label>
+          </div>
+          <div style="display:${this.existGroups() ? 'block' : 'none'}; margin-left:20px; margin-top:5px;">
+            ${this.groupComboList()}
+          </div>
         </div>
       ` : ""}
       ${this.error ? html`<div id="error">${this.i18n.save_failed}</div>` : ""}

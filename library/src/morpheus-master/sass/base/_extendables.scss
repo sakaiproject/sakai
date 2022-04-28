@@ -389,6 +389,14 @@ button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$n
 	@include sakai_secondary_button();
 }
 
+button.btn-transparent {
+    background-color: transparent;
+    border-color: transparent;
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+}
+
 .input-group-btn .btn {
   margin: 0 0 0 -1px;
 }
