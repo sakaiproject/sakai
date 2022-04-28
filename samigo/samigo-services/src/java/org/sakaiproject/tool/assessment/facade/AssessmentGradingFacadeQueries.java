@@ -110,6 +110,7 @@ import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 @Slf4j
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI {
@@ -2995,123 +2996,34 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         Iterator iter = list.iterator();
         String lastAgentId = "";
         Long lastPublishedAssessmentId = 0L;
+        PublishedAssessmentFacade assessment = null;
         AssessmentGradingData adata = null;
         Map sectionSetMap = new HashMap();
 
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        GradebookExternalAssessmentService g = null;
-        boolean updateGrades = false;
-        Map<Long, String> toGradebookPublishedAssessmentSiteIdMap = null;
-        GradebookServiceHelper gbsHelper = null;
-        if (IntegrationContextFactory.getInstance() != null) {
-            boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-            if (integrated) {
-                g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance()
-                        .getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
-            }
-            toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
-            gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-            updateGrades = true;
-        }
-        boolean autoSubmitCurrent;
-        Integer scoringType;
+        boolean updateGrades = IntegrationContextFactory.getInstance() != null;
+        AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
         int failures = 0;
         
         while (iter.hasNext()) {
 
-            autoSubmitCurrent = false;
-            scoringType = -1;
-
             try {
                 adata = (AssessmentGradingData) iter.next();
-                adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
-                Date endDate = new Date();
-                if (Boolean.FALSE.equals(adata.getForGrade())) {
+                if (!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
+                    assessment = publishedAssessmentService.getPublishedAssessmentQuick(adata.getPublishedAssessmentId().toString());
+                }
 
-                    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-                    PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
-                            adata.getPublishedAssessmentId());
-                    scoringType = assessment.getEvaluationModel().getScoringType();
-                    Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
-                    Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
-                    Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
-                    boolean acceptLate = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling);
-                    ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
-                            adata.getAgentId());
-
-                    //If it has extended time, just continue for now, no method to tell if the time is passed
-                    if (assessmentExtended.hasExtendedTime()) {
-                        //Continue on and try to submit it but it may be late, just change the due date
-                        dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
-
-                        // If the extended time student received a retract date
-                        if (assessmentExtended.getRetractDate() != null) {
-                        	retractDate =  assessmentExtended.getRetractDate();
-                        	acceptLate = true;
-                        }
-                    }
-
-                    // If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                    if (acceptLate && retractDate != null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) {
-                        continue;
-                    }
-                    else if ( (!acceptLate || retractDate == null) && dueDate != null && currentTime.before(dueDate)) {
-                    	continue;
-                    }
-
-                    adata.setForGrade(Boolean.TRUE);
-                    if (adata.getTotalAutoScore() == null) {
-                        adata.setTotalAutoScore(0d);
-                    }
-                    if (adata.getFinalScore() == null) {
-                        adata.setFinalScore(0d);
-                    }
-
-                    if (adata.getAttemptDate() != null && dueDate != null &&
-                            adata.getAttemptDate().after(dueDate)) {
-                        adata.setIsLate(true);
-                    }
-                    // SAM-1088
-                    else if (adata.getSubmittedDate() != null && dueDate != null &&
-                            adata.getSubmittedDate().after(dueDate)) {
-                        adata.setIsLate(true);
-                    }
-                    // SAM-2729 user probably opened assessment and then never submitted a question
-                    if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
-                        adata.setSubmittedDate(endDate);
-                    }
-
-                    autoSubmitCurrent = true;
-                    adata.setIsAutoSubmitted(Boolean.TRUE);
-                    if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-                            && lastAgentId.equals(adata.getAgentId())) {
-                        adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-                    } else {
-                        adata.setStatus(AssessmentGradingData.SUBMITTED);
-                    }
-                   
-                    completeItemGradingData(adata, sectionSetMap);
+                // this call happens in a separate transaction, so a rollback only affects this iteration
+                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
+                if (!success) {
+                    ++failures;
                 }
 
                 lastPublishedAssessmentId = adata.getPublishedAssessmentId();
                 lastAgentId = adata.getAgentId();
-
-                PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId()
-                        .toString());
-                // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = saveOrUpdateAssessmentGrading(adata);
-                
-                if (success && updateGrades && autoSubmitCurrent) {
-                    GradingService gs = new GradingService();
-                    gs.updateAutosubmitEventLog(adata);
-                    gs.notifyGradebookByScoringType(adata, publishedAssessment);
-                }
-                else if (!success) {
-                    ++failures;
-                }
             } catch (Exception e) {
                 ++failures;
                 if (adata != null) {
@@ -3312,8 +3224,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         completeItemGradingData(assessmentGradingData, null);
     }
 
-
-    public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map sectionSetMap) {
+    @Override
+    public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map<Long, Set<PublishedSectionData>> sectionSetMap) {
         List answeredPublishedItemIdList = new ArrayList();
         List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
         Iterator iter = publishedItemIds.iterator();
