@@ -200,19 +200,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 			allAgents = getAllAgents();
 		}
 		
-		// For anonymous grading, we want to take out the records that has not been submitted
-		if ("true".equalsIgnoreCase(anonymous)) {
-			Iterator iter = allAgents.iterator();
-			List anonymousAgents = new ArrayList();
-			while (iter.hasNext()) {
-				AgentResults agentResult = (AgentResults) iter.next();
-				if (agentResult.getSubmittedDate() != null && agentResult.getAssessmentGradingId().intValue() != -1) {
-					anonymousAgents.add(agentResult);
-				}
-			}
-			allAgents = anonymousAgents;
-		}
-		
 		List matchingAgents;
 		if (isFilteredSearch()) {
 			matchingAgents = findMatchingAgents(searchString);
