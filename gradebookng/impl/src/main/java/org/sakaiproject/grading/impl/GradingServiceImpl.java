@@ -68,7 +68,6 @@ import org.sakaiproject.grading.api.GradeMappingDefinition;
 import org.sakaiproject.grading.api.GradebookHelper;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeType;
-import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingCategoryType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingPermissionService;
@@ -100,7 +99,6 @@ import org.sakaiproject.grading.api.model.LetterGradeMapping;
 import org.sakaiproject.grading.api.model.LetterGradePercentMapping;
 import org.sakaiproject.grading.api.model.LetterGradePlusMinusMapping;
 import org.sakaiproject.grading.api.model.PassNotPassMapping;
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -3892,7 +3890,7 @@ public class GradingServiceImpl implements GradingService {
 
             // Try to reduce data contention by only updating when a score
             // has changed or property has been set forcing a db update every time.
-            boolean alwaysUpdate = isUpdateSameScore();
+            boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
             CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
             String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -3936,7 +3934,7 @@ public class GradingServiceImpl implements GradingService {
 
             // Try to reduce data contention by only updating when a score
             // has changed or property has been set forcing a db update every time.
-            final boolean alwaysUpdate = isUpdateSameScore();
+            final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
             final Double oldPointsEarned = agr.getPointsEarned();
             final Double newPointsEarned = studentUidsToScores.get(studentUid);
@@ -3993,7 +3991,7 @@ public class GradingServiceImpl implements GradingService {
 
             // Try to reduce data contention by only updating when a score
             // has changed or property has been set forcing a db update every time.
-            final boolean alwaysUpdate = isUpdateSameScore();
+            final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
             // TODO: for ungraded items, needs to set ungraded-grades later...
             final Double oldPointsEarned = agr.getPointsEarned();
@@ -4351,7 +4349,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Try to reduce data contention by only updating when the
         // score has actually changed or property has been set forcing a db update every time.
-        final boolean alwaysUpdate = isUpdateSameScore();
+        final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
         final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
         final String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -4394,7 +4392,7 @@ public class GradingServiceImpl implements GradingService {
 
         // Try to reduce data contention by only updating when the
         // score has actually changed or property has been set forcing a db update every time.
-        final boolean alwaysUpdate = isUpdateSameScore();
+        final boolean alwaysUpdate = isUpdateSameScore(gradebookUid);
 
         // TODO: for ungraded items, needs to set ungraded-grades later...
         final Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
@@ -4486,13 +4484,21 @@ public class GradingServiceImpl implements GradingService {
      * gb_grade_record_t's 'DATE_RECORDED' field for instance. Generally uses the sakai.property
      * 'gradebook.externalAssessments.updateSameScore', but a site property by the same name can override it. That is to say, the site
      * property is checked first, and if it is not present, the sakai.property is used.
+     * @param gradebookUID the UID of the gradebook, used to resolve site when we can't get site ID from current context
      */
-    private boolean isUpdateSameScore() {
+    private boolean isUpdateSameScore(final String gradebookUID) {
         String siteProperty = null;
         try {
             final String siteId = this.toolManager.getCurrentPlacement().getContext();
             final Site site = this.siteService.getSite(siteId);
             siteProperty = site.getProperties().getProperty(UPDATE_SAME_SCORE_PROP);
+        } catch (final NullPointerException e) {
+            // Fallback to gradebook UID, which is also the site ID
+            try {
+                siteProperty = siteService.getSite(gradebookUID).getProperties().getProperty(UPDATE_SAME_SCORE_PROP);
+            } catch (final Exception ex) {
+                // Can't access site. Leave it set to null
+            }
         } catch (final Exception e) {
             // Can't access site property. Leave it set to null
         }
