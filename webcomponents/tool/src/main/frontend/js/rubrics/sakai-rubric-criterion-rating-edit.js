@@ -134,7 +134,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
 
     this.resetFields();
 
-    this.dispatchEvent(new CustomEvent('save-rating', {detail: this.rating}));
+    this.dispatchEvent(new CustomEvent('save-rating', { detail: { rating: this.rating, criterionId: this.criterionId }}));
     this.hideToolTip();
   }
 

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.util.ResourceLoader.grading"
+          class="org.sakaiproject.util.ResourceLoader">
+    </bean>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.grading"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+                <value>org.sakaiproject.grading.api.model.Gradebook</value>
+                <value>org.sakaiproject.grading.api.model.GradableObject</value>
+                <value>org.sakaiproject.grading.api.model.GradebookAssignment</value>
+                <value>org.sakaiproject.grading.api.model.AssignmentGradeRecord</value>
+                <value>org.sakaiproject.grading.api.model.CourseGradeRecord</value>
+                <value>org.sakaiproject.grading.api.model.GradingEvent</value>
+                <value>org.sakaiproject.grading.api.model.GradingScale</value>
+                <value>org.sakaiproject.grading.api.model.GradebookProperty</value>
+                <value>org.sakaiproject.grading.api.model.GradeMapping</value>
+                <value>org.sakaiproject.grading.api.model.CourseGrade</value>
+                <value>org.sakaiproject.grading.api.model.Spreadsheet</value>
+                <value>org.sakaiproject.grading.api.model.Comment</value>
+                <value>org.sakaiproject.grading.api.model.Category</value>
+                <value>org.sakaiproject.grading.api.model.LetterGradePercentMapping</value>
+                <value>org.sakaiproject.grading.api.model.Permission</value>
+			</list>
+		</property>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.GradingAuthz"
+        class="org.sakaiproject.grading.impl.GradingAuthzImpl"
+        init-method="init">
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.AssignmentGradeRecordRepository"
+        class="org.sakaiproject.grading.impl.repository.AssignmentGradeRecordRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.CategoryRepository"
+        class="org.sakaiproject.grading.impl.repository.CategoryRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.CommentRepository"
+        class="org.sakaiproject.grading.impl.repository.CommentRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.CourseGradeRepository"
+        class="org.sakaiproject.grading.impl.repository.CourseGradeRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.CourseGradeRecordRepository"
+        class="org.sakaiproject.grading.impl.repository.CourseGradeRecordRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradebookRepository"
+        class="org.sakaiproject.grading.impl.repository.GradebookRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradebookAssignmentRepository"
+        class="org.sakaiproject.grading.impl.repository.GradebookAssignmentRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradebookPropertyRepository"
+        class="org.sakaiproject.grading.impl.repository.GradebookPropertyRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradeMappingRepository"
+        class="org.sakaiproject.grading.impl.repository.GradeMappingRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.LetterGradePercentMappingRepository"
+        class="org.sakaiproject.grading.impl.repository.LetterGradePercentMappingRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradingEventRepository"
+        class="org.sakaiproject.grading.impl.repository.GradingEventRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.GradingScaleRepository"
+        class="org.sakaiproject.grading.impl.repository.GradingScaleRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.repository.PermissionRepository"
+        class="org.sakaiproject.grading.impl.repository.PermissionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.GradingPermissionService"
+        class="org.sakaiproject.grading.impl.GradingPermissionServiceImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.GradingPersistenceManager"
+        class="org.sakaiproject.grading.impl.GradingPersistenceManagerImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.grading.api.GradingService"
+        class="org.sakaiproject.grading.impl.GradingServiceImpl">
+    </bean>
+
+</beans>

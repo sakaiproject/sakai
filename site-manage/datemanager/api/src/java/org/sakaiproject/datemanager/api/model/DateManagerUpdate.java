@@ -37,4 +37,12 @@ public class DateManagerUpdate {
 		this.dueDate = dueDate;
 		this.acceptUntilDate = acceptUntilDate;
 	}
+	public DateManagerUpdate(Object object, Instant openDate, Instant dueDate, Instant acceptUntilDate, Instant feedbackStartDate, Instant feedbackEndDate) {
+		this.object = object;
+		this.openDate = openDate;
+		this.dueDate = dueDate;
+		this.acceptUntilDate = acceptUntilDate;
+		this.feedbackStartDate = feedbackStartDate;
+		this.feedbackEndDate = feedbackEndDate;
+	}
 }

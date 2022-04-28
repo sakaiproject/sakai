@@ -7320,6 +7320,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
 				+ siteService.getSiteDisplay(ref.getContext()));
 
+		// ... with this warning
+		state.setAttribute(PermissionsHelper.WARNING, rb.getString("permissions.warning"));
+
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "content.");
 

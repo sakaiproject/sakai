@@ -47,11 +47,9 @@
 	<h:outputText value="</ol>" escape="false"/>
 
     <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/><br/>
-    <h:outputFormat value="#{deliveryMessages.data_discrepancy_5}" escape="false" rendered="#{delivery.actionString=='takeAssessment'}"> 		
-		<f:param value="#{deliveryMessages.button_return}"/>
+    <h:outputFormat value="#{deliveryMessages.data_discrepancy_5}" escape="false" rendered="#{delivery.actionString=='takeAssessment'}"> 
 	</h:outputFormat>
-	<h:outputFormat value="#{deliveryMessages.data_discrepancy_5_url}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"> 		
-		<f:param value="#{deliveryMessages.button_return}"/>
+	<h:outputFormat value="#{deliveryMessages.data_discrepancy_5_url}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"> 
 	</h:outputFormat>
   
   </div>

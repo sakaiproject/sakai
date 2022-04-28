@@ -33,10 +33,8 @@
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
-        <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
-        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
-        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
         <property name="transactionTemplate">
@@ -45,7 +43,7 @@
             </bean>
         </property>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
-        <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService"/>
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -171,7 +169,7 @@
           class="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
           lazy-init="false" init-method="init" destroy-method="destroy">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-        <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
@@ -294,7 +292,7 @@
           destroy-method="destroy">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 

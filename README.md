@@ -2,7 +2,7 @@
 
 This is the source code for the Sakai CLE.
 
-The master branch is the most current development release, Sakai 21.
+The master branch is the most current development release, Sakai 23.
 The other branches are currently or previously supported releases. See below for more information on the release plan and support schedule.
 
 ## Building
@@ -70,6 +70,9 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
+Sakai 22.0 ([release](http://source.sakaiproject.org/release/22.0/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
+Is the community supported release of Sakai 22.
+
 Sakai 21.2 ([release](http://source.sakaiproject.org/release/21.2/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.2+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 Is the community supported release of Sakai 21.
 
@@ -89,9 +92,11 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 21.3](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 21. It is expected to release Q1 2022.
+[Sakai 22.1](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q2 2022.
 
-[Sakai 20.6](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 20. <strike>It is expected to release Q1 2022.</strike>
+[Sakai 21.3](https://confluence.sakaiproject.org/display/REL/Sakai+21+Straw+person) is the current development release of Sakai 21. It is expected to release Q2 2022.
+
+[Sakai 20.6](https://confluence.sakaiproject.org/display/REL/Sakai+20+Straw+person) is the current development release of Sakai 20. It is expected to release Q2 2022.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.

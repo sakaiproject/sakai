@@ -40,8 +40,8 @@
 		         style="width:70%;line-height:1.4em">
 				 		
 				<h3>
-                    #assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($!assignment.title)
+					#assignmentIcons($assignment)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;
 					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
@@ -140,7 +140,7 @@
 									#if ($reference)
 										#set ($props = false)
 										#set ($props = $reference.Properties)
-										#if ($!props)
+										#if ($!props && !$!props.isEmpty())
 											<li>
 												#if ($props.getBooleanProperty($props.NamePropIsCollection))
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />

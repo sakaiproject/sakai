@@ -71,6 +71,12 @@ public interface PollListManager extends EntityProducer {
     public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException;
     
     /**
+     * Gets all the Polls
+     * @return - a collection of task objects (empty collection if none found)
+     */
+    public List<Poll> findAllPolls();
+
+    /**
      * Gets all the task objects for the site
      * @param siteId - the siteId of the site
      * @return - a collection of task objects (empty collection if none found)

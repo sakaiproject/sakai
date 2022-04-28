@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.tool.actions;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.grading.api.Assignment;
 
 import java.io.Serializable;
 import java.util.List;

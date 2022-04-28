@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 /**
  * Comparator class for sorting by course grade, first by the letter grade's index in the gradebook's grading scale and then by the number
@@ -48,8 +48,8 @@ public class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
 
 	@Override
 	public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-		final CourseGrade cg1 = g1.getCourseGrade().getCourseGrade();
-		final CourseGrade cg2 = g2.getCourseGrade().getCourseGrade();
+		final CourseGradeTransferBean cg1 = g1.getCourseGrade();
+		final CourseGradeTransferBean cg2 = g2.getCourseGrade();
 
 		String letterGrade1 = cg1.getMappedGrade();
 		if (cg1.getEnteredGrade() != null) {

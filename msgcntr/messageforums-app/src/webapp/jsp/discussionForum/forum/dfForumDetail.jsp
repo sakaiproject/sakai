@@ -48,8 +48,8 @@
 				<%-- Rubrics marker --%>
 				<h:panelGroup rendered="#{ForumTool.selectedForum.hasRubric == 'true'}">
 					<sakai-rubric-student-preview-button
+						site-id='<h:outputText value="#{ForumTool.siteId}" />'
 						display="icon"
-						token="<h:outputText value="#{ForumTool.rbcsToken}" />"
 						tool-id="sakai.gradebookng"
 						entity-id="<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />">
 					</sakai-rubric-student-preview-button>
@@ -138,8 +138,8 @@
 						<%-- Rubrics marker --%>
 						<h:panelGroup rendered="#{topic.hasRubric == 'true'}">
 							<sakai-rubric-student-preview-button
+								site-id='<h:outputText value="#{ForumTool.siteId}" />'
 								display="icon"
-								token="<h:outputText value="#{ForumTool.rbcsToken}" />"
 								tool-id="sakai.gradebookng"
 								entity-id="<h:outputText value="#{topic.gradeAssign}" />">
 							</sakai-rubric-student-preview-button>

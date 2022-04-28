@@ -217,7 +217,7 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+        <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
         <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
         <property name="messageBundleService" ref="org.sakaiproject.messagebundle.api.MessageBundleService"/>
         <property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
@@ -229,7 +229,6 @@
         <property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
         <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
-        <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
         <property name="activityService" ref="org.sakaiproject.event.api.ActivityService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
@@ -259,6 +258,5 @@
          <property name="eventQueryService" ref="org.sakaiproject.event.api.EventQueryService"/>
      </bean>
     <bean id="org.sakaiproject.webservices.SakaiGradebook" class="org.sakaiproject.webservices.SakaiGradebook" parent="org.sakaiproject.webservices.AbstractWebService" >
-        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
     </bean>
 </beans>

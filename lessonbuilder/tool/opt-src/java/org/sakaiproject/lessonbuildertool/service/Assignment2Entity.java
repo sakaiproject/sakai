@@ -65,7 +65,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.service.gradebook.shared.*;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -144,9 +144,9 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	messageLocator = m;
     }
 
-    static GradebookService gradebookService = null;
-    public void setGradebookService(GradebookService g) {
-	gradebookService = g;
+    static GradingService gradingService = null;
+    public void setGradingService(GradingService g) {
+	gradingService = g;
     }
 
     static OptSql optSql = null;
@@ -520,7 +520,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 		// following will give a security error if assignment not released. I think that's better than
 		// checking myself, as that would require fetchign the assignment definition from the gradebook
 		// A2 doesn't seem to save that.  Score is scaled, so need * 10
-		Double score = toDouble(gradebookService.getAssignmentScore(assignment.context, assignment.gradebookitem, userId));
+		Double score = toDouble(gradingService.getAssignmentScore(assignment.context, assignment.gradebookitem, userId));
 		if (score != null) {
 		    LessonSubmission ret = new LessonSubmission(score);
 		    // shouldn't actually need the string value

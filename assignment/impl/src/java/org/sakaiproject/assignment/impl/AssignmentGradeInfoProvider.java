@@ -36,26 +36,29 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.grading.api.ExternalAssignmentProvider;
+import org.sakaiproject.grading.api.ExternalAssignmentProviderCompat;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
-import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Getter
+@Setter
 public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
-    // Sakai Service Beans
     private AssignmentService assignmentService;
     private SiteService siteService;
-    private GradebookExternalAssessmentService geaService;
+    private GradingService gradingService;
     private AuthzGroupService authzGroupService;
     private EntityManager entityManager;
     private SecurityService securityService;
@@ -63,12 +66,12 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     public void init() {
         log.info("INIT and register AssignmentGradeInfoProvider");
-        geaService.registerExternalAssignmentProvider(this);
+        gradingService.registerExternalAssignmentProvider(this);
     }
 
     public void destroy() {
         log.info("DESTROY and unregister AssignmentGradeInfoProvider");
-        geaService.unregisterExternalAssignmentProvider(getAppKey());
+        gradingService.unregisterExternalAssignmentProvider(getAppKey());
     }
 
     public String getAppKey() {
@@ -171,58 +174,5 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         }
         return allExternals;
     }
-
-    public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService geaService) {
-        this.geaService = geaService;
-    }
-
-    public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
-        return geaService;
-    }
-
-    public void setAssignmentService(AssignmentService assignmentService) {
-        this.assignmentService = assignmentService;
-    }
-
-    public AssignmentService getAssignmentService() {
-        return assignmentService;
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public SiteService getSiteService() {
-        return siteService;
-    }
-
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-
-    public AuthzGroupService getAuthzGroupService() {
-        return authzGroupService;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
 }
 

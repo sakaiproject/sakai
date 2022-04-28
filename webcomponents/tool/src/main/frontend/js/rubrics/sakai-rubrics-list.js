@@ -3,7 +3,6 @@ import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
-import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
 const rubricName = 'name';
 const rubricTitle = 'title';
@@ -20,23 +19,22 @@ export class SakaiRubricsList extends RubricsElement {
   static get properties() {
 
     return {
-      token: { type: String },
-      rubrics: { type: Array },
-      enablePdfExport: { type: Boolean }
+      siteId: { attribute: "site-id", type: String },
+      rubrics: { attribute: false, type: Array },
+      enablePdfExport: { type: Boolean },
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set siteId(value) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
-
-    if (name === "token") {
-      this.getRubrics(newValue);
-    }
+    this._siteId = value;
+    this.getRubrics();
   }
 
-  shouldUpdate(changedProperties) {
-    return changedProperties.has("rubrics");
+  get siteId() { return this._siteId; }
+
+  shouldUpdate() {
+    return this.rubrics;
   }
 
   render() {
@@ -46,7 +44,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" @delete-item="${this.deleteRubric}" token="${this.token}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
+            <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
           </div>
         `)}
         </div>
@@ -62,34 +60,25 @@ export class SakaiRubricsList extends RubricsElement {
   }
 
   refresh() {
-    this.getRubrics(this.token);
+    this.getRubrics();
   }
 
-  getRubrics(token, extraParams = {}) {
+  getRubrics() {
 
-    const params = {"projection": "inlineRubric"};
-    Object.assign(params, extraParams);
+    const url = `/api/sites/${this.siteId}/rubrics`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(r => {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics", token, { params })
-      .then(data => {
-
-        this.rubrics = data._embedded.rubrics;
-
-        // To sort the rubrics correctly we need the user and the site names in the arrays, not the ids
-        this.rubrics = this.rubrics.map( (rubric) => {
-          const metadata = rubric.metadata;
-          const creatorId = metadata.creatorId;
-          const siteId = metadata.ownerId;
-          SakaiRubricsHelpers.getUserDisplayName(sakaiSessionId, creatorId).then( (name) => metadata.creatorName = name);
-          SakaiRubricsHelpers.getSiteTitle(sakaiSessionId, siteId).then( (name) => metadata.siteName = name);
-          rubric.metadata = metadata;
-          return rubric;
-        });
-
-        if (data.page.size <= this.rubrics.length) {
-          this.getRubrics(token, { "size": this.rubrics.length + 25 });
-        }
-      });
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while loading rubrics");
+    })
+    .then(rubrics => this.rubrics = rubrics)
+    .catch (error => console.error(error));
   }
 
   createRubricResponse(nr) {
@@ -130,27 +119,49 @@ export class SakaiRubricsList extends RubricsElement {
 
   cloneRubric(e) {
 
-    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
-      extraHeaders: {"x-copy-source": e.detail.id, "lang": this.locale}
+    const url = `/api/sites/${this.siteId}/rubrics/${e.detail.id}/copyToSite`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .then(data => this.createRubricResponse(data));
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while copying rubric");
+    })
+    .then(rubric => this.createRubricResponse(rubric))
+    .catch (error => console.error(error));
   }
 
   createNewRubric() {
 
-    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
-      extraHeaders: {"x-copy-source" :"default", "lang": this.locale}
+    const url = `/api/sites/${this.siteId}/rubrics/default`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .then(data => this.createRubricResponse(data));
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while creating rubric");
+    })
+    .then(rubric => this.createRubricResponse(rubric))
+    .catch (error => console.error(error));
   }
 
   get createRubricUpdateComplete() {
+
     return (async () => {
       return this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
     })();
   }
 
   sortRubrics(rubricType, ascending) {
+
     switch (rubricType) {
       case rubricName:
         this.rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
@@ -167,7 +178,7 @@ export class SakaiRubricsList extends RubricsElement {
     }
     this.requestUpdate('rubrics');
   }
-
 }
 
-customElements.define("sakai-rubrics-list", SakaiRubricsList);
+const tagName = "sakai-rubrics-list";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricsList);

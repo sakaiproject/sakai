@@ -34,6 +34,9 @@ public interface PermissionsHelper
 	/** Set this tool state attribute with descriptive text for the editor. */
 	static final String DESCRIPTION = "sakaiproject.permissions.description";
 
+	/** Set this tool state attribute for permissions warning banner */
+	public static final String WARNING = "sakaiproject.permissions.warning";
+
 	/** Set this tool state attribute to the entity reference of the entity whose AuthzGroup is to be edited. */
 	static final String TARGET_REF = "sakaiproject.permissions.targetRef";
 

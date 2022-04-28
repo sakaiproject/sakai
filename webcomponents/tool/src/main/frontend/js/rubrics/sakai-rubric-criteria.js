@@ -1,21 +1,21 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-criterion-edit.js";
 import "./sakai-rubric-criterion-rating-edit.js";
-import {SharingChangeEvent} from "./sharing-change-event.js";
+import { SharingChangeEvent } from "./sharing-change-event.js";
 import { Sortable } from "/webcomponents/assets/sortablejs/modular/sortable.esm.js";
-import {tr} from "./sakai-rubrics-language.js";
+import { tr } from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriteria extends RubricsElement {
 
   static get properties() {
 
     return {
-      token: { type: String },
       rubricId: { attribute: "rubric-id", type: String },
+      siteId: { attribute: "site-id", type: String },
       weighted: { type: Boolean },
       totalWeight: { attribute: "total-weight", type: String },
       validWeight: { attribute: "valid-weight", type: Boolean },
@@ -69,7 +69,11 @@ export class SakaiRubricCriteria extends RubricsElement {
             <h4 class="criterion-title">
               <span @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
               ${c.title}
-              <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}" criterion="${JSON.stringify(c)}" token="${this.token}"></sakai-rubric-criterion-edit>
+              <sakai-rubric-criterion-edit @criterion-edited="${this.criterionEdited}"
+                  site-id="${this.siteId}"
+                  rubric-id="${this.rubricId}"
+                  criterion="${JSON.stringify(c)}">
+              </sakai-rubric-criterion-edit>
             </h4>
             <p>
               ${c.description}
@@ -140,7 +144,7 @@ export class SakaiRubricCriteria extends RubricsElement {
           </div>
           <div class="criterion-actions">
             <a @focus="${this.onFocus}" @focusout="${this.focusOut}" tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
-            <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
+            <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}"></sakai-item-delete>
           </div>
         </div>
       `)}
@@ -188,23 +192,24 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   handleSortedCriteria() {
 
-    const baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/criterions/`;
     const sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
-    const urlList = sortedIds.reverse().reduce((a, cid) => { return `${baseUrl}${cid}\n${a}`; }, '');
 
-    $.ajax({
-      url: `/rubrics-service/rest/rubrics/${this.rubricId}/criterions`,
-      headers: {"authorization": this.token},
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/sort`;
+    fetch(url, {
       method: "PUT",
-      contentType: "text/uri-list",
-      data: urlList
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(sortedIds),
     })
-    .done(() => this.letShareKnow())
-    .fail((jqXHR, error, message) => {
+    .then(r => {
 
-      console.error(error);
-      console.info(message);
-    });
+      if (r.ok) {
+        console.log("OK");
+      } else {
+        throw new Error("Network error while saving criteria sort");
+      }
+    })
+    .catch (error => console.error(error));
   }
 
   letShareKnow() {
@@ -234,49 +239,51 @@ export class SakaiRubricCriteria extends RubricsElement {
     // Reorder the ratings based on the sort result
     criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
-    const baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/ratings/`;
-    const urlList = sortedIds.reverse().reduce((a, rid) => { return `${baseUrl}${rid}\n${a}`; }, '');
-    const url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
-    this.updateRatings(url, urlList);
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/sort`;
+    fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(sortedIds),
+    })
+    .then(r => {
 
-    this.criteria = [...this.criteria];
-
-    this.letShareKnow();
+      if (r.ok) {
+        this.criteria = [...this.criteria];
+      } else {
+        throw new Error("Network error while saving ratings sort");
+      }
+    })
+    .catch (error => console.error(error));
   }
 
   saveRating(e) {
 
     e.stopPropagation();
 
-    $.ajax({
-      url: `/rubrics-service/rest/ratings/${e.detail.id}`,
-      headers: {"authorization": this.token},
-      contentType: "application/json",
-      method: "PATCH",
-      data: JSON.stringify(e.detail)
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.rating.id}`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(e.detail.rating)
     })
-    .done(() => {
+    .then(r => {
 
-      this.criteria.forEach(c => {
-        if (c.id == e.detail.criterionId) {
-          c.ratings.forEach(r => {
-            if (r.id == e.detail.id) {
-              r.title = e.detail.title;
-              r.description = e.detail.description;
-              r.points = e.detail.points;
-              r.new = false;
-            }
-          });
-        }
-      });
-      this.requestUpdate();
-      this.letShareKnow();
+      if (r.ok) {
+        const criterion = this.criteria.find(c => c.id == e.detail.criterionId);
+        const rating = criterion.ratings.find(rat => rat.id == e.detail.rating.id);
+        rating.title = e.detail.rating.title;
+        rating.description = e.detail.rating.description;
+        rating.points = e.detail.rating.points;
+        rating.new = false;
+        this.requestUpdate();
+        this.letShareKnow();
+      } else {
+        throw new Error("Network error while saving rating");
+      }
     })
-    .fail((jqXHR, error, message) => {
-
-      console.error(error);
-      console.info(message);
-    });
+    .catch(error => console.error(error));
   }
 
   deleteCriterion(e) {
@@ -304,6 +311,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     if (isNaN(id)) {
       return;
     }
+    this.letShareKnow();
     this.dispatchEvent(new CustomEvent('weight-changed', { detail: { criterionId: id, value, criteria: this.criteria } }));
     this.requestUpdate();
   }
@@ -313,18 +321,20 @@ export class SakaiRubricCriteria extends RubricsElement {
     const criterionId = e.target.dataset.criterionId;
     const ratingPos = e.target.dataset.ratingPos;
 
-    $.ajax({
-      url: "/rubrics-service/rest/ratings",
-      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
-      method: "POST",
-      data: "{}"
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/default?position=${ratingPos}`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .done(data => this.addRatingResponse(criterionId, ratingPos, data))
-    .fail((jqXHR, error, message) => {
+    .then(r => {
 
-      console.error(error);
-      console.info(message);
-    });
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while adding rating");
+    })
+    .then(nr => this.addRatingResponse(criterionId, ratingPos, nr))
+    .catch (error => console.error(error));
   }
 
   addRatingResponse(criterionId, ratingPos, newRating) {
@@ -337,56 +347,58 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     criterion.ratings.splice(parseInt(ratingPos), 0, newRating);
 
-    const getUrl = window.location;
-    const baseUrl = `${getUrl.protocol  }//${  getUrl.host  }/rubrics-service/rest/ratings/`;
-
-    let urlList = '';
-    for (let i = criterion.ratings.length - 1; i >= 0; i--) {
-      urlList = `${baseUrl + criterion.ratings[i].id  }\n${  urlList}`;
-    }
-
-    const url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
-    this.updateRatings(url, urlList);
-
     this.letShareKnow();
     this.requestUpdate();
   }
 
   deleteRating(e) {
 
+    const criterion = this.criteriaMap.get(parseInt(e.detail.criterionId));
+
+    if (!criterion) {
+      console.error(`No criterion found with id ${e.detail.criterionId}`);
+      return;
+    }
+
+    const ratingIndex = criterion.ratings.findIndex(r => r.id == e.detail.id);
+
     e.stopPropagation();
 
-    const criterion = this.criteriaMap.get(parseInt(e.detail.criterionId));
-    const ratingIndex = criterion.ratings.findIndex(r => r.id == e.detail.id);
-    criterion.ratings.splice(ratingIndex, 1);
-    this.requestUpdate();
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.detail.criterionId}/ratings/${e.detail.id}`;
+    fetch(url, {
+      method: "DELETE",
+      credentials: "include",
+    })
+    .then(r => {
 
-    const getUrl = window.location;
-    const baseUrl = `${getUrl.protocol}//${getUrl.host}/rubrics-service/rest/criterions/`;
-
-    const urlList = criterion.ratings.slice().reverse().reduce((a, v) => { return `${baseUrl}${v.id}\n${a}`; }, '');
-
-    const url = `/rubrics-service/rest/criterions/${e.detail.criterionId}/ratings`;
-    this.updateRatings(url, urlList);
+      if (r.ok) {
+        criterion.ratings.splice(ratingIndex, 1);
+        this.requestUpdate();
+      }
+      throw new Error("Network error while deleting rating");
+    })
+    .catch (error => console.error(error));
   }
 
   cloneCriterion(e) {
+
     e.preventDefault();
     e.stopPropagation();
 
-    $.ajax({
-      url: "/rubrics-service/rest/criterions/",
-      headers: {"x-copy-source": e.target.dataset.criterionId, "authorization": this.token, "lang": this.locale},
-      contentType: "application/json",
-      method: "POST",
-      data: "{}"
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.target.dataset.criterionId}/copy`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .done(data => this.createCriterionResponse(data))
-    .fail((jqXHR, error, message) => {
+    .then(r => {
 
-      console.error(error);
-      console.info(message);
-    });
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Server error while cloning criterion");
+    })
+    .then(clone => this.createCriterionResponse(clone))
+    .catch(error => console.error(error));
   }
 
   createCriterionResponse(nc) {
@@ -399,24 +411,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     this.criteriaMap.set(nc.id, nc);
 
     // Add the criterion to the rubric
-    const getUrl = window.location;
-    const baseUrl = `${getUrl.protocol  }//${  getUrl.host  }/rubrics-service/rest/criterions/`;
-    const urlList = `${baseUrl + nc.id  }\n`;
     this.requestUpdate();
-
-    $.ajax({
-      url: `/rubrics-service/rest/rubrics/${this.rubricId}/criterions`,
-      headers: {"authorization": this.token},
-      method: "POST",
-      contentType: "text/uri-list",
-      data: urlList
-    })
-    .done(() => this.letShareKnow())
-    .fail((jqXHR, error, message) => {
-
-      console.error(error);
-      console.info(message);
-    });
   }
 
   criterionEdited(e) {
@@ -432,41 +427,27 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   saveWeights() {
-
     this.dispatchEvent(new CustomEvent('save-weights'));
   }
 
   createCriterion() {
 
-    $.ajax({
-      url: "/rubrics-service/rest/criterions/",
-      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": this.locale},
-      method: "POST",
-      data: "{}"
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default`;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     })
-    .done(data => this.createCriterionResponse(data))
-    .fail((jqXHR, error, message) => {
+    .then(r => {
 
-      console.error(error);
-      console.info(message);
-    });
-  }
-
-  updateRatings(url, urlList) {
-
-    $.ajax({
-      url,
-      headers: {"authorization": this.token},
-      method: "PUT",
-      contentType: "text/uri-list",
-      data: urlList
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting default criterion");
     })
-    .done(() => this.letShareKnow())
-    .fail((jqXHR, error, message) => {
-
-      console.error(error);
-      console.info(message);
-    });
+    .then(nc => {
+      this.createCriterionResponse(nc);
+    })
+    .catch(error => console.error(error));
   }
 
   openEditWithKeyboard(e) {
@@ -477,4 +458,5 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 }
 
-customElements.define("sakai-rubric-criteria", SakaiRubricCriteria);
+const tagName = "sakai-rubric-criteria";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricCriteria);

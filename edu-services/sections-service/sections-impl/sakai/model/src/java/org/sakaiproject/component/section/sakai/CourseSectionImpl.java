@@ -46,7 +46,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CourseSectionImpl implements CourseSection, Comparable<CourseSection>, Serializable {
+public class CourseSectionImpl implements CourseSection, Serializable {
     private static final long serialVersionUID = 1L;
     private static final String TIME_FORMAT_LONG = "h:mm a";
     private static final String TIME_FORMAT_DATE_TZ = "dd/MM/yyyy HH:mm zzzz";

@@ -298,6 +298,34 @@ sakai-grader {
     font-weight: bold;
   }
 
+  .grader-originality-label > span:first-child {
+      margin-right: 5px;
+  }
+  
+  .grader-originality-section {
+    padding-left: 1em;
+  }
+
+  .grader-originality-separator {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  
+  .grader-originality-link {
+    text-decoration: none;
+    span {
+      margin-left: 5px;
+    }
+  }
+  
+  .grader-originality-caption {
+    background-image: linear-gradient(180deg, var(--sakai-title-bar-bg-color), #ffffff);
+    padding: 5px;
+    span:first-child {
+      margin-right: 5px;
+    }
+  }
+
   .submitted-time {
     font-style: italic;
     display: flex;

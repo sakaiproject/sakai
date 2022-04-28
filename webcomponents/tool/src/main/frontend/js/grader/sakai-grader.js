@@ -40,6 +40,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.i18nPromise.then(t => this.i18n = t);
 
     this.loadTranslations("assignment").then(t => this.assignmentsI18n = t);
+    if (typeof MathJax !== "undefined") {
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }
   }
 
   static get properties() {
@@ -90,6 +93,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   set submission(newValue) {
+
     if (!this.nonEditedSubmission || newValue.id !== this.nonEditedSubmission.id) {
       this.nonEditedSubmission = {};
       Object.assign(this.nonEditedSubmission, newValue);
@@ -229,6 +233,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderSaved() {
+
     return html`<span class="saved fa fa-check-circle"
                   title="${this.i18n.saved_successfully}"
                   style="display: ${this.saveSucceeded ? "inline" : "none"};">
@@ -236,6 +241,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   }
 
   renderFailed() {
+
     return html`<span class="saved failed fa fa-times-circle"
                   title="${this.i18n.failed_save}"
                   style="display: ${this.saveFailed ? "inline" : "none"};">
@@ -283,6 +289,120 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               `)}` : ""}
           </div>
         </div> <!-- /submitted-block -->
+        ${this.submission.originalityShowing ? html`
+          <div>
+            <label class="grader-label grader-originality-label">
+              <span>${this.submission.originalityServiceName}</span>
+              <span>${this.assignmentsI18n["review.report"]}</span>
+            </label>
+            ${this.submission.originalitySupplies.map(result => html`
+              <div class="grader-originality-section" >
+                ${result[Submission.originalityConstants.originalityLink] !== 'Error' ? html`
+                  <a target="_blank"
+                      href="${result[Submission.originalityConstants.originalityLink]}"
+                      class="grader-originality-link">
+                    <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
+                    <span>${result[Submission.originalityConstants.originalityScore]}${this.assignmentsI18n["content_review.score_display.grader"]}</span>
+                  </a>
+                  <span>
+                    <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
+                    <span>${result[Submission.originalityConstants.originalityName]}</span>
+                  </span>
+                ` : html`
+                  ${result[Submission.originalityConstants.originalityStatus] === 'true' ? html`
+                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
+                        class="grader-originality-link"
+                        data-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="${result[Submission.originalityConstants.originalityKey]}">
+                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
+                      <span>${this.assignmentsI18n["content_review.disclosure.pending"]}</span>
+                    </a>
+                  ` : html`
+                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
+                        class="grader-originality-link"
+                        data-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="${result[Submission.originalityConstants.originalityKey]}">
+                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
+                      <span>${this.assignmentsI18n["content_review.disclosure.error"]}</span>
+                    </a>
+                  `}
+                  <span>
+                    <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
+                    <span>${result[Submission.originalityConstants.originalityName]}</span>
+                  </span>
+                  <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
+                    <div>${result[Submission.originalityConstants.originalityError]}</div>
+                  </div>
+                `}
+                <br />
+              </div>
+            `)}
+          </div>
+        ` : ""}
+        ${this.submission.originalityShowing ? html`
+          <div>
+            <label class="grader-label grader-originality-label"><span>${this.submission.originalityServiceName}</span><span>${this.assignmentsI18n["review.report"]}</span></label>
+            ${this.submission.originalitySupplies.map(result => html`
+              <div class="grader-originality-section" >
+                ${result[Submission.originalityConstants.originalityLink] !== 'Error' ? html`
+                  <a target="_blank"
+                      href="${result[Submission.originalityConstants.originalityLink]}"
+                      class="grader-originality-link">
+                    <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
+                    <span>${result[Submission.originalityConstants.originalityScore]}${this.assignmentsI18n["content_review.score_display.grader"]}</span>
+                  </a>
+                  <span>
+                    <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
+                    <span>${result[Submission.originalityConstants.originalityName]}</span>
+                  </span>
+                ` : html`
+                  ${result[Submission.originalityConstants.originalityStatus] === 'true' ? html`
+                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
+                        data-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="${result[Submission.originalityConstants.originalityKey]}"
+                        class="grader-originality-link">
+                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i>
+                      <span>${this.assignmentsI18n["content_review.disclosure.pending"]}</span>
+                    </a>
+                    <span>
+                      <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
+                      <span>${result[Submission.originalityConstants.originalityName]}</span>
+                    </span>
+                    <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
+                      <div>
+                        <span>${this.assignmentsI18n["content_review.notYetSubmitted.grader"]}</span>
+                        <span>${this.submission.originalityServiceName}</span>
+                      </div>
+                    </div>
+                  ` : html`
+                    <a href="#${result[Submission.originalityConstants.originalityKey]}"
+                        data-toggle="collapse"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="${result[Submission.originalityConstants.originalityKey]}"
+                        class="grader-originality-link">
+                      <i class="${result[Submission.originalityConstants.originalityIcon]}"></i><span>${this.assignmentsI18n["content_review.disclosure.error"]}</span>
+                    </a>
+                    <span>
+                      <span class="grader-originality-delimiter">${this.assignmentsI18n["content_review.delimiter"]}</span>
+                      <span>${result[Submission.originalityConstants.originalityName]}</span>
+                    </span>
+                    <div class="collapse grader-originality-caption" id="${result[Submission.originalityConstants.originalityKey]}">
+                      <div>${result[Submission.originalityConstants.originalityError]}</div>
+                    </div>
+                  `}
+                `}
+                <br />
+              </div>
+            `)}
+          </div>
+        ` : ""}
         <div class="grade-block">
           ${this.gradeScale === "LETTER_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
@@ -337,7 +457,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             <sakai-rubric-grading-button
               id="grader-rubric-link"
               title="${this.assignmentsI18n.grading_rubric}"
-              token="${this.token}"
+              site-id="${portal.siteId}"
               tool-id="${this.toolId}"
               entity-id="${this.entityId}"
               evaluated-item-id="${this.submission.id}"
@@ -345,7 +465,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               @click=${this.toggleRubric}></sakai-rubric-grading-button>
             <div id="rubric-panel" title="${this.i18n.rubric}" style="display: none;">
               <sakai-rubric-grading
-                token="${this.token}"
+                site-id="${portal.siteId}"
                 tool-id="${this.toolId}"
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.submission.id}"
@@ -548,11 +668,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancelRubric() {
 
-    const rubricGrading = document.getElementsByTagName("sakai-rubric-grading").item(0);
+    const rubricGradingElem = document.getElementsByTagName("sakai-rubric-grading");
+    if (rubricGradingElem.length <= 0) {
+      return;
+    }
+    const rubricGrading = rubricGradingElem.item(0);
     rubricGrading && rubricGrading.cancel();
-
-    this.rubricShowing = true;
-    this.doneWithRubricDialog();
+    this.rubricShowing && this.doneWithRubricDialog();
   }
 
   replaceWithEditor(id) {
@@ -900,6 +1022,9 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   cancel() {
 
+    if (!this.canNavigate()) {
+      return;
+    }
     const originalSubmission = Object.create(this.originalSubmissions.find(os => os.id === this.submission.id));
     const i = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions.splice(i, 1, originalSubmission);
@@ -1173,9 +1298,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.submission.extensionAllowed = !e.target.checked;
     this.allowExtension = e.target.checked;
   }
-
 }
 
-if (!customElements.get("sakai-grader")) {
-  customElements.define("sakai-grader", SakaiGrader);
-}
+const tagName = "sakai-grader";
+!customElements.get(tagName) && customElements.define(tagName, SakaiGrader);

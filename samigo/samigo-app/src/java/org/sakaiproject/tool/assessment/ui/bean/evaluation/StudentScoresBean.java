@@ -29,6 +29,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import lombok.Getter;
+import lombok.Setter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -44,6 +46,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 @Slf4j
 @ManagedBean(name="studentScores")
 @SessionScoped
+@Getter @Setter
 public class StudentScoresBean implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
@@ -55,6 +58,7 @@ public class StudentScoresBean implements Serializable {
   private String comments;
   private String publishedId;
   private String studentId;
+  private String displayId;
   private String assessmentGradingId;
   private String itemId; // ID of the first item; used by QuestionScores
   private String email;
@@ -67,107 +71,6 @@ public class StudentScoresBean implements Serializable {
   {
     log.debug("Creating a new StudentScoresBean");
   }
-  
-  public String getStudentName()
-  {
-    return studentName;
-  }
-
-  public void setStudentName(String studentName)
-  {
-    this.studentName = studentName;
-  }
-
-  public String getFirstName()
-  {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName)
-  {
-    this.firstName = firstName;
-  }
-
-  public String getLastName()
-  {
-    return lastName;
-  }
-
-  public void setLastName(String lastName)
-  {
-    this.lastName = lastName;
-  }
-
-  public String getComments()
-  {
-    return comments;
-  }
-
-  public void setComments(String newcomments)
-  {
-    comments = newcomments;
-  }
-
-  public String getPublishedId()
-  {
-    return publishedId;
-  }
-
-  public void setPublishedId(String newId)
-  {
-    publishedId = newId;
-  }
-
-  public String getStudentId()
-  {
-    return studentId;
-  }
-
-  public void setStudentId(String newId)
-  {
-    studentId = newId;
-  }
-
-  public String getAssessmentGradingId()
-  {
-    return assessmentGradingId;
-  }
-
-  public void setAssessmentGradingId(String newId)
-  {
-    assessmentGradingId = newId;
-  }
-
-  public String getItemId()
-  {
-    return itemId;
-  }
-
-  public void setItemId(String newId)
-  {
-    itemId = newId;
-  }
-  
-  public String getEmail()
-  {
-    return email;
-  }
-
-  public void setEmail(String email)
-  {
-	  this.email = email;
-  }
-  
-
-  public Long getItemGradingIdForFilePicker() {
-	  return itemGradingIdForFilePicker;
-  }
-
-  public void setItemGradingIdForFilePicker(Long itemGradingIdForFilePicker)
-  {
-	  this.itemGradingIdForFilePicker = itemGradingIdForFilePicker;
-  }
-
 
   public String addAttachmentsRedirect() {
 	  // 1. redirect to add attachment

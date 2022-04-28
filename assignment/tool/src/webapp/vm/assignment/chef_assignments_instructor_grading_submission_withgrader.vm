@@ -18,7 +18,6 @@
         current-student-id="$!submitterId"
         has-associated-rubric="$!hasAssociatedRubric"
         #if ($!hasAssociatedRubric)
-        token="$!rbcs-token"
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
