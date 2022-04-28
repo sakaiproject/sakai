@@ -32,11 +32,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "CONV_POSTS", indexes = { @Index(columnList = "TOPIC_ID"),
-                                        @Index(columnList = "TOPIC_ID, CREATOR"),
-                                        @Index(columnList = "SITE_ID"),
-                                        @Index(columnList = "PARENT_POST_ID"),
-                                        @Index(columnList = "PARENT_THREAD_ID") })
+@Table(name = "CONV_POSTS", indexes = { @Index(name = "conv_posts_topic_idx", columnList = "TOPIC_ID"),
+                                        @Index(name = "conv_posts_topic_creator_idx", columnList = "TOPIC_ID, CREATOR"),
+                                        @Index(name = "conv_posts_site_idx", columnList = "SITE_ID"),
+                                        @Index(name = "conv_posts_parent_post_idx", columnList = "PARENT_POST_ID"),
+                                        @Index(name = "conv_posts_parent_thread_idx", columnList = "PARENT_THREAD_ID") })
 @Getter
 @Setter
 public class ConversationsPost implements PersistableEntity<String> {
@@ -47,14 +47,14 @@ public class ConversationsPost implements PersistableEntity<String> {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
-    @Column(name = "TOPIC_ID", nullable = false)
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
     private String topicId;
 
-    @Column(name = "PARENT_POST_ID")
+    @Column(name = "PARENT_POST_ID", length = 36)
     private String parentPostId;
 
     // This holds the oldest ancestor, the thread starter, in this thread of posts
-    @Column(name = "PARENT_THREAD_ID")
+    @Column(name = "PARENT_THREAD_ID", length = 36)
     private String parentThreadId;
 
     @Column(name = "SITE_ID", length = 99, nullable = false)

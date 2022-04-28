@@ -31,7 +31,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "CONV_TOPIC_REACTION_TOTALS",
-    indexes = { @Index(columnList = "TOPIC_ID") },
+    indexes = { @Index(name = "conv_topic_reaction_totals_topic_idx", columnList = "TOPIC_ID") },
     uniqueConstraints = { @UniqueConstraint(name = "UniqueTopicReactionTotals", columnNames = { "TOPIC_ID", "REACTION" }) })
 @Getter
 @Setter
@@ -42,7 +42,7 @@ public class TopicReactionTotal implements PersistableEntity<Long> {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "TOPIC_ID", nullable = false)
+    @Column(name = "TOPIC_ID", length = 36, nullable = false)
     private String topicId;
 
     @Column(name = "REACTION", nullable = false)

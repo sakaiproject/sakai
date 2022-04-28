@@ -45,8 +45,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "CONV_TOPICS", indexes = {
-                        @Index(columnList = "SITE_ID"),
-                        @Index(columnList = "SITE_ID, CREATOR")
+                        @Index(name = "conv_topics_site_idx", columnList = "SITE_ID"),
+                        @Index(name = "conv_topics_site_creator_idx", columnList = "SITE_ID, CREATOR")
                     }
 )
 @Getter

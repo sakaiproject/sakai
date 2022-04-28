@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "CONV_SETTINGS", indexes = @Index(columnList = "SITE_ID", unique = true))
+@Table(name = "CONV_SETTINGS", indexes = @Index(name = "conv_settings_site_idx", columnList = "SITE_ID", unique = true))
 @Getter
 @Setter
 public class Settings implements PersistableEntity<Long> {
