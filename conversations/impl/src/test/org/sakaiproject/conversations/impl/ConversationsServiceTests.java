@@ -204,12 +204,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void createTopicWithoutPermission() {
 
         // No current user. We should get an exeception.
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn("sakaiuser");
 
         // You can't create a topic without TOPIC_CREATE.
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
     }
 
     @Test
@@ -260,9 +260,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             // You need TOPIC_UPDATE_OWN or TOPIC_UPDATE_ANY to update your own topic
             when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
             when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertEquals(updatedTitle, topicBean.title);
             assertEquals(updatedMessage, topicBean.message);
 
@@ -291,7 +291,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.aboutReference = siteRef;
             topicBean.showDate = Instant.now().plus(5, ChronoUnit.HOURS);
 
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
 
             switchToUser1();
 
@@ -299,7 +299,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
 
-            TopicTransferBean savedBean = conversationsService.saveTopic(topicBean);
+            TopicTransferBean savedBean = conversationsService.saveTopic(topicBean, true);
             when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.size());
@@ -337,7 +337,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.visibility = TopicVisibility.SITE.name();
             topicBean.aboutReference = siteRef;
             topicBean.mustPostBeforeViewing = true;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             String topicId = topicBean.id;
 
@@ -347,7 +347,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean.siteId = siteId;
             postBean.topic = topicBean.id;
             postBean.setMessage("Here is my message");
-            conversationsService.savePost(postBean);
+            conversationsService.savePost(postBean, true);
 
             switchToUser2();
 
@@ -361,7 +361,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean2.siteId = siteId;
             postBean2.topic = topicBean.id;
             postBean2.setMessage("Here is my message");
-            conversationsService.savePost(postBean2);
+            conversationsService.savePost(postBean2, true);
 
             topics = conversationsService.getTopicsForSite(siteId);
             assertTrue(topics.get(0).hasPosted);
@@ -396,7 +396,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // (as set by a permission), or their creator
             topicBean.visibility = "INSTRUCTORS";
             topicBean.draft = false;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
@@ -413,7 +413,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             topicBean.visibility = "SITE";
             topicBean.hidden = true;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
@@ -428,7 +428,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             topicBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
             topicBean.hidden = false;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
             assertTrue(topics.get(0).lockedByDate);
@@ -436,7 +436,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.lockDate = null;
             topicBean.hidden = false;
             topicBean.hideDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
             //assertTrue(topics.get(0).hiddenByDate);
@@ -446,25 +446,25 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.showDate = null;
             topicBean.hidden = false;
 
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
 
             topicBean.showDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
             topicBean.showDate = null;
             topicBean.hideDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
             topicBean.hideDate = null;
             topicBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
 
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertFalse(topicBean.lockDate == null);
 
             topicBean.lockDate = null;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertNull(topicBean.lockDate);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
@@ -482,7 +482,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             switchToUser1();
             TopicTransferBean topicBean = createTopic(true);
             topicBean.dueDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             // Now lets post to the topic. The post should be marked as late.
             switchToUser2();
@@ -492,14 +492,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean.topic = topicBean.id;
             postBean.setMessage("Here is my message");
 
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
 
             assertTrue(postBean.late);
 
             // Lock date will be set if we use the availability checkbox
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
             topicBean.lockDate = Instant.now().minus(5, ChronoUnit.HOURS);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.size());
@@ -512,7 +512,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean2.siteId = siteId;
             postBean2.topic = topicBean.id;
             postBean2.setMessage("Here is my really late post");
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean2));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean2, true));
 
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
 
@@ -522,17 +522,17 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             topicBean = createTopic(true);
             topicBean.dueDate = Instant.now().minus(5, ChronoUnit.HOURS);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             postBean = new PostTransferBean();
             postBean.siteId = siteId;
             postBean.topic = topicBean.id;
             postBean.setMessage("Here is my message");
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.size());
             assertTrue(posts.iterator().next().late);
             topicBean.dueDate = Instant.now().plus(5, ChronoUnit.HOURS);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
             assertFalse(posts.iterator().next().late);
         } catch (ConversationsPermissionsException cpe) {
@@ -559,14 +559,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.showDate = Instant.now().plus(20, ChronoUnit.HOURS);
             when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            conversationsService.saveTopic(topicBean);
+            conversationsService.saveTopic(topicBean, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
             TopicTransferBean savedBean = topics.get(0);
             assertTrue(savedBean.hidden);
 
             savedBean.showDate = null;
-            savedBean = conversationsService.saveTopic(savedBean);
+            savedBean = conversationsService.saveTopic(savedBean, true);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
@@ -578,7 +578,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // be hidden from non moderators
             savedBean.hidden = false;
             savedBean.hideDate = Instant.now().minus(1, ChronoUnit.HOURS);
-            savedBean = conversationsService.saveTopic(savedBean);
+            savedBean = conversationsService.saveTopic(savedBean, true);
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(0, topics.size());
@@ -594,7 +594,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // If the hide date is after the show date, hide date should always win.
             savedBean.showDate = Instant.now().minus(2, ChronoUnit.HOURS);
             savedBean.hideDate = Instant.now().minus(1, ChronoUnit.HOURS);
-            conversationsService.saveTopic(savedBean);
+            conversationsService.saveTopic(savedBean, true);
             savedBean = conversationsService.getTopicsForSite(topicBean.siteId).get(0);
             //assertTrue(savedBean.hidden);
         } catch (ConversationsPermissionsException cpe) {
@@ -621,9 +621,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             updatedBean.message = "xxxxxx";
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
             when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(updatedBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(updatedBean, true));
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            TopicTransferBean testBean = conversationsService.saveTopic(updatedBean);
+            TopicTransferBean testBean = conversationsService.saveTopic(updatedBean, true);
 
             // Moderators can still edit locked topics
             assertTrue(testBean.canEdit);
@@ -632,14 +632,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             // We should not be able to create a post on a locked topic, unless we have MODERATE
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            PostTransferBean updatedPostBean = conversationsService.savePost(postBean);
+            PostTransferBean updatedPostBean = conversationsService.savePost(postBean, true);
             // Locking a topic should lock all the posts in the topic, even when adding new posts to a locked topic
             assertTrue(updatedPostBean.locked);
 
             updatedBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
-            conversationsService.saveTopic(updatedBean);
+            conversationsService.saveTopic(updatedBean, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
             TopicTransferBean updatedBean2 = topics.get(0);
@@ -658,7 +658,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertTrue(updatedBean2.locked);
 
             updatedBean2.lockDate = Instant.now().minus(2, ChronoUnit.HOURS);
-            updatedBean2 = conversationsService.saveTopic(updatedBean2);
+            updatedBean2 = conversationsService.saveTopic(updatedBean2, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
             assertTrue(topics.get(0).lockedByDate);
@@ -677,7 +677,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         try {
             postBean.topic = topicBean.id;
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             Settings settings = new Settings();
             settings.setSiteId(topicBean.siteId);
             settings.setSiteLocked(true);
@@ -693,12 +693,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             // this site is now locked. You should only be able to create a topic if you have MODERATE
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean2));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean2, true));
 
             postBean.setMessage("eggs");
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            //conversationsService.savePost(postBean);
+            //conversationsService.savePost(postBean, true);
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when testing topic filtering");
         } catch (NullPointerException npe) {
@@ -714,7 +714,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean = createTopic(true);
             assertTrue(topicBean != null && topicBean.id != null && topicBean.id.length() == 36);
             topicBean.anonymous = true;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertNotEquals(topicBean.creatorDisplayName, user1User.getDisplayName());
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when testing topic filtering");
@@ -731,10 +731,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean.topic = topicBean.id;
 
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             assertEquals(36, postBean.id.length());
             assertEquals(user1, postBean.creator);
 
@@ -751,10 +751,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean.siteId = topicBean.siteId;
 
             when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
             when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(true);
 
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             assertEquals(updatedMessage, postBean.message);
 
             when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(false);
@@ -792,7 +792,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             thread1.topic = topicBean.id;
             thread1.siteId = siteId;
             switchToUser1();
-            thread1 = conversationsService.savePost(thread1);
+            thread1 = conversationsService.savePost(thread1, true);
 
             // You should only be able to get the posts if you have SITE_VISIT
             when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(false);
@@ -807,7 +807,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             thread2.topic = topicBean.id;
             thread2.siteId = siteId;
             switchToUser2();
-            postBean = conversationsService.savePost(thread2);
+            postBean = conversationsService.savePost(thread2, true);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(2, posts.size());
 
@@ -816,7 +816,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             thread3.topic = topicBean.id;
             thread3.siteId = siteId;
             switchToUser3();
-            postBean = conversationsService.savePost(thread3);
+            postBean = conversationsService.savePost(thread3, true);
 
             // First page
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
@@ -832,7 +832,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             post1.siteId = siteId;
             post1.parentPost = thread1.id;
             post1.parentThread = thread1.id;
-            postBean = conversationsService.savePost(post1);
+            postBean = conversationsService.savePost(post1, true);
 
             // First page, ordered newest first
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, PostSort.NEWEST, null);
@@ -916,7 +916,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             switchToUser1();
             topicBean = createTopic(true);
             postBean.topic = topicBean.id;
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             int currentUpvotes = postBean.upvotes;
             assertTrue(postBean.id != null);
             assertEquals(0, postBean.upvotes);
@@ -957,7 +957,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             TopicTransferBean topicBean = new TopicTransferBean();
             topicBean.siteId = this.siteId;
             topicBean.title = "Topic Title";
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             switchToUser2();
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
@@ -968,7 +968,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             privatePost.message = "Private Post";
             privatePost.privatePost = true;
 
-            privatePost = conversationsService.savePost(privatePost);
+            privatePost = conversationsService.savePost(privatePost, true);
 
             assertTrue(privatePost.privatePost);
 
@@ -991,13 +991,13 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             discussionTopicBean.siteId = this.siteId;
             discussionTopicBean.title = "Discussion Topic Title";
             discussionTopicBean.type = TopicType.DISCUSSION.name();
-            discussionTopicBean = conversationsService.saveTopic(discussionTopicBean);
+            discussionTopicBean = conversationsService.saveTopic(discussionTopicBean, true);
 
             PostTransferBean level1Post = new PostTransferBean();
             level1Post.siteId = this.siteId;
             level1Post.topic = discussionTopicBean.id;
             level1Post.message = "Level1";
-            level1Post = conversationsService.savePost(level1Post);
+            level1Post = conversationsService.savePost(level1Post, true);
 
             switchToUser2();
             PostTransferBean level2Post = new PostTransferBean();
@@ -1006,7 +1006,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             level2Post.message = "Level2";
             level2Post.parentPost = level1Post.id;
             level2Post.privatePost = true;
-            level2Post = conversationsService.savePost(level2Post);
+            level2Post = conversationsService.savePost(level2Post, true);
             assertEquals(level1Post.id, level2Post.parentPost);
 
             topics = conversationsService.getTopicsForSite(this.siteId);
@@ -1041,12 +1041,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             TopicTransferBean topicBean = new TopicTransferBean();
             topicBean.siteId = this.siteId;
             topicBean.title = "Topic Title";
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             PostTransferBean postBean = new PostTransferBean();
             postBean.setMessage("Post");
             postBean.topic = topicBean.id;
             postBean.siteId = siteId;
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
 
             CommentTransferBean commentBean = new CommentTransferBean();
             commentBean.post = postBean.id;
@@ -1084,7 +1084,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             List<ConversationsComment> comments = commentRepository.findByPostId(postBean.id);
             assertTrue(comments.isEmpty());
 
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             commentBean.post = postBean.id;
             conversationsService.saveComment(commentBean);
             posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
@@ -1168,7 +1168,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             tags = conversationsService.createTags(tags);
             Long newTagId = tags.get(0).getId();
             topicBean.tags = tags;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertEquals(newTagId, topicBean.tags.iterator().next().getId());
 
             conversationsService.deleteTag(newTagId);
@@ -1319,14 +1319,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             thread1.message = thread1Message;
 
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(thread1));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(thread1, true));
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
-            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(thread1));
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(thread1, true));
 
             thread1.topic = topicBean.id;
 
-            PostTransferBean savedThread1 = conversationsService.savePost(thread1);
+            PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
 
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.get(0).numberOfPosts);
@@ -1341,11 +1341,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             reply1.topic = topicBean.id;
 
             // This should fail as the parent post doesn't exist
-            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(reply1));
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(reply1, true));
 
             reply1.parentPost = savedThread1.id;
 
-            PostTransferBean savedReply1 = conversationsService.savePost(reply1);
+            PostTransferBean savedReply1 = conversationsService.savePost(reply1, true);
             assertEquals(replyMessage, savedReply1.message);
             assertEquals(savedThread1.id, savedReply1.parentPost);
             assertEquals(savedThread1.id, savedReply1.parentThread);
@@ -1365,7 +1365,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             reply2.message = reply2Message;
             reply2.siteId = topicBean.siteId;
             reply2.topic = topicBean.id;
-            PostTransferBean savedReply2 = conversationsService.savePost(reply2);
+            PostTransferBean savedReply2 = conversationsService.savePost(reply2, true);
 
             threads = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, threads.size());
@@ -1395,7 +1395,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         try {
             postBean.topic = topicBean.id;
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
 
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.get(0).numberOfPosts);
@@ -1412,7 +1412,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             //when(securityService.unlock(Permissions.POST_UPDATEDELETE_ANY.label, siteRef)).thenReturn(true);
             postBean.id = "";
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.size());
 
@@ -1429,7 +1429,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             reply1.siteId = topicBean.siteId;
             reply1.topic = topicBean.id;
 
-            reply1 = conversationsService.savePost(reply1);
+            reply1 = conversationsService.savePost(reply1, true);
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.iterator().next().getNumberOfThreadReplies());
 
@@ -1461,7 +1461,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         try {
             postBean.topic = topicBean.id;
-            PostTransferBean updatedPostBean = conversationsService.savePost(postBean);
+            PostTransferBean updatedPostBean = conversationsService.savePost(postBean, true);
             Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.size());
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hidePost(topicBean.siteId, topicBean.id, updatedPostBean.id, true));
@@ -1496,7 +1496,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
-            PostTransferBean savedThread1 = conversationsService.savePost(thread1);
+            PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
 
             Map<Reaction, Boolean> reactions = new HashMap<>();
             reactions.put(Reaction.GOOD_ANSWER, Boolean.TRUE);
@@ -1522,7 +1522,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             switchToUser1();
 
-            PostTransferBean savedReply1 = conversationsService.savePost(reply1);
+            PostTransferBean savedReply1 = conversationsService.savePost(reply1, true);
 
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
 
@@ -1599,13 +1599,13 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean.siteId = siteId;
             postBean.topic = topicBean.id;
             postBean.setMessage("Here is my message");
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
 
             PostTransferBean postBean2 = new PostTransferBean();
             postBean2.siteId = siteId;
             postBean2.topic = topicBean.id;
             postBean2.setMessage("Here is my message");
-            postBean2 = conversationsService.savePost(postBean2);
+            postBean2 = conversationsService.savePost(postBean2, true);
 
             switchToUser2();
 
@@ -1638,7 +1638,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             postBean3.siteId = siteId;
             postBean3.topic = topicBean.id;
             postBean3.setMessage("Here is my message");
-            postBean3 = conversationsService.savePost(postBean3);
+            postBean3 = conversationsService.savePost(postBean3, true);
 
             switchToInstructor();
             data = conversationsService.getSiteStats(siteId, null, null, 1, null);
@@ -1662,7 +1662,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         topicBean.aboutReference = siteRef;
 
         try {
-            return conversationsService.saveTopic(topicBean);
+            return conversationsService.saveTopic(topicBean, true);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception when creating topic");

@@ -380,7 +380,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
 
     @Transactional
-    public TopicTransferBean saveTopic(final TopicTransferBean topicBean) throws ConversationsPermissionsException {
+    public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
@@ -477,24 +477,26 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            try {
-                Site site = siteService.getSite(decoratedBean.siteId);
-                Set<User> users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+            if (sendMessage) {
+                try {
+                    Site site = siteService.getSite(decoratedBean.siteId);
+                    Set<User> users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
 
-                Map<String, Object> replacements = new HashMap<>();
-                replacements.put("siteTitle", site.getTitle());
-                replacements.put("topicTitle", decoratedBean.title);
-                replacements.put("topicUrl", decoratedBean.portalUrl);
-                replacements.put("bundle", new ResourceLoader("conversations_notifications"));
+                    Map<String, Object> replacements = new HashMap<>();
+                    replacements.put("siteTitle", site.getTitle());
+                    replacements.put("topicTitle", decoratedBean.title);
+                    replacements.put("topicUrl", decoratedBean.portalUrl);
+                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
-                userMessagingService.message(users,
-                    Message.builder()
-                        .siteId(decoratedBean.siteId)
-                        .tool(TOOL_ID)
-                        .type(topic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
-                    Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
-            } catch (IdUnusedException iue) {
-                log.error("No group for site reference {}", siteRef);
+                    userMessagingService.message(users,
+                        Message.builder()
+                            .siteId(decoratedBean.siteId)
+                            .tool(TOOL_ID)
+                            .type(topic.getType() == TopicType.QUESTION ? "newquestion" : "newdiscussion").build(),
+                        Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
+                } catch (IdUnusedException iue) {
+                    log.error("No group for site reference {}", siteRef);
+                }
             }
         });
         
@@ -700,7 +702,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
     }
 
     @Transactional
-    public PostTransferBean savePost(PostTransferBean postBean) throws ConversationsPermissionsException {
+    public PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException {
 
         String currentUserId = getCheckedCurrentUserId();
 
@@ -795,34 +797,36 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            try {
-                Site site = siteService.getSite(decoratedBean.siteId);
+            if (sendMessage) {
+                try {
+                    Site site = siteService.getSite(decoratedBean.siteId);
 
-                Map<String, Object> replacements = new HashMap<>();
-                replacements.put("siteTitle", site.getTitle());
-                replacements.put("topicTitle", topic.getTitle());
-                replacements.put("postUrl", decoratedBean.portalUrl);
-                replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
-                replacements.put("bundle", new ResourceLoader("conversations_notifications"));
+                    Map<String, Object> replacements = new HashMap<>();
+                    replacements.put("siteTitle", site.getTitle());
+                    replacements.put("topicTitle", topic.getTitle());
+                    replacements.put("postUrl", decoratedBean.portalUrl);
+                    replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
+                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
-                if (topic.getType() == TopicType.QUESTION && decoratedBean.isInstructor) {
-                    Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
-                    String topicCreator = topic.getMetadata().getCreator();
-                    Set<User> questionCreator = Collections.singleton(userDirectoryService.getUser(topicCreator));
-                    siteUsers.removeAll(questionCreator);
-                    sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
+                    if (topic.getType() == TopicType.QUESTION && decoratedBean.isInstructor) {
+                        Set<User> siteUsers = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                        String topicCreator = topic.getMetadata().getCreator();
+                        Set<User> questionCreator = Collections.singleton(userDirectoryService.getUser(topicCreator));
+                        siteUsers.removeAll(questionCreator);
+                        sendMessage(siteUsers, decoratedBean.siteId, replacements, "instructoranswer");
 
-                    // Send a specific message to the question poster
-                    sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
-                } else if (topic.getType() == TopicType.DISCUSSION && optParent.isPresent()) {
-                    String parentCreator = optParent.get().getMetadata().getCreator();
-                    if (!parentCreator.equals(currentUserId)) {
-                        Set<User> users = Collections.singleton(userDirectoryService.getUser(parentCreator));
-                        sendMessage(users, decoratedBean.siteId, replacements, "reply");
+                        // Send a specific message to the question poster
+                        sendMessage(questionCreator, decoratedBean.siteId, replacements, "instructorreply");
+                    } else if (topic.getType() == TopicType.DISCUSSION && optParent.isPresent()) {
+                        String parentCreator = optParent.get().getMetadata().getCreator();
+                        if (!parentCreator.equals(currentUserId)) {
+                            Set<User> users = Collections.singleton(userDirectoryService.getUser(parentCreator));
+                            sendMessage(users, decoratedBean.siteId, replacements, "reply");
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("Failed to send notifications: {}", e.toString());
                 }
-            } catch (Exception e) {
-                log.error("Failed to send notifications", e);
             }
         });
 
