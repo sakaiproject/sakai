@@ -35,8 +35,9 @@
 			  </div>
           </h:panelGroup>
           <h:panelGroup styleClass="itemNav specialLink">
-			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser} " />
-			<h:outputText value="#{msgs.cdfm_toolbar_separator} " />
+			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser}" style="padding-right: 5px;"/>
+            <h:commandLink action="#{mfStatisticsBean.processExportDataTableByUser}" value="#{msgs.stat_explort_table}" title="#{msgs.stat_explort_table}" />
+            <h:outputText value="#{msgs.cdfm_toolbar_separator} " />
 			<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}" title="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>
 		  </h:panelGroup>
         </h:panelGrid>
@@ -58,6 +59,7 @@
   				    <h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
 	          	</h:commandLink>
 			</h:column>
+
 			<h:column rendered="#{!mfStatisticsBean.pureAnon}">
 				<f:facet name="header">
 					<h:commandLink action="#{mfStatisticsBean.toggleIdSort}" title="#{msgs.stat_eid}">
@@ -71,12 +73,34 @@
 					<h:outputText value="#{stat.siteUserDisplayId}" />
 				</h:commandLink>
 			</h:column>
+
+			<h:column>
+                            <f:facet name="header">
+                                <h:commandLink action="#{mfStatisticsBean.toggleAuthoredNewSort}" title="#{msgs.stat_authored_new}">
+                                    <h:outputText value="#{msgs.stat_authored_new}" />
+                                    <h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredNewSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored_new}"/>
+                                    <h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredNewSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored_new}"/>
+                                </h:commandLink>
+                            </f:facet>
+                            <h:outputText value="#{stat.authoredForumsNewAmt}" />
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:commandLink action="#{mfStatisticsBean.toggleAuthoredRepliesSort}" title="#{msgs.stat_authored_replies}">
+                                    <h:outputText value="#{msgs.stat_authored_replies}" />
+                                    <h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredRepliesSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored_replies}"/>
+                                    <h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredRepliesSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored_replies}"/>
+                                </h:commandLink>
+                            </f:facet>
+                            <h:outputText value="#{stat.authoredForumsRepliesAmt}" />
+                        </h:column>
+
   			<h:column>
   				<f:facet name="header">
-  					<h:commandLink action="#{mfStatisticsBean.toggleAuthoredSort}" title="#{msgs.stat_authored}">
-					   	<h:outputText value="#{msgs.stat_authored}" />
-						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored}"/>
-						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_authored}"/>
+  					<h:commandLink action="#{mfStatisticsBean.toggleAuthoredSort}" title="#{msgs.stat_authored_total}">
+                        <h:outputText value="#{msgs.stat_authored_total}" />
+                        <h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.authoredSort && mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_total}"/>
+                        <h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.authoredSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_authored_total}"/>
 					</h:commandLink>
   				</f:facet>
   				<h:outputText value="#{stat.authoredForumsAmt}" />

@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,6 +86,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
 @Slf4j
 @ManagedBean(name="mfStatisticsBean")
 @SessionScoped
@@ -95,6 +100,7 @@ public class MessageForumStatisticsBean {
 	 */
 	
 	public class DecoratedCompiledMessageStatistics {
+
 		@Getter @Setter private String siteName;
 		@Getter @Setter private String siteId;
 		@Getter @Setter private String siteUser;
@@ -107,6 +113,8 @@ public class MessageForumStatisticsBean {
 		@Getter @Setter private int unreadForumsAmt;
 		@Getter @Setter private Double percentReadForumsAmt;
 		@Getter @Setter private DecoratedGradebookAssignment gradebookAssignment;
+        @Getter @Setter private int authoredForumsNewAmt;
+        @Getter @Setter private int authoredForumsRepliesAmt;
 
 		public boolean getUseAnonId(){
 			return this.useAnonId;
@@ -115,6 +123,7 @@ public class MessageForumStatisticsBean {
 		public String getAnonAwareId(){
 			return useAnonId ? siteAnonId : siteUser;
 		}
+
 	}
 	/* === End DecoratedCompiledMessageStatistics === */
 	
@@ -266,6 +275,8 @@ public class MessageForumStatisticsBean {
 	private static final String NAME_SORT = "sort_by_name";
 	private static final String ID_SORT = "sort_by_id";
 	private static final String AUTHORED_SORT = "sort_by_num_authored";
+	private static final String AUTHORED_NEW_SORT = "sort_by_num_authored_new";
+	private static final String AUTHORED_REPLIES_SORT = "sort_by_num_authored_replies";
 	private static final String READ_SORT = "sort_by_num_read";
 	private static final String UNREAD_SORT = "sort_by_num_unread";
 	private static final String PERCENT_READ_SORT = "sort_by_percent_read";
@@ -321,6 +332,8 @@ public class MessageForumStatisticsBean {
 	public static Comparator nameComparatorAsc;
 	public static Comparator displayNameComparatorAsc;
 	public static Comparator authoredComparatorAsc;
+	public static Comparator authoredNewComparatorAsc;
+	public static Comparator authoredRepliesComparatorAsc;
 	public static Comparator readComparatorAsc;
 	public static Comparator unreadComparatorAsc;
 	public static Comparator percentReadComparatorAsc;
@@ -328,6 +341,8 @@ public class MessageForumStatisticsBean {
 	public static Comparator nameComparatorDesc;
 	public static Comparator displayNameComparatorDesc;
 	public static Comparator authoredComparatorDesc;
+	public static Comparator authoredNewComparatorDesc;
+	public static Comparator authoredRepliesComparatorDesc;
 	public static Comparator readComparatorDesc;
 	public static Comparator unreadComparatorDesc;
 	public static Comparator percentReadComparatorDesc;
@@ -544,6 +559,45 @@ public class MessageForumStatisticsBean {
 				userStats.setAuthoredForumsAmt(0);
 			}
 		}
+
+		List<Object[]> studentAuthoredNewStats =
+				messageManager.findAuthoredNewMessageCountForAllStudents();
+		for (Object[] authoredStat : studentAuthoredNewStats) {
+			DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+			if (userStats == null) {
+				userStats = new DecoratedCompiledMessageStatistics();
+				tmpStatistics.put((String) authoredStat[0], userStats);
+			}
+			Integer totalForum = 0;
+			if (studentTotalCount.containsKey((String) authoredStat[0])) {
+				totalForum = studentTotalCount.get((String) authoredStat[0]);
+			}
+			if (totalForum > 0) {
+				userStats.setAuthoredForumsNewAmt(((Long) authoredStat[1]).intValue());
+			} else {
+				userStats.setAuthoredForumsNewAmt(0);
+			}
+		}
+
+		List<Object[]> studentAuthoredRepliesStats =
+				messageManager.findAuthoredRepliesMessageCountForAllStudents();
+		for (Object[] authoredStat : studentAuthoredRepliesStats) {
+			DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+			if (userStats == null) {
+				userStats = new DecoratedCompiledMessageStatistics();
+				tmpStatistics.put((String) authoredStat[0], userStats);
+			}
+			Integer totalForum = 0;
+			if (studentTotalCount.containsKey((String) authoredStat[0])) {
+				totalForum = studentTotalCount.get((String) authoredStat[0]);
+			}
+			if (totalForum > 0) {
+				userStats.setAuthoredForumsRepliesAmt(((Long) authoredStat[1]).intValue());
+			} else {
+				userStats.setAuthoredForumsRepliesAmt(0);
+			}
+		}
+
 
 		// now process the users from the list of site members to add display information
 		// this will also prune the list of members so only the papropriate ones are displayed
@@ -1238,7 +1292,17 @@ public class MessageForumStatisticsBean {
 		toggleSort(AUTHORED_SORT);
 		return LIST_PAGE;
 	}
-	
+
+	public String toggleAuthoredNewSort() {
+		toggleSort(AUTHORED_NEW_SORT);
+		return LIST_PAGE;
+	}
+
+	public String toggleAuthoredRepliesSort() {
+		toggleSort(AUTHORED_REPLIES_SORT);
+		return LIST_PAGE;
+	}
+
 	public String toggleReadSort()	{    
 		toggleSort(READ_SORT);
 		return LIST_PAGE;
@@ -1466,7 +1530,17 @@ public class MessageForumStatisticsBean {
 			return true;
 		return false;
 	}
-		
+
+	public boolean isAuthoredNewSort() {
+		if (sortBy.equals(AUTHORED_NEW_SORT)) return true;
+		return false;
+	}
+
+	public boolean isAuthoredRepliesSort() {
+		if (sortBy.equals(AUTHORED_REPLIES_SORT)) return true;
+		return false;
+	}
+
 	public boolean isReadSort() {
 		if (sortBy.equals(READ_SORT))
 			return true;
@@ -1519,6 +1593,10 @@ public class MessageForumStatisticsBean {
 				return displayNameComparatorAsc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorAsc;
+			} else if (sortBy.equals(AUTHORED_NEW_SORT)) {
+				return authoredNewComparatorAsc;
+			} else if (sortBy.equals(AUTHORED_REPLIES_SORT)) {
+				return authoredRepliesComparatorAsc;
 			}else if (sortBy.equals(READ_SORT)){
 				return readComparatorAsc;
 			}else if (sortBy.equals(UNREAD_SORT)){
@@ -1535,6 +1613,10 @@ public class MessageForumStatisticsBean {
 				return displayNameComparatorDesc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorDesc;
+			} else if (sortBy.equals(AUTHORED_NEW_SORT)) {
+				return authoredNewComparatorDesc;
+			} else if (sortBy.equals(AUTHORED_REPLIES_SORT)) {
+				return authoredRepliesComparatorDesc;
 			}else if (sortBy.equals(READ_SORT)){
 				return readComparatorDesc;
 			}else if (sortBy.equals(UNREAD_SORT)){
@@ -1684,7 +1766,44 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
-		
+
+		authoredNewComparatorAsc = new Comparator() {
+			public int compare(Object item, Object anotherItem) {
+				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsNewAmt();
+				int authored2 =
+						((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsNewAmt();
+				if (authored1 - authored2 == 0) {
+					// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+					// the scores
+					// with other scores that are equal to this (jsp submits twice, causing "sort" to
+					// happen between when
+					// the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				} else {
+					return authored1 - authored2;
+				}
+			}
+		};
+
+		authoredRepliesComparatorAsc = new Comparator() {
+			public int compare(Object item, Object anotherItem) {
+				int authored1 =
+						((DecoratedCompiledMessageStatistics) item).getAuthoredForumsRepliesAmt();
+				int authored2 =
+						((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsRepliesAmt();
+				if (authored1 - authored2 == 0) {
+					// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+					// the scores
+					// with other scores that are equal to this (jsp submits twice, causing "sort" to
+					// happen between when
+					// the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				} else {
+					return authored1 - authored2;
+				}
+			}
+		};
+
 		readComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
@@ -1789,7 +1908,44 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
-		
+
+		authoredNewComparatorDesc = new Comparator() {
+			public int compare(Object item, Object anotherItem) {
+				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsNewAmt();
+				int authored2 =
+						((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsNewAmt();
+				if (authored1 - authored2 == 0) {
+					// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+					// the scores
+					// with other scores that are equal to this (jsp submits twice, causing "sort" to
+					// happen between when
+					// the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				} else {
+					return authored2 - authored1;
+				}
+			}
+		};
+
+		authoredRepliesComparatorDesc = new Comparator() {
+			public int compare(Object item, Object anotherItem) {
+				int authored1 =
+						((DecoratedCompiledMessageStatistics) item).getAuthoredForumsRepliesAmt();
+				int authored2 =
+						((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsRepliesAmt();
+				if (authored1 - authored2 == 0) {
+					// we can't have descrepancies on how the order happens, otherwise jsf will scramble
+					// the scores
+					// with other scores that are equal to this (jsp submits twice, causing "sort" to
+					// happen between when
+					// the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				} else {
+					return authored2 - authored1;
+				}
+			}
+		};
+
 		readComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
@@ -2116,8 +2272,104 @@ public class MessageForumStatisticsBean {
 	public String processActionBackToUser() {
 		return FORUM_STATISTICS_USER;
 	}
-	
 
+	public void processExportDataTableByUser() {
+
+		List<DecoratedCompiledMessageStatistics> statistics = getAllUserStatistics();
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+		HttpServletResponse httpServletResponse = (HttpServletResponse) context.getResponse();
+		ServletOutputStream out = null;
+		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Users.csv");
+		try {
+			out = httpServletResponse.getOutputStream();
+			httpServletResponse.setHeader("Pragma", "No-Cache");
+			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
+			httpServletResponse.setDateHeader("Expires", 1);
+
+			StringBuilder builderHeader = new StringBuilder();
+			builderHeader.append("Student ID,Name,Authored - New,Authored - Replies,Authored - Total,Read,Unread,Percent Read");
+			out.println(builderHeader.toString());
+			NumberFormat format = NumberFormat.getPercentInstance();
+			for (DecoratedCompiledMessageStatistics messageStatistics : statistics) {
+				StringBuilder builder = new StringBuilder();
+				builder.append(messageStatistics.getSiteUserId());
+				builder.append(",");
+				builder.append("\"");
+				builder.append(messageStatistics.getSiteUser());
+				builder.append("\",");
+				builder.append(messageStatistics.getAuthoredForumsNewAmt());
+				builder.append(",");
+				builder.append(messageStatistics.getAuthoredForumsRepliesAmt());
+				builder.append(",");
+				builder.append(messageStatistics.getAuthoredForumsAmt());
+				builder.append(",");
+				builder.append(messageStatistics.getReadForumsAmt());
+				builder.append(",");
+				builder.append(messageStatistics.getUnreadForumsAmt());
+				builder.append(",");
+				builder.append(format.format(messageStatistics.getPercentReadForumsAmt()));
+				out.println(builder.toString());
+			}
+			out.flush();
+
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException err) {
+				log.error(err.getMessage(), err);
+			}
+		}
+		FacesContext.getCurrentInstance().responseComplete();
+	}
+
+	public void processExportDataTableByTopic() {
+
+		List<DecoratedCompiledStatisticsByTopic> statistics = getAllTopicStatistics();
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+		HttpServletResponse httpServletResponse = (HttpServletResponse) context.getResponse();
+		ServletOutputStream out = null;
+		httpServletResponse.setHeader("Content-Disposition", "attachment;filename=Stats-Grading-Topics.csv");
+		try {
+			out = httpServletResponse.getOutputStream();
+			httpServletResponse.setHeader("Pragma", "No-Cache");
+			httpServletResponse.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
+			httpServletResponse.setDateHeader("Expires", 1);
+
+			StringBuilder builderHeader = new StringBuilder();
+			builderHeader.append("Forum Title,Topic Title,Date,Total Messages");
+			out.println(builderHeader.toString());
+
+			for (DecoratedCompiledStatisticsByTopic messageStatistics : statistics) {
+				StringBuilder builder = new StringBuilder();
+				builder.append("\"");
+				builder.append(messageStatistics.getForumTitle());
+				builder.append("\",");
+				builder.append(messageStatistics.getTopicTitle());
+				builder.append(",");
+				builder.append(messageStatistics.getTopicDate());
+				builder.append(",");
+				builder.append(messageStatistics.getTotalTopicMessages());
+				out.println(builder.toString());
+			}
+			out.flush();
+
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException err) {
+				log.error(err.getMessage(), err);
+			}
+		}
+		FacesContext.getCurrentInstance().responseComplete();
+	}
 
 	// **************************************** helper methods**********************************
 
