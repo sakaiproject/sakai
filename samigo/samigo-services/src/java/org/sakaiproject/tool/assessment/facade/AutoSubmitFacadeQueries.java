@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -25,10 +26,10 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 		boolean autoSubmitCurrent = false;
 		adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
-		Date endDate = new Date();
-		if (Boolean.FALSE.equals(adata.getForGrade())) {
+		// If the assessment is deleted, or the submission is not forGrade just set hasAutoSubmissionRun = true; do not update gradebook
+		if (Boolean.FALSE.equals(adata.getForGrade()) && assessment.getStatus() != AssessmentBaseIfc.DEAD_STATUS) {
 
-			// SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
+			// SAM-1088 check to see if last user attempt was after due date
 			Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
 			Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
 			Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
@@ -56,38 +57,42 @@ public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements Auto
 				return true;
 			}
 
-			adata.setForGrade(Boolean.TRUE);
-			if (adata.getTotalAutoScore() == null) {
-				adata.setTotalAutoScore(0d);
+			// If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = true)
+			// We determine "empty" if it has an attempt date but submitted date is null
+			// Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
+			// So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
+			if (adata.getAttemptDate() != null && adata.getSubmittedDate() == null) {
+				adata.setStatus(AssessmentGradingData.NO_SUBMISSION);
 			}
-			if (adata.getFinalScore() == null) {
-				adata.setFinalScore(0d);
-			}
+			else {
+				adata.setForGrade(Boolean.TRUE);
+				if (adata.getTotalAutoScore() == null) {
+					adata.setTotalAutoScore(0d);
+				}
+				if (adata.getFinalScore() == null) {
+					adata.setFinalScore(0d);
+				}
+				if (adata.getAttemptDate() != null && dueDate != null &&
+						adata.getAttemptDate().after(dueDate)) {
+					adata.setIsLate(true);
+				}
+				// SAM-1088
+				else if (adata.getSubmittedDate() != null && dueDate != null &&
+						adata.getSubmittedDate().after(dueDate)) {
+					adata.setIsLate(true);
+				}
 
-			if (adata.getAttemptDate() != null && dueDate != null &&
-					adata.getAttemptDate().after(dueDate)) {
-				adata.setIsLate(true);
-			}
-			// SAM-1088
-			else if (adata.getSubmittedDate() != null && dueDate != null &&
-					adata.getSubmittedDate().after(dueDate)) {
-				adata.setIsLate(true);
-			}
-			// SAM-2729 user probably opened assessment and then never submitted a question
-			if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
-				adata.setSubmittedDate(endDate);
-			}
+				autoSubmitCurrent = true;
+				adata.setIsAutoSubmitted(Boolean.TRUE);
+				if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
+						&& lastAgentId.equals(adata.getAgentId())) {
+					adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
+				} else {
+					adata.setStatus(AssessmentGradingData.SUBMITTED);
+				}
 
-			autoSubmitCurrent = true;
-			adata.setIsAutoSubmitted(Boolean.TRUE);
-			if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-					&& lastAgentId.equals(adata.getAgentId())) {
-				adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-			} else {
-				adata.setStatus(AssessmentGradingData.SUBMITTED);
+				agfq.completeItemGradingData(adata, sectionSetMap);
 			}
-
-			agfq.completeItemGradingData(adata, sectionSetMap);
 		}
 
 		boolean success = agfq.saveOrUpdateAssessmentGrading(adata);
