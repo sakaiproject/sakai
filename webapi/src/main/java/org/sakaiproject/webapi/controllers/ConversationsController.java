@@ -160,7 +160,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 		checkSakaiSession();
 
         topicBean.siteId = siteId;
-        return entityModelForTopicBean(conversationsService.saveTopic(topicBean));
+        return entityModelForTopicBean(conversationsService.saveTopic(topicBean, true));
     }
 
 	@PutMapping(value = "/sites/{siteId}/topics/{topicId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -170,7 +170,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         topicBean.id = topicId;
         topicBean.siteId = siteId;
-        return entityModelForTopicBean(conversationsService.saveTopic(topicBean));
+        return entityModelForTopicBean(conversationsService.saveTopic(topicBean, true));
     }
 
 	@DeleteMapping(value = "/sites/{siteId}/topics/{topicId}")
@@ -255,7 +255,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 		checkSakaiSession();
         postBean.siteId = siteId;
         postBean.topic = topicId;
-        return entityModelForPostBean(conversationsService.savePost(postBean));
+        return entityModelForPostBean(conversationsService.savePost(postBean, true));
     }
 
 	@GetMapping(value = "/sites/{siteId}/topics/{topicId}/posts", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -279,7 +279,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
         postBean.siteId = siteId;
         postBean.id = postId;
-        return entityModelForPostBean(conversationsService.savePost(postBean));
+        return entityModelForPostBean(conversationsService.savePost(postBean, true));
     }
 
 	@DeleteMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)

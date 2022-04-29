@@ -63,7 +63,7 @@ public interface ConversationsService {
     boolean currentUserCanViewTopic(ConversationsTopic topic);
     List<TopicTransferBean> getTopicsForSite(String siteId) throws ConversationsPermissionsException;
     Optional<String> getTopicPortalUrl(String topicId);
-    TopicTransferBean saveTopic(TopicTransferBean topicBean) throws ConversationsPermissionsException;
+    TopicTransferBean saveTopic(TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException;
     void deleteTopic(String topicId) throws ConversationsPermissionsException;
     void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException;
     TopicTransferBean lockTopic(String topicId, boolean locked, boolean needsModerator) throws ConversationsPermissionsException;
@@ -72,7 +72,7 @@ public interface ConversationsService {
     Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
 
     Optional<PostTransferBean> getPost(String postId) throws ConversationsPermissionsException;
-    PostTransferBean savePost(PostTransferBean postBean) throws ConversationsPermissionsException;
+    PostTransferBean savePost(PostTransferBean postBean, boolean sendMessage) throws ConversationsPermissionsException;
     Optional<String> getPostPortalUrl(String topicId, String postId);
     int getNumberOfThreadPages(String siteId, String topicId) throws ConversationsPermissionsException;
     Collection<PostTransferBean> getPostsByTopicId(String siteId, String topicId, Integer page, PostSort sort, String requestedPostId) throws ConversationsPermissionsException;

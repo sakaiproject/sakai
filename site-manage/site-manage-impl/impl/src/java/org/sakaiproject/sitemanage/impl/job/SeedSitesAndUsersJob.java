@@ -247,15 +247,16 @@ public class SeedSitesAndUsersJob implements Job {
                 topicBean.title = site.getTitle() + ": Question " + (i + 1);
                 topicBean.message = "This is test topic " + (i + 1) + "for site " + siteId;
                 try {
-                    topicBean = conversationsService.saveTopic(topicBean);
+                    topicBean = conversationsService.saveTopic(topicBean, false);
                     for (int j = 0; j < numberOfConversationsPosts; j++) {
                         PostTransferBean postBean = new PostTransferBean();
                         postBean.topic = topicBean.id;
                         postBean.siteId = siteId;
                         postBean.message = "Post " + (j + 1);
-                        conversationsService.savePost(postBean);
+                        conversationsService.savePost(postBean, false);
                     }
                 } catch (Exception e) {
+                    log.error("Failed to create topics and posts in conversations: {}", e.toString());
                     e.printStackTrace();
                 }
             }
