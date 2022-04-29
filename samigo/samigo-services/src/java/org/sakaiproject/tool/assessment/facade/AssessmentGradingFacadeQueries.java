@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.comparators.NullComparator;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
@@ -75,7 +74,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -87,7 +85,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -98,12 +95,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -2993,12 +2987,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		List<AssessmentGradingData> list = query.list();
 
-        Iterator iter = list.iterator();
+        Iterator<AssessmentGradingData> iter = list.iterator();
         String lastAgentId = "";
         Long lastPublishedAssessmentId = 0L;
         PublishedAssessmentFacade assessment = null;
         AssessmentGradingData adata = null;
-        Map sectionSetMap = new HashMap();
+        Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap();
 
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
@@ -3226,19 +3220,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     @Override
     public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map<Long, Set<PublishedSectionData>> sectionSetMap) {
-        List answeredPublishedItemIdList = new ArrayList();
-        List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
-        Iterator iter = publishedItemIds.iterator();
-        Long answeredPublishedItemId;
-        while (iter.hasNext()) {
-            answeredPublishedItemId = (Long) iter.next();
-            log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
-            answeredPublishedItemIdList.add(answeredPublishedItemId);
-        }
+        List<Long> publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
+        List<Long> answeredPublishedItemIdList = publishedItemIds;
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         Long publishedAssessmentId = assessmentGradingData.getPublishedAssessmentId();
-        Set sectionSet;
+        Set<PublishedSectionData> sectionSet;
         if (sectionSetMap == null || !sectionSetMap.containsKey(publishedAssessmentId)) {
             sectionSet = publishedAssessmentService.getSectionSetForAssessment(publishedAssessmentId);
             if (sectionSetMap != null) {
@@ -3252,13 +3239,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             return;
         }
 
-        PublishedSectionData publishedSectionData;
-        List itemArrayList;
+        List<PublishedItemData> itemArrayList;
         Long publishedItemId;
         PublishedItemData publishedItemData;
-        iter = sectionSet.iterator();
-        while (iter.hasNext()) {
-            publishedSectionData = (PublishedSectionData) iter.next();
+        for (PublishedSectionData publishedSectionData : sectionSet) {
             log.debug("sectionId = " + publishedSectionData.getSectionId());
 
             String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
@@ -3292,10 +3276,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } else {
                 log.debug("Not random draw from questonpool");
                 itemArrayList = publishedSectionData.getItemArray();
-                Iterator itemIter = itemArrayList.iterator();
-                while (itemIter.hasNext()) {
-                    publishedItemData = (PublishedItemData) itemIter.next();
-                    publishedItemId = publishedItemData.getItemId();
+                for (PublishedItemData pid : itemArrayList) {
+                    publishedItemId = pid.getItemId();
                     log.debug("publishedItemId = " + publishedItemId);
                     if (!answeredPublishedItemIdList.contains(publishedItemId)) {
                         saveItemGradingData(assessmentGradingData, publishedItemId);
