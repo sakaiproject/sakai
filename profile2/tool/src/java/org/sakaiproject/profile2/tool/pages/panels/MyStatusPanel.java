@@ -105,8 +105,7 @@ public class MyStatusPanel extends Panel {
 		status.setOutputMarkupId(true);
 		add(status);
 		
-		 //clear link
-
+		//clear link
 		Button clearBtn = new Button("clearBtn");
 		clearBtn.add(new AjaxEventBehavior("click") {
 			@Override
@@ -127,6 +126,7 @@ public class MyStatusPanel extends Panel {
 		clearBtn.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
 		clearBtn.add(new AttributeModifier("title", clearStatus));
 		clearBtn.add(new AttributeModifier("aria-label", clearStatus));
+		clearBtn.setVisible(status.hasStatusSet());
 	
 		add(clearBtn);
 

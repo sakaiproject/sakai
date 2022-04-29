@@ -39,13 +39,13 @@
 			<label for="messageinput">
 				<wicket:message key="heading.status">Status</wicket:message>
 			</label>
-			<input type="text" wicket:id="message" class="form-control"/>
-				<div class="profileSayItActionBar">
-					<p class="act">
-						<input type="submit" class="active" wicket:id="submit" value="Say it" />
-					</p>
-					<span id="tracker" class="text-counter"></span>
-				</div>
+			<input type="text" wicket:id="message" class="form-control" maxlength="140" />
+			<div class="profileSayItActionBar">
+				<p class="act">
+					<input type="submit" class="active" wicket:id="submit" value="Say it" />
+				</p>
+				<span id="tracker" class="text-counter"></span>
+			</div>
 		</form>
     </div>
     
