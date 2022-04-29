@@ -32,12 +32,12 @@ assignment.useContentReview=true
 # turnitin.oc.skip.delays=false
 
 
-# Determines whether indexing is enabled. Recommended to set this to false in test environments, and true in production.
-# Rationale: consider a test environment whose database is cloned from a production snapshot when items existed in the content-review queue.
-# The QAT environment will submit these items to Turnitin. If the papers are indexed, the production items will be updated to 100% matches.
-# By disabling indexing, the test environment papers will match against the production papers, but not vice versa.
-# default: true
-# turnitin.oc.indexing.enabled=true
+# Disables indexing when submitting papers. Recommended to set this to true in QA / restore environments, and false in production.
+# Rationale: consider a QA or restore environment whose database is cloned from a production snapshot when items existed in the content-review queue.
+# The cloned environment will submit these items to Turnitin. If the papers are indexed, the production items will be updated to 100% matches.
+# By disabling indexing, the QA / restore environment papers will match against the production papers, but not vice versa.
+# Default: false
+# turnitin.oc.disable.all.indexing=false
 
 # turnitin.oc.accept.all.files (Optional)
 # If true, any file type will be accepted by Sakai. Invalid file types will still be rejected by Turnitin.
