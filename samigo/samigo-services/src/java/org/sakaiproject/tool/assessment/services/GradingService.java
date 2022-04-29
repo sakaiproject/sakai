@@ -3058,6 +3058,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
+      answerList.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
