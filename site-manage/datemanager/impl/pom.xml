@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.sakaiproject.sitemanage</groupId>
 		<artifactId>sakai-site-datemanager-base</artifactId>
-		<version>21.3</version>
+		<version>21-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

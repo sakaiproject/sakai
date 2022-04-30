@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.userauditservice</groupId>
         <artifactId>userauditservice</artifactId>
-        <version>21.3</version>
+        <version>21-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Userauditservice API (userauditservice-api)</name>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
-        <version>21.3</version><!-- sitestats.version -->
+        <version>21-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
     <!-- Packaging -->

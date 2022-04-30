@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>21.3</version>
+	    <version>21-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<deploy.target>components</deploy.target>
