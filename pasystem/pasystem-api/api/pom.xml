@@ -13,7 +13,7 @@
   <parent>
     <artifactId>pasystem-base</artifactId>
     <groupId>org.sakaiproject.pasystem</groupId>
-    <version>21-SNAPSHOT</version>
+    <version>21.3</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 

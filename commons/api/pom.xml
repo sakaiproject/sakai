@@ -10,7 +10,7 @@
     <parent>
         <artifactId>commons</artifactId>
         <groupId>org.sakaiproject.commons</groupId>
-        <version>21-SNAPSHOT</version>
+        <version>21.3</version>
     </parent>
     
     <packaging>jar</packaging>

@@ -4,7 +4,7 @@
    <parent>
        <artifactId>sakai-acadtermmanage</artifactId>
        <groupId>org.sakaiproject.acadtermmanage</groupId>
-       <version>21-SNAPSHOT</version>   
+       <version>21.3</version>   
       <relativePath>../pom.xml</relativePath>
      </parent>
    
