@@ -32,18 +32,19 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table( name = "SAKAI_MESSAGE_BUNDLE",
+        uniqueConstraints = @UniqueConstraint(name = "SMB_SEARCH", columnNames = {"BASENAME", "MODULE_NAME", "LOCALE", "PROP_NAME"}),
         indexes = {
             @Index(name = "SMB_BASENAME_IDX", columnList = "BASENAME"),
             @Index(name = "SMB_MODULE_IDX", columnList = "MODULE_NAME"),
             @Index(name = "SMB_LOCALE_IDX", columnList = "LOCALE"),
-            @Index(name = "SMB_PROPNAME_IDX", columnList = "PROP_NAME"),
-            @Index(name = "SMB_SEARCH", columnList = "BASENAME, MODULE_NAME, LOCALE, PROP_NAME")
+            @Index(name = "SMB_PROPNAME_IDX", columnList = "PROP_NAME")
 })
 @NamedQueries({
         @NamedQuery(name = "findProperty", query = "from MessageBundleProperty where baseName = :basename and moduleName = :module and propertyName = :name and locale = :locale"),
