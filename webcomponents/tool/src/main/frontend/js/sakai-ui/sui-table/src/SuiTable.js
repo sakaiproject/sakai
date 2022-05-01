@@ -1,10 +1,7 @@
 // TODO Review commented lines
 // TODO Review need for shadown DOM
-import {
-  html,
-  LitElement,
-  // unsafeCSS,
-} from "@assets/lit-element/lit-element.js";
+import { html } from "@assets/lit-element/lit-element.js";
+import { SakaiElement } from "../../sakai-element.js";
 import { TabulatorFull as Tabulator } from "@assets/tabulator-tables/dist/js/tabulator_esm.min.js";
 // import styles from "./sui-table.scss";
 import "../../sui-icon/sui-icon.js";
@@ -26,14 +23,10 @@ import "../../sui-icon/sui-icon.js";
 // TODO review all requestupdates and see if we can remove them via class props vs local props
 // TODO can i move sakai-pagerContainer to the tablulator footer?
 
-export class SuiTable extends LitElement {
-  createRenderRoot() {
-    // Render to the real dom, not the shadow. We can now pull
-    // in Sakai's css and js. This makes any this, and any subclasses,
-    // custom elements, not full blown web components
-    return this;
-  }
+export class SuiTable extends SakaiElement {
+
   static get properties() {
+
     return {
       class: { type: String },
       siteId: { attribute: "site-id", type: String },
@@ -51,16 +44,17 @@ export class SuiTable extends LitElement {
         type: Boolean,
       },
       title: { attribute: "title", type: String },
-      filterVisibility: { attribute: "show-filters", type: Boolean },
-      linksVisbility: { attribute: "show-actions", type: Boolean },
+      showFilters: { attribute: "show-filters", type: Boolean },
+      showActions: { attribute: "show-actions", type: Boolean },
       tableActions: { attribute: "table-actions", type: Array },
       links: { type: Array },
-      debug: { type: Boolean },
       permissions: { type: Array },
+      i18n: { attribute: false, type: Object },
     };
   }
 
   constructor() {
+
     super();
 
     // This prevents duplicate styles from being added to the component
@@ -74,59 +68,36 @@ export class SuiTable extends LitElement {
     this.currentItemMin = 1;
     this.currentItemMax = 0;
     this.totalItems = 0;
-    this.linksVisbility = false;
-    this.filterVisibility = false;
+    this.showActions = false;
+    this.showFilters = false;
     // this.pageSize = 3;
-    this.debug = false;
-    this.debug ? console.log(`sui-table ${this.title} end constructor`) : null;
+    
+    this.loadTranslations("sui-table").then(r => this.i18n = r);
   }
 
   connectedCallback() {
+
     super.connectedCallback();
 
-    if (
-      this.columns.length > 0 &&
-      !this.columns.filter((e) => e.field === "id")
-    ) {
+    if (this.columns.length > 0 && !this.columns.filter(e => e.field === "id")) {
       this.columns.push({ field: "id" });
     }
     if (this.id && !this.title) {
       this.title = this.id;
     }
-    this.debug
-      ? console.log(`sui-table ${this.title} end connectedCallback`)
-      : null;
-  }
-
-  attributeChangedCallback(name, oldVal, newVal) {
-    this.debug
-      ? console.log(
-          `sui-table ${this.title} attribute change: `,
-          name,
-          typeof newVal,
-          newVal
-        )
-      : null;
-    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   async firstUpdated() {
-    this.debug
-      ? console.log(`sui-table ${this.title} start firstUpdated`)
-      : null;
+
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
     this.rows = await this.fetchRows();
-
-    this.debug ? console.log(`sui-table ${this.title} end firstUpdated`) : null;
   }
 
   updated(changedProps) {
-    this.debug
-      ? console.log(`sui-table ${this.title} start updated`, changedProps)
-      : null;
+
     //TODO how to check that the table exists??
-    if (changedProps.has("filterVisibility")) {
+    if (changedProps.has("showFilters")) {
       // this._table.on("tableBuilt", () => {
       //   this.debug
       //     ? console.log(
@@ -135,7 +106,7 @@ export class SuiTable extends LitElement {
       //     : null;
       //     const updatedColumns = this._table.getColumnLayout();
       //     updatedColumns.forEach((column) => {
-      //       column.headerFilter = this.filterVisibility;
+      //       column.headerFilter = this.showFilters;
       //     });
       //     this._table.setColumnLayout(updatedColumns);
       //   });
@@ -154,22 +125,22 @@ export class SuiTable extends LitElement {
         },
       ];
 
-      const tabulatorColumns = this.columns.map((i) => {
+      const tabulatorColumns = this.columns.map(column => {
         const columnIterable = {
           title: "",
           field: "",
           sorter: "string",
           formatter: "plaintext",
-          headerFilter: this.filterVisibility,
+          headerFilter: this.showFilters,
         };
-        if (Array.isArray(i.field)) {
-          i.field.forEach((element) => {
-            columnIterable.title = i.title ? i.title : element;
+        if (Array.isArray(column.field)) {
+          column.field.forEach((element) => {
+            columnIterable.title = column.title ? column.title : element;
             columnIterable.field = element;
           });
-        } else if (typeof i.field === "string") {
-          columnIterable.title = i.title ? i.title : i.field;
-          columnIterable.field = i.field;
+        } else if (typeof column.field === "string") {
+          columnIterable.title = column.title ? column.title : column.field;
+          columnIterable.field = column.field;
           // columnIterable.headerFilter = "input";
         }
 
@@ -185,9 +156,6 @@ export class SuiTable extends LitElement {
         tabulatorColumns[0].minWidth = this.links.length * 100 + 64; //number of row actions + 4em;
       }
 
-      this.debug
-        ? console.log(`sui-table ${this.title} columns`, tabulatorColumns)
-        : null;
       this._table = new Tabulator(`#suiTable${this.id}`, {
         debugEventsExternal: false,
         debugEventsInternal: false,
@@ -204,18 +172,9 @@ export class SuiTable extends LitElement {
           row.getElement().id = `item-${row.getData().id}`;
         },
       });
-      this.debug
-        ? console.log(
-            `sui-table ${this.title} rows`,
-            this.dataKey ? this.rows[`${this.dataKey}`] : this.rows
-          )
-        : null;
 
       //todo check math on 1 to 1 of 1, currently showing 1 to 0 of 0 or showing NaN to NaN of 6
       this._table.on("dataLoaded", (e, data) => {
-        this.debug
-          ? console.log(`sui-table ${this.title} dataLoaded`, e, data)
-          : null;
         const currentPage = this._table.getPage() ? this._table.getPage() : 1;
         this.totalItems = this.dataKey
           ? this.rows[`${this.dataKey}`].length
@@ -224,14 +183,7 @@ export class SuiTable extends LitElement {
         this.currentItemMax = currentPage * this.pageSize;
       });
 
-      this._table.on("pageLoaded", (pageNumber) => {
-        this.debug
-          ? console.log(
-              `sui-table ${this.title} pageLoaded`,
-              this._table.getData("visible").length,
-              this._table.getPageSize()
-            )
-          : null;
+      this._table.on("pageLoaded", pageNumber => {
         this.pageSize = this._table.getPageSize();
         this.totalItems = this._table.getDataCount();
         this.currentItemMin = (pageNumber - 1) * this.pageSize + 1;
@@ -241,8 +193,7 @@ export class SuiTable extends LitElement {
       });
       this._table.on("rowMouseOver", (e, row) => {
         // Display the row actions for this item
-        if (this.links){
-
+        if (this.links) {
           row
           .getElement()
           .querySelector(
@@ -261,24 +212,15 @@ export class SuiTable extends LitElement {
           .classList.add("d-none");
         }
       });
-      this._table.on("rowSelected", (data) => {
-        this.debug
-          ? console.log(`sui-table ${this.title} rowSelected`, data)
-          : null;
-        if (!this.linksVisbility) {
-          this.linksVisbility = true;
+      this._table.on("rowSelected", data => {
+        if (!this.showActions) {
+          this.showActions = true;
         }
         this.requestUpdate();
       });
-      this._table.on("rowDeselected", (data) => {
-        this.debug
-          ? console.log(`sui-table ${this.title} rowDeselected`, data)
-          : null;
-        if (
-          !this.alwaysShowlinks &&
-          this._table.getSelectedRows().length === 0
-        ) {
-          this.linksVisbility = false;
+      this._table.on("rowDeselected", data => {
+        if (!this.alwaysShowlinks && this._table.getSelectedRows().length === 0) {
+          this.showActions = false;
           this.requestUpdate();
         }
       });
@@ -288,21 +230,28 @@ export class SuiTable extends LitElement {
 
   // TODO add manual refetch options
   async fetchRows(value) {
-    this.debug ? console.log(`sui-table ${this.title} start fetchRows`) : null;
-    if (typeof this.siteId === "undefined" || this.siteId.length === 0) {
+
+    if (!this.siteId) {
       console.error(`sui-table ${this.title} fetchRows no siteId`);
       return;
     }
 
     let result = value;
     this.dataPromise = await fetch(this.dataUrl)
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => {
+
+        if (response.ok) {
+          return response.json();
+        }
+
+        throw new Error("Network error while fetching rows");
+      })
+      .then(data => {
+
         result = data;
 
         // If columns were not passed in via props, use the first entity in the data
         // to define the columns
-        console.log(typeof result[0], result[0]);
         if (this.columns.length === 0 && typeof result[0] === "object") {
           Object.keys(result[0]).forEach((key) => {
             this.columns.push({
@@ -310,70 +259,57 @@ export class SuiTable extends LitElement {
               field: key,
             });
           });
-          this.debug
-            ? console.log(
-                `sui-table ${this.title} self generated columns`,
-                this.columns
-              )
-            : null;
         }
-        result.forEach((element) => {
-          if (this.links){
+        result.forEach(element => {
+          if (this.links) {
 
-            const actionSnippet = this.links
-            .map((action) => {
+            const actionSnippet = this.links.map(action => {
               // TODO review and dry this up
               return `
-            <li class="nav-item">
-              <a
-              title="${action.title ? action.title : ""}"
-              aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
-              icon="${action.icon ? action.icon : ""}"
-            class="${
-              action.class
-                ? `link link-${action.title} pt-0 ${action.class}`
-                : `link link-${action.title}`
-            }"
-            href="${
-              this.links.filter((link) => link.rel === action.rel).length ===
-              1
-              ? this.links.filter((link) => link.rel === action.rel)[0]
-              .href
-              : "#"
-            }"
-            onclick="${action.onclick ? action.onclick : ""}"
-            >${action.icon ? `<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}${action.title ? action.title : ""}</a>
-            </li>`;
-          })
+                <li class="nav-item">
+                  <a title="${action.title ? action.title : ""}"
+                      aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
+                      icon="${action.icon ? action.icon : ""}"
+                      class="${action.class
+                                ? `link link-${action.title} pt-0 ${action.class}`
+                                : `link link-${action.title}`}"
+                      href="${this.links.filter(link => link.rel === action.rel).length === 1
+                                ? this.links.filter((link) => link.rel === action.rel)[0].href : "#"}"
+                      onclick="${action.onclick ? action.onclick : ""}">
+                    ${action.icon ? `<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}
+                    ${action.title ? action.title : ""}
+                  </a>
+                </li>`;
+            })
             .join("");
             
-            element[
-              this.columns[0].field
-            ] = `<div class="links d-flex justify-content-between"><div class="item-text text-truncate">${
-              element[this.columns[0].field]
-            }</div><ul class="links-list nav flex-nowrap d-none ">${actionSnippet}</ul></div>`;
+            element[this.columns[0].field] = `
+              <div class="links d-flex justify-content-between">
+                <div class="item-text text-truncate">
+                  ${element[this.columns[0].field]}
+                </div>
+                <ul class="links-list nav flex-nowrap d-none ">${actionSnippet}</ul>
+              </div>`;
           }
-          });
         });
-    this.debug
-      ? console.log(`sui-table ${this.title} end fetchRows`, result)
-      : null;
+      });
     return result;
   }
 
   render() {
-    this.debug ? console.log(`sui-table ${this.title} start render`) : null;
+
     this._tableActions = [];
     for (const action of this.tableActions) {
       this._tableActions.push(html`
       <li class="nav-item">
-      <a
-          title="${action.title ? action.title : ""}"
-          aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
-          icon="${action.icon ? action.icon : ""}"
-          class="${action.class ? action.class : "nav-link"}"
-          href="${action.href ? action.href : "#"}"
-        >${action.icon ? html`<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}${action.title ? action.title : ""}</a>
+        <a title="${action.title ? action.title : ""}"
+            aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
+            icon="${action.icon ? action.icon : ""}"
+            class="${action.class ? action.class : "nav-link"}"
+            href="${action.href ? action.href : "#"}">
+          ${action.icon ? html`<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}
+          ${action.title ? action.title : ""}
+        </a>
       </li>
       `);
     }
@@ -383,16 +319,13 @@ export class SuiTable extends LitElement {
     //TODO i18n strings
     this._tableActions.push(html`
       <sui-button
-        title="${
-          this.linksVisbility ? "Hide Bulk Actions" : "Show Bulk Actions"
+        buttonTitle="${
+          this.showActions ? "Hide Bulk Actions" : "Show Bulk Actions"
         }"
-        aria-label="Toggle display of Bulk Actions"
+        label="Toggle display of Bulk Actions"
         icon="check-square"
         id="${this.id}BulkActionsToggle"
-        @click="${() => {
-          this.linksVisbility = !this.linksVisbility;
-        }}"
-        debug
+        @click="${() => this.showActions = !this.showActions}"
       ></sui-button>
     `);
 
@@ -400,81 +333,71 @@ export class SuiTable extends LitElement {
     //TODO i18n strings
     this._tableActions.push(html`
       <li class="nav-item">
-
-      <sui-button
-        title="${this.filterVisibility ? "Hide Filters" : "Show Filters"}"
-        aria-label="Toggle display of Filters"
-        icon="filter"
-        id="${this.id}FilterToggle"
-        @click="${() => {
-          this.filterVisibility = !this.filterVisibility;
-        }}"
-      ></sui-button>
+        <sui-button
+          buttonTitle="${this.showFilters ? "Hide Filters" : "Show Filters"}"
+          label="Toggle display of Filters"
+          icon="filter"
+          id="${this.id}FilterToggle"
+          @click="${() => {
+            this.showFilters = !this.showFilters;
+          }}"
+        ></sui-button>
       </li>
     `);
 
     return html`
-    <ul class="sakai-table-toolBar nav nav-pills d-flex p-1">
-      ${this._tableActions}
+      <ul class="sakai-table-toolBar nav nav-pills d-flex p-1">
+        ${this._tableActions}
         <li id="sakai-table-pagerContainer" class="sakai-table-pagerContainer nav-item ms-auto">
           <div class="sakai-table-pagerLabel">
-            Showing ${this.currentItemMin} to ${this.currentItemMax} of
-            ${this.totalItems}
+            Showing ${this.currentItemMin} to ${this.currentItemMax} of ${this.totalItems}
           </div>
-      </li>
+        </li>
       </ul>
-      <ul id="links" class="nav p-3 bg-dark text-white btn-group ${
-        this.linksVisbility ? "d-flex" : "d-none"
-      } align-items-center" role="group" aria-label="Row Actions">
+      <ul id="links"
+          class="nav p-3 bg-dark text-white btn-group ${this.showActions ? "d-flex" : "d-none"} align-items-center"
+          role="group"
+          aria-label="Row Actions">
         <li id="rowsSelectedCounter" class="nav-item">XX selected</li>
         <sui-button
-          title="Edit"
-          aria-label="Edit"
+          buttonTitle="Edit"
+          label="Edit"
           icon="pencil"
           href="#"
-          class="nav-item btn-link link-secondary"
+          buttonClass="nav-item btn-link link-secondary"
         ></sui-button>
         <sui-button
-          title="Duplicate"
-          aria-label="Duplicate"
+          buttonTitle="Duplicate"
+          label="Duplicate"
           icon="clone"
           href="#"
-          class="nav-item btn-link link-secondary"
+          buttonClass="nav-item btn-link link-secondary"
         ></sui-button>
         <sui-button
-          title="Remove"
-          aria-label="Remove"
+          buttonTitle="Remove"
+          label="Remove"
           icon="trash"
           href="#"
           class="nav-item btn-link link-danger"
         ></sui-button>
         <div class="nav-item d-flex flex-fill justify-content-end">
-        <sui-button
-          aria-label="Close Row Actions"
-          title="Close"
-          icon="close"
-          @click=${() => {
-            this.linksVisbility = false;
-            this.requestUpdate();
-          }}
-          class="btn-link link-secondary"
-        ></sui-button>
-  </div>
-        </ul>
-
+          <sui-button
+            label="Close Row Actions"
+            buttonTitle="Close"
+            icon="close"
+            @click=${() => {
+              this.showActions = false;
+              this.requestUpdate();
+            }}
+            buttonClass="btn-link link-secondary"
+          ></sui-button>
+        </div>
+      </ul>
       </div>
-      <div
-        id="suiTable${this.id}"
-        class="sui-table table ${
-          this.class ? this.class : "table-striped table-hover"
-        }"
-      ></div>
-      <div class="sakai-table-endBar" count="19" current="1"></div>`;
-  }
-
-  static get styles() {
-    return [
-      // (typeof styles !== 'undefined' ? unsafeCSS(styles) : null)
-    ];
+      <div id="suiTable${this.id}"
+          class="sui-table table ${this.class ? this.class : "table-striped table-hover"}">
+      </div>
+      <div class="sakai-table-endBar" count="19" current="1"></div>
+    `;
   }
 }
