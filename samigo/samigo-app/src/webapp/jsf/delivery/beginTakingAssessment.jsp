@@ -183,7 +183,14 @@
 		<h:outputText value=" #{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2 && (delivery.settings.unlimitedAttempts || delivery.settings.maxAttempts > 1)}" escape="false"/>
 		<h:outputText value=" #{deliveryMessages.begin_assessment_msg_average}" rendered="#{delivery.scoringType == 4 && (delivery.settings.unlimitedAttempts || delivery.settings.maxAttempts > 1)}" escape="false"/>
     </h:panelGroup>
-    
+
+    <%-- Autosubmit information --%>
+    <h:panelGroup rendered="#{delivery.settings.autoSubmit}">
+        <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_autosubmit_info}" escape="false">
+            <f:param value="#{delivery.deadlineString}" />
+        </h:outputFormat>
+    </h:panelGroup>
+
     <h:outputText value=" "/>
     <h:outputText value=" "/>
     
@@ -213,7 +220,18 @@
 	<h:selectBooleanCheckbox id="honor_pledge" />
 	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
 </h:panelGroup>
-    <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="alertMessage" style="display:none"/>
+    <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_pledge_select}" styleClass="sak-banner-error" style="display:none"/>
+
+    <!-- autosubmit - present confirmation when resubmissions can overwrite scores -->
+    <h:panelGroup layout="block" styleClass="sak-banner-warn" rendered="#{delivery.totalSubmissions > 0 && delivery.settings.autoSubmit && (delivery.scoringType == 2 || delivery.scoringType == 4)}">
+        <h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" escape="false" />
+        <h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last}" rendered="#{delivery.scoringType == 2}" escape="false" />
+    </h:panelGroup>
+    <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.totalSubmissions > 0 && delivery.settings.autoSubmit && (delivery.scoringType == 2 || delivery.scoringType == 4)}">
+        <h:selectBooleanCheckbox id="understand_pledge" />
+        <h:outputLabel for="understand_pledge" value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_checkbox}"/>
+    </h:panelGroup>
+    <h:outputText id="understandPledgeRequired" value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_required}" styleClass="sak-banner-error" style="display:none"/>
 
 <p class="act">
 

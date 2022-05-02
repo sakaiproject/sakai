@@ -220,6 +220,33 @@
 		</h:outputFormat>
 	</h:panelGroup>
 
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+	</h:panelGroup>
+
 	</h:panelGrid>
 
 	<h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
@@ -297,6 +324,33 @@
 			<f:param value="#{assessmentSettings.feedbackDateInClientTimezoneString}" />
 			<f:param value="#{assessmentSettings.feedbackEndDateInClientTimezoneString}" />
 		</h:outputFormat>
+	</h:panelGroup>
+
+	<f:verbatim><br/></f:verbatim>
+
+	<%-- Autosubmit information --%>
+	<h:panelGroup rendered="#{assessmentSettings.autoSubmit}">
+		<%-- Late submissions allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '1'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+				<f:param value="#{assessmentSettings.retractDateString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
+
+		<%-- Late submissions not allowed --%>
+		<h:panelGroup rendered="#{assessmentSettings.lateHandling == '2'}">
+			<h:outputFormat value="#{assessmentSettingsMessages.autosubmit_info}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+				<f:param value="#{assessmentSettings.dueDateInClientTimezoneString}" />
+			</h:outputFormat>
+			<h:outputFormat value=" #{assessmentSettingsMessages.autosubmit_info_extended_time}" escape="false">
+				<f:param value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+			</h:outputFormat>
+		</h:panelGroup>
 	</h:panelGroup>
 
 </h:panelGrid>
