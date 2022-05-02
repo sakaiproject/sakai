@@ -54,10 +54,10 @@ export class SakaiToggle extends LitElement {
           justify-content: space-between;
           margin: 0 0 0 auto;     // push to far right
           padding: var(--sakai-standard-space, 8px);
-          background: var(--sakai-background-color-1);
+          //background: var(--sakai-background-color-1);
           font-size: 12px;
           line-height: 22px;
-          border: 1px solid var(--sakai-toggle-border-color, black);
+          border: 1px solid var(--sakai-border-color);
           border-radius: 4px;
         }
 
@@ -78,6 +78,7 @@ export class SakaiToggle extends LitElement {
 
         #toggle[aria-checked="false"] :last-child,
         #toggle[aria-checked="true"] :first-child {
+          background-color: var(--sakai-background-color-4);
           color: var(--sakai-text-color-1);
         }
       `
