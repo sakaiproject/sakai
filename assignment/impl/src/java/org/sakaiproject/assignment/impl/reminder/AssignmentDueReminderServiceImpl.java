@@ -78,6 +78,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 
 /**
  * Sends reminder emails to all students who have not submitted an assignment
@@ -139,10 +141,31 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         try {
             Assignment assignment = assignmentService.getAssignment(assignmentId);
             Site site = siteService.getSite(assignment.getContext());
-
+            
+            Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
+            // Get submitters
+            List<String> submitters = submissions.stream()
+                    .filter(s -> s.getUserSubmission() == true)
+                    .flatMap(s -> s.getSubmitters().stream())
+                    .map(AssignmentSubmissionSubmitter::getSubmitter)
+                    .collect(Collectors.toList());
+            
+            // Get all members in a List collection
+            List<Member> membersList = site.getMembers().stream().collect(Collectors.toList());
+            // List with members filtered (members who are not submitters)
+            List<Member> membersNotSubmitters = new ArrayList<>();
+            
+            for (int i = 0; i < membersList.size(); i++) {
+                for (int j = 0; j < submitters.size(); j++) {
+                    if(!membersList.get(i).getUserId().equals(submitters.get(j))) {
+                        membersNotSubmitters.add(membersList.get(i));
+                    }
+                }
+            }
+            
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                for (Member member : site.getMembers()) {
+                for (Member member : membersNotSubmitters) {
                     if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && !assignmentService.allowAddAssignment(assignment.getContext(), member.getUserId()) && checkEmailPreference(member)) {
                         sendEmailReminder(site, assignment, member);
                     }
