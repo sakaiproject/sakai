@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +74,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -253,9 +251,13 @@ public class PublishAssessmentListener
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       boolean sendNotification = publishRepublishNotification.getSendNotification();
       String subject = publishRepublishNotification.getNotificationSubject();
-      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
-        assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), 
-        assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(), assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold());
+      String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
+                                                            assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
+                                                            assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
+                                                            assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(),
+                                                            assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
+                                                            assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
+                                                            assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
        
       if (sendNotification) {
         sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
@@ -443,7 +445,10 @@ public class PublishAssessmentListener
 	  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
   }
   
-  public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString, Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery, String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold){
+  public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString,
+										Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery,
+										String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold, boolean autoSubmitEnabled, String lateHandling,
+										String retractDateString) {
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
 	  if(siteTitle == null || "".equals(siteTitle)){
 		  try {
@@ -574,7 +579,25 @@ public class PublishAssessmentListener
 	  }
 	  message.append(newline);
 	  message.append(newline);
-	  
+
+	  // Autosubmit
+	  if (autoSubmitEnabled) {
+		  String label, date;
+		  if ("1".equals(lateHandling)) {
+			  label = rl.getString("header_extendedTime_retract_date");
+			  date = retractDateString;
+		  } else {
+			  label = rl.getString("header_extendedTime_due_date");
+			  date = dueDateString;
+		  }
+
+		  message.append(MessageFormat.format(rl.getString("autosubmit_info"), label, date));
+		  message.append(" ").append( MessageFormat.format(rl.getString("autosubmit_info_extended_time"), label));
+
+		  message.append(newline);
+		  message.append(newline);
+	  }
+
 	  StringBuffer siteTitleSb = new StringBuffer();
 	  siteTitleSb.append(" \"");
 	  siteTitleSb.append(siteTitle);
