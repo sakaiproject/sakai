@@ -184,8 +184,11 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	public List<Map<String, Object>> getToolsDao(String search, String order, int first,
-			int last, String siteId, boolean isAdminRole) {
+	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+		return getToolsDao(search, order, first, last, siteId, isAdminRole, false);
+	}
+
+	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole, boolean isStealthed) {
 
 		String extraSelect = null;
 		String joinClause = null;
@@ -205,12 +208,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Oracle needs all the selected values in the GROUP_BY
 		if ("mysql".equals(m_sql.getVendor())) {
-			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed);
 		} else {
-			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
+			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole, isStealthed);
 			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text" } ; 
 			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID";
-			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, isStealthed);
 
 			// Merge the lists...
 			Map<Object, Map<String, Object>> countMap = new HashMap<Object, Map<String, Object>> ();
@@ -622,8 +625,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	public List<Map<String, Object>> getThingsDao(String table, String[] model,
+		String extraSelect, String joinClause, String search, String groupBy, String order,
+		int first, int last, String siteId, boolean isAdminRole)
+	{
+		return getThingsDao(table, model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole, false);
+	}
+
+	public List<Map<String, Object>> getThingsDao(String table, String[] model,
 		String extraSelect, String joinClause, String search, String groupBy, String order, 
-		int first, int last, String siteId, boolean isAdminRole) 
+		int first, int last, String siteId, boolean isAdminRole, boolean includeStealthed)
 	{
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
@@ -645,7 +655,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// Only admins can see invisible items and items from any site
 		final List<Object> fields = new ArrayList<Object>();
-		if ( ! isAdminRole ) {
+		if ( !isAdminRole && !includeStealthed ) {
 			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
 				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
 				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
