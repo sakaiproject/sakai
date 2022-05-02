@@ -1872,7 +1872,11 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             }
         }
 
-        return settingsRepository.save(settings);
+        Settings newSettings = settingsRepository.save(settings);
+
+        topicRepository.findBySiteId(settings.getSiteId()).forEach(t -> postsCache.remove(t.getId()));
+
+        return newSettings;
     }
 
     public ConvStatus getConvStatusForSiteAndUser(String siteId, String userId) throws ConversationsPermissionsException {
