@@ -30,6 +30,7 @@ export class SakaiAddTopic extends SakaiElement {
       showLockDatePicker: { attribute: false, type: Boolean },
       showDue: { attribute: false, type: Boolean },
       showAcceptUntil: { attribute: false, type: Boolean },
+      errorDisplay: { attribute: false, type: String },
     };
   }
 
@@ -102,6 +103,8 @@ export class SakaiAddTopic extends SakaiElement {
 
     if (this.topic.title.length < 4) {
       this.titleError = true;
+      this.errorDisplay = this.i18n.min_title_characters_info;
+      setTimeout(() => this.errorDisplay = undefined, 4000);
       return;
     }
 
@@ -354,7 +357,10 @@ export class SakaiAddTopic extends SakaiElement {
             @change=${this.updateSummary}
             @focus=${() => this.titleError = false}
             .value="${this.topic.title}" />
-          <div class="required"><span>* ${this.i18n.required}</span></div>
+          <div class="required">
+            <span>* ${this.i18n.required}</span>
+            <span>(${this.i18n.min_title_characters_info})</span>
+          </div>
         </div>
         <div class="add-topic-block">
           <div id="details-label" class="add-topic-label">${this.i18n.details}</div>
@@ -638,6 +644,9 @@ export class SakaiAddTopic extends SakaiElement {
           <input type="button" @click=${this.saveAsDraft} value="${this.i18n.save_as_draft}">
           <input type="button" @click=${this.cancel} value="${this.i18n.cancel}">
         </div>
+        ${this.errorDisplay ? html`
+          <div id="conv-add-topic-error" class="sak-banner-error">${this.errorDisplay}</div>
+        ` : ""}
 
       </div>
     `;
