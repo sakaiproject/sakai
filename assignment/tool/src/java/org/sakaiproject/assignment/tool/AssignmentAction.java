@@ -6784,10 +6784,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // submission log
                 StringBuilder logEntry = new StringBuilder();
-                DateTimeFormatter dtf = DateTimeFormatter.RFC_1123_DATE_TIME
-                        .withZone(userTimeService.getLocalTimeZone(u.getId()).toZoneId())
-                        .withLocale(preferencesService.getLocale(u.getId()));
-                logEntry.append(dtf.format(Instant.now()));
+                logEntry.append(userTimeService.shortLocalizedTimestamp(Instant.now(), userTimeService.getLocalTimeZone(u.getId()), preferencesService.getLocale(u.getId())));
                 boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
                 String subOrDraft = post ? rb.getString("listsub.submitted") : rb.getString("listsub.submitted.draft");
                 if (!anonymousGrading) {
