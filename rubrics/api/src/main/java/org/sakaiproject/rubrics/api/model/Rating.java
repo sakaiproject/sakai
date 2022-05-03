@@ -25,13 +25,10 @@ package org.sakaiproject.rubrics.api.model;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -41,9 +38,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -71,9 +65,6 @@ public class Rating implements PersistableEntity<Long>, Serializable {
 
     @Column(nullable = false)
     private Double points;
-
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //private Criterion criterion;
 
     @Override
     public Rating clone() {

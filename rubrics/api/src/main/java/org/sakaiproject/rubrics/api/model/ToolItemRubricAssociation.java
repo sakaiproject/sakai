@@ -48,13 +48,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import org.hibernate.Session;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -113,7 +106,9 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
     private Boolean active = Boolean.TRUE;
 
     @ElementCollection
-    @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf", joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"), indexes = @Index(name = "FK_rdpid6jl4csvfv6la80ppu6p9", columnList = "association_id"))
+    @CollectionTable(name = "rbc_tool_item_rbc_assoc_conf",
+                        joinColumns = @JoinColumn(name = "association_id", referencedColumnName = "id"),
+                        indexes = @Index(name = "rbc_param_association_idx", columnList = "association_id"))
     @MapKeyColumn(name = "parameter_label")
     @Fetch(FetchMode.SUBSELECT)
     private Map<String, Boolean> parameters;
@@ -123,7 +118,7 @@ public class ToolItemRubricAssociation implements PersistableEntity<Long>, Seria
         Map<String, String> formattedParams = new HashMap<>();
         formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
         formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubricId));
-        parameters.forEach((k,v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG +k, String.valueOf(v ? 1 : 0)));
+        parameters.forEach((k, v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG + k, String.valueOf(v ? 1 : 0)));
         return formattedParams;
     }
 }
