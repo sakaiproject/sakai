@@ -1,7 +1,7 @@
 // TODO Review commented lines
 // TODO Review need for shadown DOM
 import { html } from "@assets/lit-element/lit-element.js";
-import { SakaiElement } from "../../sakai-element.js";
+import { SakaiElement } from "../../../sakai-element.js";
 import { TabulatorFull as Tabulator } from "@assets/tabulator-tables/dist/js/tabulator_esm.min.js";
 // import styles from "./sui-table.scss";
 import "../../sui-icon/sui-icon.js";
