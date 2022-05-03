@@ -556,22 +556,32 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId) {
-		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId));
+		return getTools(search, order, first, last, siteId, false);
 	}
 
 	@Override
-    public List<Map<String, Object>> getToolsLaunch(String siteId) {
+	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed);
+	}
+
+	@Override
+	public List<Map<String, Object>> getToolsLaunch(String siteId) {
+		return getToolsLaunch(siteId, false);
+	}
+
+	@Override
+	public List<Map<String, Object>> getToolsLaunch(String siteId, boolean includeStealthed) {
 		return getTools( "lti_tools."+LTIService.LTI_PL_LAUNCH+" = 1 OR ( " +
 			"( lti_tools."+LTIService.LTI_PL_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_IMPORTITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) " +
-			" ) ", null, 0, 0, siteId);
+			" ) ", null, 0, 0, siteId, includeStealthed);
 	}
 
 	@Override
-    public List<Map<String, Object>> getToolsLtiLink(String siteId) {
+	public List<Map<String, Object>> getToolsLtiLink(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 

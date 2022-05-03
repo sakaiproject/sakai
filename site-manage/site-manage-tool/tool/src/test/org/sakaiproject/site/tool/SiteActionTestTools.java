@@ -78,7 +78,7 @@ public class SiteActionTestTools {
         when(ServerConfigurationService.getString("projectSiteTargetType", "project")).thenReturn("project");
 
         SessionState state = mock(SessionState.class);
-        Set<Tool> project = siteAction.getToolRegistrations(state, "project");
+        Set<Tool> project = siteAction.getToolRegistrations(state, "project", false);
         assertThat(project, IsCollectionContaining.hasItems(projectTool));
     }
 
@@ -86,7 +86,7 @@ public class SiteActionTestTools {
     public void testGetToolRegistrationNone() {
         // Site type that doesn't exist
         SessionState state = mock(SessionState.class);
-        Set<Tool> other = siteAction.getToolRegistrations(state, "other");
+        Set<Tool> other = siteAction.getToolRegistrations(state, "other", false);
         assertTrue(other.isEmpty());
     }
 
@@ -100,7 +100,7 @@ public class SiteActionTestTools {
 
         SessionState state = mock(SessionState.class);
         when(state.getAttribute(STATE_DEFAULT_SITE_TYPE)).thenReturn("project");
-        Set<Tool> tools = siteAction.getToolRegistrations(state, "new");
+        Set<Tool> tools = siteAction.getToolRegistrations(state, "new", false);
         assertThat(tools, IsCollectionContaining.hasItems(projectTool));
     }
 
