@@ -220,7 +220,7 @@
     position: sticky;
     top: $banner-height;
     padding: 10px;
-    box-shadow: 0px 4px 12px var(--sakai-background-color-4);
+    box-shadow: var(--elevation-8dp);
     z-index: 1;
 
     a {
