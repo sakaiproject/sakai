@@ -109,8 +109,7 @@ export class SakaiComment extends SakaiElement {
       <div class="post-comment">
         <div class="post-comment-topbar">
           <div class="photo">
-            <sakai-user-photo user-id="${this.comment.creator}"
-                size-class="medium-thumbnail">
+            <sakai-user-photo user-id="${this.comment.creator}" classes="medium-thumbnail">
             </sakai-user-photo>
           </div>
           <div class="author-details">
