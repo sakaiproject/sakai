@@ -440,9 +440,9 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 	}
 
 	/**
-	 ** Get user's preferred locale (or null if not set)
-	 ** if userId is blank return Locale.getDefault
-	 ***/
+	 * Get user's preferred locale (or null if not set)
+	 * if userId is blank return Locale.getDefault
+	 **/
 	public Locale getLocale(String userId)
 	{
 		Locale loc = null;
@@ -1061,7 +1061,10 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 				return new BaseResourceProperties();
 			}
 
-			return getProperties(NotificationService.PREFS_TYPE + commonToolId.replace(".", ":"));
+			String baseKey = NotificationService.PREFS_TYPE + commonToolId.replace(".", ":");
+			ResourceProperties props = getProperties(baseKey);
+			props.addAll(getProperties(baseKey + NotificationService.NOTI_OVERRIDE_EXTENSION));
+			return props;
 		}
 
 		/**

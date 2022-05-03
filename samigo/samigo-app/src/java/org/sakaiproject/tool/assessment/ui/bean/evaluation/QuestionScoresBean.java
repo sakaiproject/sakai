@@ -42,9 +42,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.jsf2.renderer.PagerRenderer;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -171,6 +173,8 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Setter @Getter
   private boolean hasAssociatedRubric;
 
+  private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -235,6 +239,10 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   public String getAssessmentName()
   {
     return Validator.check(assessmentName, "N/A");
+  }
+
+  public String getSiteId() {
+    return toolManager.getCurrentPlacement().getContext();
   }
 
  /**

@@ -1,4 +1,4 @@
-import { html } from "../assets/@lion/core/index.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-icon.js";
 import "../sakai-pager.js";
@@ -217,7 +217,7 @@ export class ConversationsStatistics extends SakaiElement {
                   </div>
                 </a>
               </th>
-            </tr
+            </tr>
           </thead>
           <tbody>
         ${this.stats.map(stat => html`

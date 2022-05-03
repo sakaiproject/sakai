@@ -1,4 +1,4 @@
-import { html } from "../assets/@lion/core/index.js";
+import { html } from "../assets/lit-element/lit-element.js";
 import { SakaiElement } from "../sakai-element.js";
 import "../sakai-icon.js";
 
@@ -143,7 +143,7 @@ export class SakaiConversationsTagManager extends SakaiElement {
             <input type="button" @click=${this.cancel} value="${this.i18n.cancel}" ?disabled=${!this.saveable}>
             <input type="button" class="active" @click=${this.createTags} value="Add New Tags" ?disabled=${!this.saveable}>
           </div>
-        </div
+        </div>
         <div id="current-tags">
           ${this.tags.map(tag => html`
           <div class="tag-row">

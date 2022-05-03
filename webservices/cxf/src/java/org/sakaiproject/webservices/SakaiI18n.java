@@ -50,7 +50,7 @@ public class SakaiI18n extends AbstractWebService {
      * and returns the default value if the key doesn't exists in that lanaguage.
      *
      * @param locale            the language to return in  IETF BCP 47 language tag string (samples: es-ES, jap)
-     * @param resourceClass   Where to find the properties files (Samples: org.sakaiproject.rubrics.logic.RubricsService  or org.sakaiproject.sharedI18n.SharedProperties)
+     * @param resourceClass   Where to find the properties files (Samples: org.sakaiproject.rubrics.api.RubricsService  or org.sakaiproject.sharedI18n.SharedProperties)
      * @param resourceBundle  The bundle itself (Samples: rubricsMessages, or org.sakaiproject.sharedI18n.bundle.shared)
      * @return  a String containing a "properties" file in the desired language
      *

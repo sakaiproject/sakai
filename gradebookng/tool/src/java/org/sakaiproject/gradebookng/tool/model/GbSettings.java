@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.tool.model;
 import java.io.Serializable;
 import java.util.List;
 
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 import lombok.Getter;
 import lombok.Setter;

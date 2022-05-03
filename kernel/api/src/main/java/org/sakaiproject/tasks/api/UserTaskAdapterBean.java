@@ -62,6 +62,7 @@ public class UserTaskAdapterBean {
         BeanUtils.copyProperties(userTask.getTask(), bean);
         bean.setUserTaskId(userTask.getId());
         bean.setTaskId(userTask.getTask().getId());
+        bean.setDue(userTask.getTask().getDue());
         return bean;
     }
     

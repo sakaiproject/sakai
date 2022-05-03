@@ -52,6 +52,10 @@
             <artifactId>sakai-kernel-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
@@ -76,6 +80,10 @@
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-util</artifactId>
             <version>23-SNAPSHOT</version>
@@ -85,12 +93,22 @@
             <artifactId>sakai-conversations-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.json</groupId>
+            <artifactId>javax.json-api</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-patch</artifactId>
+            <version>1.12</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>

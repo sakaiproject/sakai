@@ -161,17 +161,17 @@ function printView(url) {
 				</p>
 				#if ($!savedFeedback)
 					#if ($!overwriteFeedback)
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.savedow")
 						</div>
 					#else
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.saved")
 						</div>
 					#end
 				#end
 				#if ($!returnedFeedback)
-					<div class="success">
+					<div class="sak-banner-success">
 						$!tlang.getString("sendFeedback.returned")
 					</div>
 				#end
@@ -445,8 +445,7 @@ function printView(url) {
 								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
-								#set ($size = $submission.Attachments.size())
-								#if ($size > 0 && $submission.submitted)
+								#if ($!userSubmission.hasVisibleAttachments && $submission.submitted)
 									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>
@@ -533,7 +532,7 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$!service.getSubmissionStatus($!submissionId, false)
+								$!service.getSubmissionStatus($!submissionId, true)
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>
@@ -586,14 +585,17 @@ function printView(url) {
 									#else
 										$!service.getGradeForSubmitter($submission, $userSubmission.User.Id)
 									#end
+									#if ($rubricId)
 									<sakai-rubric-student-button
-										 dont-check-association
-										 token="$!rbcs-token"
-										 tool-id="sakai.assignment"
-										 evaluated-item-id="$submission.Id"
-										 entity-id="$assignment.Id"
-										 instructor="true">
+										rubric-id="$rubricId"
+										site-id="$assignment.context"
+										dont-check-association
+										tool-id="sakai.assignment"
+										evaluated-item-id="$submission.Id"
+										entity-id="$assignment.Id"
+										instructor="true">
 									</sakai-rubric-student-button>
+									#end
 								</td>
 							#end	
 							#if ($isTimesheet && $assignment.Estimate && !$assignment.Estimate.equals(""))
@@ -661,8 +663,8 @@ function printView(url) {
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-					#assignmentTitleIcon($assignment)
 					$formattedText.escapeHtml($assignment.Title)
+					#assignmentIcons($assignment)
 			</td>
 		</tr>
 		<tr>
@@ -819,31 +821,7 @@ function printView(url) {
 			}
 		});
 
-
-		var assignmentId ="$assignment.Id";
-		var rubricsToken = "$!rbcs-token";
-
-		if (assignmentId && rubricsToken) {
-			const options = {
-				method: "GET",
-				headers: {
-				  "Authorization": `Bearer ${rubricsToken}`,
-				  "Accept": "application/json",
-				  "Content-Type": "application/json"
-				}
-			};
-
-			fetch(`/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=sakai.assignment&itemId=${assignmentId}`, options)
-			.then(r => r.json())
-			.then(data => {
-
-				const association = data._embedded["rubric-associations"][0];
-
-				if (association) {
-					[...document.getElementsByTagName("sakai-rubric-student-button")].forEach(b => b.hidden = false);
-				}
-			});
-		}
+		ASN.enableLinks();
 	}); // document.ready
 </script>
 

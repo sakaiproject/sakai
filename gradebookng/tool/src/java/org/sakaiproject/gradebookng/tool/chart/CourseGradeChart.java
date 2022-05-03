@@ -22,9 +22,9 @@ import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeMappingDefinition;
+import org.sakaiproject.grading.api.GradebookInformation;
 
 /**
  * Panel that renders the course grade chart for a site.
@@ -35,9 +35,9 @@ public class CourseGradeChart extends BaseChart {
 
 	private final String siteId;
 
-	private CourseGrade studentGrade;
+	private CourseGradeTransferBean studentGrade;
 
-	public CourseGradeChart(final String id, final String siteId, CourseGrade studentGrade) {
+	public CourseGradeChart(final String id, final String siteId, CourseGradeTransferBean studentGrade) {
 		super(id);
 		this.siteId = siteId;
 		this.studentGrade = studentGrade;
@@ -90,7 +90,7 @@ public class CourseGradeChart extends BaseChart {
 		final Map<String, Double> schema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
 
 		// get the course grades and re-map. Also sorts the data so it is ready for the consumer to use
-		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(this.siteId, schema);
+		final Map<String, CourseGradeTransferBean> courseGrades = this.businessService.getCourseGrades(this.siteId, schema);
 		final GbChartData data = reMap(courseGrades, gradingSchema.keySet());
 
 		return data;
@@ -103,7 +103,7 @@ public class CourseGradeChart extends BaseChart {
 	 * @param gradingSchema the grading schema that has the order
 	 * @return
 	 */
-	private GbChartData reMap(final Map<String, CourseGrade> courseGrades, final Set<String> order) {
+	private GbChartData reMap(final Map<String, CourseGradeTransferBean> courseGrades, final Set<String> order) {
 		final GbChartData data = new GbChartData();
 		courseGrades.forEach((k, v) -> {
 			data.add(v.getDisplayGrade());

@@ -21,9 +21,9 @@ class SakaiRubricStudent extends RubricsElement {
   static get properties() {
 
     return {
-      token: String,
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
+      siteId: { attribute: "site-id", type: String },
       stateDetails: String,
       preview: Boolean,
       instructor: Boolean,
@@ -35,29 +35,31 @@ class SakaiRubricStudent extends RubricsElement {
     };
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
+  set toolId(value) {
 
-    super.attributeChangedCallback(name, oldValue, newValue);
+    this._toolId = value;
 
-    if (this.token && this.toolId && this.entityId) {
+    if (this.toolId && this.entityId) {
       this.init();
     }
   }
 
-  set token(newValue) {
+  get toolId() { return this._toolId; }
 
-    this._token = `Bearer ${  newValue}`;
-    if (this.preview && this.rubricId) {
-      this.setRubric();
+  set entityId(value) {
+
+    this._entityId = value;
+    if (this.toolId && this.entityId) {
+      this.init();
     }
   }
 
-  get token() { return this._token; }
+  get entityId() { return this._entityId; }
 
   set preview(newValue) {
 
     this._preview = newValue;
-    if (this.token && this.rubricId) {
+    if (this.rubricId) {
       this.setRubric();
     }
   }
@@ -67,15 +69,15 @@ class SakaiRubricStudent extends RubricsElement {
   set rubricId(newValue) {
 
     this._rubricId = newValue;
-    if (this._rubricId != null && this.token && this.preview) {
+    if (this._rubricId != null && this.preview) {
       this.setRubric();
     }
   }
 
   get rubricId() { return this._rubricId; }
 
-  shouldUpdate(changedProperties) {
-    return this.i18nLoaded && changedProperties.has("rubric") && (this.instructor || !this.options.hideStudentPreview);
+  shouldUpdate() {
+    return this.i18nLoaded && this.rubric && (this.instructor || !this.options.hideStudentPreview);
   }
 
   render() {
@@ -90,7 +92,6 @@ class SakaiRubricStudent extends RubricsElement {
             <sakai-rubric-pdf
                 rubricTitle="${this.rubric.title}"
                 rubricId="${this.rubric.id}"
-                token="${this.token}"
                 toolId="${this.toolId}"
                 entityId="${this.entityId}"
                 evaluatedItemId="${this.evaluatedItemId}"
@@ -100,12 +101,12 @@ class SakaiRubricStudent extends RubricsElement {
 
         ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
-            criteria="${JSON.stringify(this.rubric.criterions)}"
+            criteria="${JSON.stringify(this.rubric.criteria)}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-preview>
           ` : html`
           <sakai-rubric-criterion-student
-            criteria="${JSON.stringify(this.rubric.criterions)}"
+            criteria="${JSON.stringify(this.rubric.criteria)}"
             rubric-association="${JSON.stringify(this.association)}"
             evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
             ?preview="${this.preview}"
@@ -119,43 +120,79 @@ class SakaiRubricStudent extends RubricsElement {
 
   setRubric() {
 
-    $.ajax({
-      url: `/rubrics-service/rest/rubrics/${this.rubricId}?projection=inlineRubric`,
-      headers: { "authorization": this.token },
-      contentType: "application/json"
-    }).done(data => this.rubric = data).fail((jqXHR, textStatus, errorThrown) => {
-      console.log(textStatus);console.log(errorThrown);
-    });
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}`;
+    fetch(url, { credentials: "include", headers: { "Content-Type": "application/json" } })
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting rubric");
+    })
+    .then(rubric => this.rubric = rubric)
+    .catch (error => console.error(error));
   }
 
   init() {
 
     // First, grab the tool association
-    $.ajax({
-      url: `/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment?toolId=${this.toolId}&itemId=${this.entityId}`,
-      headers: { "authorization": this.token }
-    }).done(data => {
+    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
 
-      if (data._embedded['rubric-associations'].length) {
-        this.association = data._embedded['rubric-associations'][0];
-        this.options = data._embedded['rubric-associations'][0].parameters;
-        const rubricId = data._embedded['rubric-associations'][0].rubricId;
+    fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+      throw new Error("Network error while getting association");
+    })
+    .then(association => {
+
+      if (association) {
+        this.association = association;
+        this.options = association.parameters;
+        const rubricId = association.rubricId;
 
         // Now, get the rubric
-        $.ajax({
-          url: `/rubrics-service/rest/rubrics/${rubricId}?projection=inlineRubric`,
-          headers: { "authorization": this.token },
-          contentType: "application/json"
-        }).done(rubric => {
+        const rubricUrl = `/api/sites/${association.siteId}/rubrics/${rubricId}`;
+        console.log(rubricUrl);
+        fetch(rubricUrl, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        })
+        .then(r => {
+
+          if (r.ok) {
+            return r.json();
+          }
+          throw new Error("Server error while getting rubric");
+        })
+        .then(rubric => {
 
           // Now, get the evaluation
-          $.ajax({
-            url: `/rubrics-service/rest/evaluations/search/by-tool-and-assignment-and-submission?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`,
-            headers: { "authorization": this.token }
-          }).done(data1 => {
+          const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+          console.log(evalUrl);
+          fetch(evalUrl, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          })
+          .then(r => {
 
-            if (data1._embedded.evaluations.length) {
-              this.evaluation = data1._embedded.evaluations[0];
+            if (r.ok) {
+              return r.json();
+            }
+
+            if (r.status !== 404) {
+              throw new Error("Server error while getting evaluation");
+            }
+          })
+          .then(evaluation => {
+
+            if (evaluation) {
+              this.evaluation = evaluation;
               this.preview = false;
             } else {
               this.evaluation = { criterionOutcomes: [] };
@@ -164,21 +201,19 @@ class SakaiRubricStudent extends RubricsElement {
 
             // Set the rubric, thus triggering a render
             this.rubric = rubric;
-          }).fail((jqXHR, textStatus, error) => {
-            console.log(textStatus);console.log(error);
-          });
-        }).fail((jqXHR, textStatus, error) => {
-          console.log(textStatus);console.log(error);
-        });
+          })
+          .catch (error => console.error(error));
+        })
+        .catch (error => console.error(error));
 
         if (this.options.hideStudentPreview == null) {
           this.options.hideStudentPreview = false;
         }
       }
-    }).fail((jqXHR, textStatus, error) => {
-      console.log(textStatus);console.log(error);
-    });
+    })
+    .catch (error => console.error(error));
   }
 }
 
-customElements.define("sakai-rubric-student", SakaiRubricStudent);
+const tagName = "sakai-rubric-student";
+!customElements.get(tagName) && customElements.define(tagName, SakaiRubricStudent);

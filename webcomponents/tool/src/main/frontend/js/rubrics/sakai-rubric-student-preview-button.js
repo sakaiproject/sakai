@@ -10,34 +10,33 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
     super();
 
     this.display = "button";
-
     this.i18nPromise = SakaiRubricsLanguage.loadTranslations();
   }
 
   static get properties() {
 
     return {
-      token: String,
       display: String,
+      siteId: { attribute: "site-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       entityId: { attribute: "entity-id", type: String },
       rubricId: String,
     };
   }
 
-  set token(newValue) {
+  set siteId(value) {
 
-    this.i18nPromise.then(r => this.initLightbox(newValue, r));
-    this._token = `Bearer ${  newValue}`;
+    this._siteId = value;
+    this.i18nPromise.then(r => this.initLightbox(r, value));
   }
 
-  get token() { return this._token; }
+  get siteId() { return this._siteId; }
 
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if (this.token && this.toolId && this.entityId) {
+    if (this.toolId && this.entityId) {
       this.getRubricId();
     }
   }
@@ -59,12 +58,12 @@ export class SakaiRubricStudentPreviewButton extends RubricsElement {
 
   getRubricId() {
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubric-associations/search/by-tool-and-assignment",
-      this.token,
-      { params: {toolId: this.toolId, itemId: this.entityId }})
-    .then(data => {
+    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
 
-      const association = data._embedded["rubric-associations"][0];
+    SakaiRubricsHelpers.get(url,
+      { params: {toolId: this.toolId, itemId: this.entityId }})
+    .then(association => {
+
       if (association && !association.parameters.hideStudentPreview) {
         this.rubricId = association.rubricId;
       }

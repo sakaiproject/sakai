@@ -50,8 +50,8 @@
         <div class="navPanel">
             <div class="highlight gradingHeader">
                 <h3>
-                    #assignmentTitleIcon($!assignment)
                     $formattedText.escapeHtml($!assignment.Title)
+                    #assignmentIcons($!assignment)
                     <span class="highlight"> -
                         #if ($withGrade)
                             #if (!$!submission.Graded)
@@ -346,7 +346,7 @@
         </div>
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
-                token="$!rbcs-token"
+                site-id="$!assignment.Context"
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
@@ -864,7 +864,6 @@
         </div>
         <input type="hidden" id="grade-is-released" name="grade-is-released" value="$submission.getGradeReleased()" />
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
-        <input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
     </form>
 </div>
 <!-- end: check_assignments_instructor_grading_submission.vm  -->

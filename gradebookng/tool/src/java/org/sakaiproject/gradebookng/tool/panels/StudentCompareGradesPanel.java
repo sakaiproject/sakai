@@ -27,8 +27,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeComparisonItem;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.user.api.User;
 
 public class StudentCompareGradesPanel extends BasePanel {
@@ -44,7 +44,7 @@ public class StudentCompareGradesPanel extends BasePanel {
         this.data = StudentCompareGradesPanel.this.businessService
                     .buildMatrixForGradeComparison(
                             model.getObject(),
-                            GradingType.valueOf(getGradebook().getGrade_type()),
+                            getGradebook().getGradeType(),
                             getSettings()
                     );
     }
@@ -64,9 +64,9 @@ public class StudentCompareGradesPanel extends BasePanel {
             add(gradeItemLabel);
 
             boolean isComparingOrDisplayingFullName = getSettings()
-                                    .isComparingDisplayStudentNames() || 
+                                    .getComparingDisplayStudentNames() || 
                            getSettings()
-                                   .isComparingDisplayStudentSurnames();
+                                   .getComparingDisplayStudentSurnames();
 
             // Table headers
 
@@ -81,7 +81,7 @@ public class StudentCompareGradesPanel extends BasePanel {
             Label teacherCommentHeaderLabel = new Label("teacherCommentHeaderLabel" ,new ResourceModel("comparegrades.modal.table.header.teacher.comment")){
                 @Override
                 public boolean isVisible() {
-                    return getSettings().isComparingDisplayTeacherComments();
+                    return getSettings().getComparingDisplayTeacherComments();
                 }
             };
             add(teacherCommentHeaderLabel);

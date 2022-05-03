@@ -15,44 +15,71 @@
  */
 package org.sakaiproject.conversations.impl;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsService;
+import org.sakaiproject.conversations.api.ConversationsStat;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
+import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
+import static org.sakaiproject.conversations.api.ConversationsReferenceReckoner.ConversationsReference;
 import org.sakaiproject.conversations.api.Permissions;
+import org.sakaiproject.conversations.api.PostSort;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
+import org.sakaiproject.conversations.api.beans.CommentTransferBean;
 import org.sakaiproject.conversations.api.beans.PostTransferBean;
 import org.sakaiproject.conversations.api.beans.TopicTransferBean;
+import org.sakaiproject.conversations.api.model.ConversationsComment;
 import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
-import org.sakaiproject.conversations.api.model.Topic;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.model.TopicStatus;
-import org.sakaiproject.conversations.api.repository.TopicRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsCommentRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsPostRepository;
+import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import javax.annotation.Resource;
 
@@ -70,20 +97,40 @@ import org.junit.runner.RunWith;
 @ContextConfiguration(classes = {ConversationsTestConfiguration.class})
 public class ConversationsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
+    @Autowired private AuthzGroupService authzGroupService;
+    @Autowired private MemoryService memoryService;
+    @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
-    @Resource private SecurityService securityService;
-    @Resource private SessionManager sessionManager;
-    @Resource private UserDirectoryService userDirectoryService;
-    @Resource private SessionFactory sessionFactory;
-    @Resource private TopicRepository topicRepository;
-    @Resource private TopicStatusRepository topicStatusRepository;
+    @Autowired private SecurityService securityService;
+    @Autowired private SessionManager sessionManager;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private ConversationsPostRepository postRepository;
+    @Autowired private SiteService siteService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private ConversationsTopicRepository topicRepository;
+    @Autowired private TopicStatusRepository topicStatusRepository;
+
+    private ResourceLoader resourceLoader;
 
     TopicTransferBean topicBean = null;
     PostTransferBean postBean = null;
+    String instructor = "instructor";
+    User instructorUser = null;
     String user1 = "user1";
     User user1User = null;
+    String user1DisplayName = "Adrian Fish";
+    String user1SortName = "Fish, Adrian";
     String user2 = "user2";
     User user2User = null;
+    String user2DisplayName = "Earle Nietzel";
+    String user2SortName = "Nietzel, Earle";
+    String user3 = "user3";
+    User user3User = null;
+    String user3DisplayName = "Zaphod Beeblebrox";
+    String user3SortName = "Beeblebrox, Zaphod";
+    String siteId = "xyz";
+    String siteRef = "/site/" + siteId;
 
     @Before
     public void setup() {
@@ -94,39 +141,114 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         topicBean = new TopicTransferBean();
         topicBean.setTitle("Topic 1");
         topicBean.setMessage("Topic 1 messaage");
-        topicBean.siteId = "xyz";
+        topicBean.siteId = siteId;
         postBean = new PostTransferBean();
         postBean.message = "Post message";
-        postBean.siteId = "xyz";
+        postBean.siteId = siteId;
+        instructorUser = mock(User.class);
         user1User = mock(User.class);
-        when(user1User.getDisplayName()).thenReturn("User 1");
+        when(user1User.getId()).thenReturn(user1);
+        when(user1User.getDisplayName()).thenReturn(user1DisplayName);
+        when(user1User.getSortName()).thenReturn(user1SortName);
         user2User = mock(User.class);
-        when(user2User.getDisplayName()).thenReturn("User 2");
+        when(user2User.getId()).thenReturn(user2);
+        when(user2User.getDisplayName()).thenReturn(user2DisplayName);
+        when(user2User.getSortName()).thenReturn(user2SortName);
+        user3User = mock(User.class);
+        when(user3User.getId()).thenReturn(user3);
+        when(user3User.getDisplayName()).thenReturn(user3DisplayName);
+        when(user3User.getSortName()).thenReturn(user3SortName);
+        when(serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10)).thenReturn(10);
+        when(serverConfigurationService.getPortalUrl()).thenReturn("http://localhost/portal");
+        ToolConfiguration toolConfig = mock(ToolConfiguration.class);
+        when(toolConfig.getId()).thenReturn("abcdefg");
+        Site site = mock(Site.class);
+        when(site.getToolForCommonId(ConversationsService.TOOL_ID)).thenReturn(toolConfig);
+
+        resourceLoader = mock(ResourceLoader.class);
+        when(resourceLoader.getString("anonymous")).thenReturn("Anonymous");
+        when(siteService.siteReference(siteId)).thenReturn(siteRef);
+
+        // this is too late for the init method, I think.
+        Cache postsCache = mock(Cache.class);
+        //when(memoryService.<String, Map<String, List<PostTransferBean>>>getCache(ConversationsService.POSTS_CACHE_NAME)).thenReturn(postsCache);
+        ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setPostsCache(postsCache);
+        ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setSortedStatsCache(postsCache);
+        ((ConversationsServiceImpl) AopTestUtils.getTargetObject(conversationsService)).setResourceLoader(resourceLoader);
+
+        try {
+          when(siteService.getSite(siteId)).thenReturn(site);
+        } catch (Exception e) {
+        }
+
+        AuthzGroup siteGroup = mock(AuthzGroup.class);
+        Set<String> userIds = new HashSet<>();
+        userIds.add(user1);
+        userIds.add(user2);
+        userIds.add(user3);
+        when(siteGroup.getUsers()).thenReturn(userIds);
+
+        List<User> users = new ArrayList<>();
+        users.add(user1User);
+        users.add(user2User);
+        users.add(user3User);
+
+        try {
+            when(authzGroupService.getAuthzGroup(siteRef)).thenReturn(siteGroup);
+            when(userDirectoryService.getUsers(new ArrayList(userIds))).thenReturn(users);
+        } catch (Exception e) {
+        }
     }
 
     @Test
     public void createTopicWithoutPermission() {
 
         // No current user. We should get an exeception.
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn("sakaiuser");
 
         // You can't create a topic without TOPIC_CREATE.
-        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+    }
+
+    @Test
+    public void getBlankTopic() {
+
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getBlankTopic(siteId));
+
+        switchToUser1();
+
+        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(false);
+        assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getBlankTopic(siteId));
+        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+
+        try {
+            TopicTransferBean blankTopic = conversationsService.getBlankTopic(siteId);
+            assertEquals(blankTopic.type, TopicType.QUESTION.name());
+            assertEquals(blankTopic.visibility, TopicVisibility.SITE.name());
+            assertFalse(blankTopic.canModerate);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            blankTopic = conversationsService.getBlankTopic(siteId);
+            assertTrue(blankTopic.canModerate);
+            assertFalse(blankTopic.draft);
+        } catch (ConversationsPermissionsException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void crudTopic() {
 
         try {
+            switchToUser1();
             // CREATE
-            topicBean = createTopic();
-            assertTrue(topicBean != null && topicBean.id != null && topicBean.id.length() == 36);
+            topicBean = createTopic(true);
 
             // You need SITE_VISIT to read the topics for a site
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(false);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getTopicsForSite(topicBean.siteId));
-            when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
 
@@ -137,15 +259,17 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topicBean.setMessage(updatedMessage);
 
             // You need TOPIC_UPDATE_OWN or TOPIC_UPDATE_ANY to update your own topic
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean));
-            when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            topicBean = conversationsService.saveTopic(topicBean);
+            when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+            when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertEquals(updatedTitle, topicBean.title);
             assertEquals(updatedMessage, topicBean.message);
 
             // You need TOPIC_DELETE_OWN or TOPIC_DELETE_ANY to delete your own topic
+            when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(false);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deleteTopic(topicBean.id));
-            when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);
             conversationsService.deleteTopic(topicBean.id);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertTrue(topics.size() == 0);
@@ -155,15 +279,110 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
+    public void saveTopic() {
+
+        try {
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.setTitle("Topic");
+            topicBean.setMessage("Topic messaage");
+            topicBean.siteId = siteId;
+            topicBean.type = TopicType.QUESTION.name();
+            topicBean.visibility = TopicVisibility.SITE.name();
+            topicBean.aboutReference = siteRef;
+            topicBean.showDate = Instant.now().plus(5, ChronoUnit.HOURS);
+
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+
+            switchToUser1();
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+
+            when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+
+            TopicTransferBean savedBean = conversationsService.saveTopic(topicBean, true);
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.size());
+
+            // If the show date is set, then the topic should be set to hidden
+            assertNotNull(topics.get(0).showDate);
+            assertTrue(topics.get(0).hidden);
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+
+            topics = conversationsService.getTopicsForSite(siteId);
+
+            // If a topic has been hidden, only moderators can see them.
+            assertEquals(0, topics.size());
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.size());
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception when saving topic");
+        }
+    }
+
+    @Test
+    public void mustPostBeforeViewing() {
+
+        switchToInstructor();
+
+        try {
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.setTitle("Topic");
+            topicBean.setMessage("Topic Messaage");
+            topicBean.siteId = siteId;
+            topicBean.type = TopicType.QUESTION.name();
+            topicBean.visibility = TopicVisibility.SITE.name();
+            topicBean.aboutReference = siteRef;
+            topicBean.mustPostBeforeViewing = true;
+            topicBean = conversationsService.saveTopic(topicBean, true);
+
+            String topicId = topicBean.id;
+
+            switchToUser1();
+
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.siteId = siteId;
+            postBean.topic = topicBean.id;
+            postBean.setMessage("Here is my message");
+            conversationsService.savePost(postBean, true);
+
+            switchToUser2();
+
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getPostsByTopicId(siteId, topicId, 0, null, null));
+
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.size());
+            assertFalse(topics.get(0).hasPosted);
+
+            PostTransferBean postBean2 = new PostTransferBean();
+            postBean2.siteId = siteId;
+            postBean2.topic = topicBean.id;
+            postBean2.setMessage("Here is my message");
+            conversationsService.savePost(postBean2, true);
+
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertTrue(topics.get(0).hasPosted);
+
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(siteId, topicId, 0, null, null);
+            assertEquals(2, posts.size());
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception");
+        }
+    }
+
+    @Test
     public void topicFiltering() {
 
         try {
             topicBean.draft = true;
-            topicBean = createTopic();
+            switchToUser1();
+            topicBean = createTopic(true);
 
-            when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
-
-            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
             assertEquals(1, topics.size());
 
             // user2 should not be able to see your draft topic
@@ -173,13 +392,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             switchToUser1();
 
-            when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, "/site/" + topicBean.siteId)).thenReturn(true);
-
             // topics marked for INSTRUCTORS should ony be viewable by users in the instructor role
             // (as set by a permission), or their creator
             topicBean.visibility = "INSTRUCTORS";
             topicBean.draft = false;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
@@ -189,95 +406,278 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(0, topics.size());
 
-            when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            switchToInstructor();
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
 
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            switchToUser1();
             topicBean.visibility = "SITE";
             topicBean.hidden = true;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
 
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(false);
             switchToUser2();
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(0, topics.size());
 
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            switchToInstructor();
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
+
+            topicBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean.hidden = false;
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            assertTrue(topics.get(0).lockedByDate);
+
+            topicBean.lockDate = null;
+            topicBean.hidden = false;
+            topicBean.hideDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            //assertTrue(topics.get(0).hiddenByDate);
+
+            topicBean.hideDate = null;
+            topicBean.lockDate = null;
+            topicBean.showDate = null;
+            topicBean.hidden = false;
+
+            topicBean = conversationsService.saveTopic(topicBean, true);
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+
+            topicBean.showDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+            topicBean.showDate = null;
+            topicBean.hideDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+            topicBean.hideDate = null;
+            topicBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean, true));
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            assertFalse(topicBean.lockDate == null);
+
+            topicBean.lockDate = null;
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            assertNull(topicBean.lockDate);
+
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            assertNull(topics.get(0).lockDate);
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when testing topic filtering");
+        }
+    }
+
+    @Test
+    public void dueDate() {
+
+        try {
+            switchToUser1();
+            TopicTransferBean topicBean = createTopic(true);
+            topicBean.dueDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+
+            // Now lets post to the topic. The post should be marked as late.
+            switchToUser2();
+
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.siteId = siteId;
+            postBean.topic = topicBean.id;
+            postBean.setMessage("Here is my message");
+
+            postBean = conversationsService.savePost(postBean, true);
+
+            assertTrue(postBean.late);
+
+            // Lock date will be set if we use the availability checkbox
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            topicBean.lockDate = Instant.now().minus(5, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+
+            Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.size());
+            //assertTrue(topics.iterator().next().lockedByDate);
+            //
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+
+            // Topic is now locked
+            PostTransferBean postBean2 = new PostTransferBean();
+            postBean2.siteId = siteId;
+            postBean2.topic = topicBean.id;
+            postBean2.setMessage("Here is my really late post");
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean2, true));
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertTrue(posts.iterator().next().late);
+
+            topicBean = createTopic(true);
+            topicBean.dueDate = Instant.now().minus(5, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            postBean = new PostTransferBean();
+            postBean.siteId = siteId;
+            postBean.topic = topicBean.id;
+            postBean.setMessage("Here is my message");
+            postBean = conversationsService.savePost(postBean, true);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertTrue(posts.iterator().next().late);
+            topicBean.dueDate = Instant.now().plus(5, ChronoUnit.HOURS);
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            assertFalse(posts.iterator().next().late);
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception when testing topic due date");
         }
     }
 
     @Test
     public void hideTopic() {
 
-        when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
         try {
-            TopicTransferBean topicBean = createTopic();
+            switchToUser1();
+            TopicTransferBean topicBean = createTopic(true);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hideTopic(topicBean.id, true));
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
             conversationsService.hideTopic(topicBean.id, true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
+
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(0, topics.size());
+
+            topicBean.showDate = Instant.now().plus(20, ChronoUnit.HOURS);
+            when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            conversationsService.saveTopic(topicBean, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
+            TopicTransferBean savedBean = topics.get(0);
+            assertTrue(savedBean.hidden);
+
+            savedBean.showDate = null;
+            savedBean = conversationsService.saveTopic(savedBean, true);
+
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            savedBean = topics.get(0);
+            assertNull(savedBean.showDate);
+            assertFalse(savedBean.hidden);
+
+            // If the hide date was in the past, even if hidden isn't set, the topic should still
+            // be hidden from non moderators
+            savedBean.hidden = false;
+            savedBean.hideDate = Instant.now().minus(1, ChronoUnit.HOURS);
+            savedBean = conversationsService.saveTopic(savedBean, true);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(0, topics.size());
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            assertTrue(topics.get(0).hiddenByDate);
+
+            conversationsService.hideTopic(savedBean.id, false);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertFalse(topics.get(0).hidden);
+
+            // If the hide date is after the show date, hide date should always win.
+            savedBean.showDate = Instant.now().minus(2, ChronoUnit.HOURS);
+            savedBean.hideDate = Instant.now().minus(1, ChronoUnit.HOURS);
+            conversationsService.saveTopic(savedBean, true);
+            savedBean = conversationsService.getTopicsForSite(topicBean.siteId).get(0);
+            //assertTrue(savedBean.hidden);
         } catch (ConversationsPermissionsException cpe) {
-            fail("Unexpected exception when testing topic filtering");
+            cpe.printStackTrace();
+            fail("Unexpected exception when testing topic hiding");
         }
     }
 
     @Test
     public void lockTopic() {
 
-        when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
         try {
-            TopicTransferBean topicBean = createTopic();
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.lockTopic(topicBean.id, true));
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            conversationsService.lockTopic(topicBean.id, true);
+            switchToUser1();
+            TopicTransferBean topicBean = createTopic(true);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.lockTopic(topicBean.id, true, true));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            conversationsService.lockTopic(topicBean.id, true, true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertEquals(1, topics.size());
+            assertTrue(topics.get(0).locked);
 
             // This topic has now been locked. We should not be able to update it
             TopicTransferBean updatedBean = topics.get(0);
             updatedBean.message = "xxxxxx";
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(false);
-            when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(updatedBean));
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            conversationsService.saveTopic(updatedBean);
-            postBean.topic = topicBean.id;
-            when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+            when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(updatedBean, true));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            TopicTransferBean testBean = conversationsService.saveTopic(updatedBean, true);
+
+            // Moderators can still edit locked topics
+            assertTrue(testBean.canEdit);
+            postBean.topic = testBean.id;
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
             // We should not be able to create a post on a locked topic, unless we have MODERATE
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(false);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            PostTransferBean updatedPostBean = conversationsService.savePost(postBean);
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            PostTransferBean updatedPostBean = conversationsService.savePost(postBean, true);
             // Locking a topic should lock all the posts in the topic, even when adding new posts to a locked topic
             assertTrue(updatedPostBean.locked);
+
+            updatedBean.lockDate = Instant.now().minus(20, ChronoUnit.HOURS);
+            conversationsService.saveTopic(updatedBean, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            TopicTransferBean updatedBean2 = topics.get(0);
+            assertTrue(updatedBean2.locked);
+
+            conversationsService.lockTopic(updatedBean2.id, false, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            updatedBean2 = topics.get(0);
+            assertNull(updatedBean2.lockDate);
+            assertFalse(updatedBean2.locked);
+
+            conversationsService.lockTopic(updatedBean2.id, true, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            updatedBean2 = topics.get(0);
+            assertTrue(updatedBean2.locked);
+
+            updatedBean2.lockDate = Instant.now().minus(2, ChronoUnit.HOURS);
+            updatedBean2 = conversationsService.saveTopic(updatedBean2, true);
+            topics = conversationsService.getTopicsForSite(topicBean.siteId);
+            assertEquals(1, topics.size());
+            assertTrue(topics.get(0).lockedByDate);
+
         } catch (ConversationsPermissionsException cpe) {
-            fail("Unexpected exception when testing topic filtering");
+            fail("Unexpected exception when testing topic locking");
         }
     }
 
     @Test
     public void lockSite() {
 
-        TopicTransferBean topicBean = createTopic();
-        when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-        when(securityService.unlock(Permissions.POST_UPDATE_ANY.label, "/site/" + topicBean.siteId)).thenReturn(true);
-        when(securityService.unlock(SiteService.SECURE_UPDATE_SITE, "/site/" + topicBean.siteId)).thenReturn(true);
+        switchToInstructor();
+
+        TopicTransferBean topicBean = createTopic(true);
 
         try {
             postBean.topic = topicBean.id;
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             Settings settings = new Settings();
             settings.setSiteId(topicBean.siteId);
             settings.setSiteLocked(true);
@@ -286,18 +686,19 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             TopicTransferBean topicBean2 = new TopicTransferBean();
             topicBean2.setTitle("Topic 2");
             topicBean2.setMessage("Topic 2 messaage");
-            topicBean2.siteId = "xyz";
+            topicBean2.siteId = siteId;
             topicBean2.type = TopicType.QUESTION.name();
             topicBean2.visibility = TopicVisibility.SITE.name();
-            topicBean2.aboutReference = "/site/" + topicBean.siteId;
+            topicBean2.aboutReference = siteRef;
 
             // this site is now locked. You should only be able to create a topic if you have MODERATE
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean2));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveTopic(topicBean2, true));
 
             postBean.setMessage("eggs");
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
-            when(securityService.unlock(Permissions.MODERATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            //conversationsService.savePost(postBean);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            //conversationsService.savePost(postBean, true);
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when testing topic filtering");
         } catch (NullPointerException npe) {
@@ -308,13 +709,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void anonymousTopic() {
 
-        when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
         try {
-            topicBean = createTopic();
+            switchToUser1();
+            topicBean = createTopic(true);
             assertTrue(topicBean != null && topicBean.id != null && topicBean.id.length() == 36);
             topicBean.anonymous = true;
-            when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertNotEquals(topicBean.creatorDisplayName, user1User.getDisplayName());
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when testing topic filtering");
@@ -325,41 +725,185 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void crudPost() {
 
         try {
-            topicBean = createTopic();
-            assertTrue(topicBean != null && topicBean.id != null && topicBean.id.length() == 36);
+            switchToUser1();
+            topicBean = createTopic(true);
 
             postBean.topic = topicBean.id;
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
 
-            when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             assertEquals(36, postBean.id.length());
             assertEquals(user1, postBean.creator);
 
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id));
+            // We should not be able to get a topic's posts if we can't visit the site
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null));
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
 
-            when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
-
-            List<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id);
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(1, posts.size());
 
             String updatedMessage = "Updated Message";
             postBean.message = updatedMessage;
             postBean.siteId = topicBean.siteId;
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean));
 
-            when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            postBean = conversationsService.savePost(postBean);
+            when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(postBean, true));
+            when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(true);
+
+            postBean = conversationsService.savePost(postBean, true);
             assertEquals(updatedMessage, postBean.message);
 
+            when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(false);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deletePost(postBean.siteId, postBean.topic, postBean.id, false));
+            when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(true);
 
-            when(securityService.unlock(Permissions.POST_DELETE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
             conversationsService.deletePost(postBean.siteId, postBean.topic, postBean.id, false);
 
-            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(0, posts.size());
+        } catch (ConversationsPermissionsException cpe) {
+            fail("Unexpected exception when saving post");
+        }
+    }
+
+    @Test
+    public void getPostsByTopicId() {
+
+        when(serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10)).thenReturn(2);
+
+        try {
+            switchToUser1();
+            topicBean = createTopic(true);
+
+            String t1Message = "Thread 1";
+            String t2Message = "Thread 2";
+            String t3Message = "Thread 3";
+            String t1Creator = "Earle Nietzel";
+            String t2Creator = "Adrian Fish";
+            String t3Creator = "Zaphod Beeblebrox";
+
+            // A "thread" is just a top level post to a topic
+            PostTransferBean thread1 = new PostTransferBean();
+            thread1.setMessage(t1Message);
+            thread1.topic = topicBean.id;
+            thread1.siteId = siteId;
+            switchToUser1();
+            thread1 = conversationsService.savePost(thread1, true);
+
+            // You should only be able to get the posts if you have SITE_VISIT
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null));
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+
+            PostTransferBean thread2 = new PostTransferBean();
+            thread2.setMessage(t2Message);
+            thread2.topic = topicBean.id;
+            thread2.siteId = siteId;
+            switchToUser2();
+            postBean = conversationsService.savePost(thread2, true);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(2, posts.size());
+
+            PostTransferBean thread3 = new PostTransferBean();
+            thread3.setMessage(t3Message);
+            thread3.topic = topicBean.id;
+            thread3.siteId = siteId;
+            switchToUser3();
+            postBean = conversationsService.savePost(thread3, true);
+
+            // First page
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(2, posts.size());
+
+            // Second page
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, null, null);
+            assertEquals(1, posts.size());
+
+            PostTransferBean post1 = new PostTransferBean();
+            post1.setMessage("Post 1");
+            post1.topic = topicBean.id;
+            post1.siteId = siteId;
+            post1.parentPost = thread1.id;
+            post1.parentThread = thread1.id;
+            postBean = conversationsService.savePost(post1, true);
+
+            // First page, ordered newest first
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, PostSort.NEWEST, null);
+            assertEquals(2, posts.size());
+
+            Iterator it = posts.iterator();
+            PostTransferBean t3 = (PostTransferBean) it.next();
+            assertEquals(t3Message, t3.message);
+            PostTransferBean t2 = (PostTransferBean) it.next();
+            assertEquals(t2Message, t2.message);
+
+            // Get the second page
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, PostSort.NEWEST, null);
+            assertEquals(1, posts.size());
+
+            it = posts.iterator();
+            PostTransferBean t1 = (PostTransferBean) it.next();
+            assertEquals(t1Message, t1.message);
+            assertEquals(1, t1.posts.size());
+            assertEquals("Post 1", ((PostTransferBean) t1.posts.get(0)).message);
+
+            when(serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10)).thenReturn(2);
+            // First page, ordered oldest first
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, PostSort.OLDEST, null);
+            assertEquals(2, posts.size());
+            it = posts.iterator();
+            t1 = (PostTransferBean) it.next();
+            assertEquals(t1Message, t1.message);
+            t2 = (PostTransferBean) it.next();
+            assertEquals(t2Message, t2.message);
+
+            // Second page, ordered oldest first
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, PostSort.OLDEST, null);
+            assertEquals(1, posts.size());
+            it = posts.iterator();
+            t3 = (PostTransferBean) it.next();
+            assertEquals(t3Message, t3.message);
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, PostSort.ASC_CREATOR, null);
+            assertEquals(2, posts.size());
+            it = posts.iterator();
+            PostTransferBean test = (PostTransferBean) it.next();
+            assertEquals(user1DisplayName, test.creatorDisplayName);
+            assertEquals(t1Message, test.message);
+            test = (PostTransferBean) it.next();
+            assertEquals(user2DisplayName, test.creatorDisplayName);
+            assertEquals(t2Message, test.message);
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, PostSort.ASC_CREATOR, null);
+            assertEquals(1, posts.size());
+            it = posts.iterator();
+            test = (PostTransferBean) it.next();
+            assertEquals(user3DisplayName, test.creatorDisplayName);
+            assertEquals(t3Message, test.message);
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, PostSort.DESC_CREATOR, null);
+            assertEquals(2, posts.size());
+            it = posts.iterator();
+            test = (PostTransferBean) it.next();
+            assertEquals(user3DisplayName, test.creatorDisplayName);
+            assertEquals(t3Message, test.message);
+            test = (PostTransferBean) it.next();
+            assertEquals(user2DisplayName, test.creatorDisplayName);
+            assertEquals(t2Message, test.message);
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, PostSort.DESC_CREATOR, null);
+            assertEquals(1, posts.size());
+            it = posts.iterator();
+            test = (PostTransferBean) it.next();
+            assertEquals(user1DisplayName, test.creatorDisplayName);
+            assertEquals(t1Message, test.message);
         } catch (ConversationsPermissionsException cpe) {
             fail("Unexpected exception when saving post");
         }
@@ -369,10 +913,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void upDownVotePost() {
 
         try {
-            topicBean = createTopic();
+            switchToUser1();
+            topicBean = createTopic(true);
             postBean.topic = topicBean.id;
-            when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
-            postBean = conversationsService.savePost(postBean);
+            postBean = conversationsService.savePost(postBean, true);
             int currentUpvotes = postBean.upvotes;
             assertTrue(postBean.id != null);
             assertEquals(0, postBean.upvotes);
@@ -380,17 +924,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // We should not be able to upvote your own post
             assertThrows(IllegalArgumentException.class, () -> conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id));
 
-            // Switch to user2
-            when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
-            try {
-                when(userDirectoryService.getUser(user2)).thenReturn(user2User);
-            } catch (UserNotDefinedException unde) {
-            }
+            switchToUser2();
 
             // We should not be able to upvote a post without POST_UPVOTE
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)).thenReturn(false);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id));
-
-            when(securityService.unlock(Permissions.POST_UPVOTE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)).thenReturn(true);
 
             postBean = conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id);
             assertEquals(1, postBean.upvotes);
@@ -414,41 +953,149 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void topicPostCount() {
 
         try {
-            TopicTransferBean topicBean = createTopic();
-            assertTrue(topicBean != null && topicBean.id != null && topicBean.id.length() == 36);
-            when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            switchToUser1();
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.siteId = this.siteId;
+            topicBean.title = "Topic Title";
+            topicBean = conversationsService.saveTopic(topicBean, true);
 
-            postBean.topic = topicBean.id;
+            switchToUser2();
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
 
-            postBean = conversationsService.savePost(postBean);
+            PostTransferBean privatePost = new PostTransferBean();
+            privatePost.siteId = this.siteId;
+            privatePost.topic = topicBean.id;
+            privatePost.message = "Private Post";
+            privatePost.privatePost = true;
 
-            /*
-            ExecutorService executor = Executors.newFixedThreadPool(10);
+            privatePost = conversationsService.savePost(privatePost, true);
 
-            PostTransferBean pb = new PostTransferBean();
-            pb.message = "Post message";
-            pb.siteId = "xyz";
-            pb.topic = topicBean.id;
+            assertTrue(privatePost.privatePost);
 
-            for (int i = 0; i < 10; i++) {
-                executor.execute(() -> {
+            switchToUser1();
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+            Collection<TopicTransferBean> topics = conversationsService.getTopicsForSite(this.siteId);
+            assertEquals(1, topics.iterator().next().numberOfPosts);
 
-                    try {
-                        conversationsService.savePost(pb);
-                    } catch (ConversationsPermissionsException e) {
-                    }
-                });
-            }
+            switchToUser3();
+            when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+            topics = conversationsService.getTopicsForSite(this.siteId);
+            assertEquals(0, topics.iterator().next().numberOfPosts);
 
-            executor.shutdown();
-            executor.awaitTermination(1, TimeUnit.MINUTES);
+            switchToUser1();
 
-            optTopic = topicRepository.findById(topicBean.id);
-            assertTrue(optTopic.isPresent());
-            assertEquals(optTopic.get().getNumberOfPosts(), Long.valueOf(10));
-            */
+            when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);
+            conversationsService.deleteTopic(topicBean.id);
+
+            TopicTransferBean discussionTopicBean = new TopicTransferBean();
+            discussionTopicBean.siteId = this.siteId;
+            discussionTopicBean.title = "Discussion Topic Title";
+            discussionTopicBean.type = TopicType.DISCUSSION.name();
+            discussionTopicBean = conversationsService.saveTopic(discussionTopicBean, true);
+
+            PostTransferBean level1Post = new PostTransferBean();
+            level1Post.siteId = this.siteId;
+            level1Post.topic = discussionTopicBean.id;
+            level1Post.message = "Level1";
+            level1Post = conversationsService.savePost(level1Post, true);
+
+            switchToUser2();
+            PostTransferBean level2Post = new PostTransferBean();
+            level2Post.siteId = this.siteId;
+            level2Post.topic = discussionTopicBean.id;
+            level2Post.message = "Level2";
+            level2Post.parentPost = level1Post.id;
+            level2Post.privatePost = true;
+            level2Post = conversationsService.savePost(level2Post, true);
+            assertEquals(level1Post.id, level2Post.parentPost);
+
+            topics = conversationsService.getTopicsForSite(this.siteId);
+
+            // user2 is the author of the reply, He should see the reply and the post being replied
+            // to
+            assertEquals(2, topics.iterator().next().numberOfPosts);
+
+            switchToUser3();
+            topics = conversationsService.getTopicsForSite(this.siteId);
+
+            // user3 is not the author of the reply, or the post being replied to. He should not
+            // see the reply
+            assertEquals(1, topics.iterator().next().numberOfPosts);
+
+            switchToUser1();
+            topics = conversationsService.getTopicsForSite(this.siteId);
+
+            // user1 is the author of the post being replied to, so he should see the private reply
+            assertEquals(2, topics.iterator().next().numberOfPosts);
         } catch (Exception e) {
-            fail("Unexpected exception when saving post");
+            e.printStackTrace();
+            fail("Unexpected exception when saving topic");
+        }
+    }
+
+    @Test
+    public void crudComment() {
+
+        try {
+            switchToUser1();
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.siteId = this.siteId;
+            topicBean.title = "Topic Title";
+            topicBean = conversationsService.saveTopic(topicBean, true);
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.setMessage("Post");
+            postBean.topic = topicBean.id;
+            postBean.siteId = siteId;
+            postBean = conversationsService.savePost(postBean, true);
+
+            CommentTransferBean commentBean = new CommentTransferBean();
+            commentBean.post = postBean.id;
+            commentBean.topicId = topicBean.id;
+            commentBean.siteId = siteId;
+            commentBean.message = "Comment";
+            conversationsService.saveComment(commentBean);
+
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            postBean = posts.iterator().next();
+
+            assertEquals(1, postBean.comments.size());
+            commentBean = postBean.comments.get(0);
+            assertEquals("Comment", commentBean.message);
+
+            commentBean.message = "New Comment";
+            conversationsService.saveComment(commentBean);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            postBean = posts.iterator().next();
+            commentBean = postBean.comments.get(0);
+            assertEquals("New Comment", commentBean.message);
+
+            conversationsService.deleteComment(siteId, commentBean.id);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            postBean = posts.iterator().next();
+            assertEquals(0, postBean.comments.size());
+
+            conversationsService.saveComment(commentBean);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            postBean = posts.iterator().next();
+            assertEquals(1, postBean.comments.size());
+
+            conversationsService.deletePost(siteId, topicBean.id, postBean.id, false);
+            List<ConversationsComment> comments = commentRepository.findByPostId(postBean.id);
+            assertTrue(comments.isEmpty());
+
+            postBean = conversationsService.savePost(postBean, true);
+            commentBean.post = postBean.id;
+            conversationsService.saveComment(commentBean);
+            posts = conversationsService.getPostsByTopicId(siteId, topicBean.id, 0, null, null);
+            postBean = posts.iterator().next();
+            assertEquals(1, postBean.comments.size());
+            conversationsService.deleteTopic(topicBean.id);
+            comments = commentRepository.findByPostId(postBean.id);
+            assertTrue(comments.isEmpty());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Unexpected exception when crudding comment");
         }
     }
 
@@ -456,7 +1103,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void crudTags() {
 
         Tag tag = new Tag();
-        tag.setSiteId("xyz");
+        tag.setSiteId(siteId);
         tag.setLabel("chicken");
 
         // This should throw as there's no current user
@@ -464,7 +1111,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
 
-        when(securityService.unlock(Permissions.TAG_CREATE.label, "/site/" + tag.getSiteId())).thenReturn(true);
+        when(securityService.unlock(Permissions.TAG_CREATE.label, siteRef)).thenReturn(true);
         try {
             Tag savedTag = conversationsService.saveTag(tag);
             assertFalse(savedTag.getId() == null);
@@ -474,7 +1121,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // Should only be able to pull the tags if we can tag topics
             assertEquals(siteTags.size(), 0);
 
-            when(securityService.unlock(Permissions.TOPIC_TAG.label, "/site/" + tag.getSiteId())).thenReturn(true);
+            when(securityService.unlock(Permissions.TOPIC_TAG.label, siteRef)).thenReturn(true);
             siteTags = conversationsService.getTagsForSite(tag.getSiteId());
             assertEquals(1, siteTags.size());
 
@@ -506,13 +1153,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void tagTopicThenDeleteTag() {
 
-        TopicTransferBean topicBean = createTopic();
+        switchToUser1();
+        TopicTransferBean topicBean = createTopic(true);
         Tag tag = new Tag();
-        tag.setSiteId("xyz");
+        tag.setSiteId(siteId);
         tag.setLabel("chicken");
 
-        when(securityService.unlock(Permissions.TAG_CREATE.label, "/site/" + tag.getSiteId())).thenReturn(true);
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, "/site/" + tag.getSiteId())).thenReturn(true);
+        when(securityService.unlock(Permissions.TAG_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
 
         List<Tag> tags = new ArrayList<>();
         tags.add(tag);
@@ -520,12 +1168,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             tags = conversationsService.createTags(tags);
             Long newTagId = tags.get(0).getId();
             topicBean.tags = tags;
-            topicBean = conversationsService.saveTopic(topicBean);
+            topicBean = conversationsService.saveTopic(topicBean, true);
             assertEquals(newTagId, topicBean.tags.iterator().next().getId());
 
             conversationsService.deleteTag(newTagId);
 
-            Optional<Topic> optTopic = topicRepository.findById(topicBean.id);
+            Optional<ConversationsTopic> optTopic = topicRepository.findById(topicBean.id);
             assertTrue(optTopic.isPresent());
 
             assertEquals(0, optTopic.get().getTagIds().size());
@@ -539,12 +1187,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     public void createSettings() {
 
         Settings settings = new Settings();
-        settings.setSiteId("xyz");
+        settings.setSiteId(siteId);
         try {
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveSettings(settings));
             when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.saveSettings(settings));
-            when(securityService.unlock(SiteService.SECURE_UPDATE_SITE, "/site/" + settings.getSiteId())).thenReturn(true);
+            when(securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef)).thenReturn(true);
             Settings savedSettings = conversationsService.saveSettings(settings);
             assertTrue(savedSettings.getId() != null);
             assertTrue(savedSettings.getAllowBookmarking());
@@ -557,7 +1205,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             savedSettings = conversationsService.saveSettings(savedSettings);
             assertFalse(savedSettings.getAllowPinning());
 
-            Settings siteSettings = conversationsService.getSettingsForSite("xyz");
+            Settings siteSettings = conversationsService.getSettingsForSite(siteId);
             assertFalse(siteSettings.getAllowPinning());
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
@@ -568,13 +1216,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void pinTopic() {
 
-        TopicTransferBean topicBean = createTopic();
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
+        switchToUser1();
+        TopicTransferBean topicBean = createTopic(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         try {
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.pinTopic(topicBean.id, true));
-            when(securityService.unlock(Permissions.TOPIC_PIN.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            when(securityService.unlock(Permissions.TOPIC_PIN.label, siteRef)).thenReturn(true);
             conversationsService.pinTopic(topicBean.id, true);
-            Optional<Topic> optTopic = topicRepository.findById(topicBean.id);
+            Optional<ConversationsTopic> optTopic = topicRepository.findById(topicBean.id);
             assertTrue(optTopic.isPresent());
             assertTrue(optTopic.get().getPinned());
             conversationsService.pinTopic(topicBean.id, false);
@@ -590,8 +1239,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void bookmarkTopic() {
 
-        TopicTransferBean topicBean = createTopic();
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, "/site/" + topicBean.siteId)).thenReturn(true);
+        switchToUser1();
+        TopicTransferBean topicBean = createTopic(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         try {
 
             switchToUser2();
@@ -613,9 +1263,11 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     @Test
     public void reactToTopic() {
 
-        TopicTransferBean topicBean = createTopic();
+        switchToUser1();
 
-        when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
+        TopicTransferBean topicBean = createTopic(true);
+
+        when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
 
         try {
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
@@ -652,67 +1304,365 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     }
 
     @Test
-    public void reactToPost() {
+    public void savePost() {
 
-        TopicTransferBean topicBean = createTopic();
+        switchToUser1();
+        TopicTransferBean topicBean = createTopic(true);
+        topicBean.type = TopicType.DISCUSSION.name();
 
-        when(securityService.unlock(SiteService.SITE_VISIT, "/site/" + topicBean.siteId)).thenReturn(true);
+        try {
+            String thread1Message = "Thread 1";
+
+            PostTransferBean thread1 = new PostTransferBean();
+            thread1.siteId = siteId;
+            thread1.topic = "none";
+            thread1.message = thread1Message;
+
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePost(thread1, true));
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
+
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(thread1, true));
+
+            thread1.topic = topicBean.id;
+
+            PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
+
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.get(0).numberOfPosts);
+
+            String replyMessage = "Yo yoghurt";
+
+            PostTransferBean reply1 = new PostTransferBean();
+            reply1.parentPost = "eggs";
+            reply1.parentThread = savedThread1.id;
+            reply1.message = replyMessage;
+            reply1.siteId = topicBean.siteId;
+            reply1.topic = topicBean.id;
+
+            // This should fail as the parent post doesn't exist
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.savePost(reply1, true));
+
+            reply1.parentPost = savedThread1.id;
+
+            PostTransferBean savedReply1 = conversationsService.savePost(reply1, true);
+            assertEquals(replyMessage, savedReply1.message);
+            assertEquals(savedThread1.id, savedReply1.parentPost);
+            assertEquals(savedThread1.id, savedReply1.parentThread);
+            Collection<PostTransferBean> threads = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, threads.size());
+            PostTransferBean parent = threads.iterator().next();
+            assertEquals(1, parent.posts.size());
+            assertEquals(replyMessage, ((PostTransferBean) parent.posts.get(0)).message);
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(2, topics.get(0).numberOfPosts);
+
+            String reply2Message = "Yo yoghurt ahoy";
+
+            PostTransferBean reply2 = new PostTransferBean();
+            reply2.parentPost = savedReply1.id;
+            reply2.parentThread = savedReply1.parentThread;
+            reply2.message = reply2Message;
+            reply2.siteId = topicBean.siteId;
+            reply2.topic = topicBean.id;
+            PostTransferBean savedReply2 = conversationsService.savePost(reply2, true);
+
+            threads = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, threads.size());
+            assertEquals(2, ((List<PostTransferBean>) threads).get(0).numberOfThreadReplies);
+            assertEquals(2, ((List<PostTransferBean>) threads).get(0).howActive);
+            assertEquals(1, threads.iterator().next().posts.size());
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(3, topics.get(0).numberOfPosts);
+
+            PostTransferBean child = (PostTransferBean) threads.iterator().next().posts.get(0);
+            assertEquals(1, child.posts.size());
+            PostTransferBean grandChild = ((List<PostTransferBean>) child.posts).get(0);
+            assertEquals(reply2Message, grandChild.message);
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception when saving post");
+        }
+    }
+    
+    @Test
+    public void deletePost() {
+
+        switchToUser1();
+
+        TopicTransferBean topicBean = createTopic(true);
+
 
         try {
             postBean.topic = topicBean.id;
+            postBean = conversationsService.savePost(postBean, true);
 
-            when(securityService.unlock(Permissions.POST_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.get(0).numberOfPosts);
 
-            postBean = conversationsService.savePost(postBean);
+            when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(false);
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.deletePost(topicBean.siteId, topicBean.id, postBean.id, false));
+            when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(true);
+            conversationsService.deletePost(topicBean.siteId, topicBean.id, postBean.id, false);
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(0, posts.size());
 
-            assertEquals(36, postBean.id.length());
-            assertEquals(user1, postBean.creator);
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(0, topics.get(0).numberOfPosts);
+
+            //when(securityService.unlock(Permissions.POST_UPDATEDELETE_ANY.label, siteRef)).thenReturn(true);
+            postBean.id = "";
+            postBean = conversationsService.savePost(postBean, true);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.get(0).numberOfPosts);
+
+            String replyMessage = "Yo yoghurt";
+
+            // If a post has children, we just soft delete it
+            PostTransferBean reply1 = new PostTransferBean();
+            reply1.parentPost = postBean.id;
+            reply1.parentThread = postBean.id;
+            reply1.message = replyMessage;
+            reply1.siteId = topicBean.siteId;
+            reply1.topic = topicBean.id;
+
+            reply1 = conversationsService.savePost(reply1, true);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.iterator().next().getNumberOfThreadReplies());
+
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(2, topics.get(0).numberOfPosts);
+
+            assertThrows(IllegalArgumentException.class, () -> conversationsService.deletePost(topicBean.siteId, topicBean.id, postBean.id, false));
+            conversationsService.deletePost(topicBean.siteId, topicBean.id, reply1.id, false);
+            assertFalse(postRepository.findById(reply1.id).isPresent());
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertEquals(0, posts.iterator().next().getNumberOfThreadReplies());
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception when deleting post");
+        }
+    }
+
+    @Test
+    public void hidePost() {
+
+        switchToUser1();
+
+        TopicTransferBean topicBean = createTopic(true);
+
+        when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
+
+        try {
+            postBean.topic = topicBean.id;
+            PostTransferBean updatedPostBean = conversationsService.savePost(postBean, true);
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hidePost(topicBean.siteId, topicBean.id, updatedPostBean.id, true));
+            when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+            postBean = conversationsService.hidePost(topicBean.siteId, topicBean.id, updatedPostBean.id, true);
+            assertTrue(postBean.hidden);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertEquals(updatedPostBean.id, posts.iterator().next().id);
+            assertTrue(posts.iterator().next().hidden);
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail("Unexpected exception when hiding post");
+        }
+    }
+
+    @Test
+    public void savePostReactions() {
+
+        switchToUser1();
+
+        TopicTransferBean topicBean = createTopic(true);
+
+        try {
+            // A "thread" is just a top level post to a topic
+            PostTransferBean thread1 = new PostTransferBean();
+            thread1.setMessage("T1");
+            thread1.topic = topicBean.id;
+            thread1.siteId = siteId;
+            //switchToUser1();
+            postBean.topic = topicBean.id;
+
+            when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
+
+            PostTransferBean savedThread1 = conversationsService.savePost(thread1, true);
 
             Map<Reaction, Boolean> reactions = new HashMap<>();
             reactions.put(Reaction.GOOD_ANSWER, Boolean.TRUE);
 
-            // This should fail, as you can't react to your own topic
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePostReactions(postBean.id, reactions));
+            // This should fail, as you can't react to your own post
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions));
 
             switchToUser2();
 
-            conversationsService.savePostReactions(postBean.id, reactions);
+            conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
 
-            List<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id);
-            assertEquals(1, posts.size());
-            PostTransferBean updatedBean = posts.get(0);
-            assertTrue(updatedBean.myReactions.get(Reaction.GOOD_ANSWER));
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
 
-            assertTrue(1 == updatedBean.reactionTotals.get(Reaction.GOOD_ANSWER));
+            assertTrue(posts.iterator().next().myReactions.get(Reaction.GOOD_ANSWER));
+            assertTrue(1 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
+
+            PostTransferBean reply1 = new PostTransferBean();
+            reply1.setMessage("R1");
+            reply1.topic = topicBean.id;
+            reply1.siteId = siteId;
+            reply1.parentPost = savedThread1.id;
+            reply1.parentThread = savedThread1.id;
+
+            switchToUser1();
+
+            PostTransferBean savedReply1 = conversationsService.savePost(reply1, true);
+
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+
+            // savedReply1 should be marked as viewed now, for user1. Test that.
+            assertTrue(((PostTransferBean) posts.iterator().next().posts.iterator().next()).viewed);
+
+            // Now, switch to user2 and react to that post. This should mark
+            // the post as not viewed for anybody else
+            switchToUser2();
+            conversationsService.savePostReactions(topicBean.id, savedReply1.id, reactions);
+            switchToUser1();
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertFalse(((PostTransferBean)posts.iterator().next().posts.iterator().next()).viewed);
+
+            switchToUser2();
 
             reactions.put(Reaction.GOOD_ANSWER, Boolean.FALSE);
-            conversationsService.savePostReactions(updatedBean.id, reactions);
-            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id);
-            assertEquals(1, posts.size());
-            updatedBean = posts.get(0);
-            assertTrue(0 == updatedBean.reactionTotals.get(Reaction.GOOD_ANSWER));
+            conversationsService.savePostReactions(topicBean.id, savedThread1.id, reactions);
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertTrue(0 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
         } catch (ConversationsPermissionsException cpe) {
             cpe.printStackTrace();
             fail("Unexpected exception when reacting to post");
         }
     }
 
-    private TopicTransferBean createTopic() {
+    @Test
+    public void testReferenceReckoner() {
 
-        topicBean.type = TopicType.QUESTION.name();
-        topicBean.visibility = TopicVisibility.SITE.name();
-        topicBean.aboutReference = "/site/" + topicBean.siteId;
+        String topicId = "2389sdoijcieo";
+        String postId = "533fhslslk";
+        String commentId = "50399dsfdg";
 
-        when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
-        when(securityService.unlock(Permissions.TOPIC_CREATE.label, "/site/" + topicBean.siteId)).thenReturn(true);
+        String topicRef = Entity.SEPARATOR + "conversations" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + "t" + Entity.SEPARATOR + topicId;
+        ConversationsReference ref = ConversationsReferenceReckoner.reckoner().reference(topicRef).reckon();
+        assertEquals(siteId, ref.getSiteId());
+        assertEquals("t", ref.getType());
+        assertEquals(topicId, ref.getId());
+
+        String postRef = Entity.SEPARATOR + "conversations" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + "p" + Entity.SEPARATOR + postId;
+        ref = ConversationsReferenceReckoner.reckoner().reference(postRef).reckon();
+        assertEquals(siteId, ref.getSiteId());
+        assertEquals("p", ref.getType());
+        assertEquals(postId, ref.getId());
+
+        String commentRef = Entity.SEPARATOR + "conversations" + Entity.SEPARATOR + siteId + Entity.SEPARATOR + "c" + Entity.SEPARATOR + commentId;
+        ref = ConversationsReferenceReckoner.reckoner().reference(commentRef).reckon();
+        assertEquals(siteId, ref.getSiteId());
+        assertEquals("c", ref.getType());
+        assertEquals(commentId, ref.getId());
+
+        ref = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("t").id(topicId).reckon();
+        String reckonedRef = ref.getReference();
+        assertEquals(topicRef, reckonedRef);
+
+        ref = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("p").id(postId).reckon();
+        reckonedRef = ref.getReference();
+        assertEquals(postRef, reckonedRef);
+
+        ref = ConversationsReferenceReckoner.reckoner().siteId(siteId).type("c").id(commentId).reckon();
+        reckonedRef = ref.getReference();
+        assertEquals(commentRef, reckonedRef);
+    }
+
+    @Test
+    public void markPostsViewed() {
+
+        switchToUser1();
+
+        TopicTransferBean topicBean = createTopic(true);
 
         try {
-            when(userDirectoryService.getUser(user1)).thenReturn(user1User);
-        } catch (UserNotDefinedException unde) {
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.siteId = siteId;
+            postBean.topic = topicBean.id;
+            postBean.setMessage("Here is my message");
+            postBean = conversationsService.savePost(postBean, true);
+
+            PostTransferBean postBean2 = new PostTransferBean();
+            postBean2.siteId = siteId;
+            postBean2.topic = topicBean.id;
+            postBean2.setMessage("Here is my message");
+            postBean2 = conversationsService.savePost(postBean2, true);
+
+            switchToUser2();
+
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertEquals(1, topics.size());
+
+            topicBean = topics.get(0);
+            assertEquals(2, topicBean.numberOfUnreadPosts);
+
+            conversationsService.markPostsViewed(new HashSet(Arrays.asList(new String[] {postBean.id, postBean2.id})), topicBean.id);
+
+            topics = conversationsService.getTopicsForSite(siteId);
+            topicBean = topics.get(0);
+            assertEquals(0, topicBean.numberOfUnreadPosts);
+
+            switchToInstructor();
+            Map<String, Object> data = conversationsService.getSiteStats(siteId, null, null, 1, null);
+            List<ConversationsStat> stats = (List<ConversationsStat>) data.get("stats");
+            assertEquals(3, stats.size());
+
+            Optional<ConversationsStat> stat = stats.stream().filter(cs -> cs.name.equals(user2SortName)).findAny();
+
+            assertTrue(stat.isPresent());
+
+            assertEquals(1L, (long) stat.get().topicsViewed);
+
+            switchToUser1();
+
+            PostTransferBean postBean3 = new PostTransferBean();
+            postBean3.siteId = siteId;
+            postBean3.topic = topicBean.id;
+            postBean3.setMessage("Here is my message");
+            postBean3 = conversationsService.savePost(postBean3, true);
+
+            switchToInstructor();
+            data = conversationsService.getSiteStats(siteId, null, null, 1, null);
+            stats = (List<ConversationsStat>) data.get("stats");
+            stat = stats.stream().filter(cs -> cs.name.equals(user2SortName)).findAny();
+            assertTrue(stat.isPresent());
+            assertEquals(0L, (long) stat.get().topicsViewed);
+        } catch (ConversationsPermissionsException cpe) {
+            cpe.printStackTrace();
+            fail();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
         }
+    }
+
+    private TopicTransferBean createTopic(boolean discussion) {
+
+        topicBean.type = discussion ? TopicType.DISCUSSION.name() : TopicType.QUESTION.name();
+        topicBean.visibility = TopicVisibility.SITE.name();
+        topicBean.aboutReference = siteRef;
 
         try {
-            return conversationsService.saveTopic(topicBean);
+            return conversationsService.saveTopic(topicBean, true);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception when creating topic");
@@ -720,9 +1670,80 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         return null;
     }
 
+    private void setupStudentPermissions() {
+
+        when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.TOPIC_TAG.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_PIN.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.TAG_CREATE.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.VIEW_GROUP_TOPICS.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPDATE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.POST_REACT.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_UPDATE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)).thenReturn(false);
+        when(securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef)).thenReturn(false);
+
+        when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+    }
+
+    private void switchToInstructor() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
+
+        when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_UPDATE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_DELETE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_TAG.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TOPIC_PIN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.TAG_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.VIEW_GROUP_TOPICS.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPDATE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_DELETE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_REACT.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.POST_UPVOTE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_CREATE.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_UPDATE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_UPDATE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_DELETE_OWN.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.COMMENT_DELETE_ANY.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef)).thenReturn(true);
+
+        when(securityService.unlock(SiteService.SITE_VISIT, siteRef)).thenReturn(true);
+        when(securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef)).thenReturn(true);
+
+        try {
+            when(userDirectoryService.getUser(instructor)).thenReturn(instructorUser);
+        } catch (UserNotDefinedException unde) {
+        }
+    }
+
     private void switchToUser1() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user1);
+        setupStudentPermissions();
         try {
             when(userDirectoryService.getUser(user1)).thenReturn(user1User);
         } catch (UserNotDefinedException unde) {
@@ -732,10 +1753,20 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
     private void switchToUser2() {
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(user2);
+        setupStudentPermissions();
         try {
             when(userDirectoryService.getUser(user2)).thenReturn(user2User);
         } catch (UserNotDefinedException unde) {
         }
     }
 
+    private void switchToUser3() {
+
+        when(sessionManager.getCurrentSessionUserId()).thenReturn(user3);
+        setupStudentPermissions();
+        try {
+            when(userDirectoryService.getUser(user3)).thenReturn(user3User);
+        } catch (UserNotDefinedException unde) {
+        }
+    }
 }

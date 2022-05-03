@@ -42,10 +42,10 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GraderPermission;
+import org.sakaiproject.grading.api.GradeType;
+import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -79,7 +79,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
-		final GradingType gradingType = GradingType.valueOf(this.businessService.getGradebook().getGrade_type());
+		final GradeType gradeType = this.businessService.getGradebook().getGradeType();
 
 		// form model
 		final GradeOverride override = new GradeOverride();
@@ -107,7 +107,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 					final Double overrideValue = FormatHelper.validateDouble(override.getGrade());
 					final GbGroup group = override.getGroup();
 
-					if (isExtraCredit(overrideValue, assignment, gradingType)) {
+					if (getExtraCredit(overrideValue, assignment, gradeType)) {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
@@ -146,7 +146,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
-		if (GradingType.PERCENTAGE.equals(gradingType)) {
+		if (GradeType.PERCENTAGE.equals(gradeType)) {
 			form.add(new Label("points", getString("label.percentage.plain")));
 		} else {
 			form.add(new Label("points",
@@ -155,7 +155,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		if (GradingType.PERCENTAGE.equals(gradingType)) {
+		if (GradeType.PERCENTAGE.equals(gradeType)) {
 			hiddenGradePoints.add(new AttributeModifier("value", 100));
 		} else {
 			hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
@@ -174,7 +174,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			boolean canGradeAllGroups = false;
 
 			for (final PermissionDefinition permission : permissions) {
-				if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
+				if (permission.getFunctionName().equals(GraderPermission.GRADE.toString())) {
 					if (categoriesEnabled && permission.getCategoryId() != null) {
 						if (permission.getCategoryId().equals(assignment.getCategoryId())) {
 							if (permission.getGroupReference() == null) {
@@ -243,9 +243,10 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						new Object[] { "${score}", "${group}" })).setEscapeModelStrings(false));
 	}
 
-	private boolean isExtraCredit(final Double grade, final Assignment assignment, final GradingType gradingType) {
-		return (GradingType.PERCENTAGE.equals(gradingType) && grade > 100) ||
-				(GradingType.POINTS.equals(gradingType) && grade > assignment.getPoints());
+	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradeType) {
+
+		return (GradeType.PERCENTAGE == gradeType && grade > 100) ||
+				(GradeType.POINTS == gradeType && grade > assignment.getPoints());
 	}
 
 	/**

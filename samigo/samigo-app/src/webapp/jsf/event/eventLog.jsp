@@ -11,6 +11,7 @@
           var deletedText = '<h:outputText value="#{eventLogMessages.assessment_deleted}" />';
           var searchHint = '<h:outputText value="#{eventLogMessages.search_hint}"/>';
         </script>
+        <%@ include file="/js/delivery.js" %>
         <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;">
@@ -49,7 +50,7 @@
    </div>
    <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12" id="eventSearchContainer">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
-      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off" />
+      <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off" onkeypress="return submitOnEnter(event, 'eventLogId:search');" />
       <h:outputText value="&#160;" escape="false" />
       <h:commandButton value="#{eventLogMessages.search}" type="submit" id="search" accesskey="#{eventLogMessages.a_search}">
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />

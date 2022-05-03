@@ -68,7 +68,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.service.gradebook.shared.*;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.tool.api.Session;
@@ -110,9 +110,9 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     
 
-    static GradebookService gradebookService = null;
-    public void setGradebookService(GradebookService g) {
-	gradebookService = g;
+    static GradingService gradingService = null;
+    public void setGradingService(GradingService g) {
+	gradingService = g;
     }
 
     static ContentPackageDao dao = null;

@@ -51,8 +51,8 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeMappingDefinition;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
@@ -87,7 +87,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	/**
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
-	private Map<String, CourseGrade> courseGradeMap;
+	private Map<String, CourseGradeTransferBean> courseGradeMap;
 
 	/**
 	 * Count of grades for the chart
@@ -429,7 +429,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 *
 	 * @return
 	 */
-	private Map<String, CourseGrade> getCourseGrades() {
+	private Map<String, CourseGradeTransferBean> getCourseGrades() {
 
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
 		return this.businessService.getCourseGrades(studentUuids);
@@ -441,7 +441,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @param map
 	 * @return
 	 */
-	private int getTotalCourseGrades(final Map<String, CourseGrade> map) {
+	private int getTotalCourseGrades(final Map<String, CourseGradeTransferBean> map) {
 		return map.values().stream().filter(c -> StringUtils.isNotBlank(c.getMappedGrade()))
 				.collect(Collectors.toList()).size();
 	}

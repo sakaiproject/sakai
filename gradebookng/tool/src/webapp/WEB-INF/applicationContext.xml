@@ -11,15 +11,13 @@
 		<property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-		<property name="gradebookPermissionService" ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
-		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+		<property name="gradingPermissionService" ref="org.sakaiproject.grading.api.GradingPermissionService" />
 		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
 		<property name="sectionManager" ref="org.sakaiproject.section.api.SectionManager"/>
 		<property name="groupProvider" ref="org.sakaiproject.authz.api.GroupProvider"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
-		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+		<property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService" />
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="taskService" ref="org.sakaiproject.tasks.api.TaskService" />
@@ -34,9 +32,10 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="businessService" ref="org.sakaiproject.gradebookng.business.GradebookNgBusinessService" />
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
 	</bean>
 	
 	<bean
@@ -44,14 +43,7 @@
 		class="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer"
 		init-method="init">
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService" />	
+		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
 	</bean>
-	
-	<bean
-		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
-		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
-		parent="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer">
-	</bean>	
 
 </beans>

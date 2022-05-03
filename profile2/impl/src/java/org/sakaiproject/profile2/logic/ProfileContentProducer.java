@@ -52,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter @Slf4j
 public class ProfileContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
+    private static final String REFERENCE_ROOT = Entity.SEPARATOR + "profile";
     private static final String PROFILE = "profile";
     private static final String TYPE = "type";
     private static final String ID = "id";
@@ -245,9 +246,12 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
 
     private String[] splitAndValidate(String ref) {
 
+		if (!ref.startsWith(REFERENCE_ROOT)) {
+			return null;
+		}
+
         String[] parts = ref.split(Entity.SEPARATOR);
-        if (parts != null && parts.length == 6 && PROFILE.equals(parts[1])
-                && TYPE.equals(parts[2]) && ID.equals(parts[4])) {
+        if (parts != null && parts.length == 6 && TYPE.equals(parts[2]) && ID.equals(parts[4])) {
             return parts;
         } else {
             log.error("A profile update ref should have 5 components. Ref: {}", ref);

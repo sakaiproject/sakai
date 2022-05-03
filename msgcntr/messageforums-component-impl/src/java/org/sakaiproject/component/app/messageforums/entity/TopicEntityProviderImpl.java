@@ -63,9 +63,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -385,15 +384,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				// retrieve all of the gradebook items here so we aren't checking repeatedly
 				Map<String, Long> gbItemNameToId = new HashMap<String, Long>();
 				try {
-				    GradebookService gradebookService = (GradebookService)ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-				    List<Assignment> gbItems = gradebookService.getAssignments(siteId);
+				    GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+				    List<Assignment> gbItems = gradingService.getAssignments(siteId);
 				    if (gbItems != null) {
 				        for (Assignment gbItem : gbItems) {
 				            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
 				        }
 				    }
-				} catch (GradebookNotFoundException gnfe) {
-				    log.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
 				} catch (Exception e) {
 				    log.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
 				}

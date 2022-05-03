@@ -24,7 +24,7 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface PostReactionTotalRepository extends SpringCrudRepository<PostReactionTotal, Long> {
 
-    List<PostReactionTotal> findByPost_Id(String postId);
-    Optional<PostReactionTotal> findByPost_IdAndReaction(String postId, Reaction reaction);
-    Integer deleteByPost_Id(String postId);
+    List<PostReactionTotal> findByPostId(String postId);
+    Optional<PostReactionTotal> findByPostIdAndReaction(String postId, Reaction reaction);
+    Integer deleteByPostId(String postId);
 }

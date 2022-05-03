@@ -60,6 +60,7 @@ public class LTI13ObjectTest {
 		lj.context.type.add(Context.COURSE_OFFERING);
 
 		lj.tool_platform = new ToolPlatform();
+		lj.tool_platform.guid = "apMdhLPi8NFYn1YI0RHgC5O3PAebK0vP5uXPKEzH:sakai-lms";
 		lj.tool_platform.name = "Sakai";
 		lj.tool_platform.url = "https://www.sakailms.org/";
 
@@ -121,7 +122,7 @@ public class LTI13ObjectTest {
 				.signWith(key)
 				.compact();
 
-		assertEquals(2174, jws.length());
+		assertEquals(2254, jws.length());
 		Matcher m = base64url_pattern.matcher(jws);
 		good = m.find();
 		if (!good) {

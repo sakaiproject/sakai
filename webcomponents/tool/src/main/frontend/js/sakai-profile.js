@@ -54,6 +54,10 @@ class SakaiProfile extends LitElement {
     this.shadowRoot.getElementById("pronunciation-player").play();
   }
 
+  shouldUpdate() {
+    return this.i18n;
+  }
+
   render() {
 
     return html`

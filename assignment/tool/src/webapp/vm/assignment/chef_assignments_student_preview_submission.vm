@@ -16,8 +16,8 @@
                 $tlang.getString("gen.title")
             </th>
             <td>
-                #assignmentTitleIcon($assignment)
 				$formattedText.escapeHtml($assignment.Title)
+                #assignmentIcons($assignment)
             </td>
         </tr>
         <tr>
@@ -61,7 +61,7 @@
                 </th>
                 <td>
                     #if ($!submission)
-						$!service.getSubmissionStatus($!submission.Id, false)
+						$!service.getSubmissionStatus($!submission.Id, true)
 					#else
                         $tlang.getString("gen.notsta")
                     #end

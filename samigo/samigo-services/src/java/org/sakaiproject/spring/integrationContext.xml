@@ -79,7 +79,7 @@
 <bean name="assessmentGradeInfoProvider"
       class="org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider"
       lazy-init="false" init-method="init" destroy-method="destroy">
-      <property name="gradebookExternalAssessmentService"><ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/></property>
+      <property name="gradingService"><ref bean="org.sakaiproject.grading.api.GradingService"/></property>
       <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
       <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>

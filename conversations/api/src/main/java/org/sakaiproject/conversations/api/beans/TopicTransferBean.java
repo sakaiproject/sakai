@@ -17,7 +17,7 @@ package org.sakaiproject.conversations.api.beans;
 
 import org.sakaiproject.conversations.api.model.Metadata;
 import org.sakaiproject.conversations.api.model.Tag;
-import org.sakaiproject.conversations.api.model.Topic;
+import org.sakaiproject.conversations.api.model.ConversationsTopic;
 import org.sakaiproject.conversations.api.Reaction;
 import org.sakaiproject.conversations.api.TopicType;
 import org.sakaiproject.conversations.api.TopicVisibility;
@@ -45,6 +45,7 @@ public class TopicTransferBean implements Entity {
     public String aboutReference;
     public String message;
     public long numberOfPosts;
+    public long numberOfThreads;
     public long numberOfUnreadPosts;
     public String creator;
     public Instant created;
@@ -55,18 +56,27 @@ public class TopicTransferBean implements Entity {
     public boolean pinned;
     public boolean locked;
     public boolean hidden;
+    public boolean mustPostBeforeViewing;
+    public boolean hasPosted;
     public boolean resolved;
     public List<Tag> tags = new ArrayList<>();
     public Map<Reaction, Boolean> myReactions = new HashMap<>();
     public Map<Reaction, Integer> reactionTotals = new HashMap<>();
     public Set<String> groups = new HashSet<>();
-    public String type;
-    public String visibility;
-    public int unread;
+    public String type = TopicType.QUESTION.name();
+    public String visibility = TopicVisibility.SITE.name();
+    public Instant showDate;
+    public Instant hideDate;
+    public Instant lockDate;
+    public Instant dueDate;
+    public boolean pastDueDate;
+    public String formattedDueDate;
     public boolean bookmarked;
     public boolean draft;
     public boolean anonymous;
     public boolean allowAnonymousPosts;
+    public boolean hiddenByDate;
+    public boolean lockedByDate;
 
     public String creatorDisplayName;
     public boolean canEdit;
@@ -78,11 +88,13 @@ public class TopicTransferBean implements Entity {
     public boolean canReact;
     public boolean canModerate;
     public boolean isMine;
+    public String availability;
 
     public String url;
+    public String portalUrl;
     public String reference;
 
-    public static TopicTransferBean of(Topic topic) {
+    public static TopicTransferBean of(ConversationsTopic topic) {
 
         TopicTransferBean topicBean = new TopicTransferBean();
 
@@ -98,26 +110,38 @@ public class TopicTransferBean implements Entity {
         topicBean.modified = metadata.getModified();
         topicBean.pinned = topic.getPinned();
         topicBean.locked = topic.getLocked();
+        topicBean.mustPostBeforeViewing = topic.getMustPostBeforeViewing();
         topicBean.hidden = topic.getHidden();
         topicBean.resolved = topic.getResolved();
         topicBean.type = topic.getType().name();
         topicBean.visibility = topic.getVisibility().name();
+        topicBean.showDate = topic.getShowDate();
+        topicBean.hideDate = topic.getHideDate();
+        topicBean.lockDate = topic.getLockDate();
+        topicBean.dueDate = topic.getDueDate();
+        topicBean.pastDueDate = topicBean.dueDate != null && topicBean.dueDate.isBefore(Instant.now());
         topicBean.draft = topic.getDraft();
         topicBean.anonymous = topic.getAnonymous();
         topicBean.allowAnonymousPosts = topic.getAllowAnonymousPosts();
         topicBean.groups = topic.getGroups();
 
+        Instant now = Instant.now();
+
+        topicBean.hiddenByDate = topic.getHideDate() != null ? topic.getHideDate().isBefore(now) : false;
+        topicBean.lockedByDate = topic.getLockDate() != null ? topic.getLockDate().isBefore(now) : false;
+
         return topicBean;
     }
 
-    public Topic asTopic() {
+    public ConversationsTopic asTopic() {
 
-        Topic topic = new Topic();
+        ConversationsTopic topic = new ConversationsTopic();
         topic.setId(this.id);
         topic.setSiteId(this.siteId);
         topic.setTitle(this.title);
         topic.setAboutReference(this.aboutReference);
         topic.setMessage(this.message);
+        topic.setResolved(this.resolved);
 
         Metadata metadata = new Metadata();
         metadata.setCreator(this.creator);
@@ -130,9 +154,14 @@ public class TopicTransferBean implements Entity {
         topic.setGroups(this.groups);
         topic.setPinned(this.pinned);
         topic.setLocked(this.locked);
+        topic.setMustPostBeforeViewing(this.mustPostBeforeViewing);
         topic.setHidden(this.hidden);
         topic.setType(Enum.valueOf(TopicType.class, this.type));
         topic.setVisibility(Enum.valueOf(TopicVisibility.class, this.visibility));
+        topic.setShowDate(this.showDate);
+        topic.setHideDate(this.hideDate);
+        topic.setLockDate(this.lockDate);
+        topic.setDueDate(this.dueDate);
         topic.setDraft(this.draft);
         topic.setAnonymous(this.anonymous);
         topic.setAllowAnonymousPosts(this.allowAnonymousPosts);

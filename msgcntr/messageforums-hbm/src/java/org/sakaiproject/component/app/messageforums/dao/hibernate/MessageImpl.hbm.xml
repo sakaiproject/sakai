@@ -445,7 +445,27 @@
     where area.contextId = :contextId and message.draft = false and message.deleted = false
     group by message.createdBy
   ]]></query>
-  
+
+  <query name="findAuthoredNewMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is null
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findAuthoredRepliesMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.inReplyTo is not null
+    group by message.createdBy
+  ]]></query>
+
   <query name="findAuthoredMessageCountForAllStudentsByTopicId"><![CDATA[
     select message.createdBy, count(*) 
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message

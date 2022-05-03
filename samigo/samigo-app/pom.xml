@@ -42,8 +42,8 @@
             <artifactId>samigo-cp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-            <artifactId>gradebook-service-api</artifactId>
+            <groupId>org.sakaiproject.grading</groupId>
+            <artifactId>sakai-grading-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -229,7 +229,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.rubrics</groupId>
-            <artifactId>rubrics-service-api</artifactId>
+            <artifactId>rubrics-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>

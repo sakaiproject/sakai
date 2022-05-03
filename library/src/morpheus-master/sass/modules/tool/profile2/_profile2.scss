@@ -91,7 +91,19 @@
 
 	/* generic styles */
 	.tiny {
-		font-size: 70%;
+		font-size: 80%;
+	}
+
+	button.tiny {
+		padding: 1px 4px;
+		margin-bottom: 4px;
+	}
+
+	.status-divider {
+		span:first-child {
+			padding-right: 4px;
+			border-right: 1px solid #000;
+		}
 	}
 
 	.right {

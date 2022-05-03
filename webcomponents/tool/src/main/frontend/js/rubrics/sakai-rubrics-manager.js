@@ -18,7 +18,12 @@ class SakaiRubricsManager extends RubricsElement {
   }
 
   static get properties() {
-    return { token: String, i18nLoaded: Boolean, enablePdfExport : Boolean };
+
+    return {
+      siteId: { attribute: "site-id", type: String },
+      i18nLoaded: { attribute: false, type: Boolean },
+      enablePdfExport: { type: Boolean },
+    };
   }
 
   shouldUpdate() {
@@ -66,7 +71,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-list id="sakai-rubrics" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" token="Bearer ${this.token}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubrics-list>
+        <sakai-rubrics-list id="sakai-rubrics" site-id="${this.siteId}" @sharing-change="${this.handleSharingChange}" @copy-share-site="${this.copyShareSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubrics-list>
       </div>
       
       <hr>
@@ -90,7 +95,7 @@ class SakaiRubricsManager extends RubricsElement {
           <div class="actions"><sr-lang key="actions">actions</sr-lang></div>
         </div>
         <br>
-        <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubrics-shared-list>
+        <sakai-rubrics-shared-list id="sakai-rubrics-shared-list" site-id="${this.siteId}" @copy-share-site="${this.copyShareSite}" ?enablePdfExport=${this.enablePdfExport}></sakai-rubrics-shared-list>
       </div>
       <br>
       </div>
