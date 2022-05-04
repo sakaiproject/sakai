@@ -303,6 +303,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Boolean mayViewMatchSubmissionInfoOverrideStudent = null;
 	private Boolean mayViewSubmissionFullSourceOverrideInstructor = null;
 	private Boolean mayViewMatchSubmissionInfoOverrideInstructor = null;
+
+	/**
+	  * Sakai property to disable indexing when submitting papers.
+	  * Default: false.
+	  * Set to true to disable indexing on cloned QA / restore environments; this prevents production papers from having 100% matches with papers submitted from this environment.
+	  */
+	private String PROP_INDEXING_DISABLED = "turnitin.oc.disable.all.indexing";
+	private boolean indexingDisabled = false;
 	
 	private CloseableHttpAsyncClient client;
 	private ObjectMapper objectMapper;
@@ -340,7 +348,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.instructor")) 
 				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.instructor", false)
 				: null;
-				
+
+		indexingDisabled = serverConfigurationService.getBoolean(PROP_INDEXING_DISABLED, false);
+
 		// Override default Sakai->Turnitin roles mapping
 		for(ROLES role : ROLES.values()) {
 			//map Sakai roles to Turnitin roles
@@ -793,6 +803,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	private void indexSubmission(String reportId) throws Exception {
+		if (indexingDisabled) {
+			log.debug("{} is set in sakai.properties; {} will not be indexed", PROP_INDEXING_DISABLED, reportId);
+			return;
+		}
+
 		HashMap<String, Object> response = makeHttpCall("PUT",
 				getNormalizedServiceUrl() + "submissions/" + reportId + "/index",
 				SIMILARITY_REPORT_HEADERS,
@@ -833,7 +848,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		Map<String, Object> indexingSettings = new HashMap<>();
-		indexingSettings.put("add_to_index", "true".equals(assignmentSettings.get("store_inst_index")));
+		boolean addToIndex = !indexingDisabled && "true".equals(assignmentSettings.get("store_inst_index"));
+		indexingSettings.put("add_to_index", addToIndex);
 		reportData.put("indexing_settings", indexingSettings);
 
 		HashMap<String, Object> response = makeHttpCall("PUT",
