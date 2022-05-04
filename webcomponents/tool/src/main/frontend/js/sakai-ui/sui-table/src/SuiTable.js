@@ -22,13 +22,15 @@ import "../../sui-icon/sui-icon.js";
 // TODO document the hell outta this thing
 // TODO review all requestupdates and see if we can remove them via class props vs local props
 // TODO can i move sakai-pagerContainer to the tablulator footer?
+// TODO format dates from api
+// TODO select all checkbox, how many is it really selecting?
 
 export class SuiTable extends SakaiElement {
 
   static get properties() {
 
     return {
-      class: { type: String },
+      tableClass: { attribute: "table-class", type: String },
       siteId: { attribute: "site-id", type: String },
       rows: { type: Object },
       columns: { type: Array },
@@ -43,13 +45,14 @@ export class SuiTable extends SakaiElement {
         attribute: "always-show-links",
         type: Boolean,
       },
-      title: { attribute: "title", type: String },
+      tableTitle: { attribute: "title", type: String },
       showFilters: { attribute: "show-filters", type: Boolean },
       showActions: { attribute: "show-actions", type: Boolean },
       tableActions: { attribute: "table-actions", type: Array },
       links: { type: Array },
       permissions: { type: Array },
       i18n: { attribute: false, type: Object },
+      debug: { type: Boolean },
     };
   }
 
@@ -57,62 +60,71 @@ export class SuiTable extends SakaiElement {
 
     super();
 
-    // This prevents duplicate styles from being added to the component
-    this.class = this.classList.value;
-    this.classList = "";
-
+    this.debug = false;
     // this.siteId = "";
     this.columns = [];
     // this.rows = [];
     this._table = {};
+    this._numSelected = 0;
     this.currentItemMin = 1;
     this.currentItemMax = 0;
     this.totalItems = 0;
     this.showActions = false;
     this.showFilters = false;
-    // this.pageSize = 3;
+    this.pageSize = 10;
     
-    this.loadTranslations("sui-table").then(r => this.i18n = r);
+    this.loadTranslations({bundle: "sui-table"}).then(r => this.i18n = r);
   }
 
   connectedCallback() {
+
+    this.debug
+      ? console.debug(`sui-table ${this.tableTitle} connected`)
+      : null;
 
     super.connectedCallback();
 
     if (this.columns.length > 0 && !this.columns.filter(e => e.field === "id")) {
       this.columns.push({ field: "id" });
     }
-    if (this.id && !this.title) {
-      this.title = this.id;
+    if (this.id && !this.tableTitle) {
+      this.tableTitle = this.id;
     }
   }
 
-  async firstUpdated() {
+  attributeChangedCallback(name, oldVal, newVal) {
+    this.debug
+      ? console.debug(
+          `sui-table ${this.tableTitle} attribute change: `,
+          name,
+          typeof newVal,
+          newVal
+        )
+      : null;
+    super.attributeChangedCallback(name, oldVal, newVal);
+  }
 
+  async firstUpdated() {
+    this.debug
+    ? console.debug(`sui-table ${this.tableTitle} start firstUpdated`)
+    : null;
     // Give the browser a chance to paint
+    // TODO see how we can remove this and make it more async
     await new Promise((r) => setTimeout(r, 0));
     this.rows = await this.fetchRows();
   }
+
 
   updated(changedProps) {
 
     //TODO how to check that the table exists??
     if (changedProps.has("showFilters")) {
-      // this._table.on("tableBuilt", () => {
-      //   this.debug
-      //     ? console.log(
-      //         `sui-table ${this.title} tableBuilt`
-      //       )
-      //     : null;
-      //     const updatedColumns = this._table.getColumnLayout();
-      //     updatedColumns.forEach((column) => {
-      //       column.headerFilter = this.showFilters;
-      //     });
-      //     this._table.setColumnLayout(updatedColumns);
-      //   });
+      this._table.on("tableBuilt", () => {
+        });
     }
 
     if (changedProps.has("rows")) {
+      // Create the checkbox for selecting a row
       const selectorColumn = [
         {
           formatter: "rowSelection",
@@ -125,7 +137,9 @@ export class SuiTable extends SakaiElement {
         },
       ];
 
+      // Process columns for the table
       const tabulatorColumns = this.columns.map(column => {
+        // Required object properties for each column
         const columnIterable = {
           title: "",
           field: "",
@@ -133,6 +147,8 @@ export class SuiTable extends SakaiElement {
           formatter: "plaintext",
           headerFilter: this.showFilters,
         };
+
+        // Merge the column object with the required properties
         if (Array.isArray(column.field)) {
           column.field.forEach((element) => {
             columnIterable.title = column.title ? column.title : element;
@@ -141,40 +157,61 @@ export class SuiTable extends SakaiElement {
         } else if (typeof column.field === "string") {
           columnIterable.title = column.title ? column.title : column.field;
           columnIterable.field = column.field;
-          // columnIterable.headerFilter = "input";
         }
 
+        // Add entity id to the table but don't display it to users
         if (columnIterable.field === "id") {
           columnIterable.visible = false;
         }
 
         return columnIterable;
       });
-      tabulatorColumns[0].formatter = "html";
-      if (this.links) {
 
+      // The first column will always be complex HTML with row actions
+      tabulatorColumns[0].formatter = "html";
+      // Adjust the width of the first column depending on the number of row actions
+      if (this.links) {
+        //TODO refactor to be more accurate based on length of action text
         tabulatorColumns[0].minWidth = this.links.length * 100 + 64; //number of row actions + 4em;
       }
+      this.debug
+        ? console.debug(`sui-table ${this.tableTitle} columns`, tabulatorColumns)
+        : null;
 
+      // Constuct the table
       this._table = new Tabulator(`#suiTable${this.id}`, {
         debugEventsExternal: false,
         debugEventsInternal: false,
+        // Force the selectorColumn to be the first column
         columns: selectorColumn.concat(tabulatorColumns),
         data: this.dataKey ? this.rows[`${this.dataKey}`] : this.rows,
         height: this.height,
         pagination: true,
         paginationSize: this.pageSize ? this.pageSize : 10,
-        // paginationElement: document.getElementById('sakai-table-pagerContainer'),
         paginationButtonCount: 3,
+        paginationCounter:"rows",
         paginationSizeSelector: [10, 20, 50, 100, true],
         layout: "fitDataFill",
+        // Add the entity id as the id attribute to each row
         rowFormatter: (row) => {
           row.getElement().id = `item-${row.getData().id}`;
         },
       });
 
-      //todo check math on 1 to 1 of 1, currently showing 1 to 0 of 0 or showing NaN to NaN of 6
+      this.debug
+        ? console.debug(
+          `sui-table ${this.tableTitle} rows`,
+          this.dataKey ? this.rows[`${this.dataKey}`] : this.rows
+        )
+        : null;
+
+      // Calculate the number of pages, and current items shown out of total items
+      // Outputs to "Showing currentItemMin to currentItemMax of totalItems"
+      // dataLoaded represents the first/initial load of the table
       this._table.on("dataLoaded", (e, data) => {
+        this.debug
+          ? console.debug(`sui-table ${this.tableTitle} dataLoaded`, e, data)
+          : null;
         const currentPage = this._table.getPage() ? this._table.getPage() : 1;
         this.totalItems = this.dataKey
           ? this.rows[`${this.dataKey}`].length
@@ -183,7 +220,15 @@ export class SuiTable extends SakaiElement {
         this.currentItemMax = currentPage * this.pageSize;
       });
 
+      // pageLoaded represents a new page being loaded
       this._table.on("pageLoaded", pageNumber => {
+        this.debug
+          ? console.debug(
+              `sui-table ${this.tableTitle} pageLoaded`,
+              this._table.getData("visible").length,
+              this._table.getPageSize()
+            )
+          : null;
         this.pageSize = this._table.getPageSize();
         this.totalItems = this._table.getDataCount();
         this.currentItemMin = (pageNumber - 1) * this.pageSize + 1;
@@ -191,6 +236,8 @@ export class SuiTable extends SakaiElement {
           (pageNumber - 1) * this.pageSize +
           this._table.getData("visible").length;
       });
+
+      // Rows actions are displayed on row mouseover
       this._table.on("rowMouseOver", (e, row) => {
         // Display the row actions for this item
         if (this.links) {
@@ -202,6 +249,8 @@ export class SuiTable extends SakaiElement {
             .classList.remove("d-none");
           }
       });
+
+      // Rows actions are hidden on row mouseout
       this._table.on("rowMouseOut", (e, row) => {
         if (this.links){
         row
@@ -212,17 +261,30 @@ export class SuiTable extends SakaiElement {
           .classList.add("d-none");
         }
       });
+
+      // When a row is selected, show the row actions and bulk actions
       this._table.on("rowSelected", data => {
+        this.debug
+          ? console.debug(`sui-table ${this.tableTitle} rowSelected`, data)
+          : null;
         if (!this.showActions) {
           this.showActions = true;
         }
+        this._numSelected = this._table.getSelectedData().length;
         this.requestUpdate();
       });
+
+      // If no rows are selected, hide the row actions and bulk actions
       this._table.on("rowDeselected", data => {
+        this.debug
+          ? console.debug(`sui-table ${this.tableTitle} rowDeselected`, data)
+          : null;
+        this._numSelected = this._table.getSelectedData().length;
+
         if (!this.alwaysShowlinks && this._table.getSelectedRows().length === 0) {
           this.showActions = false;
-          this.requestUpdate();
         }
+        this.requestUpdate();
       });
     }
     super.update(changedProps);
@@ -231,11 +293,16 @@ export class SuiTable extends SakaiElement {
   // TODO add manual refetch options
   async fetchRows(value) {
 
+    //TODO determine if this check is still necessary
     if (!this.siteId) {
-      console.error(`sui-table ${this.title} fetchRows no siteId`);
+      console.error(`sui-table ${this.tableTitle} fetchRows no siteId`);
       return;
     }
 
+    if (!this.dataUrl) {
+      console.error(`sui-table ${this.tableTitle} fetchRows no dataURl`);
+      return;
+    }
     let result = value;
     this.dataPromise = await fetch(this.dataUrl)
       .then(response => {
@@ -250,7 +317,7 @@ export class SuiTable extends SakaiElement {
 
         result = data;
 
-        // If columns were not passed in via props, use the first entity in the data
+        // If columns were not passed in via props, use the first entry in the data
         // to define the columns
         if (this.columns.length === 0 && typeof result[0] === "object") {
           Object.keys(result[0]).forEach((key) => {
@@ -260,22 +327,26 @@ export class SuiTable extends SakaiElement {
             });
           });
         }
+        this.debug
+          ? console.debug(`sui-table ${this.tableTitle} fetchRows ${this.dataUrl}`, result)
+          : null;
+
+        // Process the data into a format that Tabulator can use
         result.forEach(element => {
           if (this.links) {
-
+            // Construct the row actions HTML to be passed into the first column and displayed on row mouseover
             const actionSnippet = this.links.map(action => {
               // TODO review and dry this up
+              // TODO refactor when multiple row actions are supported
               return `
                 <li class="nav-item">
                   <a title="${action.title ? action.title : ""}"
                       aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
                       icon="${action.icon ? action.icon : ""}"
                       class="${action.class
-                                ? `link link-${action.title} pt-0 ${action.class}`
-                                : `link link-${action.title}`}"
-                      href="${this.links.filter(link => link.rel === action.rel).length === 1
-                                ? this.links.filter((link) => link.rel === action.rel)[0].href : "#"}"
-                      onclick="${action.onclick ? action.onclick : ""}">
+                              ? `link link-${action.title} pt-0 ${action.class}`
+                              : `link link-${action.title}`}"
+                      href="${(action.rel === "self") ? element.link.href : "#"}">
                     ${action.icon ? `<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}
                     ${action.title ? action.title : ""}
                   </a>
@@ -283,6 +354,7 @@ export class SuiTable extends SakaiElement {
             })
             .join("");
             
+            // Wrap all the row actions in appropriate HTML
             element[this.columns[0].field] = `
               <div class="links d-flex justify-content-between">
                 <div class="item-text text-truncate">
@@ -296,33 +368,47 @@ export class SuiTable extends SakaiElement {
     return result;
   }
 
+  toggleFilters() {
+    this.debug
+    ? console.debug(
+      `sui-table ${this.tableTitle} toggleFilters`
+      )
+      : null;
+      const updatedColumns = this._table.getColumnLayout();
+      updatedColumns.forEach((column) => {
+        column.headerFilter = this.showFilters;
+      });
+      this._table.setColumnLayout(updatedColumns);
+  }
+
   render() {
 
     this._tableActions = [];
+    // Process the actions into a format that Tabulator can use
+    //TODO wrap all actions in permission check
+    //TODO post TRINITY-52 i think authz will be in rest api and will need refactor
     for (const action of this.tableActions) {
       this._tableActions.push(html`
       <li class="nav-item">
-        <a title="${action.title ? action.title : ""}"
+        <a title="${action.buttonTitle ? action.buttonTitle : ""}"
             aria-label="${action.ariaLabel ? action.ariaLabel : ""}"
             icon="${action.icon ? action.icon : ""}"
-            class="${action.class ? action.class : "nav-link"}"
+            class="${action.buttonClass ? action.buttonClass : "nav-link"}"
             href="${action.href ? action.href : "#"}">
           ${action.icon ? html`<sui-icon class="sui-icon" type="${action.icon}"></sui-icon>` : ""}
-          ${action.title ? action.title : ""}
+          ${action.buttonTitle ? action.buttonTitle : ""}
         </a>
       </li>
       `);
     }
+
     // Every table has Bulks Actions button
-    //TODO wrap all actions in permission check
-    //TODO post TRINITY-52 i think authz will be in rest api and will need refactor
-    //TODO i18n strings
     this._tableActions.push(html`
       <sui-button
-        buttonTitle="${
-          this.showActions ? "Hide Bulk Actions" : "Show Bulk Actions"
+        button-title="${
+          this.showActions ? `${this.i18n.hide} ${this.i18n.bulk_actions}` : `${this.i18n.show} ${this.i18n.bulk_actions}`
         }"
-        label="Toggle display of Bulk Actions"
+        button-label="${this.i18n.toggle_display} ${this.i18n.bulk_actions}"
         icon="check-square"
         id="${this.id}BulkActionsToggle"
         @click="${() => this.showActions = !this.showActions}"
@@ -330,74 +416,76 @@ export class SuiTable extends SakaiElement {
     `);
 
     // Every table has Filter button
-    //TODO i18n strings
     this._tableActions.push(html`
       <li class="nav-item">
         <sui-button
-          buttonTitle="${this.showFilters ? "Hide Filters" : "Show Filters"}"
-          label="Toggle display of Filters"
+          button-title="${
+            this.showFilters ? `${this.i18n.hide} ${this.i18n.filters}` : `${this.i18n.show} ${this.i18n.filters}`
+          }"
+          button-label="${this.i18n.toggle_display} ${this.i18n.filters}"
           icon="filter"
           id="${this.id}FilterToggle"
           @click="${() => {
-            this.showFilters = !this.showFilters;
+            this.showFilters = !this.showFilters
+            this.toggleFilters()
           }}"
         ></sui-button>
       </li>
     `);
 
+    // TODO wire up the rowselectedcounter
     return html`
       <ul class="sakai-table-toolBar nav nav-pills d-flex p-1">
         ${this._tableActions}
         <li id="sakai-table-pagerContainer" class="sakai-table-pagerContainer nav-item ms-auto">
           <div class="sakai-table-pagerLabel">
-            Showing ${this.currentItemMin} to ${this.currentItemMax} of ${this.totalItems}
+            ${this.i18n.showing} ${this.currentItemMin} ${this.i18n.to} ${this.currentItemMax} ${this.i18n.of} ${this.totalItems}
           </div>
         </li>
       </ul>
       <ul id="links"
           class="nav p-3 bg-dark text-white btn-group ${this.showActions ? "d-flex" : "d-none"} align-items-center"
           role="group"
-          aria-label="Row Actions">
-        <li id="rowsSelectedCounter" class="nav-item">XX selected</li>
+          aria-label="${this.i18n.row_actions}">
+        <li id="rowsSelectedCounter" class="nav-item">${this._numSelected} ${this.i18n.selected}</li>
         <sui-button
-          buttonTitle="Edit"
-          label="Edit"
+          button-title="${this.i18n.edit}"
+          button-label="${this.i18n.edit}"
           icon="pencil"
           href="#"
-          buttonClass="nav-item btn-link link-secondary"
+          button-class="nav-item btn-link link-secondary"
         ></sui-button>
         <sui-button
-          buttonTitle="Duplicate"
-          label="Duplicate"
+          button-title="${this.i18n.duplicate}"
+          button-label="${this.i18n.duplicate}"
           icon="clone"
           href="#"
-          buttonClass="nav-item btn-link link-secondary"
+          button-class="nav-item btn-link link-secondary"
         ></sui-button>
         <sui-button
-          buttonTitle="Remove"
-          label="Remove"
+          button-title="${this.i18n.remove}"
+          button-label="${this.i18n.remove}"
           icon="trash"
           href="#"
-          class="nav-item btn-link link-danger"
+          button-class="nav-item btn-link link-danger"
         ></sui-button>
         <div class="nav-item d-flex flex-fill justify-content-end">
           <sui-button
-            label="Close Row Actions"
-            buttonTitle="Close"
+            button-label="${this.i18n.close} ${this.i18n.row_actions}"
+            button-title="${this.i18n.close}"
             icon="close"
             @click=${() => {
               this.showActions = false;
               this.requestUpdate();
             }}
-            buttonClass="btn-link link-secondary"
+            button-class="btn-link link-secondary"
           ></sui-button>
         </div>
       </ul>
       </div>
       <div id="suiTable${this.id}"
-          class="sui-table table ${this.class ? this.class : "table-striped table-hover"}">
+          class="sui-table table ${this.tableClass ? this.tableClass : "table-striped table-hover"}">
       </div>
-      <div class="sakai-table-endBar" count="19" current="1"></div>
     `;
   }
 }

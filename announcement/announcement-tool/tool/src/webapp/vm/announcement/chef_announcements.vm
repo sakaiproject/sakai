@@ -439,10 +439,9 @@
 							show-filters
 							table-actions='[
 								{
-									"type": "sui-button",
 									"icon": "plus-circle",
-									"class": "nav-link active",
-									"title": "$tlang.getString("gen.new") $tlang.getString("meta.title")",
+									"buttonClass": "nav-link active",
+									"buttonTitle": "$tlang.getString("gen.new") $tlang.getString("meta.title")",
 									"href": "#toolLink("$action" "doNewannouncement")"
 								}
 							]'

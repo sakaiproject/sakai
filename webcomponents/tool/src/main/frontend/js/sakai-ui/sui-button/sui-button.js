@@ -5,32 +5,48 @@ import "../sui-icon/sui-icon";
 export class SakaiUIButton extends SakaiElement {
 
   static get properties() {
-
     return {
       type: { String },
       href: { String },
-      onclick: { type: String },
       buttonClass: { attribute: "button-class", type: String },
       target: { type: String },
       icon: { type: String },
       buttonTitle: { attribute: "button-title", type: String },
-      label: { type: String },
+      buttonLabel: { attribtue: "button-label", type: String },
+      debug: { type: Boolean },
     };
   }
 
   constructor() {
 
     super();
+    this.debug = false;
+    this.loadTranslations({bundle: "sui-button"}).then(r => this.i18n = r);
+  }
 
-    this.buttonClass = this.classList.value;
-    // This prevents duplicate styles from being added to the component
-    this.classList = "";
+  connectedCallback() {
 
-    this.loadTranslations("sui-button").then(r => this.i18n = r);
+    this.debug
+    ? console.debug(`sui-button ${this.title} connectedCallback`)
+    : null;
+    super.connectedCallback();
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+
+    this.debug
+      ? console.debug(
+          `sui-button ${this.title} attribute change: `,
+          name,
+          typeof newVal,
+          newVal
+        )
+      : null;
+    super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   clicked(e) {
-
+    this.debug ? console.debug(`sui-button ${this.title} clicked`, e) : null;
     if (this.href) {
       if (this.target === "_blank") {
         window.open(this.href);
@@ -40,23 +56,26 @@ export class SakaiUIButton extends SakaiElement {
       }
     }
 
-    // Non-href buttons
-    if (this.onclick) {
-      this.onclick;
-    }
+  }
+
+  updated(changedProperties) {
+
+    this.debug
+      ? console.debug(`sui-button ${this.title} start updated`, changedProperties)
+      : null;
   }
 
   render() {
 
     return html`
-      <button class="sui-btn btn ${this.class ? this.class : "btn-secondary"}"
+      <button class="sui-btn btn ${this.buttonClass ? this.buttonClass : "btn-secondary"}"
           type="${this.type ? this.type : "button"}"
-          aria-label="${this.label ? this.label : this.title}"
+          aria-label="${this.buttonLabel ? this.buttonLabel : this.buttonTitle}"
           @click="${this.clicked}">
         ${this.icon ? html`
           <sui-icon class="sui-icon" type="${this.icon}"></sui-icon>
         ` : ""}
-        ${this.title}
+        ${this.buttonTitle ? this.buttonTitle : ""}
         ${this.target === "_blank" ? html`
           <span class="visually-hidden sr-only">${this.i18n.opens_in_new_window}</span>
         ` : ""}

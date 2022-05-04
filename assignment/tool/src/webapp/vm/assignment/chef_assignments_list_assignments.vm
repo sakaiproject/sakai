@@ -66,10 +66,9 @@
 		id="assignmentsList"
 		table-actions='[
 			{
-				"type": "sui-button",
 				"icon": "plus-circle",
-				"class": "nav-link active",
-				"title": "$tlang.getString("gen.new") $tlang.getString("gen.assig")",
+				"buttonClass": "nav-link active",
+				"buttonTitle": "$tlang.getString("gen.new") $tlang.getString("gen.assig")",
 				"href": "#toolLink("$action" "doNew_assignment")"
 			}
 		]'
