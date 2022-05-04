@@ -15,8 +15,6 @@ package org.sakaiproject.webapi.beans;
 
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.util.CalendarUtil;
 

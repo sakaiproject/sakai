@@ -16,8 +16,6 @@ package org.sakaiproject.webapi.beans;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 
