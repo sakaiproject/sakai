@@ -111,7 +111,7 @@ public interface RubricsService {
     byte[] createPdf(String siteId, Long rubricId, String toolId, String itemId, String evaluatedItemId)
             throws IOException;
 
-    String getRubricEvaluationObjectId(String associationId, String userId, String toolId, String siteId);
+    String getRubricEvaluationObjectId(String itemId, String userId, String toolId, String siteId);
 
     void deleteRubricAssociation(String toolId, String itemId);
     void softDeleteRubricAssociation(String toolId, String itemId);

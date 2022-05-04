@@ -517,6 +517,17 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
+        if (!isEvaluator(siteId)) {
+            throw new SecurityException("You must be an evaluator to evaluate rubrics");
+        }
+
+        if (evaluationBean.isNew) {
+            evaluationBean.creatorId = userDirectoryService.getCurrentUser().getId();
+            evaluationBean.created = Instant.now();
+        }
+
+        evaluationBean.modified = Instant.now();
+
         Evaluation evaluation = evaluationRepository.save(evaluationBean.toEvaluation());
 
         // If this evaluation has been returned, back it up.
@@ -736,19 +747,15 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Transactional(readOnly = true)
-    public String getRubricEvaluationObjectId(String associationId, String userId, String toolId, String siteId) {
+    public String getRubricEvaluationObjectId(String itemId, String userId, String toolId, String siteId) {
 
-        Optional<Evaluation> optEvaluation = evaluationRepository.findByAssociationIdAndUserId(associationId, userId);
+        ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
+            .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+
+        Optional<Evaluation> optEvaluation = evaluationRepository.findByAssociationIdAndUserId(association.getId(), userId);
 
         if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId)) {
-            String currentUserId = userDirectoryService.getCurrentUser().getId();
-            Evaluation eval = optEvaluation.get();
-            if (securityService.unlock(currentUserId, RubricsConstants.RBCS_PERMISSIONS_EDITOR, "/site/" + siteId)
-                || eval.getCreatorId().equalsIgnoreCase(currentUserId)) {
-                return eval.getEvaluatedItemId();
-            } else {
-                return null;
-            }
+            return optEvaluation.get().getEvaluatedItemId();
         } else {
             return null;
         }

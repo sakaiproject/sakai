@@ -190,7 +190,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 				// popover flags
 				final CategoryFlags cf = getCategoryFlags(categoryName, categoriesMap);
 				final WebMarkupContainer flags = new WebMarkupContainer("flags");
-				flags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+				flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
 				flags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
 				categoryRow.add(flags.setVisible(cf.hasFlags()));
 
@@ -319,7 +319,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracredit"), assignment.getExtraCredit()));
+						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.getExtraCredit()));
 						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.getCounted()));
 						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.getReleased()));
 						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
@@ -423,6 +423,12 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, ownerId, RubricsConstants.RBCS_TOOL_ASSIGNMENT, getCurrentSiteId());
 									sakaiRubricButton.add(AttributeModifier.append("entity-id", assignmentId));
 									sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", submissionId));
+									try {
+										rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId, getCurrentSiteId())
+											.ifPresent(assoc -> sakaiRubricButton.add(AttributeModifier.append("rubric-id", assoc.rubricId)));
+									} catch (Exception e) {
+										log.error("Failed to get association", e);
+									}
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
 								}
@@ -453,7 +459,7 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						final CategoryFlags cf = getCategoryFlags(assignment.getCategoryName(), categoriesMap);
 						final WebMarkupContainer cflags = new WebMarkupContainer("cflags");
-						cflags.add(newPopoverFlag("getExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
+						cflags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracreditcategory"), cf.extraCredit));
 						cflags.add(newPopoverFlag("isEqualWeight", getString("label.gradeitem.equalweightcategory"), cf.equalWeight));
 						catCon.add(cflags.setVisible(cf.hasFlags()));
 

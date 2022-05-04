@@ -45,6 +45,8 @@ public class EvaluationTransferBean {
     public String creatorId;
     public String ownerId;
 
+    public boolean isNew;
+
     public static EvaluationTransferBean of(Evaluation evaluation) {
 
         EvaluationTransferBean bean = new EvaluationTransferBean();
