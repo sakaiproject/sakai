@@ -443,8 +443,10 @@ export class SakaiConversations extends SakaiElement {
           ` : html`
           <div class="conv-settings-link">
             <a href="javascript:;" @click=${() => { this.showingSettings = true; this.state = STATE_SETTINGS; }}>
-              <sakai-icon type="cog" size="small"></sakai-icon>
-              <span id="conv-settings-label">${this.i18n.settings}</span>
+              <div id="conv-settings-label-wrapper">
+                <div><sakai-icon type="cog" size="small"></sakai-icon></div>
+                <div id="conv-settings-label">${this.i18n.settings}</div>
+              </div>
             </a>
           </div>
           `}

@@ -138,6 +138,15 @@
         text-align: center;
         color: #666666;
         text-decoration: none;
+
+        #conv-settings-label-wrapper {
+          display: flex;
+          align-items: center;
+          div:first-child {
+            margin-top: 4px;
+            margin-right: 5px;
+          }
+        }
       }
     }
   }
