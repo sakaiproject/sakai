@@ -3046,17 +3046,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    *    placed in the text where the {{..}}'s appear.
    * <br>2. It will call methods to swap out the defined variables with randomly generated values
    *    within the ranges defined by the user.
-   * <br>3. It updates the HashMap answerList with the calculated answers in sequence. It will 
+   * <br>3. It populates the HashMap answerList with the calculated answers in sequence. It will
    *    parse and calculate what each answer needs to be.
-   * <p>Note: If a divide by zero occurs. We change the random values and try again. It gets limited chances to
+   * <p>Note: If a divide by zero occurs, we change the random values and try again. It gets limited chances to
    *    get valid values and then will return "infinity" as the answer.
-   * @param answerList will enter the method empty and be filled with sequential answers to the question
+   * @param answerList is cleared and filled with sequential answers to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
   public List<String> extractCalcQAnswersArray(Map<Integer, String> answerList, ItemDataIfc item, Long gradingId, String agentId) {
       boolean hasErrors = true;
       Map<String, String> variableRangeMap = buildVariableRangeMap(item);
       List<String> instructionSegments = new ArrayList<>(0);
+      answerList.clear();
 
       int attemptCount = 1;
       while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
@@ -3076,10 +3077,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
                   instructionSegments = extractInstructionSegments(instructions);
                   hasErrors = false;
               } catch (SamigoExpressionError e1) {
-                  log.warn("Samigo calculated item ("+item.getItemId()+") calculation invalid: "+e1.get());
+                  log.warn("Samigo calculated item ({}) calculation invalid: {}", item.getItemId(), e1.get());
                   attemptCount++;
               }
           } catch (Exception e) {
+              // possible division by zero error
               attemptCount++;
           }
       }
