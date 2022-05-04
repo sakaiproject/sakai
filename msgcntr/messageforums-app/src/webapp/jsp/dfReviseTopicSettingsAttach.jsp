@@ -48,23 +48,21 @@
 
 		function updateGradeAssignment() {
 
-			var elems = document.getElementsByTagName('sakai-rubric-association');
-			var topicAssignments = document.getElementById("revise:topic_assignments");
+			const associations = document.querySelectorAll('sakai-rubric-association');
+			const topicAssignments = document.getElementById("revise:topic_assignments");
 			const createTaskGroup = document.getElementById("revise:createTaskGroup");
 			const createTaskEmptyPanel = document.getElementById("revise:createTaskEmptyPanel");
-			if ( topicAssignments !== null && topicAssignments.value != null && topicAssignments.value != 'Default_0') {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].setAttribute("entity-id", topicAssignments.value);
-					elems[i].style.display = 'inline';
-				}
-				createTaskGroup.style.display = 'inline';
-				createTaskEmptyPanel.style.display = 'inline';
+			if (topicAssignments?.value && topicAssignments.value !== "Default_0") {
+				associations.forEach(a => {
+					a.setAttribute("entity-id", topicAssignments.value);
+					a.style.display = 'inline';
+				});
+				createTaskGroup && (createTaskGroup.style.display = 'inline');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'inline');
 			} else {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].style.display = 'none';
-				}
-				createTaskGroup.style.display = 'none';
-				createTaskEmptyPanel.style.display = 'none';
+				associations.forEach(a => a.style.display = 'none');
+				createTaskGroup && (createTaskGroup.style.display = 'none');
+				createTaskEmptyPanel && (createTaskEmptyPanel.style.display = 'none');
 			}
 		}
 
@@ -332,7 +330,7 @@
 			<h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" />
 		</p>
 
-		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
+		<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" /></h2>
 		<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			<h:panelGroup  style="white-space:nowrap;">
 				<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>
@@ -364,12 +362,7 @@
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
 			associate-value="1"
 			read-only="true"
-
 			tool-id="sakai.gradebookng"
-			<% if(entityId != null && !"".equals(entityId)){ %>
-				entity-id=<%= entityId %>
-			<%}%>
-
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 

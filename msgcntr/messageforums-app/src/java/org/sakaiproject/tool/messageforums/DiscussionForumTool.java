@@ -376,7 +376,7 @@ public class DiscussionForumTool {
   private String selectedAssign = DEFAULT_GB_ITEM; 
   private String gradePoint; 
   private String gradeComment; 
-  private boolean gradebookExist = false;
+  private boolean gradebookExist = true;
   private boolean gradebookExistChecked = false;
   private boolean displayDeniedMsg = false;
   private transient boolean selGBItemRestricted;
