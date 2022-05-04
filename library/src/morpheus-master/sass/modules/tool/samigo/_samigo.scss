@@ -354,6 +354,14 @@
 				margin-right: 10px;
 			}
 		}
+
+		span:focus, th:focus {
+			outline: 3px solid var(--focus-outline-color);			
+			border-radius: 2px;
+		}
+		th:focus {
+			outline-offset: -3px;
+		}
 	}
 
 	.dataTable {

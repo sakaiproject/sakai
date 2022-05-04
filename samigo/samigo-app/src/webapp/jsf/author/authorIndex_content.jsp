@@ -65,6 +65,7 @@
             var assessmentSortingColumn = <h:outputText value="'#{author.assessmentSortingColumn}'"/>;
 
             if (notEmptyTableTd > 0) {
+                $.fn.dataTable.ext.classes.sLengthSelect = 'form-control';
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
@@ -209,8 +210,10 @@
                 var length = $(".select-checkbox:checked").length;
                 if (length > 0) {
                     $("#authorIndexForm\\:remove-selected").removeClass("disabled");
+                    $("#authorIndexForm\\:remove-selected").attr("tabindex", 0);
                 } else {
                     $("#authorIndexForm\\:remove-selected").addClass("disabled");
+                    $("#authorIndexForm\\:remove-selected").attr("tabindex", -1);
                 }
             }
         });
@@ -284,13 +287,13 @@
                 <t:column headerstyleClass="titlePending" styleClass="titlePending">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
 
-                    <strong id="assessmentTitle2">
+                    <strong>
                         <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" />
                         </h:panelGroup>
@@ -314,13 +317,12 @@
                             <h:outputText value="#{authorMessages.actions_for} " />
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                             <h:outputText value="#{assessment.title}" />
+                        <f:verbatim>" aria-label="</f:verbatim>
+                            <h:outputText value="#{authorMessages.actions_for} " />
+                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
+                            <h:outputText value="#{assessment.title}" />
                         <f:verbatim>"></f:verbatim>
                             <h:outputText value="#{authorMessages.select_action}" />
-                            <f:verbatim><span class="sr-only"></f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim></span></f:verbatim>
                             <span class="caret"></span>
                         <f:verbatim></button></f:verbatim>
 
@@ -347,13 +349,12 @@
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
+                            <f:verbatim>" aria-label="</f:verbatim>
+                                <h:outputText value="#{authorMessages.actions_for} " />
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
+                                <h:outputText value="#{assessment.title}" />
                             <f:verbatim>"></f:verbatim>
                                 <h:outputText value="#{authorMessages.select_action}" />
-                                <f:verbatim><span class="sr-only"></f:verbatim>
-                                    <h:outputText value="#{authorMessages.actions_for} " />
-                                    <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                    <h:outputText value="#{assessment.title}" />
-                                <f:verbatim></span></f:verbatim>
                                 <span class="caret"></span>
                             <f:verbatim></button></f:verbatim>
 
@@ -385,13 +386,12 @@
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
+                            <f:verbatim>" aria-label="</f:verbatim>
+                                <h:outputText value="#{authorMessages.actions_for} " />
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
+                                <h:outputText value="#{assessment.title}" />
                             <f:verbatim>"></f:verbatim>
                                 <h:outputText value="#{authorMessages.select_action}" />
-                                <f:verbatim><span class="sr-only"></f:verbatim>
-                                    <h:outputText value="#{authorMessages.actions_for} " />
-                                    <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                    <h:outputText value="#{assessment.title}" />
-                                <f:verbatim></span></f:verbatim>
                                 <span class="caret"></span>
                             <f:verbatim></button></f:verbatim>
 
@@ -416,13 +416,12 @@
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
                                 <h:outputText value="#{assessment.title}" />
+                            <f:verbatim>" aria-label="</f:verbatim>
+                                <h:outputText value="#{authorMessages.actions_for} " />
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
+                                <h:outputText value="#{assessment.title}" />
                             <f:verbatim>"></f:verbatim>
                                 <h:outputText value="#{authorMessages.select_action}" />
-                                <f:verbatim><span class="sr-only"></f:verbatim>
-                                    <h:outputText value="#{authorMessages.actions_for} " />
-                                    <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                    <h:outputText value="#{assessment.title}" />
-                                <f:verbatim></span></f:verbatim>
                                 <span class="caret"></span>
                             <f:verbatim></button></f:verbatim>
 
@@ -448,7 +447,7 @@
                 <t:column headerstyleClass="status" styleClass="status">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_status}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -472,7 +471,7 @@
                 <t:column headerstyleClass="inProgress hidden-xs hidden-sm" styleClass="inProgress hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_in_progress}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -487,7 +486,7 @@
                 <t:column headerstyleClass="submitted hidden-xs hidden-sm" styleClass="submitted hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_submitted}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -499,13 +498,17 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{assessment.submittedCount>0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
-                            <h:commandLink title="#{authorFrontDoorMessages.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore1" >
-                                <h:outputText value="#{assessment.submittedCount}" />
-                                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-                                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-                                <f:param name="publishedId" value="#{assessment.publishedAssessmentId}" />
-                                <f:param name="allSubmissionsT" value="3"/>
-                            </h:commandLink>
+                            <f:verbatim><span aria-label="</f:verbatim>
+                                <h:outputText value="#{assessment.submittedCount} #{authorFrontDoorMessages.assessment_submissions}" />
+                            <f:verbatim>" role="link" tabindex="0"></f:verbatim>
+                                <h:commandLink title="#{authorFrontDoorMessages.assessment_submissions}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore1" tabindex="-1">
+                                    <h:outputText value="#{assessment.submittedCount}" />
+                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+                                    <f:param name="publishedId" value="#{assessment.publishedAssessmentId}" />
+                                    <f:param name="allSubmissionsT" value="3"/>
+                                </h:commandLink>
+                            <f:verbatim></span></f:verbatim>
                         </h:panelGroup>
                     </h:panelGroup>
                 </t:column>
@@ -514,7 +517,7 @@
                 <t:column headerstyleClass="releaseTo hidden-xs hidden-sm" styleClass="releaseTo hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_release }"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -543,7 +546,7 @@
                 <t:column headerstyleClass="releaseDate hidden-xs hidden-sm" styleClass="releaseDate hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_date}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -562,7 +565,7 @@
                 <t:column headerstyleClass="dueDate" styleClass="dueDate">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_due}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -584,7 +587,7 @@
                 <t:column headerstyleClass="lastModified hidden-xs hidden-sm" styleClass="lastModified hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -597,7 +600,7 @@
                 <t:column headerstyleClass="lastModifiedDate hidden-xs hidden-sm" styleClass="lastModifiedDate hidden-xs hidden-sm">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
+                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
                                 <h:outputText value="#{authorFrontDoorMessages.header_last_modified_date}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
@@ -618,7 +621,7 @@
                         <h:outputText value="#{authorFrontDoorMessages.header_remove}" />
                     </f:facet>
 
-                    <h:selectBooleanCheckbox value="#{assessment.selected}" styleClass="select-checkbox" />
+                    <h:selectBooleanCheckbox value="#{assessment.selected}" styleClass="select-checkbox" title="#{authorFrontDoorMessages.assessment_select_to_remove}" />
                 </t:column>
                 <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="hidden" styleClass="hidden">
                 </t:column>
@@ -635,11 +638,11 @@
 
         <div class="clearfix"></div>
 
-        <h:commandLink type="submit" id="remove-selected" value="#{authorFrontDoorMessages.assessment_remove_selected}" rendered="#{(authorization.deleteAnyAssessment or authorization.deleteOwnAssessment) and author.allAssessments.size() > 0}" styleClass="disabled" onclick="if (!removeSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
+        <h:commandButton type="button" id="remove-selected" value="#{authorFrontDoorMessages.assessment_remove_selected}" rendered="#{(authorization.deleteAnyAssessment or authorization.deleteOwnAssessment) and author.allAssessments.size() > 0}" styleClass="disabled" onclick="if (!removeSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
             <f:param name="action" value="remove_selected" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-        </h:commandLink>
+        </h:commandButton>
     </h:form>
 <!-- end content -->
 </div>
