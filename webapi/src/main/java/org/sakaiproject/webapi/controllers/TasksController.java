@@ -131,7 +131,7 @@ public class TasksController extends AbstractSakaiApiController {
             }).collect(Collectors.toList());
     }
     
-    @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater")
+    @GetMapping(value = "/sites/{siteId}/users/current/isSiteUpdater", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean isInstructorUser(@PathVariable String siteId) {
         checkSakaiSession();
 

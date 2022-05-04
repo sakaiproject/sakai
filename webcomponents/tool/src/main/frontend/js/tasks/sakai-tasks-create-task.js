@@ -92,6 +92,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
       this.task = savedTask;
       this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
+      this.reset();
       this.close();
     })
     .catch(error => console.error(error));
@@ -169,26 +170,32 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.siteIdBackup = this.siteId;
     // Check user role - Only instructors can deliver tasks to students
     if (this.siteId && this.userId) {
-        const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
-        fetch(url).then((r) => {
-            if (r.ok) {
-                return r;
-            }
-            throw new Error(`Failed to get user role from ${url}`);
-        }).then((data) => {
-            this.deliverTasks = data;
-            // Retrieve group list from site
-            if (this.deliverTasks && this.siteId) {
-                fetch(`/api/tasks/site/groups/${this.siteId}`).then((r) => {
-                    if (r.ok) {
-                        return r.json();
-                    }
-                    throw new Error(`Failed to get site group list from ${url}`);
-                }).then((groups) => {
-                    this.optionsGroup = groups;
-                }).catch ((error) => console.error(error));
-            }
-        }).catch ((error) => console.error(error));
+      const url = `/api/sites/${this.siteId}/users/current/isSiteUpdater`;
+      fetch(url)
+      .then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Failed to get user role from ${url}`);
+      })
+      .then(data => {
+
+        this.deliverTasks = data;
+        // Retrieve group list from site
+        if (this.deliverTasks && this.siteId) {
+          fetch(`/api/tasks/site/groups/${this.siteId}`)
+            .then((r) => {
+
+              if (r.ok) {
+                return r.json();
+              }
+              throw new Error(`Failed to get site group list from ${url}`);
+            })
+            .then(groups => this.optionsGroup = groups)
+            .catch (error => console.error(error));
+        }
+      })
+      .catch (error => console.error(error));
     }
   }
 
