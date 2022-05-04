@@ -158,7 +158,6 @@ class SakaiRubricStudent extends RubricsElement {
 
         // Now, get the rubric
         const rubricUrl = `/api/sites/${association.siteId}/rubrics/${rubricId}`;
-        console.log(rubricUrl);
         fetch(rubricUrl, {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -174,7 +173,6 @@ class SakaiRubricStudent extends RubricsElement {
 
           // Now, get the evaluation
           const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-          console.log(evalUrl);
           fetch(evalUrl, {
             credentials: "include",
             headers: { "Content-Type": "application/json" },

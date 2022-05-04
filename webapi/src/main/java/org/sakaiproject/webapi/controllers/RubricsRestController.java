@@ -213,8 +213,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubric-evaluations", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EvaluationTransferBean> createEvaluation(@PathVariable String siteId, @RequestBody EvaluationTransferBean bean) throws Exception {
 
-        checkSakaiSession();
-
+        bean.isNew = true;
         return ResponseEntity.ok(rubricsService.saveEvaluation(bean, siteId));
     }
 
