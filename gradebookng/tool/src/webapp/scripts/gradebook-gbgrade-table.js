@@ -2821,7 +2821,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
         );
 
         if (metadata.assignment && metadata.assignment.externalAppName && metadata.assignment.externalAppIconCSS) {
-          let externalFlag = $("#"+cellKey).find('.gb-external-app-wrapper');
+          const externalFlag = $(`#${cellKey}`).find('.gb-external-app-wrapper');
           if (externalFlag.length) {
             externalFlag.find('.gb-flag-external').addClass(metadata.assignment.externalAppIconCSS);
             externalFlag.html(externalFlag.html().replace('{0}', metadata.assignment.externalAppName));
