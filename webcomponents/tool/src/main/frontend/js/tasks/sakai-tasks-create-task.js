@@ -92,6 +92,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
       this.task = savedTask;
       this.dispatchEvent(new CustomEvent("task-created", {detail: { task: this.task }, bubbles: true }));
+      this.reset();
       this.close();
     })
     .catch(error => console.error(error));
@@ -170,12 +171,11 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.siteIdBackup = this.siteId;
     // Check user role - Only instructors can deliver tasks to students
     if (this.siteId && this.userId) {
-      const url = `/api/sites/{siteId}/users/current/isSiteUpdater`;
+      const url = `/api/sites/${this.siteId}/users/current/isSiteUpdater`;
       fetch(url)
       .then(r => {
-
         if (r.ok) {
-          return r;
+          return r.json();
         }
         throw new Error(`Failed to get user role from ${url}`);
       })

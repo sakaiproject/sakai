@@ -28,8 +28,17 @@ class SakaiDatePicker extends LitElement {
 
   set epochMillis(value) {
 
-    this._epochMillis = value;
-    this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 19);
+    if (value) {
+      this._epochMillis = value;
+      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 19);
+    } else {
+      this._epochMillis = null;
+      this.isoDate = null;
+    }
+    const inputDate = this.shadowRoot.getElementById("date-picker-input");
+    if (inputDate) {
+      inputDate.value = this.isoDate;
+    }
   }
 
   get epochMillis() { return this._epochMillis; }
@@ -54,6 +63,7 @@ class SakaiDatePicker extends LitElement {
 
     return html`
       <input type="datetime-local"
+          id="date-picker-input"
           @change=${this.dateSelected}
           value="${this.isoDate}"
           .disabled=${this.disabled}
