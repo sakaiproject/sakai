@@ -437,6 +437,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         etb.status = EvaluationStatus.DRAFT;
         etb.overallComment = originalComment;
+        etb.isNew = true;
 
         etb = rubricsService.saveEvaluation(etb, siteId);
         assertEquals(EvaluationStatus.DRAFT, etb.status);
@@ -452,6 +453,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         switchToInstructor();
         optEtb = rubricsService.getEvaluation(etb.id, siteId);
         assertTrue(optEtb.isPresent());
+        assertNotNull(optEtb.get().creatorId);
+        assertNotNull(optEtb.get().created);
         assertEquals(association.getId(), optEtb.get().associationId);
 
         switchToUser2();
@@ -463,6 +466,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         optEtb2 = rubricsService.getEvaluation(etb.id, siteId);
         optEtb2.get().status = EvaluationStatus.RETURNED;
         etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);
+        assertNotNull(etb.modified);
 
         returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(etb.id);
         assertTrue(returnedEvaluation.isPresent());
@@ -477,7 +481,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertFalse(none.isPresent());
 
         // Now save it as draft again, so we can test cancel.
-        switchToUser1();
+        switchToInstructor();
         optEtb2.get().status = EvaluationStatus.DRAFT;
         optEtb2.get().overallComment = updatedComment;
         etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);

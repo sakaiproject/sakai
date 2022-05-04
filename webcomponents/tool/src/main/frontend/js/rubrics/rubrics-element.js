@@ -19,10 +19,10 @@ class RubricsElement extends SakaiElement {
     return available;
   }
 
-  initLightbox(i18n) {
+  initLightbox(i18n, siteId) {
 
     if (this.isUtilsAvailable()) {
-      window.top.rubrics.utils.initLightbox(i18n);
+      window.top.rubrics.utils.initLightbox(i18n, siteId);
     }
   }
 
