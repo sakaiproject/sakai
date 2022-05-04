@@ -56,7 +56,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "rbc_criterion")
-@ToString(exclude = {"ratings", "rubric"})
+@ToString(exclude = {"ratings"})
 public class Criterion implements PersistableEntity<Long>, Serializable {
 
     @Id

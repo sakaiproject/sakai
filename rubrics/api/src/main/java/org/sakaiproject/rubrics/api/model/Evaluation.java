@@ -37,7 +37,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -62,10 +61,10 @@ import lombok.NonNull;
 @NoArgsConstructor
 @Table(name = "rbc_evaluation",
     indexes = { @Index(name = "rbc_eval_owner",  columnList="ownerId"),
-    	    @Index(name = "FK_faohmo8ewmybgp67w10g53dtm",  columnList="association_id")},
+                @Index(name = "rbc_eval_association_idx",  columnList="association_id") },
     uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
 )
-@ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})
+@ToString(exclude = {"criterionOutcomes"})
 public class Evaluation implements PersistableEntity<Long>, Serializable {
 
     @Id
@@ -86,12 +85,6 @@ public class Evaluation implements PersistableEntity<Long>, Serializable {
     private String evaluatedItemOwnerId;
 
     private String overallComment;
-
-    /*
-    @ManyToOne
-    @JoinColumn(name = "association_id", referencedColumnName = "id", nullable = false)
-    private ToolItemRubricAssociation association;
-    */
 
     @Column(name = "association_id", nullable = false)
     private Long associationId;
