@@ -154,12 +154,21 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     .catch(error => console.error(error));
   }
 
-  replyToPost() {
+  replyToPostAsDraft() {
+    this.replyToPost(true);
+  }
+
+  replyToPostAsPublished() {
+    this.replyToPost(false);
+  }
+
+  replyToPost(draft = false) {
 
     const reply = {
       message: document.getElementById(`post-${this.post.id}-reply-editor`).getContent(),
       parentPost: this.post.id,
       parentThread: this.post.parentThread || this.post.id,
+      draft,
     };
 
     const url = this.post.links.find(l => l.rel === "reply").href;
@@ -485,8 +494,8 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
           </label>
         </div>
         <div class="act">
-          <input type="button" class="active" @click=${this.replyToPost} value="${this.i18n.publish}">
-          <input type="button" @click=${this.savePostAsDraft} value="${this.i18n.save_as_draft}">
+          <input type="button" class="active" @click=${this.replyToPostAsPublished} value="${this.i18n.publish}">
+          <input type="button" @click=${this.replyToPostAsDraft} value="${this.i18n.save_as_draft}">
           <input type="button" @click=${() => this.replying = false} value="${this.i18n.cancel}">
         </div>
       </div>
