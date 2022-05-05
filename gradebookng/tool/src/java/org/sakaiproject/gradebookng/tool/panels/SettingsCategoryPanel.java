@@ -322,11 +322,19 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				categoriesWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
 				categoriesOptionsWrap.setVisible(type != GbCategoryType.NO_CATEGORY);
+				equalWeight.setEnabled(type != GbCategoryType.ONLY_CATEGORY);
 
 				// if categories only (2), the categories table will be visible but the weighting column and tally will not
 				if (type == GbCategoryType.ONLY_CATEGORY) {
 					target.appendJavaScript("$('.gb-category-weight').hide();");
 					target.appendJavaScript("$('.gb-category-runningtotal').hide();");
+
+					// If instructor flips from weighted to unweighted categories, we need to zero out the existing equal weight settings
+					equalWeight.setModelValue(new String[]{"false"});
+					for (final CategoryDefinition c : SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
+						c.setEqualWeight(false);
+					}
+					target.appendJavaScript("$('.gb-category-equalweight').hide();");
 				}
 
 				// switching to categories but we don't have any, add a default one
