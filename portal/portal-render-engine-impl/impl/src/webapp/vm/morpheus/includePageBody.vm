@@ -119,7 +119,6 @@
                                 #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                 #if (${tool.toolShowHelpButton})
-                                    <script type="module" src="/webcomponents/sui.es.js"></script>
                                     
                                     #if (${tool.toolJSR168Help})
 

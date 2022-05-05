@@ -1,4 +1,4 @@
-import { LitElement } from "./assets/@lion/core/index.js";
+import { LitElement } from "@assets/lit-element/lit-element.js";
 import {loadProperties, tr} from "./sakai-i18n.js";
 
 export class SakaiElement extends LitElement {

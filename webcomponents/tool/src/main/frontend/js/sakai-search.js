@@ -1,7 +1,7 @@
 import { SakaiElement } from "./sakai-element.js";
 import "./sakai-pager.js";
-import { html } from "./assets/lit-element/lit-element.js";
-import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import { html } from "@assets/lit-element/lit-element.js";
+import { unsafeHTML } from "@assets/lit-html/directives/unsafe-html.js";
 
 class SakaiSearch extends SakaiElement {
 

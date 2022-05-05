@@ -1,9 +1,9 @@
-import { html, css, LitElement } from './assets/lit-element/lit-element.js';
-import { icon, library } from "./assets/@fortawesome/fontawesome-svg-core/index.es.js";
+import { html, css, LitElement } from '@assets/lit-element/lit-element.js';
+import { icon, library } from "@assets/@fortawesome/fontawesome-svg-core/index.es.js";
 import { faCompressArrowsAlt, faEyeSlash, faChalkboardTeacher, faExpandArrowsAlt, faLock, faStar, faEllipsisV, faBell, faCircle, faCog, faChevronUp, faChevronDown, faList, faThumbsUp, faThumbtack, faTimes, faCheckSquare, faCheckCircle, faComment, faComments, faBook, faFile, faFileAlt,
   faGripVertical, faLightbulb, faHeart, faUsers, faUserSecret, faMinus, faPlus, faQuestion, faQuestionCircle, faFlag, faAngleRight, faAngleLeft, faHourglass, faFileWord, faSync, faSmile,
   faTrash, faTrashRestore, faEdit, faKey, faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faPlay, faVolumeUp }
-  from './assets/@fortawesome/free-solid-svg-icons/index.es.js';
+  from '@assets/@fortawesome/free-solid-svg-icons/index.es.js';
 
 export class SakaiIcon extends LitElement {
 

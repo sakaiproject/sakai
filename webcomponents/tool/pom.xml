@@ -12,7 +12,10 @@
     <groupId>org.sakaiproject</groupId>
     <artifactId>webcomponents</artifactId>
     <packaging>war</packaging>
-
+    <properties>
+		<!-- This is used in re-write rules as well -->
+		<scmFailureString>Sakai</scmFailureString>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -61,7 +64,7 @@
                 </executions>
                 <configuration>
                     <shortRevisionLength>8</shortRevisionLength>
-                    <revisionOnScmFailure>Sakai</revisionOnScmFailure>
+                    <revisionOnScmFailure>${scmFailureString}</revisionOnScmFailure>
                 </configuration>
             </plugin>
             <plugin>
@@ -86,6 +89,7 @@
                                 <exclude>.gitignore</exclude>
                                 <exclude>.jshintrc</exclude>
                                 <exclude>.eslintrc.js</exclude>
+                                <exclude>jsconfig.json</exclude>
                             </excludes>
                         </fileset>
                         <fileset>
@@ -112,7 +116,7 @@
                     </packagingExcludes>
                     <webResources>
                         <resource>
-                            <directory>src/main/frontend</directory>
+                            <directory>src/main/frontend/target</directory>
                             <excludes>
                                 <exclude>js/**</exclude>
                                 <exclude>.config/**</exclude>
@@ -152,23 +156,15 @@
                         <configuration>
                             <arguments>
                                 ci --unsafe-perm --save-dev
+                                <!-- TODO TRINITY-43 remove if not needed
                                 @ckeditor/ckeditor5-dev-webpack-plugin
                                 @ckeditor/ckeditor5-dev-utils
                                 postcss-loader@3
                                 raw-loader@3
                                 style-loader@1
                                 webpack@4
-                                webpack-cli@3
+                                webpack-cli@3 -->
                             </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>eslint</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run eslint</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -178,20 +174,10 @@
                         </goals>
                         <configuration>
                             <environmentVariables>
-                                <VITE_BUILD>${buildNumber}</VITE_BUILD>
+                                <CDN>${buildNumber}</CDN>
+                                <VITE_BUILD>production</VITE_BUILD>
                         </environmentVariables>
-                            <arguments>run build-sakai-ui</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm empathise</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                run empathise -- --query=version=${buildNumber}
-                            </arguments>
+                            <arguments>run wc:build:maven</arguments>
                         </configuration>
                     </execution>
                 </executions>

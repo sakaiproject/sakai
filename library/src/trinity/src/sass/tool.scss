@@ -9,7 +9,6 @@
 // `$body-color` or write more CSS that override's Bootstrap's CSS like so:
 // `body { color: red; }`.
 
-
 //
 // Bring in Bootstrap
 //
@@ -29,13 +28,13 @@ $enable-gradients: false;
 $enable-shadows: true;
 $enable-cssgrid: true;
 
-$offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
+$offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
 
 // Customize some defaults
 $primary: #003a6b;
 $body-color: #333;
 $body-bg: #fff;
-$border-radius: .4rem;
+$border-radius: 0.4rem;
 $success: #7952b3;
 
 // Configuration
@@ -83,6 +82,13 @@ $success: #7952b3;
 // Utilities
 @import "bootstrap/scss/utilities/api";
 
+// Libraries
+// Tabulator Configuration for sui-table
+/* stylelint-disable scss/dollar-variable-pattern */
+@import "tabulator-tables/src/scss/themes/bootstrap/tabulator_bootstrap5";
+
+/* stylelint-enable scss/dollar-variable-pattern */
+
 //
 // Custom styles
 //
@@ -92,15 +98,45 @@ $success: #7952b3;
 body {
   //padding: 1.5rem;
 }
-sui-button sui-icon {
-  margin-right: .25em;
-}
-
 
 //
 // Custom styles that need to be relocated
 //
 
+sui-button sui-icon {
+  margin-right: 0.25em;
+}
+
+sui-table {
+  .item-text {
+    min-width: 4em;
+  }
+
+  .row-actions-list {
+    margin-top: -8px;
+  }
+
+  /* !important to override poorly written selector in dependency */
+  /* stylelint-disable declaration-no-important */
+  .tabulator-selectable:hover {
+    cursor: auto !important;
+  }
+
+  .tabulator-selected:hover {
+    cursor: auto !important;
+  }
+
+  .tabulator-row .tabulator-cell:first-child {
+    cursor: pointer !important;
+  }
+  .tabulator.table .tabulator-row:hover {
+    background-color: $table-hover-bg;
+  }
+  .tabulator.table .tabulator-row:hover .tabulator-cell {
+    background-color: transparent;
+  }
+  /* stylelint-enable declaration-no-important */
+}
 
 //
 // Temporary Styles for Morpheus to Trinity conversion

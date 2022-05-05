@@ -6,7 +6,8 @@
     ],
     "rules": {
         "no-empty-source": null,
-        "selector-class-pattern": ".*"
+        "selector-class-pattern": ".*",
+        "number-leading-zero": "always"
     },
     "morpheus-rules": {
         "at-rule-no-unknown": null,

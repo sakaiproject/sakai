@@ -85,7 +85,7 @@ export class SakaiTopicSummary extends SakaiElement {
             ` : ""}
             ${this.topic.locked ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.topic_locked_tooltip}"
                 aria-label="${this.i18n.topic_locked_tooltip}">
               <sakai-icon type="lock" size="small"></sakai-icon></div>
@@ -93,7 +93,7 @@ export class SakaiTopicSummary extends SakaiElement {
             ` : ""}
             ${this.topic.hidden ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.topic_hidden_tooltip}"
                 aria-label="${this.i18n.topic_hidden_tooltip}">
               <sakai-icon type="hidden" size="small"></sakai-icon></div>

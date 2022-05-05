@@ -1,5 +1,5 @@
 import { RubricsElement } from "./rubrics-element.js";
-import { html } from "../assets/lit-element/lit-element.js";
+import { html } from "@assets/lit-element/lit-element.js";
 import { loadProperties, tr as translate } from "../sakai-i18n.js";
 
 export class SakaiRubricsLanguage extends RubricsElement {

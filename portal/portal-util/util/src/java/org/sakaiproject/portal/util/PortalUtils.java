@@ -94,6 +94,17 @@ public class PortalUtils
 	}
 
 	/**
+	 * Returns only the version string or empty string (i.e. never null)
+	 */
+	public static String getCDNQueryShort()
+	{
+		String version = ServerConfigurationService.getString("portal.cdn.version", ServerConfigurationService.getString("version.service", "0"));
+		StringBuilder cdnQuery = new StringBuilder();
+		cdnQuery.append(version);
+		return cdnQuery.toString();
+	}
+
+	/**
 	 * Returns the text to intelligently include the latest version of jQuery
      * 
      * @param where A string to be used in browser console log messages
