@@ -23,7 +23,7 @@
       font-style: italic;
       font-weight: 400;
       font-size: 12px;
-      color: #666666;
+      color: var(--sakai-text-color);
       > span:first-child {
         margin-right: 5px;
       }
