@@ -261,7 +261,7 @@
   .discussion-post-vbar {
     height: 100%;
     width: 4px;
-    background-color: #F1F2F3;
+    background-color: var(--sakai-border-color);
   }
   .discussion-post-right-column {
     margin-left: 8px;
@@ -269,12 +269,13 @@
   }
 
   .discussion-post-content-wrapper {
-    background-color: #F1F2F3;
+    background-color: var(--sakai-background-color-2);
     border-radius: 4px;
+    border-color: var(--sakai-border-color);
     padding: 10px;
 
     &.new {
-      background-color: #E4F5FF;
+      background-color: var(--sakai-background-color-4);
     }
   }
 
@@ -329,7 +330,7 @@
     display: flex;
     margin-left: auto;
     font-size: 14px;
-    color: #176EA3;
+    color: var(--sakai-link-color);
     align-items: center;
   }
 
@@ -360,14 +361,14 @@
     background: #19884B;
     border-radius: 100px;
     font-size: 12px;
-    color: #FFFFFF;
+    color: var(--sakai-text-color);
     padding: 5px 10px;
   }
   .discussion-post-late {
     background: #CB2148;
     border-radius: 100px;
     font-size: 12px;
-    color: #FFFFFF;
+    color: var(--sakai-text-color);
     padding: 5px 10px;
   }
 }
