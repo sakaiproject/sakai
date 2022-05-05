@@ -389,7 +389,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
     if (post.parentThread) {
       const thread = findPost(this.topic, { postId: post.parentThread });
       thread.keepExpanded = true;
-      if (e.detail.created) {
+      if (e.detail.created && !e.detail.post.draft) {
         thread.numberOfThreadReplies += 1;
       }
     }
