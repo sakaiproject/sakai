@@ -309,6 +309,24 @@
     color: var(--link-color);
     text-decoration: none;
   }
+
+  .author-details {
+    display: flex;
+    align-items: center;
+
+    .draft {
+      margin-left: 5px;
+    }
+  }
+  .author-details div {
+    word-wrap: nowrap;
+  }
+
+  .draft {
+    font-style: italic;
+    color: var(--errorBanner-color);
+    font-size: 15px;
+  }
 }
 
 @import "_sakai-topic-list.scss";
