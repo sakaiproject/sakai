@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "es2020",
+      "allowSyntheticDefaultImports": false,
+      "baseUrl": "./",
+      "paths": {
+        "@assets/*": ["node_modules/*"],
+        "./@assets/*": ["node_modules/*"],
+      }
+    },
+    "exclude": ["node_modules", "target"]
+  }

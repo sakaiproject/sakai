@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "description": "Sakai Library",
   "main": "",
-  "scripts": {
-  },
-  "dependencies": {
-  },
+  "scripts": {},
   "devDependencies": {
+    "stylelint-config-prettier": "^9.0.3"
   }
 }

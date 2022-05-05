@@ -424,7 +424,47 @@
 					</div>
 
 					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
+					## //TODO TRINITY get permissions context wired up and passed over
+					#set ($siteId = $ref.getContext())
+						<sui-table
+							debug
+							id="announcementsList"
+							permissions='[
+								{ 
+									"key": "edit",
+									"value": "$channel.allowEditMessage($ann_item.Id)"
+								}
+							]'
+							show-actions
+							show-filters
+							table-actions='[
+								{
+									"icon": "plus-circle",
+									"buttonClass": "nav-link active",
+									"buttonTitle": "$tlang.getString("gen.new") $tlang.getString("meta.title")",
+									"href": "#toolLink("$action" "doNewannouncement")"
+								}
+							]'
+							links='[
+								{
+									"title": "View",
+									"icon": "play",
+									"class": "nav-link",
+									"rel": "self"
+								}
+							]'
 
+							columns='[
+								{"field": "subject", "title": "$tlang.getString("gen.subject")"},
+								{"field": "access", "title": "$tlang.getString("gen.visible")"},
+								{"field": "author", "title": "$tlang.getString("gen.from")"},
+								{"field": "date", "title": "$tlang.getString("gen.date")"},
+								{"field": "release", "title": "$tlang.getString("gen.releasedate")"},
+								{"field": "retract", "title": "$tlang.getString("gen.retractdate")"}
+							]'
+							site-id="$siteId"
+							data-url="/api/sites/$siteId/announcements"
+						></sui-table>
 					<div class="sakai-table-toolBar">
 						<div class="sakai-table-filterContainer">
 							#define($viewSelectOptions)

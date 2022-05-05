@@ -6,3 +6,4 @@
 !.storybook/*.js
 !.eslintrc.js
 !test/**
+coverage

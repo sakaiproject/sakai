@@ -1,5 +1,5 @@
 import {SakaiElement} from "./sakai-element.js";
-import {html} from "./assets/lit-element/lit-element.js";
+import {html} from "@assets/lit-element/lit-element.js";
 import "./sakai-group-picker.js";
 
 /**

@@ -1,4 +1,4 @@
-import { LitElement, html, css } from './assets/lit-element/lit-element.js';
+import { LitElement, html, css } from '@assets/lit-element/lit-element.js';
 
 class FaIcon extends LitElement {
 

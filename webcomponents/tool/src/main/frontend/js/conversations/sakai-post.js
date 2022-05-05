@@ -392,7 +392,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             ` : ""}
             ${this.post.locked ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.post_locked_tooltip}"
                 aria-label="${this.i18n.post_locked_tooltip}">
               <sakai-icon type="lock" size="small"></sakai-icon></div>
@@ -400,7 +400,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             ` : ""}
             ${this.post.hidden ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.post_hidden_tooltip}"
                 aria-label="${this.i18n.post_hidden_tooltip}">
               <sakai-icon type="hidden" size="small"></sakai-icon></div>
@@ -408,7 +408,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
             ` : ""}
             ${this.post.privatePost ? html`
             <div class="topic-status"
-                role="image"
+                role="img"
                 title="${this.i18n.post_private_tooltip}"
                 aria-label="${this.i18n.post_private_tooltip}">
               <sakai-icon type="secret" size="small"></sakai-icon></div>

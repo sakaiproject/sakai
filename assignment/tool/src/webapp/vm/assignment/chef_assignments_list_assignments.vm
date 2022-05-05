@@ -58,6 +58,43 @@
 		<div>$tlang.getString("stulistassig.selanass")</div>
 	#end
 
+	##TODO TRINITY get permissions context wired up and passed over
+	##TODO TRINITY investigate performance issues
+	##TODO TRINITY wire up submissions
+	<sui-table
+		debug
+		id="assignmentsList"
+		table-actions='[
+			{
+				"icon": "plus-circle",
+				"buttonClass": "nav-link active",
+				"buttonTitle": "$tlang.getString("gen.new") $tlang.getString("gen.assig")",
+				"href": "#toolLink("$action" "doNew_assignment")"
+			}
+		]'
+		permissions='[{}]'
+		links='[
+					{
+						"title": "View",
+						"icon": "play",
+						"class": "nav-link",
+						"rel": "self"
+					}
+
+				]'
+		columns='[
+		{"field": "title", "title": "$tlang.getString("gen.asstit")"},
+		{"field": "access", "title": "$tlang.getString("accessSectionHeader")"},
+		{"field": "status", "title": "$tlang.getString("gen.status")"},
+		{"field": "release", "title": "$tlang.getString("newassig.opedat")"},
+		{"field": "retract", "title": "$tlang.getString("gen.duedat")"},
+		{"field": ["stats.submissionsTotal", "stats.submissionsUngraded"], "formatter": "addLabel", "formatterParams": {"label":["","$tlang.getString("gen.new")"]}, "title": "$tlang.getString("gen.subm2")"},
+		{"field": "scale", "title": "$tlang.getString("gen.sca")"}
+		]'
+		site-id="$contextString"
+		data-url="/api/sites/${contextString}/assignments"
+	></sui-table>
+
 	<div class="sakai-table-toolBar">
 		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
 		<div class="sakai-table-filterContainer">
