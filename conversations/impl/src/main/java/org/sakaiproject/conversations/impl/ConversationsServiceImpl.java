@@ -384,7 +384,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         String currentUserId = getCheckedCurrentUserId();
 
-        String siteRef = "/site/" + topicBean.siteId;
+        String siteRef = siteService.siteReference(topicBean.siteId);
 
         Settings settings = getSettingsForSite(topicBean.siteId);
 
@@ -480,7 +480,22 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             if (sendMessage) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
-                    Set<User> users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+
+                    Set<User> users = null;
+                    switch (topic.getVisibility()) {
+                        case SITE:
+                            users = new HashSet<>(userDirectoryService.getUsers(site.getUsers()));
+                            break;
+                        case GROUP:
+                            Set<String> userIds = new HashSet<>(authzGroupService.getAuthzUsersInGroups(topic.getGroups()));
+                            users = new HashSet<>(userDirectoryService.getUsers(userIds));
+                            break;
+                        case INSTRUCTORS:
+                            userIds = site.getUsersIsAllowed(Permissions.ROLETYPE_INSTRUCTOR.label);
+                            users = new HashSet<>(userDirectoryService.getUsers(userIds));
+                            break;
+                        default:
+                    }
 
                     Map<String, Object> replacements = new HashMap<>();
                     replacements.put("siteTitle", site.getTitle());
