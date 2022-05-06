@@ -41,7 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class ProfileController extends AbstractSakaiApiController {
 
-    @Autowired private CandidateDetailProvider candidateDetailProvider;
+    @Autowired(required = false)
+    private CandidateDetailProvider candidateDetailProvider;
+
     @Autowired private ProfileLinkLogic profileLinkLogic;
     @Autowired private ProfileLogic profileLogic;
     @Autowired private UserDirectoryService userDirectoryService;
