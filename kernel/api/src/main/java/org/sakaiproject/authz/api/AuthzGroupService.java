@@ -561,4 +561,13 @@ public interface AuthzGroupService extends EntityProducer
      * @return String Set containing all maintain roles.
      */
     public Set<String> getMaintainRoles();
+
+    /**
+     * Get a group reference string
+     *
+     * @param siteId The site id
+     * @param groupId The group id
+     * @return The group reference
+     */
+    public String getGroupReference(String siteId, String groupId);
 }

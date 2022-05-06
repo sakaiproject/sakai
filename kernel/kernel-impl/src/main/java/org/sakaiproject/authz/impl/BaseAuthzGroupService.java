@@ -1701,6 +1701,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
     public Set getMaintainRoles(){
         return m_storage.getMaintainRoles();
     }
+
+    public String getGroupReference(String siteId, String groupId) {
+
+        return Entity.SEPARATOR + "site" + Entity.SEPARATOR
+            + siteId + Entity.SEPARATOR + "group" + Entity.SEPARATOR + groupId;
+    }
     
     /**
 	 * Gets the roles which shouldn't have members but a user belongs to.
