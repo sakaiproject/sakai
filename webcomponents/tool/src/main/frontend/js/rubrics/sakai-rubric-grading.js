@@ -195,7 +195,11 @@ export class SakaiRubricGrading extends RubricsElement {
 
     console.debug("release");
 
-    this.dispatchRatingChanged(this.criteria, 2);
+    if (this.evaluation.criterionOutcomes.length) {
+      // We only want to inform the enclosing tool about ratings changes
+      // for an existing evaluation
+      this.dispatchRatingChanged(this.criteria, 2);
+    }
   }
 
   save() {
@@ -567,7 +571,12 @@ export class SakaiRubricGrading extends RubricsElement {
         });
 
         this.decorateCriteria();
-        this.updateTotalPoints();
+
+        if (this.evaluation.criterionOutcomes.length) {
+          // We only want to inform the enclosing tool about ratings changes
+          // for an existing evaluation
+          this.updateTotalPoints();
+        }
       })
       .catch(error => console.error(error));
     })
