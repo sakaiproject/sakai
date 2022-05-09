@@ -157,6 +157,11 @@ class SakaiRubricAssociation extends RubricsElement {
       if (r.ok) {
         return r.json();
       }
+
+      if (r.status === 404) {
+        this.style.display = "none";
+      }
+
       throw new Error("Network error while getting association");
     })
     .then(assoc => {
