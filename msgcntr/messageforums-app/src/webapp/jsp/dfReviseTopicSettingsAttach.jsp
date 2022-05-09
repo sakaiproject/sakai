@@ -48,17 +48,15 @@
 
 		function updateGradeAssignment() {
 
-			var elems = document.getElementsByTagName('sakai-rubric-association');
-			var topicAssignments = document.getElementById("revise:topic_assignments");
-			if ( topicAssignments !== null && topicAssignments.value != null && topicAssignments.value != 'Default_0') {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].setAttribute("entity-id", topicAssignments.value);
-					elems[i].style.display = 'inline';
-				}
+			const associations = document.querySelectorAll('sakai-rubric-association');
+			const topicAssignments = document.getElementById("revise:topic_assignments");
+			if (topicAssignments?.value && topicAssignments.value !== "Default_0") {
+				associations.forEach(a => {
+					a.setAttribute("entity-id", topicAssignments.value);
+					a.style.display = 'inline';
+				});
 			} else {
-				for (var i = 0; i < elems.length; i++) {
-					elems[i].style.display = 'none';
-				}
+				associations.forEach(a => a.style.display = 'none');
 			}
 		}
 
@@ -353,12 +351,10 @@
 			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
 			associate-value="1"
 			read-only="true"
-
 			tool-id="sakai.gradebookng"
 			<% if(entityId != null && !"".equals(entityId)){ %>
 				entity-id=<%= entityId %>
 			<%}%>
-
 			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
 			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
