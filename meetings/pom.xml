@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>23-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>meetings</name>
+    <groupId>org.sakaiproject.meetings</groupId>
+    <artifactId>meetings</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>teams</module>
+        <module>tool</module>
+        <module>ui</module>
+    </modules>
+
+</project>
