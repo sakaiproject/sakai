@@ -115,6 +115,7 @@
                 <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
+                <module>vuecomponents</module>
                 <module>web</module>
                 <module>webapi</module>
                 <module>webcomponents</module>
