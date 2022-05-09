@@ -4,12 +4,13 @@
   "description": "Sakai Vue Components",
   "author": "",
   "scripts": {
-    "build": "vue-cli-service build --target wc --inline-vue --name sakai --dest ./target/js './src/components/*'",
+    "build": "cross-env vue-cli-service build --target wc --inline-vue --name sakai --dest ./target/js './src/components/*'",
     "build-dev": "node build-dev.mjs",
-    "test": "vue-cli-service test:unit --passWithNoTests"
+    "test": "cross-env vue-cli-service test:unit --passWithNoTests"
   },
   "main": "js/sakai-element.js",
   "dependencies": {
+    "cross-env": "^7.0.3",
     "node-fetch": "^2.6.7",
     "node-fetch-polyfill": "^2.0.6",
     "vue": "^2.6.14",
