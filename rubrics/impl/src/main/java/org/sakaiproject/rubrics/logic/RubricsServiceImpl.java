@@ -355,7 +355,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     // No existing association or we're switching rubrics
 
                     if (rubricSwitch) {
-                        // We're switching, deactivate the current association
+                        // We're switching, deactivate the current association. If this fails, we
+                        // need to bail out of this method.
                         setAssociationActive(association, false, tool);
                     }
 
@@ -392,7 +393,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 }
             }
         } catch (Exception e) {
-            //TODO If we have an error here, maybe we should return say something to the user
+            log.error("Exception while saving rubric association: {}", e.toString());
         }
     }
 
@@ -782,23 +783,23 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    public void setAssociationActive(ToolItemRubricAssociation association, boolean active, String toolId) {
+    private void setAssociationActive(ToolItemRubricAssociation association, boolean active, String toolId) throws Exception {
 
-        try {
-            String created = association.getMetadata().getCreated().toString();
-            String owner = association.getMetadata().getOwnerId();
-            String ownerType = association.getMetadata().getOwnerType();
-            String creatorId = association.getMetadata().getCreatorId();
-            Map <String,Boolean> oldParams = association.getParameters();
-            oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
-            String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"active\": " + active + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
-            "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
-            String href = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/" + association.getId();
-            String resultPut = putRubricResource(href, input, toolId, null);
-            log.debug("resultPUT: {}",  resultPut);
-        } catch (Exception e) {
-            log.warn("Error soft deleting rubric association for item id prefix {} : {}", association.getItemId(), e.getMessage());
+        String created = association.getMetadata().getCreated().toString();
+        String owner = association.getMetadata().getOwnerId();
+        String ownerType = association.getMetadata().getOwnerType();
+        String creatorId = association.getMetadata().getCreatorId();
+        Map <String,Boolean> oldParams = association.getParameters();
+        oldParams.put(RubricsConstants.RBCS_SOFT_DELETED, true);
+        String input = "{\"toolId\" : \""+toolId+"\",\"itemId\" : \"" + association.getItemId() + "\",\"rubricId\" : " + association.getRubricId() + ",\"active\": " + active + ",\"metadata\" : {\"created\" : \"" + created + "\",\"ownerId\" : \"" + owner +
+        "\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParametersForDuplication(oldParams) + "}}";
+        String href = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/" + association.getId();
+        String resultPut = putRubricResource(href, input, toolId, null);
+        if (resultPut == null) {
+            log.error("Failed to set the rubric association {} active status to {}",  association.getId(), active);
+            throw new Exception("Failed to set the rubric association active status");
         }
+        log.debug("resultPUT: {}",  resultPut);
     }
 
     public void softDeleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
