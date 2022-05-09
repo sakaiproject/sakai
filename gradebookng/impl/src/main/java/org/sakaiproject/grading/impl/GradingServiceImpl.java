@@ -4812,6 +4812,11 @@ public class GradingServiceImpl implements GradingService {
         gradingPersistenceManager.saveComment(comment);
     }
 
+    public void deleteAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid) throws AssessmentNotFoundException {
+
+        gradingPersistenceManager.deleteInternalComment(studentUid, gradebookUid, assignmentId);
+    }
+
     public Gradebook getGradebook(String uid) {
 
         return gradingPersistenceManager.getGradebook(uid).orElseGet(() -> addGradebook(uid));

@@ -287,6 +287,16 @@ public interface GradingService extends EntityProducer {
     public void setAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid, String comment)
             throws AssessmentNotFoundException;
 
+    /**
+     * Delete a student-viewable comment on the score (or lack of score) associated with the given assignment.
+     *
+     * @param gradebookUid
+     * @param assignmentId
+     * @param studentUid
+     * @throws AssessmentNotFoundException
+     */
+    public void deleteAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid)
+            throws AssessmentNotFoundException;
 
     /**
      * Check to see if an assignment with the given name already exists in the given gradebook. This will give clients a chance to avoid the

@@ -75,6 +75,7 @@ public interface GradingPersistenceManager {
     Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId);
     Comment saveComment(Comment comment);
     List<Comment> getCommentsForStudents(GradebookAssignment assignment, Collection<String> studentIds);
+    void deleteInternalComment(String studentUid, String gradebookUid, Long assignmentId);
     int deleteCommentsForAssignment(GradebookAssignment assignment);
 
     Optional<Category> getCategory(Long categoryId);
