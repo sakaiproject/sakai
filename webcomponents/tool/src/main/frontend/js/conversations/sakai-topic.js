@@ -163,7 +163,7 @@ export class SakaiTopic extends reactionsMixin(SakaiElement) {
       topic: this.topic.id,
       siteId: this.topic.siteId,
       privatePost: document.getElementById("conv-post-editor-private-checkbox").checked,
-      anonymous: document.getElementById("conv-post-editor-anonymous-checkbox").checked,
+      anonymous: this.topic.allowAnonymousPosts && document.getElementById("conv-post-editor-anonymous-checkbox").checked,
       draft,
       replyable: true,
     };
