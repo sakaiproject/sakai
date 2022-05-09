@@ -41,15 +41,6 @@
             margin-right: 5px;
         }
     }
-    .commons-photo {
-        min-width: 32px;
-        max-width: 32px;
-        height: 32px;
-        float: left;
-        background-position: 50%;
-        background-size: auto 100%;
-        border-radius: 50%;
-    }
 
     .commons-editor-text-wrapper {
         padding-left: 10px;
@@ -147,16 +138,6 @@
             overflow: auto;
             white-space: nowrap;
         }
-            .commons-comment-photo {
-                min-width: 26px;
-                max-width: 26px;
-                height: 26px;
-                background-position: 50%;
-                background-size: auto 100%;
-                border-radius: 50%;
-                display: inline-block;
-                vertical-align: top;
-            }
             .commons-comment-body {
                 display: inline-block;
                 padding-left: 10px;
