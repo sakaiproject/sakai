@@ -820,8 +820,6 @@ function printView(url) {
 				ASN.toggleAllowResubmissionPanel();
 			}
 		});
-
-		ASN.enableLinks();
 	}); // document.ready
 </script>
 
