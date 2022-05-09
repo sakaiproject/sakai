@@ -272,7 +272,7 @@ export class SakaiConversations extends SakaiElement {
     this.data.tags.splice(index, 1, e.detail.tag);
     this.data.topics.forEach(topic => {
 
-      const index1 = topic.tags.find(t => t.id == e.detail.tag.id);
+      const index1 = topic.tags.findIndex(t => t.id == e.detail.tag.id);
       topic.tags.splice(index1, 1, e.detail.tag);
     });
 

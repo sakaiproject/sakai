@@ -402,13 +402,12 @@ public class ConversationsController extends AbstractSakaiApiController {
     }
 
 	@PutMapping(value = "/sites/{siteId}/conversations/tags/{tagId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateTag(@PathVariable String siteId, @PathVariable Long tagId, @RequestBody Tag tag) throws ConversationsPermissionsException {
+    public ResponseEntity<Tag> updateTag(@PathVariable String siteId, @PathVariable Long tagId, @RequestBody Tag tag) throws ConversationsPermissionsException {
 
 		checkSakaiSession();
 
         tag.setId(tagId);
-        conversationsService.saveTag(tag);
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.ok(conversationsService.saveTag(tag));
     }
 
 	@DeleteMapping(value = "/sites/{siteId}/conversations/tags/{tagId}")

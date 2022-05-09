@@ -78,28 +78,30 @@ export class SakaiConversationsTagManager extends SakaiElement {
     const id = e.target.dataset.tagId;
     const label = this.querySelector(`#tag-${id}-editor`)?.value;
 
-    const tag = this.tags.find(t => t.id == id);
-    tag && (tag.label = label);
+    const body = this.tags.find(t => t.id == id);
+    body && (body.label = label);
 
     const url = `/api/sites/${this.siteId}/conversations/tags/${id}`;
     fetch(url, {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(tag),
+      body: JSON.stringify(body),
     })
     .then(r => {
 
-      if (!r.ok) {
-        throw new Error("Network error while saving tag.");
-      } else {
-        this.cancelTagEditing(e);
-        this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
+      if (r.ok) {
+        return r.json();
       }
+
+      throw new Error("Network error while saving tag.");
     })
-    .catch (error => {
-      console.error(error);
-    });
+    .then(tag => {
+
+      this.cancelTagEditing(e);
+      this.dispatchEvent(new CustomEvent("tag-updated", { detail: { tag }, bubbles: true }));
+    })
+    .catch (error => console.error(error));
   }
 
   deleteTag(e) {
