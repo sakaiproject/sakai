@@ -7,6 +7,7 @@ import "../sakai-date-picker.js";
 import "../sakai-group-picker.js";
 import "../sakai-document-viewer.js";
 import "../sakai-lti-iframe.js";
+import "../sakai-user-photo.js";
 import { gradableDataMixin } from "./sakai-gradable-data-mixin.js";
 import { Submission } from "./submission.js";
 import "/webcomponents/rubrics/rubric-association-requirements.js";
@@ -183,11 +184,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected}>
             ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
           </select>
-          ${this.showPhoto() ? html`
-            <span class="profile-image">
-              <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}" alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}"/>
-            </span>
-          ` : ""}
           <a href="javascript:;" @click=${this.next}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
         </div>
         <div>${this.currentStudentInfo}</div>
@@ -259,10 +255,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         <div class="submitted-block">
           <div style="display: flex;">
             ${this.showPhoto() ? html`
-              <div class="profile-image" style="flex: 1;">
-                <img src="/direct/profile/${this.submission.firstSubmitterId}/image/official?siteId=${portal.siteId}"
-                      alt="${this.submission.firstSubmitterName}${this.i18n.profile_image}" />
-              </div>
+              <sakai-user-photo user-id="${this.submission.firstSubmitterId}" classes="grader-photo"></sakai-user-photo>
             ` : ""}
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
