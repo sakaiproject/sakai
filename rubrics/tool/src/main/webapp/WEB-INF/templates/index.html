@@ -5,6 +5,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script th:src="@{~/library/js/headscripts.js} + ${cdnQuery}"></script>
     <script type="module" th:src="@{~/webcomponents/rubrics/sakai-rubrics-manager.js} + ${cdnQuery}"></script>
+    <script>includeWebjarLibrary('ckeditor4');</script>
+    <script>
+      var sakai = sakai || {};
+      sakai.editor = sakai.editor || {};
+      sakai.editor.editors = sakai.editor.editors || {};
+      // Temporarily disable enableResourceSearch till citations plugin is ported (SAK-22862)
+      sakai.editor.enableResourceSearch = false;
+      sakai.editor.enableSakaiPreview = true;
+      sakai.editor.enableSakaiOpenLink = true;
+      sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
+      sakai.editor.editors.ckeditor.browser = 'elfinder';
+      sakai.editor.sitePropertiesSkin = `/library/skin/${portal.sakaiSkin}/properties.css`;
+    </script>
+    <script src="/library/editor/ckeditor.launch.js"></script>
+    <script type="module" th:src="@{~/webcomponents/rubrics/sakai-rubrics-manager.js} + ${cdnQuery}"></script>
   </head>
   <body>
     <div class="portletBody">

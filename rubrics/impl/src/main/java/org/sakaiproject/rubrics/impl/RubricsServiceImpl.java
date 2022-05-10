@@ -92,6 +92,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -112,6 +113,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     private EntityManager entityManager;
     private EvaluationRepository evaluationRepository;
     private EventTrackingService eventTrackingService;
+    private FormattedText formattedText;
     private FunctionManager functionManager;
     private RatingRepository ratingRepository;
     private ResourceLoader resourceLoader;
@@ -931,7 +933,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
             Paragraph criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
             criterionParagraph.add(Chunk.NEWLINE);
-            criterionParagraph.add(new Paragraph(cri.getDescription(), NORMAL_FONT));
+            criterionParagraph.add(new Paragraph(formattedText.stripHtmlFromText(cri.getDescription(), true), NORMAL_FONT));
             criterionCell.addElement(criterionParagraph);
 
             criterionTable.addCell(criterionCell);
