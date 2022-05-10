@@ -475,7 +475,7 @@ public class AssignmentToolUtils {
         // b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
         // exception are indication that the assessment is already in the Gradebook or there is nothing
         // to remove.
-        String assignmentToolTitle = assignmentService.getToolTitle();
+        String assignmentToolId = assignmentService.getToolId();
 
         List<String> alerts = new ArrayList<>();
 
@@ -500,7 +500,7 @@ public class AssignmentToolUtils {
                         // add assignment into gradebook
                         try {
                             // add assignment to gradebook
-                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolTitle, null, false, category != -1 ? category : null);
+                            gradingService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null);
                         } catch (AssignmentHasIllegalPointsException e) {
                             alerts.add(rb.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());
@@ -647,7 +647,7 @@ public class AssignmentToolUtils {
                                             final String submitterId = submitter.getId();
                                             final Long associateGradebookAssignmentId = gradingService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
                                             if (gradingService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", assignmentToolTitle);
+                                                gradingService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", assignmentToolId);
                                             }
                                         }
                                     }
