@@ -2,6 +2,7 @@ import { RubricsElement } from "./rubrics-element.js";
 import { html } from "../assets/lit-element/lit-element.js";
 import "./sakai-rubric-grading-comment.js";
 import "./sakai-rubric-pdf.js";
+import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 import { getUserId } from "../sakai-portal-utils.js";
 
@@ -93,7 +94,7 @@ export class SakaiRubricGrading extends RubricsElement {
           <div id="criterion_row_${c.id}" class="criterion-row">
             <div class="criterion-detail" tabindex="0">
               <h4 class="criterion-title">${c.title}</h4>
-              <p>${c.description}</p>
+              <p>${unsafeHTML(c.description)}</p>
               ${this.rubric.weighted ?
                 html`
                   <div class="criterion-weight">
