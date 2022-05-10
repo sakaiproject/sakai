@@ -499,7 +499,7 @@ public class Assignments extends AbstractWebService {
     							newAssignment_title,
     							newAssignment_maxPoints/10,
     							new Date(newAssignment_dueTime.getTime()),
-								"Assignment",
+								"sakai.assignment.grades",
 								null);
     				}
     				catch (AssignmentHasIllegalPointsException e)
@@ -527,7 +527,7 @@ public class Assignments extends AbstractWebService {
     										newTitle,
     										newAssignment_maxPoints/10,
     										new Date(newAssignment_dueTime.getTime()),
-											"Assignment",
+											"sakai.assignment.grades",
 											null);
     								trying = false;
     							}

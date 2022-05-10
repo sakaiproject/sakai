@@ -283,15 +283,16 @@ public class GradeSummaryTablePanel extends BasePanel {
 						assignmentItem.add(assignmentStatsLink);
 
 						// popover flags
+						String externalAppIconClass = assignment.isExternallyMaintained() ? "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment) : "";
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 
 						flags.add(newPopoverFlag("isExtraCredit", getString("label.gradeitem.extracredit"), assignment.isExtraCredit()));
 						flags.add(newPopoverFlag("isNotCounted", getString("label.gradeitem.notcounted"), !assignment.isCounted()));
 						flags.add(newPopoverFlag("isNotReleased", getString("label.gradeitem.notreleased"), !assignment.isReleased()));
 						flags.add(newPopoverFlag("isExcused", getString("grade.notifications.excused"), excused));
-						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { assignment.getExternalAppName() }).getString();
+						String extAppName = new StringResourceModel("label.gradeitem.externalapplabel", null, new Object[] { GradeSummaryTablePanel.this.businessService.getExternalAppName(assignment.getExternalAppName()) }).getString();
 						flags.add(newPopoverFlag("isExternal", extAppName, assignment.isExternallyMaintained())
-								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment))));
+								.add(new AttributeModifier("class", externalAppIconClass)));
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new WebMarkupContainer("weight")
