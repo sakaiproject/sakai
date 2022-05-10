@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -228,7 +229,10 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				else {
 					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
 				}
-				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), getRubricParameters(""));
+				Map<String, String> rubricParams = getRubricParameters("");
+				if (!rubricParams.isEmpty()) {
+					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
+				}
 			}
 			catch (final AssignmentHasIllegalPointsException e) {
 				error(new ResourceModel("error.addgradeitem.points").getObject());

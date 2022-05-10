@@ -288,16 +288,16 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
-		}
 
-		try {
-			Optional<AssociationTransferBean> optAssociation
-				= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
-			if (optAssociation.isPresent()) {
-				sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
+			try {
+				Optional<AssociationTransferBean> optAssociation
+					= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+				if (optAssociation.isPresent()) {
+					sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
+				}
+			} catch (Exception e) {
+				log.warn("Failed to get rubric association for gradebook assignment {}: {}", assignment.getId(), e.toString());
 			}
-		} catch (Exception e) {
-			log.warn("Failed to get rubric association for gradebook assignment {}", assignment.getId());
 		}
 		add(sakaiRubricAssociation);
 
