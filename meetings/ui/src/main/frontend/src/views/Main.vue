@@ -218,27 +218,27 @@ export default {
     };
   },
   methods: {
-    showError: function(message) {
+    showError(message) {
         this.$emit('showError', message);
     },
-    handleCreateNewMeeting: function () {
+    handleCreateNewMeeting() {
       this.$router.push({ name: "EditMeeting" });
     },
-    handleTemplates: function () {
+    handleTemplates() {
     },
-    handleMeetingDelete: function (id) {
+    handleMeetingDelete(id) {
       if (id) {
         this.meetingsList = this.meetingsList.filter( (meeting) => meeting.id !== id );
       }
     },
-    handleMeetingEdit: function () {
+    handleMeetingEdit() {
     },
-    handleShowAll: function () {
+    handleShowAll() {
     },
-    handleShowRecordings: function () {
+    handleShowRecordings() {
     },
-    loadMeetingsList: async function () {
-      const response = await fetch(constants.toolPlacement + "/meetings/site/" + this.$route.params.siteid)
+    async loadMeetingsList() {
+      const response = await fetch(constants.toolPlacement + "/meetings/site/" + this.$route.params.siteid);
       if(response.ok) {
         const data = await response.json();
         data.forEach(meeting => {
@@ -273,29 +273,29 @@ export default {
     },
   },
   computed: {
-    happeningToday: function () {
+    happeningToday() {
       //Filter meetingsList for meetings that happen today, and are not over
       return this.meetingsList.filter(
         (meeting) =>
           dayjs(meeting.startDate).isToday() && dayjs(meeting.endDate).isAfter(dayjs()) || meeting.live
       ).sort(this.meetingsComperator);
     },
-    inPast: function () {
+    inPast() {
       return this.meetingsList.filter(
         (meeting) =>
           dayjs(meeting.startDate).isBefore(dayjs()) && !meeting.live
       ).sort(this.meetingsComperator).reverse();
     },
-    inFuture: function () {
+    inFuture() {
       return this.meetingsList.filter(
         (meeting) =>
           dayjs().isBefore(dayjs(meeting.startDate), "day") && !meeting.live
       ).sort(this.meetingsComperator);
     },
-    searching: function () {
+    searching() {
       return this.searchString !== '';
     },
-    searchResult: function () {
+    searchResult() {
       let searchString = this.searchString.toLowerCase();
       if (!this.searching) { return [] }
       return this.meetingsList.filter(
@@ -304,7 +304,7 @@ export default {
       );
     },
   },
-  mounted: function () {
+  mounted() {
     this.loadEditPermission();
     this.loadMeetingsList();
   },

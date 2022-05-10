@@ -196,24 +196,24 @@ export default {
       i18n: {
         status: "Status",
       },
-      title: { type: String, default: undefined },
-      contextTitle: { type: String, default: undefined },
-      description: { type: String, default: undefined },
+      title: { type: String, default: null },
+      contextTitle: { type: String, default: null },
+      description: { type: String, default: null },
       live: { type: Boolean, default: false },
-      url: { type: Boolean, default: undefined },
+      url: { type: Boolean, default: null },
       startDate: {
-          validator: function (value) {
+          validator(value) {
             return dayjs(value).isValid();
           },
         },
       endDate: {
-          validator: function (value) {
+          validator(value) {
             return dayjs(value).isValid();
           },
         },
       participants: { type: Array, default: new Array() },
       savedToCalendar: { type: Boolean, default: false },
-      participantOption: {type: String, default: undefined },
+      participantOption: {type: String, default: null },
       groupSelection: {type: Array, default: new Array() }
     };
   },
@@ -230,7 +230,7 @@ export default {
     actions: { type: Boolean, default: false },
   },
   computed: {
-    schedule: function () {
+    schedule() {
       let start = dayjs(this.startDate);
       let end = dayjs(this.endDate);
       let startTextFormat;
@@ -266,7 +266,7 @@ export default {
       let endText = end.format(endTextFormat);
       return startText + " - " + endText;
     },
-    currentStatus: function () {
+    currentStatus() {
       if (this.live) {
         return this.status.live;
       } else {
@@ -279,19 +279,19 @@ export default {
         }
       }
     },
-    statusText: function () {
+    statusText() {
       switch (this.currentStatus) {
         case this.status.live:
           return this.i18n.status_text_live;
         case this.status.waiting:
-          return this.i18n.status_text_waiting;{}
+          return this.i18n.status_text_waiting;
         case this.status.timeUntil:
           return `${this.i18n.status_text_starts} ${dayjs().to(dayjs(this.startDate))}`;
         default:
           return this.i18n.status_text_unknown;
       }
     },
-    statusIcon: function () {
+    statusIcon() {
       switch (this.currentStatus) {
         case this.status.live:
           return "live";
@@ -303,23 +303,23 @@ export default {
           return "error";
       }
     },
-    menuitems: function () { 
+    menuitems() { 
       return [
         { "string": this.i18n.edit_action, "icon": "edit", "action": this.editMeeting },
         { "string": this.i18n.delete_action, "icon": "delete", "action": this.askDeleteMeeting }
       ];
     },
-    showMenu: function () {
+    showMenu() {
       return this.editable;
     },
-    showJoinButton: function () {
-      return this.currentStatus != this.status.over; 
+    showJoinButton() {
+      return this.currentStatus !== this.status.over; 
     },
-    showCardBody: function () {
+    showCardBody() {
       let actionsShown = this.actions && this.actions.length > 0;
       return actionsShown || this.showJoinButton;
     },
-    shownParticipants: function () {
+    shownParticipants() {
       let maxAvatars = Math.round(this.maxAvatars);
       if (maxAvatars && this.participants.length > maxAvatars) {
         let hidden = this.participants.length - (maxAvatars - 1);
@@ -331,7 +331,7 @@ export default {
         return this.participants;
       }
     },
-    deleteModalMessage: function() {
+    deleteModalMessage() {
       if(this.i18n && this.i18n.delete_modal_message) {
         return this.i18n.delete_modal_message.format(this.title);
       }
@@ -339,13 +339,13 @@ export default {
     }
   },
   methods: {
-    joinMeeting: function(){
+    joinMeeting(){
      window.open(this.url);
     },
-    askDeleteMeeting: function() {
+    askDeleteMeeting() {
       this.$refs.deleteModal.show();
     },
-    deleteMeeting: function() {
+    deleteMeeting() {
       this.$refs.deleteModal.hide();
       // Delete meeting
         fetch(constants.toolPlacement + '/meeting/' + this.id, {
@@ -357,7 +357,7 @@ export default {
         .catch(error => console.error('Error:', error))
         .then(response => this.$emit('onDeleted', this.id));
     },
-    editMeeting: function() {
+    editMeeting() {
         let parameters = {
           id: this.id,
           title: this.title,

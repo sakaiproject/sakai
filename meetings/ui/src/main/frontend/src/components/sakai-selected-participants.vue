@@ -74,7 +74,7 @@ export default {
     users: { Type: Array, default: new Array() },
     maxUsers: { Type: Number },
   },
-  created: function () {
+  created() {
     this.id = uuid().substring(8, 13); //random id '-34F4'
   },
 };

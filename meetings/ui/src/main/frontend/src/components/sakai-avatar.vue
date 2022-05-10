@@ -22,7 +22,7 @@
 import sakaiIcon from "./sakai-icon.vue";
 export default {
   components: { sakaiIcon },
-  data: function () {
+  data() {
     return {
       loaded: false,
       brokenBackgroundColor: "var(--sakai-background-color-3)",
@@ -53,7 +53,7 @@ export default {
     },
   },
   computed: {
-    variant: function () {
+    variant() {
       if (this.text) {
         return "text";
       } else if (this.loaded) {
@@ -62,21 +62,21 @@ export default {
         return "placeholder";
       }
     },
-    borderRadius: function () {
+    borderRadius() {
       return (
         "border-radius:" +
-        (this.form == "square" ? this.sqareRadius : "50%") +
+        (this.form === "square" ? this.sqareRadius : "50%") +
         ";"
       );
     },
-    imageStyle: function () {
+    imageStyle() {
       var style = this.borderRadius;
       if (this.dark) {
         style += "filter:brightness(75%);";
       }
       return style;
     },
-    fontSize: function () {
+    fontSize() {
       if (this.variant == "placeholder") {
         return this.size / 2.5;
       } else if (this.text.length <= 3) {
@@ -85,9 +85,9 @@ export default {
         return this.size / (this.text.length * (2 / 3));
       }
     },
-    placeholderStyle: function () {
+    placeholderStyle() {
       var style = this.borderRadius;
-      if (this.variant == "text") {
+      if (this.variant === "text") {
         style += "background-color:" + this.placeholderBackgroundColor + ";";
         style += "color:" + this.placeholderColor + ";";
       } else {
@@ -101,7 +101,7 @@ export default {
       style += "font-size:" + this.fontSize + "px;";
       return style;
     },
-    imageUrl: function () {
+    imageUrl() {
       var url = window.location.protocol + "//" + window.location.host;
       url += "/direct/profile/";
       url += this.userId + "/image";
@@ -117,7 +117,7 @@ export default {
       }
       return url;
     },
-    altText: function () {
+    altText() {
       if (this.userName) {
         return "Profile Image of " + this.userName;
       } else {

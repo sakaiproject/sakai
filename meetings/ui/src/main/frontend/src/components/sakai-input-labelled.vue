@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       inputId: "input",
-    }
+    };
   },
   components: {
     SakaiInput,
@@ -97,7 +97,7 @@ export default {
   },
   computed: {
     isCheckbox() {
-      return this.type == 'checkbox';
+      return this.type === 'checkbox';
     },
   },
   created: function () {

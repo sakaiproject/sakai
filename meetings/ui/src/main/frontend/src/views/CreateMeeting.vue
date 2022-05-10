@@ -200,14 +200,14 @@ export default {
         description: "",
         conf_service: "",
         save_to_calendar: true,
-        date_open: undefined,
-        date_close: undefined,
+        date_open: null,
+        date_close: null,
         notificationType: "0",
         groups: [],
         participantOption: "site",
       },
       groups: [],
-      groupSelection: undefined,
+      groupSelection: null,
       participants: [],
       selectedParticipants: [],
       confServ: [
@@ -245,12 +245,12 @@ export default {
     conf_service: { type: String, default: "microsoft_teams" },
     saved_to_calendar: { type: Boolean, default: false },
     date_open: {
-      validator: function (value) {
+      validator(value) {
         return dayjs(value).isValid();
       },
     },
     date_close: {
-      validator: function (value) {
+      validator(value) {
         return dayjs(value).isValid();
       },
     },
@@ -293,7 +293,7 @@ export default {
     }
   },
   methods: {
-    showError: function(message) {
+    showError(message) {
       this.$emit('showError', message);
     },
     startBeforeEndValidation() {
@@ -302,7 +302,7 @@ export default {
     setValidation(field, valid) {
       this.validations[field] = valid;
     },
-    handleSave: async function () {
+    async handleSave() {
       let saveData = {
         id: this.id,
         title: this.formdata.title,
@@ -315,7 +315,7 @@ export default {
         participantOption: (this.formdata.participantOption === 'SITE' ? 1 : 2),
         groupSelection: this.formdata.groups,
         provider: this.formdata.conf_service,
-      }
+      };
       let methodToCall = constants.toolPlacement;
       let restMethod = "POST";
       if (this.id) {
@@ -334,10 +334,10 @@ export default {
       });
       if(response.ok) {
         this.$router.push({ name: "Main" });
-      } else if (response.status == 500) {
-        this.showError(this.i18n.error_create_meeting_500)
+      } else if (response.status === 500) {
+        this.showError(this.i18n.error_create_meeting_500);
       } else {
-        this.showError(this.i18n.error_create_meeting_unknown)
+        this.showError(this.i18n.error_create_meeting_unknown);
       }
     },
     handleCancel() {
@@ -358,13 +358,13 @@ export default {
     },
     removeNotification(id) {
       let index = this.notifications.findIndex(
-        (notification) => notification.id == id
+        (notification) => notification.id === id
       );
       if (index > -1) {
         this.notifications.splice(index, 1);
       }
     },
-    loadGroups: function () {
+    loadGroups() {
       fetch(
         `${constants.toolPlacement}/meetings/site/${this.$route.params.siteid}/groups`
       )

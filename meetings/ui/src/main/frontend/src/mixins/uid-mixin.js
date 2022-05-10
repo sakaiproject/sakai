@@ -8,6 +8,6 @@ export default {
     this.uid = calcUid();
   },
   data() {
-    return { uid: undefined };
+    return { uid: null };
   },
 };

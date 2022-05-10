@@ -16,14 +16,14 @@
 export default {
     data() {
 	    return {
-	       errorMessage: undefined,
+            errorMessage: undefined,
 	    }
 	},
     methods: {
-        showErrorMessage: function(message) {
+        showErrorMessage(message) {
             this.errorMessage = message;
         },
-        clearErrors: function() {
+        clearErrors() {
             this.errorMessage = null;
         }
     },

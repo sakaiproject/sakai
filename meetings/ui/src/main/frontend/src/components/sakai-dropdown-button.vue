@@ -93,14 +93,14 @@ export default {
   },
   computed: {},
   methods: {
-    handleClick: function () {
+    handleClick() {
       this.expanded = !this.expanded;
     },
   },
-  created: function () {
+  created() {
     this.id += uuid().substring(8, 13); //random id '-34F4'
   },
-  mounted: function () {
+  mounted() {
     this.$watch("$refs.dropdown.expanded", (newValue) => {
       this.expanded = newValue;
     });

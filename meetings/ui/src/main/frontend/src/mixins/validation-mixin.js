@@ -1,7 +1,7 @@
 
 let validateProp = {
   type: [Array, Object],
-  default: undefined
+  default: null
 }
 
 export { validateProp };
@@ -63,7 +63,7 @@ export default {
             if(this.type == "checkbox" && this.value == false) {
               status.message = validationInput.message ? validationInput.message : "This checkbox is required to be checked";
               status.isValid = false;
-            } else if (this.value == undefined || this.value.trim() == "") {
+            } else if (this.value === undefined || this.value.trim() === "") {
               status.message = validationInput.message ? validationInput.message : "This field is required to be filled out";
               status.isValid = false;
             } else {

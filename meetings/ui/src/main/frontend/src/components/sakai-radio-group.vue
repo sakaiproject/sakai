@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       modelValue: null
-    }
+    };
   },
   props: {
     label: {

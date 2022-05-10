@@ -19,12 +19,12 @@ import sakaiAvatar from "./sakai-avatar.vue";
 
 export default {
   components: { sakaiAvatar },
-  data: function () {
+  data() {
     return {
       i18n: {
         and: "and",
         more: "more",
-        connected_participants: "Connected participants: ",
+        connectedParticipants: "Connected participants: ",
       },
     };
   },
@@ -34,7 +34,7 @@ export default {
     length: { type: Number },
   },
   computed: {
-    shownUsers: function () {
+    shownUsers() {
       let maxAvatars = Math.round(this.length);
       if (maxAvatars && this.userlist.length > maxAvatars) {
         let hidden = this.userlist.length - (maxAvatars - 1);
@@ -46,8 +46,8 @@ export default {
         return this.userlist;
       }
     },
-    srText: function () {
-      let text = this.i18n.connected_participants;
+    srText() {
+      let text = this.i18n.connectedParticipants;
       this.shownUsers.forEach((element, index) => {
         text += `${
           element.name

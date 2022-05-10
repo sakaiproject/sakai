@@ -30,7 +30,7 @@ export default {
     },
     color: {
       Type: String,
-      default: undefined,
+      default: null,
     },
   },
   computed: {

@@ -57,7 +57,7 @@ function loadProperties(suppliedOptions) {
 
   const existingPromise = window.sakai.translations.existingPromises[options.bundle];
   if (existingPromise && options.cache) {
-    if (options.debug) console.debug("Returning existing promise ...");
+    if (options.debug) { console.debug("Returning existing promise ...");}
     return existingPromise;
   }
   return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
@@ -67,13 +67,13 @@ function loadProperties(suppliedOptions) {
       console.debug(url);
     }
     fetch(url, { headers: { "Content-Type": "application/text" }})
-        .then(r => r.text())
+        .then((r) => r.text())
         .then(data => {
 
           data.split("\n").forEach((pair) => {
 
             const keyValue = pair.split('=');
-            if (keyValue.length == 2) {
+            if (keyValue.length === 2) {
               window.sakai.translations[options.bundle][keyValue[0]] = keyValue[1];
             }
           });

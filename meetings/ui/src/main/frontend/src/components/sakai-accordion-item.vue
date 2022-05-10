@@ -97,19 +97,15 @@ export default {
     },
   },
   methods: {
-    parentId: function () {
-      //Only set a parentId if the if we want the accordions to close automatically
+    parentId() {
+      //Only set a parentId if we want the accordions to close automatically
       if (!this.independent()) {
         return "#" + this.$parent.$data.id;
       }
-      return undefined;
+      return null;
     },
-    independent: function () {
-      if (/*!(this.$parent.$vnode.componentOptions.tag == "sakai-accordion")*/true) {
-        return true;
-      } else {
-        return this.$parent.$props.independent;
-      }
+    independent() {
+      return true;
     },
   },
   created: function () {

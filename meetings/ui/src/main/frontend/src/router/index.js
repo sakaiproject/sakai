@@ -14,7 +14,7 @@ const routes = [
     name: 'EditMeeting',
     props: true,
     component: function () {
-      return import('../views/CreateMeeting.vue')
+      return import('../views/CreateMeeting.vue');
     }
   },
   {
@@ -22,7 +22,7 @@ const routes = [
     name: 'Permissions',
     props: true,
     component: function () {
-      return import('../views/Permissions.vue')
+      return import('../views/Permissions.vue');
     }
   }
 ]
@@ -30,6 +30,6 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
 export default router

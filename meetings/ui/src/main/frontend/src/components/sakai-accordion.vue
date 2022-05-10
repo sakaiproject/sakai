@@ -17,7 +17,7 @@ export default {
     flush: { Type: Boolean, default: false },
     independent: { Type: Boolean, default: false },
   },
-  created: function () {
+  created() {
     this.id = "accordion" + uuid().substring(8, 13); //random id '-34F4'
   },
 };

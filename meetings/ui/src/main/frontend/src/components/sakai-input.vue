@@ -36,7 +36,7 @@ export default {
   props: {
     value: {
       type: [Number, String, Array],
-      default: undefined,
+      default: null,
     },
     id: {
       type: String,
@@ -89,7 +89,7 @@ export default {
       ) {
         classes.push("is-invalid");
       }
-      if (this.type == "checkbox") {
+      if (this.type === "checkbox") {
         classes.push("form-check-input");
       } else {
         classes.push("form-control");

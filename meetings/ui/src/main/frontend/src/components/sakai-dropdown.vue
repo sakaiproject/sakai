@@ -45,7 +45,7 @@ export default {
         },
       ],
     },
-    menuid: { type: String, default: undefined },
+    menuid: { type: String, default: null },
   },
   data() {
     return {
@@ -55,14 +55,14 @@ export default {
   },
   computed: {},
   methods: {
-    getAnchorRole: function (item) {
+    getAnchorRole(item) {
       if (item.action) {
         return "button";
       } else {
         return "link";
       }
     },
-    handleClick: function (item) {
+    handleClick(item) {
       this.selectedId = item.id;
       if (item.route) {
         this.handleRoute(item.route);
@@ -70,10 +70,10 @@ export default {
         item.action();
       }
     },
-    handleRoute: function (route) {
+    handleRoute(route) {
       this.$router.push({ path: route });
     },
-    onMutation: function (mutationsList) {
+    onMutation(mutationsList) {
       for (const mutation of mutationsList) {
         if (
           mutation.type === "attributes" &&
@@ -85,7 +85,7 @@ export default {
       }
     },
   },
-  mounted: function () {
+  mounted() {
     const observer = new MutationObserver(this.onMutation);
     observer.observe(this.$refs.activationwrapper, { attributes: true });
   },
