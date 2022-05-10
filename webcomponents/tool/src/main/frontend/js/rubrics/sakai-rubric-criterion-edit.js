@@ -2,6 +2,7 @@ import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 import {tr} from "./sakai-rubrics-language.js";
+import "../sakai-editor.js";
 
 export class SakaiRubricCriterionEdit extends RubricsElement {
 
@@ -63,7 +64,12 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
             <label for="criterion-description-field-${this.criterion.id}">
               <sr-lang key="criterion_description">Criterion Description</sr-lang>
             </label>
-            <textarea id="criterion-description-field-${this.criterion.id}" class="form-control">${this.criterionClone.description}</textarea>
+            <sakai-editor
+              toolbar="BasicText"
+              content="${this.criterionClone.description ? `${this.criterionClone.description}` : ``}"
+              @changed="${this.updateCriterionDescription}"
+              id="criterion-description-field-${this.criterion.id}">
+            </sakai-editor>
           </div>
         </div>
       </div>
@@ -138,7 +144,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     e.stopPropagation();
 
     const title = document.getElementById(`criterion-title-field-${this.criterion.id}`).value;
-    const description = document.getElementById(`criterion-description-field-${this.criterion.id}`).value;
+    const description = this.criterionClone.description;
 
     const body = JSON.stringify([
       { "op": "replace", "path": "/title", "value": title },
@@ -175,6 +181,10 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     if (e.keyCode == 32) {
       this.editCriterion(e);
     }
+  }
+
+  updateCriterionDescription(e) {
+    this.criterionClone.description = e.detail.content;
   }
 }
 

@@ -1,6 +1,7 @@
 import {RubricsElement} from "./rubrics-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-student-comment.js";
 
 export class SakaiRubricCriterionStudent extends RubricsElement {
@@ -55,7 +56,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
           <div id="criterion_row_${c.id}" class="criterion-row">
             <div class="criterion-detail">
               <h4 class="criterion-title">${c.title}</h4>
-              <p>${c.description}</p>
+              <p>${unsafeHTML(c.description)}</p>
               ${this.weighted ? html`
                     <div class="criterion-weight">
                         <span>

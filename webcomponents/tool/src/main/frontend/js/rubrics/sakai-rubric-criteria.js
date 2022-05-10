@@ -1,6 +1,7 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
+import {unsafeHTML} from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-edit.js";
 import "./sakai-item-delete.js";
 import "./sakai-rubric-criterion-edit.js";
@@ -76,7 +77,7 @@ export class SakaiRubricCriteria extends RubricsElement {
               </sakai-rubric-criterion-edit>
             </h4>
             <p>
-              ${c.description}
+              ${unsafeHTML(c.description)}
             </p>
             ${this.weighted ? html`
                 <div class="form-inline weight-field">
