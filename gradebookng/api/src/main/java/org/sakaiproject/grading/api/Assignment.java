@@ -86,6 +86,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private String externalAppName;
 
     /**
+     * the external tool title, or null if the assignment is maintained by the Gradebook. Not persisted.
+     */
+    private String externalToolTitle;
+
+    /**
      * the external data, or null if the assignment is maintained by the Gradebook
      */
     private String externalData;
