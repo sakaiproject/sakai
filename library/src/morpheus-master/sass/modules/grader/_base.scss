@@ -52,7 +52,7 @@ sakai-grader {
       text-decoration: none;
       select {
         display: inline-block;
-        margin: 0px 0px 0px 8px;
+        margin: 0px 8px;
         &:focus { outline: 0;}
       }
       .grader-navigator a { text-decoration: none; font-weight: bold; }
@@ -160,6 +160,19 @@ sakai-grader {
     .profile-image {
       margin-right: 6px;
       img { width: 64px; }
+    }
+
+    .grader-photo {
+      flex: 1;
+      min-width: 64px;
+      max-width: 64px;
+      width: 64px;
+      height: 64px;
+      float: left;
+      background-position: 50%;
+      background-size: auto 100%;
+      border-radius: 0;
+      margin-right: 6px;
     }
 
     .active-indicator {
