@@ -118,6 +118,7 @@ public class GbGradebookData {
 		private boolean hasAssociatedRubric;
 		private String externalId;
 		private String externalAppName;
+		private String externalToolTitle;
 		private String externalAppIconCSS;
 
 		private String categoryId;
@@ -549,6 +550,7 @@ public class GbGradebookData {
 					a1.isExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
+					a1.getExternalToolTitle(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
 
 					nullable(a1.getCategoryId()),

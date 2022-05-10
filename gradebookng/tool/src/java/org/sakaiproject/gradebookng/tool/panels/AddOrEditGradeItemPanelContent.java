@@ -356,7 +356,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		});
 
 		if (assignment.isExternallyMaintained()) {
-			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
+			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), this.businessService.getExternalAppName(assignment.getExternalAppName())));
 		}
 	}
 

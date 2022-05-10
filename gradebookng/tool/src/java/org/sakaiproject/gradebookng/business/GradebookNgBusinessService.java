@@ -107,6 +107,7 @@ import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -3055,17 +3056,23 @@ public class GradebookNgBusinessService {
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
-
-		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"))) {
-			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"))) {
-			iconClass = getSamigoIconClass();
-		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
-		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
-			iconClass = getLessonBuilderIconClass();
-		} else if (StringUtils.equals(externalAppName, "Attendance")) {
-			iconClass = getAttendanceIconClass();
+		String iconClass;
+		switch (externalAppName) {
+			case "sakai.assignment.grades":
+				iconClass = getAssignmentsIconClass();
+				break;
+			case "sakai.samigo":
+				iconClass = getSamigoIconClass();
+				break;
+			case "sakai.lessonbuildertool":
+				iconClass = getLessonBuilderIconClass();
+				break;
+			case "sakai.attendance":
+				iconClass = getAttendanceIconClass();
+				break;
+			default:
+				iconClass = getDefaultIconClass();
+				break;
 		}
 		return iconClass;
 	}
@@ -3078,10 +3085,10 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
-		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
-		mapping.put("Lesson Builder", getLessonBuilderIconClass());
-		mapping.put("Attendance", getAttendanceIconClass());
+		mapping.put("sakai.assignment.grades", getAssignmentsIconClass());
+		mapping.put("sakai.samigo", getSamigoIconClass());
+		mapping.put("sakai.lessonbuildertool", getLessonBuilderIconClass());
+		mapping.put("sakai.attendance", getAttendanceIconClass());
 
 		return mapping;
 	}
@@ -3157,5 +3164,15 @@ public class GradebookNgBusinessService {
 		}
 
 		return userTimeService.dateFormat(date, getUserPreferredLocale(), DateFormat.SHORT);
+	}
+
+	/**
+	 * Get the tool title in the current user language
+	 * @param externalAppId tool id
+	 * @return a tool title in user's current language
+	 */
+	public String getExternalAppName(String externalAppId) {
+		Tool externalTool = toolManager.getTool(externalAppId);
+		return externalTool != null ? externalTool.getTitle() : externalAppId;
 	}
 }

@@ -158,8 +158,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void checkAssignmentToolTitle() {
-        Assert.assertNotNull(assignmentService.getToolTitle());
+    public void checkAssignmentToolId() {
+        Assert.assertNotNull(assignmentService.getToolId());
     }
 
     @Test

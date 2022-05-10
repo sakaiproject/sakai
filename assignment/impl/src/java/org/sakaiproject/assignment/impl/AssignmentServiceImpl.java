@@ -298,16 +298,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getToolTitle() {
-        Tool tool = toolManager.getTool(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
-        String toolTitle = null;
-
-        if (tool == null)
-            toolTitle = "Assignments";
-        else
-            toolTitle = tool.getTitle();
-
-        return toolTitle;
+    public String getToolId() {
+        return AssignmentServiceConstants.ASSIGNMENT_TOOL_ID;
     }
 
     @Override
@@ -4295,7 +4287,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     gradebookExternalAssessmentService.addExternalAssessment(nAssignment.getContext()
                                             , nAssignmentRef, null, nAssignment.getTitle()
                                             , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
-                                            , Date.from(nAssignment.getDueDate()), this.getToolTitle()
+                                            , Date.from(nAssignment.getDueDate()), this.getToolId()
                                             , null, false, categoryId.isPresent() ? categoryId.get() : null);
 
                                     nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);

@@ -786,10 +786,10 @@ public interface AssignmentService extends EntityProducer {
     public void postReviewableSubmissionAttachments(AssignmentSubmission submission);
 
     /**
-     * This will return the internationalized title of the tool.
+     * This will return the assignment tool id.
      * This is used when creating a new gradebook item.
      */
-    public String getToolTitle();
+    public String getToolId();
 
     /**
      * This will return the reference removing from it the auxiliar prefix.
