@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sakaiproject.meetings</groupId>
+        <artifactId>meetings</artifactId>
+        <version>23-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>org.sakaiproject.meetings</groupId>
+    <artifactId>meetings-ui</artifactId>
+    <packaging>war</packaging>
+
+    <properties>
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <frontend-maven-plugin.npmVersion>8.5.3</frontend-maven-plugin.npmVersion>
+        <frontend-maven-plugin.nodeVersion>v16.14.0</frontend-maven-plugin.nodeVersion>
+        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+    </properties>
+
+    <dependencies>
+        <!-- we are running a webapp in a servlet container so we need the servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- configure the build to use the standard maven structure -->
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- configure the war plugin to correctly use the standard maven structure -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+            <!-- clean Vue.js -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven-clean-plugin.version}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/src/main/frontend/node_modules</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${basedir}/src/main/webapp</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <!-- Vue.js compilation -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                        <phase>process-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>npm run build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                        <phase>process-resources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <workingDirectory>src/main/frontend</workingDirectory>
+                    <installDirectory>src/main/frontend</installDirectory>
+                    <npmVersion>${frontend-maven-plugin.npmVersion}</npmVersion>
+                    <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

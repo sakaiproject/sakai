@@ -122,6 +122,7 @@
                 <module>webjars</module>
                 <module>webservices</module>
                 <module>wicket</module>
+                <module>meetings</module>
             </modules>
         </profile>
         <profile>
