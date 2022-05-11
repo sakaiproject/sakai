@@ -27,6 +27,8 @@ import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DraftRecipient;
@@ -75,6 +77,7 @@ public interface PrivateMessageManager {
     public void markMessageAsUnreadForUser(final PrivateMessage message, final String contextId);
     
     public void markMessageAsRepliedForUser(final PrivateMessage message);
+    public void markMessageAsRepliedForUser(final PrivateMessage message, String userId);
     
     public List getMessagesByType(final String typeUuid, final String orderField,
         final String order);
@@ -197,7 +200,9 @@ public interface PrivateMessageManager {
     
     
     public boolean isInstructor();
+    public boolean isInstructor(User user, String contextId);
     public boolean isSectionTA();
+    public boolean isSectionTA(User user, String contextId);
     public boolean isEmailPermit();
     
     public boolean isAllowToFieldGroups();
@@ -240,5 +245,23 @@ public interface PrivateMessageManager {
     public void processPvtMsgReplySentAction(PrivateMessage currentMessage, PrivateMessage rrepMsg);
     /** advanced search for private messages */ 
     public List searchPvtMsgs(String typeUuid, String searchText,Date searchFromDate, Date searchToDate, String selectedLabel, boolean searchByText, boolean searchByAuthor,boolean searchByBody, boolean searchByLabel,boolean searchByDate);
+    public LRS_Statement getStatementForUserSentPvtMsg(String subject, SAKAI_VERB sakaiVerb, PrivateMessage rrepMsg);
+    public String getEventMessage(Object object, String toolId, String userId, String contextId);
+    public void sendProgamMessage(PrivateMessage message, List<MembershipItem> draftRecipients, List<MembershipItem> draftBccRecipients, boolean asEmail);
+
+    boolean isAllowToFieldRoles(User user, String contextId);
+	boolean isAllowToFieldMyGroupRoles(User user, String contextId);
+
+	boolean isAllowToFieldAllParticipants(User user, String contextId);
+
+	boolean isAllowToFieldGroups(User user, String contextId);
+
+	boolean isAllowToViewHiddenGroups(User user, String contextId);
+
+	boolean isAllowToFieldUsers(User user, String contextId);
+
+	boolean isAllowToFieldMyGroups(User user, String contextId);
+
+	boolean isAllowToFieldMyGroupMembers(User user, String contextId);
     
 }

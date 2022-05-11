@@ -80,8 +80,10 @@
 	<property name="deleted">
 		<column name="DELETED" not-null="true" />
 	</property> 
-	
-    
+	<property name="scheduler">
+      <column name="SCHEDULER" not-null="false" />
+    </property>
+    <property name="scheduledDate" column="SCHEDULED_DATE" type="timestamp" />
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
       not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />

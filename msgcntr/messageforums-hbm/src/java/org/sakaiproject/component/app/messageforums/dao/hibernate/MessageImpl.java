@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -55,7 +57,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Date threadLastUpdated;
   private Long lastTreadPostId;
   private Integer numReaders;
-  
+  @Getter @Setter
+  private Boolean scheduler;
+  @Getter @Setter
+  private Date scheduledDate;
+
 	public static Comparator ATTACHMENT_COMPARATOR;
 	public static Comparator SUBJECT_COMPARATOR;
 	public static Comparator DATE_COMPARATOR;
@@ -478,8 +484,6 @@ public class MessageImpl extends MutableEntityImpl implements Message
 		this.numReaders = numReaders;
 
 	}
-
-
 }
 
 

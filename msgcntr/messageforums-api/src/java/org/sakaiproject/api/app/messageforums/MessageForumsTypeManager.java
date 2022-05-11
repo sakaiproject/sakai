@@ -89,6 +89,11 @@ public interface MessageForumsTypeManager
   /**
    * @return
    */
+  public String getSchedulerPrivateMessageType();
+
+  /**
+   * @return
+   */
   public String getRoleType();
   
   /**
