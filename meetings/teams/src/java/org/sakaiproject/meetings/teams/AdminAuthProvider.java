@@ -33,7 +33,7 @@ public class AdminAuthProvider implements IAuthenticationProvider {
     public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
         CompletableFuture<String> token = new CompletableFuture<>();
         try {
-            BuildConfidentialClientObject();
+            buildConfidentialClientObject();
             IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
             token.complete(result.accessToken());
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class AdminAuthProvider implements IAuthenticationProvider {
      * Build confidential client object
      * @throws Exception
      */
-    private void BuildConfidentialClientObject() throws Exception {
+    private void buildConfidentialClientObject() throws Exception {
         app = ConfidentialClientApplication.builder(
                 clientId, ClientCredentialFactory.createFromSecret(secret))
               .authority(authority)

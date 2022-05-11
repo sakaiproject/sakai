@@ -17,6 +17,8 @@ export default {
     this.getI18nProps(this.i18nProps || this.$options.name);
   },
   data() {
-    return { i18n: {} };
+    return {
+      i18n: {}
+    };
   },
 };

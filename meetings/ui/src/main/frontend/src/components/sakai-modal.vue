@@ -74,7 +74,7 @@ export default {
   mounted() {
     this.modal = new Modal(this.$refs.modal);
     if(this.open) {
-      this.show()
+      this.show();
     }
   },
   watch: {

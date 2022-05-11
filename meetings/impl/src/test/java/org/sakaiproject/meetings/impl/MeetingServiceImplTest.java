@@ -200,7 +200,6 @@ public class MeetingServiceImplTest extends AbstractTransactionalJUnit4SpringCon
     public void setGetAndRemoveMeetingProperty() {
         List<Meeting> list = meetingService.getAllMeetingsFromSite("site2");
         Meeting meeting = list.get(0);
-        String idMeeting = meeting.getId();
         meetingService.setMeetingProperty(meeting, "property", "value");
         String value = meetingService.getMeetingProperty(meeting, "property");
         Assert.assertTrue("value".equals(value));

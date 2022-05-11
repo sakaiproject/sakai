@@ -24,10 +24,10 @@ export default {
     return {};
   },
   methods: {
-    handleSave: function () {
+    handleSave() {
       this.$router.push({ path: "/" });
     },
-    handleCancel: function () {
+    handleCancel() {
       this.$router.push({ path: "/" });
     },
   }

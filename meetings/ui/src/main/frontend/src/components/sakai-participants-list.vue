@@ -153,7 +153,7 @@ export default {
         return participant;
       });
     },
-    newParticipants: function () {
+    newParticipants() {
         this.ourParticipants = [...this.participants].map((participant) => {
           participant.selected = false;
           participant.role = "attendee";
@@ -162,13 +162,13 @@ export default {
     },
     updateSelection(index) {
       let updated = [...this.ourParticipants];
-      updated[index].selected = !updated[index].selected;
+      updated[Number(index)].selected = !updated[Number(index)].selected;
       this.ourParticipants = updated;
       this.ourParticipants = updated;
     },
     updateRole(index, role) {
       let updated = [...this.ourParticipants];
-      updated[index].role = role;
+      updated[Number(index)].role = role;
       this.ourParticipants = updated;
       this.ourParticipants = updated;
     },
