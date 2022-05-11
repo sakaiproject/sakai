@@ -117,9 +117,13 @@
                 margin-right: 10px;
                 min-width: 76px;
                 max-width: 76px;
-                .roster-picture {
-                    width: 100%;
+                .roster-photo {
+                    min-width: 76px;
+                    max-width: 76px;
+                    width: 76px;
+                    height: 76px;
                     border: 1px solid #BBB;
+                    border-radius: 0;
                 }
             }
 
@@ -144,9 +148,13 @@
                     margin-right: 0;
                     width: 100%;
                     max-width: none;
-                    .roster-picture {
+                    .roster-photo {
+                        min-width: unset;
+                        max-width: unset;
+                        height: 110px;
                         width: 100%;
                         border: 1px solid #BBB;
+                        border-radius: 0;
                     }
                 }
 
@@ -214,12 +222,6 @@
 
         .roster-hide-pictures {
             display: none;
-        }
-
-        .roster-picture {
-            width: 30px;
-            height: 24px;
-            padding: 0;
         }
 
         .roster-picture-cell {

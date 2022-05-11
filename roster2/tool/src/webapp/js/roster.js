@@ -394,11 +394,8 @@ roster.renderMembership = function (options) {
 
       members.forEach(function (m) {
 
-        m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
-        if (roster.officialPictureMode) {
-          m.profileImageUrl += "/official";
-        }
-        m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
+        m.siteId = roster.siteId;
+        m.official = roster.officialPictureMode;
 
         var groupIds = Object.keys(m.groups);
         m.hasGroups = groupIds.length > 0;
@@ -452,8 +449,6 @@ roster.renderMembership = function (options) {
             roster.renderGroupMembership(value);
           }
         });
-
-        profile.attachPopups($('a.profile'));
 
         if (options.userIds) {
           $(window).off('scroll.roster');

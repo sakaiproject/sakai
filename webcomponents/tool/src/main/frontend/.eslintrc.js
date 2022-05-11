@@ -84,7 +84,6 @@ module.exports = {
     "prefer-regex-literals": "error",
     "prefer-rest-params": "error",
     "prefer-spread": "error",
-    "prefer-template": "error",
     "require-atomic-updates": "error",
     "semi": ["warn", "always"],
     "space-infix-ops": "error",
