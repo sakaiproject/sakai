@@ -30,15 +30,15 @@ class SakaiDatePicker extends LitElement {
 
     if (value) {
       this._epochMillis = value;
-      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 19);
+      this.isoDate = (new Date(value + parseInt(getOffsetFromServerMillis()))).toISOString().substring(0, 16);
+
     } else {
       this._epochMillis = null;
       this.isoDate = null;
     }
+
     const inputDate = this.shadowRoot.getElementById("date-picker-input");
-    if (inputDate) {
-      inputDate.value = this.isoDate;
-    }
+    inputDate && (inputDate.value = this.isoDate);
   }
 
   get epochMillis() { return this._epochMillis; }
@@ -55,7 +55,7 @@ class SakaiDatePicker extends LitElement {
 
   dateSelected(e) {
 
-    const epochMillis = ((new Date(e.target.value)).getTime());
+    const epochMillis = (new Date(e.target.value)).getTime();
     this.dispatchEvent(new CustomEvent("datetime-selected", { detail: { epochMillis }, bubbles: true }));
   }
 
