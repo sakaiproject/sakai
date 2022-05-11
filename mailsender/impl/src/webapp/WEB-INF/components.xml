@@ -25,6 +25,7 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
