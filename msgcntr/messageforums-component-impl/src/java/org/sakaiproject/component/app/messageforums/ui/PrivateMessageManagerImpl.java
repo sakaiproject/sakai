@@ -1844,10 +1844,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isInstructor(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isInstructor(User " + user + ")");
-    }
+      log.debug("Check is instructor for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, "site.upd", contextId);
     else
@@ -1908,10 +1905,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldGroups(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldGroups(User " + user + ")");
-    }
+    log.debug("Check permissions group for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS, contextId);
     else
@@ -1940,10 +1934,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldAllParticipants(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldAllParticipants(User " + user + ")");
-    }
+    log.debug("Check permissions for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS, contextId);
     else
@@ -1972,10 +1963,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldRoles(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldRoles(User " + user + ")");
-    }
+    log.debug("Check permissions roles for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES, contextId);
     else
@@ -2004,10 +1992,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToViewHiddenGroups(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToViewHiddenGroups(User " + user + ")");
-    }
+    log.debug("Check permissions hidden group for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS, contextId);
     else
@@ -2036,10 +2021,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldUsers(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldUsers(User " + user + ")");
-    }
+    log.debug("Check permissions field for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS, contextId);
     else
@@ -2068,10 +2050,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldMyGroups(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldMyGroups(User " + user + ")");
-    }
+    log.debug("Check permissions to field groups for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS, contextId);
     else
@@ -2100,10 +2079,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
   @Override
   public boolean isAllowToFieldMyGroupMembers(User user, String contextId)
   {
-    if (log.isDebugEnabled())
-    {
-      log.debug("isAllowToFieldMyGroupMembers(User " + user + ")");
-    }
+    log.debug("Check permissions to field group members for user: {} in site: {}", user, contextId);
     if (user != null)
       return securityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS, contextId);
     else
