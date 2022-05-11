@@ -61,7 +61,7 @@ export default {
     min: {
       //for input number
       type: [String, Number],
-      default: undefined,
+      default: null,
     },
     arialabel: {
       type: String,
@@ -78,7 +78,7 @@ export default {
   },
   computed: {
     isCheckbox() {
-      return this.type == "checkbox";
+      return this.type === "checkbox";
     },
     inputClasses() {
       let classes = [];

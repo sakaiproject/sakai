@@ -13,7 +13,7 @@ const routes = [
     path: routeprefix + '/',
     name: 'EditMeeting',
     props: true,
-    component: function () {
+    component () {
       return import('../views/CreateMeeting.vue');
     }
   },
@@ -21,15 +21,15 @@ const routes = [
     path: routeprefix + '/',
     name: 'Permissions',
     props: true,
-    component: function () {
+    component () {
       return import('../views/Permissions.vue');
     }
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
 });
 
-export default router
+export default router;

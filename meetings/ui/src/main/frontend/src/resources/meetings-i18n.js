@@ -20,7 +20,7 @@ function loadProperties(suppliedOptions) {
 
   if (!options.bundle) {
     console.error("You must supply at least a bundle. Doing nothing ...");
-    return;
+    return null;
   }
 
   const lang = window.parent.portal && window.parent.portal.locale ? window.parent.portal.locale : "";
@@ -60,7 +60,7 @@ function loadProperties(suppliedOptions) {
     if (options.debug) { console.debug("Returning existing promise ...");}
     return existingPromise;
   }
-  return window.sakai.translations.existingPromises[options.bundle] = new Promise(resolve => {
+  return window.sakai.translations.existingPromises[options.bundle] = new Promise((resolve) => {
 
     const url = `/meetings-tool/i18n/${options.lang}/${options.bundle}`;
     if (options.debug) {
@@ -68,7 +68,7 @@ function loadProperties(suppliedOptions) {
     }
     fetch(url, { headers: { "Content-Type": "application/text" }})
         .then((r) => r.text())
-        .then(data => {
+        .then((data) => {
 
           data.split("\n").forEach((pair) => {
 
@@ -91,7 +91,7 @@ function loadProperties(suppliedOptions) {
             window.sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.bundle]);
           }
           resolve(window.sakai.translations[options.bundle]);
-        }).catch(error => { console.error(error); resolve(false); } );
+        }).catch((error) => { console.error(error); resolve(false); } );
   });
 
 

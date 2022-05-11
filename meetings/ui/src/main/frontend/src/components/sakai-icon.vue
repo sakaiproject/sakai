@@ -24,7 +24,7 @@ export default {
     iconkey: {
       Type: String,
       default: "error",
-      validator: function (value) {
+      validator(value) {
         return Object.prototype.hasOwnProperty.call(icons, value);
       },
     },
@@ -34,7 +34,7 @@ export default {
     },
   },
   computed: {
-    iconClass: function () {
+    iconClass() {
       return icons[this.iconkey];
     },
   },

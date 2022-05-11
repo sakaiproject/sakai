@@ -86,13 +86,13 @@ export default {
     open: {
       Type: [String, Boolean],
       default: false,
-      validator: function (value) {
+      validator(value) {
         return [true, "true", false, "false"].indexOf(value) > -1;
       },
     },
   },
   computed: {
-    showsOpen: function () {
+    showsOpen() {
       return this.open;
     },
   },
@@ -108,7 +108,7 @@ export default {
       return true;
     },
   },
-  created: function () {
+  created() {
     this.id = uuid().substring(8, 13); //random id '-34F4'
   },
 };

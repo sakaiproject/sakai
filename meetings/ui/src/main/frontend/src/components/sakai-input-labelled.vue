@@ -100,7 +100,7 @@ export default {
       return this.type === 'checkbox';
     },
   },
-  created: function () {
+  created() {
     this.inputId += uuid().substring(8, 13);
   },
 };

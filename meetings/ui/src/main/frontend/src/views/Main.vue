@@ -168,7 +168,7 @@ import constants from "../resources/constants.js";
 import i18nMixn from "../mixins/i18n-mixn.js";
 import dayjs from "dayjs";
 import isTodayPlugin from "dayjs/plugin/isToday";
-dayjs.extend(isTodayPlugin)
+dayjs.extend(isTodayPlugin);
 // eslint-disable-next-line
 
 export default {
@@ -241,7 +241,7 @@ export default {
       const response = await fetch(constants.toolPlacement + "/meetings/site/" + this.$route.params.siteid);
       if(response.ok) {
         const data = await response.json();
-        data.forEach(meeting => {
+        data.forEach((meeting) => {
           //Format dates to localized format
           meeting.startDate = dayjs(meeting.startDate)
             .tz(portal.user.timezone, true).format();
@@ -263,7 +263,7 @@ export default {
       return dayjs(a.startDate).isBefore(b.startDate) ? -1 : 1;
     },
     async loadEditPermission() {
-      const response = await fetch(`${constants.toolPlacement}/meetings/user/editperms/site/${this.$route.params.siteid}`)
+      const response = await fetch(`${constants.toolPlacement}/meetings/user/editperms/site/${this.$route.params.siteid}`);
       if(response.ok) {
         const hasPermission = await response.json();
         this.editPermission = hasPermission; 
@@ -297,7 +297,7 @@ export default {
     },
     searchResult() {
       let searchString = this.searchString.toLowerCase();
-      if (!this.searching) { return [] }
+      if (!this.searching) { return []; }
       return this.meetingsList.filter(
         (meeting) =>
           meeting.title.toLowerCase().search(searchString) > -1 || meeting.description.toLowerCase().search(searchString) > -1

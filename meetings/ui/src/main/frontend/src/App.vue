@@ -15,10 +15,10 @@
 <script>
 export default {
     data() {
-	    return {
-            errorMessage: undefined,
-	    }
-	},
+        return {
+            errorMessage: null,
+        };
+    },
     methods: {
         showErrorMessage(message) {
             this.errorMessage = message;
@@ -31,7 +31,7 @@ export default {
         $route (to, from){
             this.clearErrors();
         }
-    } 
+    }
 }
 </script>
 

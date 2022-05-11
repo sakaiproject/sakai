@@ -43,12 +43,12 @@ export default {
       type: String,
     },
     userName: { type: String },
-    siteId: { type: String, default: undefined },
+    siteId: { type: String, default: null },
     offical: { type: Boolean, default: false },
-    text: { type: String, default: undefined },
+    text: { type: String, default: null },
   },
   methods: {
-    onImageLoad: function () {
+    onImageLoad() {
       this.loaded = true;
     },
   },
@@ -77,7 +77,7 @@ export default {
       return style;
     },
     fontSize() {
-      if (this.variant == "placeholder") {
+      if (this.variant === "placeholder") {
         return this.size / 2.5;
       } else if (this.text.length <= 3) {
         return this.size / 2;

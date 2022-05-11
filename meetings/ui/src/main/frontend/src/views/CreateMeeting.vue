@@ -130,7 +130,7 @@
           </div>
         </div>
       </SakaiAccordionItem>
-	  <SakaiAccordionItem :title="i18n.section_notifications">
+      <SakaiAccordionItem :title="i18n.section_notifications">
         <div class="col-md-6 col-xl-4 pb-4">
           <div class="row mt-3">
             <div class="col">
@@ -239,7 +239,7 @@ export default {
     };
   },
   props: {
-    id: { type: String, default: undefined },
+    id: { type: String, default: null },
     title: { type: String, default: "" },
     description: { type: String, default: "" },
     conf_service: { type: String, default: "microsoft_teams" },
@@ -389,12 +389,12 @@ export default {
   },
   watch: {
     "formdata.date_open"(newDate, oldDate) {
-      if(!this.hadDateInput && newDate != oldDate) {
+      if(!this.hadDateInput && newDate !== oldDate) {
         this.hadDateInput = true;
       }
     },
     "formdata.date_close"(newDate, oldDate) {
-      if(!this.hadDateInput && newDate != oldDate) {
+      if(!this.hadDateInput && newDate !== oldDate) {
         this.hadDateInput = true;
       }
     }

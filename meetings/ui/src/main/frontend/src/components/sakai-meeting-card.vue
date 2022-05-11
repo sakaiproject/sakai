@@ -218,16 +218,15 @@ export default {
     };
   },
   props: {
-    id: { type: String, default: undefined },
+    id: { type: String, default: null },
     editable: { type: Boolean, default: false },
     maxAvatars: {
       default: 5,
-      validator: function (value) {
+      validator(value) {
         return value >= 1;
       },
     },
     actions: { type: Array, default: new Array() },
-    actions: { type: Boolean, default: false },
   },
   computed: {
     schedule() {
@@ -354,8 +353,8 @@ export default {
           cache: "no-cache",
           headers: { "Content-Type": "application/json; charset=utf-8" },
         })
-        .catch(error => console.error('Error:', error))
-        .then(response => this.$emit('onDeleted', this.id));
+        .catch((error) => console.error('Error:', error))
+        .then((response) => this.$emit('onDeleted', this.id));
     },
     editMeeting() {
         let parameters = {
@@ -373,13 +372,13 @@ export default {
   },
   mounted () {
       fetch(constants.toolPlacement + '/meeting/'  + this.id)
-      .then(r => {
+      .then((r) => {
         if (r.ok) {
           return r.json();
         }
         throw new Error(`Failed to get meetings from ${url}`);
       })
-      .then(data => {
+      .then((data) => {
             this.live = false;
             this.contextTitle = data.contextTitle;
             this.startDate = dayjs(data.startDate)
@@ -398,7 +397,7 @@ export default {
             this.provider = data.provider;
             this.participants = data.participants;
       })
-      .catch (error => console.error(error));
+      .catch ((error) => console.error(error));
   }
 };
 </script>

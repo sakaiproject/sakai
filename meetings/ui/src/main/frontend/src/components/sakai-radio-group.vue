@@ -25,7 +25,7 @@ export default {
     },
     value: {
       type: [String, Number],
-      default: undefined
+      default: null
     },
     emits: ['update:modelValue'],
     items: {
@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     name() {
-      return `radio-group-${this.uid}`
+      return `radio-group-${this.uid}`;
     },
     inputs() {
       return this.items.map((item) => {

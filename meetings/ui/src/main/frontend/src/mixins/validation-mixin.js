@@ -2,7 +2,7 @@
 let validateProp = {
   type: [Array, Object],
   default: null
-}
+};
 
 export { validateProp };
 
@@ -26,7 +26,7 @@ export default {
         validations.push({
           type: "minlength",
           value: this.minlength
-        })
+        });
       }
       if(this.validate) {
         return [...validations, ...Array.of(this.validate)];
@@ -45,11 +45,11 @@ export default {
         message: ''
       }
       //Go through validation options
-      this.validations.forEach(validationInput => {
+      this.validations.forEach((validationInput) => {
         let validationType = validationInput instanceof String || typeof validationInput === 'string'
           ? validationInput : validationInput.type;
         
-        let doValidate = validationInput.active != undefined ? validationInput.active : this.hadInput;
+        let doValidate = validationInput.active !== undefined ? validationInput.active : this.hadInput;
 
         //Return if we are not validating yet
         if(!doValidate) {
@@ -60,7 +60,7 @@ export default {
 
         switch(validationType) {
           case 'required':
-            if(this.type == "checkbox" && this.value == false) {
+            if(this.type === "checkbox" && this.value === false) {
               status.message = validationInput.message ? validationInput.message : "This checkbox is required to be checked";
               status.isValid = false;
             } else if (this.value === undefined || this.value.trim() === "") {
