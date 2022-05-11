@@ -2,7 +2,7 @@ import { SakaiElement } from "./sakai-element.js";
 import { html } from "./assets/lit-html/lit-html.js";
 
 /**
- * A simple wrapper for Sakai's profile picture.
+ * A simple wrapper for Sakai's user profile picture.
  *
  * Usage:
  *
@@ -31,6 +31,7 @@ class SakaiUserPhoto extends SakaiElement {
       classes: { type: String },
       noPopup: { attribute: "no-popup", type: Boolean },
       official: { type: Boolean },
+      siteId: { attribute: "site-id", type: String },
     };
   }
 
@@ -39,6 +40,9 @@ class SakaiUserPhoto extends SakaiElement {
     super.connectedCallback();
 
     this.generatedId = `sakai-user-photo-${this.userId}-${Math.floor(Math.random() * 100)}`;
+
+    this.url = `/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}`
+                + (this.siteId && `?siteId=${this.siteId}`);
 
     if (!this.noPopup) {
       this.updateComplete.then(() => {
@@ -57,7 +61,7 @@ class SakaiUserPhoto extends SakaiElement {
       <div id="${this.generatedId}"
           data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
-          style="background-image:url(/direct/profile/${this.userId}/image/${this.official ? "official" : "thumb"}) ${this.noPopup ? "" : ";cursor: pointer;"}">
+          style="background-image:url(${this.url}) ${this.noPopup ? "" : ";cursor: pointer;"}">
     `;
   }
 }
