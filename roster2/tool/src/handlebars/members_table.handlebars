@@ -2,13 +2,16 @@
     <tr class="roster-member">
     {{#if ../viewPicture}}
         <td class="roster-picture-cell">
-        {{#if ../viewProfile}}
-            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
-        {{/if}}
-            <img class="roster-picture" src="{{profileImageUrl}}" title="{{tr 'profile_picture_alt'}} {{displayName}}" alt="{{tr 'profile_picture_alt'}} {{displayName}}" />
-        {{#if ../viewProfile}}
-            </a>
-        {{/if}}
+            <sakai-user-photo user-id="{{userId}}"
+                                alt="{{tr 'profile_picture_alt'}} {{displayName}}"
+                                site-id="{{siteId}}"
+                                classes="roster-photo"
+                                {{#if official}}
+                                official
+                                {{/if}}
+                                no-popup
+            >
+            </sakai-user-photo>
         </td> <!-- /roster-table-cell -->
     {{/if}}
 

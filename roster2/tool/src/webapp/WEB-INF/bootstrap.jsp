@@ -23,6 +23,7 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
+        <script type="module" src="/webcomponents/sakai-user-photo.js${portalCDNQuery}"></script>
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css${portalCDNQuery}" media="all" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css${portalCDNQuery}" />
 
