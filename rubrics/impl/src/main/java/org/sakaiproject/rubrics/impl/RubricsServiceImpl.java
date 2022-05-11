@@ -302,10 +302,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         rubricRepository.findById(rubricId).ifPresent(rubric -> {
 
-            List<Criterion> sorted = new ArrayList<>();
             Map<Long, Criterion> current = rubric.getCriteria().stream().collect(Collectors.toMap(Criterion::getId, c -> c));
-            sorted = sortedCriterionIds.stream().map(current::get).collect(Collectors.toList());
-            rubric.setCriteria(sorted);
+            List<Criterion> sorted = sortedCriterionIds.stream().map(current::get).collect(Collectors.toList());
+            rubric.getCriteria().clear();
+            rubric.getCriteria().addAll(sorted);
             rubricRepository.save(rubric);
         });
     }
@@ -316,7 +316,8 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             Map<Long, Rating> current = criterion.getRatings().stream().collect(Collectors.toMap(Rating::getId, r -> r));
             List<Rating> sorted = sortedRatingIds.stream().map(current::get).collect(Collectors.toList());
-            criterion.setRatings(sorted);
+            criterion.getRatings().clear();
+            criterion.getRatings().addAll(sorted);
             criterionRepository.save(criterion);
         });
     }
