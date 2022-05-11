@@ -15,8 +15,8 @@
 
     <properties>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
-        <frontend-maven-plugin.npmVersion>8.5.5</frontend-maven-plugin.npmVersion>
-        <frontend-maven-plugin.nodeVersion>v16.15.0</frontend-maven-plugin.nodeVersion>
+        <frontend-maven-plugin.npmVersion>8.6.0</frontend-maven-plugin.npmVersion>
+        <frontend-maven-plugin.nodeVersion>v16.14.2</frontend-maven-plugin.nodeVersion>
     </properties>
 
     <profiles>
@@ -110,7 +110,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                run build
+				                run build
                             </arguments>
                         </configuration>
                     </execution>
@@ -122,7 +122,7 @@
                         </goals>
                         <configuration>
                             <arguments>
-                                run test
+				                run test
                             </arguments>
                         </configuration>
                     </execution>
