@@ -49,6 +49,8 @@ public class SignupSorter {
 	public static final String DATE_COLUMN = "startTime";
 
 	public static final String STATUS_COLUMN = "availability";
+	
+	public static final String PARTICIPATNS_COLUMN = "signed";
 
 	private String sortColumn;
 
@@ -66,6 +68,8 @@ public class SignupSorter {
 	public static final Comparator<SignupMeetingWrapper> sortDateComparator;
 
 	public static final Comparator<SignupMeetingWrapper> sortStatusComparator;
+	
+	public static final Comparator<SignupMeetingWrapper> sortParticipantsComparator;
 	
 	public static final Comparator<SelectItem> sortSelectItemComparator;
 	
@@ -131,6 +135,13 @@ public class SignupSorter {
 				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
+		
+		sortParticipantsComparator = new Comparator<SignupMeetingWrapper>() {
+			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
+				int comparison = Collator.getInstance().compare(one.getParticipants(), another.getParticipants());
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
+			}
+		};	
 	}
 
 	/**
@@ -222,6 +233,8 @@ public class SignupSorter {
 			comparator = sortOwnerComparator;
 		} else if (STATUS_COLUMN.equals(sortColumn)) {
 			comparator = sortStatusComparator;
+		} else if (PARTICIPATNS_COLUMN.equals(sortColumn)) {
+			comparator = sortParticipantsComparator;
 		} else {
 			// Default to the sort name
 			comparator = sortDateComparator;
@@ -272,5 +285,9 @@ public class SignupSorter {
 	
 	public String getStatusColumn(){
 		return STATUS_COLUMN;
+	}
+	
+	public String getParticipantsColumn() {
+		return PARTICIPATNS_COLUMN;
 	}
 }

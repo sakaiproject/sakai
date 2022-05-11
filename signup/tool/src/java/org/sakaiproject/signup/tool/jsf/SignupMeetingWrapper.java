@@ -413,6 +413,10 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 			return false;
 	}
 	
+	public int getParticipants() {
+		return this.meeting.getParticipantsNum();
+	}
+	
 	private void processSignupAttachments(List<SignupAttachment> attachments){
 		if(attachments != null){
 			eventMainAttachments.clear();

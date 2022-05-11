@@ -34,14 +34,19 @@
 
 package org.sakaiproject.signup.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.UUID;
+
+import org.sakaiproject.signup.logic.Permission;
+import org.sakaiproject.signup.logic.SignupMessageTypes;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-
-import org.sakaiproject.signup.logic.Permission;
-import org.sakaiproject.signup.logic.SignupMessageTypes;
 
 /**
  * <p>
@@ -287,6 +292,15 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 		return null;
 	}
 
+	/**
+	 * This method will obtain the number of participants signed
+	 * 
+	 * @return a int
+	 */
+	public int getParticipantsNum() {
+	    return signupTimeSlots == null ? 0 : signupTimeSlots.stream().map(t -> t.getAttendees().size()).reduce(Integer::sum).orElse(0);
+	}
+	
 	/**
 	 * This method will check if the event/meeting is already expired
 	 * 
