@@ -482,7 +482,7 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   isCriterionGroup(criterion) {
-    return criterion.ratings.length == 0;
+    return criterion.ratings.length === 0;
   }
 }
 
