@@ -13,7 +13,7 @@
         :text="i18n.menu_name"
       >
         <template #append>
-          <sakai-icon iconkey="menu_kebab" />
+          <sakai-icon iconkey="menuKebab" />
         </template>
       </SakaiDropdownButton>
       <SakaiModal
@@ -295,7 +295,7 @@ export default {
         case this.status.live:
           return "live";
         case this.status.waiting:
-          return "hourglass_emty";
+          return "hourglassEmty";
         case this.status.timeUntil:
           return "bell";
         default:
@@ -361,11 +361,11 @@ export default {
           id: this.id,
           title: this.title,
           description: this.description,
-          date_open: this.startDate,
-          date_close: this.endDate,
-          saved_to_calendar: this.savedToCalendar,
-          participant_option: this.participantOption,
-          group_selection: this.groupSelection
+          dateOpen: this.startDate,
+          dateClose: this.endDate,
+          savedToCalendar: this.savedToCalendar,
+          participantOption: this.participantOption,
+          groupSelection: this.groupSelection
         };
       this.$router.push({name: "EditMeeting", params: parameters});
     }

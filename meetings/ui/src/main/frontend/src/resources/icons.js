@@ -6,20 +6,20 @@ const prependBaseClass = (icons, baseClass) => {
   });
 };
 
-const icons_fontawsome = {
+const iconsFontawsome = {
   all: "fa-th-large",
   bell: "fa-bell",
   calendar: "fa-calendar-o",
-  chevron_down: "fa-chevron-down",
-  chevron_up: "fa-chevron-up",
+  chevronDown: "fa-chevron-down",
+  chevronUp: "fa-chevron-up",
   delete: "fa-trash",
   edit: "fa-pencil",
   error: "fa-ban",
-  file_image: "fa-file-image-o",
-  hourglass_emty: "fa-hourglass-o",
+  fileImage: "fa-file-image-o",
+  hourglassEmty: "fa-hourglass-o",
   link: "fa-link",
   maximize: "fa-arrows-alt",
-  menu_kebab: "fa-ellipsis-v",
+  menuKebab: "fa-ellipsis-v",
   permissions: "fa-lock",
   plus: "fa-plus",
   question: "fa-question",
@@ -34,11 +34,11 @@ const icons_fontawsome = {
   presentation: "fa-desktop",
   remove: "fa-trash"
 };
-const icons_bootstrap = {
+const iconsBootstrap = {
 };
 
-const _fa = prependBaseClass(icons_fontawsome, "fa");
-const _bi = prependBaseClass(icons_bootstrap, "bi");
+const _fa = prependBaseClass(iconsFontawsome, "fa");
+const _bi = prependBaseClass(iconsBootstrap, "bi");
 
 export const fa = Object.fromEntries(_fa);
 export const bi = Object.fromEntries(_bi);

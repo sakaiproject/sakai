@@ -36,7 +36,7 @@
                   select="true"
                   :items="confServ"
                   :disabled="true"
-                  v-model:value="formdata.conf_service"
+                  v-model:value="formdata.confService"
                 />
               </div>
             </div>
@@ -94,9 +94,9 @@
             <SakaiInputLabelled
               :title="i18n.open_date"
               type="datetime-local"
-              v-model:value="formdata.date_open"
+              v-model:value="formdata.dateOpen"
               @update:value.once="!this.hadDateInput"
-              @validation="setValidation('date_open', $event)"
+              @validation="setValidation('dateOpen', $event)"
               :required="true"
             />
           </div>
@@ -104,8 +104,8 @@
             <SakaiInputLabelled
               :title="i18n.close_date"
               type="datetime-local"
-              v-model:value="formdata.date_close"
-              @validation="setValidation('date_close', $event)"
+              v-model:value="formdata.dateClose"
+              @validation="setValidation('dateClose', $event)"
               :required="true"
               :validate="{
                 type: 'custom',
@@ -119,7 +119,7 @@
             <div class="form-check">
               <input
                 class="form-check-input"
-                v-model="formdata.save_to_calendar"
+                v-model="formdata.saveToCalendar"
                 type="checkbox"
                 id="save_to_calendar"
               />
@@ -198,16 +198,15 @@ export default {
       formdata: {
         title: "",
         description: "",
-        conf_service: "",
-        save_to_calendar: true,
-        date_open: null,
-        date_close: null,
+        confService: "",
+        saveToCalendar: true,
+        dateOpen: null,
+        dateClose: null,
         notificationType: "0",
         groups: [],
-        participantOption: "site",
+        participantOption: "SITE",
       },
       groups: [],
-      groupSelection: null,
       participants: [],
       selectedParticipants: [],
       confServ: [
@@ -234,7 +233,7 @@ export default {
           value: "users",
         },
       ],
-      validations: { title: false, date_open: true, date_close: true },
+      validations: { title: false, dateOpen: true, dateClose: true },
       hadDateInput: false
     };
   },
@@ -242,20 +241,20 @@ export default {
     id: { type: String, default: null },
     title: { type: String, default: "" },
     description: { type: String, default: "" },
-    conf_service: { type: String, default: "microsoft_teams" },
-    saved_to_calendar: { type: Boolean, default: false },
-    date_open: {
+    confService: { type: String, default: "microsoft_teams" },
+    savedToCalendar: { type: Boolean, default: false },
+    dateOpen: {
       validator(value) {
         return dayjs(value).isValid();
       },
     },
-    date_close: {
+    dateClose: {
       validator(value) {
         return dayjs(value).isValid();
       },
     },
-    participant_option: { type: String, default: "SITE" },
-    group_selection: {type: Array, default: new Array() },
+    participantOption: { type: String, default: "SITE" },
+    groupSelection: {type: Array, default: new Array() },
   },
   computed: {
     disableGroupSelection() {
@@ -265,7 +264,7 @@ export default {
       return !Object.values(this.validations).includes(false);
     },
     displayCalendarCheck() {
-      return this.saved_to_calendar === "true" ? false : true;
+      return this.savedToCalendar === "true" ? false : true;
     },
     participantOptions() {
       return [
@@ -297,7 +296,7 @@ export default {
       this.$emit('showError', message);
     },
     startBeforeEndValidation() {
-      return dayjs(this.formdata.date_open).isBefore(dayjs(this.formdata.date_close)); 
+      return dayjs(this.formdata.dateOpen).isBefore(dayjs(this.formdata.dateClose)); 
     },
     setValidation(field, valid) {
       this.validations[field] = valid;
@@ -308,13 +307,13 @@ export default {
         title: this.formdata.title,
         siteId: this.$route.params.siteid,
         description: this.formdata.description,
-        saveToCalendar: this.formdata.save_to_calendar,
-        startDate: dayjs(this.formdata.date_open).toISOString(),
-        endDate: dayjs(this.formdata.date_close).toISOString(),
+        saveToCalendar: this.formdata.saveToCalendar,
+        startDate: dayjs(this.formdata.dateOpen).toISOString(),
+        endDate: dayjs(this.formdata.dateClose).toISOString(),
         notificationType: this.formdata.notificationType,
         participantOption: (this.formdata.participantOption === 'SITE' ? 1 : 2),
         groupSelection: this.formdata.groups,
-        provider: this.formdata.conf_service,
+        provider: this.formdata.confService,
       };
       let methodToCall = constants.toolPlacement;
       let restMethod = "POST";
@@ -388,12 +387,12 @@ export default {
     },
   },
   watch: {
-    "formdata.date_open"(newDate, oldDate) {
+    "formdata.dateOpen"(newDate, oldDate) {
       if(!this.hadDateInput && newDate !== oldDate) {
         this.hadDateInput = true;
       }
     },
-    "formdata.date_close"(newDate, oldDate) {
+    "formdata.dateClose"(newDate, oldDate) {
       if(!this.hadDateInput && newDate !== oldDate) {
         this.hadDateInput = true;
       }
@@ -407,26 +406,26 @@ export default {
     if (this.description) {
       this.formdata.description = this.description;
     }
-    if (this.conf_service) {
-      this.formdata.conf_service = this.conf_service;
+    if (this.confService) {
+      this.formdata.confService = this.confService;
     }
-    if (this.date_open) {
-      this.formdata.date_open = dayjs(this.date_open).format(
+    if (this.dateOpen) {
+      this.formdata.dateOpen = dayjs(this.dateOpen).format(
         "YYYY-MM-DDTHH:mm:ss"
       );
     } else {
-      this.formdata.date_open = dayjs().format("YYYY-MM-DDTHH:mm") + ":00";
+      this.formdata.dateOpen = dayjs().format("YYYY-MM-DDTHH:mm") + ":00";
     }
-    if (this.date_close) {
-      this.formdata.date_close = dayjs(this.date_close).format(
+    if (this.dateClose) {
+      this.formdata.dateClose = dayjs(this.dateClose).format(
         "YYYY-MM-DDTHH:mm:ss"
       );
     } else {
-      this.formdata.date_close = dayjs().add(1, "hour").format("YYYY-MM-DDTHH:mm") + ":00";
+      this.formdata.dateClose = dayjs().add(1, "hour").format("YYYY-MM-DDTHH:mm") + ":00";
     }
-    this.formdata.save_to_calendar = this.saved_to_calendar === "true";
-    this.formdata.participantOption = this.participant_option;
-    this.formdata.groups = this.group_selection;
+    this.formdata.saveToCalendar = this.savedToCalendar === "true";
+    this.formdata.participantOption = this.participantOption;
+    this.formdata.groups = this.groupSelection;
     this.loadGroups();
   },
 };

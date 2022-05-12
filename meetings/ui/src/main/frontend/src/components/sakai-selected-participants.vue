@@ -12,7 +12,7 @@
         <span class="title">{{ title + " " }}</span>
         <span class="count">({{ users.length }}/{{ maxUsers }})</span>
         <sakai-icon
-          iconkey="chevron_up"
+          iconkey="chevronUp"
           class="chevron ms-auto me-2"
         ></sakai-icon>
       </div>

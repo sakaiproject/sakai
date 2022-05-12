@@ -22,7 +22,7 @@
             <slot name="append">
               <SakaiIcon
                 class="ms-1"
-                :iconkey="expanded ? 'chevron_up' : 'chevron_down'"
+                :iconkey="expanded ? 'chevronUp' : 'chevronDown'"
               />
             </slot>
           </template>

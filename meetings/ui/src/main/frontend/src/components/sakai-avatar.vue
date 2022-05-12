@@ -10,7 +10,7 @@
       :alt="altText"
     />
     <div v-if="variant == 'placeholder'" :style="placeholderStyle">
-      <sakai-icon iconkey="file_image"></sakai-icon>
+      <sakai-icon iconkey="fileImage"></sakai-icon>
     </div>
     <div v-if="variant == 'text'" :style="placeholderStyle">
       <span>{{ text }}</span>
