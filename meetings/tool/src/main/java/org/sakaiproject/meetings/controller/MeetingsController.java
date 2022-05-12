@@ -494,7 +494,7 @@ public class MeetingsController {
         } catch (IdUnusedException e) {
             log.error("Error retrieving site when sending notifications.", e);
             throw new MeetingsException(e.getLocalizedMessage());
-        } catch (ParseException e) {
+        } catch (Exception e) {
             log.error("Error creating meeting", e);
             throw new MeetingsException(e.getLocalizedMessage());
         }
@@ -606,6 +606,16 @@ public class MeetingsController {
         return i18n.toString();
     }
     
+    /**
+     * Returns true if MS Teams is set up in Sakai properties
+     * @return
+     * @throws MeetingsException
+     */
+    @GetMapping(value = "/meetings/teams/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean isMicrosofTeamsConfigured() throws MeetingsException {
+        checkSakaiSession();
+        return teamsService.isMicrosofTeamsConfigured();
+    }
     
     /**
      * Method to send notifications to users about meetings, by level of priority
