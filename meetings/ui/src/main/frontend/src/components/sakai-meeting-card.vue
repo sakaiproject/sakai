@@ -376,7 +376,7 @@ export default {
         if (r.ok) {
           return r.json();
         }
-        throw new Error(`Failed to get meetings from ${url}`);
+        throw new Error(`Failed to get meetings from ${this.url}`);
       })
       .then((data) => {
             this.live = false;

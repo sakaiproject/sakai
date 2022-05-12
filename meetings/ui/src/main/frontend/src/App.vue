@@ -32,7 +32,7 @@ export default {
             this.clearErrors();
         }
     }
-}
+};
 </script>
 
 <style>

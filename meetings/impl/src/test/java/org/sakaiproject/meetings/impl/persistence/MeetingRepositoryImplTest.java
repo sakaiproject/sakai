@@ -28,7 +28,6 @@ public class MeetingRepositoryImplTest {
     @Autowired private MeetingRepository meetingRepository;
     
     private Meeting meeting1;
-    private Meeting meeting2;
     
     @Before
     public void setUp() {
@@ -64,7 +63,7 @@ public class MeetingRepositoryImplTest {
         attendee.setMeeting(data);
         // Create meeting
         data.setAttendees(attendees);
-        this.meeting2 = meetingRepository.save(data);
+        meetingRepository.save(data);
     }
     
     @Test

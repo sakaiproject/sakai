@@ -1,7 +1,6 @@
 /* This is here, to "unset" some Bootstrap 3 rules that come along */
 
 #meetings-tool {
-    
   .dropdown-menu .divider {
     height: unset;
     margin: unset;
@@ -13,10 +12,10 @@
     float: unset;
   }
     
-  .is-invalid~.invalid-feedback,
-  .is-invalid~.invalid-tooltip,
-  .was-validated :invalid~.invalid-feedback,
-  .was-validated :invalid~.invalid-tooltip {
+  .is-invalid ~ .invalid-feedback,
+  .is-invalid ~ .invalid-tooltip,
+  .was-validated :invalid ~ .invalid-feedback,
+  .was-validated :invalid ~ .invalid-tooltip {
     display: block;
   }
   
@@ -33,7 +32,7 @@
   }
   
   .fade {
-     opacity: unset;
+    opacity: unset;
   }
   
   .modal-header {
@@ -43,7 +42,6 @@
       content: "";
     }
   }
-
 }
 
 /* Since B5 is based heavily on the rem unit,
@@ -63,6 +61,6 @@ html {
   background-color: #000;
   
   &.show {
-    opacity: .5 !important;
+    opacity: 0.5 !important;
   }
 }

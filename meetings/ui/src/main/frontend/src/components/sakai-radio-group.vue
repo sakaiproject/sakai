@@ -34,7 +34,7 @@ export default {
     },
     disabled: {
       type: Boolean,
-      default: undefined
+      default: null
     }
   },
   computed: {

@@ -65,11 +65,11 @@ export default {
     },
     arialabel: {
       type: String,
-      default: undefined,
+      default: null,
     },
     checklabel: {
       type: String,
-      default: undefined,
+      default: null,
     },
     required: {
       type: Boolean,

@@ -43,7 +43,7 @@ export default {
         isValid: false,
         skipped: false,
         message: ''
-      }
+      };
       //Go through validation options
       this.validations.forEach((validationInput) => {
         let validationType = validationInput instanceof String || typeof validationInput === 'string'

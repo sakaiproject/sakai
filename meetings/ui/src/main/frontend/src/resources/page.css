@@ -29,7 +29,7 @@ a.tool-heading,
   line-height: 1.2;
   font-size: 1.25rem;
   text-decoration: none;
-  color: var(--sakai-font-size)
+  color: var(--sakai-font-size);
 }
 
 .sr-only {
