@@ -11,6 +11,7 @@ import com.microsoft.graph.requests.GroupCollectionPage;
 import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +66,22 @@ public class MicrosoftTeamsService  {
                 .builder()
                 .authenticationProvider(authProvider)
                 .buildClient();
+    }
+    
+    /**
+     * Checking that MSTeams has been set up
+     * @return
+     */
+    public boolean isMicrosofTeamsConfigured() {
+        boolean result = false;
+        String authority = serverConfigurationService.getString(MSTEAMS_PREFIX + AUTHORITY, null);
+        String clientId = serverConfigurationService.getString(MSTEAMS_PREFIX + CLIENT_ID, null);
+        String secret = serverConfigurationService.getString(MSTEAMS_PREFIX + SECRET, null);
+        String scope = serverConfigurationService.getString(MSTEAMS_PREFIX + SCOPE, null);
+        if (StringUtils.isNotBlank(authority) && StringUtils.isNotBlank(clientId) && StringUtils.isNotBlank(secret) && StringUtils.isNotBlank(scope)) {
+            result = true;
+        }
+        return result;
     }
     
     /**
@@ -140,7 +157,7 @@ public class MicrosoftTeamsService  {
      * @param microsoftLogin
      * @return
      */
-    public User getUserByMicrosoftLogin(String microsoftLogin) {
+    public User getUserByMicrosoftLogin(String microsoftLogin) throws Exception {
         User result = graphClient.users(microsoftLogin).buildRequest().get();
         return result;
     }
@@ -154,7 +171,7 @@ public class MicrosoftTeamsService  {
      * @return
      * @throws ParseException
      */
-    public TeamsMeetingData onlineMeeting(String presenter, String subject, Instant startDate, Instant endDate) throws ParseException {
+    public TeamsMeetingData onlineMeeting(String presenter, String subject, Instant startDate, Instant endDate) throws Exception {
         // Get presenter user 
         User organizerUser = getUserByMicrosoftLogin(presenter);
         // Organizer
@@ -193,8 +210,9 @@ public class MicrosoftTeamsService  {
      * Delete meeting
      * @param organizerUser
      * @param meetingId
+     * @throws Exception 
      */
-    public void deleteMeeting(String organizerUser, String meetingId) {
+    public void deleteMeeting(String organizerUser, String meetingId) throws Exception {
         User user = getUserByMicrosoftLogin(organizerUser);
         graphClient.users(user.id).onlineMeetings(meetingId).buildRequest().delete();
     }
