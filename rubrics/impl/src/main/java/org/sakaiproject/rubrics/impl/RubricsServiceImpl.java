@@ -366,6 +366,29 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         });
     }
 
+    public Optional<CriterionTransferBean> createDefaultEmptyCriterion(String siteId, Long rubricId) {
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+
+        if (StringUtils.isBlank(currentUserId) || !isEditor(siteId)) {
+            throw new SecurityException("You must be a rubrics editor to create/edit criteria");
+        }
+
+        return rubricRepository.findById(rubricId).map(rubric -> {
+
+            Criterion criterion = new Criterion();
+            criterion.setOwnerId(siteId);
+            criterion.setTitle(resourceLoader.getString("default_empty_criterion_title"));
+
+            //criterion.setRubric(rubric);
+            int length = rubric.getCriteria().size();
+            rubric.getCriteria().add(criterion);
+            rubric = rubricRepository.save(rubric);
+
+            return CriterionTransferBean.of(rubric.getCriteria().get(length));
+        });
+    }
+
     public Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position) {
 
         String currentUserId = sessionManager.getCurrentSessionUserId();

@@ -61,6 +61,8 @@ public interface RubricsService {
 
     Optional<CriterionTransferBean> createDefaultCriterion(String siteId, Long rubricId);
 
+    Optional<CriterionTransferBean> createDefaultEmptyCriterion(String siteId, Long rubricId);
+
     CriterionTransferBean copyCriterion(Long rubricId, Long sourceId);
 
     Optional<RatingTransferBean> createDefaultRating(String siteId, Long criterionId, int position);

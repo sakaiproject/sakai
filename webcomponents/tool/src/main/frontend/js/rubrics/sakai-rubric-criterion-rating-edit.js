@@ -10,6 +10,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     return {
       rating: { type: Object },
       criterionId: { attribute: "criterion-id", type: String },
+      removable: {attribute: "removable", type: Boolean},
       minpoints: Number,
       maxpoints:  Number,
     };
@@ -39,7 +40,7 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
             <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" title="${tr("remove_label")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
+            <button class="delete" title="${this.removeButtonTitle()}" ?disabled="${!this.removable}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
               <sr-lang key="cancel" />
             </button>
@@ -152,6 +153,13 @@ export class SakaiRubricCriterionRatingEdit extends RubricsElement {
     if (e.keyCode == 32) {
       this.editRating(e);
     }
+  }
+
+  removeButtonTitle() {
+    if (this.removable) {
+      return `${tr("remove_label")} ${this.rating.title}`;
+    }
+    return tr("remove_rating_disabled");
   }
 }
 
