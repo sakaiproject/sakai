@@ -86,7 +86,7 @@ export class SakaiRubricGrading extends RubricsElement {
         </h3>
         ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
           <div class="sak-banner-warn">
-            ${tr('draft_evaluation', [tr(this.getToolDraftMessageKey())])}
+            ${tr('draft_evaluation', [tr(`draft_evaluation_${this.toolId}`)])}
           </div>
         ` : "" }
         <div class="criterion grading style-scope sakai-rubric-criteria-grading">
@@ -209,7 +209,7 @@ export class SakaiRubricGrading extends RubricsElement {
     this.dispatchRatingChanged(this.criteria, 1);
   }
 
-  decorateCriteria() {
+  decorateCriteria(options = { notify: false }) {
 
     console.debug("decorateCriteria");
 
@@ -241,7 +241,7 @@ export class SakaiRubricGrading extends RubricsElement {
       });
     });
 
-    this.updateTotalPoints({ notify: false });
+    this.updateTotalPoints(options);
   }
 
   fineTuneRating(e) {
@@ -309,16 +309,9 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluation.metadata = this.evaluation.metadata;
     }
 
-    return this.saveEvaluation(evaluation);
-  }
-
-  saveEvaluation(evaluation) {
-
-    console.debug("saveEvaluation");
-
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
     if (this.evaluation?.id) url += `/${this.evaluation.id}`;
-    return fetch(url, {
+    fetch(url, {
       body: JSON.stringify(evaluation),
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -340,31 +333,6 @@ export class SakaiRubricGrading extends RubricsElement {
     .catch(error => console.error(error));
   }
 
-  deleteEvaluation() {
-
-    console.debug("deleteEvaluation");
-
-    if (!this?.evaluation?.id) return;
-
-    const url = `/api/sites/${this.siteId}/rubric-evaluations/${this.evaluation.id}`;
-    fetch(url, {
-      credentials: "include",
-      method: "DELETE",
-    })
-    .then(r => {
-
-      if (r.ok) {
-        this.updateTotalPoints({ notify: true, totalPoints: 0 });
-        this.evaluation = { criterionOutcomes: [] };
-        this.criteria.forEach(c => this.emptyCriterion(c));
-        this.requestUpdate();
-      } else {
-        throw new Error("Server error while deleting evaluation");
-      }
-    })
-    .catch(error => console.error(error));
-  }
-
   getOverriddenClass(ovrdvl, selected) {
 
     console.debug("getOverriddenClass");
@@ -377,7 +345,6 @@ export class SakaiRubricGrading extends RubricsElement {
       return 'strike';
     }
     return '';
-
   }
 
   emptyCriterion(criterion) {
@@ -493,7 +460,6 @@ export class SakaiRubricGrading extends RubricsElement {
       this.criteria.forEach(c => c.ratings.forEach(r => r.selected = false));
       // And set the original ones
       this.decorateCriteria();
-      this.updateTotalPoints();
     })
     .catch(error => console.error(error));
   }
@@ -571,20 +537,10 @@ export class SakaiRubricGrading extends RubricsElement {
         });
 
         this.decorateCriteria();
-
-        if (this.evaluation.criterionOutcomes.length) {
-          // We only want to inform the enclosing tool about ratings changes
-          // for an existing evaluation
-          this.updateTotalPoints();
-        }
       })
       .catch(error => console.error(error));
     })
     .catch(error => console.error(error));
-  }
-
-  getToolDraftMessageKey() {
-    return `draft_evaluation_${this.toolId}`;
   }
 }
 
