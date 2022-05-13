@@ -607,6 +607,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
     public Optional<ToolItemRubricAssociation> saveRubricAssociation(String toolId, String toolItemId, final Map<String, String> params) {
 
+        if (params == null || params.isEmpty()) {
+            throw new IllegalArgumentException("No association params supplied");
+        }
+
         String siteId = toolManager.getCurrentPlacement().getContext();
 
         String associationId = null;
