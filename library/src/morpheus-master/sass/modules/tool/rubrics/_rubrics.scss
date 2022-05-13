@@ -141,8 +141,23 @@
                 @include display-flex;
                 @include flex-direction(column);
                 width: 100%;
-                margin-bottom: $standard-spacing;
                 border-width: 1px 0;
+                &.criterion-group {
+                    @include flex-direction(row);
+                    .criterion-actions {
+                        width: auto;
+                    }
+                    &:not(:first-of-type) {
+                        margin-top: $standard-spacing;
+                    }
+                    &::before {
+                        display: none;
+                    }
+                }
+                &:not(.criterion-group) {
+                    margin-bottom: $standard-spacing;
+                }
+
                 .criterion-detail {
                     border-left: 1px solid $rubrics-lightbox-border-color;
                     width: 100%;
@@ -293,6 +308,28 @@
                 cursor: -moz-grabbing;
             }
 
+            &.criterion-group {
+                margin-top: 10px;
+                position: relative;
+
+                &::before {
+                    background: $rubrics-crit-border-color;
+                    content: " ";
+                    height: $rubrics-crit-border-size;
+                    position: absolute;
+                    top: -11px;
+                    width: 100%;
+                }
+
+                &:first-of-type {
+                    margin-top: 0;
+
+                    &::before {
+                        display: none;
+                    }
+                }
+            }
+
             .criterion-detail {
                 position: relative;
                 padding: $standard-spacing;
@@ -301,6 +338,10 @@
                 background: $rubrics-crit-detail-bg;
                 width: 20%;
                 border-right: $rubrics-crit-border-size solid $rubrics-crit-border-color;
+
+                &.criterion-title {
+                    width: 95%;
+                }
 
                 p {
                     margin: 0;
@@ -488,6 +529,26 @@
                 &.strike {
                     text-decoration: line-through;
                 }
+            }
+        }
+    }
+
+    &.sakai-rubric-criteria-grading,
+    &.sakai-rubric-criterion-student {
+        .criterion-group {
+            .criterion-detail {
+                border-right: 0;
+                width: 100%;
+            }
+        }
+    }
+
+    &.sakai-rubric-criterion-readonly,
+    &.sakai-rubric-criterion-preview,
+    &.sakai-rubric-criteria-grading {
+        .criterion-group {
+            .criterion-detail {
+                width: 100%;
             }
         }
     }

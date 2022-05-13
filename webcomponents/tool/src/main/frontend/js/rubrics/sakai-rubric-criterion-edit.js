@@ -19,7 +19,8 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     return {
       siteId: { attribute: "site-id", type: String },
       rubricId: { attribute: "rubric-id", type: String },
-      criterion: { type: Object, notify: true }
+      criterion: { type: Object, notify: true },
+      isCriterionGroup: {attribute: "is-criterion-group", type: Boolean},
     };
   }
 
@@ -56,13 +57,21 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
         <div class="popover-content form">
           <div class="form-group">
             <label for="criterion-title-field-${this.criterion.id}">
-              <sr-lang key="criterion_title">Criterion Title</sr-lang>
+              ${this.isCriterionGroup ? html`
+                <sr-lang key="criterion_group_title">Criterion Group Title</sr-lang>
+              ` : html`
+                <sr-lang key="criterion_title">Criterion Title</sr-lang>
+              `}
             </label>
             <input id="criterion-title-field-${this.criterion.id}" type="text" class="form-control" value="${this.criterionClone.title}" maxlength="255">
           </div>
           <div class="form-group">
             <label for="criterion-description-field-${this.criterion.id}">
-              <sr-lang key="criterion_description">Criterion Description</sr-lang>
+              ${this.isCriterionGroup ? html`
+                <sr-lang key="criterion_group_description">Criterion Group Description</sr-lang>
+              ` : html`
+                <sr-lang key="criterion_description">Criterion Description</sr-lang>
+              `}
             </label>
             <sakai-editor
               toolbar="BasicText"

@@ -92,79 +92,88 @@ export class SakaiRubricGrading extends RubricsElement {
         <div class="criterion grading style-scope sakai-rubric-criteria-grading">
         ${this.criteria.map(c => html`
           <div id="criterion_row_${c.id}" class="criterion-row">
-            <div class="criterion-detail" tabindex="0">
-              <h4 class="criterion-title">${c.title}</h4>
-              <p>${unsafeHTML(c.description)}</p>
-              ${this.rubric.weighted ?
-                html`
-                  <div class="criterion-weight">
-                    <span>
-                      <sr-lang key="weight">Weight</sr-lang>
-                    </span>
-                    <span>${c.weight.toLocaleString(this.locale)}</span>
-                    <span>
-                      <sr-lang key="percent_sign">%</sr-lang>
-                    </span>
-                  </div>`
-                : ""
-              }
-            </div>
-            <div class="criterion-ratings">
-              <div class="cr-table">
-                <div class="cr-table-row">
-                ${c.ratings.map(r => html`
-                  <div class="rating-item ${r.selected ? "selected" : ""}"
-                        tabindex="0"
-                        data-rating-id="${r.id}"
-                        id="rating-item-${r.id}"
-                        data-criterion-id="${c.id}"
-                        @keypress=${this.toggleRating}
-                        @click=${this.toggleRating}>
-                    <h5 class="criterion-item-title">${r.title}</h5>
-                    <p>${r.description}</p>
-                    <span class="points" data-points="${r.points}">
-                      ${this.rubric.weighted && r.points > 0 ?
-                        html`
-                          <b>
-                            (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
-                          </b>`
-                        : ""
-                      }
-                      ${r.points.toLocaleString(this.locale)}
-                      <sr-lang key="points">Points</sr-lang>
-                    </span>
-                  </div>
-                `)}
+            ${this.isCriterionGroup(c) ? html`
+              <div id="criterion_row_${c.id}" class="criterion-row criterion-group">
+                <div class="criterion-detail">
+                  <h4 class="criterion-title">${c.title}</h4>
+                  <p>${unsafeHTML(c.description)}</p>
                 </div>
               </div>
-            </div>
-            <div class="criterion-actions">
-              <sakai-rubric-grading-comment id="comment-for-${c.id}"
-                  @comment-shown=${this.commentShown}
-                  @update-comment="${this.updateComment}"
-                  criterion="${JSON.stringify(c)}"
-                  evaluated-item-id="${this.evaluatedItemId}"
-                  entity-id="${this.entityId}">
-              </sakai-rubric-grading-comment>
-              <div class="rubric-grading-points-value">
-                <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                  ${c.selectedvalue.toLocaleString(this.locale)}
-                </strong>
+            ` : html`
+              <div class="criterion-detail" tabindex="0">
+                <h4 class="criterion-title">${c.title}</h4>
+                <p>${unsafeHTML(c.description)}</p>
+                ${this.rubric.weighted ?
+                  html`
+                    <div class="criterion-weight">
+                      <span>
+                        <sr-lang key="weight">Weight</sr-lang>
+                      </span>
+                      <span>${c.weight.toLocaleString(this.locale)}</span>
+                      <span>
+                        <sr-lang key="percent_sign">%</sr-lang>
+                      </span>
+                    </div>`
+                  : ""
+                }
               </div>
-              ${this.association.parameters.fineTunePoints ? html`
-                  <input
-                      title="${tr("point_override_details")}"
-                      data-criterion-id="${c.id}"
-                      name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
-                      class="fine-tune-points form-control hide-input-arrows"
-                      @input=${this.fineTuneRating}
-                      .value="${c.pointoverride.toLocaleString(this.locale)}"
-                  />
-                ` : ""}
-              <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
-              <input type="hidden" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterionrating-${c.id}" .value="${c.selectedRatingId}">
+              <div class="criterion-ratings">
+                <div class="cr-table">
+                  <div class="cr-table-row">
+                  ${c.ratings.map(r => html`
+                    <div class="rating-item ${r.selected ? "selected" : ""}"
+                          tabindex="0"
+                          data-rating-id="${r.id}"
+                          id="rating-item-${r.id}"
+                          data-criterion-id="${c.id}"
+                          @keypress=${this.toggleRating}
+                          @click=${this.toggleRating}>
+                      <h5 class="criterion-item-title">${r.title}</h5>
+                      <p>${r.description}</p>
+                      <span class="points" data-points="${r.points}">
+                        ${this.rubric.weighted && r.points > 0 ?
+                          html`
+                            <b>
+                              (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                            </b>`
+                          : ""
+                        }
+                        ${r.points.toLocaleString(this.locale)}
+                        <sr-lang key="points">Points</sr-lang>
+                      </span>
+                    </div>
+                  `)}
+                  </div>
+                </div>
+              </div>
+              <div class="criterion-actions">
+                <sakai-rubric-grading-comment id="comment-for-${c.id}"
+                    @comment-shown=${this.commentShown}
+                    @update-comment="${this.updateComment}"
+                    criterion="${JSON.stringify(c)}"
+                    evaluated-item-id="${this.evaluatedItemId}"
+                    entity-id="${this.entityId}">
+                </sakai-rubric-grading-comment>
+                <div class="rubric-grading-points-value">
+                  <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
+                    ${c.selectedvalue.toLocaleString(this.locale)}
+                  </strong>
+                </div>
+                ${this.association.parameters.fineTunePoints ? html`
+                    <input
+                        title="${tr("point_override_details")}"
+                        data-criterion-id="${c.id}"
+                        name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
+                        class="fine-tune-points form-control hide-input-arrows"
+                        @input=${this.fineTuneRating}
+                        .value="${c.pointoverride.toLocaleString(this.locale)}"
+                    />
+                  ` : ""}
+                <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
+                <input type="hidden" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterionrating-${c.id}" .value="${c.selectedRatingId}">
+              </div>
             </div>
-          </div>
+          `}
         `)}
         </div>
         <div class="rubric-totals">

@@ -175,6 +175,16 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
+    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+
+        checkSakaiSession();
+
+        return rubricsService.createDefaultEmptyCriterion(siteId, rubricId)
+            .map(criterion -> ResponseEntity.ok(entityModelForCriterionBean(criterion)))
+            .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
     @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criterions/{criterionId}")
     public ResponseEntity deleteRubric(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId) {
 
