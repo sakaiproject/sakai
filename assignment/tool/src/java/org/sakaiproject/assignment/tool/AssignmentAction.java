@@ -2227,8 +2227,8 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             // Get site ID
             String siteId = toolManager.getCurrentPlacement().getContext();
-            Optional<Site> site = Optional.of(siteService.getSite(siteId));
-            Site currentSite = site.get();
+            // Get site by ID
+            Site currentSite = siteService.getSite(siteId);
             // Assignments Tool Configuration
             ToolConfiguration toolConfig = currentSite.getToolForCommonId(TOOL_ID);
                     
