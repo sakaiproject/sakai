@@ -423,10 +423,6 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   createCriterionResponse(nc) {
 
-    nc.new = true;
-    if (!nc.ratings) {
-      nc.ratings = [];
-    }
     this.criteria.push(nc);
     this.criteriaMap.set(nc.id, nc);
 
@@ -439,11 +435,10 @@ export class SakaiRubricCriteria extends RubricsElement {
     const criterion = this.criteriaMap.get(e.detail.id);
     criterion.title = e.detail.title;
     criterion.description = e.detail.description;
-    criterion.new = false;
+    criterion.isNew = e.detail.isNew;
     this.requestUpdate();
 
-    const sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
-    sakaiItemDelete.requestUpdate("criterion", criterion);
+    this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`).requestUpdate("criterion", criterion);
   }
 
   saveWeights() {

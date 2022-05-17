@@ -303,7 +303,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId));
     }
 
-    @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}", consumes = "application/json-patch+json")
+    @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}",
+                    consumes = "application/json-patch+json",
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity patchCriterion(@PathVariable String siteId, @PathVariable Long criterionId, @RequestBody JsonPatch patch) throws Exception {
 
         checkSakaiSession();
@@ -315,8 +317,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
             try {
                 JsonNode patched = patch.apply(objectMapper.convertValue(criterion, JsonNode.class));
                 CriterionTransferBean patchedBean  = objectMapper.treeToValue(patched, CriterionTransferBean.class);
-                rubricsService.saveCriterion(patchedBean, siteId);
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.saveCriterion(patchedBean, siteId)));
             } catch (Exception e) {
                 log.error("Failed to patch criterion", e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

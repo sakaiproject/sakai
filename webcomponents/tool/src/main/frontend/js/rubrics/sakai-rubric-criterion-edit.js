@@ -30,7 +30,7 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     this._criterion = newValue;
     this.criterionClone = JSON.parse(JSON.stringify(newValue));
     this.requestUpdate("criterion", oldValue);
-    if (this.criterionClone.new) {
+    if (this.criterionClone.isNew) {
       this.updateComplete.then(() => this.querySelector(".edit").click() );
     }
   }
@@ -170,19 +170,21 @@ export class SakaiRubricCriterionEdit extends RubricsElement {
     .then(r => {
 
       if (r.ok) {
-        this.hideToolTip();
-        this.dispatchEvent(new CustomEvent('criterion-edited', { detail: { id: this.criterion.id, title, description } }));
-        this.dispatchEvent(new SharingChangeEvent());
+        return r.json();
       }
 
       throw new Error("Network error while updating criterion");
+    }).then(criterion => {
+
+      this.dispatchEvent(new CustomEvent('criterion-edited', { detail: criterion }));
+      this.dispatchEvent(new SharingChangeEvent());
     })
     .catch (error => console.error(error));
 
     // hide the popover
     this.hideToolTip();
     this.dispatchEvent(new CustomEvent('hide-tooltip', {detail: this.criterion}));
-    $(`#edit_criterion_${this.criterion.id}`).hide();
+    document.getElementById(`edit_criterion_${this.criterion.id}`).style.display = "none";
   }
 
   openEditWithKeyboard(e) {
