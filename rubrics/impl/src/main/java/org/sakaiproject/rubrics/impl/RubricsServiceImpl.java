@@ -362,7 +362,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             rubric.getCriteria().add(criterion);
             rubric = rubricRepository.save(rubric);
 
-            return CriterionTransferBean.of(rubric.getCriteria().get(length));
+            CriterionTransferBean bean = CriterionTransferBean.of(rubric.getCriteria().get(length));
+            bean.isNew = true;
+            return bean;
         });
     }
 
