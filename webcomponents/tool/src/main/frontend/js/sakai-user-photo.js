@@ -5,15 +5,15 @@ import { html } from "./assets/lit-html/lit-html.js";
  * A simple wrapper for Sakai's user profile picture.
  *
  * Usage:
- *
- * Renders adrian's profile picture and pops up the profile panel when clicked.
  * <sakai-user-photo user-id="adrian">
  *
- * Renders adrian's profile picture without a popup
- * <sakai-user-photo user-id="adrian" no-popup>
- *
- * Renders adrian's profile picture with a popup and some custom styles from the supplied class.
- * <sakai-user-photo user-id="adrian" classes="custom">
+ * @element sakai-user-photo
+ * @property {string} user-id - A Sakai user id
+ * @property {string} [classes] - Extra classes to style the content
+ * @property {boolean} [no-popup] Set this if you don't want the profile popup
+ * @property {boolean} [official] Set this if you want the official Sakai photo
+ * @property {string} [site-id] Set this to trigger permissions checks on the photo
+ * @property {boolean} [print] Set this to trigger the render of a print friendly img tag
  */
 class SakaiUserPhoto extends SakaiElement {
 
@@ -32,6 +32,7 @@ class SakaiUserPhoto extends SakaiElement {
       noPopup: { attribute: "no-popup", type: Boolean },
       official: { type: Boolean },
       siteId: { attribute: "site-id", type: String },
+      print: { type: Boolean },
     };
   }
 
@@ -56,6 +57,12 @@ class SakaiUserPhoto extends SakaiElement {
   }
 
   render() {
+
+    if (this.print) {
+      return html`
+        <img src="${this.url}" alt="Print view only" />
+      `;
+    }
 
     return html`
       <div id="${this.generatedId}"
