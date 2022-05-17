@@ -38,7 +38,7 @@ jobs:
           export TOMCAT_DIR=$PWD/tomcat
           mkdir $TOMCAT_DIR
           cd $TOMCAT_DIR
-          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz
+          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.63/bin/apache-tomcat-9.0.63.tar.gz
           tar --strip-components=1 -xzf tomcat.tar.gz
           git clone https://github.com/sakaiproject/nightly-config.git sakai
           cp sakai/master.properties sakai/sakai.properties
