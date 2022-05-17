@@ -331,7 +331,7 @@ public class PublishAssessmentListener
 				"gradebook_exception_category_invalid");
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
 		throw new AbortProcessingException(gbe);
-	} catch (Exception e) {
+    } catch (Exception e) {
         log.warn(e.getMessage(), e);
         // Add a global message (not bound to any component) to the faces context indicating the failure
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
