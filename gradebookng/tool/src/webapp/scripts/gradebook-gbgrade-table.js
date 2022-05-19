@@ -782,8 +782,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         html = GbGradeTable.headerRenderer(col, this.view.settings.columns[col]._data_, $th);
       }
 
-      console.log(html);
-
       // If we haven't got a cached parse of it, do that now
       if (!GbGradeTable.columnDOMNodeCache[col] || GbGradeTable.columnDOMNodeCache[col].html !== html) {
         GbGradeTable.columnDOMNodeCache[col] = {
@@ -1148,7 +1146,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       studentId: $.data($cell[0], "studentid")
     });
   }).
-  on("click", ".preview-assignment-rubric", function() {
+  on("click", ".preview-assignment-rubric", function (e) {
+    e.preventDefault();
     var $dropdown = $(this).closest(".gb-dropdown-menu");
     var $cell = $dropdown.data("cell");
     GbGradeTable.ajax({

@@ -601,38 +601,6 @@ public class SakaiScript extends AbstractWebService {
     }
 
     /**
-     * Gets the sort name for a given user
-     * <p/>
-     * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
-     * with that user. This uses a eid as well so we could be logged in as admin and retrieve the sort name for any user.
-     *
-     * @param eid    the login username (ie jsmith26) of the user you want the display name for fall back to internal id
-     * @return the display name for the user
-     * @throws RuntimeException
-     */
-    @WebMethod
-    @Path("/getUserSortName")
-    @Produces("text/plain")
-    @GET
-    public String getUserSortName(
-            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
-        Session session = establishSession(sessionManager.getCurrentSession().getId());
-        try {
-            return userDirectoryService.getUserByEid(eid).getSortName();
-        } catch (UserNotDefinedException unde) {
-            try {
-                return userDirectoryService.getUser(eid).getSortName();
-            } catch (UserNotDefinedException unde2) {
-                log.error("WS getSortName() failed for user: " + eid + " : " + unde2.getClass().getName() + " : " + unde2.getMessage());
-                return "";
-            }
-        } catch (Exception e) {
-            log.error("WS getSortName() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
-            return "";
-        }
-    }
-
-    /**
      * Create user-group to specified worksite (as if it had been added in Worksite Setup)
      *
      * @param sessionid    the id of a valid session

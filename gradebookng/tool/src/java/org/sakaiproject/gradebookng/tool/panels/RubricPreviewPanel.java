@@ -36,8 +36,8 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.grading.api.Assignment;
 
 public class RubricPreviewPanel extends BasePanel {
 
@@ -46,26 +46,28 @@ public class RubricPreviewPanel extends BasePanel {
 
     private final ModalWindow window;
 
-    public RubricPreviewPanel(final String id, final IModel<Long> model, final ModalWindow window) {
+    public RubricPreviewPanel(String id, IModel<Long> model, ModalWindow window) {
+
         super(id, model);
+
         this.window = window;
     }
 
     @Override
     public void onInitialize() {
+
         super.onInitialize();
         final Long assignmentId = (Long) getDefaultModelObject();
-        //final Long assignmentId = (Long) modelData.get("assignmentId");
         final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student");
+        sakaiRubricPreview.add(AttributeModifier.append("site-id", getCurrentSiteId()));
         Assignment assignmentNow = businessService.getAssignment(assignmentId);
-        if(assignmentNow!=null && assignmentNow.isExternallyMaintained()){  //this is an externally-maintained item from Assignments
+        if (assignmentNow != null && assignmentNow.getExternallyMaintained()) {  //this is an externally-maintained item from Assignments
             sakaiRubricPreview.add(AttributeModifier.append("entity-id", extractAssignmentId(assignmentNow.getExternalId())));  //rubric association needs Assignment id, not Gradebook id
             sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
         } else {
             sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignmentId));
             sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         }
-        sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
         sakaiRubricPreview.add(AttributeModifier.append("instructor", "true"));
         add(sakaiRubricPreview);
         final GbAjaxButton done = new GbAjaxButton("done") {
@@ -80,20 +82,23 @@ public class RubricPreviewPanel extends BasePanel {
         RubricPreviewPanel.this.window.setTitle(this.getString("label.rubric.preview") + assignmentNow.getName());
     }
 
-    public void renderHead(final IHeaderResponse response) {
-        final String version = PortalUtils.getCDNQuery();
+    public void renderHead(IHeaderResponse response) {
+
+        String version = PortalUtils.getCDNQuery();
         response.render(StringHeaderItem.forString(
                 "<script src=\"/webcomponents/rubrics/sakai-rubrics-utils.js" + version + "\"></script>"));
         response.render(StringHeaderItem.forString(
                 "<script type=\"module\" src=\"/webcomponents/rubrics/rubric-association-requirements.js" + version + "\"></script>"));
     }
 
-    private String extractAssignmentId(String externalId){
-        if (externalId==null){ //make sure we have an ID that exists
+    private String extractAssignmentId(String externalId) {
+
+        if (externalId == null) { //make sure we have an ID that exists
             return "";
         }
+
         String[] splitArray = externalId.split("/");    //go ahead and split it since we know it won't break.
-        if(splitArray.length < 5){  //make sure the expected position of the external ID exists.
+        if (splitArray.length < 5) {  //make sure the expected position of the external ID exists.
             return "";
         }
         return splitArray[4];   //we assume the external ID to be in the fourth position

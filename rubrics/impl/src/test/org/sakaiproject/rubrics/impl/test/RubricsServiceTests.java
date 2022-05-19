@@ -100,8 +100,11 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     String siteRef = "/site/" + siteId;
     Site site = null;
     String user1 = "user1";
+    String user1DisplayName = "User 1";
+    String user1SortName = "1, User";
     User user1User = null;
     String user2 = "user2";
+    String user2SortName = "2, User";
     User user2User = null;
     String user3 = "user3";
     User user3User = null;
@@ -134,18 +137,21 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         user1User = mock(User.class);
         when(user1User.getId()).thenReturn(user1);
         when(user1User.getDisplayName()).thenReturn("User 1");
+        when(user1User.getSortName()).thenReturn(user1SortName);
 
         user2User = mock(User.class);
         when(user2User.getId()).thenReturn(user2);
         when(user2User.getDisplayName()).thenReturn("User 2");
+        when(user2User.getSortName()).thenReturn("2, User");
 
         user3User = mock(User.class);
         when(user3User.getId()).thenReturn(user3);
-        when(user3User.getDisplayName()).thenReturn("User 3");
+        when(user3User.getDisplayName()).thenReturn("3, User");
 
         instructorUser = mock(User.class);
         when(instructorUser.getId()).thenReturn(instructor);
         when(instructorUser.getDisplayName()).thenReturn("Instructor");
+
 
         rubricBean1 = new RubricTransferBean();
         rubricBean1.title = "Rubric 1";
@@ -467,6 +473,16 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         optEtb2.get().status = EvaluationStatus.RETURNED;
         etb = rubricsService.saveEvaluation(optEtb2.get(), siteId);
         assertNotNull(etb.modified);
+
+        List<String> userIds = new ArrayList<>();
+        userIds.add(user2);
+        List<User> users = new ArrayList<>();
+        users.add(user2User);
+        when(userDirectoryService.getUsers(userIds)).thenReturn(users);
+
+        List<EvaluationTransferBean> evaluations = rubricsService.getEvaluationsForToolAndItem(toolId, toolItemId, siteId);
+        assertEquals(1, evaluations.size());
+        assertEquals(user2SortName, evaluations.get(0).sortName);
 
         returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(etb.id);
         assertTrue(returnedEvaluation.isPresent());

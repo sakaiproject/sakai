@@ -222,7 +222,7 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
     .then(r => {
 
       if (r.ok) {
-        return r.json()
+        return r.json();
       }
 
       throw new Error(`Network error while saving post: ${r.status}`);

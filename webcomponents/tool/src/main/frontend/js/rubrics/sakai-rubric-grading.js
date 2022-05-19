@@ -1,13 +1,14 @@
 import { RubricsElement } from "./rubrics-element.js";
 import { html } from "../assets/lit-element/lit-element.js";
+import { unsafeHTML } from "../assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-grading-comment.js";
 import "./sakai-rubric-pdf.js";
-import { unsafeHTML } from "/webcomponents/assets/lit-html/directives/unsafe-html.js";
 import "./sakai-rubric-summary.js";
 import { SakaiRubricsLanguage, tr } from "./sakai-rubrics-language.js";
 import { getUserId } from "../sakai-portal-utils.js";
+import { rubricsApiMixin } from "./sakai-rubrics-api-mixin.js";
 
-export class SakaiRubricGrading extends RubricsElement {
+export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   constructor() {
 
@@ -43,7 +44,7 @@ export class SakaiRubricGrading extends RubricsElement {
   set entityId(value) {
 
     this._entityId = value;
-    this.getAssociation();
+    this._getAssociation();
   }
 
   get entityId() { return this._entityId; }
@@ -51,7 +52,7 @@ export class SakaiRubricGrading extends RubricsElement {
   set evaluatedItemId(value) {
 
     this._evaluatedItemId = value;
-    this.getAssociation();
+    this._getAssociation();
   }
 
   get evaluatedItemId() { return this._evaluatedItemId; }
@@ -59,7 +60,7 @@ export class SakaiRubricGrading extends RubricsElement {
   set toolId(value) {
 
     this._toolId = value;
-    this.getAssociation();
+    this._getAssociation();
   }
 
   get toolId() { return this._toolId; }
@@ -83,40 +84,37 @@ export class SakaiRubricGrading extends RubricsElement {
                 entity-id="${this.entityId}"
                 evaluated-item-id="${this.evaluatedItemId}"
             />
-          ` : nothing}
+          ` : ""}
         </h3>
         <div class="rubrics-tab-row">
-          <a href="javascript:void(0);" id="rubric-grading-or-preview-button" class="rubrics-tab-button rubrics-tab-selected" @keypress=${this.openGradePreviewTab} @click=${this.openGradePreviewTab}><sr-lang key="grading_rubric">gradingrubric</sr-lang></a>
-          <a href="javascript:void(0);" id="rubric-student-summary-button" class="rubrics-tab-button" @keypress=${this.makeStudentSummary} @click=${this.makeStudentSummary}><sr-lang key="student_summary">studentsummary</sr-lang></a>
-          <a href="javascript:void(0);" id="rubric-criteria-summary-button" class="rubrics-tab-button" @keypress=${this.makeCriteriaSummary} @click=${this.makeCriteriaSummary}><sr-lang key="criteria_summary">criteriasummary</sr-lang></a>
+          <a href="javascript:void(0);"
+              id="rubric-grading-or-preview-button"
+              class="rubrics-tab-button rubrics-tab-selected"
+              @keypress=${this.openGradePreviewTab}
+              @click=${this.openGradePreviewTab}>
+            <sr-lang key="grading_rubric">gradingrubric</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-student-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeStudentSummary}
+              @click=${this.makeStudentSummary}>
+            <sr-lang key="student_summary">studentsummary</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-criteria-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeCriteriaSummary}
+              @click=${this.makeCriteriaSummary}>
+            <sr-lang key="criteria_summary">criteriasummary</sr-lang>
+          </a>
         </div>
         <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
           ${this.evaluation && this.evaluation.status === "DRAFT" ? html`
           <div class="sak-banner-warn">
-            <sr-lang key="draft_evaluation">DRAFT</sr-lang>
+            ${tr('draft_evaluation', [tr(`draft_evaluation_${this.toolId}`)])}
           </div>
         ` : "" }
-          <div class="criterion grading style-scope sakai-rubric-criteria-grading" style="margin-bottom: 10px;">
-          ${this.criteria.map(c => html`
-            <div id="criterion_row_${c.id}" class="criterion-row">
-              <div class="criterion-detail" tabindex="0">
-                <h4 class="criterion-title">${c.title}</h4>
-                <p>${c.description}</p>
-                ${this.rubric.weighted ?
-                  html`
-                    <div class="criterion-weight">
-                      <span>
-                        <sr-lang key="weight">Weight</sr-lang>
-                      </span>
-                      <span>${c.weight}</span>
-                      <span>
-                        <sr-lang key="percent_sign">%</sr-lang>
-                      </span>
-                    </div>`
-                  : ""
-                }
-            </div>
-          ` : "" }
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this.criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
@@ -131,19 +129,17 @@ export class SakaiRubricGrading extends RubricsElement {
                 <div class="criterion-detail" tabindex="0">
                   <h4 class="criterion-title">${c.title}</h4>
                   <p>${unsafeHTML(c.description)}</p>
-                  ${this.rubric.weighted ?
-                    html`
-                      <div class="criterion-weight">
-                        <span>
-                          <sr-lang key="weight">Weight</sr-lang>
-                        </span>
-                        <span>${c.weight.toLocaleString(this.locale)}</span>
-                        <span>
-                          <sr-lang key="percent_sign">%</sr-lang>
-                        </span>
-                      </div>`
-                    : ""
-                  }
+                  ${this.rubric.weighted ? html`
+                    <div class="criterion-weight">
+                      <span>
+                        <sr-lang key="weight">Weight</sr-lang>
+                      </span>
+                      <span>${c.weight.toLocaleString(this.locale)}</span>
+                      <span>
+                        <sr-lang key="percent_sign">%</sr-lang>
+                      </span>
+                    </div>
+                  ` : "" }
                 </div>
                 <div class="criterion-ratings">
                   <div class="cr-table">
@@ -159,13 +155,11 @@ export class SakaiRubricGrading extends RubricsElement {
                         <h5 class="criterion-item-title">${r.title}</h5>
                         <p>${r.description}</p>
                         <span class="points" data-points="${r.points}">
-                          ${this.rubric.weighted && r.points > 0 ?
-                            html`
-                              <b>
-                                (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
-                              </b>`
-                            : ""
-                          }
+                          ${this.rubric.weighted && r.points > 0 ? html`
+                            <b>
+                              (${parseFloat((r.points * (c.weight / 100)).toFixed(2)).toLocaleString(this.locale)})
+                            </b>
+                          ` : "" }
                           ${r.points.toLocaleString(this.locale)}
                           <sr-lang key="points">Points</sr-lang>
                         </span>
@@ -188,15 +182,15 @@ export class SakaiRubricGrading extends RubricsElement {
                     </strong>
                   </div>
                   ${this.association.parameters.fineTunePoints ? html`
-                      <input
-                          title="${tr("point_override_details")}"
-                          data-criterion-id="${c.id}"
-                          name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
-                          class="fine-tune-points form-control hide-input-arrows"
-                          @input=${this.fineTuneRating}
-                          .value="${c.pointoverride.toLocaleString(this.locale)}"
-                      />
-                    ` : ""}
+                    <input
+                        title="${tr("point_override_details")}"
+                        data-criterion-id="${c.id}"
+                        name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
+                        class="fine-tune-points form-control hide-input-arrows"
+                        @input=${this.fineTuneRating}
+                        .value="${c.pointoverride.toLocaleString(this.locale)}"
+                    />
+                  ` : "" }
                   <input aria-labelledby="${tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
                   <input type="hidden" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterionrating-${c.id}" .value="${c.selectedRatingId}">
                 </div>
@@ -218,18 +212,21 @@ export class SakaiRubricGrading extends RubricsElement {
   }
 
   openGradePreviewTab(e) {
+
     e.stopPropagation();
     this.openRubricsTab("rubric-grading-or-preview");
   }
 
   makeStudentSummary(e) {
+
     e.stopPropagation();
-    this.makeASummary("student");
+    this.makeASummary("student", this.siteId);
   }
 
   makeCriteriaSummary(e) {
+
     e.stopPropagation();
-    this.makeASummary("criteria");
+    this.makeASummary("criteria", this.siteId);
   }
 
   updateComment(e) {
@@ -519,83 +516,57 @@ export class SakaiRubricGrading extends RubricsElement {
     .catch(error => console.error(error));
   }
 
-  getAssociation() {
+  _getAssociation() {
 
-    console.debug("getAssociation");
+    console.debug("_getAssociation");
 
     if (!this.toolId || !this.entityId || !this.evaluatedItemId) {
       return;
     }
 
-    const url = `/api/sites/${this.siteId}/rubric-associations/tools/${this.toolId}/items/${this.entityId}`;
-    fetch(url, { credentials: "include" })
-    .then(r => {
+    this.apiGetAssociation()
+      .then(association => {
 
-      if (r.ok) {
-        return r.json();
-      }
-
-      throw new Error("Network error while getting association");
-    })
-    .then(association => {
-
-      this.association = association;
-      this.rubricId = association.rubricId;
-      this.getRubric(this.rubricId);
-    })
-    .catch (error => console.error(error));
+        this.association = association;
+        this.rubricId = association.rubricId;
+        this._getRubric(this.rubricId);
+      })
+      .catch (error => console.error(error));
   }
 
-  getRubric(rubricId) {
+  _getRubric(rubricId) {
 
-    console.debug("getRubric");
+    console.debug("_getRubric");
 
-    const rubricUrl = `/api/sites/${this.siteId}/rubrics/${rubricId}`;
-    fetch(rubricUrl, { credentials: "include" })
-    .then(r => {
+    this.apiGetRubric(rubricId)
+      .then(rubric => {
 
-      if (r.ok) {
-        return r.json();
-      }
+        if (this.evaluatedItemId) {
+          this.apiGetEvaluation()
+            .then(evaluation => {
 
-      throw new Error("Network error while getting rubric");
-    })
-    .then(rubric => {
+              this.evaluation = evaluation || { criterionOutcomes: [] };
+              this.rubric = rubric;
+              this.criteria = this.rubric.criteria;
+              this.criteria.forEach(c => {
 
-      const url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-      fetch(url, { credentials: "include" })
-      .then(r => {
+                c.pointoverride = "";
 
-        if (r.ok) {
-          return r.json();
+                if (!c.selectedvalue) {
+                  c.selectedvalue = 0;
+                }
+                c.pointrange = this.getHighLow(c.ratings);
+              });
+
+              this.decorateCriteria();
+            })
+            .catch(error => console.error(error));
+        } else {
+          this.rubric = rubric;
+          this.criteria = this.rubric.criteria;
         }
-
-        if (r.status !== 404) {
-          throw new Error("Network error while getting evaluation");
-        }
-      })
-      .then(evaluation => {
-
-        this.evaluation = evaluation || { criterionOutcomes: [] };
-
-        this.rubric = rubric;
-
-        this.criteria = this.rubric.criteria;
-        this.criteria.forEach(c => {
-
-          c.pointoverride = "";
-
-          if (!c.selectedvalue) {
-            c.selectedvalue = 0;
-          }
-          c.pointrange = this.getHighLow(c.ratings);
-        });
-
-        this.decorateCriteria();
       })
       .catch(error => console.error(error));
-    })
-    .catch(error => console.error(error));
   }
 }
 

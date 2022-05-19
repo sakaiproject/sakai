@@ -671,7 +671,7 @@ sakai-rubric-student-comment {
     display: inline-block;
     text-align: center;
     border-radius: 4px 4px 0 0;
-    background: #fafafa;
+    background: var(--sakai-background-color);
 
     &:hover {
         cursor: pointer;
@@ -684,7 +684,7 @@ sakai-rubric-student-comment {
 
 a.rubrics-tab-selected {
     border-bottom: none;
-    background: #fff;
+    background: var(--sakai-background-color-2);
     pointer-events: none;
     text-decoration: none;
 
