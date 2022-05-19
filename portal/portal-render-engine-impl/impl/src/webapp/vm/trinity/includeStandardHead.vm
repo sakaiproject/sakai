@@ -1,6 +1,5 @@
 ## Standard Header used by all portal views
-## Don't put anything before the <!DOCTYPE or it breaks IE9
-## DOCTYPE detection and puts it in quirks mode.
+## Don't put anything before the <!DOCTYPE>
 <!DOCTYPE html>
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html $!{userTheme}">
     <head>
@@ -8,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         ##TODO TRINITY-43 review if importmaps are supported
+#* TODO: decide - Trinity chopping block
         <script type="importmap">
         {
             "imports": {
@@ -15,7 +15,7 @@
             }
         }
         </script>
-
+*#
         <script> ## Include this at the top so tool markup and headscripts.js can use it
             ## SAK-16484 Allow Javascript to easily get at user details.
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
@@ -75,14 +75,19 @@
         </script>
 
         #parse("/vm/trinity/snippets/title-snippet.vm")
+
+        ## TRINITY-43 Review before merging to master
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
         #parse("/vm/trinity/snippets/portalCSS-snippet.vm")
         
+#* TODO: decide - Trinity chopping block
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}qtip2/3.0.3-1/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}cropper/4.1.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}fontawesome/4.7.0/css/font-awesome.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+*#
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js$!{portalCDNQuery}"></script>

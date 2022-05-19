@@ -1,8 +1,9 @@
 // Dependencies
 
-// import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 // Trinity JavaScript
+
 
 // Custom JavaScript
 import "./_customization-lib.js";
