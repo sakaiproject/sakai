@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -346,6 +347,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					sectionMetaData.getEntry());
 			h.add(publishedSectionMetaData);
 		}
+		h.add(new PublishedSectionMetaData(publishedSection, SectionDataIfc.RANDOMIZATION_SEED, String.valueOf(UUID.randomUUID().hashCode())));
 		return h;
 	}
 
