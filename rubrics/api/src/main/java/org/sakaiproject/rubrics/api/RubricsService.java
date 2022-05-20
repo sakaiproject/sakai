@@ -79,7 +79,7 @@ public interface RubricsService {
 
     RatingTransferBean saveRating(RatingTransferBean bean, String siteId);
 
-    void deleteRating(Long ratingId, Long criterionId, String siteId);
+    CriterionTransferBean deleteRating(Long ratingId, Long criterionId, String siteId);
 
     Optional<RubricTransferBean> getRubric(Long rubricId);
 
