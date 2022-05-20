@@ -194,6 +194,7 @@ public class LoginServlet
           agentIdString = AgentFacade.getAgentString();
         }
         delivery.setAnonymousLogin(false);
+        delivery.setAccessByUrlAndAuthorized(isAuthorized);
         person.setAnonymousId(null);
       }
 
