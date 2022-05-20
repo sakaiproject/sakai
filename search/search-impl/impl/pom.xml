@@ -89,7 +89,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-imaging</artifactId>
-      <version>1.0-alpha2</version>
+      <version>1.0-alpha3</version>
     </dependency>
     <dependency>
       <groupId>net.sf.jtidy</groupId>
