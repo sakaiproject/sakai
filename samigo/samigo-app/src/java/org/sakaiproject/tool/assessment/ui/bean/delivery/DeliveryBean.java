@@ -351,6 +351,8 @@ public class DeliveryBean implements Serializable {
   @Getter @Setter
   private boolean anonymousLogin = false;
   @Getter @Setter
+  private boolean accessByUrlAndAuthorized = false;
+  @Getter @Setter
   private String contextPath;
 
   // SAK-6990 daisyf added this for timed assessment, to check if mutiple windows were open during timed assessment
