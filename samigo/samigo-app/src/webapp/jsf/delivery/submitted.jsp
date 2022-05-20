@@ -161,6 +161,16 @@ function closeWindow() {alert("1"); self.opener=this; self.close(); }
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}"
        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");"
        rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}" />
+    
+    <h:commandButton value="Show Feedback" type="submit" title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"
+        rendered="#{delivery.feedbackComponentOption == '2' && select.displayAllAssessments != '1'}">
+        <f:param name="publishedId" value="#{delivery.assessmentId}" />
+        <f:param name="assessmentGradingId" value="#{delivery.assessmentGradingId}" />
+        <f:param name="nofeedback" value="false"/>
+        <f:param name="actionString" value="reviewAssessment"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+    </h:commandButton>
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 

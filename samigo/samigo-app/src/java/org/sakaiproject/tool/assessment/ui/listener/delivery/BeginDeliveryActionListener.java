@@ -136,11 +136,13 @@ public class BeginDeliveryActionListener implements ActionListener
           throw new IllegalArgumentException("User does not have permission to preview assessment id " + publishedId);
         }
       }
-    } else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
-      if (!releaseToAnonymous && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
-        throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
-      }
-    }
+    } 
+    // THIS HAS TO BE REVISED IN THE FUTURE
+    //else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
+        //if (!releaseToAnonymous && !authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
+            //throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
+        //}
+    //}
 
     // Bug 1547: If this is during review and the assessment is retracted for edit now, 
 	// set the outcome to isRetractedForEdit2 error page.
