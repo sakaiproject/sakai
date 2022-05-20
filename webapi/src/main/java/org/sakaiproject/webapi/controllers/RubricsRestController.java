@@ -345,13 +345,12 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}")
-    ResponseEntity deleteRating(@PathVariable String siteId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
+    @DeleteMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/{ratingId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> deleteRating(@PathVariable String siteId, @PathVariable Long criterionId, @PathVariable Long ratingId) throws Exception {
 
         checkSakaiSession();
 
-        rubricsService.deleteRating(ratingId, criterionId, siteId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.deleteRating(ratingId, criterionId, siteId)));
     }
 
     @ResponseBody
