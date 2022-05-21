@@ -78,10 +78,6 @@ export class SakaiRubricCriteriaReadonly extends RubricsElement {
       </div>
     `;
   }
-
-  isCriterionGroup(criterion) {
-    return criterion.ratings.length === 0;
-  }
 }
 
 if (!customElements.get("sakai-rubric-criteria-readonly", SakaiRubricCriteriaReadonly)) {

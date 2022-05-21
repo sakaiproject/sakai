@@ -71,10 +71,6 @@ export class SakaiRubricCriterionPreview extends RubricsElement {
       </div>
     `;
   }
-
-  isCriterionGroup(criterion) {
-    return criterion.ratings.length === 0;
-  }
 }
 
 customElements.define("sakai-rubric-criterion-preview", SakaiRubricCriterionPreview);
