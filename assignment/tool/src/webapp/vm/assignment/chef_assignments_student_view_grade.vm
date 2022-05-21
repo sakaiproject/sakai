@@ -315,6 +315,7 @@
 
     #if ($submission.Graded && ($submission.GradeReleased || $returned))
     <sakai-rubric-student
+        site-id="$assignment.context"
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"

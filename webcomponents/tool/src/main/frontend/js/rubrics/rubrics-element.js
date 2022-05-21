@@ -50,6 +50,11 @@ class RubricsElement extends SakaiElement {
       low: lowest
     };
   }
+
+  isCriterionGroup(criterion) {
+
+    return criterion.ratings.length === 0;
+  }
 }
 
 export {RubricsElement};

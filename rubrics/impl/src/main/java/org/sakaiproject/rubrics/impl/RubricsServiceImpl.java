@@ -52,7 +52,6 @@ import org.jsoup.Jsoup;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzGroupReferenceBuilder;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -1181,8 +1180,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 return true;
             }
             if (eval.getEvaluatedItemOwnerType() == EvaluatedItemOwnerType.GROUP) {
-                String groupRef = AuthzGroupReferenceBuilder.builder().site(siteId).group(eval.getEvaluatedItemOwnerId()).build();
-                return securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, groupRef);
+                return authzGroupService.getUserRole(currentUserId, eval.getEvaluatedItemOwnerId()) != null;
             }
         }
 
