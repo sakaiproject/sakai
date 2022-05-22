@@ -123,10 +123,6 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
     `;
   }
 
-  isCriterionGroup(criterion) {
-    return criterion.ratings.length === 0;
-  }
-
   handleEvaluationDetails() {
 
     this.evaluationDetails.forEach(ed => {

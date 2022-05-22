@@ -478,10 +478,6 @@ export class SakaiRubricCriteria extends RubricsElement {
   isRatingRemovable(criterion) {
     return criterion.ratings.length > 1;
   }
-
-  isCriterionGroup(criterion) {
-    return criterion.ratings.length === 0;
-  }
 }
 
 const tagName = "sakai-rubric-criteria";
