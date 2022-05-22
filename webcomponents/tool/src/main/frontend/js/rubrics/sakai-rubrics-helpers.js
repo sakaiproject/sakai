@@ -3,7 +3,7 @@ export class SakaiRubricsHelpers {
   static handleErrors(response) {
 
     if (!response.ok) {
-      console.log(`Error : ${  response.statusText || response.status}`);
+      console.error(`Error : ${  response.statusText || response.status}`);
       throw Error((response.statusText || response.status));
     }
     return response;

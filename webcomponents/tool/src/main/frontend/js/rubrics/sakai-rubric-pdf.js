@@ -44,10 +44,10 @@ export class SakaiRubricPdf extends RubricsElement {
         return r.blob();
       }
 
-      throw new Error(`Network error while getting ${url}`);
+      throw new Error(`Network error while getting ${url}: ${r.status}`);
     })
     .then(blob => this.saveByteArray(this.rubricTitle, blob))
-    .catch(error => console.error(error));
+    .catch (error => console.error(error));
   }
 
   saveByteArray(reportName, blob) {

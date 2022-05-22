@@ -29,11 +29,11 @@ export class SakaiRubric extends RubricsElement {
     return {
       rubric: { type: Object},
       siteId: { attribute: "site-id", type: String },
-      shareIcon: { type: String },
-      weightedIcon: String,
-      totalWeight: String,
-      validWeight: Boolean,
-      enablePdfExport: { type: Boolean },
+      shareIcon: { attribute: false, type: String },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+      weightedIcon: { attribute: false, type: String },
+      totalWeight: { attribute: false, type: String },
+      validWeight: { attribute: false, type: Boolean },
     };
   }
 
@@ -126,8 +126,9 @@ export class SakaiRubric extends RubricsElement {
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  rubricTitle="${this.rubric.title}"
-                  rubricId="${this.rubric.id}"
+                  site-id="${this.siteId}"
+                  rubric-title="${this.rubric.title}"
+                  rubric-id="${this.rubric.id}"
               />
             </div>
           ` : ""}

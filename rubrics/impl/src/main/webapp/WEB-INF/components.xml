@@ -44,6 +44,7 @@
         <property name="associationRepository" ref="org.sakaiproject.rubrics.api.repository.AssociationRepository"/>
         <property name="criterionRepository" ref="org.sakaiproject.rubrics.api.repository.CriterionRepository"/>
         <property name="evaluationRepository" ref="org.sakaiproject.rubrics.api.repository.EvaluationRepository"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
         <property name="returnedEvaluationRepository" ref="org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />

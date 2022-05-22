@@ -28,14 +28,14 @@ export class SakaiRubricGrading extends RubricsElement {
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
       group: { type: Boolean},
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
 
       // Non attribute
-      evaluation: { type: Object },
-      totalPoints: Number,
-      translatedTotalPoints: { type: Number },
-      criteria: { type: Array },
-      rubric: { type: Object },
-      enablePdfExport: {attribute: "enable-pdf-export", type: Object}
+      evaluation: { attribute: false, type: Object },
+      totalPoints: { attribute: false, type: Number },
+      translatedTotalPoints: { attribute: false, type: Number },
+      criteria: { attribute: false, type: Array },
+      rubric: { attribute: false, type: Object },
     };
   }
 

@@ -90,8 +90,9 @@ class SakaiRubricStudent extends RubricsElement {
           <span>${this.rubric.title}</span>
           ${this.enablePdfExport ? html`
             <sakai-rubric-pdf
-                rubricTitle="${this.rubric.title}"
-                rubricId="${this.rubric.id}"
+                site-id="${this.siteId}"
+                rubric-title="${this.rubric.title}"
+                rubric-id="${this.rubric.id}"
                 toolId="${this.toolId}"
                 entityId="${this.entityId}"
                 evaluatedItemId="${this.evaluatedItemId}"
