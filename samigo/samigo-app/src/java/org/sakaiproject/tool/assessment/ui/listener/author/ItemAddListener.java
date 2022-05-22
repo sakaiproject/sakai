@@ -119,8 +119,7 @@ import org.sakaiproject.util.api.FormattedText;
  * <p>Organization: Sakai Project</p>
  */
 @Slf4j
-public class ItemAddListener
-    implements ActionListener {
+public class ItemAddListener implements ActionListener {
 
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
   public static final int MAX_FEEDBACK_CHARS = 4000;
@@ -361,12 +360,15 @@ public class ItemAddListener
 		saveItem(itemauthorbean, assessmentBean);
 
 		// RUBRICS, save the binding between the assignment and the rubric
-		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
-			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null, null));
-		} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
-			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null, null));
+		Map<String, String> associationParams = paramUtil.getRubricConfigurationParameters(null, null);
+		if (!associationParams.isEmpty()) {
+			if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
+				String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, associationParams);
+			} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
+				String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, associationParams);
+			}
 		}
 	}
 	catch (FinFormatException e) {
