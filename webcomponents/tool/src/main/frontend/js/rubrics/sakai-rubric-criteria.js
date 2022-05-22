@@ -457,6 +457,7 @@ export class SakaiRubricCriteria extends RubricsElement {
       this.cloneCriterion(e);
     }
   }
+
 }
 
 const tagName = "sakai-rubric-criteria";
