@@ -62,20 +62,21 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
             </div>
           ` : html`
             <div id="criterion_row_${c.id}" class="criterion-row">
+              <div class="criterion-detail">
+                <h4 class="criterion-title">${c.title}</h4>
                 <p>${unsafeHTML(c.description)}</p>
-                ${this.weighted ? html`
-                      <div class="criterion-weight">
-                          <span>
-                            <sr-lang key="weight">Weight</sr-lang>
-                          </span>
-                          <span>${c.weight.toLocaleString(this.locale)}</span>
-                          <span>
-                            <sr-lang key="percent_sign">%</sr-lang>
-                          </span>
-                      </div>`
-                    : ""
-                  }
               </div>
+              ${this.weighted ? html`
+                <div class="criterion-weight">
+                  <span>
+                    <sr-lang key="weight">Weight</sr-lang>
+                  </span>
+                  <span>${c.weight.toLocaleString(this.locale)}</span>
+                  <span>
+                    <sr-lang key="percent_sign">%</sr-lang>
+                  </span>
+                </div>
+              ` : "" }
               <div class="criterion-ratings">
                 <div class="cr-table">
                   <div class="cr-table-row">

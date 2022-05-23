@@ -369,11 +369,13 @@ $(document).ready(function(){
 		#supplementItems($!allowViewModelAnswer $!allowReadAssignmentNoteItem $!allowViewAllPurposeItem $!assignmentModelAnswerItem $!assignmentNoteItem $!assignmentAllPurposeItem)
 
 		<sakai-rubric-student-preview-button
+			site-id="$context"
 			tool-id="sakai.assignment"
 			entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
 
 		#if ($submission.Graded && ($submission.GradeReleased || $returned))
 		<sakai-rubric-student
+			site-id="$context"
 			tool-id="sakai.assignment"
 			entity-id="$assignment.Id"
 			evaluated-item-id="$submission.Id"
