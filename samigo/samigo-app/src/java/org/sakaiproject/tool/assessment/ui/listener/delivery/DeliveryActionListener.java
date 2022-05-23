@@ -2863,6 +2863,11 @@ public class DeliveryActionListener
   
   private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
 	  long seed = userSeed;
+	  // If the section has a previous seed we must use it to use the same order.
+	  String sectionRandomizationSeed = sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_SEED);
+	  if (StringUtils.isNotBlank(sectionRandomizationSeed)) {
+	      seed += Long.parseLong(sectionRandomizationSeed);
+	  }
 	  log.debug("input seed = " + seed);
 	  if (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
 		  Long id = delivery.getAssessmentGradingId();
