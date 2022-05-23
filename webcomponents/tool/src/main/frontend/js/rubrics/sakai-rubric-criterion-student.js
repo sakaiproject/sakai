@@ -15,7 +15,7 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
       evaluationDetails: { attribute: "evaluation-details", type: Array },
       preview: Boolean,
       entityId: { attribute: "entity-id", type: String },
-      weighted: Boolean
+      weighted: Boolean,
     };
   }
 
@@ -47,6 +47,11 @@ export class SakaiRubricCriterionStudent extends RubricsElement {
   }
 
   get evaluationDetails() { return this._evaluationDetails; }
+
+  handleClose() {
+
+    this.querySelectorAll("sakai-rubric-student-comment").forEach(el => el.handleClose());
+  }
 
   render() {
 

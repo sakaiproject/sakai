@@ -4,7 +4,10 @@ import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 export class SakaiRubricStudentComment extends RubricsElement {
 
   static get properties() {
-    return { criterion: { type: Object } };
+
+    return {
+      criterion: { type: Object },
+    };
   }
 
   set criterion(value) {
@@ -13,6 +16,7 @@ export class SakaiRubricStudentComment extends RubricsElement {
     this._criterion = value;
     this._criterion.comments = value.comments && value.comments.indexOf("null") === 0 ? "" : value.comments;
     this.triggerId = `criterion-comment-${value.id}-trigger`;
+    $(`#${this.triggerId}`).popover("hide");
     this.requestUpdate("criterion", oldValue);
     this.updateComplete.then(() => {
 
@@ -27,6 +31,11 @@ export class SakaiRubricStudentComment extends RubricsElement {
 
   get criterion() {
     return this._criterion;
+  }
+
+  handleClose() {
+
+    $(`#${this.triggerId}`).popover("hide");
   }
 
   render() {
