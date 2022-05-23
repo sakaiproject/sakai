@@ -361,7 +361,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        return ResponseEntity.ok().body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+        return ResponseEntity.ok(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
     }
 
     private EntityModel<RubricTransferBean> entityModelForRubricBean(RubricTransferBean rubricBean) {

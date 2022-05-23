@@ -44,7 +44,6 @@ class SakaiRubricStudentButton extends RubricsElement {
 
   showRubric() {
 
-    //this.showRubricLightbox(this.rubricId, { "tool-id": this.toolId, "entity-id": this.entityId, "evaluated-item-id": this.evaluatedItemId, "instructor": this.instructor, "force-preview": this.forcePreview }, e.target);
     if (this.forcePreview) {
       this.showRubricLightbox(this.rubricId);
     } else {

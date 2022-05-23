@@ -58,27 +58,28 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       entityId: { attribute: "entity-id", type: String },
       toolId: { attribute: "tool-id", type: String },
       userListUrl: { attribute: "user-list-url", type: String },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
       // State vars we want to trigger a render
-      submittedTextMode: Boolean,
-      submission: Object,
+      submittedTextMode: { attribute: false, type: Boolean },
+      submission: { attribute: false, type: Object },
       nonEditedSubmission: { attribute: false, type: Object },
-      graderOnLeft: Boolean,
-      selectedAttachment: { type: Object },
-      saveSucceeded: Boolean,
-      saveFailed: Boolean,
-      savedPvtNotes: Boolean,
-      savedFeedbackComment: Boolean,
-      submissions: { type: Array },
-      ungradedOnly: Boolean,
-      submissionsOnly: Boolean,
-      showResubmission: Boolean,
+      graderOnLeft: { attribute: false, type: Boolean },
+      selectedAttachment: { attribute: false, type: Object },
+      saveSucceeded: { attribute: false, type: Boolean },
+      saveFailed: { attribute: false, type: Boolean },
+      savedPvtNotes: { attribute: false, type: Boolean },
+      savedFeedbackComment: { attribute: false, type: Boolean },
+      submissions: { attribute: false, type: Array },
+      ungradedOnly: { attribute: false, type: Boolean },
+      submissionsOnly: { attribute: false, type: Boolean },
+      showResubmission: { attribute: false, type: Boolean },
       isChecked: { attribute: false, type: Boolean },
-      allowExtension: Boolean,
-      totalGraded: Number,
-      token: { type: String },
-      rubric: { type: Object },
-      assignmentsI18n: Object,
-      showingHistory: Boolean,
+      allowExtension: { attribute: false, type: Boolean },
+      totalGraded: { attribute: false, type: Number },
+      token: { attribute: false, type: String },
+      rubric: { attribute: false, type: Object },
+      assignmentsI18n: { attribute: false, type: Object },
+      showingHistory: { attribute: false, type: Boolean },
       ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
     };
   }
@@ -455,7 +456,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
               entity-id="${this.entityId}"
               evaluated-item-id="${this.submission.id}"
               evaluated-item-owner-id="${this.submission.firstSubmitterId}"
-              @click=${this.toggleRubric}></sakai-rubric-grading-button>
+              @click=${this.toggleRubric}>
+            </sakai-rubric-grading-button>
             <div id="rubric-panel" title="${this.i18n.rubric}" style="display: none;">
               <sakai-rubric-grading
                 site-id="${portal.siteId}"
@@ -464,6 +466,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 evaluated-item-id="${this.submission.id}"
                 evaluated-item-owner-id="${this.submission.groupRef || this.submission.firstSubmitterId}"
                 ?group=${this.submission.groupId}
+                ?enable-pdf-export=${this.enablePdfExport}
                 @total-points-updated=${this.onTotalPointsUpdated}
                 @rubric-rating-changed=${this.onRubricRatingChanged}
                 @rubric-ratings-changed=${this.onRubricRatingsChanged}

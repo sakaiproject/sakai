@@ -45,6 +45,8 @@ public interface RubricsConstants {
     public static final String RBCS_PERMISSIONS_EVALUEE = "rubrics.evaluee";
     public static final String RBCS_PERMISSIONS_SUPERUSER = "rubrics.superuser";
 
+    public static final String RBCS_EXPORT_PDF = "rubrics.export.pdf";
+
 	//samigo custom props
 	public static final	String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";
 

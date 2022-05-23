@@ -1,4 +1,4 @@
-import {SakaiElement} from "../sakai-element.js";
+import { SakaiElement } from "../sakai-element.js";
 import { getUserLocale } from "../sakai-portal-utils.js";
 
 class RubricsElement extends SakaiElement {
@@ -19,10 +19,10 @@ class RubricsElement extends SakaiElement {
     return available;
   }
 
-  initLightbox(i18n, siteId) {
+  initLightbox(i18n, siteId, enablePdfExport) {
 
     if (this.isUtilsAvailable()) {
-      window.top.rubrics.utils.initLightbox(i18n, siteId);
+      window.top.rubrics.utils.initLightbox(i18n, siteId, enablePdfExport);
     }
   }
 

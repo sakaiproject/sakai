@@ -146,7 +146,7 @@ export class SakaiRubricGradingComment extends RubricsElement {
         this.hideTooltip();
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }

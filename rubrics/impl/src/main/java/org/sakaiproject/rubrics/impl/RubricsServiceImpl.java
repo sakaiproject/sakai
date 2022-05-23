@@ -961,8 +961,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 titlePoints = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation), cri.getWeight());
             }
             Paragraph criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
-            criterionParagraph.add(Chunk.NEWLINE);
-            criterionParagraph.add(new Paragraph(formattedText.stripHtmlFromText(cri.getDescription(), true), NORMAL_FONT));
+            if (StringUtils.isNotBlank(cri.getDescription())) {
+                criterionParagraph.add(Chunk.NEWLINE);
+                criterionParagraph.add(new Paragraph(formattedText.stripHtmlFromText(cri.getDescription(), true), NORMAL_FONT));
+            }
             criterionCell.addElement(criterionParagraph);
 
             criterionTable.addCell(criterionCell);
