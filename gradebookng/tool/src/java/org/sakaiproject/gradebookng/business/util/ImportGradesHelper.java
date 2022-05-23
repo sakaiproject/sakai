@@ -67,6 +67,7 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.opencsv.CSVParser;
@@ -461,6 +462,34 @@ public class ImportGradesHelper {
 		if (processedGradeItems.isEmpty() && !userReport.getIdentifiedUsers().isEmpty()) {
 			hasValidationErrors = true;
 			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
+		}
+
+		// if assignment is in a category that uses keep / drop, check if all assignments points in that category are equal
+		final List<CategoryDefinition> categories = businessService.getGradebookCategories();
+		for (CategoryDefinition category : categories) {
+			List<Assignment> catAssignmentList = category.getAssignmentList();
+			if (category.getDropKeepEnabled() && catAssignmentList != null) {
+				Double matchedPoints = null;
+				for (Assignment catAssignment : catAssignmentList) {
+					for (ProcessedGradeItem processedGradeItem : processedGradeItems) {
+						if (catAssignment.getId().equals(processedGradeItem.getItemId())) {
+							if (matchedPoints == null) {
+								matchedPoints = Double.parseDouble(processedGradeItem.getItemPointValue());
+							} else if (!matchedPoints.equals(Double.parseDouble(processedGradeItem.getItemPointValue()))) {
+								hasValidationErrors = true;
+								sourcePanel.error(MessageHelper.getString("importExport.error.dropKeepPointsMismatch"));
+							}
+							break;
+						}
+					}
+					if (hasValidationErrors) {
+						break;
+					}
+				}
+				if (hasValidationErrors) {
+					break;
+				}
+			}
 		}
 
 		boolean hasChanges = false;
