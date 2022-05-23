@@ -347,6 +347,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 					sectionMetaData.getEntry());
 			h.add(publishedSectionMetaData);
 		}
+		// Persist the random seed in the section to use it and preserve the order.
 		h.add(new PublishedSectionMetaData(publishedSection, SectionDataIfc.RANDOMIZATION_SEED, String.valueOf(UUID.randomUUID().hashCode())));
 		return h;
 	}
