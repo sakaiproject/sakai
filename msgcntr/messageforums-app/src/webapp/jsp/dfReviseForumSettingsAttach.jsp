@@ -295,20 +295,13 @@
 			<script>
 				function storeOpenDateISO(e) {
 					e.preventDefault();
-					document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
+					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
 				}
 
 				function storeCloseDateISO(e) {
 					e.preventDefault();
-					document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
+					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
 				}
-
-				$(document).ready(function() {
-					if (document.getElementById("openDateISO8601").value != null) {
-						document.getElementsByClassName("openDateISO")[0].value = document.getElementById("openDateISO8601").value;
-						document.getElementsByClassName("closeDateISO")[0].value = document.getElementById("closeDateISO8601").value;
-					}
-				});
 
 				localDatePicker({
 					input: '.openDate',
