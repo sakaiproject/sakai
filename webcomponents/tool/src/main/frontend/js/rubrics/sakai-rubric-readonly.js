@@ -18,7 +18,7 @@ export class SakaiRubricReadonly extends RubricsElement {
 
     return {
       rubric: { type: Object },
-      enablePdfExport: { type: Boolean },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     };
   }
 
@@ -49,8 +49,8 @@ export class SakaiRubricReadonly extends RubricsElement {
           ${this.enablePdfExport ? html`
             <div class="action-container">
               <sakai-rubric-pdf
-                  rubricTitle="${this.rubric.title}"
-                  token="${this.token}"
+                  site-id="${this.siteId}"
+                  rubric-title="${this.rubric.title}"
                   rubricId="${this.rubric.id}"
               />
             </div>

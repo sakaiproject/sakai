@@ -45,6 +45,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -604,5 +605,9 @@ public void clear(ActionEvent event) {
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
+	}
+
+	public boolean isEnablePdfExport() {
+        return ServerConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
 	}
 }

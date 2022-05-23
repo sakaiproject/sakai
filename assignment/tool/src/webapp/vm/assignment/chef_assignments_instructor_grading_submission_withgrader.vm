@@ -22,6 +22,9 @@
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
         #end
+        #if ($enablePdfExport)
+        enable-pdf-export
+        #end
     >
     </sakai-grader>
 </div>

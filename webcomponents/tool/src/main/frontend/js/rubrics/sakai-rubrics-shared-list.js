@@ -23,7 +23,7 @@ export class SakaiRubricsSharedList extends RubricsElement {
     return {
       siteId: { attribute: "site-id", type: String },
       rubrics: { attribute: false, type: Array },
-      enablePdfExport: { type: Boolean },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     };
   }
 

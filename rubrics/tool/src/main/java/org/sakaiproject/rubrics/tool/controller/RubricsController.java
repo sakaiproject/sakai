@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -51,7 +52,8 @@ public class RubricsController {
 
     @GetMapping("/index")
     public String index(ModelMap model) {
-        boolean enablePdfExport = serverConfigurationService.getBoolean("rubrics.exportpdfenabled", false);
+
+        boolean enablePdfExport = serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true);
         model.addAttribute("enablePdfExport", enablePdfExport);
         model.addAttribute("siteId", toolManager.getCurrentPlacement().getContext());
         model.addAttribute("sakaiSessionId", sessionManager.getCurrentSession().getId());

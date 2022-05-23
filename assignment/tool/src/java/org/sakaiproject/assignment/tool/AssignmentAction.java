@@ -1070,7 +1070,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * Site property for export rubric in pdf
      */
     private static final String RUBRICS_EXPORT_PDF = "enablePdfExport";
-    private static final String RUBRICS_EXPORT_PDF_SERVER_PROPERTY = "rubrics.export.pdf";
 
     private static final String FLAG_ON = "on";
     private static final String FLAG_TRUE = "true";
@@ -1844,7 +1843,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("attachments", stripInvisibleAttachments(state.getAttribute(ATTACHMENTS)));
         context.put("new_attachments", newAttachments);
         context.put("userDirectoryService", userDirectoryService);
-        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RUBRICS_EXPORT_PDF_SERVER_PROPERTY, true));
+        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
         context.put("contentTypeImageService", contentTypeImageService);
         context.put("currentTime", Instant.now());
@@ -2690,7 +2689,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         
         context.put("submitterNames", getSubmitterFormattedNames(submission, false));
-        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RUBRICS_EXPORT_PDF_SERVER_PROPERTY, true));
+        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
         context.put("name_ASSIGNMENT_INPUT_ADD_TIME_SPENT", ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT);
         context.put("value_ASSIGNMENT_INPUT_ADD_TIME_SPENT", state.getAttribute(ResourceProperties.ASSIGNMENT_INPUT_ADD_TIME_SPENT));
@@ -4053,7 +4052,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // Check if the assignment has a rubric associated or not
         context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
 
-        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RUBRICS_EXPORT_PDF_SERVER_PROPERTY, true));
+        context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
         String toolId = toolManager.getCurrentPlacement().getId();

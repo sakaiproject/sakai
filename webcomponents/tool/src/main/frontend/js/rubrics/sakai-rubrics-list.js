@@ -1,8 +1,8 @@
-import {RubricsElement} from "./rubrics-element.js";
-import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
+import { RubricsElement } from "./rubrics-element.js";
+import { html } from "/webcomponents/assets/lit-element/lit-element.js";
+import { repeat } from "/webcomponents/assets/lit-html/directives/repeat.js";
 import "./sakai-rubric.js";
-import {SharingChangeEvent} from "./sharing-change-event.js";
+import { SharingChangeEvent } from "./sharing-change-event.js";
 
 const rubricName = 'name';
 const rubricTitle = 'title';
@@ -12,7 +12,9 @@ const rubricModified = 'modified';
 export class SakaiRubricsList extends RubricsElement {
 
   constructor() {
+
     super();
+
     this.enablePdfExport = false;
   }
 
@@ -21,7 +23,7 @@ export class SakaiRubricsList extends RubricsElement {
     return {
       siteId: { attribute: "site-id", type: String },
       rubrics: { attribute: false, type: Array },
-      enablePdfExport: { type: Boolean },
+      enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     };
   }
 
@@ -44,7 +46,7 @@ export class SakaiRubricsList extends RubricsElement {
         <div role="tablist">
         ${repeat(this.rubrics, r => r.id, r => html`
           <div class="rubric-item" id="rubric_item_${r.id}">
-            <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enablePdfExport="${this.enablePdfExport}"></sakai-rubric>
+            <sakai-rubric @clone-rubric="${this.cloneRubric}" site-id="${this.siteId}" @delete-item="${this.deleteRubric}" rubric="${JSON.stringify(r)}" ?enable-pdf-export="${this.enablePdfExport}"></sakai-rubric>
           </div>
         `)}
         </div>

@@ -9,6 +9,8 @@
 			evaluated-item-id='<h:outputText value="#{description.assessmentGradingId}.#{questionScores.itemId}" />'
 			evaluated-item-owner-id='<h:outputText value="#{description.idString}" />'
 			item-id='<h:outputText value="#{description.assessmentGradingId}"/>'
+			<h:outputText value="enable-pdf-export" rendered="#{questionScores.enablePdfExport}"/>
+		>
 		</sakai-rubric-grading>
 	</div>
 </h:panelGroup>
