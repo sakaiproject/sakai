@@ -1498,9 +1498,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             topicBean.formattedDueDate = userTimeService.dateTimeFormat(topicBean.dueDate, FormatStyle.MEDIUM, FormatStyle.SHORT);
         }
 
-        if (!topicBean.draft) {
-            topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
-        }
+        topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
             topicBean.tags = topic.getTagIds().stream().map(tagId -> {
