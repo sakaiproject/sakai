@@ -326,7 +326,7 @@ public class PublishAssessmentListener
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
         throw new AbortProcessingException(gbe);
     } catch (InvalidCategoryException gbe) {
-		log.warn(gbe.getMessage());
+		log.warn("Incorrect gradebook category settings detected when attempting publish assessment: {}", gbe.toString());
 		String err = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 				"gradebook_exception_category_invalid");
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
