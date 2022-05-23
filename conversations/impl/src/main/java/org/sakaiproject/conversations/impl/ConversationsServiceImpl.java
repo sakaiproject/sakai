@@ -477,7 +477,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage) {
+            if (sendMessage && isNew) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
@@ -812,7 +812,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage) {
+            if (sendMessage && isNew) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
