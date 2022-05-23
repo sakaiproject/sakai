@@ -2683,7 +2683,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			Long isCI = foorm.getLong(lt.get(LTIService.LTI_PL_LINKSELECTION));
 			if ( isCI > 0 ) {
 				toolsCI.add(lt);
-			} else {
+			}
+
+			if (foorm.getLong(lt.get(LTIService.LTI_PL_CONTENTEDITOR)) > 0) {
 				toolsLaunch.add(lt);
 			}
 		}

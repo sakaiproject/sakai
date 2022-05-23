@@ -597,7 +597,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
-		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 AND lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1 OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0, siteId);
 	}
 
 	@Override
