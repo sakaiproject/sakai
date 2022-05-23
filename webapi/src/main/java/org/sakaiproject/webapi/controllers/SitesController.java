@@ -16,11 +16,17 @@
 package org.sakaiproject.webapi.controllers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -32,12 +38,15 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.MemberRestBean;
+import org.sakaiproject.webapi.beans.RosterRestBean;
+import org.sakaiproject.webapi.beans.RosterRestBean.RosterType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,8 +55,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,8 +66,6 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
-*/
 @Slf4j
 @RestController
 public class SitesController extends AbstractSakaiApiController {
@@ -82,6 +91,13 @@ public class SitesController extends AbstractSakaiApiController {
 
     @Autowired
     private ToolManager toolManager;
+
+    @Autowired
+    private AuthzGroupService authzGroupService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.authz.api.GroupProvider")
+    private GroupProvider groupProvider;
 
     @GetMapping(value = "/sites/{siteId}/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<MemberRestBean>> getUsers(@PathVariable String siteId) {
@@ -184,7 +200,8 @@ public class SitesController extends AbstractSakaiApiController {
 
                 //Update and save Member
                 site.removeMember(userId);
-                site.addMember(userId, editedMemberRestBean.getRole(), editedMemberRestBean.getStatus(), member.isProvided());
+                site.addMember(userId, editedMemberRestBean.getRole(), editedMemberRestBean.getStatus(),
+                        member.isProvided());
                 siteService.saveSiteMembership(site);
 
                 //Retuen OK
@@ -250,6 +267,186 @@ public class SitesController extends AbstractSakaiApiController {
         }
     }
 
+    private final String SITE_PROP_MANCMREQUESTED = "site-request-course-sections";
+
+    private final String SITE_PROP_CMCMREQUESTED = "site.cm.requested";
+
+    private Set<String> getRostersFromSiteProps(@NonNull Site site, String propertyName) {
+
+        String rostersProperty = StringUtils.trimToNull(site.getProperties().getProperty(propertyName));
+
+        //If a value got retured process it or return emty set
+        if (rostersProperty != null) {
+            //rosterProperty is a string with values seperated by a "+" sign, so we need to
+            //split the string
+            return new HashSet<>(Arrays.asList(groupProvider.unpackId(rostersProperty)));
+        } else {
+            return Collections.emptySet();
+        }
+
+    }
+
+    private boolean updateSiteProperty(@NonNull Site site, String propertyName, String updatedProp) {
+
+        if (StringUtils.trimToNull(propertyName) != null) {
+            ResourcePropertiesEdit resourcePropertiesEdit = site.getPropertiesEdit();
+            if (StringUtils.trimToNull(updatedProp) != null) {
+                //Update/add property
+                resourcePropertiesEdit.addProperty(propertyName, updatedProp);
+            } else {
+                //If updatedProp is null/empty, remove the property
+                resourcePropertiesEdit.removeProperty(propertyName);
+            }
+            try {
+                siteService.save(site);
+                return true;
+            } catch (Exception e) {
+                //Most likely PermissionException
+                log.error("Site property change could not be saved: {}", e.toString());
+            }
+        }
+        //If propertyName is falty or Exception was raised, return false
+        return false;
+    }
+
+    private boolean updateProvidedRoster(@NonNull Site site, String updatedProp) {
+
+        String realmId = site.getReference();
+
+        try {
+            AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+            realmEdit.setProviderGroupId(updatedProp);
+            authzGroupService.save(realmEdit);
+            return true;
+        } catch (Exception e) {
+            log.warn("Realm {} could not be edited: {}", e.toString());
+        }
+
+        return false;
+    }
+
+    private Set<String> getProvidedRosters(@NonNull Site site) {
+
+        String realmId = site.getReference();
+
+        try {
+            String externalRealmId = StringUtils.trimToNull(authzGroupService.getAuthzGroup(realmId).getProviderGroupId());
+            if (externalRealmId != null) {
+                return new HashSet<>(Arrays.asList(groupProvider.unpackId(externalRealmId)));
+            }
+        } catch (GroupNotDefinedException e) {
+            log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found " + realmId);
+        }
+
+        return Collections.emptySet();
+    }
+
+    private List<RosterRestBean> getRosterList(@NonNull Site site) {
+
+        //List, containing all Rosters from
+        List<RosterRestBean> fullList = new ArrayList<RosterRestBean>();
+
+        //Existing, requested Rosters
+        fullList.addAll(getRostersFromSiteProps(site, SITE_PROP_CMCMREQUESTED).stream().map(rosterId -> {
+            return new RosterRestBean(rosterId, RosterType.CMREQUESTED);
+        }).collect(Collectors.toList()));
+
+        //Manually created, requested Rosters
+        fullList.addAll(getRostersFromSiteProps(site, SITE_PROP_MANCMREQUESTED).stream().map(rosterId -> {
+            return new RosterRestBean(rosterId, RosterType.MANREQUESTED);
+        }).collect(Collectors.toList()));
+        ;
+
+        //Rosters rpovided by course-management
+        fullList.addAll(getProvidedRosters(site).stream().map(rosterId -> {
+            try {
+                //Use title of the actual section and not the "id"
+                RosterRestBean roster = new RosterRestBean(rosterId, RosterType.CMPROVIDED);
+                roster.setTitle(cmService.getSection(rosterId).getTitle());
+                return roster;
+            } catch (IdNotFoundException e) {
+                log.warn("Cannot find section {}", rosterId);
+                return new RosterRestBean(rosterId, RosterType.CMPROVIDED);
+            }
+        }).collect(Collectors.toList()));
+        return fullList;
+    }
+
+    @GetMapping(value = "/sites/{siteId}/rosters", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<RosterRestBean>> getRosters(@PathVariable String siteId) {
+
+        checkSakaiSession();
+
+        Site site = getSite(siteId);
+
+        if (site != null) {
+            return new ResponseEntity<List<RosterRestBean>>(getRosterList(site), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping(value = "/sites/{siteId}/rosters/{rosterType}/{rosterId}")
+    public ResponseEntity<HttpStatus> removeRoster(@PathVariable String siteId, @PathVariable RosterType rosterType, @PathVariable String rosterId) {
+
+        Session session = checkSakaiSession();
+
+        Site site = getSite(siteId);
+
+        if (site != null) {
+
+            //Get rosters and filter by given RosterType
+            List<RosterRestBean> rostersOfType = getRosterList(site).stream()
+                    .filter(roster -> rosterType.equals(roster.getType())).collect(Collectors.toList());
+
+            //Get filter rosterOfType by given rosterId, this may return multiple, but we will ignore that
+            List<RosterRestBean> rosterToDelete = rostersOfType.stream()
+                    .filter(roster -> rosterId.equals(roster.getId())).collect(Collectors.toList());
+
+            if (!rosterToDelete.isEmpty()) {
+
+                //There might be multiple rosters that match, but we just want to delete one
+                rostersOfType.remove(rosterToDelete.get(0));
+
+                //Pack rosterIds back together
+                String updatedProperty = groupProvider.packId(rostersOfType.stream().map(roster -> roster.getId())
+                    .collect(Collectors.toList()).toArray(String[] ::new));
+
+                switch (rosterType) {
+                    case CMPROVIDED:
+                        if (updateProvidedRoster(site, updatedProperty)) {
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                        }
+                    case CMREQUESTED:
+                        if (updateSiteProperty(site, SITE_PROP_CMCMREQUESTED, updatedProperty)) {
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        } else {
+                            log.warn("User {} has no permissions to remove Roster {} from site {}", session.getUserId(),
+                                    rosterId, siteId);
+                            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                        }
+                    case MANREQUESTED:
+                        if (updateSiteProperty(site, SITE_PROP_MANCMREQUESTED, updatedProperty)) {
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        } else {
+                            log.warn("User {} has no permissions to remove Roster {} from site {}", session.getUserId(),
+                                    rosterId, siteId);
+                            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                        }
+                    default:
+                        log.error("Unexpected RosterType: RosterType.{}", rosterType);
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping(value = "/users/{userId}/sites", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<Map<String, Object>>> getSites(@PathVariable String userId)
         throws UserNotDefinedException {
@@ -297,7 +494,9 @@ public class SitesController extends AbstractSakaiApiController {
             .getProperties(PreferencesService.SITENAV_PREFS_KEY);
         List<String> siteIds = resourceProperties.getPropertyList("order");
 
-        if (siteIds == null) return Collections.emptyMap();
+        if (siteIds == null) {
+            return Collections.emptyMap(); 
+        }
 
         List<Map<String, Object>> sitesList = getSitesWithPages(siteIds);
 
@@ -321,7 +520,9 @@ public class SitesController extends AbstractSakaiApiController {
 
         List<String> siteIds = sqlService.dbRead(sql);
 
-        if (siteIds == null) return Collections.emptyMap();
+        if (siteIds == null) {
+            return Collections.emptyMap(); 
+        }
 
         List<Map<String, Object>> sitesList = getSitesWithPages(siteIds);
 
@@ -349,7 +550,7 @@ public class SitesController extends AbstractSakaiApiController {
                 List<Map<String, Object>> pageList = site.getOrderedPages().stream().map(page -> {
                     Map<String, Object> pageMap = new HashMap<>();
                     List<ToolConfiguration> toolList = page.getTools();
-                    if (toolList.size() == 1 ) {
+                    if (toolList.size() == 1) {
                         String toolId = toolList.get(0).getId();
                         String toolUrl = page.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
                         pageMap.put("url", toolUrl);
@@ -357,7 +558,7 @@ public class SitesController extends AbstractSakaiApiController {
                         pageMap.put("toolid", toolList.get(0).getToolId());
                     } else {
                         pageMap.put("url", page.getUrl());
-                        pageMap.put("reset-url",  page.getUrl().replaceFirst("page", "page-reset"));
+                        pageMap.put("reset-url", page.getUrl().replaceFirst("page", "page-reset"));
                     }
                     if (toolList.size() > 0 && toolManager.isHidden(toolList.get(0))) {
                         pageMap.put("hidden", true);
