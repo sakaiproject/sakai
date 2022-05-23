@@ -3,7 +3,6 @@ import { html } from "/webcomponents/assets/lit-element/lit-element.js";
 import "./sakai-rubric-criterion-preview.js";
 import "./sakai-rubric-criterion-student.js";
 import "./sakai-rubric-pdf.js";
-import "./sakai-rubric-student-comment.js";
 import { SakaiRubricsLanguage } from "./sakai-rubrics-language.js";
 
 class SakaiRubricStudent extends RubricsElement {
@@ -31,7 +30,7 @@ class SakaiRubricStudent extends RubricsElement {
       rubric: { type: Object },
       rubricId: { attribute: "rubric-id", type: String },
       forcePreview: { attribute: "force-preview", type: Boolean },
-      enablePdfExport: { attribute: "enable-pdf-export", type: Object }
+      enablePdfExport: { attribute: "enable-pdf-export", type: Object },
     };
   }
 
@@ -75,6 +74,12 @@ class SakaiRubricStudent extends RubricsElement {
   }
 
   get rubricId() { return this._rubricId; }
+
+  handleClose() {
+
+    const el = this.querySelector("sakai-rubric-criterion-student");
+    el && el.handleClose();
+  }
 
   shouldUpdate() {
     return this.i18nLoaded && this.rubric && (this.instructor || !this.options.hideStudentPreview);

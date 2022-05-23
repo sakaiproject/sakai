@@ -50,6 +50,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
 
     const el = rubrics.utils.lightbox.querySelector("sakai-rubric-student");
 
+    el.handleClose();
+
     el.removeAttribute("rubric-id");
     el.removeAttribute("preview");
     el.removeAttribute("tool-id");
