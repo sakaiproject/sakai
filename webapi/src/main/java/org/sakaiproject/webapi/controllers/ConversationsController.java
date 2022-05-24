@@ -204,7 +204,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 
 		checkSakaiSession();
 
-        conversationsService.hideTopic(topicId, hidden);
+        conversationsService.hideTopic(topicId, hidden, true);
         return new ResponseEntity(HttpStatus.OK);
     }
 

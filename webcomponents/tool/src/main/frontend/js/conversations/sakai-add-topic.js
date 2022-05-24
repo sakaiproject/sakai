@@ -243,23 +243,23 @@ export class SakaiAddTopic extends SakaiElement {
   }
 
   setShowDate(e) {
-    this.topic.showDate = (e.detail.epochMillis + parseInt(portal.user.offsetFromServerMillis)) / 1000;
+    this.topic.showDate = e.detail.epochSeconds;
   }
 
   setLockDate(e) {
-    this.topic.lockDate = (e.detail.epochMillis + parseInt(portal.user.offsetFromServerMillis)) / 1000;
+    this.topic.lockDate = e.detail.epochSeconds;
   }
 
   setHideDate(e) {
-    this.topic.hideDate = (e.detail.epochMillis + parseInt(portal.user.offsetFromServerMillis)) / 1000;
+    this.topic.hideDate = e.detail.epochSeconds;
   }
 
   setDueDate(e) {
-    this.topic.dueDate = (e.detail.epochMillis + parseInt(portal.user.offsetFromServerMillis)) / 1000;
+    this.topic.dueDate = e.detail.epochSeconds;
   }
 
   setAcceptUntilDate(e) {
-    this.topic.acceptUntilDate = (e.detail.epochMillis + parseInt(portal.user.offsetFromServerMillis)) / 1000;
+    this.topic.acceptUntilDate = e.detail.epochSeconds;
   }
 
   setAvailableNow() {

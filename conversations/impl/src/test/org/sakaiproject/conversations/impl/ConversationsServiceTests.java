@@ -547,9 +547,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         try {
             switchToUser1();
             TopicTransferBean topicBean = createTopic(true);
-            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hideTopic(topicBean.id, true));
+            assertThrows(ConversationsPermissionsException.class, () -> conversationsService.hideTopic(topicBean.id, true, true));
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
-            conversationsService.hideTopic(topicBean.id, true);
+            conversationsService.hideTopic(topicBean.id, true, true);
             List<TopicTransferBean> topics = conversationsService.getTopicsForSite(topicBean.siteId);
 
             when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(false);
@@ -587,7 +587,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             assertEquals(1, topics.size());
             assertTrue(topics.get(0).hiddenByDate);
 
-            conversationsService.hideTopic(savedBean.id, false);
+            conversationsService.hideTopic(savedBean.id, false, true);
             topics = conversationsService.getTopicsForSite(topicBean.siteId);
             assertFalse(topics.get(0).hidden);
 
