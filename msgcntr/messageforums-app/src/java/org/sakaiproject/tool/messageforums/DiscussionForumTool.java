@@ -4647,7 +4647,7 @@ public class DiscussionForumTool {
 		composeTitle = null;
 		attachments.clear();
 
-		getSelectedTopic();
+		selectedTopic = getSelectedTopic();
 		getThreadFromMessage();
 	} catch(Exception e) {
       log.error("Error while editing a message", e);
@@ -4764,7 +4764,7 @@ public class DiscussionForumTool {
 		  return null;
 	  }
 	  
-	  Message message = selectedMessage.getMessage();
+	  Message message = messageManager.getMessageById(selectedMessage.getMessage().getId());
 
 	  // 'delete' this message
 	  message.setDeleted(Boolean.TRUE);
