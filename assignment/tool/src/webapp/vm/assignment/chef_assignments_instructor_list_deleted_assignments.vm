@@ -10,9 +10,9 @@
 	</div>
 
 	#if (!$!assignments.hasNext())
-		<p class="instruction">
+		<div class="sak-banner-info">
 			$tlang.getString("gen.thearecur1")
-		</p>
+		</div>
 	#else
 		<div class="sak-banner-warn">$tlang.getString("restoreWarning")</div>
 		<div class="sakai-table-toolBar">
