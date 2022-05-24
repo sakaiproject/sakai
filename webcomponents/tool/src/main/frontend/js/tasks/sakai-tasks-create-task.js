@@ -4,8 +4,15 @@ import { SakaiDialogContent } from "../sakai-dialog-content.js";
 import "../sakai-date-picker.js";
 import "../sakai-icon.js";
 import "../sakai-editor.js";
-/* This was added before the introduction of the sakai-date-picker changes in SAK-46998, remove of the date picker changes work fine.*/
-/*import moment from "../assets/moment/dist/moment.js";*/
+
+/**
+ * Handles the creation or updating of user or site tasks
+ *
+ * @property {string} [siteId]
+ * @property {string} [userId]
+ * @property {object} [task]
+ * @fires {task-created} Fired when the task has been created. The detail is the new/updated task.
+ */
 export class SakaiTasksCreateTask extends SakaiDialogContent {
 
   static get properties() {
@@ -13,21 +20,23 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     return {
       siteId: { attribute: "site-id", type: String },
       userId: { attribute: "user-id", type: String },
-      i18n: Object,
-      task: {type: Object},
-      description: String,
-      error: { type: Boolean },
-      deliverTasks: {type: Boolean},
-      assignationType: {type: String},
-      selectedGroups: {type: HTMLCollection},
-      optionsGroup: {type: Array},
-      mode: {type: String},
-      siteIdBackup: {type: String}
+      task: { type: Object },
+      i18n: { attribute: false, type: Object },
+      description: { attribute: false, type: String },
+      error: { attribute: false, type: Boolean },
+      deliverTasks: { attribute: false, type: Boolean },
+      assignationType: { attribute: false, type: String },
+      selectedGroups: { attribute: false, type: HTMLCollection },
+      optionsGroup: { attribute: false, type: Array },
+      mode: { attribute: false, type: String },
+      siteIdBackup: { attribute: false, type: String },
     };
   }
 
   constructor() {
+
     super();
+
     this.deliverTasks = false;
     this.defaultTask = { taskId: "", description: "", priority: "3", notes: "", due: "", assignationType: "", selectedGroups: [], siteId: "", owner: "", taskAssignedTo: "", complete: null };
     this.task = { ...this.defaultTask};
@@ -44,6 +53,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   getTaskAssignedTo() {
+
     let result = this.task.taskAssignedTo;
     if (result != null) {
       result = result.replace('#GROUP#', this.i18n.task_assigned_to_group).replace('#SITE#', this.i18n.task_assigned_to_site).replace('#USER#', this.i18n.task_assigned_to_user);
@@ -52,24 +62,20 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   addSelectedGroups() {
+
     if (this.selectedGroups != null) {
-      const arr = [];
-      for (let x = 0; x < this.selectedGroups.length; x++) {
-        arr.push(this.selectedGroups[x].value);
-      }
-      this.task.selectedGroups = arr;
+      this.task.selectedGroups = this.selectedGroups.map(sg => sg.value);
     }
   }
 
   save() {
+
     this.task.description = this.shadowRoot.getElementById("description").value;
     this.task.notes = this.getEditor().getContent();
     this.task.assignationType = this.assignationType;
     this.task.siteId = this.siteId;
     this.task.userId = this.userId;
-    if (this.task.owner === null || this.task.owner === '') {
-      this.task.owner = this.userId;
-    }
+    this.task.owner = this.task.owner || this.userId;
     this.addSelectedGroups();
     const url = `/api/tasks${this.task.taskId ? `/${this.task.taskId}` : ""}`;
     fetch(url, {
@@ -86,7 +92,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         return r.json();
       }
       this.error = true;
-      throw new Error("Network error while saving task");
+      throw new Error(`Network error while saving task: ${r.status}`);
     })
     .then(savedTask => {
 
@@ -99,6 +105,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   cancel() {
+
     this.reset();
     this.close();
   }
@@ -107,9 +114,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
 
     this.task.due = Date.now();
     const el = this.shadowRoot.getElementById("due");
-    if (el) {
-      el.epochMillis = this.task.due;
-    }
+    el && (el.epochMillis = this.task.due);
   }
 
   set task(value) {
@@ -170,14 +175,15 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
     this.deliverTasks = false;
     this.siteIdBackup = this.siteId;
     // Check user role - Only instructors can deliver tasks to students
-    if (this.siteId && this.userId) {
+    if (this.siteId) {
       const url = `/api/sites/${this.siteId}/users/current/isSiteUpdater`;
       fetch(url)
       .then(r => {
+
         if (r.ok) {
           return r.json();
         }
-        throw new Error(`Failed to get user role from ${url}`);
+        throw new Error(`Failed to get user role from ${url}: ${r.status}`);
       })
       .then(data => {
 
@@ -185,15 +191,15 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
         // Retrieve group list from site
         if (this.deliverTasks && this.siteId) {
           fetch(`/api/tasks/site/groups/${this.siteId}`)
-            .then((r) => {
+          .then(r => {
 
-              if (r.ok) {
-                return r.json();
-              }
-              throw new Error(`Failed to get site group list from ${url}`);
-            })
-            .then(groups => this.optionsGroup = groups)
-            .catch (error => console.error(error));
+            if (r.ok) {
+              return r.json();
+            }
+            throw new Error(`Failed to get site group list from ${url}`);
+          })
+          .then(groups => this.optionsGroup = groups)
+          .catch (error => console.error(error));
         }
       })
       .catch (error => console.error(error));
@@ -205,6 +211,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   reset() {
+
     this.getEditor().clear();
     const descriptionEl = this.shadowRoot.getElementById("description");
     const datePicker = this.shadowRoot.getElementById("due");
@@ -219,6 +226,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   complete(e) {
+
     this.task.complete = e.target.checked;
     if (e.target.checked) {
       this.task.softDeleted = false;
@@ -226,29 +234,30 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
   }
 
   groupComboList() {
+
     return html`
-        <select multiple="multiple" name="${this.i18n.groups}" id="group" style="width:100%;" @change=${(e) => this.selectedGroups = e.target.selectedOptions} .value=${this.selectedGroups} ?disabled=${this.assignationType !== 'group'}>
-            ${this.optionsGroup.map((option) => html`
-                <option value="${Object.keys(option)[0]}" ?selected=${this.selected === Object.keys(option)[0]}>${Object.values(option)[0]}</option>
-            `)}
-        </select>
+      <select multiple="multiple"
+          name="${this.i18n.groups}"
+          id="group"
+          aria-label="${this.i18n.groups}"
+          @change=${e => this.selectedGroups = e.target.selectedOptions}
+          .value=${this.selectedGroups}
+          ?disabled=${this.assignationType !== "group"}>
+        ${this.optionsGroup.map(option => html`
+        <option value="${Object.keys(option)[0]}" ?selected=${this.selected === Object.keys(option)[0]}>
+          ${Object.values(option)[0]}
+        </option>
+        `)}
+      </select>
     `;
   }
 
   existGroups() {
-    let result = false;
-    if (Array.isArray(this.optionsGroup) && this.optionsGroup.length > 0) { result = true; }
-    return result;
+
+    return Array.isArray(this.optionsGroup) && this.optionsGroup.length > 0;
   }
 
   content() {
-
-    /* This was added before the introduction of the sakai-date-picker changes in SAK-46998, remove of the date picker changes work fine.*/
-    /*
-    let dueDate = null;
-    if (this.task.due !== null || this.task.due !== '') {
-      dueDate = moment(new Date(this.task.due)).format('YYYY-MM-DDTHH:mm:ss');
-    }*/
 
     return html` 
       ${this.deliverTasks ? html`
@@ -269,7 +278,7 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
           </div>
           <div class="input">
             <sakai-date-picker id="due"
-                @datetime-selected=${(e) => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }}
+                @datetime-selected=${e => { this.task.due = e.detail.epochMillis; this.dueUpdated = true; }}
                 epoch-millis=${this.task.due}
                 label="${this.i18n.due}">
             </sakai-date-picker>
@@ -387,6 +396,9 @@ export class SakaiTasksCreateTask extends SakaiDialogContent {
       #error {
         font-weight: bold;
         color: var(--sakai-tasks-save-failed-color, red)
+      }
+      #group {
+        width: 100%;
       }
       sakai-editor {
         width: 100%;

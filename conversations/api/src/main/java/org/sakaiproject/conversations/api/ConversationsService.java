@@ -67,7 +67,7 @@ public interface ConversationsService {
     void deleteTopic(String topicId) throws ConversationsPermissionsException;
     void pinTopic(String topicId, boolean pinned) throws ConversationsPermissionsException;
     TopicTransferBean lockTopic(String topicId, boolean locked, boolean needsModerator) throws ConversationsPermissionsException;
-    ConversationsTopic hideTopic(String topicId, boolean hidden) throws ConversationsPermissionsException;
+    ConversationsTopic hideTopic(String topicId, boolean hidden, boolean needsModerator) throws ConversationsPermissionsException;
     void bookmarkTopic(String topicId, boolean bookmarked) throws ConversationsPermissionsException;
     Map<Reaction, Integer> saveTopicReactions(String topicId, Map<Reaction, Boolean> reactions) throws ConversationsPermissionsException;
 
