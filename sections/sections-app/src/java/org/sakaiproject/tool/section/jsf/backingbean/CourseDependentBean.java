@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -36,6 +37,7 @@ import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
@@ -106,6 +108,14 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 		return getCourseBean().sectionManager.getSections(getSiteContext());
 	}
 
+	protected Map<String, List<ParticipationRecord>> getSectionTeachingAssistantsMap() {
+		return getCourseBean().sectionManager.getSectionTeachingAssistantsMap(getCourseBean().sectionManager.getSections(getSiteContext()));
+	}
+
+	protected List<ParticipationRecord> getSiteInstructors() {
+		return getCourseBean().sectionManager.getSiteInstructors(getSiteContext());
+	}
+
 	protected Set getEnrolledSections(String userUid) {
 		return getCourseBean().sectionManager.getSectionEnrollments(userUid, getCourse().getUuid());
 	}
@@ -146,4 +156,5 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	public String getSiteRole() {
 		return getCourseBean().authz.getRoleDescription(getUserUid(), getSiteContext());
 	}
+
 }

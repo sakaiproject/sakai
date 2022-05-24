@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
@@ -33,7 +35,9 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
+import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
@@ -69,13 +73,56 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		Collections.sort(enrollments, EditManagersBean.sortNameComparator);
 
 		populateSelectedUsers(enrollments);
-		
+
+		String currentUserUuid = getUserUid();
+		Map<String, List<ParticipationRecord>> sectionTAMap = getSectionTeachingAssistantsMap();
+
+		List<CourseSection> all= getAllSiteSections();
+
+		// Get the Instructors for the site
+		List<String> intructorUids = getSiteInstructors().stream().map(s -> s.getUser().getUserUid())
+				.collect(Collectors.toList());
+
 		// Build the list of items for the left-side box
 		List available;
-		if(StringUtils.trimToNull(availableSectionUuid) == null) {
-			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
-		} 
-		else if (this.isFromCategoryReadOnly(availableSectionUuid)) {
+		if ((StringUtils.trimToNull(availableSectionUuid) == null) && (intructorUids.contains(currentUserUuid))) {
+			available = getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(),
+					currentSection.getCategory());
+		} else if (StringUtils.trimToNull(availableSectionUuid) == null) {
+			// Add users from other TA's sections
+			List<String> sectionsCurrentUserIsTA = new ArrayList<String>();
+			for (CourseSection section : all) {
+				String sectionUid = section.getUuid();
+				if (sectionTAMap.get(sectionUid).stream()
+						.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid))) {
+					sectionsCurrentUserIsTA.add(sectionUid);
+				}
+			}
+			List<EnrollmentRecord> availableAll = getSectionManager()
+					.getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
+			List<String> availableTA = new ArrayList<>();
+			for (String section : sectionsCurrentUserIsTA) {
+				availableTA.addAll(getSectionManager().getSectionEnrollments(section).stream()
+						.map(p -> p.getUser().getUserUid()).collect(Collectors.toList()));
+			}
+			available = availableAll.stream()
+					.filter(p -> availableTA.contains(p.getUser().getUserUid()))
+					.collect(Collectors.toList());
+
+			// Add users whithout section
+			Set<String> hashSet = availableAll.stream().map(p -> p.getUser().getUserUid()).collect(Collectors.toSet());
+			SectionEnrollments sectionEnrollments = getSectionManager()
+					.getSectionEnrollmentsForStudents(getSiteContext(), hashSet);
+			List<EnrollmentRecord> availableNoSections = new ArrayList<>();
+			for (Iterator<EnrollmentRecord> iter = availableAll.iterator(); iter.hasNext();) {
+				ParticipationRecord availableUser = iter.next();
+				if (!sectionEnrollments.getStudentUuids().contains(availableUser.getUser().getUserUid())) {
+					availableNoSections.add((EnrollmentRecord) availableUser);
+				}
+			}
+			available.addAll(availableNoSections);
+
+		}		else if (this.isFromCategoryReadOnly(availableSectionUuid)) {
 			List available1=getSectionManager().getUnsectionedEnrollments(currentSection.getCourse().getUuid(), currentSection.getCategory());
 			List available2= getSectionManager().getSectionEnrollments(availableSectionUuid);
 			available=new ArrayList();
@@ -112,12 +159,13 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		
 		// Build the list of available sections
 		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), currentSection.getCategory());
-		List<CourseSection> all= getAllSiteSections();
-		List sectionsReadOnly= new ArrayList<CourseSection>();
-		for (CourseSection section : all){
-			String sectionUid=section.getUuid();
-			if(this.isFromCategoryReadOnly(sectionUid))
-			{
+
+		List sectionsReadOnly = new ArrayList<CourseSection>();
+		for (CourseSection section : all) {
+			String sectionUid = section.getUuid();
+			if ((this.isFromCategoryReadOnly(sectionUid)) && ((sectionTAMap.get(sectionUid).stream()
+					.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid)))
+					|| (intructorUids.contains(currentUserUuid)))) {
 				sectionsReadOnly.add(section);
 			}
 		}
@@ -129,17 +177,19 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 			
 			availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()+" ("+JsfUtil.getLocalizedMessage("edit_student_unassigned")+")"));
 		}
-		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
-			CourseSection section = (CourseSection)iter.next();
-			// Don't include the current section
-			if(section.getUuid().equals(currentSection.getUuid())) {
-				continue;
+
+		for (Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection) iter.next();
+			// Don't include the current section and section where currentUser is not a TA
+			if (!(section.getUuid().equals(currentSection.getUuid())) && ((sectionTAMap.get(section.getUuid()).stream()
+					.anyMatch(s -> s.getUser().getUserUid().equals(currentUserUuid)))
+					|| (intructorUids.contains(currentUserUuid)))) {
+				if (section.getUuid().equals(availableSectionUuid)) {
+					availableSectionTitle = section.getTitle();
+					availableSectionMax = section.getMaxEnrollments();
+				}
+				availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()));
 			}
-			if(section.getUuid().equals(availableSectionUuid)) {
-				availableSectionTitle = section.getTitle();
-				availableSectionMax = section.getMaxEnrollments();
-			}
-			availableSectionItems.add(new SelectItem(section.getUuid(), section.getTitle()));
 		}
 	}
 

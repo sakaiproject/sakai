@@ -157,14 +157,14 @@
 	                id="join"
                     value="#{msgs.edit_student_sections_assign}"
                     actionListener="#{editStudentSectionsBean.processJoinSection}"
-                    rendered="#{ ! section.member}">
+                    rendered="#{ ! section.member and !section.readOnly and section.currentUserEnrollmentPermission}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
                 </h:commandLink>
                 <h:commandLink
 	                id="unjoin"
                     value="#{msgs.edit_student_sections_drop}"
                     actionListener="#{editStudentSectionsBean.processDrop}"
-                    rendered="#{section.member}">
+                    rendered="#{section.member and !section.readOnly and section.currentUserEnrollmentPermission}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
                 </h:commandLink>
             </h:column>
