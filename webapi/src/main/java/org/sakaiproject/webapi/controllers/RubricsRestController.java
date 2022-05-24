@@ -276,6 +276,13 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }
     }
 
+    @GetMapping(value = "/sites/{siteId}/rubric-evaluations/tools/{toolId}/items/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<List<EvaluationTransferBean>> getEvaluationsForItem(@PathVariable String siteId, @PathVariable String toolId, @PathVariable String itemId) throws Exception {
+
+        checkSakaiSession();
+        return ResponseEntity.ok(rubricsService.getEvaluationsForToolAndItem(toolId, itemId, siteId));
+    }
+
     @PutMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/sort")
     ResponseEntity sortCriteria(@PathVariable String siteId, @PathVariable Long rubricId, @RequestBody List<Long> sortedIds) {
 

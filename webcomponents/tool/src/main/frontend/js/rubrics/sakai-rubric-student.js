@@ -105,7 +105,34 @@ class SakaiRubricStudent extends RubricsElement {
           ` : ""}
         </h3>
 
-        ${this.preview || this.forcePreview ? html`
+        ${this.instructor === 'true' ? html`
+        <div class="rubrics-tab-row">
+          <a href="javascript:void(0);"
+              id="rubric-grading-or-preview-button"
+              class="rubrics-tab-button rubrics-tab-selected"
+              @keypress=${this.openGradePreviewTab}
+              @click=${this.openGradePreviewTab}>
+            <sr-lang key="grading_rubric">gradingrubric</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-student-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeStudentSummary}
+              @click=${this.makeStudentSummary}>
+            <sr-lang key="student_summary">studentsummary</sr-lang>
+          </a>
+          <a href="javascript:void(0);"
+              id="rubric-criteria-summary-button"
+              class="rubrics-tab-button"
+              @keypress=${this.makeCriteriaSummary}
+              @click=${this.makeCriteriaSummary}>
+            <sr-lang key="criteria_summary">criteriasummary</sr-lang>
+          </a>
+        </div>
+        ` : html``}
+
+        <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
+          ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
             criteria="${JSON.stringify(this.rubric.criteria)}"
             .weighted=${this.rubric.weighted}
@@ -119,8 +146,10 @@ class SakaiRubricStudent extends RubricsElement {
             entity-id="${this.entityId}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-student>
-        `}
+          `}
       </div>
+      <div id="rubric-student-summary" class="rubric-tab-content"></div>
+      <div id="rubric-criteria-summary" class="rubric-tab-content"></div>
     `;
   }
 
@@ -177,36 +206,41 @@ class SakaiRubricStudent extends RubricsElement {
         })
         .then(rubric => {
 
-          // Now, get the evaluation
-          const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-          fetch(evalUrl, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-          })
-          .then(r => {
+          if (this.evaluatedItemId) {
+            const evalUrl = `/api/sites/${association.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
+            fetch(evalUrl, {
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+            })
+            .then(r => {
 
-            if (r.ok) {
-              return r.json();
-            }
+              if (r.ok) {
+                return r.json();
+              }
 
-            if (r.status !== 404) {
-              throw new Error("Server error while getting evaluation");
-            }
-          })
-          .then(evaluation => {
+              if (r.status !== 404) {
+                throw new Error("Server error while getting evaluation");
+              }
+            })
+            .then(evaluation => {
 
-            if (evaluation) {
-              this.evaluation = evaluation;
-              this.preview = false;
-            } else {
-              this.evaluation = { criterionOutcomes: [] };
-              this.preview = true;
-            }
+              if (evaluation) {
+                this.evaluation = evaluation;
+                this.preview = false;
+              } else {
+                this.evaluation = { criterionOutcomes: [] };
+                this.preview = true;
+              }
 
-            // Set the rubric, thus triggering a render
+              // Set the rubric, thus triggering a render
+              this.rubric = rubric;
+            })
+            .catch (error => console.error(error));
+          } else {
+            this.evaluation = { criterionOutcomes: [] };
+            this.preview = true;
             this.rubric = rubric;
-          })
-          .catch (error => console.error(error));
+          }
         })
         .catch (error => console.error(error));
 
@@ -216,6 +250,24 @@ class SakaiRubricStudent extends RubricsElement {
       }
     })
     .catch (error => console.error(error));
+  }
+
+  openGradePreviewTab(e) {
+
+    e.stopPropagation();
+    this.openRubricsTab("rubric-grading-or-preview");
+  }
+
+  makeStudentSummary(e) {
+
+    e.stopPropagation();
+    this.makeASummary("student", this.siteId);
+  }
+
+  makeCriteriaSummary(e) {
+
+    e.stopPropagation();
+    this.makeASummary("criteria", this.siteId);
   }
 }
 

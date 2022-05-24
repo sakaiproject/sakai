@@ -89,6 +89,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
@@ -541,6 +542,28 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 }
             });
     }
+
+    @Transactional(readOnly = true)
+    public List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId) {
+
+        ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
+            .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
+
+        List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+        List<String> userIds = evaluations.stream().map(e -> e.getEvaluatedItemOwnerId()).collect(Collectors.toList());
+        Map<String, User> userMap = userDirectoryService.getUsers(userIds).stream().collect(Collectors.toMap(u -> u.getId(), u -> u));
+        return evaluationRepository.findByAssociationId(association.getId())
+            .stream()
+            .filter(eval -> canViewEvaluation(eval, siteId))
+            .map(e -> {
+
+                EvaluationTransferBean bean = EvaluationTransferBean.of(e);
+                bean.sortName = userMap.get(bean.evaluatedItemOwnerId).getSortName();
+                return bean;
+            })
+            .collect(Collectors.toList());
+    }
+
 
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
