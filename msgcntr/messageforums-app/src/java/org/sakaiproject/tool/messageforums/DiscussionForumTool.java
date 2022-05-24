@@ -4974,7 +4974,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(true);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -4988,7 +4988,7 @@ public class DiscussionForumTool {
 	  approveOrDenySelectedMsgs(false);
 	  
 	  if (numPendingMessages > 0)
-		  return PENDING_MSG_QUEUE;
+		  return null;
 	  
 	  return processActionHome();
   }
@@ -5044,6 +5044,7 @@ public class DiscussionForumTool {
 		  setErrorMessage(getResourceBundleString(NO_MSG_SEL_FOR_APPROVAL));
 	  else
 	  {
+		  refreshPendingMessages(uiPermissionsManager.getCurrentUserMemberships() , forumManager.getModeratedTopicsInSite());
 		  if (approved)
 			  setSuccessMessage(getResourceBundleString(MSGS_APPROVED));
 		  else
