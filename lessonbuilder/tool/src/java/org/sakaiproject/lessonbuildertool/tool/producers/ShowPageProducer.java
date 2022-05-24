@@ -129,6 +129,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
 import org.sakaiproject.site.api.Group;
@@ -3122,7 +3124,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						makeCsrf(questionForm, "csrf4");
 
 						UIInput.make(questionForm, "multipleChoiceId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
-						
+
 						String[] options = new String[answers.size()];
 						String initValue = null;
 						for(int j = 0; j < answers.size(); j++) {
@@ -3131,39 +3133,89 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								initValue = String.valueOf(answers.get(j).getId());
 							}
 						}
-						
+
 						UISelect multipleChoiceSelect = UISelect.make(questionForm, "multipleChoiceSelect:", options, "#{simplePageBean.questionResponse}", initValue);
 
 						// allow instructor to answer again, for testing
-						if(!isAvailable || response != null) {
-						    if (canSeeAll)
-							fakeDisableLink(multipleChoiceSelect, messageLocator);
-						    else
-							multipleChoiceSelect.decorate(new UIDisabledDecorator());
+						if (!isAvailable || response != null) {
+							if (canSeeAll) {
+								fakeDisableLink(multipleChoiceSelect, messageLocator);
+							} else {
+								multipleChoiceSelect.decorate(new UIDisabledDecorator());
+							}
 						}
-						 
-						for(int j = 0; j < answers.size(); j++) {
+
+						for (int j = 0; j < answers.size(); j++) {
 							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "multipleChoiceAnswer:", String.valueOf(j));
 							UISelectChoice multipleChoiceInput = UISelectChoice.make(answerContainer, "multipleChoiceAnswerRadio", multipleChoiceSelect.getFullID(), j);
 							multipleChoiceInput.decorate(new UIFreeAttributeDecorator("id", multipleChoiceInput.getFullID()));
 							char answerOption = (char) (j + 65); // 65 Corresponds to A
 							UIOutput.make(answerContainer, "multipleChoiceAnswerText", answerOption + " : " + answers.get(j).getText())
-								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
-							
-							if(!isAvailable || response != null) {
-							    if (canSeeAll)
-								fakeDisableLink(multipleChoiceInput, messageLocator);
-							    else
-								multipleChoiceInput.decorate(new UIDisabledDecorator());
+									.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
+
+							if (!isAvailable || response != null) {
+								if (canSeeAll)
+									fakeDisableLink(multipleChoiceInput, messageLocator);
+								else
+									multipleChoiceInput.decorate(new UIDisabledDecorator());
 							}
 						}
-						 
+
 						UICommand answerButton = UICommand.make(questionForm, "answerMultipleChoice", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerMultipleChoiceQuestion}");
-						if(!isAvailable || response != null) {
-						    if (canSeeAll)
-							fakeDisableLink(answerButton, messageLocator);
-						    else
-							answerButton.decorate(new UIDisabledDecorator());
+						if (!isAvailable || response != null) {
+							if (canSeeAll) {
+								fakeDisableLink(answerButton, messageLocator);
+							} else {
+								answerButton.decorate(new UIDisabledDecorator());
+							}
+						}
+					} else if ("matching".equals(i.getAttribute("questionType"))) {
+						answers = simplePageToolDao.findAnswerChoices(i);
+						UIOutput.make(tableRow, "matchingDiv");
+						UIForm questionForm = UIForm.make(tableRow, "matchingForm");
+						makeCsrf(questionForm, "csrf6");
+						String[] userResponses = StringUtils.split(response != null ? response.getOriginalText() : "", "||");
+
+						UIInput.make(questionForm, "matchingId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
+
+						List<String> possibleResponseArray = answers
+								.stream()
+								.map(possibleAnswer -> possibleAnswer.getResponse())
+								.collect(Collectors.toList());
+
+						// Randomize the matching possibilities
+						Collections.shuffle(possibleResponseArray);
+
+						String[] possibleResponses = possibleResponseArray.toArray(new String[0]);
+
+						for (int j = 0; j < answers.size(); j++) {
+							final String initValue = userResponses.length > j ? j + "||" + userResponses[j] : null;
+							final String optionPrefix = j + "||";
+							final String[] possibleResponseValues = possibleResponseArray.stream()
+									.map(s -> optionPrefix + s)
+									.toArray(String[]::new);
+
+							UIBranchContainer answerContainer = UIBranchContainer.make(questionForm, "matchingAnswer:", String.valueOf(j));
+							UISelect matchingInput = UISelect.make(answerContainer, "matchingAnswerResponse", possibleResponseValues, possibleResponses, "#{simplePageBean.matchingQuestionResponse}", initValue);
+							matchingInput.decorate(new UIFreeAttributeDecorator("id", matchingInput.getFullID()));
+							UIOutput.make(answerContainer, "matchingAnswerPrompt", answers.get(j).getPrompt());
+
+							if (!isAvailable || response != null) {
+								if (canSeeAll) {
+									fakeDisableLink(matchingInput, messageLocator);
+								} else {
+									matchingInput.decorate(new UIDisabledDecorator());
+								}
+							}
+						}
+
+						UICommand answerButton = UICommand.make(questionForm, "answerMatching", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerMatchingQuestion}");
+						if (!isAvailable || response != null) {
+							if (canSeeAll) {
+								fakeDisableLink(answerButton, messageLocator);
+							} else {
+								answerButton.decorate(new UIDisabledDecorator());
+							}
 						}
 					}else if("shortanswer".equals(i.getAttribute("questionType"))) {
 						UIOutput.make(tableRow, "shortanswerDiv");
@@ -3174,22 +3226,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIInput.make(questionForm, "shortanswerId", "#{simplePageBean.questionId}", String.valueOf(i.getId()));
 						
 						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
-						if(!isAvailable || response != null) {
-							if (canSeeAll)
-							    fakeDisableLink(shortanswerInput, messageLocator);
-							else
-							    shortanswerInput.decorate(new UIDisabledDecorator());
+						if (!isAvailable || response != null) {
+							if (canSeeAll) {
+								fakeDisableLink(shortanswerInput, messageLocator);
+							} else {
+								shortanswerInput.decorate(new UIDisabledDecorator());
+							}
 							if(response != null && response.getShortanswer() != null) {
 								shortanswerInput.setValue(response.getShortanswer());
 							}
 						}
 						
 						UICommand answerButton = UICommand.make(questionForm, "answerShortanswer", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerShortanswerQuestion}");
-						if(!isAvailable || response != null) {
-						    if (canSeeAll)
-							fakeDisableLink(answerButton, messageLocator);
-						    else
-							answerButton.decorate(new UIDisabledDecorator());
+						if (!isAvailable || response != null) {
+						    if (canSeeAll) {
+								fakeDisableLink(answerButton, messageLocator);
+							} else {
+								answerButton.decorate(new UIDisabledDecorator());
+							}
 						}
 					}
 					
@@ -3264,7 +3318,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if("shortanswer".equals(i.getAttribute("questionType"))) {
 							UIOutput.make(tableRow, "questionType", "shortanswer");
 							UIOutput.make(tableRow, "questionAnswer", i.getAttribute("questionAnswer"));
-						}else {
+						} else if("matching".equals(i.getAttribute("questionType"))) {
+							UIOutput.make(tableRow, "questionType", "matching");
+
+							for (int j = 0; j < answers.size(); j++) {
+								UIBranchContainer answerContainer = UIBranchContainer.make(tableRow, "questionMatchingAnswer:", String.valueOf(j));
+								UIOutput.make(answerContainer, "questionMatchingAnswerId", String.valueOf(answers.get(j).getId()));
+								UIOutput.make(answerContainer, "questionMatchingPrompt", answers.get(j).getPrompt());
+								UIOutput.make(answerContainer, "questionMatchingResponse", answers.get(j).getResponse());
+								//SAK-46296
+								UIInput.make(answerContainer, "raw-questionAnswer-text",  null, answers.get(j).getText());
+							}
+						} else {
 							UIOutput.make(tableRow, "questionType", "multipleChoice");
 							
 							for(int j = 0; j < answers.size(); j++) {
@@ -5216,12 +5281,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "question-form");
 		makeCsrf(form, "csrf21");
 		
-		UISelect questionType = UISelect.make(form, "question-select", new String[] {"multipleChoice", "shortanswer"}, "#{simplePageBean.questionType}", "");
+		UISelect questionType = UISelect.make(form, "question-select", new String[] {"multipleChoice", "shortanswer", "matching"}, "#{simplePageBean.questionType}", "");
 		UISelectChoice.make(form, "multipleChoiceSelect", questionType.getFullID(), 0);
 		UISelectChoice.make(form, "shortanswerSelect", questionType.getFullID(), 1);
+		UISelectChoice.make(form, "matchingSelect", questionType.getFullID(), 2);
 
 		UIOutput.make(form, "question-shortans-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 		UIOutput.make(form, "question-mc-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
+		UIOutput.make(form, "question-matching-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 		UIInput.make(form, "questionEditId", "#{simplePageBean.itemId}");
 		
 		UIBoundBoolean.make(form, "question-required", "#{simplePageBean.required}");
@@ -5243,12 +5310,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "question-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "question-gradebook-title", "#{simplePageBean.gradebookTitle}");
 		UIInput.make(form, "question-max", "#{simplePageBean.maxPoints}");
-		
+
 		UIInput.make(form, "question-multiplechoice-answer-complete", "#{simplePageBean.addAnswerData}");
 		UIInput.make(form, "question-multiplechoice-answer-id", null);
 		UIBoundBoolean.make(form, "question-multiplechoice-answer-correct");
 		UIInput.make(form, "question-multiplechoice-answer", null);
 		UIBoundBoolean.make(form, "question-show-poll", "#{simplePageBean.questionShowPoll}");
+
+		// Matching question type
+		UIInput.make(form, "question-matching-complete", "#{simplePageBean.addAnswerData}");
+		UIInput.make(form, "question-matching-id", null);
+		UIInput.make(form, "question-matching-prompt", null);
+		UIInput.make(form, "question-matching-response", null);
 		
 		UIInput.make(form, "question-correct-text", "#{simplePageBean.questionCorrectText}");
 		UIInput.make(form, "question-incorrect-text", "#{simplePageBean.questionIncorrectText}");
@@ -5360,15 +5433,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		boolean noSpecifiedAnswers = false;
 		boolean manuallyGraded = false;
 
-		if ("multipleChoice".equals(questionType) &&
-		    !simplePageToolDao.hasCorrectAnswer(question))
+		if ("multipleChoice".equals(questionType) && !simplePageToolDao.hasCorrectAnswer(question)) {
 		    noSpecifiedAnswers = true;
-		else if ("shortanswer".equals(questionType) &&
-			 "".equals(question.getAttribute("questionAnswer")))
+		}
+		else if ("shortanswer".equals(questionType) && "".equals(question.getAttribute("questionAnswer"))) {
 		    noSpecifiedAnswers = true;
+		}
 
-		if (noSpecifiedAnswers && "true".equals(question.getAttribute("questionGraded")))
+		if (noSpecifiedAnswers && "true".equals(question.getAttribute("questionGraded"))) {
 		    manuallyGraded = true;
+		}
 
 		if (noSpecifiedAnswers && !manuallyGraded) {
 		    // poll. should we show completed if not required? Don't for

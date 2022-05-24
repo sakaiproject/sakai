@@ -252,7 +252,9 @@ public interface SimplePageToolDao {
 
     public Long maxQuestionAnswer(SimplePageItem question);
 
-    public Long addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect);
+    public Long addMultipleChoiceQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect);
+
+    public Long addMatchingQuestionAnswer(SimplePageItem item, Long answerId, String prompt, String response);
     
     public SimplePageItem copyItem(SimplePageItem old);
 

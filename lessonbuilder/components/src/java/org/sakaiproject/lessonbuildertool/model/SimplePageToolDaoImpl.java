@@ -578,13 +578,26 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		// find new id number, max + 1
 		List answers = (List)question.getJsonAttribute("answers");
-		if (answers == null)
-		    return ret;
+		if (answers == null) {
+			return ret;
+		}
+
 		for (Object a: answers) {
-		    Map answer = (Map) a;
-		    SimplePageQuestionAnswer newAnswer = new SimplePageQuestionAnswerImpl((Long)answer.get("id"),
-			       (String)answer.get("text"), (Boolean) answer.get("correct"));
-		    ret.add(newAnswer);
+			Map answer = (Map) a;
+			final Long id = (Long) answer.get("id");
+			final String text = (String) answer.get("text");
+			final Boolean correct = (Boolean) answer.get("correct");
+			final String prompt = (String) answer.get("prompt"); // Used for matching question type
+			final String response = (String) answer.get("response"); // Used for matching question type
+
+			// Multiple choice
+			if (correct != null) {
+				ret.add(new SimplePageQuestionAnswerImpl(id, text, correct));
+			}
+			// Matching question
+			else if (prompt != null) {
+				ret.add(new SimplePageQuestionAnswerImpl(id, prompt, response));
+			}
 		}
 		return ret;
 	}
@@ -592,8 +605,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public boolean hasCorrectAnswer(SimplePageItem question) {
 		// find new id number, max + 1
 		List answers = (List)question.getJsonAttribute("answers");
-		if (answers == null)
-		    return false;
+		if (answers == null) {
+			return false;
+		}
+
 		for (Object a: answers) {
 		    Map answer = (Map) a;
 		    if ((Boolean) answer.get("correct"))
@@ -605,13 +620,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public SimplePageQuestionAnswer findAnswerChoice(SimplePageItem question, long answerId) {
 		// find new id number, max + 1
 		List answers = (List)question.getJsonAttribute("answers");
-		if (answers == null)
-		    return null;
+		if (answers == null) {
+			return null;
+		}
+
 		for (Object a: answers) {
 		    Map answer = (Map) a;
-		    if (answerId == (Long)answer.get("id")) {
-			SimplePageQuestionAnswer newAnswer = new SimplePageQuestionAnswerImpl(answerId,(String)answer.get("text"), (Boolean) answer.get("correct"));
-			return newAnswer;
+			final Long id = (Long) answer.get("id");
+			final String text = (String) answer.get("text");
+			final Boolean correct = (Boolean) answer.get("correct");
+			final String prompt = (String) answer.get("prompt"); // Used for matching question type
+			final String response = (String) answer.get("response"); // Used for matching question type
+
+		    if (answerId == id) {
+				// Multiple choice
+				if (correct != null) {
+					return new SimplePageQuestionAnswerImpl(id, text, correct);
+				}
+				// Matching
+				else if (prompt != null) {
+					return new SimplePageQuestionAnswerImpl(id, prompt, response);
+				}
 		    }
 		}
 		return null;
@@ -1144,22 +1173,24 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return max;
 	}
 
-	public Long addQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect) {
+	public Long addMultipleChoiceQuestionAnswer(SimplePageItem question, Long id, String text, Boolean isCorrect) {
 		// no need to check security. that happens when item is saved
 		
 		List answers = (List)question.getJsonAttribute("answers");
 		if (answers == null) {
 		    answers = new JSONArray();
 		    question.setJsonAttribute("answers", answers);
-		    if (id <= 0L)
-			id = 1L;
+		    if (id <= 0L) {
+				id = 1L;
+			}
 		} else if (id <= 0L) {
 		    Long max = 0L;
 		    for (Object a: answers) {
-			Map answer = (Map) a;
-			Long i = (Long)answer.get("id");
-			if (i > max)
-			    max = i;
+				Map answer = (Map) a;
+				Long i = (Long)answer.get("id");
+				if (i > max) {
+					max = i;
+				}
 		    }
 		    id = max + 1;
 		}
@@ -1173,7 +1204,38 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		return id;
 	}
-	
+
+	public Long addMatchingQuestionAnswer(SimplePageItem question, Long id, String prompt, String response) {
+		// no need to check security. that happens when item is saved
+
+		List answers = (List)question.getJsonAttribute("answers");
+		if (answers == null) {
+			answers = new JSONArray();
+			question.setJsonAttribute("answers", answers);
+			if (id <= 0L) {
+				id = 1L;
+			}
+		} else if (id <= 0L) {
+			Long max = 0L;
+			for (Object a: answers) {
+				Map answer = (Map) a;
+				Long i = (Long)answer.get("id");
+				if (i > max) {
+					max = i;
+				}
+			}
+			id = max + 1;
+		}
+
+		// create and add the json form of the answer
+		Map newAnswer = new JSONObject();
+		newAnswer.put("id", id);
+		newAnswer.put("prompt", prompt);
+		newAnswer.put("response", response);
+		answers.add(newAnswer);
+
+		return id;
+	}
   
 	public void clearPeerEvalRows(SimplePageItem question) {
 		question.setJsonAttribute("rows", null);

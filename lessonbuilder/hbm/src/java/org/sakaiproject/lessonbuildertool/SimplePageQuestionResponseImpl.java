@@ -25,6 +25,7 @@
 package org.sakaiproject.lessonbuildertool;
 
 import java.util.Date;
+import java.util.List;
 
 public class SimplePageQuestionResponseImpl implements SimplePageQuestionResponse {
 	private long id;
@@ -40,6 +41,9 @@ public class SimplePageQuestionResponseImpl implements SimplePageQuestionRespons
 	
 	// The text of the multiple choice question at the time it was answered
 	private String originalText;
+
+	// The ordered responses for a matching question
+	private List<String> userResponses;
 
 	public SimplePageQuestionResponseImpl() {}
 
@@ -132,5 +136,13 @@ public class SimplePageQuestionResponseImpl implements SimplePageQuestionRespons
 	
 	public void setOriginalText(String originalText) {
 		this.originalText = originalText;
+	}
+
+	public List<String> getUserResponses() {
+		return userResponses;
+	}
+
+	public void setUserResponses(List<String> userResponses) {
+		this.userResponses = userResponses;
 	}
 }

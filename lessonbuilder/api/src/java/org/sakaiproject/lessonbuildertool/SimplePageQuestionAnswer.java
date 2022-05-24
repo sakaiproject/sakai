@@ -27,4 +27,12 @@ public interface SimplePageQuestionAnswer {
 	public void setCorrect(boolean correct);
 	
 	public boolean isCorrect();
+
+	public void setPrompt(String prompt);
+
+	public String getPrompt();
+
+	public void setResponse(String response);
+
+	public String getResponse();
 }

@@ -121,7 +121,6 @@ import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import org.tsugi.basiclti.ContentItem;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -145,6 +144,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Backing bean for Simple pages
@@ -285,6 +285,8 @@ public class SimplePageBean {
     
     public Long questionId;
     public String questionResponse;
+	public String matchingQuestionResponse;
+	public String[] matchingQuestionResponses = new String[30];
 	
 	public boolean isWebsite = false;
 	public boolean isCaption = false;
@@ -7745,28 +7747,37 @@ public class SimplePageBean {
 			securityService.popAdvisor(sa);
 		}
 	}
-	
+
+	public void setMatchingQuestionResponse(final String s) {
+		final String[] splitString = StringUtils.split(s,"||", 2);
+		if (splitString != null && splitString.length == 2) {
+			final int index = Integer.parseInt(splitString[0]);
+			matchingQuestionResponses[index] = splitString[1];
+		}
+	}
+
 	public void setAddAnswerData(String data) {
 		if(StringUtils.isBlank(data)) {
 			return;
 		}
-		
-		int separator = data.indexOf(":");
-		String indexString = data.substring(0, separator);
-		Integer index = Integer.valueOf(indexString);
-		data = data.substring(separator+1);
-		
-		
+
+		String[] splitPieces = StringUtils.split(data, ":");
+		Integer index = Integer.valueOf(splitPieces[0]);
+
 		// I think this method should only be called from one thread
 		// so this should be safe.
 		if(questionAnswers == null) {
 			questionAnswers = new HashMap<>();
 			log.info("setAddAnswer: it was null");
 		}
-		
+
 		// We store with the index so that we can maintain the order
 		// in which the instructor inputted the answers
-		questionAnswers.put(index, data);
+		// We need to ignore blank data from a different question type
+		// (e.g., blank multiple choice data when doing a matching question)
+		if (splitPieces.length == 4) {
+			questionAnswers.put(index, splitPieces[1] + ":" + splitPieces[2] + ":" + splitPieces[3]);
+		}
 	}
 	
 	/** Used for both adding and updating questions on a page. */
@@ -7807,37 +7818,55 @@ public class SimplePageBean {
 			questionAnswer = "";
 			for (String shortAnswer : shortAnswers) {
 				String a = shortAnswer.trim();
-				if (! a.equals(""))
+				if (StringUtils.isNotBlank(a)) {
 					questionAnswer = questionAnswer + a + "\n";
+				}
 			}
 			item.setAttribute("questionAnswer", questionAnswer);
-		}else if(questionType.equals("multipleChoice")) {
+		} else if(questionType.equals("multipleChoice")) {
 			Long max = simplePageToolDao.maxQuestionAnswer(item);
 			simplePageToolDao.clearQuestionAnswers(item);
 
-			for(int i = 0; questionAnswers.get(i) != null; i++) {
-				// get data sent from post operation for this answer
-				String data = questionAnswers.get(i);
-				
+			for (String data : questionAnswers.values()) {
 				// split the data into the actual fields
 				String[] fields = data.split(":", 3);
-				Long answerId;
-				if (fields[0].equals(""))
-				    answerId = -1L;
-				else
-				    answerId = Long.valueOf(fields[0]);
-				if (answerId <= 0L)
-				    answerId = ++max;
-				Boolean correct = fields[1].equals("true");
-				String text = fields[2];
-				if (text != null && !text.trim().equals(""))
-				    simplePageToolDao.addQuestionAnswer(item, answerId, text, correct);
+				Long answerId = -1L;
+				if (StringUtils.isNotBlank(fields[0])) {
+					answerId = Long.valueOf(fields[0]);
+				}
 
+				if (answerId <= 0L) {
+					answerId = ++max;
+				}
+				Boolean correct = StringUtils.equalsIgnoreCase(fields[1], "true");
+				String text = fields[2];
+				if (StringUtils.isNotBlank(text)) {
+					simplePageToolDao.addMultipleChoiceQuestionAnswer(item, answerId, text, correct);
+				}
 			}
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
+		} else if(questionType.equals("matching")) {
+			Long max = simplePageToolDao.maxQuestionAnswer(item);
+			simplePageToolDao.clearQuestionAnswers(item);
 
+			for (String data : questionAnswers.values()) {
+				// split the data into the actual fields
+				String[] fields = data.split(":", 3);
+				Long answerId = -1L;
+				if (StringUtils.isNotBlank(fields[0])) {
+					answerId = Long.valueOf(fields[0]);
+				}
 
+				if (answerId <= 0L) {
+					answerId = ++max;
+				}
+				String prompt = fields[1];
+				String response = fields[2];
+				if (StringUtils.isNotBlank(prompt)) {
+					simplePageToolDao.addMatchingQuestionAnswer(item, answerId, prompt, response);
+				}
+			}
 		}
 		
 		int pointsInt = 10;
@@ -7994,6 +8023,25 @@ public class SimplePageBean {
 				correct = !theirResponse.isEmpty(); // any non-empty answer is considered "correct" for this question type
 				gradebookPoints = null;
 			}
+		}else if(question.getAttribute("questionType") != null && question.getAttribute("questionType").equals("matching")) {
+			double wrongResponses = 0;
+			double correctResponses = 0;
+
+			for (SimplePageQuestionAnswer answer : simplePageToolDao.findAnswerChoices(question)) {
+				final String p = answer.getPrompt();
+				final String r = answer.getResponse();
+				final String s = response.getUserResponses().remove(0);
+
+				if (StringUtils.equalsIgnoreCase(r, s)) {
+					correctResponses++;
+				} else {
+					wrongResponses++;
+				}
+			}
+
+			correct = wrongResponses == 0 && correctResponses > 0;
+			double percentageCorrect = correctResponses / (correctResponses + wrongResponses);
+			gradebookPoints = Math.round( (percentageCorrect * gradebookPoints * 100.0) ) / 100.0;
 		}else {
 			log.warn("Invalid question type for question {}", question.getId());
 			correct = false;
@@ -8049,7 +8097,39 @@ public class SimplePageBean {
 		
 		return "success";
 	}
-	
+
+	public String answerMatchingQuestion() {
+		final String userId = getCurrentUserId();
+
+		if (!itemOk(questionId) || !canReadPage()) return "permission-failed";
+		if (!checkCsrf()) return "permission-failed";
+
+		final SimplePageItem question = findItem(questionId);
+
+		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(questionId, userId);
+		if (response != null && !canEditPage()) {
+			// Don't let students re-answer questions.
+			setErrMessage(messageLocator.getMessage("simplepage.permissions-question"));
+			return "failure";
+		} else if (response == null) {
+			response = simplePageToolDao.makeQuestionResponse(userId, questionId);
+		}
+
+		// Remove the empty values from the pre-initialized response array
+		List<String> cleanedResponses = Arrays.asList(matchingQuestionResponses)
+				.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		response.setOriginalText(StringUtils.join(cleanedResponses, "||"));
+		response.setUserResponses(cleanedResponses);
+
+		gradeQuestionResponse(response);
+
+		saveItem(response);
+
+		return "success";
+	}
+
 	public String answerShortanswerQuestion() {
 		String userId = getCurrentUserId();
 		

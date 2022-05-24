@@ -210,6 +210,8 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			UIOutput.make(branch, "student-name", user.displayName);
 			if("multipleChoice".equals(questionItem.getAttribute("questionType"))) {
 				UIOutput.make(branch, "student-response", user.response.getOriginalText());
+			} else if ("matching".equals(questionItem.getAttribute("questionType"))) {
+				UIOutput.make(branch, "student-response", user.response.getOriginalText());
 			}else {
 				UIOutput.make(branch, "student-response", user.response.getShortanswer());
 			}

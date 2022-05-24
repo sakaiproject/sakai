@@ -25,6 +25,7 @@
 package org.sakaiproject.lessonbuildertool;
 
 import java.util.Date;
+import java.util.List;
 
 public interface SimplePageQuestionResponse {
 
@@ -68,4 +69,7 @@ public interface SimplePageQuestionResponse {
 	
 	public void setOriginalText(String originalText);
 
+    public List<String> getUserResponses();
+
+    public void setUserResponses(List<String> userResponses);
 }

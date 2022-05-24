@@ -23,49 +23,25 @@
 
 package org.sakaiproject.lessonbuildertool;
 
+import lombok.Data;
+
+@Data
 public class SimplePageQuestionAnswerImpl implements SimplePageQuestionAnswer {
 	private long id;
 	private long questionId;
-	private String answerText;
+	private String text;
 	private boolean correct;
-	
-	public SimplePageQuestionAnswerImpl() {}
-	
+	private String prompt;
+	private String response;
+
 	public SimplePageQuestionAnswerImpl(long id, String answerText, boolean correct) {
 		this.id = id;
-		this.answerText = answerText;
+		this.text = answerText;
 		this.correct = correct;
 	}
-	
-	public void setId(long id) {
+	public SimplePageQuestionAnswerImpl(long id, String prompt, String response) {
 		this.id = id;
-	}
-	
-	public long getId() {
-		return id;
-	}
-	
-	public void setQuestionId(long questionId) {
-		this.questionId = questionId;
-	}
-	
-	public long getQuestionId() {
-		return questionId;
-	}
-	
-	public void setText(String answerText) {
-		this.answerText = answerText;
-	}
-	
-	public String getText() {
-		return answerText;
-	}
-	
-	public void setCorrect(boolean correct) {
-		this.correct = correct;
-	}
-	
-	public boolean isCorrect() {
-		return correct;
+		this.prompt = prompt;
+		this.response = response;
 	}
 }
