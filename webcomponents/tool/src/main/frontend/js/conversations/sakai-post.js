@@ -217,24 +217,27 @@ export class SakaiPost extends reactionsMixin(SakaiElement) {
       credentials: "include",
       method: "PUT",
       body: JSON.stringify(this.post),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     })
     .then(r => {
 
-      if (!r.ok) {
-        this.post.message = currentMessage;
-        throw new Error("Network error while saving post");
+      if (r.ok) {
+        return r.json()
       }
 
+      throw new Error(`Network error while saving post: ${r.status}`);
+    })
+    .then(post => {
+
+      this.post = post;
       this.editing = false;
-
-      this.post.isInstructor = true;
-
       this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
     })
-    .catch(error => console.error(error));
+    .catch (error => {
+
+      console.error(error);
+      this.post.message = currentMessage;
+    });
   }
 
   toggleUpvotePost() {
