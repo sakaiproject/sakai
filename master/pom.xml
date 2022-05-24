@@ -46,7 +46,7 @@
     <sakai.ignite.version>2.12.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>1.0.0</sakai.ignite.spring.ext.version>
     <sakai.gridgain.version>8.8.7</sakai.gridgain.version>
-    <sakai.jackson.version>2.13.2</sakai.jackson.version>
+    <sakai.jackson.version>2.13.3</sakai.jackson.version>
     <sakai.jsoup.version>1.14.2</sakai.jsoup.version>
     <sakai.woodstox.version>6.2.8</sakai.woodstox.version>
     <sakai.stax2.version>4.2.1</sakai.stax2.version>
@@ -674,7 +674,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.13.2.2</version>
+        <version>${sakai.jackson.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
