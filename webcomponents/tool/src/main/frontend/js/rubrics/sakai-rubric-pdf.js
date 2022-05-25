@@ -13,7 +13,22 @@ export class SakaiRubricPdf extends RubricsElement {
       toolId: { attribute: "tool-id", type: String },
       entityId: { attribute: "entity-id", type: String },
       evaluatedItemId: { attribute: "evaluated-item-id", type: String },
+      url: { attribute: false, type: String },
     };
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+
+    super.attributeChangedCallback(name, oldValue, newValue);
+
+    if (this.siteId && this.rubricId) {
+
+      let url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/pdf`;
+      if (this.toolId && this.entityId && this.evaluatedItemId) {
+        url += `?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
+      }
+      this.url = url;
+    }
   }
 
   render() {
@@ -22,43 +37,11 @@ export class SakaiRubricPdf extends RubricsElement {
       <span class="hidden-sm hidden-xs sr-only"><sr-lang key="export_label" /></span>
       <a role="button"
         title="${tr("export_title", [this.rubricTitle])}"
-        href="#0"
-        class="linkStyle pdf fa fa-file-pdf-o" @click=${this.pdfRubric}>
+        href="${this.url}"
+        class="linkStyle pdf fa fa-file-pdf-o">
       </a>
     `;
   }
-
-  pdfRubric(e) {
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    let url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/pdf`;
-    if (this.toolId && this.entityId && this.evaluatedItemId) {
-      url += `?toolId=${this.toolId}&itemId=${this.entityId}&evaluatedItemId=${this.evaluatedItemId}`;
-    }
-    fetch(url, { credentials: "include" })
-    .then(r => {
-
-      if (r.ok) {
-        return r.blob();
-      }
-
-      throw new Error(`Network error while getting ${url}: ${r.status}`);
-    })
-    .then(blob => this.saveByteArray(this.rubricTitle, blob))
-    .catch (error => console.error(error));
-  }
-
-  saveByteArray(reportName, blob) {
-
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    const fileName = reportName;
-    link.download = fileName;
-    link.click();
-  }
-
 }
 const tagName = "sakai-rubric-pdf";
 !customElements.get(tagName) && customElements.define(tagName, SakaiRubricPdf);
