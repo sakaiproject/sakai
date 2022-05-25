@@ -199,8 +199,7 @@
         }
     }
 
-
-    table {
+    #roster-members-table {
         .roster-name-cell {
             max-width: 130px;
         }
@@ -231,6 +230,7 @@
         .roster-hide-pictures {
             display: none;
         }
+
     }
 
     @media #{$phone} {
