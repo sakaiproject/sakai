@@ -100,7 +100,7 @@ public class SiteHandler extends WorksiteHandler
 	private static final String INCLUDE_TABS = "include-tabs";
 
 	private static final String URL_FRAGMENT = "site";
-
+	
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -804,12 +804,22 @@ public class SiteHandler extends WorksiteHandler
 			
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
-			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
-			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
-			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();
-			
+			String roleswitchvalue = SecurityService.getUserEffectiveRole(); // checks the session for a role swap value
+			boolean roleswitchstate = SecurityService.isUserRoleSwapped(); // This variable determines if the site is in the switched state or not; false by default
+			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();			
+
+			if (roleswitchvalue != null) {
+				String switchRoleUrl = ServerConfigurationService.getPortalUrl()
+						+ "/role-switch-out/"
+						+ siteId
+						+ "/?panel=Main";
+				rcontext.put("roleUrlValue", roleswitchvalue);
+				rcontext.put("switchRoleUrl", switchRoleUrl);
+				roleswapcheck = true;
+				roleswitchstate = true; // We're in a switched state, so set to true
+			}
 			// check for the site.roleswap permission
-			if (allowroleswap || roleswitchvalue != null)
+			else if (allowroleswap)
 			{
 				Site activeSite = null;
 	            try
@@ -829,38 +839,31 @@ public class SiteHandler extends WorksiteHandler
 	            // this block of code will check to see if the student role exists in the site.  It will be used to determine if we need to display any student view component
 	            boolean roleInSite = false;
             	Set<Role> roles = activeSite.getRoles();
+            	Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
 
             	String externalRoles = ServerConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
             	String[] svRoles = externalRoles.split(",");
             	List<String> svRolesFinal = new ArrayList<String>();
 
-            	for (Role role : roles)
-            	{
-            		for (int i = 0; i < svRoles.length; i++)
-            		{
-            			if (svRoles[i].trim().equals(role.getId()))
-            			{
+            	for (Role role : roles) {
+            		for (int i = 0; i < svRoles.length; i++) {
+            			if (svRoles[i].trim().equals(role.getId())) {
             				roleInSite = true;
             				svRolesFinal.add(role.getId());
             			}
             		}
             	}
-            	if (activeSite.getType() != null && roleInSite) // the type check filters out some of non-standard sites where swapping roles would not apply.  The boolean check makes sure a role is in the site
+            	
+            	// The type check filters out some of non-standard sites where swapping roles would not apply.
+            	// The roleInSite check makes sure a role is in the site
+            	// The current user role can't be one of the roles to be swapped
+            	if (activeSite.getType() != null && roleInSite) 
             	{
 		            String switchRoleUrl = "";
-		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+		            
 		            //if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
 		            //the user to "swaproles" @allowroleswap, we know they have access to this site
-		            if (roleswitchvalue != null && (userRole == null || !userRole.getId().equals(roleswitchvalue)))
-		            {
-		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
-						+ "/role-switch-out/"
-						+ siteId
-						+ "/?panel=Main";
-		            	rcontext.put("roleUrlValue", roleswitchvalue);
-		            	roleswitchstate = true; // We're in a switched state, so set to true
-		            }
-		            else
+		            if (roleswitchvalue == null)
 		            {
 		            	if (svRolesFinal.size()>1)
 		            	{
@@ -883,15 +886,16 @@ public class SiteHandler extends WorksiteHandler
 		            		rcontext.put("roleUrlValue", svRolesFinal.get(0));
 		            	}
 		            }
-		            roleswapcheck = true; // We made it this far, so set to true to display a component
+		            // We'll show the swap role snippet if the current user role is not in "studentview.roles"
+		            roleswapcheck = !svRolesFinal.contains(userRole.getId());
 		            rcontext.put("siteRoles", svRolesFinal);
 					rcontext.put("switchRoleUrl", switchRoleUrl);
             	}
 			}
-
+			
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
-
+			
 			int tabDisplayLabel = 1;
 			boolean toolsCollapsed = false;
 			boolean toolMaximised = false;

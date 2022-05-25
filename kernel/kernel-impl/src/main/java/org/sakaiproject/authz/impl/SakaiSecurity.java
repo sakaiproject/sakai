@@ -39,8 +39,10 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IllegalSecurityAdvisorException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
@@ -50,7 +52,11 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 
 /**
  * <p>
@@ -71,6 +77,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 	/** The update event to post to clear cached security lookups involving the authz group **/
 	protected final static String EVENT_ROLESWAP_CLEAR = "realm.clear.cache";
+	
+	protected static final String ROLE_VIEW = "role.view";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies, configuration, and their setter methods
@@ -379,7 +387,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
     /**
      * KNL-1230
-     * Flush out unlock check caches based on changes to the permissions in an AuthzGroup
+     * Flush out  check caches based on changes to the permissions in an AuthzGroup
      * @param realmRef an AuthzGroup realm reference (e.g. /site/123123-as-sda21-213-1-33233)
      * @param roles a set of roles that changed (may be null or empty)
      * @param permissions a set of permissions that changed (may be null or empty)
@@ -755,7 +763,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		// that are swapped and not swapped
 
 		String siteRef = null;
-		String roleswap = null;
+		String roleswap = getUserEffectiveRole();
 
 		// Actual code in DbAuthzGroupService will not roleswap if there's a user site ref in the list and
 		// it is acceptable. However we can't tell that without doing a database access, so be conservative
@@ -776,13 +784,10 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 		    Reference ref = entityManager().newReference(siteRef);
 		    if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
-			String containerSiteRef = siteService().siteReference(ref.getContainer());
-			roleswap = getUserEffectiveRole(containerSiteRef);
-			if (roleswap != null) {
-			    siteRef = containerSiteRef;
-			}
-		    } else {
-			roleswap = getUserEffectiveRole(siteRef);
+		        String containerSiteRef = siteService().siteReference(ref.getContainer());
+		        if (roleswap != null) {
+		            siteRef = containerSiteRef;
+		        }
 		    }
 
 		}
@@ -834,7 +839,9 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		ids.addAll(authzGroupService().getUsersIsAllowed(lock, realms));
 
 		// convert the set of Users into a sorted list of users
+		// and filter them so that only real users are displayed (not simulated users for the role view)
 		List<User> users = userDirectoryService().getUsers(ids);
+		users = users.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
 		Collections.sort(users);
 
 		return users;
@@ -981,12 +988,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	 */
 	public boolean setUserEffectiveRole(String azGroupId, String role) {
 		
-		if (!unlock(SiteService.SITE_ROLE_SWAP, azGroupId))
-			return false;
-		
 		// set the session attribute with the roleid
-		sessionManager().getCurrentSession().setAttribute(ROLESWAP_PREFIX + azGroupId, role); 
-		resetSecurityCache(azGroupId);
+		sessionManager().getCurrentSession().setAttribute(ROLE_VIEW, role); 
 
 		return true;
 	}
@@ -994,45 +997,9 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getUserEffectiveRole(String azGroupId) {
+	public String getUserEffectiveRole() {
 		
-		if (azGroupId == null || "".equals(azGroupId))
-			return null;
-		
-		return (String) sessionManager().getCurrentSession().getAttribute(ROLESWAP_PREFIX + azGroupId);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void clearUserEffectiveRole(String azGroupId) {
-	
-		// remove the attribute from the session
-		sessionManager().getCurrentSession().removeAttribute(ROLESWAP_PREFIX + azGroupId);
-		resetSecurityCache(azGroupId);
-		
-		return;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	
-	public void clearUserEffectiveRoles() {
-		
-		// get all the roleswaps from the session and clear them
-		
-		Session session = sessionManager().getCurrentSession();
-		
-		for (Enumeration<String> e = session.getAttributeNames(); e.hasMoreElements();)
-		{
-			String name = e.nextElement();
-			if (name.startsWith(ROLESWAP_PREFIX)) {
-				clearUserEffectiveRole(name.substring(ROLESWAP_PREFIX.length()));
-			}
-		}
-		
-		return;
+		return (String) sessionManager().getCurrentSession().getAttribute(ROLE_VIEW);
 	}
 	
 	/**
@@ -1075,43 +1042,86 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 			}
 		}
 	}
-	
-	/**
-	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
-	 *
-	 * @return currentSiteId
-	 */
-	private String getCurrentSiteId() {
-		try {
-			return toolManager().getCurrentPlacement().getContext();
-		} catch (final Exception e) {
-			return null;
-		}
-	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isUserRoleSwapped() throws IdUnusedException {
-		return isUserRoleSwapped(null);
+		final String effectiveRole = getUserEffectiveRole();
+		return StringUtils.isNotBlank(effectiveRole);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
+	 * @throws SakaiException 
 	 */
-	public boolean isUserRoleSwapped(String siteId) throws IdUnusedException {
-
-		if (siteId == null) {
-			siteId = getCurrentSiteId();
+	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
+		if (!unlock(SiteService.SITE_ROLE_SWAP, site.getReference())) {
+			throw new SakaiException("User don't have permissions to swap roles.");
 		}
-
-		final Site site = siteService().getSite(siteId);
-
-		// they are roleswapped if they have an 'effective role'
-		final String effectiveRole = getUserEffectiveRole(site.getReference());
-		if (StringUtils.isNotBlank(effectiveRole)) {
-			return true;
-		}
-		return false;
+		User newUser = getMockupStudentInSite(site, role);
+		impersonateUser(newUser.getId());
+		setUserEffectiveRole(site.getReference(), role);
 	}
+	
+	protected User getMockupStudentInSite(Site site, String role) throws SakaiException {
+		String eid = site.getId() + "#" + role;
+		User mockupUser = null;
+		try {
+			mockupUser = userDirectoryService().getUserByEid(eid);
+		} catch (UserNotDefinedException e) {
+			return newMockupStudentInSite(site, eid, role);
+		}
+		return mockupUser;
+	}
+	
+	protected User newMockupStudentInSite(Site site, String eid, String role) throws SakaiException {
+		User newUser = null;
+		if (site != null && StringUtils.isNoneBlank(eid, role)) {
+			try {
+				newUser = userDirectoryService().addUser(null, eid, role, role, "mockup@mockup.sakai.student.com", eid, User.ROLEVIEW_USER_TYPE, null);
+				String realmId = site.getReference();
+				AuthzGroup realmEdit = authzGroupService().getAuthzGroup(realmId);
+				if (authzGroupService().allowUpdate(realmId) || siteService().allowUpdateSiteMembership(site.getId())) {
+					realmEdit.addMember(newUser.getId(), role, true, false);
+					authzGroupService().save(realmEdit);
+				}
+			} catch (Exception e) {
+				log.warn(this + ".newMockupStudentInSite: " + e.getMessage(), e);
+				throw new SakaiException(e);
+			}
+		}
+		return newUser;
+	}
+	
+	protected void impersonateUser(String userId) throws SakaiException {
+		Session sakaiSession = sessionManager().getCurrentSession();
+		User userinfo = null;
+		String validatedUserId = null;
+		String validatedUserEid = null;
+		try {
+			// try with the user id
+			userinfo = userDirectoryService().getUser(userId);
+			validatedUserId = userinfo.getId();
+			validatedUserEid = userinfo.getEid();
+		} catch (UserNotDefinedException e) {
+			log.warn("[Portal] Exception: " + e.getLocalizedMessage());
+			throw new SakaiException(e);
+		}
+		// while keeping the official usage session under the real user id, switch over everything else to be the SU'ed user
+		// Modeled on UsageSession's logout() and login()
+		// Post an event
+		Event event = eventTrackingService().newEvent("su.become", userDirectoryService().userReference(validatedUserId), false);
+		eventTrackingService().post(event);
+		// logout - clear, but do not invalidate, preserve the usage session's current session
+		Vector saveAttributes = new Vector();
+		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+		saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+		sakaiSession.clearExcept(saveAttributes);
+		// login - set the user id and eid into session, and refresh this user's authz information
+		sakaiSession.setUserId(validatedUserId);
+		sakaiSession.setUserEid(validatedUserEid);
+		authzGroupService().refreshUser(validatedUserId);
+	}
+	
 }

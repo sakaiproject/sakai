@@ -551,8 +551,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	{
 		userDirectoryService().destroyAuthentication();
 
-		securityService.clearUserEffectiveRoles();
-		
 		// invalidate the sakai session, which makes it unavailable, unbinds all the bound objects,
 		// including the session, which will close and generate the logout event
 		Session sakaiSession = sessionManager().getCurrentSession();

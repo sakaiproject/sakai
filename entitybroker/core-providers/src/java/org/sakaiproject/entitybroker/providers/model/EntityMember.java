@@ -313,4 +313,9 @@ public class EntityMember implements Member {
         }
     }
 
+    @Override
+    public boolean isRoleViewUser() {
+        return false;
+    }
+
 }

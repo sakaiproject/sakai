@@ -77,6 +77,7 @@ public class RoleSwapMembershipTest extends SakaiKernelTestBase {
 		//site.setPublished(false); // This is the default, but we this is what we are wanting to test.
 		Role maintain = site.getRole("maintain");
 		maintain.allowFunction(SiteService.SITE_ROLE_SWAP);
+		maintain.allowFunction(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP);
 		siteService.save(site);
 		
 		//this should work
@@ -100,27 +101,20 @@ public class RoleSwapMembershipTest extends SakaiKernelTestBase {
 		Assert.assertTrue(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, group1.getReference()));
 		Assert.assertFalse(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, group2.getReference()));
 		
-		// Access user can View the Site, and the group2 but not the group1
-		Assert.assertTrue(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, site.getReference()));
-		Assert.assertTrue(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, group2.getReference()));
-		Assert.assertFalse(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, group1.getReference()));
-		
 		// Now go to student view
-		Assert.assertTrue(securityService.setUserEffectiveRole(site.getReference(), "access"));
+		securityService.changeToRoleViewOnSite(site, "access");
+		String mockupUserId = site.getId().toLowerCase() + "#" + "access";
 		
-		// Maintain user has access role
-		Assert.assertFalse(authzGroupService.isAllowed("maintain", SiteService.SITE_ROLE_SWAP, site.getReference()));
-		
-		// He can View the Site, and the group1 but not the group2 in student view
-		Assert.assertTrue(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, site.getReference()));
-		Assert.assertTrue(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, group1.getReference()));
-		Assert.assertFalse(authzGroupService.isAllowed("maintain", SiteService.SITE_VISIT, group2.getReference()));
-		
-		// Access user can View the Site, and the group2 but not the group1
-		Assert.assertTrue(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, site.getReference()));
-		Assert.assertTrue(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, group2.getReference()));
-		Assert.assertFalse(authzGroupService.isAllowed("access", SiteService.SITE_VISIT, group1.getReference()));
-		
+		// Update site information and get current user role on site
+		site = siteService.getSite(site.getId());
+		Role role = site.getUserRole(session.getUserId());
+				
+		// Mockup user can't swap roles
+		Assert.assertFalse(authzGroupService.isAllowed(mockupUserId, SiteService.SITE_ROLE_SWAP, site.getReference()));
+
+		// Check current user id and role 
+		Assert.assertTrue(mockupUserId.equals(session.getUserEid()));
+		Assert.assertTrue("access".equals(role.getId()));
 		
 	}
 

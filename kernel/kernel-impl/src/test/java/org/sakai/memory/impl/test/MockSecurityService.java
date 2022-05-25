@@ -27,6 +27,8 @@ import java.util.List;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -136,18 +138,6 @@ public class MockSecurityService implements SecurityService
 		return false;
 	}
 
-	public void clearUserEffectiveRole(String arg0) {
-		return;
-	}
-
-	public void clearUserEffectiveRoles() {
-		return;
-	}
-
-	public String getUserEffectiveRole(String arg0) {
-		return null;
-	}
-
 	public boolean setUserEffectiveRole(String arg0, String arg1) {
 		return false;
 	}
@@ -164,10 +154,15 @@ public class MockSecurityService implements SecurityService
 	}
 
 	@Override
-	public boolean isUserRoleSwapped(String siteId) throws IdUnusedException {
+	public String getUserEffectiveRole() {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
+	@Override
+	public void changeToRoleViewOnSite(Site site, String role) throws SakaiException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

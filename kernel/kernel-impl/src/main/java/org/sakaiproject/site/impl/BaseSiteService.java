@@ -632,11 +632,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			}
 			else
 			{
-				String roleswap = securityService().getUserEffectiveRole(site.getReference());
-				if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished c
-					unlock(SITE_VISIT, site.getReference());
-				else
-					unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+				unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
 			}
 		}
 	}

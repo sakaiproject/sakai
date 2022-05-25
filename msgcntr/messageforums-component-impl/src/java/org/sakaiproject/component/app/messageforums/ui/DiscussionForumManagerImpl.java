@@ -1754,12 +1754,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("isForumOwner(DiscussionForum " + forumId + ")");
     }
-    return forumCreatedBy.equals(userId) && !isRoleSwapView(siteId);
+    return forumCreatedBy.equals(userId) && !isRoleSwapView();
   }
   
-  private boolean isRoleSwapView(String siteId)
+  private boolean isRoleSwapView()
   {
-	return (securityService.getUserEffectiveRole(siteId) != null);
+	return (securityService.getUserEffectiveRole() != null);
   }
 
   /**
@@ -1787,7 +1787,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("isTopicOwner(DiscussionTopic " + topicId + ")");
     }
-    return topicCreatedBy.equals(userId) && !isRoleSwapView(siteId);
+    return topicCreatedBy.equals(userId) && !isRoleSwapView();
   }
 
   private boolean getTopicAccess(DiscussionTopic t)

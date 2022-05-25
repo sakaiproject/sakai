@@ -372,7 +372,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 	public boolean userIsViewingAsRole() {
-		String effectiveRole = securityService.getUserEffectiveRole(developerHelperService.getCurrentLocationReference());
+		String effectiveRole = securityService.getUserEffectiveRole();
 		if (effectiveRole != null)
 					return true;
 		
