@@ -70,7 +70,7 @@
         </div> <!-- portletBody -->
 
         <script>includeLatestJQuery("roster");</script>
-        <script src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js${portalCDNQuery}"></script>
+        <script type="module" src="/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js"></script>
         <script src="/profile2-tool/javascript/profile2-eb.js${portalCDNQuery}"></script>
         <script>includeWebjarLibrary("handlebars");</script>
         <script src="/sakai-roster2-tool/templates.js${portalCDNQuery}"></script>

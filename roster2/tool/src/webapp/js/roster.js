@@ -1,24 +1,43 @@
 import { loadProperties } from "/webcomponents/sakai-i18n.js";
+import "/webcomponents/assets/imagesloaded/imagesloaded.pkgd.min.js";
 
 roster.helpers = {};
 
 roster.setupPrintButton = function () {
 
-  $('.roster-print-button').click(function (e) {
+  document.querySelector(".roster-print-button").addEventListener("click", e => {
 
-    var button = $(this);
+    const button = e.target;
 
-    button.prop('disabled', true);
+    button.disabled = true;
 
     e.preventDefault();
-    roster.renderMembership({renderAll: true, callback: function () {
+    roster.renderMembership({
+      renderAll: true,
+      printMode: true,
+      callback: function () {
 
-        $('#roster-members-content').waitForImages(function () {
+        const doIt = () => {
 
-          button.prop('disabled', false);
-          window.print();
-        });
-      }
+          Promise.all(Array.from(document.querySelectorAll("sakai-user-photo"))
+            .map(sup => sup.updateComplete)).then(() => {
+
+            imagesLoaded("#roster-members-content", () => {
+
+              button.disabled = false;
+              window.print();
+            });
+          });
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => doIt());
+        } else {
+          doIt();
+        }
+
+        //});
+      },
     });
   });
 };
@@ -415,7 +434,7 @@ roster.renderMembership = function (options) {
         m.hasProperties = m.userProperties && Object.keys(m.userProperties).length > 0;
       });
 
-      roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
+      roster.renderMembers(members, $('#roster-members'), enrollmentsMode, options);
 
       $(function () {
 
@@ -562,7 +581,7 @@ roster.readySearchField = function () {
   });
 };
 
-roster.renderMembers = function (members, target, enrollmentsMode, renderAll, options) {
+roster.renderMembers = function (members, target, enrollmentsMode, options) {
 
   var templateData = {
           members: members,
@@ -583,11 +602,10 @@ roster.renderMembers = function (members, target, enrollmentsMode, renderAll, op
           viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
           showVisits: roster.showVisits,
           profileNamePronunciationLink: roster.profileNamePronunciationLink,
+          printMode: options && options.printMode,
       };
 
-  if (!renderAll) {
-      $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
-  }
+  $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
 
   let t = null;
   switch (roster.currentLayout) {
@@ -605,9 +623,7 @@ roster.renderMembers = function (members, target, enrollmentsMode, renderAll, op
   }
 
   target.append(t(templateData, {helpers: roster.helpers}));
-  if (!renderAll) {
-      $(window).trigger('scroll.roster.rendered');
-  }
+  $(window).trigger('scroll.roster.rendered');
 };
 
 roster.getScrollFunction = function (options) {
