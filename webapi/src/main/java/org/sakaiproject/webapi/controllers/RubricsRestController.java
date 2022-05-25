@@ -33,6 +33,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -368,7 +369,12 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         checkSakaiSession();
 
-        return ResponseEntity.ok(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+        ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
+            return ContentDisposition.builder("attachment").filename(rubric.title + ".pdf").build();
+        }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
+
+        return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
+                .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
     }
 
     private EntityModel<RubricTransferBean> entityModelForRubricBean(RubricTransferBean rubricBean) {
