@@ -255,12 +255,11 @@
 										</a>
 
 										#assignmentIcons($assignment)
-
-										#if ($rubricMap.get($assignment.getId()))
+										#if ($rubricMap.containsKey($assignment.getId()))
 										<sakai-rubric-student-button
-                                            force-preview
-                                            rubric-id="$rubricMap.get($assignment.getId())"
-                                            site-id="$assignment.getContext()"
+											force-preview
+											rubric-id="$rubricMap.get($assignment.getId())"
+											site-id="$assignment.getContext()"
 											instructor="true">
 										</sakai-rubric-student-button>
 										#end
@@ -312,10 +311,10 @@
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
 											#assignmentIcons($assignment)
-										    #if ($rubricMap.get($assignment.getId()))
+											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
-                                                    site-id="$assignment.getContext()"
-                                                    rubric-id="$rubricMap.get($assignment.getId())"
+													site-id="$assignment.getContext()"
+													rubric-id="$rubricMap.get($assignment.getId())"
 													tool-id="sakai.assignment"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
@@ -324,10 +323,10 @@
 										#else
 											$formattedText.escapeHtml($assignment.Title)
 											#assignmentIcons($assignment)
-										    #if ($rubricMap.get($assignment.getId()))
+											#if ($rubricMap.containsKey($assignment.getId()))
 												<sakai-rubric-student-button
-                                                    site-id="$assignment.getContext()"
-                                                    rubric-id="$rubricMap.get($assignment.getId())"
+													site-id="$assignment.getContext()"
+													rubric-id="$rubricMap.get($assignment.getId())"
 													tool-id="sakai.assignment"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
@@ -403,12 +402,14 @@
 											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 												#set($submissionId=$submission.Id)
 											#end
+										    #if ($rubricMap.containsKey($assignment.getId()))
 											<sakai-rubric-student-button
-                                                site-id="$assignment.getContext()"
+												site-id="$assignment.getContext()"
 												tool-id="sakai.assignment"
 												evaluated-item-id="$submissionId"
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>
+											#end
 											#if ($taggable && $allowAddAssignment)
 												<div class="itemAction">
 													#set($prevAction=false)
