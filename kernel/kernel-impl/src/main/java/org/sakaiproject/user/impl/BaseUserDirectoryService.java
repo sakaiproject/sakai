@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -1353,6 +1354,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public List<User> getUsers()
 	{
 		List<User> users = m_storage.getAll();
+		users = users.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
 		return users;
 	}
 
@@ -1362,7 +1364,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public List<User> getUsers(int first, int last)
 	{
 		List<User> all = m_storage.getAll(first, last);
-
+		all = all.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
 		return all;
 	}
 
@@ -1371,7 +1373,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public int countUsers()
 	{
-		return m_storage.count();
+		List<User> users = m_storage.getAll();
+		users = users.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
+		return users.size();
 	}
 
 	/**
@@ -1387,7 +1391,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		
 		List<User> userList = new ArrayList<User>(users);
-		
+		userList = userList.stream().filter(user -> !User.ROLEVIEW_USER_TYPE.equals(user.getType())).collect(Collectors.toList());
 		//sort on sortName, default.
 		Collections.sort(userList);
 		

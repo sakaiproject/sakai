@@ -142,4 +142,16 @@ public class BaseMember implements Member
 
 		return compare;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isRoleViewUser() {
+		try {
+			User user = userDirectoryService.getUser(userId);
+			return User.ROLEVIEW_USER_TYPE.equals(user.getType());
+		} catch (UserNotDefinedException e) {
+			return false;
+		}
+	}
 }

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -78,12 +79,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 
 			try
 			{
-				String siteUrl = req.getContextPath() + "/site/" + parts[2] + "/";
-				String queryString = req.getQueryString();
-				if (StringUtils.isNotBlank(queryString))
-				{
-					siteUrl = siteUrl + "?" + queryString;
-				}
+				String logoutUrl = ServerConfigurationService.getPortalUrl() + "/logout";
 
 				activeSite.getPages().stream() // get all pages in site
 						.map(page -> page.getTools()) // tools for each page
@@ -92,12 +88,11 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 						.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
 
 				portalService.setResetState("true"); // flag the portal to reset
-				securityService.clearUserEffectiveRole(siteService.siteReference(parts[2]));
 				
 				// Post an event
 				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_EXIT, null, parts[2], false, NotificationService.NOTI_NONE));
 
-				res.sendRedirect(siteUrl);
+				res.sendRedirect(logoutUrl);
 				return RESET_DONE;
 			}
 			catch (Exception ex)

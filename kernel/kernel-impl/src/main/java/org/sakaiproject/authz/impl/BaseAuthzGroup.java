@@ -817,7 +817,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			Map.Entry entry = (Map.Entry) it.next();
 			String user = (String) entry.getKey();
 			Member grant = (Member) entry.getValue();
-			if (grant.isActive())
+			if (grant.isActive() && !grant.isRoleViewUser())
 			{
 				rv.add(user);
 			}
@@ -840,7 +840,9 @@ public class BaseAuthzGroup implements AuthzGroup
 		{
 			Map.Entry entry = (Map.Entry) it.next();
 			Member grant = (Member) entry.getValue();
-			rv.add(grant);
+			if (!grant.isRoleViewUser()) {
+				rv.add(grant);
+			}
 		}
 
 		return rv;
@@ -859,7 +861,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			Map.Entry entry = (Map.Entry) it.next();
 			String user = (String) entry.getKey();
 			BaseMember grant = (BaseMember) entry.getValue();
-			if (grant.active && grant.role.isAllowed(lock))
+			if (grant.active && grant.role.isAllowed(lock) && !grant.isRoleViewUser())
 			{
 				rv.add(user);
 			}
@@ -881,7 +883,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			Map.Entry entry = (Map.Entry) it.next();
 			String user = (String) entry.getKey();
 			BaseMember grant = (BaseMember) entry.getValue();
-			if (grant.active && grant.role.getId().equals(role))
+			if (grant.active && grant.role.getId().equals(role) && !grant.isRoleViewUser())
 			{
 				rv.add(user);
 			}

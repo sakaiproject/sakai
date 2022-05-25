@@ -45,8 +45,7 @@ public class RoleSwitchHandler extends BasePortalHandler
 	final SecurityService securityService;
 	final SiteService siteService;
 
-	public RoleSwitchHandler()
-	{
+	public RoleSwitchHandler() {
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		securityService = ComponentManager.get(SecurityService.class);
 		siteService = ComponentManager.get(SiteService.class);
@@ -126,8 +125,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 					.forEach(tool -> session.getToolSession(tool.getId()).clearAttributes()); // reset each tool
 
 				portalService.setResetState("true"); // flag the portal to reset
-				securityService.setUserEffectiveRole(activeSite.getReference(), parts[3]);
-
+				
+				// Change to role view
+				securityService.changeToRoleViewOnSite(activeSite, parts[3]);
+				
 				// Post an event
 				eventTrackingService.post(eventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
 
@@ -144,4 +145,5 @@ public class RoleSwitchHandler extends BasePortalHandler
 			return NEXT;
 		}
 	}
+
 }
