@@ -532,6 +532,11 @@
     --sakai-popover-title-background: var(--sakai-background-color-1);
     --sakai-hightlight-color: var(--errorBanner-color);
 
+    //Timer progress bar backgrounds
+    --timer-bar-full-bg: var(--sakai-color-green);
+    --timer-bar-medium-bg: var(--sakai-color-orange);
+    --timer-bar-low-bg: var(--sakai-color-red--lighter-1);
+
     --progress-bar-bg: var(--sakai-color-blue--lighter-6);
 }
 

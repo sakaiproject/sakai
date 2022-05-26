@@ -24,9 +24,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 -->
 
 <!-- BEGIN OF TIMER -->
-<!-- 
-<h:outputText value="hasTimeLimit=#{delivery.hasTimeLimit}, turnIntoTimedAssessment=#{delivery.turnIntoTimedAssessment}, time_remaining=#{delivery.timeElapse}"/>
--->
 <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
     || delivery.actionString=='takeAssessmentViaUrl')
     && (delivery.hasTimeLimit || delivery.turnIntoTimedAssessment)}" >
