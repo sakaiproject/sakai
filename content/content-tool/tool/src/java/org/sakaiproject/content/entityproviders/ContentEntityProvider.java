@@ -90,6 +90,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -108,6 +109,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + SYS + "type_registry";
 	private static final String PARAMETER_DEPTH = "depth";
 	private static final String PARAMETER_TIMESTAMP = "timestamp";
+	private static final String GENERIC_CKEDITOR_IMAGE_FILENAME = "image";
 
 	private ContentHostingService contentHostingService;
 	private SiteService siteService;
@@ -116,6 +118,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	private UserDirectoryService userDirectoryService;
 	private EntityManager entityManager;
 	private ServerConfigurationService serverConfigurationService;
+	
+	/** Resource bundle */
+	private static ResourceLoader rb = new ResourceLoader("content");
 
 	private SecurityAdvisor allowedAdvisor = (userId1, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
@@ -317,7 +322,14 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			} else {
 				DiskFileItem fileItem = (DiskFileItem) params.get("upload");
 				String[] fileNameParts = fileItem.getName().split("\\.(?=[^.]+$)");
-				String basename = StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName()) ? currentUser.getDisplayId() + "_" + fileNameParts[0] : fileNameParts[0];
+				String fileName = fileNameParts[0];
+				// Solving the problem of pasted images in CK editor:
+				// They are always called "image", causing trouble with uniqueness check, so we update the filename with a date suffix
+				if (GENERIC_CKEDITOR_IMAGE_FILENAME.equals(fileName)) {
+					DateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+					fileName = fileName + "_" + df.format(new Date());
+				}
+				String basename = StringUtils.equals(uploadFolderName, contentHostingService.getStudentUploadFolderName()) ? currentUser.getDisplayId() + "_" + fileName : fileName;
 				securityService.pushAdvisor(allowedAdvisor);
 				ContentResourceEdit resourceEdit = contentHostingService.addResource(
 						uploadsFolder.getId(),
@@ -336,25 +348,25 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			}
 		} catch (TypeException | InconsistentException | IdInvalidException | IdUnusedException e) {
 			log.error("Exception when trying to get the direct upload folder for site {}.", context, e);
-			errorMessage = "Unable to get uploads folder.";
+			errorMessage = rb.getString("err.unable.get.uploads.folder");
 		} catch (OverQuotaException e) {
 			log.error("Over quota exception for site " + context + ".", e);
-			errorMessage = "Resource quota exceeded.";
+			errorMessage = rb.getString("err.quota.exceeded");
 		} catch (ServerOverloadException e) {
 			log.error("Server overload exception for site " + context + ".", e);
-			errorMessage = "Server is busy. Please try again.";
+			errorMessage = rb.getString("err.server.busy");
 		} catch (PermissionException e) {
 			log.error("Permission exception trying to direct upload.", e);
-			errorMessage = "You do not have permission to perform this action.";
+			errorMessage = rb.getString("err.permission");
 		} catch (IdLengthException e) {
 			log.error("Resource file name too long.", e);
-			errorMessage = "File name too long.";
+			errorMessage = rb.getString("err.filename.too.long");
 		} catch (IdUniquenessException e) {
 			log.error("Unable to find unique id.", e);
-			errorMessage = "A file with that name already exists.";
+			errorMessage = rb.getString("err.file.already.exists");
 		} catch (IOException e) {
 			log.error("IOException with direct upload.", e);
-			errorMessage = "An error occurred trying to upload the file.";
+			errorMessage = rb.getString("err.error.uploading");
 		} finally {
 			securityService.popAdvisor(allowedAdvisor);
 		}
