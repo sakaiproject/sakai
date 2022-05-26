@@ -624,6 +624,60 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return HttpServletResponse.SC_OK;
     }
 
+    @EntityCustomAction(action = "getTimeSheet", viewKey = EntityView.VIEW_LIST)
+    public Map<String, String> getTimeSheet(EntityView view , Map<String, Object> params) {
+    	 
+    	String userId = sessionManager.getCurrentSessionUserId();
+    	Map<String, String> assignData = new HashMap<>();
+    	 
+
+         if (StringUtils.isBlank(userId)) {
+             log.warn("You need to be logged in to add time sheet register");
+             throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
+         }
+         
+        User u;
+ 		try {
+ 			u = userDirectoryService.getUser(userId);
+ 		} catch (UserNotDefinedException e2) {
+             log.warn("You need to be logged in to add time sheet register");
+             throw new EntityException("You need to be logged in to get timesheet", "", HttpServletResponse.SC_UNAUTHORIZED);
+ 		}
+
+         String assignmentId = view.getPathSegment(2);
+         
+         if (StringUtils.isBlank(assignmentId)) {
+             log.warn("You need to supply the assignmentId and ref");
+             throw new EntityException("Cannot execute custom action (getTimeSheet): Illegal arguments: Must include context and assignmentId in the path (/assignment.json): e.g. /assignment/getTimeSheet/{assignmentId} (rethrown)", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+         }
+         
+         AssignmentSubmission as;
+ 		try {
+ 			as = assignmentService.getSubmission(assignmentId, u);
+ 		} catch (PermissionException e1) {
+ 			log.warn("You can't modify this sumbitter");
+ 			throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+ 		}
+ 		if(as == null) {
+ 			throw new EntityException("No existen registros en bitacora para la tarea ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+ 		}
+ 		Optional<AssignmentSubmissionSubmitter> s = as.getSubmitters().stream().findAny();
+ 		String timeSpent = "";
+ 		if(s.isPresent()) {
+ 			AssignmentSubmissionSubmitter submitter =  s.get();
+ 			if(submitter.getSubmittee()) {
+ 				timeSpent = submitter.getTimeSpent();
+ 			}else {
+ 				timeSpent = assignmentService.getTotalTimeSheet(submitter);
+ 			}
+ 			assignData.put("timeSpent", timeSpent);
+ 		}else {
+ 			throw new EntityException("No existen registros en bitacora para la tarea ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+ 		}
+
+		return assignData;
+    }
+    
     @EntityCustomAction(action = "gradable", viewKey = EntityView.VIEW_LIST)
     public ActionReturn getGradableForSite(EntityView view , Map<String, Object> params) {
 
