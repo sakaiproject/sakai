@@ -47,6 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -137,6 +140,9 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 
 @Slf4j
 public class GradebookNgBusinessService {
+
+	@Setter
+	private AssignmentService assignmentService;
 
 	@Setter
 	private SiteService siteService;
@@ -943,12 +949,14 @@ public class GradebookNgBusinessService {
 	}
 
 	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
-		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+
+		HashMap<String, Boolean> map = new HashMap<>();
 		for (Assignment assignment : assignments) {
 			String externalAppName = assignment.getExternalAppName();
-			if(assignment.getExternallyMaintained()) {
-				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, toolManager.getLocalizedToolProperty("sakai.assignment", "title")) ? rubricsService.hasAssociatedRubric(externalAppName, assignment.getExternalId()) : false;
-				map.put(assignment.getExternalId(), hasAssociatedRubric);
+			if (assignment.getExternallyMaintained()) {
+				String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, "sakai.assignment.grades") ? rubricsService.hasAssociatedRubric(externalAppName, assignmentId) : false;
+				map.put(assignmentId, hasAssociatedRubric);
 			} else {
 				Long assignmentId = assignment.getId();
 				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
@@ -3155,5 +3163,23 @@ public class GradebookNgBusinessService {
 	public String getExternalAppName(String externalAppId) {
 		Tool externalTool = toolManager.getTool(externalAppId);
 		return externalTool != null ? externalTool.getTitle() : externalAppId;
+	}
+
+	public String getExternalSubmissionId(String externalId, String userId) {
+
+		String assignmentId = AssignmentReferenceReckoner.reckoner().reference(externalId).reckon().getId();
+
+		try {
+			AssignmentSubmission as = assignmentService.getSubmission(assignmentId, userId);
+
+			if (as == null) {
+				throw new IllegalArgumentException("No submission for external id " + externalId + " and user " + userId);
+			}
+
+			return as.getId();
+		} catch (Exception e) {
+			log.error("Exception while getting external submission: {}", e.toString());
+			return "";
+		}
 	}
 }

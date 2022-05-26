@@ -51,6 +51,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import org.jsoup.Jsoup;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -754,7 +755,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * @return
      */
 
-    private Map<String, Boolean> setConfigurationParameters(Map<String, String> params, Map<String,Boolean> oldParams ){
+    private Map<String, Boolean> setConfigurationParameters(Map<String, String> params, Map<String,Boolean> oldParams) {
 
         Map<String, Boolean> merged = new HashMap<>();
 
@@ -878,11 +879,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         });
     }
 
-    private void deleteRubricEvaluationsForAssociation(Long associationId, String tool){
+    private void deleteRubricEvaluationsForAssociation(Long associationId, String tool) {
         evaluationRepository.deleteByToolItemRubricAssociation_Id(associationId);
     }
 
-    public void softDeleteRubricAssociation(String toolId, String id){
+    public void softDeleteRubricAssociation(String toolId, String id) {
 
         getRubricAssociation(toolId, id).ifPresent(assoc -> {
 
@@ -1048,7 +1049,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
-        if (cleanup){
+        if (cleanup) {
             deleteSiteRubrics(toContext);
         }
         return transferCopyEntities(fromContext, toContext, ids, null);
@@ -1079,37 +1080,37 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             String itemId = association.getItemId();
                             String newItemId = null;
                             //3 association type
-                            if (RubricsConstants.RBCS_TOOL_ASSIGNMENT.equals(tool)){
+                            if (AssignmentConstants.TOOL_ID.equals(tool)) {
                                 //3a if assignments
                                 log.debug("Handling Rubrics association transfer for Assignment entry " + itemId);
-                                if(transversalMap.get("assignment/"+itemId) != null){
+                                if(transversalMap.get("assignment/"+itemId) != null) {
                                     newItemId = transversalMap.get("assignment/"+itemId).substring("assignment/".length());
                                 }
-                            } else if (RubricsConstants.RBCS_TOOL_SAMIGO.equals(tool)){
+                            } else if (RubricsConstants.RBCS_TOOL_SAMIGO.equals(tool)) {
                                 //3b if samigo
-                                if(itemId.startsWith(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX)){
+                                if(itemId.startsWith(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX)) {
                                     log.debug("Skipping published item {}", itemId);
                                 }
                                 log.debug("Handling Rubrics association transfer for Samigo entry " + itemId);
-                                if(transversalMap.get("sam_item/"+itemId) != null){
+                                if(transversalMap.get("sam_item/"+itemId) != null) {
                                     newItemId = transversalMap.get("sam_item/"+itemId).substring("sam_item/".length());
                                 }
-                            } else if (RubricsConstants.RBCS_TOOL_FORUMS.equals(tool)){
+                            } else if (RubricsConstants.RBCS_TOOL_FORUMS.equals(tool)) {
                                 //3c if forums
                                 newItemId = itemId.substring(0, 4);
                                 String strippedId = itemId.substring(4);//every forum prefix have this size
                                 log.debug("Handling Rubrics association transfer for Forums entry " + strippedId);
-                                if(RubricsConstants.RBCS_FORUM_ENTITY_PREFIX.equals(newItemId) && transversalMap.get("forum/"+strippedId) != null){
+                                if(RubricsConstants.RBCS_FORUM_ENTITY_PREFIX.equals(newItemId) && transversalMap.get("forum/"+strippedId) != null) {
                                     newItemId += transversalMap.get("forum/"+strippedId).substring("forum/".length());
-                                } else if(RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX.equals(newItemId) && transversalMap.get("forum_topic/"+strippedId) != null){
+                                } else if(RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX.equals(newItemId) && transversalMap.get("forum_topic/"+strippedId) != null) {
                                     newItemId += transversalMap.get("forum_topic/"+strippedId).substring("forum_topic/".length());
                                 } else {
                                     log.debug("Not found updated id for item {}", itemId);
                                 }
-                            } else if (RubricsConstants.RBCS_TOOL_GRADEBOOKNG.equals(tool)){
+                            } else if (RubricsConstants.RBCS_TOOL_GRADEBOOKNG.equals(tool)) {
                                 //3d if gradebook
                                 log.debug("Handling Rubrics association transfer for Gradebook entry " + itemId);
-                                if(transversalMap.get("gb/"+itemId) != null){
+                                if(transversalMap.get("gb/"+itemId) != null) {
                                     newItemId = transversalMap.get("gb/"+itemId).substring("gb/".length());
                                 }
                             } else {
@@ -1117,7 +1118,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                             }
 
                             //4 save new association
-                            if (newItemId != null){
+                            if (newItemId != null) {
                                 try {
                                     ToolItemRubricAssociation newAssociation = new ToolItemRubricAssociation();
                                     newAssociation.setToolId(tool);
@@ -1126,12 +1127,12 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                                     newAssociation.setRubricId(newRubricId);
                                     newAssociation.setParameters(originalParams);
                                     associationRepository.save(newAssociation);
-                                } catch (Exception exc){
+                                } catch (Exception exc) {
                                     log.error("Error while trying to save new association with item it {} : {}", newItemId, exc.toString());
                                 }
                             }
                         });
-                    } catch (Exception ex){
+                    } catch (Exception ex) {
                         log.error("Error while trying to update association for Rubric {} : {}", key, ex.toString());
                     }
                 }

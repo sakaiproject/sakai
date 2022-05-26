@@ -347,7 +347,7 @@
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
                 site-id="$!assignment.Context"
-                tool-id="sakai.assignment"
+                tool-id="sakai.assignment.grades"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
                 enable-pdf-export="$enablePdfExport"

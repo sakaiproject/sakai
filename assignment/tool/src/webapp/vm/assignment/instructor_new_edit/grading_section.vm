@@ -64,7 +64,7 @@ This section contains the options for grading this assignment, including rubrics
                     #if("$!assignment.Id" != "")
                         entity-id="$assignment.Id"
                     #end
-                    tool-id="sakai.assignment"
+                    tool-id="sakai.assignment.grades"
                 #end
                 fine-tune-points="$tlang.getString("option.pointsoverride")"
                 hide-student-preview="$tlang.getString("option.studentpreview")"

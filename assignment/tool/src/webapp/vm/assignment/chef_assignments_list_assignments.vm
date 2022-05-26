@@ -315,7 +315,7 @@
 												<sakai-rubric-student-button
 													site-id="$assignment.getContext()"
 													rubric-id="$rubricMap.get($assignment.getId())"
-													tool-id="sakai.assignment"
+													tool-id="sakai.assignment.grades"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
 												</sakai-rubric-student-button>
@@ -327,7 +327,7 @@
 												<sakai-rubric-student-button
 													site-id="$assignment.getContext()"
 													rubric-id="$rubricMap.get($assignment.getId())"
-													tool-id="sakai.assignment"
+													tool-id="sakai.assignment.grades"
 													evaluated-item-id="$submission.Id"
 													entity-id="$assignment.Id">
 												</sakai-rubric-student-button>
@@ -405,7 +405,7 @@
 										    #if ($rubricMap.containsKey($assignment.getId()))
 											<sakai-rubric-student-button
 												site-id="$assignment.getContext()"
-												tool-id="sakai.assignment"
+												tool-id="sakai.assignment.grades"
 												evaluated-item-id="$submissionId"
 												entity-id="$assignment.Id">
 											</sakai-rubric-student-button>

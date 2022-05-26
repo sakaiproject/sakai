@@ -1101,9 +1101,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 //copy rubric
                 try {
-                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
+                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(AssignmentConstants.TOOL_ID, assignmentId);
                     if (rubricAssociation.isPresent()) {
-                        rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
+                        rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
                     }
                 } catch(Exception e){
                     log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());

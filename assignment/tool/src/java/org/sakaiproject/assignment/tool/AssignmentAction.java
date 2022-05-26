@@ -274,8 +274,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AssignmentAction extends PagedResourceActionII {
 
-    private static final String TOOL_ID = "sakai.assignment.grades";
-
     // Grading
     private static final String NEW_ASSIGNMENT_GRADE_ASSIGNMENT = "new_assignment_grade_assignment";
     private static final String NEW_ASSIGNMENT_SEND_TO_GRADEBOOK = "new_assignment_send_to_gradebook";
@@ -2229,7 +2227,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Get site by ID
             Site currentSite = siteService.getSite(siteId);
             // Assignments Tool Configuration
-            ToolConfiguration toolConfig = currentSite.getToolForCommonId(TOOL_ID);
+            ToolConfiguration toolConfig = currentSite.getToolForCommonId(AssignmentConstants.TOOL_ID);
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
@@ -2712,7 +2710,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Get site by ID
             Site currentSite = siteService.getSite(siteId);
             // Assignments Tool Configuration
-            ToolConfiguration toolConfig = currentSite.getToolForCommonId(TOOL_ID);
+            ToolConfiguration toolConfig = currentSite.getToolForCommonId(AssignmentConstants.TOOL_ID);
                     
             // Get visibility value of assignments tool
             String isAssignmentsVisible = toolConfig.getConfig().getProperty(ToolManager.PORTAL_VISIBLE);
@@ -2821,7 +2819,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             try {
                 Optional<AssociationTransferBean> optAssociation
-                    = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), a.getContext());
+                    = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
                 if (optAssociation.isPresent()) {
                     rubricMap.put(a.getId(), optAssociation.get().rubricId);
                 }
@@ -2985,7 +2983,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(RUBRIC_ASSOCIATION) == null) {
                     try {
                         Optional<AssociationTransferBean> optAssociation
-                            = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), siteId);
+                            = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), siteId);
                         if (optAssociation.isPresent()) {
                             state.setAttribute(RUBRIC_ASSOCIATION, (new ObjectMapper()).writeValueAsString(optAssociation.get()));
                         }
@@ -4082,7 +4080,7 @@ public class AssignmentAction extends PagedResourceActionII {
         letterGradeOptionsIntoContext(context);
 
         // Check if the assignment has a rubric associated or not
-        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
+        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(AssignmentConstants.TOOL_ID, assignment.get().getId()));
 
         context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
@@ -4780,7 +4778,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         try {
             Optional<AssociationTransferBean> optAssociation
-                = rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), assignment.getContext());
+                = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignment.getId(), assignment.getContext());
             if (optAssociation.isPresent()) {
                 context.put("rubricId", optAssociation.get().rubricId);
             }
@@ -8464,7 +8462,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 //RUBRICS, Save the binding between the assignment and the rubric
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
                 if (!rubricParams.isEmpty()) {
-                    rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), rubricParams);
+                    rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, a.getId(), rubricParams);
                 }
 
                 if (post) {
@@ -10213,7 +10211,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 String title = assignment.getTitle();
 
                 // remove rubric association if there is one
-                rubricsService.softDeleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                rubricsService.softDeleteRubricAssociation(AssignmentConstants.TOOL_ID, id);
 				
                 // remove from Gradebook
                 addAlerts(state, assignmentToolUtils.integrateGradebook(stateToMap(state), ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1));
@@ -10285,7 +10283,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                         // remove rubric association if there is one
                         // TODO: this should be in the service and in a transaction!!
-                        rubricsService.deleteRubricAssociationsByItemIdPrefix(id, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+                        rubricsService.deleteRubricAssociationsByItemIdPrefix(id, AssignmentConstants.TOOL_ID);
 
                         assignmentService.deleteAssignment(a);
                     }
@@ -10317,7 +10315,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         ParameterParser params = data.getParameters();
-
         // get the assignment ids
         String[] assignmentIds = params.getStrings("selectedAssignments");
         if (assignmentIds != null) {
@@ -10330,7 +10327,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         a.setDeleted(false);
                         assignmentService.updateAssignment(a);
 
-                        rubricsService.restoreRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+                        rubricsService.restoreRubricAssociation(AssignmentConstants.TOOL_ID, id);
 
                         // restore email reminder only if reminder is set and the due date is after 1 day
                         if (BooleanUtils.toBoolean(a.getProperties().get(NEW_ASSIGNMENT_REMINDER_EMAIL))

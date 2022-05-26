@@ -10,7 +10,7 @@ export const rubricsApiMixin = Base => class extends Base {
           return r.json();
         }
 
-        throw new Error("Network error while getting association");
+        throw new Error(`Network error while getting association: ${r.status}`);
       });
   }
 
