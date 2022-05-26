@@ -659,7 +659,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
  			throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
  		}
  		if(as == null) {
- 			throw new EntityException("No existen registros en bitacora para la tarea ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+ 			throw new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST); 
  		}
  		Optional<AssignmentSubmissionSubmitter> s = as.getSubmitters().stream().findAny();
  		String timeSpent = "";
@@ -672,7 +672,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
  			}
  			assignData.put("timeSpent", timeSpent);
  		}else {
- 			throw new EntityException("No existen registros en bitacora para la tarea ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
+ 			throw new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
  		}
 
 		return assignData;
