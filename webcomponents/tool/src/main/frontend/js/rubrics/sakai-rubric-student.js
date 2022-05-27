@@ -134,14 +134,14 @@ class SakaiRubricStudent extends RubricsElement {
         <div id="rubric-grading-or-preview" class="rubric-tab-content rubrics-visible">
           ${this.preview || this.forcePreview ? html`
           <sakai-rubric-criterion-preview
-            criteria="${JSON.stringify(this.rubric.criteria)}"
+            .criteria="${this.rubric.criteria}"
             .weighted=${this.rubric.weighted}
           ></sakai-rubric-criterion-preview>
           ` : html`
           <sakai-rubric-criterion-student
-            criteria="${JSON.stringify(this.rubric.criteria)}"
+            .criteria="${this.rubric.criteria}"
             rubric-association="${JSON.stringify(this.association)}"
-            evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+            .evaluation-details="${this.evaluation.criterionOutcomes}"
             ?preview="${this.preview}"
             entity-id="${this.entityId}"
             .weighted=${this.rubric.weighted}

@@ -139,14 +139,14 @@ export class SakaiRubric extends RubricsElement {
         <div class="rubric-details style-scope sakai-rubric">
           ${this.rubric.locked ? html`
               <sakai-rubric-criteria-readonly
-                criteria="${JSON.stringify(this.rubric.criteria)}"
+                .criteria="${this.rubric.criteria}"
                 .weighted=${this.rubric.weighted}
               />`
             : html`
               <sakai-rubric-criteria
                 rubric-id="${this.rubric.id}"
                 site-id="${this.rubric.ownerId}"
-                criteria="${JSON.stringify(this.rubric.criteria)}"
+                .criteria="${this.rubric.criteria}"
                 @save-weights="${this.handleSaveWeights}"
                 @weight-changed="${this.handleCriterionWeightChange}"
                 @refresh-total-weight="${this.handleRefreshTotalWeight}"
