@@ -38,6 +38,7 @@ export class SakaiRubricPdf extends RubricsElement {
       <a role="button"
         title="${tr("export_title", [this.rubricTitle])}"
         href="${this.url}"
+        @click=${e => e.stopPropagation()}
         class="linkStyle pdf fa fa-file-pdf-o">
       </a>
     `;
