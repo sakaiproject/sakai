@@ -141,29 +141,28 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 					if (onlyNotSearch) {
 						onlyNotSearch = false;
 					}
-					query = query.concat("and");
 					// left param --> check for!
 					if (matcher.group(2) != null) {
 						//check if first
 						if(firstParam){
-							expression.append(" (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+							expression.append(String.format(" (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
 							firstParam = false;
 						}else{
-							expression.append(" or (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+							expression.append(String.format(" or (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
 						}
 					} else {
 						if(firstParam){
-							expression.append(" (lower(c.content) like ?1 or lower(r.name) like ?2)");
+							expression.append(String.format(" (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
 							firstParam = false;
 						}else {
-							expression.append(" or (lower(c.content) like ?1 or lower(r.name) like ?2)");
+							expression.append(String.format(" or (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
 						}
 					}
 					//  right param --> check for!
 					if (matcher.group(4) != null) {
-						expression.append(" and (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+						expression.append(String.format(" and (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t + 2, t + 3));
 					} else {
-						expression.append(" and (lower(c.content) like ?1 or lower(r.name) like ?2) ");
+						expression.append(String.format(" and (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t + 2, t + 3));
 					}
 					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
 					criteriaListTmp.add("%" + matcher.group(3).toLowerCase() + "%");
@@ -174,30 +173,28 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 
 					// check for trailing and operator
 				}else if(matcher.group(6) != null){
-					query = query.concat("and");
 					//check for !
 					if(matcher.group(7) != null){
-						expression.append(" and (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+						expression.append(String.format(" and (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
 					}else {
-						expression.append(" and (lower(c.content)  like ?1 or lower(r.name) like ?2) ");
+						expression.append(String.format(" and (lower(c.content)  like ?%d or lower(r.name) like ?%d) ", t, t + 1));
 					}
 					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
 					criteriaListTmp.add("%" + matcher.group(8).toLowerCase() + "%");
 					t+= 2;
 					//check for single search param
 				}else if(matcher.group(10) != null) {
-					query = query.concat("and");
 					//check for !
 					if(matcher.group(9) != null){
 						if(firstNotSearchParam){
-							expressionNotOperator.append(" (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+							expressionNotOperator.append(String.format(" (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
 							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
 							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
 
 							//criteriaListTmp3_1.add("%" + matcher.group(11).toLowerCase() + "%");
 							firstNotSearchParam = false;
 						}else {
-							expressionNotOperator.append(" or (lower(c.content) not like ?1 and lower(r.name) not like ?2) ");
+							expressionNotOperator.append(String.format(" or (lower(c.content) not like ?%d and lower(r.name) not like ?%d) ", t, t + 1));
 
 							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
 							criteriaListTmp2.add("%" + matcher.group(10).toLowerCase() + "%");
@@ -207,10 +204,10 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 							onlyNotSearch = false;
 						}
 						if(firstParam){
-							expression.append(" (lower(c.content) like ?1 or lower(r.name) like ?2) ");
+							expression.append(String.format(" (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
 							firstParam = false;
 						}else {
-							expression.append(" or (lower(c.content) like ?1 or lower(r.name) like ?2) ");
+							expression.append(String.format(" or (lower(c.content) like ?%d or lower(r.name) like ?%d) ", t, t + 1));
 						}
 						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
 						criteriaListTmp.add("%" + matcher.group(10).toLowerCase() + "%");
@@ -221,7 +218,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		}
 
 		if(!onlyNotSearch){
-			query += "( " + expression.toString();
+			query += " and ( " + expression.toString();
 			criteriaListTmp.forEach(s -> {criteriaList.add(s);});
 
 			if(!criteriaListTmp2.isEmpty()){
@@ -235,7 +232,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RW
 		}else {
 			String expNotOp = expressionNotOperator.toString();
 			if (StringUtils.isNotBlank(expNotOp)) {
-				query += "( " + expNotOp + " )";
+				query += " and ( " + expNotOp + " )";
 				criteriaListTmp2.forEach(s -> {criteriaList.add(s);});
 			}
 
