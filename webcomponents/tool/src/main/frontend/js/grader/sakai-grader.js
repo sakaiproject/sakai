@@ -133,8 +133,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       this.privateNotesEditor.setData(this._submission.privateNotes, () => this.modified = false);
     }
 
-    const rubric = this.querySelector("sakai-rubric-grading");
-    rubric && rubric.setAttribute("evaluated-item-id", this._submission.id);
+    this.querySelector("sakai-rubric-grading")?.setAttribute("evaluated-item-id", this._submission.id);
 
     this.requestUpdate();
 
@@ -1118,16 +1117,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     const currentIndex = this.submissions.findIndex(s => s.id === this.submission.id);
     this.submissions[currentIndex] = this.nonEditedSubmission;
     this.querySelector("sakai-grader-file-picker").reset();
+    this.querySelector("sakai-rubric-grading")?.cancel();
     return true;
   }
 
   canNavigate() {
+
     // Deal with the right pane not present
-    const nFiles = this.querySelector("sakai-grader-file-picker") ? this.querySelector("sakai-grader-file-picker").files.length : 0;
-    return this.modified || nFiles > 0 ?
-      confirm(this.i18n.confirm_discard_changes) ?
-        this.clearSubmission() : false
-      : true;
+    const nFiles = this.querySelector("sakai-grader-file-picker")?.files.length;
+    return this.modified || nFiles
+      ? (confirm(this.i18n.confirm_discard_changes) ? this.clearSubmission() : false) : true;
   }
 
   toStudentList(e) {
@@ -1160,7 +1159,6 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       e.preventDefault();
       return false;
     }
-
   }
 
   gradeSelected(e) {
