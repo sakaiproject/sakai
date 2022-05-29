@@ -46,6 +46,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     if (typeof MathJax !== "undefined") {
       MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
     }
+
+    this.canSave = true;
   }
 
   static get properties() {
@@ -84,6 +86,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       showingHistory: { attribute: false, type: Boolean },
       ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
       showOverrides: { attribute: false, type: Boolean },
+      canSave: { attribute: false, type: Boolean },
     };
   }
 
@@ -183,13 +186,24 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
       </div>
       <div class="grader-navigator">
-        <div><a class="user-list-link" href="javascript:void(0)" title="${this.assignmentsI18n["nav.list"]}" @click=${this.toStudentList}>${this.assignmentsI18n["nav.list"]}</a></div>
         <div>
-          <a href="javascript:;" @click=${this.previous}><fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
-          <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected}>
+          <button class="btn-transparent"
+              title="${this.assignmentsI18n["nav.list"]}"
+              @click=${this.toStudentList}
+              ?disabled=${!this.canSave}>
+            ${this.assignmentsI18n["nav.list"]}
+          </button>
+        </div>
+        <div>
+          <button class="btn-transparent" @click=${this.previous} aria-label="${this.i18n.previous_submission_label}" ?disabled=${!this.canSave}>
+            <fa-icon size="2em" i-class="fas arrow-circle-left" path-prefix="/webcomponents/assets" style="vertical-align: middle;" />
+          </button>
+          <select aria-label="${this.i18n.student_selector_label}" @change=${this.studentSelected} ?disabled=${!this.canSave}>
             ${this.submissions.map(s => html`<option value="${s.id}" .selected=${this.submission.id === s.id}>${s.groupId ? s.groupTitle : s.firstSubmitterName}</option>`)}
           </select>
-          <a href="javascript:;" @click=${this.next}><fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" /></a>
+          <button class="btn-transparent" @click=${this.next} aria-label="${this.i18n.next_submission_label}" ?disabled=${!this.canSave}>
+            <fa-icon size="2em" i-class="fas arrow-circle-right" path-prefix="/webcomponents/assets" style="vertical-align: middle;" />
+          </button>
         </div>
         <div>${this.currentStudentInfo}</div>
       </div>
@@ -508,7 +522,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         </div>
         <div id="feedback-panel" class="grader-panel" title="${this.assignmentsI18n.feedbackcomment}" style="display: none;">
           <div class="feedback-title">${this.assignmentsI18n["gen.instrcomment"]}</div>
-          <div class="feedback-instruction sak-banner-info">${this.assignmentsI18n["gradingsub.usethebel1"]}</div>
+          <div class="feedback-instruction sak-banner-info">${this.i18n.feedback_instruction}</div>
           <div id="feedback-comment-unsaved-msg" class="feedback-instruction sak-banner-error hidden">${this.i18n.unsaved_text_warning}</div>
           <textarea id="grader-feedback-comment" .value=${this.submission.feedbackComment}></textarea>
           <div class="media-feedback grader-label">
@@ -621,8 +635,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 </div>
         ` : ""}
         <div class="action-button-block act">
-          <button accesskey="s" class="btn btn-primary active" name="save" @click=${this.save}>${this.assignmentsI18n["gen.sav"]}</button>
-          <button accesskey="d" name="return" @click=${this.saveAndRelease}>${this.assignmentsI18n["gen.retustud"]}</button>
+          <button accesskey="s" class="btn btn-primary active" name="save" @click=${this.save} ?disabled=${!this.canSave}>${this.assignmentsI18n["gen.sav"]}</button>
+          <button accesskey="d" name="return" @click=${this.saveAndRelease} ?disabled=${!this.canSave}>${this.assignmentsI18n["gen.retustud"]}</button>
           <button accesskey="x" name="cancel" @click=${this.cancel}>${this.assignmentsI18n["gen.can"]}</button>
         </div>
         ${this.saveSucceeded ? html`<div class="sak-banner-success">${this.i18n.successful_save}</div>` : ""}
@@ -677,6 +691,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         close: () => this.rubricShowing = false
       });
       this.rubricShowing = true;
+      this.canSave = false;
     } else {
       try {
         $("#rubric-panel").dialog("destroy");
@@ -684,6 +699,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         console.info(this.i18n.destroy_rubric_panel_log);
       }
       this.rubricShowing = false;
+      this.canSave = true;
     }
   }
 
@@ -753,9 +769,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         beforeClose: () => this.cancelFeedbackToggle(),
       });
       this.feedbackCommentEditor = this.replaceWithEditor("grader-feedback-comment");
+      this.canSave = false;
     } else {
       this.feedbackCommentEditor.destroy();
       feedbackPanel.dialog("destroy");
+      this.canSave = true;
     }
   }
 
@@ -817,9 +835,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         beforeClose: () => this.cancelPrivateNotesToggle(),
       });
       this.privateNotesEditor = this.replaceWithEditor("grader-private-notes");
+      this.canSave = false;
     } else {
       this.privateNotesEditor.destroy();
       privateNotesPanel.dialog("destroy");
+      this.canSave = true;
     }
   }
 
