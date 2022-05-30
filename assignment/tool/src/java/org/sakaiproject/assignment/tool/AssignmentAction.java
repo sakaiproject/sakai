@@ -5996,12 +5996,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     try {
                         submission = assignmentService.addSubmission(assignment.getId(), submitter);
                         if (submission != null ) {
-                            setResubmissionProperties(assignment, submission);
                             submission.setSubmitted(true);
                             submission.setUserSubmission(false);
                             submission.setDateModified(Instant.now());
                             submission.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitter)).findAny().ifPresent(sb -> sb.setSubmittee(false));
-                            assignmentService.updateSubmission(submission);
                         }
                     } catch (PermissionException pe) {
                         addAlert(state, rb.getString("notpermis4"));
