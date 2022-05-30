@@ -979,13 +979,27 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         for (Criterion cri : rubric.getCriteria()) {
             PdfPCell criterionCell = new PdfPCell();
             PdfPTable criterionTable = new PdfPTable(cri.getRatings().size() + 1);
-            String titlePoints = resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation));
-            if (rubric.getWeighted()) {
-                titlePoints = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation), cri.getWeight());
+            Paragraph criterionParagraph;
+            String titlePoints;
+            final boolean isCriterionGroup = cri.getRatings().size() > 0;
+
+            if (isCriterionGroup) {
+                if (rubric.getWeighted()) {
+                    titlePoints = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation), cri.getWeight());
+                } else {
+                    titlePoints = resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation));
+                }
+                criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
+            } else {
+                // Criterion group
+                titlePoints = cri.getTitle();
+                criterionCell.setBackgroundColor(Color.LIGHT_GRAY);
+                criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
             }
-            Paragraph criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
             if (StringUtils.isNotBlank(cri.getDescription())) {
-                criterionParagraph.add(Chunk.NEWLINE);
+                if (!isCriterionGroup) {
+                    criterionParagraph.add(Chunk.NEWLINE);
+                }
                 criterionParagraph.add(new Paragraph(formattedText.stripHtmlFromText(cri.getDescription(), true), NORMAL_FONT));
             }
             criterionCell.addElement(criterionParagraph);
