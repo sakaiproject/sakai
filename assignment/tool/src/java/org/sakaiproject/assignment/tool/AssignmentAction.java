@@ -5975,7 +5975,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (assignmentService.canSubmit(assignment, user.getId())) {
                 AssignmentSubmission submission = getSubmission(assignmentReference, user, "build_student_view_assignment_honorPledge_context", state);
                 if (submission == null) {
-                    String submitter = user.getId();
+                    String submitter;
                     if (assignment.getIsGroup()) {
                         try {
                             Site site = siteService.getSite(assignment.getContext());
@@ -5989,10 +5989,20 @@ public class AssignmentAction extends PagedResourceActionII {
                             doView_assignment_honorPledge(data);
                             return;
                         }
+                    } else {
+                        submitter = user.getId();
                     }
 
                     try {
                         submission = assignmentService.addSubmission(assignment.getId(), submitter);
+                        if (submission != null ) {
+                            setResubmissionProperties(assignment, submission);
+                            submission.setSubmitted(true);
+                            submission.setUserSubmission(false);
+                            submission.setDateModified(Instant.now());
+                            submission.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitter)).findAny().ifPresent(sb -> sb.setSubmittee(false));
+                            assignmentService.updateSubmission(submission);
+                        }
                     } catch (PermissionException pe) {
                         addAlert(state, rb.getString("notpermis4"));
                         log.warn("User {} could not add submission {}", user.getId(), submission.getId(), pe);
