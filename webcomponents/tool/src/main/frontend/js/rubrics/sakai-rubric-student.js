@@ -141,7 +141,7 @@ class SakaiRubricStudent extends RubricsElement {
           <sakai-rubric-criterion-student
             .criteria="${this.rubric.criteria}"
             rubric-association="${JSON.stringify(this.association)}"
-            .evaluation-details="${this.evaluation.criterionOutcomes}"
+            evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
             ?preview="${this.preview}"
             entity-id="${this.entityId}"
             .weighted=${this.rubric.weighted}
