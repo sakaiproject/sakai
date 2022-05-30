@@ -98,9 +98,9 @@ class SakaiRubricStudent extends RubricsElement {
                 site-id="${this.siteId}"
                 rubric-title="${this.rubric.title}"
                 rubric-id="${this.rubric.id}"
-                toolId="${this.toolId}"
-                entityId="${this.entityId}"
-                evaluatedItemId="${this.evaluatedItemId}"
+                tool-id="${this.toolId}"
+                entity-id="${this.entityId}"
+                evaluated-item-id="${this.evaluatedItemId}"
             />
           ` : ""}
         </h3>
