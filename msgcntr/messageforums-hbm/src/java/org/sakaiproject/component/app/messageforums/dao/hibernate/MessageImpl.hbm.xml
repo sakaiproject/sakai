@@ -81,7 +81,7 @@
 		<column name="DELETED" not-null="true" />
 	</property> 
 	<property name="scheduler">
-      <column name="SCHEDULER" not-null="false" />
+      <column name="SCHEDULER" not-null="true" default="0"/>
     </property>
     <property name="scheduledDate" column="SCHEDULED_DATE" type="timestamp" />
     <many-to-one name="topic" column="surrogateKey"
