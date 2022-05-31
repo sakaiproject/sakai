@@ -127,7 +127,7 @@ $(function () {
             var confirmMsg = $.trim($('#reallyHideConfirm').text());
             var checkedHiddenSites = $('.site-hidden:checked');
 
-            if (clicked_button === 'hidden_sites_form:submit' && checkedHiddenSites.length > 0 && !confirm(confirmMsg)) {
+            if (clicked_button === 'hidden_sites_form:submit' && checkedHiddenSites.length > 0 && wereFavoritesPreviously(checkedHiddenSites) && !confirm(confirmMsg)) {
                 return false;
             }
 
@@ -169,4 +169,15 @@ $(function () {
             }
         });
     });
+
+    function wereFavoritesPreviously(checkedSites) {
+        let hasFavorites = 0;
+        checkedSites.each(function() {
+            if ($(this).parent().hasClass('favorite-site') && hiddenSites.indexOf($(this).data('site-id')) < 0) {
+                hasFavorites++;
+                return false;
+            }
+        });
+        return hasFavorites > 0;
+    }
 });
