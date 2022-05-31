@@ -12,6 +12,8 @@ import { Submission } from "./submission.js";
 import "/webcomponents/rubrics/rubric-association-requirements.js";
 import "/webcomponents/rubrics/sakai-rubric-grading-button.js";
 
+const GRADE_CHECKED = "Checked";
+
 export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
   constructor() {
@@ -103,7 +105,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     this.modified = false;
     this.rubricParams = new Map();
     this.showResubmission = this._submission.resubmitsAllowed === -1 || this._submission.resubmitsAllowed > 0;
-    this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"];
+    this.isChecked = newValue.grade === this.assignmentsI18n["gen.checked"] || newValue.grade === GRADE_CHECKED;
     this.allowExtension = this._submission.extensionAllowed;
     this.submittedTextMode = this._submission.submittedText;
 
@@ -328,7 +330,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                     type="checkbox"
                     aria-label="${this.i18n.checkgrade_label}"
                     @click=${this.gradeSelected}
-                    value="${this.assignmentsI18n["gen.checked"]}"
+                    value=${GRADE_CHECKED}
                     .checked=${this.isChecked}>
             </input>
             <span>${this.assignmentsI18n["gen.gra2"]} ${this.assignmentsI18n["gen.checked"]}</span>
@@ -930,7 +932,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
         break;
       } case "CHECK_GRADE_TYPE": {
         const input = document.getElementById("check-grade-input");
-        input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"]);
+        input && (input.checked = this.submission.grade === this.assignmentsI18n["gen.checked"] || this.submission.grade === GRADE_CHECKED);
         break;
       }
       default:
@@ -991,7 +993,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     if (this.gradeScale === "CHECK_GRADE_TYPE") {
       if (e.target.checked) {
-        this.submission.grade = e.target.value;
+        this.submission.grade = GRADE_CHECKED;
       } else {
         this.submission.grade = "Unchecked";
       }
