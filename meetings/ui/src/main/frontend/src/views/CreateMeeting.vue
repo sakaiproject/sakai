@@ -37,7 +37,6 @@
                   :items="confServ"
                   :disabled="true"
                   v-model:value="formdata.confService"
-                  @validation="setValidation('provider', $event)"
                 />
               </div>
             </div>
@@ -234,7 +233,7 @@ export default {
           value: "users",
         },
       ],
-      validations: { title: false, provider: true, dateOpen: true, dateClose: true },
+      validations: { title: false, dateOpen: true, dateClose: true },
       hadDateInput: false
     };
   },
@@ -386,28 +385,6 @@ export default {
         })
         .catch((error) => this.showError(error));
     },
-    checkProviderConfigurations() {
-      fetch(
-        `${constants.toolPlacement}/meetings/teams/status`
-      )
-      .then((r) => {
-        if (r.ok) {
-          return r.json();
-        }
-        throw new Error(this.i18n.error_video_conferencing_config);
-      })
-      .then((data) => {
-        if (!data) {
-          console.log("mensaje recibido: ", data);
-          throw new Error(this.i18n.error_video_conferencing_config);
-        }
-      })
-      .catch((error) => {
-          this.formdata.confService = null;
-          this.validations.provider = false;
-          this.showError(error);
-      });
-    }
   },
   watch: {
     "formdata.dateOpen"(newDate, oldDate) {
@@ -450,7 +427,6 @@ export default {
     this.formdata.participantOption = this.participantOption;
     this.formdata.groups = this.groupSelection;
     this.loadGroups();
-    this.checkProviderConfigurations();
   },
 };
 </script>

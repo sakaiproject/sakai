@@ -38,7 +38,6 @@ public class AdminAuthProvider implements IAuthenticationProvider {
             token.complete(result.accessToken());
         } catch (Exception e) {
             log.error("Exception retrieving token from Microsoft Graph Auth Provider: " + e.getClass(), e);
-            throw new IllegalArgumentException("Exception retrieving token from Microsoft Graph Auth Provider");
         }
         return token;
     }
