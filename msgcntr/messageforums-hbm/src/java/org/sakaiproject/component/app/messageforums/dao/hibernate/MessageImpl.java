@@ -58,7 +58,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Long lastTreadPostId;
   private Integer numReaders;
   @Getter @Setter
-  private Boolean scheduler;
+  private Boolean scheduler = false;
   @Getter @Setter
   private Date scheduledDate;
 
