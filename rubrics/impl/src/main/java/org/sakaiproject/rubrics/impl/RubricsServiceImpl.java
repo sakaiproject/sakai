@@ -44,6 +44,7 @@ import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -930,8 +931,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         // Count points
         Double points = Double.valueOf(0);
         String studentName = "";
+        boolean showEvaluated = optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId);
 
-        if (optEvaluation.isPresent() && canViewEvaluation(optEvaluation.get(), siteId)) {
+        if (showEvaluated) {
 
             Evaluation eval = optEvaluation.get();
             points = eval.getCriterionOutcomes().stream().mapToDouble(x -> x.getPoints()).sum();
@@ -955,12 +957,14 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         paragraph.setAlignment(Element.ALIGN_LEFT);
         try {
             String siteTitle = siteService.getSite(rubric.getOwnerId()).getTitle();
-            paragraph.add(resourceLoader.getFormattedMessage("export_rubric_site", siteTitle + "\n"));
+            paragraph.add(resourceLoader.getFormattedMessage("export_rubric_site", siteTitle));
+            paragraph.add(Chunk.NEWLINE);
         } catch (IdUnusedException ex) {
             log.error("No site for id {}", rubric.getOwnerId());
         }
         if (StringUtils.isNotBlank(studentName)) {
-            paragraph.add(resourceLoader.getFormattedMessage("export_rubric_student", studentName + "\n"));
+            paragraph.add(resourceLoader.getFormattedMessage("export_rubric_student", studentName));
+            paragraph.add(Chunk.NEWLINE);
         }
         String exportDate = resourceLoader.getFormattedMessage("export_rubric_date", DateFormat.getDateInstance(DateFormat.LONG, resourceLoader.getLocale()).format(new Date()) + "\n");
         paragraph.add(exportDate);
@@ -979,27 +983,68 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         for (Criterion cri : rubric.getCriteria()) {
             PdfPCell criterionCell = new PdfPCell();
             PdfPTable criterionTable = new PdfPTable(cri.getRatings().size() + 1);
-            Paragraph criterionParagraph;
-            String titlePoints;
-            final boolean isCriterionGroup = cri.getRatings().size() > 0;
+            Paragraph criterionParagraph = new Paragraph();
+            criterionParagraph.setFont(BOLD_FONT);
+            boolean isCriterionGroup = cri.getRatings().size() <= 0;
 
-            if (isCriterionGroup) {
-                if (rubric.getWeighted()) {
-                    titlePoints = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation), cri.getWeight());
-                } else {
-                    titlePoints = resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), this.getCriterionPoints(cri, optEvaluation));
+            if (showEvaluated && !isCriterionGroup) {
+                Optional<Double> evaluatedPoints = this.getCriterionPoints(cri, optEvaluation);
+
+                //Get CriteriumOutcome as Optional for current criterium as an optional by matching associated criterion ids
+                Optional<CriterionOutcome> optCriterionOutcome = optEvaluation.get().getCriterionOutcomes().stream()
+                    .filter(outcome -> cri.getId().equals(outcome.getCriterionId())).findFirst();
+
+                if (evaluatedPoints.isPresent()) {
+                    if (optCriterionOutcome.get().getPointsAdjusted()) {
+
+                        //Get points of the selected rating (not altered) by maching selected rating id's and getting points from matched rating
+                        Double selectedRatingOriginalPoints = optCriterionOutcome.flatMap(outcome -> {
+                            return cri.getRatings().stream().filter(rating -> rating.getId().equals(outcome.getSelectedRatingId())).findAny();
+                        }).map(rating -> rating.getPoints()).orElse(0D);
+
+                        //Instrucor adjusted the rating point value on evaluation
+                        //Chunk for the points we want to display as original
+                        Chunk originalPoints = new Chunk(selectedRatingOriginalPoints.toString());
+                        originalPoints.getFont().setStyle(Font.STRIKETHRU);
+                        //Construct Phrase containing both point values
+                        Phrase pointsPhrase = new Phrase();
+                        pointsPhrase.add(originalPoints);
+                        pointsPhrase.add(" ");
+                        pointsPhrase.add(evaluatedPoints.get().toString());
+                        //Split message from resourceloader where we want to inset the poit values a Phrase
+                        String message;
+                        if (rubric.getWeighted()) {
+                            message = resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), "{1}", cri.getWeight());
+                        } else {
+                            message = resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle());
+                        }
+                        //Map strings to phrases, insert the point value phrase and add all to the criterions Paragraph
+                        criterionParagraph.add(new Phrase(StringUtils.substringBefore(message, "{1}")));
+                        criterionParagraph.add(pointsPhrase);
+                        criterionParagraph.add(new Phrase(StringUtils.substringAfter(message, "{1}")));
+                    } else {
+                        if (rubric.getWeighted()) {
+                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_weight", cri.getTitle(), evaluatedPoints.get().toString(), cri.getWeight()));
+                        } else {
+                            criterionParagraph.add(resourceLoader.getFormattedMessage("export_rubrics_points", cri.getTitle(), evaluatedPoints.get().toString()));
+                        }
+                    }
                 }
-                criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
             } else {
-                // Criterion group
-                titlePoints = cri.getTitle();
-                criterionCell.setBackgroundColor(Color.LIGHT_GRAY);
-                criterionParagraph = new Paragraph(titlePoints, BOLD_FONT);
-            }
-            if (StringUtils.isNotBlank(cri.getDescription())) {
-                if (!isCriterionGroup) {
-                    criterionParagraph.add(Chunk.NEWLINE);
+                //A rubric that is not graded (PDF export from within rubrics tool) or a criterion group
+                //Just display title of criterion without points
+                if (rubric.getWeighted() && !isCriterionGroup) {
+                    criterionParagraph.add(String.format("%s (%s%%)", cri.getTitle(), cri.getWeight()));
+                } else {
+                    criterionParagraph.add(cri.getTitle());
                 }
+                if (isCriterionGroup) {
+                    criterionCell.setBackgroundColor(Color.LIGHT_GRAY);
+                }
+            }
+            criterionParagraph.setFont(BOLD_FONT);
+            if (StringUtils.isNotBlank(cri.getDescription())) {
+                criterionParagraph.add(Chunk.NEWLINE);
                 criterionParagraph.add(new Paragraph(formattedText.stripHtmlFromText(cri.getDescription(), true), NORMAL_FONT));
             }
             criterionCell.addElement(criterionParagraph);
@@ -1020,8 +1065,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 PdfPCell newCell = new PdfPCell();
                 if (optEvaluation.isPresent()) {
                     for (CriterionOutcome outcome : optEvaluation.get().getCriterionOutcomes()) {
-                        if (cri.getId().equals(outcome.getCriterionId()) &&
-                                rating.getId().equals(outcome.getSelectedRatingId())) {
+                        if (cri.getId().equals(outcome.getCriterionId()) && rating.getId().equals(outcome.getSelectedRatingId())) {
                             newCell.setBackgroundColor(Color.LIGHT_GRAY);
                             if (outcome.getComments() != null && !outcome.getComments().isEmpty()) {
                                 ratingsParagraph.add(Chunk.NEWLINE);
@@ -1171,9 +1215,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         rubricRepository.deleteByOwnerId(siteId);
     }
 
-    private String getCriterionPoints(Criterion cri, Optional<Evaluation> optEvaluation) {
+    private Optional<Double> getCriterionPoints(Criterion cri, Optional<Evaluation> optEvaluation) {
 
-        if (!optEvaluation.isPresent()) return "";
+        if (!optEvaluation.isPresent()) return Optional.empty();
 
         Double points = Double.valueOf(0);
         List<Rating> ratingList = cri.getRatings();
@@ -1186,7 +1230,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             }
         }
 
-        return points.toString();
+        return Optional.of(points);
     }
 
     private boolean isEditor(String siteId) {
