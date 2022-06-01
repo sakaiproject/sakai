@@ -83,6 +83,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
       assignmentsI18n: { attribute: false, type: Object },
       showingHistory: { attribute: false, type: Boolean },
       ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
+      showOverrides: { attribute: false, type: Boolean },
     };
   }
 
@@ -130,15 +131,16 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     }
 
     const rubric = this.querySelector("sakai-rubric-grading");
-    if (rubric) {
-      rubric.setAttribute("evaluated-item-id", this._submission.id);
-    }
+    rubric && rubric.setAttribute("evaluated-item-id", this._submission.id);
 
     this.requestUpdate();
 
     if (this.gradable.allowPeerAssessment) {
       this.updateComplete.then(() => $("#peer-info").popover());
     }
+
+    // If any grade overrides have been set, check the overrides box
+    this.showOverrides = this.submission.submitters.some(s => s.grade);
   }
 
   get submission() {
@@ -250,16 +252,14 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
   renderGrader() {
 
     // Hide the right UI until we have push notifications for grade changes
-    if ( this.submission.ltiSubmissionLaunch ) return "";
+    if (this.submission.ltiSubmissionLaunch) return "";
 
     return html`
       ${this.submission.id !== "dummy" ? html`
       <div class="grader ${this.graderOnLeft ? "on-left" : ""}">
-        <div class="submitted-block">
+        <div id="grader-submitted-block" class="grader-block">
           <div style="display: flex;">
-            ${this.showPhoto() ? html`
-              <sakai-user-photo user-id="${this.submission.firstSubmitterId}" classes="grader-photo"></sakai-user-photo>
-            ` : ""}
+            <sakai-user-photo user-id="${this._getPhotoUserId()}" classes="grader-photo"></sakai-user-photo>
             <div class="submitted-time" style="flex: 4;">
               ${this.submission.submittedTime || (this.submission.draft && this.submission.visible) ? html`
                 <span class="submitter-name">${this.renderSubmitter()}</span>
@@ -284,7 +284,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 <div class="attachment-link"><a href="javascript;" data-url="${r.url}" @click=${this.previewAttachment}>${r.name}</a></div>
               `)}` : ""}
           </div>
-        </div> <!-- /submitted-block -->
+        </div> <!-- /grader-submitted-block -->
+
         ${this.submission.originalityShowing ? html`
           <div>
             <label class="grader-label grader-originality-label">
@@ -399,7 +400,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             `)}
           </div>
         ` : ""}
-        <div class="grade-block">
+        <div id="grader-grade-block" class="grader-block">
           ${this.gradeScale === "LETTER_GRADE_TYPE" ? html`
             <span>${this.assignmentsI18n["gen.assign.gra"]}</span>
             <select id="letter-grade-selector"
@@ -476,10 +477,32 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
                 @update-comment=${this.onUpdateCriterionComment}
               ></sakai-rubric-grading>
               <button @click=${this.doneWithRubricDialog}>${this.assignmentsI18n["gen.don"]}</button>
+            </div>
           ` : ""}
           <!-- end hasAssociatedRubric -->
+
+          ${this.submission.groupId ? html`
+            <div id="grader-overrides-wrapper">
+              <label>
+                <input type="checkbox" id="grader-override-toggle" ?checked=${this.showOverrides} @click=${e => this.showOverrides = e.target.checked} />
+                <span class="grader-overrides-label">${this.i18n.assign_grade_overrides}</span>
+              </label>
+              <div id="grader-overrides-block" style="${this.showOverrides ? "display: block" : "display: none"}">
+              ${this.submission.submitters.map(s => html`
+                <div class="grader-override">
+                  <div class="grader-overrides-display-name">${s.displayName} (${s.displayId})</div>
+                  <div>
+                    <span class="grader-overrides-label">${this.i18n.override_grade_with}</span>
+                    <input type="text" class="points-input grader-grade-override" data-user-id="${s.id}" .value=${s.grade} />
+                    <span class="grader-overrides-label">(${this.assignmentsI18n["grade.max"]} ${this.gradable.maxGradePoint})</span>
+                  </div>
+                </div>
+              `)}
+              </div>
+            </div>
+          ` : "" }
         </div>
-        <div class="feedback-label grader-label content-button-block">
+        <div class="feedback-label grader-label content-button-block grader-block">
           <button id="grader-feedback-button" @click=${this.toggleFeedback} aria-haspopup="true" title="${this.i18n.add_feedback_tooltip}" >${this.assignmentsI18n.feedbackcomment}</button>
           ${this.submission.feedbackComment ? html`<div class="active-indicator ${this.savedFeedbackComment ? "" : "unsaved"}" aria-label="${this.feedbackCommentPresentMsg()}" title="${this.feedbackCommentPresentMsg()}"></div>` : ""}
         </div>
@@ -496,7 +519,8 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
           <button @click=${this.doneWithFeedbackDialog}>${this.assignmentsI18n["gen.don"]}</button>
           <button @click=${this.cancelFeedbackToggle}>${this.assignmentsI18n["gen.can"]}</button>
         </div>
-        <div class="feedback-attachments-block grader-label">
+
+        <div id="grader-feedback-attachments-block" class="grader-block grader-label">
           ${this.submission.feedbackAttachments ? html`
             <div class="feedback-attachments-title">${this.assignmentsI18n["download.feedback.attachment"]}</div>
             <div class="current-feedback-attachments">
@@ -541,7 +565,7 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
             </div>
           </div>
         ` : ""}
-        <div class="grader-label content-button-block">
+        <div class="grader-label content-button-block grader-block">
           <button id="grader-private-notes-button" @click=${this.togglePrivateNotes} aria-haspopup="true" title="${this.i18n.private_notes_tooltip}" >${this.assignmentsI18n["note.label"]}</button>
           ${this.submission.privateNotes ? html`<div class="active-indicator ${this.savedPvtNotes ? "" : "unsaved"}" aria-label="${this.pvtNotePresentMsg()}" title="${this.pvtNotePresentMsg()}"></div>` : ""}
         </div>
@@ -636,8 +660,13 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
     `;
   }
 
-  showPhoto() {
-    return this.showOfficialPhoto && !this.gradable.anonymousGrading && this.submission.firstSubmitterId && !this.submission.groupId;
+  _getPhotoUserId() {
+
+    if (this.submission.groupId || this.gradable.anonymousGrading || !this.submission.firstSubmitterId) {
+      return "blank";
+    }
+
+    return this.submission.firstSubmitterId;
   }
 
   toggleRubric() {
@@ -906,6 +935,11 @@ export class SakaiGrader extends gradableDataMixin(SakaiElement) {
 
     this.querySelector("sakai-grader-file-picker").files.forEach((f, i) => formData.set(`attachment${i}`, f, f.name));
     formData.set("grade", this.submission.grade);
+    if (this.gradeScale === "SCORE_GRADE_TYPE") {
+      this.querySelectorAll(".grader-grade-override").forEach(el => {
+        formData.set(`grade_submission_grade_${el.dataset.userId}`, el.value);
+      });
+    }
 
     if (this.gradeScale === "SCORE_GRADE_TYPE" && parseFloat(this.submission.grade.replace(",", ".")) > parseFloat(this.gradable.maxGradePoint.replace(",", "."))) {
       if (!confirm(this.tr("confirm_exceed_max_grade", [this.gradable.maxGradePoint], "grader"))) {

@@ -721,8 +721,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             for (SimpleSubmission submission : submissions) {
                 if ( ! submission.userSubmission ) continue;
-				String ltiSubmissionLaunch = null;
-                for(SimpleSubmitter submitter: submission.submitters) {
+                String ltiSubmissionLaunch = null;
+                for ( SimpleSubmitter submitter: submission.submitters ) {
                     if ( submitter.id != null ) {
                         ltiSubmissionLaunch = "/access/basiclti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitter.id;
 
@@ -887,6 +887,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         Map<String, Object> options = new HashMap<>();
         options.put(GRADE_SUBMISSION_GRADE, grade);
+
+        // check for grade overrides
+        if (assignment.getIsGroup() && assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            submission.getSubmitters().forEach(s -> {
+
+                String ug = StringUtils.trimToNull((String) params.get(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter()));
+                if (ug != null) {
+                    ug = assignmentToolUtils.scalePointGrade(ug, assignment.getScaleFactor(), alerts);
+                    options.put(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter(), ug);
+                }
+            });
+        }
+
         options.put(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
         options.put(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
         options.put(GRADE_SUBMISSION_PRIVATE_NOTES, privateNotes);
@@ -1518,12 +1531,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String displayName;
         private String sortName;
         private String displayId;
+        private String grade;
 
         public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
 
             super();
 
             this.id = ass.getSubmitter();
+            this.grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), id);
             if (!anonymousGrading) {
                 User user = userDirectoryService.getUser(this.id);
                 this.displayName = user.getDisplayName();
