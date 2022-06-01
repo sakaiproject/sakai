@@ -168,7 +168,7 @@ public class UserMessagingServiceImpl implements UserMessagingService {
 
                 String siteId = context != null ? context : message.getSiteId();
                 
-                String siteOverride = siteId != null ? toolProps.getProperty(message.getSiteId()) : null;
+                String siteOverride = siteId != null ? toolProps.getProperty(siteId) : null;
 
                 media.forEach(m -> {
 
