@@ -144,6 +144,22 @@ sakai-grader {
     width: 400px;
     background-color: var(--sakai-title-bar-bg-color);
 
+    #grader-submitted-block {
+
+      #grader-photo {
+        flex: 1;
+        min-width: 64px;
+        max-width: 64px;
+        width: 64px;
+        height: 64px;
+        float: left;
+        background-position: 50%;
+        background-size: auto 100%;
+        border-radius: 0;
+        margin-right: 6px;
+      }
+    }
+
     .draft-submission {
         margin-left: 8px;
         color: var(--errorBanner-color);
@@ -157,11 +173,6 @@ sakai-grader {
       width: 60px;
     }
 
-    .profile-image {
-      margin-right: 6px;
-      img { width: 64px; }
-    }
-
     .grader-photo {
       flex: 1;
       min-width: 64px;
@@ -173,6 +184,21 @@ sakai-grader {
       background-size: auto 100%;
       border-radius: 0;
       margin-right: 6px;
+    }
+
+
+    #grader-grade-block {
+      border-bottom: 1px solid var(--sakai-border-color);
+      padding-top: 15px;
+
+      input {
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+
+      span {
+        font-weight: bold;
+      }
     }
 
     .active-indicator {
@@ -244,7 +270,13 @@ sakai-grader {
     }
   }
 
-  .feedback-attachments-block {
+  .grader-block {
+    border-bottom: 2px solid var(--sakai-border-color);
+    padding-bottom: 10px;
+  }
+
+  #grader-feedback-attachments-block {
+    padding-bottom: 5px;
     .feedback-attachments-title {
       font-weight: bold;
       margin-bottom: 10px;
@@ -358,23 +390,9 @@ sakai-grader {
     margin-left: 7px;
   }
 
-  .grade-block {
-
-    padding-top: 15px;
-
-    span {
-      font-weight: bold;
-    }
-
-    input {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
-  }
-
   .grader-label {
     margin-bottom: 5px;
-    margin-top: 20px;
+    margin-top: 10px;
   }
   .feedback-label span, .private-notes-label span {
     margin-right: 7px;
@@ -416,6 +434,23 @@ sakai-grader {
     margin-left: 5px;
     font-weight: bold;
     color: var(--errorBanner-color);
+  }
+
+  #grader-overrides-wrapper {
+    margin-top: 5px;
+    .grader-overrides-label {
+      font-weight: normal;
+    }
+    .grader-overrides-display-name {
+      font-weight: 600;
+    }
+    .grader-override {
+      margin-bottom: 5px;
+    }
+    #grader-overrides-block {
+      margin-top: 10px;
+      margin-left: 20px;
+    }
   }
 
   .grader-returned {

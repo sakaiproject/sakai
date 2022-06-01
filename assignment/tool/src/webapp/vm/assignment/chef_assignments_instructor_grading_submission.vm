@@ -477,13 +477,14 @@
                                     <div class="row-override">
                                         <label>$formattedText.escapeHtml($!submitterName)</label>
                                         <div class="shorttext">
-                                            <span>$tlang.getString("gen.grade.override")</span> <input type="text"
+                                            <span>$tlang.getString("gen.grade.override")</span>
+                                            <input type="text"
                                                 name="$group_name_grade"
                                                 size="5"
                                                 maxlength="11"
                                                 value="$!group_value_grade"
                                                 id="grade"
-                                                onkeypress="return ASN.handleEnterKeyPress(event);"/>
+                                                onkeypress="return ASN.handleEnterKeyPress(event);" />
                                             <span>($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))</span>
                                         </div>
                                     </div>
