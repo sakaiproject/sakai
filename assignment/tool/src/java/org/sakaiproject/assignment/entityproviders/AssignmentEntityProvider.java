@@ -677,7 +677,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
-            for ( SimpleSubmission submission : submissions ) {
+            for (SimpleSubmission submission : submissions) {
                 if ( ! submission.userSubmission ) continue;
                 String ltiSubmissionLaunch = null;
                 for ( SimpleSubmitter submitter: submission.submitters ) {
