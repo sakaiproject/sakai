@@ -22,6 +22,7 @@
 
 package org.sakaiproject.webapi.controllers;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
@@ -29,7 +30,7 @@ import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.tool.api.SessionManager;
-
+import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -370,7 +371,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         ContentDisposition contentDisposition = rubricsService.getRubric(rubricId).map(rubric -> {
-            return ContentDisposition.builder("attachment").filename(rubric.title + ".pdf").build();
+            String filename = StringUtils.trimToEmpty(rubric.title).replace(".", "_");
+            filename = StringUtils.isNotBlank(filename) ? filename : "_";
+            return ContentDisposition.builder("attachment").filename(String.format("%s.pdf", filename)).build();
         }).orElseThrow(() -> new IllegalArgumentException("No rubric for id " + rubricId));
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
