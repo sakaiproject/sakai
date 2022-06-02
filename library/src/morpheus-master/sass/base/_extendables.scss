@@ -390,11 +390,26 @@ button.btn-primary, .act .active, .#{$namespace}html .ui-priority-primary, .#{$n
 }
 
 button.btn-transparent {
-    background-color: transparent;
-    border-color: transparent;
-    border-width: 0;
-    padding: 0;
-    margin: 0;
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+
+	&:hover, &:focus {
+		color: var(--sakai-text-color);
+		background: var(--sakai-background-color);
+		box-shadow: none;
+	}
+
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+		&, &:hover, &:active, &:focus {
+			color: var(--button-disabled-text-color);
+			background: var(--sakai-background-color);
+			border: none;
+			cursor: not-allowed;
+		}
+	}
+
 }
 
 .input-group-btn .btn {
