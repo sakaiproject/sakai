@@ -5,13 +5,13 @@
     #parse("/vm/trinity/includeStandardHead.vm")
 
     <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass} #if ( ${toolsCollapsed} ) Mrphs-toolMenu-collapsed #end #if ( ${toolMaximised} ) tool-maximised #end" #end $pageSiteType>
-
+#* TODO: decide - Trinity chopping block
         <div id="maximised-indicator" class="d-none">
             <div>
                 <a href="javascript:;">${rloader.sit_fullscreen_message}</a>
             </div>
         </div>
-
+*#
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
@@ -21,16 +21,19 @@
             ${sakai_html_head_js}
         #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
-        <div #if( ${roleSwitchState} ) class="Mrphs-portalWrapper swapped-view" #else class="Mrphs-portalWrapper"#end>
+        <div #if( ${roleSwitchState} ) class="Mrphs-portalWrapper sakai-portalContainer swapped-view" #else class="Mrphs-portalWrapper sakai-portalContainer"#end>
 
             ## Skip Nav
             #parse("/vm/trinity/snippets/skipNav-snippet.vm")
-
+#* TODO: decide - Trinity chopping block
             <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized" #else class="Mrphs-mainHeader is-minimized" #end>
-
+*#
                 ## Header
+#* TODO: decide - Trinity chopping block
                 <div class="Mrphs-topHeader">
+*#
                     #parse("/vm/trinity/snippets/header-snippet.vm")
+#* TODO: decide - Trinity chopping block
                 </div>
 
                 #if (${tabsSites})
@@ -41,18 +44,22 @@
             </div>
 
             #parse("/vm/trinity/moresites.vm")
+*#
             #parse("/vm/trinity/includePageWithNav.vm")
 
-        </div> <!-- end Mrphs-portalWrapper -->
-        <!-- END VM site.vm -->
+            #parse("/vm/trinity/includeMobileFooter.vm")
 
+        </div> <!-- end Mrphs-portalWrapper -->
+
+        <!-- END VM site.vm -->
+#* TODO: decide - Trinity chopping block
         <!-- Viewport helpers -->
         <div id='Mrphs-viewport-helpers' aria-hidden='true'>
           <div class='phone'></div>
           <div class='tablet'></div>
           <div class='desktop'></div>
         </div>
-
+*#
         ## Make sure we at least have a jQuery 1.12 or higher, log messages
     #set ( $d = "$")
     <script>

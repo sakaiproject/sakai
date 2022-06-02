@@ -29,8 +29,10 @@
         #set( $numberTools = $pageColumn0Tools.size() )
     #end
 
-    <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
-        <h2 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
+    <main id="$pageWrapperClass" class="Mrphs-mainContent sakai-mainContent d-flex flex-column p-3 #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
+        <h2 class="skip visually-hidden" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h2>
+
+        #parse("/vm/trinity/includeSiteHierarchy.vm")
 
         <div id="$pageColumnLayout" class="${columnClasses}">
 
@@ -331,6 +333,8 @@
             </div> <!-- end of #col2of2 -->
 
         #end ## END of IF ($pageTwoColumn)
+
+    #parse("/vm/trinity/includeFooter.vm")
 
     </main> <!-- END of main.Mrphs-mainContent -->
 

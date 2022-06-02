@@ -8,7 +8,7 @@ export default defineConfig({
       entry: "src/js/index.js",
       name: `sakai.${pkg.name}`,
       formats: ["es"],
-      fileName: (format) => `sakai.${pkg.name}.${format}.js`,
+      fileName: (format) => `${pkg.name}.scripts.min.js`,
     },
     outDir: "target/js",
     rollupOptions: {
