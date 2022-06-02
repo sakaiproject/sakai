@@ -8953,12 +8953,7 @@ public class DiscussionForumTool {
 		}
 		return returnRank;
 	}
-    
-    private boolean alwaysShowFullDesc = false;
-    public boolean isAlwaysShowFullDesc(){
-    	return ServerConfigurationService.getBoolean("mc.alwaysShowFullDesc", false); 
-    }
-    
+
     public String getCurrentToolId(){
     	return toolManager.getCurrentPlacement().getId();
     }
