@@ -1227,8 +1227,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			  selectedComposeToList.add(membershipItem.getId());
 		  }
 	  }
+	  String recipientsAsTextBcc = currentMessage.getRecipientsAsTextBcc() == null ? "" : currentMessage.getRecipientsAsTextBcc();
+
 	  String[] splitRecipents = currentMessage.getRecipientsAsText().split(";");
-	  String[] splitRecipentsBcc = currentMessage.getRecipientsAsTextBcc().split(";");
+	  String[] splitRecipentsBcc = recipientsAsTextBcc.split(";");
 	  for (MembershipItem membershipItem : totalComposeToList) {
 		  for (String recipient: splitRecipents) {
 			  if (membershipItem.getName().equals(recipient) && !selectedComposeToList.stream().anyMatch(s -> s.equals(recipient))) {
