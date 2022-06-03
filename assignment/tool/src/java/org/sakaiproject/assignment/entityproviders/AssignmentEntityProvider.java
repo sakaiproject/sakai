@@ -33,6 +33,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.fileupload.FileItem;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.ContentReviewResult;
@@ -813,7 +814,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             if (submitters.size() > 0) {
                 if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
-                    return s.getGrade() == null ? "ungraded" : s.getGrade();
+                    return s.getGrade() == null ? AssignmentConstants.UNGRADED_GRADE_STRING : s.getGrade();
                 } else {
                     return assignmentService.getGradeDisplay(s.getGrade(), assignment.getTypeOfGrade(), assignment.getScaleFactor());
                 }
@@ -881,7 +882,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
             grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
-        } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals("ungraded")) {
+        } else if (assignment.getTypeOfGrade() == Assignment.GradeType.PASS_FAIL_GRADE_TYPE && grade.equals(AssignmentConstants.UNGRADED_GRADE_STRING)) {
             grade = null;
         }
 
@@ -889,12 +890,14 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put(GRADE_SUBMISSION_GRADE, grade);
 
         // check for grade overrides
-        if (assignment.getIsGroup() && assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+        if (assignment.getIsGroup()) {
             submission.getSubmitters().forEach(s -> {
 
                 String ug = StringUtils.trimToNull((String) params.get(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter()));
-                if (ug != null) {
-                    ug = assignmentToolUtils.scalePointGrade(ug, assignment.getScaleFactor(), alerts);
+                if (ug != null && !ug.equals(AssignmentConstants.UNGRADED_GRADE_STRING)) {
+                    if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                        ug = assignmentToolUtils.scalePointGrade(ug, assignment.getScaleFactor(), alerts);
+                    }
                     options.put(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter(), ug);
                 }
             });
@@ -1532,6 +1535,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String sortName;
         private String displayId;
         private String grade;
+        private boolean overridden;
 
         public SimpleSubmitter(AssignmentSubmissionSubmitter ass, boolean anonymousGrading) throws UserNotDefinedException {
 
@@ -1539,6 +1543,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             this.id = ass.getSubmitter();
             this.grade = assignmentService.getGradeForSubmitter(ass.getSubmission(), id);
+            this.overridden = assignmentService.isGradeOverridden(ass.getSubmission(), id);
             if (!anonymousGrading) {
                 User user = userDirectoryService.getUser(this.id);
                 this.displayName = user.getDisplayName();

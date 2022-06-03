@@ -38,6 +38,8 @@ import static org.sakaiproject.assignment.api.AssignmentConstants.GRADE_SUBMISSI
 import static org.sakaiproject.assignment.api.AssignmentConstants.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
 import static org.sakaiproject.assignment.api.AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentConstants.STATE_CONTEXT_STRING;
+import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_STRING;
+import static org.sakaiproject.assignment.api.AssignmentConstants.UNGRADED_GRADE_TYPE_STRING;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_ASSIGNMENT_GROUP_FILTER_ENABLED;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
@@ -11480,7 +11482,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     // if ungraded and grade type is not "ungraded" type
-                    if ((grade == null || "ungraded".equals(grade)) && (typeOfGrade != UNGRADED_GRADE_TYPE) && "release".equals(gradeOption)) {
+                    if ((grade == null || UNGRADED_GRADE_STRING.equals(grade)) && (typeOfGrade != UNGRADED_GRADE_TYPE) && "release".equals(gradeOption)) {
                         addAlert(state, rb.getString("plespethe2"));
                     }
 
@@ -13980,7 +13982,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // set grade
                         String grade = StringUtils.trimToNull(w.getGrade());
                         submission.setGrade(grade);
-                        if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade)) {
+                        if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !UNGRADED_GRADE_STRING.equals(grade)) {
                             submission.setGraded(true);
                             submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
                         }
@@ -14946,7 +14948,7 @@ public class AssignmentAction extends PagedResourceActionII {
         } else if (itemString.equalsIgnoreCase(rb.getString("fail"))) {
             itemString = "Fail";
         } else if (itemString.equalsIgnoreCase(rb.getString("ungra")) || itemString.isEmpty()) {
-            itemString = "Ungraded";
+            itemString = UNGRADED_GRADE_TYPE_STRING;
         } else { // Not one of the expected values. Display error message.
             addAlert(state, rb.getFormattedMessage("plesuse0", itemString));
         }

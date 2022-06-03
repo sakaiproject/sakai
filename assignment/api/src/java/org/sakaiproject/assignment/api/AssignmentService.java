@@ -695,15 +695,41 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getXmlAssignment(Assignment assignment);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submissionId The id of the overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(String submissionId, String submitter);
 
+    /**
+     * Gets the effective grade for the submitter on this submission. If there is an
+     * override, that is the grade returned. Otherwise, the main submission grade is
+     * returned
+     *
+     * @param submission The overall submission
+     * @param submitter The individual submitter we're interested in
+     */
     String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
+
+    /**
+     * Returns true if this submitter has an overridden grade. This is useful as it avoids
+     * bug prone comparisons of the submission grade and individual submitter grades
+     *
+     * @param submission The overall submission (must be on a group assignment)
+     * @param submitter The individual submitter we're interested in
+     * @return true if overridden, false if not a group assignment or not overridden.
+     */
+    boolean isGradeOverridden(AssignmentSubmission submission, String submitter);
 
     /**
      * @param grade
      * @param typeOfGrade
      * @param scaleFactor
-     * @return
+     * @return The grade, formatted for display
      */
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
