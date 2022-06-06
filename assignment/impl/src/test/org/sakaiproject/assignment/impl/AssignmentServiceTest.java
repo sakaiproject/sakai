@@ -601,6 +601,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void duplicateAssignment() throws IdUnusedException {
         // Setup a new Assignment
         String context = UUID.randomUUID().toString();
+        User mockUser = mock(User.class);
         Assignment assignment = createNewAssignment(context);
         Assert.assertNotNull(assignment);
 
@@ -627,6 +628,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // Duplicate the Assignment
         Assignment duplicateAssignment = null;
         try {
+            when(userDirectoryService.getCurrentUser()).thenReturn(mockUser);
             duplicateAssignment = assignmentService.addDuplicateAssignment(context, assignment.getId());
         } catch (IdInvalidException | PermissionException | IdUsedException e) {
             Assert.fail("Duplicating assignment\n" + e.toString());

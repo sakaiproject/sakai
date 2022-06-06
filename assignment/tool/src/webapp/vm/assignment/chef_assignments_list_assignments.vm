@@ -45,11 +45,6 @@
 		</h1>
 	</div>
 
-	#if (!$!assignments.hasNext())
-		<div class="sak-banner-info">
-			$tlang.getString("gen.thearecur1")
-		</div>
-	#else
 	#if ($allowAddAssignment)
 		#if ($!view.equals('stuvie'))
 			<div class="sak-banner-info">$tlang.getString("stulistassig.selanass1")</div>
@@ -81,10 +76,34 @@
 			</div>
 		</div>
 		#end
-		<div class="sakai-table-pagerContainer">
-			#pagerPanel("pager1")
+		<div class="sakai-table-filterContainer">
+			<div class="row">
+				<form name="filterForm" class="col-md-12 inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="eventSubmit_doFilter" value="filterOption" />
+					<label for="filterOption">$tlang.getString("view.label")</label>
+					<span class="skip">$tlang.getString("gen.listnavselect")</span>
+					<select id="filterOption" name="filterOption" size="1" onchange="SPNR.disableControlsAndSpin(this, null);document.filterForm.submit();">
+					#foreach($filter in $!filterOptions)
+						#set($filterMessageKey = "listassig.filter." + $filter)
+						<option value="$!filter" #if($!filter.equals($!currentFilterOption)) selected="selected" #end>$!tlang.getString($!filterMessageKey)</option>
+					#end
+					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>
 		</div>
+		#if ($hasAssignments)
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
+			</div>
+		#end
 	</div>
+
+	#if (!$!hasAssignments)
+		<div class="sak-banner-info">
+			$tlang.getString("gen.thearecur1")
+		</div>
+	#else
 
 	<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
 		<div class="table-responsive">
@@ -96,9 +115,9 @@
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingtitle" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingtitle" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -109,9 +128,9 @@
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <i class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyforasc")"></i></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <i class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sortbyforasc")"></i></a>
 								#else
-									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <i class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sortbyfordesc")"></i></a>
+									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"    title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <i class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sortbyfordesc")"></i></a>
 								#end
 							#end
 						</th>
@@ -121,9 +140,9 @@
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingstatus" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingstatus" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingstatus" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingstatus" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -133,9 +152,9 @@
 							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingopendate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingopendate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -145,9 +164,33 @@
 							$tlang.getString("gen.duedat")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
-									<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+									<i id="sortascendingduedate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 								#else
-									<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+									<i id="sortdescendingduedate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
+								#end
+							#end
+						</a>
+					</th>
+					<th id="lastModifiedUser" class="hidden-xs">
+						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieduser")'; return false;"  title="$tlang.getString("gen.sorbymodusr")">
+							$tlang.getString("gen.mod.user")
+							#if ($sortedBy.equals("modifieduser"))
+								#if ($sortedAsc.equals("true"))
+									<i id="sortascendingmodifieduser" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
+								#else
+									<i id="sortdescendingmodifieduser" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
+								#end
+							#end
+						</a>
+					</th>
+					<th id="lastModifiedDate" class="hidden-xs">
+						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=modifieddate")'; return false;"  title="$tlang.getString("gen.sorbymoddat")">
+							$tlang.getString("gen.mod.date")
+							#if ($sortedBy.equals("modifieddate"))
+								#if ($sortedAsc.equals("true"))
+									<i id="sortascendingmodifieddate" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
+								#else
+									<i id="sortdescendingmodifieddate" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 								#end
 							#end
 						</a>
@@ -162,9 +205,9 @@
 								#end
 								#if ($sortedBy.equals("timesheet"))
 									#if ($sortedAsc.equals("true"))
-										<i id="sortascendingtimesheet" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+										<i id="sortascendingtimesheet" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 									#else
-										<i id="sortdescendingtimesheet" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+										<i id="sortdescendingtimesheet" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 									#end
 								#end
 							</a>
@@ -178,9 +221,9 @@
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
 										#if ($sortedAsc.equals("true"))
-											<i id="sortascendingtotalsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+											<i id="sortascendingtotalsubmissions" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<i id="sortdescendingtotalsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+											<i id="sortdescendingtotalsubmissions" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -189,9 +232,9 @@
 								#if ($sortedBy.equals("num_ungraded"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_ungraded")'; return false;"   title="$tlang.getString("listassig.sorbynum2")">
 										#if ($sortedAsc.equals("true"))
-											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+											<i id="sortascendingungradedsubmissions" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 										#else
-											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+											<i id="sortdescendingungradedsubmissions" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 										#end
 									</a>
 								#end
@@ -205,9 +248,9 @@
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
 									#if ($sortedAsc.equals("true"))
-										<i id="sortascendingungraded" class="fa fa-sort-asc" aria-hidden="true" tittle="$tlang.getString("gen.sorasc")"></i>
+										<i id="sortascendingungraded" class="fa fa-sort-asc" aria-hidden="true" title="$tlang.getString("gen.sorasc")"></i>
 									#else
-										<i id="sortdescendingungraded" class="fa fa-sort-desc" aria-hidden="true" tittle="$tlang.getString("gen.sordes")"></i>
+										<i id="sortdescendingungraded" class="fa fa-sort-desc" aria-hidden="true" title="$tlang.getString("gen.sordes")"></i>
 									#end
 								#end
 							</a>
@@ -499,7 +542,14 @@
 								##Instructors can still see the due date
 								<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.DueDate)</span>
 							#end
-
+							</td>
+							<td headers="lastModifiedUser" class="hidden-xs">
+							#if ($!assignment.Modifier)
+								<span>$!userDirectoryService.getUser($!assignment.Modifier).getDisplayName()</span>
+							#end
+							</td>
+							<td headers="lastModifiedDate" class="hidden-xs">
+								<span>$!service.getUsersLocalDateTimeString($!assignment.DateModified)</span>
 							</td>
 							#if ($!isTimesheet)
 								#if ($!allowGradeSubmission)

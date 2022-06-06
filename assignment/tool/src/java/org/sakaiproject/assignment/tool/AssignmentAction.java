@@ -418,6 +418,14 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String SORTED_BY_OPENDATE = "opendate";
     /**
+     * sort by group modified 
+     */
+    static final String SORTED_BY_MODIFIEDUSER = "modifieduser";
+    /**
+     * sort by group modified 
+     */
+    static final String SORTED_BY_MODIFIEDDATE = "modifieddate";
+    /**
      * sort by assignment status
      */
     private static final String SORTED_BY_ASSIGNMENT_STATUS = "assignment_status";
@@ -531,6 +539,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * filter by group in assignments list
      */
     private static final String FILTER_BY_GROUP = "filterByGroup";
+    /**
+     * filter by group in assignments list
+     */
+    private static final String FILTER_OPTION = "filterOption";
      /**
      * the assignment object been viewing *
      */
@@ -1107,6 +1119,14 @@ public class AssignmentAction extends PagedResourceActionII {
     // Content providers names
     private static final String CONTENT_PROVIDER_TURNITIN = "Turnitin";
     private static final String CONTENT_PROVIDER_URKUND = "Urkund";
+
+    private enum AssignmentFilter {
+        ALL,
+        DRAFT,
+        PUB_ALL,
+        PUB_ACTIVE,
+        PUB_INACTIVE
+    }
 
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
@@ -2728,7 +2748,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (asgnAdvisor != null) {
             securityService.popAdvisor(asgnAdvisor);
         }
-        
+
         context.put("submitterNames", getSubmitterFormattedNames(submission, false));
         context.put(RUBRICS_EXPORT_PDF, serverConfigurationService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true));
 
@@ -2755,8 +2775,11 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("contextString", contextString);
         context.put("user", state.getAttribute(STATE_USER));
         context.put("AuthzGroupService", authzGroupService);
+        context.put("userDirectoryService", userDirectoryService);
         context.put("LongObject", Instant.now().toEpochMilli());
         context.put("currentTime", Instant.now());
+        context.put("filterOptions", AssignmentFilter.values());
+        context.put("currentFilterOption", state.getAttribute(FILTER_OPTION));
         String sortedBy = (String) state.getAttribute(SORTED_BY);
         String sortedAsc = (String) state.getAttribute(SORTED_ASC);
         // clean sort criteria
@@ -2776,6 +2799,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         List<Assignment> assignments = prepPage(state);
+        context.put("hasAssignments", !assignments.isEmpty());
         context.put("assignments", assignments.iterator());
 
         // allow add assignment?
@@ -5630,6 +5654,53 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
         state.setAttribute(FILTER_BY_GROUP, (String) data.getParameters().getString(FILTER_BY_GROUP));
     } // doFilterByGroup
+
+    public void doFilter(RunData data) {
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        try {
+            AssignmentFilter selectedFilter = Enum.valueOf(AssignmentFilter.class, data.getParameters().getString(FILTER_OPTION));
+            if(selectedFilter != null && !selectedFilter.equals(state.getAttribute(FILTER_OPTION))) {
+                resetPaging(state);
+                state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+                state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+                state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+                state.setAttribute(FILTER_OPTION, selectedFilter);
+            }
+        } catch (IllegalArgumentException e) {
+            log.warn("Can not parse filterOption: {} as an AssignmentsFilter", data.getParameters().getString(FILTER_OPTION));
+        }
+    }
+
+    /**
+     * Filter the assignments list by AssignmentFilter
+     */
+    public List<Assignment> filterAssignments(List<Assignment> assignmentList,AssignmentFilter filter) {
+        Instant now;
+        switch(filter) {
+            case ALL:
+                return assignmentList; 
+            case DRAFT:
+                return assignmentList.stream().filter(assignment -> {
+                    return assignment.getDraft();
+                }).collect(Collectors.toList());
+            case PUB_ALL:
+                return assignmentList.stream().filter(assignment -> { 
+                    return !assignment.getDraft();
+                }).collect(Collectors.toList());
+            case PUB_ACTIVE:
+                now = Instant.now();
+                return assignmentList.stream().filter(assignment -> { 
+                    return assignment.getCloseDate().isAfter(now);
+                }).collect(Collectors.toList());
+            case PUB_INACTIVE:
+                now = Instant.now();
+                return assignmentList.stream().filter(assignment -> { 
+                    return assignment.getCloseDate().isBefore(now);
+                }).collect(Collectors.toList());
+            default: 
+                return Collections.EMPTY_LIST;
+        }
+    }
 
     /**
      * Go to the instructor view
@@ -11823,6 +11894,10 @@ public class AssignmentAction extends PagedResourceActionII {
             setDefaultSort(state);
         }
 
+        if (state.getAttribute(FILTER_OPTION) == null) {
+            state.setAttribute(FILTER_OPTION, AssignmentFilter.ALL);
+        }
+
         if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null) {
             state.setAttribute(SORTED_GRADE_SUBMISSION_BY, SORTED_GRADE_SUBMISSION_BY_LASTNAME);
         }
@@ -12624,6 +12699,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 if(StringUtils.isNotEmpty(selectedGroup) && !"all".equals(selectedGroup)){
                     returnResources = ((List<Assignment>)returnResources).stream().filter(a -> a.getGroups().stream().anyMatch(g -> g.endsWith(selectedGroup))).collect(Collectors.toList());
                 }
+
+                returnResources = filterAssignments(returnResources, (AssignmentFilter) state.getAttribute(FILTER_OPTION)); 
 
                 state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);
                 break;
@@ -15352,30 +15429,24 @@ public class AssignmentAction extends PagedResourceActionII {
                 // sorted by the assignment due date
                 Instant t1 = ((Assignment) o1).getDueDate();
                 Instant t2 = ((Assignment) o2).getDueDate();
-
-                if (t1 == null) {
-                    result = -1;
-                } else if (t2 == null) {
-                    result = 1;
-                } else if (t1.isBefore(t2)) {
-                    result = -1;
-                } else {
-                    result = 1;
+                result = compareInstant(t1, t2);
+            } else if (m_criteria.equals(SORTED_BY_MODIFIEDDATE)) {
+                Instant t1 = ((Assignment) o1).getDateModified();
+                Instant t2 = ((Assignment) o2).getDateModified();
+                result = compareInstant(t1, t2);
+            } else if (m_criteria.equals(SORTED_BY_MODIFIEDUSER)) {
+                try {
+                    User u1 = userDirectoryService.getUser(((Assignment) o1).getModifier());
+                    User u2 = userDirectoryService.getUser(((Assignment) o2).getModifier());
+                    result = new UserSortNameComparator().compare(u1, u2);
+                } catch (UserNotDefinedException e) {
+                    log.error("Could not get user {} or {}: {}", ((Assignment) o1).getModifier(), ((Assignment) o2).getModifier(), e.getMessage());
                 }
             } else if (m_criteria.equals(SORTED_BY_OPENDATE)) {
                 // sorted by the assignment open
                 Instant t1 = ((Assignment) o1).getOpenDate();
                 Instant t2 = ((Assignment) o2).getOpenDate();
-
-                if (t1 == null) {
-                    result = -1;
-                } else if (t2 == null) {
-                    result = 1;
-                } else if (t1.isBefore(t2)) {
-                    result = -1;
-                } else {
-                    result = 1;
-                }
+                result = compareInstant(t1, t2);
             } else if (m_criteria.equals(SORTED_BY_ASSIGNMENT_STATUS)) {
 
                 if (assignmentService.allowAddAssignment(((Assignment) o1).getContext())) {
@@ -15919,6 +15990,18 @@ public class AssignmentAction extends PagedResourceActionII {
                 result = collator.compare(s1.toLowerCase(), s2.toLowerCase());
             }
             return result;
+        }
+
+        private int compareInstant(Instant t1, Instant t2) {
+            if (t1 == null) {
+                return -1;
+            } else if (t2 == null) {
+                return 1;
+            } else if (t1.isBefore(t2)) {
+                return -1;
+            } else {
+                return 1;
+            }
         }
 
         /**
