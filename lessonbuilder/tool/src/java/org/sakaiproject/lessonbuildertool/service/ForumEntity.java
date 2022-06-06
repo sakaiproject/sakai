@@ -819,19 +819,20 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     //    other than maintain to contributor.
 
 	setMasks();
-
 		Set<DBMembershipItem> oldMembershipItemSet = null;
 		if (type == TYPE_FORUM_TOPIC) {
 			topic = getTopicById(true, id);
 			if (topic == null) {
 				return;
 			}
+			uiPermissionsManager.clearMembershipsFromCacheForArea(topic.getBaseForum().getArea());
 			oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 		} else if (type == TYPE_FORUM_FORUM) {
 			forum = getForumById(true, id);
 			if (forum == null) {
 				return;
 			}
+			uiPermissionsManager.clearMembershipsFromCacheForArea(forum.getArea());
 			oldMembershipItemSet = uiPermissionsManager.getForumItemsSet((DiscussionForum)forum);
 		} else {
 			return;
