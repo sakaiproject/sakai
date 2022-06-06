@@ -115,7 +115,7 @@
 					<f:verbatim>  					
 	  					</span>	
 	  					<span>
-	  						<img src="/library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}"/>
+	  						<i class="fa fa-plus-square" aria-hidden="true"></i>
 	  						&nbsp;
 	  					</span>
 	  				</f:verbatim>
