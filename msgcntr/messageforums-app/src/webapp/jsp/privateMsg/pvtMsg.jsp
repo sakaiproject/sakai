@@ -58,7 +58,7 @@
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received'}" />
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
                         {"bSortable": true, "bSearchable": true}
@@ -93,7 +93,7 @@
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         {"bSortable": true, "bSearchable": false},
-                        {"bSortable": true, "bSearchable": false},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{ PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' }" />
                         {"bSortable": true, "bSearchable": true},
                         <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }"/>
                         {"bSortable": true, "bSearchable": true}
@@ -222,7 +222,8 @@
 		  </h:column>
 		  		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' &&
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }">
 		    <f:facet name="header">
 				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
 		    </f:facet>
@@ -299,7 +300,8 @@
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && 
 		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' &&
-		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }">
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' &&
+		  PrivateMessagesTool.selectedTopic.topic.title != 'pvt_scheduler' }">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>
