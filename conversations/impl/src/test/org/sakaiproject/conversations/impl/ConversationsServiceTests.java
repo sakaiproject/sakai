@@ -1544,8 +1544,45 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertTrue(0 == posts.iterator().next().reactionTotals.get(Reaction.GOOD_ANSWER));
         } catch (ConversationsPermissionsException cpe) {
-            cpe.printStackTrace();
             fail("Unexpected exception when reacting to post");
+        }
+    }
+
+    @Test
+    public void topicResolved() {
+
+        switchToUser1();
+
+        TopicTransferBean topicBean = createTopic(true);
+
+        try {
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.message = "Great topic";
+            postBean.topic = topicBean.id;
+            postBean.siteId = siteId;
+
+            PostTransferBean savedPost = conversationsService.savePost(postBean, true);
+
+            List<TopicTransferBean> topics = conversationsService.getTopicsForSite(siteId);
+            assertFalse(topics.get(0).resolved);
+
+            switchToInstructor();
+            savedPost.message = "Great!";
+            savedPost = conversationsService.savePost(savedPost, true);
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertFalse(topics.get(0).resolved);
+
+            PostTransferBean instructorPost = new PostTransferBean();
+            instructorPost.message = "Here's an answer from above";
+            instructorPost.topic = topicBean.id;
+            instructorPost.siteId = siteId;
+
+            conversationsService.savePost(instructorPost, true);
+
+            topics = conversationsService.getTopicsForSite(siteId);
+            assertTrue(topics.get(0).resolved);
+        } catch (ConversationsPermissionsException cpe) {
+            fail("Unexpected exception when testing topic resolved");
         }
     }
 
@@ -1706,6 +1743,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
 
         when(securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(true);
+        when(securityService.unlock(instructor, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.MODERATE.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_CREATE.label, siteRef)).thenReturn(true);
         when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
