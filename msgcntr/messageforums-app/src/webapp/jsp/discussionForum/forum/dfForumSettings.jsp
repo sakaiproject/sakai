@@ -71,13 +71,13 @@ if (thisId == null)
 			</p>
 
 			<h:panelGroup>
-				<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock display-none">
+				<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
 					<a href="#" id="showMessage" class="toggle show">
 						<h:graphicImage url="/images/collapse.gif" alt=""/>
 						<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 					</a>
 				</h:panelGroup>
-				<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock">
+				<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
 					<a href="#" id="hideMessage" class="toggle show">
 						<h:graphicImage url="/images/expand.gif" alt="" />
 						<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
