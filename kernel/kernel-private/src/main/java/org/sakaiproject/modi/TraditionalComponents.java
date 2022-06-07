@@ -43,7 +43,10 @@ public class TraditionalComponents {
         log.info("Starting traditional components in: {}", componentsRoot);
         if (overridePath != null)
             log.info("Will apply overrides from: {}", overridePath);
-        components.forEach(component -> log.debug("Found component: " + component.getPath()));
+        components.forEach(component -> {
+            log.debug("Found component: " + component.getPath());
+            component.registerBeans(null);
+        });
         System.exit(-1);
     }
 
