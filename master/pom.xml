@@ -807,6 +807,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <scope>provided</scope>
+        <version>${sakai.tomcat.version}</version>
+      </dependency>
+      <dependency>
           <groupId>org.apache.tomcat</groupId>
           <artifactId>tomcat-jdbc</artifactId>
           <scope>provided</scope>
