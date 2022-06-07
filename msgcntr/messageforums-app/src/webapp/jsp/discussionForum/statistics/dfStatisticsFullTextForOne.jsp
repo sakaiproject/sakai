@@ -84,7 +84,7 @@
   					</span>  	
 					<span>
 						</f:verbatim>
-						<img src="/library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}"/>&nbsp;
+						<i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;
 						<h:outputText value="#{msgs.cdfm_message_count}" />
 						<f:verbatim>:&nbsp;
 						<span  id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/>">
