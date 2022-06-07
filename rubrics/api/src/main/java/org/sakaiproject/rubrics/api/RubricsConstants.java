@@ -25,7 +25,6 @@ package org.sakaiproject.rubrics.api;
 public interface RubricsConstants {
 
 	public static final String RBCS_TOOL = "sakai.rubrics";
-	public static final String RBCS_TOOL_ASSIGNMENT = "sakai.assignment";
 	public static final String RBCS_TOOL_FORUMS = "sakai.forums";
 	public static final String RBCS_TOOL_GRADEBOOKNG = "sakai.gradebookng";
 	public static final String RBCS_TOOL_SAMIGO = "sakai.samigo";

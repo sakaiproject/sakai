@@ -31,6 +31,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -63,7 +64,7 @@ public class RubricPreviewPanel extends BasePanel {
         Assignment assignmentNow = businessService.getAssignment(assignmentId);
         if (assignmentNow != null && assignmentNow.getExternallyMaintained()) {  //this is an externally-maintained item from Assignments
             sakaiRubricPreview.add(AttributeModifier.append("entity-id", extractAssignmentId(assignmentNow.getExternalId())));  //rubric association needs Assignment id, not Gradebook id
-            sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
+            sakaiRubricPreview.add(AttributeModifier.append("tool-id", AssignmentConstants.TOOL_ID));
         } else {
             sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignmentId));
             sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));

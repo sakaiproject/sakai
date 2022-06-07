@@ -590,7 +590,7 @@ function printView(url) {
 										rubric-id="$rubricId"
 										site-id="$assignment.context"
 										dont-check-association
-										tool-id="sakai.assignment"
+										tool-id="sakai.assignment.grades"
 										evaluated-item-id="$submission.Id"
 										entity-id="$assignment.Id"
 										instructor="true">

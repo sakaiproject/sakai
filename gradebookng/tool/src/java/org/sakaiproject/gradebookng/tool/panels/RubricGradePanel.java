@@ -30,6 +30,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -72,9 +75,16 @@ public class RubricGradePanel extends BasePanel {
         final WebMarkupContainer sakaiRubricGrading = new WebMarkupContainer("sakai-rubric-grading");
         sakaiRubricGrading.add(AttributeModifier.append("id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("site-id", getCurrentSiteId()));
-        sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-        sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
-        sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
+        Assignment assignment = businessService.getAssignment(assignmentId);
+        sakaiRubricGrading.add(AttributeModifier.append("tool-id", assignment.getExternallyMaintained() ? AssignmentConstants.TOOL_ID : RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+        String entityId = assignmentId.toString();
+        String evaluatedItemId = assignmentId + "." + studentUuid;
+        if (assignment.getExternallyMaintained()) {
+            entityId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
+            evaluatedItemId = businessService.getExternalSubmissionId(assignment.getExternalId(), studentUuid);
+        }
+        sakaiRubricGrading.add(AttributeModifier.append("entity-id", entityId));
+        sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", evaluatedItemId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
         if (serverConfigService.getBoolean(RubricsConstants.RBCS_EXPORT_PDF, true)) {
             sakaiRubricGrading.add(AttributeModifier.append("enable-pdf-export", true));
