@@ -405,6 +405,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             throw new ConversationsPermissionsException("Current user cannot update topic.");
         }
 
+        boolean wasDraft = false;
+
         Instant now = Instant.now();
         if (isNew) {
             topicBean.setCreator(currentUserId);
@@ -418,6 +420,8 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         } else {
             ConversationsTopic topic = topicRepository.findById(topicBean.id)
                 .orElseThrow(() -> new IllegalArgumentException("No existing topic for " + topicBean.id));
+
+            wasDraft = topic.getDraft() && !topicBean.draft;
 
             if (topic.getLocked() && !isModerator) {
                 throw new ConversationsPermissionsException("Current user cannot update topic.");
@@ -471,12 +475,14 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
 
         TopicTransferBean decoratedBean = decorateTopicBean(outTopicBean, topic, currentUserId, settings);
 
+        final boolean finalWasDraft = wasDraft;
+
         this.afterCommit(() -> {
 
             ConversationsEvents event = isNew ? ConversationsEvents.TOPIC_CREATED : ConversationsEvents.TOPIC_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, decoratedBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage && isNew) {
+            if (sendMessage && (isNew || finalWasDraft) && !topic.getDraft()) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
@@ -737,11 +743,15 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         final ConversationsTopic topic = topicRepository.findById(postBean.topic)
             .orElseThrow(() -> new IllegalArgumentException("No topic for id " + postBean.topic));
 
+        boolean wasDraft = false;
+
         // We're creating a new topic, so set the initial dates of creation and modification
         Instant now = Instant.now();
         if (isNew) {
             postBean.setCreator(currentUserId);
             postBean.setCreated(now);
+        } else {
+            wasDraft = postRepository.findById(postBean.id).map(p -> p.getDraft() && !postBean.draft).orElse(false);
         }
         postBean.setModifier(currentUserId);
         postBean.setModified(now);
@@ -800,12 +810,14 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         // We have to do this to satisfy the lambda requirements
         Optional<ConversationsPost> optParent = parent;
 
+        final boolean finalWasDraft = wasDraft;
+
         this.afterCommit(() -> {
 
             ConversationsEvents event = isNew ? ConversationsEvents.POST_CREATED : ConversationsEvents.POST_UPDATED;
             eventTrackingService.post(eventTrackingService.newEvent(event.label, decoratedBean.reference, postBean.siteId, true, NotificationService.NOTI_OPTIONAL));
 
-            if (sendMessage && isNew) {
+            if (sendMessage && (isNew || finalWasDraft) && !postBean.draft) {
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
