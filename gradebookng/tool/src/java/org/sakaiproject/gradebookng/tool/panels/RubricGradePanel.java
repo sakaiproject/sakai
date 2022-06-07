@@ -80,8 +80,8 @@ public class RubricGradePanel extends BasePanel {
         String entityId = assignmentId.toString();
         String evaluatedItemId = assignmentId + "." + studentUuid;
         if (assignment.getExternallyMaintained()) {
-			entityId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
-			evaluatedItemId = businessService.getExternalSubmissionId(assignment.getExternalId(), studentUuid);
+            entityId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
+            evaluatedItemId = businessService.getExternalSubmissionId(assignment.getExternalId(), studentUuid);
         }
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", entityId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", evaluatedItemId));
