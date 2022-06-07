@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -955,7 +956,7 @@ public class GradebookNgBusinessService {
 			String externalAppName = assignment.getExternalAppName();
 			if (assignment.getExternallyMaintained()) {
 				String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignment.getExternalId()).reckon().getId();
-				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, "sakai.assignment.grades") ? rubricsService.hasAssociatedRubric(externalAppName, assignmentId) : false;
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, AssignmentConstants.TOOL_ID) ? rubricsService.hasAssociatedRubric(externalAppName, assignmentId) : false;
 				map.put(assignmentId, hasAssociatedRubric);
 			} else {
 				Long assignmentId = assignment.getId();
@@ -3047,7 +3048,7 @@ public class GradebookNgBusinessService {
 		final String externalAppName = assignment.getExternalAppName();
 		String iconClass;
 		switch (externalAppName) {
-			case "sakai.assignment.grades":
+			case AssignmentConstants.TOOL_ID:
 				iconClass = getAssignmentsIconClass();
 				break;
 			case "sakai.samigo":
@@ -3074,7 +3075,7 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		mapping.put("sakai.assignment.grades", getAssignmentsIconClass());
+		mapping.put(AssignmentConstants.TOOL_ID, getAssignmentsIconClass());
 		mapping.put("sakai.samigo", getSamigoIconClass());
 		mapping.put("sakai.lessonbuildertool", getLessonBuilderIconClass());
 		mapping.put("sakai.attendance", getAttendanceIconClass());
