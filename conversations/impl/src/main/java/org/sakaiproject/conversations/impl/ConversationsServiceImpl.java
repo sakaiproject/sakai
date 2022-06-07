@@ -782,7 +782,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         this.markPostViewed(postBean.topic, post.getId(), currentUserId);
 
         if (!post.getDraft() && !post.getPrivatePost()
-            && securityService.unlock(currentUserId, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
+            && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef)) {
 
             topic.setResolved(true);
             topicRepository.save(topic);
