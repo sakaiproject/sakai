@@ -153,7 +153,7 @@ $(document).ready(function() {
                 <f:subview id="longDesc" rendered="#{!empty forum.attachList || (forum.forum.extendedDescription != '' &&  forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>')}">
 
                 <h:panelGroup>
-                    <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+                    <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                         <a href="#" id="showMessage" class="toggle show">
                             <h:graphicImage url="/images/collapse.gif" alt=""/>
                             <h:outputText value=" #{msgs.cdfm_read_full_description}" />
@@ -161,7 +161,7 @@ $(document).ready(function() {
                             <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty forum.attachList}"/>
                         </a>
                     </h:panelGroup>
-                    <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc  ? '' : 'display-none'}">
+                    <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                         <a href="#" id="hideMessage" class="toggle show">
                             <h:graphicImage url="/images/expand.gif" alt="" />
                             <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
@@ -171,7 +171,7 @@ $(document).ready(function() {
                     </h:panelGroup>
                 </h:panelGroup>
 
-                    <h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription #{ForumTool.alwaysShowFullDesc ? 'display-block' : ''}">
+                    <h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription display-none">
                         <h:outputText escape="false" value="#{forum.forum.extendedDescription}" />
                         <%-- attachs --%>
                         <h:dataTable  styleClass="attachListTable" value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" border="0" cellpadding="3" cellspacing="0">
@@ -310,7 +310,7 @@ $(document).ready(function() {
                             <f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
 
                             <h:panelGroup>
-                                <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+                                <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                                     <a href="#" id="showMessage" class="toggle show">
                                         <h:graphicImage url="/images/collapse.gif" alt=""/>
                                         <h:outputText value=" #{msgs.cdfm_read_full_description}" />
@@ -318,7 +318,7 @@ $(document).ready(function() {
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
                                     </a>
                                 </h:panelGroup>
-                                <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
+                                <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                                     <a href="#" id="hideMessage" class="toggle show">
                                         <h:graphicImage url="/images/expand.gif" alt="" />
                                         <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
@@ -328,7 +328,7 @@ $(document).ready(function() {
                                 </h:panelGroup>
                             </h:panelGroup>
 
-                            <h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription #{ForumTool.alwaysShowFullDesc ? 'display-block' : ''}">
+                            <h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription display-none">
                                 <h:outputText escape="false" value="#{topic.topic.extendedDescription}" />
                                 <%-- attachs --%>
                                 <%--//desNote:attach list --%>
@@ -343,11 +343,8 @@ $(document).ready(function() {
                                 </h:dataTable>
                             </h:panelGroup>
 
-                            <f:subview id="hideLongDescTopic" rendered="#{!ForumTool.alwaysShowFullDesc}">
+                            <f:subview id="hideLongDescTopic">
                                 <f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
-                            </f:subview>
-                            <f:subview id="showLongDescTopic" rendered="#{ForumTool.alwaysShowFullDesc}">
-                                <f:verbatim><div class="toggle"></f:verbatim>
                             </f:subview>
                     <mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"   value="#{topic.topic.extendedDescription}" />
                                 <%--//desNote:attach list --%>
