@@ -1599,7 +1599,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
             log.error("No user for id: {}", postBean.creator);
         }
 
-        String siteRef = "/site/" + siteId;
+        String siteRef = siteService.siteReference(siteId);
 
         postBean.isMine = postBean.creator.equals(currentUserId);
         postBean.formattedCreatedDate = userTimeService.dateTimeFormat(postBean.created, FormatStyle.MEDIUM, FormatStyle.SHORT);
@@ -1619,7 +1619,7 @@ public class ConversationsServiceImpl implements ConversationsService, Observer 
         }
 
         postBean.canView = !postBean.hidden ? true : securityService.unlock(Permissions.MODERATE.label, siteRef);
-        postBean.isInstructor = securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+        postBean.isInstructor = !postBean.anonymous && securityService.unlock(postBean.creator, Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
         postBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (postBean.anonymous && !securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef)) {
