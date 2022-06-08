@@ -1770,7 +1770,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public String processPvtMsgSend() {
           
     log.debug("processPvtMsgSend()");
-    
+    String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+    if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+    	this.schedulerSendDateString = openDateISO8601;
+    }
     if(StringUtils.isEmpty(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
@@ -2403,7 +2406,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   public String processPvtMsgPreviewReplySend(){
-	  
+	  String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+	  if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+		  this.schedulerSendDateString = openDateISO8601;
+	  }
 	  return processPvtMsgReplySentAction(getDetailMsg().getMsg());
   }
   
@@ -2471,7 +2477,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
     } else {
-    
+        String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+        if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+        	this.schedulerSendDateString = openDateISO8601;
+        }
     	//PrivateMessage currentMessage = getDetailMsg().getMsg() ;
     	//by default add user who sent original message    
     	for (MembershipItem membershipItem : totalComposeToList) {
@@ -2640,6 +2649,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
  }
  
  public String processPvtMsgPreviewForwardSend(){	  
+	  String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+	  if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+		  this.schedulerSendDateString = openDateISO8601;
+	  }
 	  processPvtMsgForwardSendHelper(getDetailMsg().getMsg());
 	  return DISPLAY_MESSAGES_PG;
  }
@@ -2677,7 +2690,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
  }
  
  private PrivateMessage getPvtMsgForward(PrivateMessage currentMessage, boolean isDraft){
-
+	 String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+	 if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+		 this.schedulerSendDateString = openDateISO8601;
+	 }
 	 if(!isDraft){
 		 if(getSelectedComposeToList().size()<1 && getSelectedComposeBccList().size() < 1)
 		 {
@@ -2914,7 +2930,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  PrivateMessage currentMessage = getDetailMsg().getMsg() ;
 	  setComposeLists(currentMessage);
 	  String msgauther=currentMessage.getAuthor();//string   "Test"      
-
+	  String openDateISO8601 = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+	  if(booleanSchedulerSend && StringUtils.isNotBlank(openDateISO8601)) {
+		  this.schedulerSendDateString = openDateISO8601;
+	  }
 	  //Select Forward Recipients
 	  
 	  if(StringUtils.isEmpty(getReplyToAllSubject())) {
