@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +30,8 @@ public class Bootstrap implements LifecycleListener {
 
     protected TraditionalComponents components;
 
+    protected SharedApplicationContext context;
+
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
         switch (event.getType()) {
@@ -39,21 +42,27 @@ public class Bootstrap implements LifecycleListener {
 
     protected void start() {
         log.info("Booting Sakai components");
+//        System.setProperty("sakai.modi", "true");
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
+
+        context = GlobalApplicationContext.getContext();
 
         if (componentsRoot != null) {
             System.setProperty(SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsRoot.toString());
             components = new TraditionalComponents(componentsRoot, overridePath);
-            components.start();
+            components.starting(context);
         }
+        context.start();
+//        ComponentManager.getInstance();
     }
 
     protected void stop() {
         log.info("Stopping Sakai components");
         if (components != null) {
-            components.stop();
+            components.stopping();
         }
+        context.stop();
     }
 
     protected Path getComponentsRoot() {

@@ -4,16 +4,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 
 public class TraditionalComponentTest {
@@ -21,8 +21,6 @@ public class TraditionalComponentTest {
 
     @Rule public TemporaryFolder tmpDir = TemporaryFolder.builder().assureDeletion().build();
     @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-
-    @Mock private BeanDefinitionRegistry registry;
 
     @Before
     public void makeComponentRoot() throws IOException {
@@ -47,5 +45,28 @@ public class TraditionalComponentTest {
 
         Exception e = catchException(() -> new TraditionalComponent(componentRoot));
         assertThat(e).hasMessageContaining("does not contain WEB-INF/components.xml");
+    }
+
+    @Test
+    public void givenAComponentDirectory_thenItsNameMatches() throws URISyntaxException, MalformedComponentException {
+        Path hello = fixtureComponentPath("hello-component");
+        TraditionalComponent component = new TraditionalComponent(hello);
+
+        assertThat(component.getName()).isEqualTo("hello-component");
+    }
+
+    @Test
+    public void givenAComponentWithOneBean_whenRegisteringTheComponent_theBeanIsRegistered() throws URISyntaxException, MalformedComponentException {
+        Path hello = fixtureComponentPath("hello-component");
+        TraditionalComponent component = new TraditionalComponent(hello);
+        BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+
+        component.registerBeans(registry);
+
+        assertThat(registry.containsBeanDefinition("hello")).isTrue();
+    }
+
+    private Path fixtureComponentPath(String name) throws URISyntaxException {
+        return Path.of(getClass().getClassLoader().getResource(name).toURI());
     }
 }

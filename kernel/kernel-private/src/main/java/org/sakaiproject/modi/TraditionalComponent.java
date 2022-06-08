@@ -8,10 +8,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +25,7 @@ import java.util.stream.Stream;
  * directory, there is a {@code WEB-INF/} directory, and a Spring {@code components.xml} file inside.
  */
 @Slf4j
-public class TraditionalComponent {
+public class TraditionalComponent implements BeanSource {
     @Getter private final Path path;
     @Getter private final String name;
 
@@ -72,13 +69,14 @@ public class TraditionalComponent {
         }
     }
 
+    @Override
     public void registerBeans(BeanDefinitionRegistry registry) {
         withPackageLoader(loader -> {
             XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
             reader.setBeanClassLoader(loader);
             reader.loadBeanDefinitions(componentBeans());
             if (isDemoMode())
-                demoBeans().stream().forEach(reader::loadBeanDefinitions);
+                demoBeans().ifPresent(reader::loadBeanDefinitions);
         });
     }
 

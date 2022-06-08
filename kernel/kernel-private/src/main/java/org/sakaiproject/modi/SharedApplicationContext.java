@@ -8,6 +8,8 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.AbstractRefreshableApplicationContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -17,8 +19,16 @@ import java.util.stream.Stream;
  * format, rather than requiring XML files in a certain layout.
  */
 public class SharedApplicationContext extends AbstractRefreshableApplicationContext {
+
+    protected final List<BeanSource> sources = new ArrayList<>();
+
+    public void registerBeanSource(BeanSource source) {
+        sources.add(source);
+    }
+
     @Override
     protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+        sources.forEach(source -> source.registerBeans(beanFactory));
     }
 
     @Override

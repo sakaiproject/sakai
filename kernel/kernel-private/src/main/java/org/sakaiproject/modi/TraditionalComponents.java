@@ -39,22 +39,21 @@ public class TraditionalComponents {
     /**
      * Signal that the container has started and components should load.
      */
-    public void start() {
+    public void starting(SharedApplicationContext context) {
         log.info("Starting traditional components in: {}", componentsRoot);
+        components.forEach(context::registerBeanSource);
+
         if (overridePath != null)
             log.info("Will apply overrides from: {}", overridePath);
-        components.forEach(component -> {
-            log.debug("Found component: " + component.getPath());
-            component.registerBeans(null);
-        });
-        System.exit(-1);
+
+        //TODO: load overrides
     }
 
     /**
-     * Signal that the container has stopped and components should shut down. Components are typically stateless,
+     * Signal that the container is stopping and components should shut down. Components are typically stateless,
      * so there is usually very little to do, but this unwinds the application context.
      */
-    public void stop() {
+    public void stopping() {
         log.info("Stopping traditional components in: {}", componentsRoot);
     }
 
