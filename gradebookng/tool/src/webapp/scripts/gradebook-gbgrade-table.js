@@ -2239,6 +2239,11 @@ GbGradeTable.defaultSortCompare = function(a, b) {
     if (parseFloat(a) < parseFloat(b)) {
       return -1;
     }
+    if (isNaN(a) && isNaN(b)) {
+      a = Array.isArray(a) ? a[0] : a;
+      b = Array.isArray(b) ? b[0] : b;
+      return a.localeCompare(b);
+    }
     return 0;
 };
 
@@ -2262,8 +2267,8 @@ GbGradeTable.sort = function(colIndex, direction) {
   }
 
   clone.sort(function(row_a, row_b) {
-    var a = GbGradeTable.localizedStringToNumber(row_a[colIndex]);
-    var b = GbGradeTable.localizedStringToNumber(row_b[colIndex]);
+    var a = isNaN(row_a[colIndex]) ? row_a[colIndex] : GbGradeTable.localizedStringToNumber(row_a[colIndex]);
+    var b = isNaN(row_b[colIndex]) ? row_b[colIndex] : GbGradeTable.localizedStringToNumber(row_b[colIndex]);
 
     return sortCompareFunction(a, b);
   });
