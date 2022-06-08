@@ -6,7 +6,6 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -28,7 +27,7 @@ public class Launcher {
             "org.sakaiproject.component.SakaiPropertyPromoter",
             "org.sakaiproject.log.api.LogConfigurationManager" };
 
-    protected final static String DEFAULT_CONFIGURATION_FILE = "classpath:/org/sakaiproject/config/sakai-configuration.xml";
+    protected final static String DEFAULT_CONFIGURATION_FILE = "org/sakaiproject/config/sakai-configuration.xml";
     protected final static String CONFIGURATION_FILE_NAME = "sakai-configuration.xml";
 
     // take catalina.base as the only param
@@ -38,19 +37,11 @@ public class Launcher {
 
     protected void start() {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
-
 //        System.setProperty("sakai.modi", "true");
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
 
         context = GlobalApplicationContext.getContext();
-
-        try {
-            Resource r = new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
-            Files.readAllLines(Path.of(r.getURI())).forEach(log::info);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         BeanDefinitionSource config = new BeanDefinitionSource() {
             @Override

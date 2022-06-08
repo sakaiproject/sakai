@@ -60,35 +60,4 @@ public class LauncherTest {
 
         assertThatList(List.of(first, second)).allMatch(Objects::nonNull);
     }
-
-    @Test
-    public void classpathresource() throws IOException {
-//        Resource r = new ClassPathResource("classpath:/org/sakaiproject/config/sakai-configuration.xml");
-        //Resource r = new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
-//        ClassLoader classLoader = getClass().getClassLoader();
-//        File file = new File(classLoader.getResource(resourceName).getFile());
-//        String absolutePath = file.getAbsolutePath();
-
-//        assertThat(r.contentLength()).isEqualTo(23);
-    }
-
-    @Test
-    public void classpathresolver() throws IOException {
-        ResourcePatternResolver rpr = new PathMatchingResourcePatternResolver();
-//        Resource r = rpr.getResource("org/sakaiproject/config/sakai-configuration.xml");
-        Resource r = new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
-        Files.readAllLines(Path.of(r.getURI())).forEach(log::info);
-        assertThat(r.getURI().toString()).isEqualTo("junk");
-    }
-
-    @Test
-    public void wtf() {
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-
-        URL[] urls = ((URLClassLoader)cl).getURLs();
-
-        for(URL url: urls) {
-            System.out.println(url.getFile());
-        }
-    }
 }
