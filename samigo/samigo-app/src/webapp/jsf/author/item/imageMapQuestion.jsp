@@ -34,7 +34,6 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <script type="module" src="/webcomponents/forms/sakai-text-input.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
       <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
       <script src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
       <script src="/samigo-app/js/selection.author.js"></script>
@@ -209,13 +208,8 @@
         </div>
         <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
          <div class="col-md-10">
-            <sakai-text-input name="itemForm:imageMapAltText"
-                value='<h:outputText value="#{itemauthor.currentItem.imageMapAltText}" escape="false" />'
-                maxlength="254"
-                error-message='<h:outputText value="#{authorMessages.image_map_alt_length_warning}" escape="false" />'
-                style-class="form-control"
-            ></sakai-text-input>
-        </div>
+             <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control" maxlength="254"/>
+         </div>
     </div>
   
     <!-- 3 ANSWER -->
