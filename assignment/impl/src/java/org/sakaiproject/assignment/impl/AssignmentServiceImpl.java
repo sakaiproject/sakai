@@ -2891,6 +2891,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
     }
 
+    public boolean isGradeOverridden(AssignmentSubmission submission, String submitter) {
+
+        Assignment assignment = submission.getAssignment();
+
+        if (!assignment.getIsGroup()) {
+            return false;
+        }
+
+        Optional<AssignmentSubmissionSubmitter> submissionSubmitter
+            = submission.getSubmitters().stream()
+                .filter(s -> s.getSubmitter().equals(submitter)).findAny();
+
+        return submissionSubmitter.isPresent() && StringUtils.isNotBlank(submissionSubmitter.get().getGrade());
+    }
+
     /**
      * Contains logic to consistently output a String based version of a grade
      * Interprets the grade using the scale for display

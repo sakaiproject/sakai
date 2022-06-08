@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -139,7 +140,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
         when(resourceLoader.getString("gen.nograd")).thenReturn("No Grade");
-        when(resourceLoader.getString("ungra")).thenReturn("Ungraded");
+        when(resourceLoader.getString("ungra")).thenReturn(AssignmentConstants.UNGRADED_GRADE_TYPE_STRING);
         when(resourceLoader.getString("gen.returned")).thenReturn("Returned");
         when(resourceLoader.getString("pass")).thenReturn("Pass");
         when(resourceLoader.getString("fail")).thenReturn("Fail");
@@ -411,6 +412,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             submissionSubmitters.forEach(s -> Assert.assertTrue(submitters.contains(s.getSubmitter())));
             Assert.assertEquals(1, submissionSubmitters.stream().filter(AssignmentSubmissionSubmitter::getSubmittee).collect(Collectors.toList()).size());
             Assert.assertEquals(groupSubmitter, getSubmission.getGroupId());
+
+            getSubmission.setGrade("44");
+            Optional<AssignmentSubmissionSubmitter> optAss = submissionSubmitters.stream().filter(ass -> ass.getSubmitter().equals(submitter1)).findAny();
+            Assert.assertTrue(optAss.isPresent());
+            optAss.get().setGrade("22");
+            assignmentService.updateSubmission(getSubmission);
+            Assert.assertTrue(assignmentService.isGradeOverridden(getSubmission, submitter1));
         } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
         }
