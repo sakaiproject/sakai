@@ -1160,7 +1160,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         tag.setLabel("chicken");
 
         when(securityService.unlock(Permissions.TAG_CREATE.label, siteRef)).thenReturn(true);
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
 
         List<Tag> tags = new ArrayList<>();
         tags.add(tag);
@@ -1207,9 +1206,51 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
             Settings siteSettings = conversationsService.getSettingsForSite(siteId);
             assertFalse(siteSettings.getAllowPinning());
-        } catch (ConversationsPermissionsException cpe) {
-            cpe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             fail("Unexpected exception when creating settings");
+        }
+    }
+
+    @Test
+    public void createAnonymousAllowedTopic() {
+
+        switchToUser1();
+        TopicTransferBean topicBean = createTopic(true);
+        topicBean.allowAnonymousPosts = true;
+        try {
+            topicBean = conversationsService.saveTopic(topicBean, false);
+
+            switchToUser2();
+            PostTransferBean postBean = new PostTransferBean();
+            postBean.topic = topicBean.id;
+            postBean.siteId = siteId;
+            postBean.anonymous = true;
+            postBean.message = "Hello world";
+            postBean = conversationsService.savePost(postBean, true);
+
+            switchToUser1();
+
+            Collection<PostTransferBean> posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(1, posts.size());
+            assertEquals("Anonymous", posts.iterator().next().creatorDisplayName);
+
+            switchToInstructor();
+
+            PostTransferBean postBean2 = new PostTransferBean();
+            postBean2.topic = topicBean.id;
+            postBean2.siteId = siteId;
+            postBean2.anonymous = true;
+            postBean2.message = "Hello world 2";
+            postBean2 = conversationsService.savePost(postBean2, true);
+            switchToUser1();
+            posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
+            assertEquals(2, posts.size());
+            // Instructors who post anonymously should *not* have their posts marked as Instructor
+            assertTrue(posts.stream().filter(p -> p.isInstructor).collect(Collectors.toList()).isEmpty());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Unexpected exception when creating topic");
         }
     }
 
@@ -1218,7 +1259,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         switchToUser1();
         TopicTransferBean topicBean = createTopic(true);
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         try {
             assertThrows(ConversationsPermissionsException.class, () -> conversationsService.pinTopic(topicBean.id, true));
             when(securityService.unlock(Permissions.TOPIC_PIN.label, siteRef)).thenReturn(true);
@@ -1241,7 +1281,6 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         switchToUser1();
         TopicTransferBean topicBean = createTopic(true);
-        when(securityService.unlock(Permissions.TOPIC_UPDATE_OWN.label, siteRef)).thenReturn(true);
         try {
 
             switchToUser2();
