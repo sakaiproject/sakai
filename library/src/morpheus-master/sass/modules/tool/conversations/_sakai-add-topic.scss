@@ -50,7 +50,7 @@
 
   #topic-type-toggle-block  {
     display: grid;
-    grid-template-columns: 186px 186px;
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
 
     sakai-icon {
@@ -90,24 +90,33 @@
   }
 
   .topic-type-toggle {
-    display: inline-flex;
-    height: 60px;
     cursor: pointer;
     font-size: 18px;
     user-select: none;
     background: var(--sakai-background-color-4);
     border: 1px solid var(--sakai-border-color);
     border-radius: 4px;
-    align-items: center;
-    justify-content: center;
-  }
+    padding: 8px;
 
-  .topic-type-toggle div {
-    pointer-events: none;
-    font-weight: bold;
-    font-size: 100%;
-    line-height: 24px;
-    color: var(--sakai-text-color);
+    div {
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      font-weight: 700;
+      font-size: 100%;
+      line-height: 24px;
+      color: var(--sakai-text-color);
+
+      div {
+        display: inline-flex;
+        justify-content: center;
+      }
+    }
+
+    .topic-type-description {
+      font-size: 10px;
+      font-weight: 400;
+    }
   }
 
   #tags {
