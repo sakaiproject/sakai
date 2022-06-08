@@ -156,6 +156,8 @@ public final class AssignmentConstants {
      */
     public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
 
+    public static final String UNGRADED_GRADE_STRING = "ungraded";
+
     /** Grade type not set */
     // public static final int GRADE_TYPE_NOT_SET = -1; change to 0
     /**

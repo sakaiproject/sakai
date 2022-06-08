@@ -23,7 +23,7 @@ module.exports = {
     "block-spacing": "warn",
     "comma-spacing": "warn",
     "dot-notation": "warn",
-    "indent": ["error", 2, { "SwitchCase": 1, "MemberExpression": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
+    "indent": ["error", 2, { "SwitchCase": 1, "MemberExpression": "off", "ImportDeclaration": "off", "ignoredNodes": ["TemplateLiteral > *"] }],
     "keyword-spacing": "error",
     "linebreak-style": ["warn", "unix"],
     "no-array-constructor": "error",
