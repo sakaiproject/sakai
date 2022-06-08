@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.sakaiproject.component.impl.ComponentManagerShim;
 import org.sakaiproject.component.impl.MockCompMgr;
 import org.sakaiproject.component.impl.SpringCompMgr;
+import org.sakaiproject.modi.GlobalApplicationContext;
 
 /**
  * <p>
@@ -109,8 +110,13 @@ public class ComponentManager {
 			// if we do not yet have our component manager instance, create and
 			// init / populate it
 			if (m_componentManager == null) {
-				if ("true".equalsIgnoreCase(System.getProperty("sakai.modi", "false"))) {
-					m_componentManager = new ComponentManagerShim(null);
+				// If we are in modern injection mode, components have already been loaded, so we use
+				// a shim to the global application context.
+				if ("true".equalsIgnoreCase(System.getProperty("sakai.use.modi"))) {
+					ComponentManagerShim shim = new ComponentManagerShim(GlobalApplicationContext.getContext());
+					shim.setWarnOnAllCalls("true".equalsIgnoreCase(System.getProperty("sakai.modi.alwaysWarn")));
+					shim.setThrowOnAllCalls("true".equalsIgnoreCase(System.getProperty("sakai.modi.alwaysThrow")));
+					m_componentManager = shim;
 				} else if (testingMode) {
 			        m_componentManager = new MockCompMgr(false);
 			    } else {

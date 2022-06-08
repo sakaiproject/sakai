@@ -6,6 +6,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -37,13 +38,22 @@ public class Launcher {
 
     protected void start() {
         log.info("Booting Sakai in Modern Dependency Injection Mode");
-//        System.setProperty("sakai.modi", "true");
+        System.setProperty("sakai.use.modi", "true");
         Path componentsRoot = getComponentsRoot();
         Path overridePath = getOverridePath();
 
+        ensureSakaiHome();
+        checkSecurityPath();
+
+        log.info("====================> ASKING FOR THE GAC...");
         context = GlobalApplicationContext.getContext();
 
         BeanDefinitionSource config = new BeanDefinitionSource() {
+            @Override
+            public String getName() {
+                return "Configuration Beans in lambdaaaa";
+            }
+
             @Override
             public void registerBeans(BeanDefinitionRegistry registry) {
                 Resource config = new ClassPathResource(DEFAULT_CONFIGURATION_FILE);
@@ -60,6 +70,10 @@ public class Launcher {
             components.starting(context);
         }
         context.refresh();
+        // These are MAGIC beans.......
+//        context.getBean("org.sakaiproject.component.SakaiPropertyPromoter");
+//        context.getBean("org.sakaiproject.log.api.LogConfigurationManager");
+        context.start();
         log.info("===================================== and we have started");
 //        ComponentManager.getInstance();
     }
@@ -95,6 +109,53 @@ public class Launcher {
             return override;
         } else {
             return null;
+        }
+    }
+
+    private void ensureSakaiHome() {
+        // find a path to sakai files on the app server - if not set, set it
+        String sakaiHomePath = System.getProperty("sakai.home");
+        if (sakaiHomePath == null) {
+            String catalina = catalinaBase.toString();
+            if (catalina != null) {
+                sakaiHomePath = catalina + File.separatorChar + "sakai"
+                        + File.separatorChar;
+            }
+        }
+
+        // strange case...
+        if (sakaiHomePath == null) {
+            // last resort try /tmp/sakai
+            sakaiHomePath = File.separatorChar + "tmp" + File.separatorChar + "sakai" + File.separatorChar;
+        }
+        if (!sakaiHomePath.endsWith(File.separator))
+            sakaiHomePath = sakaiHomePath + File.separatorChar;
+
+        final File sakaiHomeDirectory = new File(sakaiHomePath);
+        if (!sakaiHomeDirectory.exists()) // no sakai.home directory exists,
+        // try to create one
+        {
+            if (sakaiHomeDirectory.mkdir()) {
+                log.debug("Created sakai.home directory at: "
+                        + sakaiHomePath);
+            } else {
+                log.warn("Could not create sakai.home directory at: "
+                        + sakaiHomePath);
+            }
+        }
+
+        // make sure it's set properly
+        System.setProperty("sakai.home", sakaiHomePath);
+    }
+
+    private void checkSecurityPath() {
+        // check for the security home
+        String securityPath = System.getProperty("sakai.security");
+        if (securityPath != null) {
+            // make sure it's properly slashed
+            if (!securityPath.endsWith(File.separator))
+                securityPath = securityPath + File.separatorChar;
+            System.setProperty("sakai.security", securityPath);
         }
     }
 
