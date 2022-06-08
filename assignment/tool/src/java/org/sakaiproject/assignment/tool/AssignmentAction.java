@@ -5680,23 +5680,21 @@ public class AssignmentAction extends PagedResourceActionII {
             case ALL:
                 return assignmentList; 
             case DRAFT:
-                return assignmentList.stream().filter(assignment -> {
-                    return assignment.getDraft();
-                }).collect(Collectors.toList());
+                return assignmentList.stream().filter(assignment -> assignment.getDraft()).collect(Collectors.toList());
             case PUB_ALL:
-                return assignmentList.stream().filter(assignment -> { 
-                    return !assignment.getDraft();
-                }).collect(Collectors.toList());
+                return assignmentList.stream().filter(assignment -> !assignment.getDraft()).collect(Collectors.toList());
             case PUB_ACTIVE:
                 now = Instant.now();
-                return assignmentList.stream().filter(assignment -> { 
-                    return assignment.getCloseDate().isAfter(now);
-                }).collect(Collectors.toList());
+                return assignmentList.stream()
+                           .filter(assignment -> !assignment.getDraft())
+                           .filter(assignment -> assignment.getCloseDate().isAfter(now))
+                       .collect(Collectors.toList());
             case PUB_INACTIVE:
                 now = Instant.now();
-                return assignmentList.stream().filter(assignment -> { 
-                    return assignment.getCloseDate().isBefore(now);
-                }).collect(Collectors.toList());
+                return assignmentList.stream()
+                           .filter(assignment -> !assignment.getDraft())
+                           .filter(assignment -> assignment.getCloseDate().isBefore(now))
+                       .collect(Collectors.toList());
             default: 
                 return Collections.EMPTY_LIST;
         }
